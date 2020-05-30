@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #div1 {
+            height: 100%;
+            min-height: 900px;
+            width: 100%;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Sine</title>
+    <script>
+        function repeat(limit, increment, fn) {
+            var data = {
+                x : [],
+                y : []
+            };
+            var n = 0;
+            for (var i = 0; i <= limit; i = i + increment) {
+                data.x.push(i);
+                data.y.push(fn(i, n++));
+            }
+            return data;
+        }
+
+        /**
+         * Add up selected angles from [90, 45, 22.5, 11.25, ...] so that the sum approaches Theta * 180
+         * Merge the corresponding triangles in the unit circle of the angles above, thus melding the opposite edges (sines).
+         * The melded opposite edges is the sine of Theta
+         *
+         * @param x The angle to calculate sine for
+         * @param n
+         * @returns {number}
+         */
+        function getSimpleSine(x, n) {
+            //pythagoras: calculate the other straight edge on the unit circle
+            var e = (e2) => Math.sqrt(1 - e2 * e2);
+            //pythagoras: calculate hypoteneuse
+            var h = (a, o) => Math.sqrt(o * o + a * a);
+            // meld two sine values by sin(a) * cos(b) + sin(b) * cos(a)
+            var addSine = (a, b) => a/1 * e(b) + b/1 * e(a);
+            // pythagoras: calculate the distance between two coordinates as the hypotenuse of the distances between x's and y's respectively
+            var distance = (c1, c2) => h(c1.x - c2.x, c1.y - c2.y);
+
+            // compare answer with Math.sin
+            var test = (sineX, x) => {
+                var variance = (Math.round((sineX - Math.sin(x * Math.PI)) * Math.pow(10, 10)) / Math.pow(10, 10));
+                if (variance > 0.0000000001) {
+                    console.log(`variance: ${variance}, angle = ${targetAngle}, sine: ${sineX}, Math.sin: ${Math.sin(x * Math.PI)}`);
+                }
+            };
+
+            var thisAngle = 90; // we start with the first element in [90, 45, 22.5, 11.25, ...] and halve it with each iteration
+            var thisSine = 1; // the sine of 90 = 1, which we'll use in this iteration
+            var targetAngle = 180 * x; // the angle we're going to calculate sine for, scaled over 180 degrees
+            var summedAngle = 0; // all the applicable angles in [90, 45, 22.5, 11.25...], those that have been added up towards the targetAngle
+            var sineX = 0; // the sine of x will go in here
+            var precisionFactor = 100; // don't get weird
+            // while the sum of the angles is less than the target angle and limited by the precision factor
+            while(summedAngle < targetAngle && precisionFactor-- > 0) {
+                // if adding the currently considered fraction of 90 (CCF90) won't go above the target angle
+                if (summedAngle + thisAngle <= targetAngle) {
+                    summedAngle += thisAngle; // add the CCF90 to the summed angle towards the target
+                    sineX = addSine(sineX, thisSine); // meld the sine of the CCF90 into the answer
+                }
+                thisAngle = thisAngle / 2; // prepare half the angle for the next iteration
+                thisSine = distance({x: e(thisSine), y: thisSine}, {x: 1, y: 0})/2; // prepare half the sine for the next iteration
+            }
+            // test the accuracy of the result
+            test(sineX, x);
+            return sineX; // the answer within the precision factor
+        }
+
+        /**
+         *
+         * @returns {{x: Array, y: Array}}
+         */
+        function simpleSine() {
+            // calculate sine for each multiple of 0.005 up to 1
+            return repeat(0.5, 0.005, getSimpleSine);
+        }
+
+    </script>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+<div id="div1"></div>
+
+<script>
+
+    var series0 = simpleSine();
+
+    var trace0 = {
+        x: series0.x,
+        y: series0.y,
+        type: 'scatter'
+    };
+
+    var data = [trace0];
+
+    var layout1 = {
+        yaxis: {rangemode: 'tozero',
+            showline: true,
+            zeroline: true}
+    };
+
+    Plotly.newPlot('div1', data, layout1);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,270 @@
+<html>
+	<head>
+		<script>
+
+			var G = 0;	//green
+			var Be = 2;	//black, even
+			var Bo = 1; //black odd
+			var Re = 4; //red even
+			var Ro = 3; //red odd
+			
+			var numbers2 = [
+			 G, 
+			 Be, Re, Bo, Ro, Be, Re, 
+			 Bo, Ro, Be, Re, Bo, Ro, 
+			 Be, Re, Bo, Ro, Be, Re, 
+			 Bo, Ro, Be, Re, Bo, Ro, 
+			 Be, Re, Bo, Ro, Be, Re, 
+			 Bo, Ro, Be, Re, Bo, Ro
+			];
+		
+			var iteration = 0;
+			var numbers = [
+			0,0,0,0,0,			0,0,0,0,1,
+			0,0,0,1,0,			0,0,0,1,1,
+			0,0,1,0,0,			0,0,1,0,1,
+			0,0,1,1,0,			0,0,1,1,1,
+			0,1,0,0,0,
+			
+			0,1,0,0,1,			0,1,0,1,0,
+			0,1,0,1,1,			0,1,1,0,0,
+			0,1,1,0,1,			0,1,1,1,0,
+			0,1,1,1,1,			1,0,0,0,0,
+			
+			1,0,0,0,1,			1,0,0,1,0,
+			1,0,0,1,1,			1,0,1,0,0,
+			1,0,1,0,1,			1,0,1,1,0,
+			1,0,1,1,1,			1,1,0,0,0,
+
+			1,1,0,0,1,			1,1,0,1,0,
+			1,1,0,1,1,			1,1,1,0,0,
+			1,1,1,0,1,			1,1,1,1,0,
+			1,1,1,1,1,			
+			];
+			
+			var right = 0;
+			
+			function getRight(down) {
+				if (down % 2 == 0) {
+					right = (right == 0) ? 1 : 0;
+				}
+				return right;
+			}
+			
+			var numberHistory = [0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0]; 
+			var BROEHistory = [0,0,0,0,0];
+			
+			function getNumber() {
+				var itN = Math.floor(Math.random() * numbers.length);
+				numberHistory[itN]++;
+				
+				if (iteration >= numbers.length) {
+					iteration = 0;
+				}
+				// return numbers[iteration++];
+				var x = numbers[itN];
+				
+				// console.log(x);
+				return numbers[itN];
+			}
+				
+			function getBRNumber() {
+				var itN = Math.floor(Math.random() * numbers2.length);
+				numberHistory[itN]++;
+				var x = numbers2[itN];
+				BROEHistory[x]++;
+				return x;
+			}
+				
+			function run(startingBalance, startingB, startingPerc, startingFoldAt, completedIterations, factor, maxB) {
+				iteration = 0;
+				var start = startingBalance;
+				
+				var down = 0;
+				
+				var b = startingB;
+				var foldAt = startingFoldAt;
+				
+				var completed = 0;
+				var n = 0;
+				
+				var maxStart = start;
+				
+				var odd = 0;
+				var even = 0;
+				while (completed < completedIterations && start > 0) {
+					var x = getNumber();
+					if (x === getRight(down)) {
+						odd++;
+						down--;
+						start = start + b;
+					} else {
+						even++;
+						down++;
+						start = start - b;
+					}
+					if (start <= 0) {
+						console.error('nope');
+					}
+					if (down === foldAt) {
+						b = b*factor;
+						down = down / factor;
+						foldAt = foldAt * factor;
+						// console.log('folding --------------- b : ' + b + ' down:' + down);
+					} else if (down === -1) {
+						completed++;
+						down = 0;
+						// b = Math.floor(start * startingPerc); 
+						b = startingB;
+						if (b > maxB) {
+							b = maxB;
+						}
+						foldAt = startingFoldAt;
+						// console.log('completed --------------- b : ' + b + ' down:' + down);
+					}
+					if (start > maxStart) {
+						maxStart = start;
+					}
+					// console.log('b:' + b + ' odd:' + odd + ' even:' + even + ' start:' + start + ' completed:' + completed + ' maxStart:' + maxStart + ' down:' + down);
+				}
+				console.log(
+					'b:' + b + 
+					' true:' + odd + 
+					' false:' + even + 
+					' start:' + start + 
+					' start%:' + (100 * start / startingBalance) + 
+					' completed:' + completed + 
+					' maxStart:' + maxStart + 
+					' down:' + down
+				);
+				return {
+					b,
+					odd,
+					even,
+					start,
+					completed,
+					maxStart,
+					down
+				}
+			}
+			
+			var BR = 0;
+			var EO = 1;
+			
+			var OPTION_B = 0;
+			var OPTION_O = 1;
+			var OPTION_R = 2;
+			var OPTION_E = 3;
+			
+			var placement = BR;
+			var option = OPTION_B;
+			
+			function flipPlacement() {
+				option = (option == 3) ? 0 : option + 1;
+			}
+			
+			function checkValue() {
+				var x = getBRNumber();
+				var response = false;
+				if (option === OPTION_B && (x === Be || x === Bo)) {
+					response = true;
+				} else if (option === OPTION_R && (x === Re || x === Ro)) {
+					response = true;
+				} else if (option === OPTION_O && (x === Bo || x === Ro)) {
+					response = true;
+				} else if (option === OPTION_E && (x === Be || x === Re)) {
+					response = true;
+				}
+				return response;
+			}
+			
+			function test(doPrint, maxLosingStreak) {
+				var down = 0;
+				var downAr = [];
+				var folded = 0;
+				var maxFolded = 0;
+				var superMaxFolded = 0;
+				
+				var balance = 10000;
+				var bet = 10;
+				
+				var foldAt = 4;
+				
+				var i = 0;
+				
+				var losingStreak = 0;
+				
+				while (i < 10) {
+					if (checkValue()) {
+						down--;
+						losingStreak = 0;
+						balance = balance + bet;
+						if (doPrint) {
+							document.write('down : ' + down + ' bet:' + bet + ' balance:' + balance + ' i:' + i + ' folded:' + folded + ' option:' + option + '<br>');
+						}
+						if (down == -1) {
+							if (doPrint) {
+								document.write('------------------------------------<br>');
+							}
+							i++;
+							down = 0;
+							folded = 0;
+							maxFolded = 0;
+							bet = 10;
+							foldAt = 2;
+						}
+					} else {
+						down++;
+						losingStreak++;
+						balance = balance - bet;
+						if (doPrint) {
+							document.write('down : ' + down + ' bet:' + bet + ' balance:' + balance + ' i:' + i + ' folded:' + folded + ' option:' + option + '<br>');
+						}
+						if (down === 3) {
+							bet = bet * 3;
+							down = down / 3;
+							folded++;
+						}
+					}
+
+					if (bet > balance || folded === 7) {
+						if (doPrint) {
+							document.write('=============================busted');
+						}
+						i = 10000;
+						break;
+					}
+
+					if (folded > maxFolded) {
+						maxFolded = folded;
+					}
+					if (maxFolded > superMaxFolded) {
+						superMaxFolded = maxFolded;
+					}
+					// document.write(maxFolded + '<br>');
+					// downAr[i] = down;
+				}
+				if (doPrint) {
+					document.write('balance : ' + balance + '<br>');
+					document.write('number History : ' + numberHistory + '<br>');
+					document.write('BROEHistory : ' + BROEHistory + '<br>');
+					document.write('superMaxFolded : ' + superMaxFolded + '<br>');
+				}
+				// console.log(downAr);
+				return balance;
+			}
+			
+			var total = 0;
+			for (var n = 0; n < 100; n++) {
+				var result = test(false, n);
+				document.write(result + '<br>');
+				total = total + (result - 10000);
+			}
+			document.write('total : ' + total );
+			//run(10000, 10, 0.001, 2, 2000, 2);
+			// run(10000, 10, 0.001, 2, 2000, 2);
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
