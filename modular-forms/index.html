@@ -1,0 +1,122 @@
+<html>
+<title>Helix</title>
+<head>
+<!--    https://stackoverflow.com/questions/50992863/creating-a-helix-following-a-curve-->
+    <style href="main.css"></style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/93/three.js"></script>
+</head>
+<body>
+<script>
+    // prepare the renderer
+
+    let WIDTH;
+    let HEIGHT;
+    let aspectRatio = function() {
+        return WIDTH / HEIGHT
+    };
+
+    const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+    });
+    document.body.appendChild(renderer.domElement);
+
+    const camera = new THREE.PerspectiveCamera(32, aspectRatio(), 1, 1000);
+    camera.position.set(0, 0, 50);
+
+    function resize() {
+        WIDTH = window.innerWidth;
+        HEIGHT = window.innerHeight;
+        renderer.setSize(WIDTH, HEIGHT);
+        camera.aspect = aspectRatio();
+        camera.updateProjectionMatrix();
+    }
+    resize();
+
+    window.addEventListener("resize", resize);
+
+    const scene = new THREE.Scene();
+
+    const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
+    light.position.set(0, 0, 1);
+    camera.add(light);
+
+    scene.add(camera);
+
+    // populate the scene
+
+    let group = new THREE.Group();
+    group.scale.set(5, 5, 5);
+    scene.add(group);
+
+    let curvePoints = [];
+    let rad = Math.PI / 4;
+    for (let i = -10; i <= 10; ++i) {
+        curvePoints.push(new THREE.Vector3(i / 5, Math.sin(rad * i), Math.cos(rad * i)))
+    }
+    let curve = new THREE.CatmullRomCurve3(curvePoints);
+
+    let geoPoints = curve.getPoints(500);
+
+    let geo = new THREE.BufferGeometry().setFromPoints(geoPoints);
+    let mat = new THREE.LineBasicMaterial({
+        color: "yellow"
+    });
+    let mesh = new THREE.Line(geo, mat);
+    group.add(mesh);
+
+    let dir = new THREE.Vector3();
+    let up = new THREE.Vector3(0, 1, 0);
+    let temp = new THREE.Vector3();
+    let amount = 0.5;
+    let innerHelixPoints = [];
+    geoPoints.forEach(function(point, index, arr) {
+        if (index > 0) {
+            dir.subVectors(point, arr[index - 1]);
+            dir.normalize();
+            temp.crossVectors(dir, up);
+            temp.applyAxisAngle(dir, amount * index);
+            temp.setLength(0.25);
+            temp.add(arr[index - 1]);
+            innerHelixPoints.push(temp.clone());
+        }
+    });
+
+    geo = new THREE.BufferGeometry().setFromPoints(innerHelixPoints);
+    mat = new THREE.LineBasicMaterial({
+        color: "blue"
+    });
+    mesh = new THREE.Line(geo, mat);
+    group.add(mesh);
+
+    /* let geo = new THREE.BoxBufferGeometry(10, 10, 10)
+    let mat = new THREE.MeshLambertMaterial({
+        color: "red"
+    })
+    let mesh = new THREE.Mesh(geo, mat)
+    scene.add(mesh) */
+
+    function updateObjects() {
+        group.rotation.x += 0.001;
+        group.rotation.y += 0.002;
+    }
+
+    // rendering functions
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    let animationLoopId = null;
+
+    function animationLoop() {
+        animationLoopId = requestAnimationFrame(animationLoop);
+        updateObjects();
+        render();
+    }
+
+    animationLoop()
+</script>
+
+</body>
+</html>
