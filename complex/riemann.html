@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #div1 {
+            height: 100%;
+            min-height: 900px;
+            width: 100%;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Riemann Zeta</title>
+    <script src="lib/math.min.js"></script>
+    <script src="plotutils.js"></script>
+    <script>
+        /**
+         * non trivial zeros 0.5 + Z[n]i
+         */
+        const Z = [
+            14.134725142,
+            21.022039639,
+            25.010857580,
+            30.424876126,
+            32.935061588,
+            37.586178159,
+            40.918719012,
+            43.327073281,
+            48.005150881,
+            49.773832478,
+            52.970321478,
+            56.446247697,
+            59.347044003,
+            60.831778525,
+            65.112544048,
+            67.079810529,
+            69.546401711,
+            72.067157674,
+            75.704690699,
+            77.144840069,
+            79.337375020,
+            82.910380854,
+            84.735492981,
+            87.425274613,
+            88.809111208,
+            92.491899271,
+            94.651344041,
+            95.870634228,
+            98.831194218,
+            101.317851006,
+            103.725538040,
+            105.446623052,
+            107.168611184,
+            111.029535543,
+            111.874659177,
+            114.320220915,
+            116.226680321,
+            118.790782866,
+            121.370125002,
+            122.946829294
+        ];
+
+        function riemannZSteps(a, b, k=100) {
+            var sumRe = 0, sumIm = 0;
+            var stepValue = 0;
+            var step = '';
+            var n = 1;
+            while(n <= k) {
+                step = `1/(${n}^(${a} + ${b}i))`;
+                stepValue = math.evaluate(step);
+                sumRe += stepValue.re;
+                sumIm += stepValue.im;
+                n = n + 1;
+            }
+            console.log('convergence', `${a} + ${b}i => ${sumRe} + ${sumIm}i`);
+            return { re: sumRe, im: sumIm };
+        }
+
+        function plotConverge(a, b1, b2, k) {
+            var plot = {x: [], y: []};
+            var b = b1;
+            var convergence = 0;
+            while(b <= b2) {
+                convergence = riemannZSteps(a, b, k);
+                // converge = zetaContinuation(a, b);
+                plot.x.push(convergence.re);
+                plot.y.push(convergence.im);
+                b = b + 0.01;
+            }
+            return plot;
+        }
+
+        function makeConvergenceGraph(a1, a2, b1, b2, k) {
+            var series1 = [];
+            var a = a1;
+            while (a <= a2) {
+                series1.push(plotConverge(a, b1, b2, k));
+                a = a + 0.01;
+            }
+            return series1;
+        }
+
+        function riemannZeta(a, b, k) {
+            var n = 1;
+            var sumRe = 0, sumIm = 0;
+            var plot = {x: [], y: []};
+            var list = [];
+            var stepValue = 0;
+            var step = '';
+            while(n++ < k) {
+                step = `1/(${n}^(${a} + ${b}i))`;
+                stepValue = math.evaluate(step);
+                sumRe += stepValue.re;
+                sumIm += stepValue.im;
+                plot.x.push(sumRe);
+                plot.y.push(sumIm);
+                list.push({ step: step, x1Re: stepValue.re, x1Im: stepValue.im, x: sumRe, y: sumIm });
+            }
+            console.log('list', list);
+            return plot;
+        }
+
+        function makeGraph(a, k) {
+            var series1 = [];
+
+            var n = 0;
+            while(n < 1) {
+                series1.push(riemannZeta(a, n, k));
+                n = n + 0.1;
+            }
+            return series1;
+        }
+
+    </script>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+<div id="div1"></div>
+
+<script>
+    // console.log('zeta', zetaContinuation(0.5, Z[0]));
+
+    var series1 = makeConvergenceGraph(0.5, 0.6, 10, 20, 100);
+
+    var layout1 = getLayout('tozero', 'markers');
+
+    Plotly.newPlot('div1', series1, layout1);
+
+</script>
+
+</body>
+</html>
