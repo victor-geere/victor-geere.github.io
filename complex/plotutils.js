@@ -54,13 +54,17 @@ function repeatReImN(maxX, limit, increment, fnx, fny) {
  * @returns {{yaxis: {zeroline: boolean, showline: boolean, rangemode: string}}}
  */
 function getLayout(rangemode='tozero', mode='markers', showline=true, zeroline=true) {
+    // 'line': {'shape': 'spline', 'smoothing': 1.3}
+    const config = {
+        rangemode: rangemode,
+        mode: mode,
+        showline: showline,
+        zeroline: zeroline
+    };
+
     return {
-        yaxis: {
-            rangemode: rangemode,
-            mode: mode,
-            showline: showline,
-            zeroline: zeroline
-        }
+        yaxis: config,
+        xaxis: config
     };
 }
 
