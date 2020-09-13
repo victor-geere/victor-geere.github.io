@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #div1 {
+            height: 100%;
+            min-height: 900px;
+            width: 100%;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>Riemann Zeta</title>
+    <script src="lib/math.min.js"></script>
+    <script src="plotutils.js"></script>
+    <script>
+        const Z = [
+            14.134725142,
+            21.022039639,
+            25.010857580,
+            30.424876126,
+            32.935061588,
+            37.586178159,
+            40.918719012,
+            43.327073281,
+            48.005150881,
+            49.773832478,
+            52.970321478,
+            56.446247697,
+            59.347044003,
+            60.831778525,
+            65.112544048,
+            67.079810529,
+            69.546401711,
+            72.067157674,
+            75.704690699,
+            77.144840069,
+            79.337375020,
+            82.910380854,
+            84.735492981,
+            87.425274613,
+            88.809111208,
+            92.491899271,
+            94.651344041,
+            95.870634228,
+            98.831194218,
+            101.317851006,
+            103.725538040,
+            105.446623052,
+            107.168611184,
+            111.029535543,
+            111.874659177,
+            114.320220915,
+            116.226680321,
+            118.790782866,
+            121.370125002,
+            122.946829294
+        ];
+
+        function addPoint(plot, x, y) {
+            plot.x.push(x);
+            plot.y.push(y);
+        }
+
+        function round(r) {
+            return Math.round(r*10000)/10000;
+        }
+
+        function calcEta(a, b) {
+            let f = '-';
+            let fx = '';
+            let sumRe = 0;
+            let sumIm = 0;
+            let k = 1;
+            let s1;
+            for (let n = 1; n < 50; n++) {
+                f = k % 2 === 1? '+': '-';
+                fx = `${f}1/(${k}^((${a} + ${b}i)))`;
+                // console.log('fx', fx);
+                s1 = math.evaluate(fx);
+                sumRe += s1.re;
+                sumIm += s1.im;
+                k++;
+            }
+            return {x: sumRe, y: sumIm};
+        }
+
+        function smoothPlotEta(a, b) {
+            var plot = {x: [], y: []};
+            let fx1 = '';
+            let fx2 = '';
+            let sumRe = 0;
+            let sumIm = 0;
+            let k = 1;
+            let s1, s2;
+            for (let n = 1; n < 100; n++) {
+                fx1 = `+1/(${k}^((${a} + ${b}i)))`;
+                fx2 = `-1/(${k+1}^((${a} + ${b}i)))`;
+                console.log('fx1', fx1);
+                console.log('fx2', fx2);
+                s1 = math.evaluate(fx1);
+                s2 = math.evaluate(fx2);
+                sumRe = sumRe + s1.re + s2.re;
+                sumIm = sumIm + s1.im + s2.im;
+                addPoint(plot, sumRe, sumIm);
+                k = k + 2;
+            }
+            return plot;
+        }
+
+        function plotEta(a, b) {
+            var plot = {x: [], y: []};
+            let f = '-';
+            let fx = '';
+            let sumRe = 0;
+            let sumIm = 0;
+            let k = 1;
+            let s1;
+            for (let n = 1; n < 100; n++) {
+                f = k % 2 === 1? '+': '-';
+                fx = `${f}1/(${k}^((${a} + ${b}i)))`;
+                console.log('fx', fx);
+                s1 = math.evaluate(fx);
+                sumRe += s1.re;
+                sumIm += s1.im;
+                addPoint(plot, sumRe, sumIm);
+                k++;
+            }
+            return plot;
+        }
+
+    </script>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+<div id="div1"></div>
+
+<script>
+    // console.log('zeta', zetaContinuation(0.5, Z[0]));
+    // var series1 = makeConvergenceGraph(0.5, 0.6, 10, 20, 100);
+    // var series1 = plotFunction2(1);
+
+    /**
+     * plot eta convergence nautilus
+     */
+    function plotEtaConvergence() {
+        var data = [];
+        data.push(plotEta(0.5, Z[1]));
+        data.push(plotEta(0.5, Z[2]));
+        data.push(plotEta(0.5, Z[3]));
+        data.push(plotEta(0.5, Z[4]));
+        data.push(plotEta(0.5, Z[5]));
+        data.push(plotEta(0.5, Z[6]));
+
+        // var layout1 = getLayout('tozero', 'markers');
+        var layout1 = getLayout('tozero', 'lines');
+
+        Plotly.newPlot('div1', data, layout1);
+    }
+
+    /**
+     * plot eta convergence nautilus
+     */
+    function smoothPlotEtaConvergence() {
+        var data = [];
+        data.push(smoothPlotEta(0.5, Z[1]));
+        data.push(smoothPlotEta(0.5, Z[2]));
+        data.push(smoothPlotEta(0.5, Z[3]));
+        data.push(smoothPlotEta(0.5, Z[4]));
+        data.push(smoothPlotEta(0.5, Z[5]));
+        data.push(smoothPlotEta(0.5, Z[6]));
+
+        // var layout1 = getLayout('tozero', 'markers');
+        var layout1 = getLayout('tozero', 'lines');
+
+        Plotly.newPlot('div1', data, layout1);
+    }
+
+    /**
+     *
+     * @param realPart
+     * @param z1 the nTh Zeta zero
+     * @param z2 the nTh Zeta zero
+     * @returns {{x: [], name: string, y: []}}
+     */
+    function loopEtasIm(realPart=0.5, z1=0, z2=1) {
+        var plot = {x: [], y: [], name: `Real part: ${realPart}`};
+        var n = Z[z1];
+        var xy;
+        while (n <= Z[z2]) {
+            xy = calcEta(realPart, n);
+            addPoint(plot, xy.x, xy.y);
+            // addPoint(plot, math.sin(xy.x), math.cos(xy.y));
+            // addPoint(plot, n, xy.x * xy.x); // plot x and y on a straigt line
+            // addPoint(plot2, n, xy.y * xy.y); // plot x and y on a straigt line
+            n = n + (Z[z2] - Z[z1])/100;
+        }
+        return plot;
+    }
+
+    function loopEtasRe(imPart=2) {
+        var data = [];
+        var plot = {x: [], y: []};
+        var plot2 = {x: [], y: []};
+        var n = 0;
+        var xy;
+        while (n <= 10) {
+            xy = calcEta(n, imPart);
+            addPoint(plot, xy.x, xy.y);
+            // addPoint(plot, math.sin(xy.x), math.cos(xy.y));
+            // addPoint(plot, n, xy.x * xy.x); // plot x and y on a straigt line
+            // addPoint(plot2, n, xy.y * xy.y); // plot x and y on a straigt line
+            n = n + 0.05;
+        }
+        data.push(plot);
+        // data.push(plot2);
+
+        // var layout1 = getLayout('tozero', 'markers');
+        var layout1 = getLayout('tozero', 'lines');
+
+        var myPlot = document.getElementById('div1');
+        Plotly.newPlot('div1', data, layout1);
+
+        myPlot.on('plotly_click', function (data) {
+            console.log('data', data);
+            Plotly.restyle('div1', {}, []);
+        });
+    }
+
+    function plotLoops() {
+        var data = [];
+        data.push(loopEtasIm(-10));
+        data.push(loopEtasIm(-1));
+        data.push(loopEtasIm(0));
+        data.push(loopEtasIm(0.5));
+        data.push(loopEtasIm(1));
+        data.push(loopEtasIm(10));
+
+        var layout1 = getLayout('tozero', 'lines');
+        layout1.title = "Eta Function with Imaginary part (14...100) and Real part [-10, -1, 0, 0.5, 1, 10]";
+        Plotly.newPlot('div1', data, layout1);
+    }
+    // plotLoops();
+    // loopEtasRe();
+    // plotEtaConvergence();
+
+    function test() {
+        var data = [];
+        var k = 1;
+        var s;
+        var a = 0.5;
+        var b = Z[0];
+        while(k < 20) {
+            var plot = {x: [], y: [], type: 'scatter'};
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
+            addPoint(plot, s.re, s.im);
+            k = k + 2;
+            data.push(plot);
+        }
+        var layout1 = {};
+        layout1.title = "";
+        Plotly.newPlot('div1', data, layout1);
+    }
+    //test();
+
+    function zoom() {
+        var min = 0.45 * Math.random();
+        var max = 0.55 + 0.45 * Math.random();
+        Plotly.animate('myDiv', {
+            layout: {
+                xaxis: {range: [min, max]},
+                yaxis: {range: [min, max]}
+            }
+        }, {
+            transition: {
+                duration: 500,
+                easing: 'cubic-in-out'
+            }
+        })
+    }
+
+    function animateZoom() {
+        var plot = {x: [], y: [], mode: 'markers'};
+        var n = 500;
+        for (var i = 0; i < n; i++) {
+            plot.x.push(i / (n - 1));
+            plot.y.push(i / (n - 1) + 0.2 * (Math.random() - 0.5));
+        }
+
+        Plotly.newPlot('div1', [plot], {
+            xaxis: {range: [0, 1]},
+            yaxis: {range: [0, 1]}
+        });
+    }
+
+    let input = 0;
+    function randomize() {
+        input = input + 0.1;
+        var plot = loopEtasIm(input, 0, 2);
+        plot.type = 'scatter';
+
+        Plotly.animate('div1', {
+            data: [plot],
+            traces: [0],
+            layout: {}
+        }, {
+            transition: {
+                duration: 500,
+                easing: 'linear'
+            },
+            frame: {
+                duration: 500
+            }
+        })
+    }
+
+    function makeAniPlot() {
+        var plot = loopEtasIm(input, 0, 2);
+        plot.type = 'scatter';
+        Plotly.newPlot('div1', [plot]);
+    }
+
+    function reset() {
+        input = 0;
+    }
+
+    makeAniPlot();
+
+</script>
+
+<button onclick="randomize()">Zoom</button>
+<button onclick="reset()">Reset</button>
+
+</body>
+</html>
