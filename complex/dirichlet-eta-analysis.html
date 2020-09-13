@@ -132,56 +132,158 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
+<button onclick="sines()">Sines</button>
+<button onclick="spiral()">Spiral</button>
+<button onclick="nradius()">Radius</button>
+<button onclick="difference()">Difference</button>
 
+re: <input type="text" id="paramRe" value="0.5">
+Zn: <input type="text" id="paramIm" value="14.134725142">
 <div id="div1"></div>
 
 <script>
-    function test() {
+    function newPlot(name="", r=55, g=128, b=191) {
+        return {
+            x: [], y: [], type: 'scatter', mode: 'lines+markers',
+            line: {
+            color: `rgb(${r}, ${g}, ${b})`,
+                width: 2
+            },
+            name: name
+        };
+    }
+
+    function sines() {
         var data = [];
-        var k = 1;
+        var k = 20;
         var s;
-        var a = 0.5;
-        var b = Z[0];
-        var plotRe = {
-            x: [], y: [], type: 'scatter', mode: 'lines+markers',
-            line: {
-                color: 'rgb(55, 128, 191)',
-                width: 2
-            }
-        };
+        var p = document.getElementById('paramRe').value * 1;
+        var a = p ? p : 0.5;
+        var pi = document.getElementById('paramIm').value * 1;
+        var b = pi ? pi : Z[1];
+        var plotRe = newPlot(50, 100, 200);
+        var plotIm = newPlot(200, 100, 50);
 
-        var plotIm = {
-            x: [], y: [], type: 'scatter', mode: 'lines+markers',
-            line: {
-                color: 'rgb(191, 128, 55)',
-                width: 2
-            }
-        };
-
-        var plotOut = {
-            x: [], y: [], type: 'scatter', mode: 'lines+markers',
-            line: {
-                color: 'rgb(191, 55, 128)',
-                width: 2
-            }
-        };
-
-        while(k < 1000) {
-            s = math.evaluate(`(${k}^(${a} + ${b}i))`);
+        while(k < 150) {
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
             console.log(`${k} : ${s.re}`);
             // addPoint(plot, s.re, s.im);
             addPoint(plotRe, k, s.re);
             addPoint(plotIm, k, s.im);
-            addPoint(plotOut, s.re, s.im);
             k = k + 1;
         }
         data.push(plotRe);
         data.push(plotIm);
+        var layout1 = { title : "" };
+        Plotly.newPlot('div1', data, layout1);
+    }
+
+    function spiral() {
+        var data = [];
+        var k = 20;
+        var s;
+        var p = document.getElementById('paramRe').value * 1;
+        var a = p ? p : 0.5;
+        var pi = document.getElementById('paramIm').value * 1;
+        var b = pi ? pi : Z[1];
+        var plotOut = newPlot(100, 200, 50);
+
+        while(k < 150) {
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
+            console.log(`${k} : ${s.re}`);
+            // addPoint(plot, s.re, s.im);
+            addPoint(plotOut, s.re, s.im);
+            k = k + 1;
+        }
         data.push(plotOut);
         var layout1 = { title : "" };
         Plotly.newPlot('div1', data, layout1);
     }
-    test();
+
+    function nradius() {
+        var data = [];
+        var k = 1;
+        var s;
+        var pr = document.getElementById('paramRe').value * 1;
+        var a = pr ? pr : 0.5;
+        var pi = document.getElementById('paramIm').value * 1;
+        var b = pi ? pi : Z[1];
+        var plotOut = newPlot(100, 200, 50);
+        var fx = '';
+
+        while(k < 200) {
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
+            fx = `asin(sqrt(${s.re * s.re} + ${s.im * s.im}))*180/pi`;
+            console.log(`${fx}  : ${k} : ${s.re} + ${s.im}i`);
+            addPoint(plotOut, k, math.evaluate(fx));
+            k = k + 1;
+        }
+        data.push(plotOut);
+        var layout1 = { title : "" };
+        Plotly.newPlot('div1', data, layout1);
+    }
+
+    function togo(k, a, b) {
+        var s;
+        var sum = {re: 0, im: 0};
+        var sign;
+        while(k < 200) {
+            k = k + 1;
+            sign = (k % 2 === 1? 1 : -1);
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
+            sum.re = sum.re + (sign*s.re);
+            sum.im = sum.im + (sign*s.im);
+        }
+        return sum;
+    }
+
+    /**
+     * difference between what's been added and what should still be added
+     */
+    function difference() {
+        var data = [];
+        var k = 1;
+        var s;
+        var pr = document.getElementById('paramRe').value * 1;
+        var a = pr ? pr : 0.5;
+        var pi = document.getElementById('paramIm').value * 1;
+        var b = pi ? pi : Z[1];
+        var plotDone = newPlot("Done", 100, 200, 50);
+        var plotToGo = newPlot("ToGo", 100, 50, 200);
+        var fxDone = '';
+        var fxToGo = '';
+        var sum = { re: 0, im: 0 };
+        var yetToGo;
+        console.clear();
+        var sign;
+        while(k < 200) {
+            sign = (k % 2 === 1? 1 : -1);
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
+            // fx = `asin(sqrt(${s.re * s.re} + ${s.im * s.im}))*180/pi`;
+            // console.log(`${fx}  : ${k} : ${s.re} + ${s.im}i`);
+            sum.re = sum.re + (sign*s.re);
+            sum.im = sum.im + (sign*s.im);
+
+            yetToGo = togo(k, a, b);
+
+            // fxDone = `asin(sqrt(${sum.re * sum.re} + ${sum.im * sum.im}))*180/pi`;
+            // math.evaluate(fxDone);
+            // fxToGo = `asin(sqrt(${yetToGo.re * yetToGo.re} + ${yetToGo.im * yetToGo.im}))*180/pi`;
+            // math.evaluate(fxToGo);
+
+            console.log('',);
+
+            addPoint(plotDone, k, sum.re);
+            addPoint(plotToGo, k, yetToGo.re);
+            k = k + 1;
+        }
+        data.push(plotDone);
+        data.push(plotToGo);
+        var layout1 = { title : "Done vs To Go" };
+        Plotly.newPlot('div1', data, layout1);
+    }
+
+    spiral();
 
      //1/1 + 1/(1*2) + (1*2)/(1*2*3) + (1*2*3)/(1*2*3*4) + (1*2*3*4)/(1*2*3*4*5) + (1*2*3*4*5)/(1*2*3*4*5*6) +
 
