@@ -1,0 +1,280 @@
+<html>
+<title>Helix</title>
+<head>
+<!--    https://stackoverflow.com/questions/50992863/creating-a-helix-following-a-curve-->
+    <style href="main.css"></style>
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/93/three.js"></script>-->
+    <script src="lib/math.min.js"></script>
+</head>
+<body>
+<script type="module">
+    import * as THREE from './node_modules/three/build/three.module.js';
+
+    import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
+    // import { ConvexBufferGeometry } from './node_modules/three/examples/jsm/geometries/ConvexGeometry.js';
+
+    const Z = [
+        14.134725142,
+        21.022039639,
+        25.010857580,
+        30.424876126,
+        32.935061588,
+        37.586178159,
+        40.918719012,
+        43.327073281,
+        48.005150881,
+        49.773832478,
+        52.970321478,
+        56.446247697,
+        59.347044003,
+        60.831778525,
+        65.112544048,
+        67.079810529,
+        69.546401711,
+        72.067157674,
+        75.704690699,
+        77.144840069,
+        79.337375020,
+        82.910380854,
+        84.735492981,
+        87.425274613,
+        88.809111208,
+        92.491899271,
+        94.651344041,
+        95.870634228,
+        98.831194218,
+        101.317851006,
+        103.725538040,
+        105.446623052,
+        107.168611184,
+        111.029535543,
+        111.874659177,
+        114.320220915,
+        116.226680321,
+        118.790782866,
+        121.370125002,
+        122.946829294
+    ];
+    function resize() {
+        WIDTH = window.innerWidth;
+        HEIGHT = window.innerHeight;
+        renderer.setSize(WIDTH, HEIGHT);
+        camera.aspect = aspectRatio();
+        camera.updateProjectionMatrix();
+    }
+
+    function norm(r) {
+        return r * 2;
+    }
+
+    function getPointsSpiral(a, b) {
+        let curvePointsObj = { even: [], odd: [], sum:[] };
+        var k = 1;
+        var s;
+        // var a = 0.5;
+        // var b = 50; // Z[0];
+        var vector, vectorSum;
+        var angle = 0;
+        var radius2 = 0;
+        var z = 0;
+        var cos = 0;
+        var sign = (k % 2 === 1)? 1 : -1;
+        var sumRe = 0;
+        var sumIm = 0;
+        var pn = 0;
+
+        while(k < 400) {
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
+            radius2 = (s.re * s.re + s.im * s.im);
+            angle = math.evaluate(`asin(sqrt(${radius2}))*180/pi`);
+            cos = math.evaluate(`cos(${angle} * pi / 180)`);
+            // console.log(`angle ${angle} : cos ${cos}`);
+            z += 2 / k;
+
+            sumRe += (sign * s.re);
+            sumIm += (sign * s.im);
+
+            if (k > 20) {
+                vector = new THREE.Vector3(norm(z / 10), norm(sign * s.re), norm(sign * s.im));
+                vectorSum = new THREE.Vector3(norm(z / 10), norm(sumRe), norm(sumIm));
+                curvePointsObj.sum.push(vectorSum);
+
+                if (k % 2 === 1) {
+                    curvePointsObj.odd.push(vector);
+                } else if (k % 2 === 0) {
+                    curvePointsObj.even.push(vector);
+                }
+            }
+            k = k + 1;
+            sign = (k % 2 === 1)? 1 : -1;
+        }
+        return curvePointsObj;
+    }
+
+    /**
+     * just an example helix
+     *
+     * @returns {[]}
+     */
+    function getPoints() {
+        let curvePoints = [];
+        let rad = Math.PI / 4;
+        for (let i = -10; i <= 10; ++i) {
+            curvePoints.push(new THREE.Vector3(i / 5, Math.sin(rad * i), Math.cos(rad * i)));
+        }
+        return curvePoints;
+    }
+
+    // prepare the renderer
+
+    let WIDTH;
+    let HEIGHT;
+    let aspectRatio = function() {
+        return WIDTH / HEIGHT
+    };
+
+    const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+    });
+    document.body.appendChild(renderer.domElement);
+
+    const camera = new THREE.PerspectiveCamera(32, aspectRatio(), 1, 1000);
+    camera.position.set(0, 0, 50);
+
+    resize();
+
+    window.addEventListener("resize", resize);
+
+    const scene = new THREE.Scene();
+
+    // helper
+    scene.add( new THREE.AxesHelper( 20 ) );
+
+    const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
+    light.position.set(0, 0, 0);
+    camera.add(light);
+    scene.add(camera);
+
+    // controls
+    var controls = new OrbitControls( camera, renderer.domElement );
+    controls.minDistance = 20;
+    controls.maxDistance = 50;
+    controls.maxPolarAngle = Math.PI / 2;
+
+    // populate the scene
+
+    let group = new THREE.Group();
+    group.scale.set(5, 5, 5);
+    scene.add(group);
+
+    function addSpiral(curvePoints, group, color) {
+        let curve = new THREE.CatmullRomCurve3(curvePoints);
+        let geoPoints = curve.getPoints(500);
+        let geo = new THREE.BufferGeometry().setFromPoints(geoPoints);
+        let mat = new THREE.LineBasicMaterial({
+            color: color
+        });
+        let mesh = new THREE.Line(geo, mat);
+        group.add(mesh);
+    }
+
+    function makeSpiral(group, a, b, colors) {
+        let curvePoints = getPointsSpiral(a, b);
+        addSpiral(curvePoints.even, group, colors[0]);
+        addSpiral(curvePoints.odd, group, colors[1]);
+        // addSpiral(curvePoints.sum, group, false, colors[2]);
+        return curvePoints.sum[curvePoints.sum.length-1];
+    }
+
+    const colorsA = [
+        "#10f080",
+        "#20e080",
+        "#30d080",
+        "#40c080",
+        "#50b080",
+        "#60a080",
+        "#709080",
+        "#808080",
+        "#907080",
+        "#a06080",
+        "#b05080",
+        "#c04080",
+        "#d03080",
+        "#e02080",
+        "#f01080",
+        "#e01070",
+        "#d01060",
+        "#c01050",
+        "#b01040",
+        "#a01030",
+        "#901020",
+        "#801010",
+        "#701020",
+        "#601030",
+        "#501040",
+        "#401050",
+        "#301060",
+        "#201070",
+        "#101080",
+        "#101090",
+    ];
+
+    function loopRealPart() {
+        let a = 0.325;
+        var colorIx = 5;
+        var sums = [];
+        var sumVector;
+        while (a < 6) {
+            sumVector = makeSpiral(group, a, Z[0], [colorsA[colorIx], colorsA[colorIx], colorsA[colorIx]]);
+            sums.push(sumVector);
+            a = a + 0.025;
+            colorIx++;
+        }
+        // draw a line that connects the convergence points of the above graphs
+        addSpiral(sums, group, "blue");
+    }
+    loopRealPart();
+
+    function loopImaginaryPart() {
+        let a = 0.5;
+        let b = 10;
+        var colorIx = 0;
+        var sums = [];
+        var sumVector;
+        while (b < 15) {
+            sumVector = makeSpiral(group, a, b, [colorsA[colorIx*2], colorsA[colorIx*2], colorsA[colorIx*2]]);
+            sums.push(sumVector);
+            b++;
+            colorIx++;
+        }
+    }
+    // loopImaginaryPart();
+
+    /**
+     * animate objects per frame
+     */
+    function updateObjects() {
+        // group.rotation.x += 0.001;
+        // group.rotation.y += 0.002;
+    }
+
+    // rendering functions
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    let animationLoopId = null;
+
+    function animationLoop() {
+        animationLoopId = requestAnimationFrame(animationLoop);
+        updateObjects();
+        render();
+    }
+
+    animationLoop()
+</script>
+
+</body>
+</html>
