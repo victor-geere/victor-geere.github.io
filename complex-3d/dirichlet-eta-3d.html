@@ -79,7 +79,7 @@
 
         while(k < 1000) {
             s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
-            vector = new THREE.Vector3(norm(z / 10), norm(s.re), norm(s.im));
+            vector = new THREE.Vector3(norm(s.re), norm(s.im), norm(z / 10));
 
             z += 1 / k;
 
@@ -92,7 +92,7 @@
                 sumIm = sumIm - s.im;
                 curvePointsObj.even.push(vector);
             }
-            vectorSum = new THREE.Vector3(norm(z / 10), sumRe, sumIm);
+            vectorSum = new THREE.Vector3(sumRe, sumIm, norm(z / 10));
             curvePointsObj.sum.push(vectorSum);
             k = k + 1;
         }
@@ -128,8 +128,8 @@
             sumIm += (sign * s.im);
 
             if (k > 20) {
-                vector = new THREE.Vector3(norm(z / 10), norm(sign * s.re), norm(sign * s.im));
-                vectorSum = new THREE.Vector3(norm(z / 10), norm(sumRe), norm(sumIm));
+                vector = new THREE.Vector3(norm(sign * s.re), norm(sign * s.im), norm(z / 10));
+                vectorSum = new THREE.Vector3(norm(sumRe), norm(sumIm), norm(z / 10));
                 curvePointsObj.sum.push(vectorSum);
 
                 if (k % 2 === 1) {
@@ -153,7 +153,7 @@
         let curvePoints = [];
         let rad = Math.PI / 4;
         for (let i = -10; i <= 10; ++i) {
-            curvePoints.push(new THREE.Vector3(i / 5, Math.sin(rad * i), Math.cos(rad * i)));
+            curvePoints.push(new THREE.Vector3(Math.sin(rad * i), Math.cos(rad * i), i / 5));
         }
         return curvePoints;
     }
@@ -205,7 +205,7 @@
         const obj = {};
         obj.curvePoints = curvePoints;
         obj.curve = new THREE.CatmullRomCurve3(obj.curvePoints);
-        obj.geoPoints = obj.curve.getPoints((obj.curvePoints.length-1) * parameters["Smoothing Factor"]);
+        obj.geoPoints = obj.curve.getPoints(obj.curvePoints.length-1);
         obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
         return obj;
     }
@@ -402,23 +402,37 @@
         }
     }
 
+    function recalc() {
+        const plotPoints = plotPath.length;
+        const points = addSpiral(plotPath, getMaterial(20)).geoPoints;
+        let n = 0;
+        const sortedPoints = points.map((point) => {
+            return { x: point.x, y: point.y, z: ((plotPoints - n++)*5 / plotPoints) + 1.5 };
+        });
+        spiralObjects.convergence.geo.setFromPoints(sortedPoints);
+    }
+
     let loopImSign = 1;
     let plotPath = [];
     let plotHasStarted = false;
     let plotHasEnded = false;
     let plotPathDrawn = false;
     function doLoopIm() {
-        // adsgf;lkjasdflkasdjf;lasdfjas
-        if (plotPath.length < 1000 && convergence.im && convergence.re) {
-            plotPath.push(new THREE.Vector3(0, convergence.re, convergence.im));
+        const totalPoints = 250;
+        plotPath.push(new THREE.Vector3(convergence.re, convergence.im, plotPath.length / totalPoints));
+        const allowedLength = 49 - Math.abs(50 - parameters['Imaginary Part']);
+        const tooLong = plotPath.length - (allowedLength * allowedLength);
+        if (tooLong > 10) {
+            plotPath.splice(0, tooLong - 10);
         }
+
         if (plotPathDrawn) {
             spiralObjects.convergence.geo.dispose();
-            spiralObjects.convergence.geo.setFromPoints(addSpiral(plotPath, getMaterial(20)).geoPoints);
+            recalc();
         } else {
-            if(plotPath.length > 10) {
-                console.log('plotPath', plotPath);
+            if(plotPath.length > 2) {
                 spiralObjects.convergence = addSpiral(plotPath, getMaterial(20));
+                recalc();
                 group.add(spiralObjects.convergence.mesh);
                 plotPathDrawn = true;
             }
@@ -454,28 +468,24 @@
             doLoopRe();
         });
         controllers.ctrlLoopIm = gui.add(parameters, 'Loop Im', false, true).onFinishChange(() => {
-            controllers.ctrlIm.setValue(99);
             doLoopIm();
         });
-        controllers.ctrlLoopImSpeed = gui.add(parameters, 'Loop Im Speed', 1, 20).onFinishChange(() => {
+        controllers.ctrlLoopImSpeed = gui.add(parameters, 'Loop Im Speed', 0, 40).onFinishChange(() => {
         });
-        controllers.ctrlScale = gui.add(parameters, 'Scale', 1, 10, 1).onFinishChange(() => {
+        controllers.ctrlScale = gui.add(parameters, 'Scale', 0, 10, 0.1).onChange(() => {
             group.scale.set(parameters['Scale'], parameters['Scale'], parameters['Scale']);
             hasChanged = true;
         });
-        controllers.ctrlRe = gui.add(parameters, 'Real Part', 0.0, 1.0).onFinishChange(() => {
+        controllers.ctrlRe = gui.add(parameters, 'Real Part', 0.0, 1.0).onChange(() => {
             hasChanged = true;
         });
-        controllers.ctrlIm = gui.add(parameters, 'Imaginary Part', 0.000, 99.9999).onFinishChange(() => {
+        controllers.ctrlIm = gui.add(parameters, 'Imaginary Part', 0.000, 199.9999, 0.0001).onChange(() => {
             hasChanged = true;
         });
-        controllers.ctrlZero = gui.add(parameters, 'Riemann Zero #', 0, Z.length, 1).onFinishChange(() => {
+        controllers.ctrlZero = gui.add(parameters, 'Riemann Zero #', 0, 28, 1).onFinishChange(() => {
             controllers.ctrlRe.setValue(0.5);
-            console.log('parameters[\'Riemann Zero #\']', parameters['Riemann Zero #']);
+            console.log('parameters[\'Riemann Z Zero #\']', parameters['Riemann Zero #']);
             controllers.ctrlIm.setValue(Z[parameters['Riemann Zero #']]);
-            hasChanged = true;
-        });
-        controllers.ctrlSmoothing = gui.add(parameters, 'Smoothing Factor', 1, 5).onFinishChange(() => {
             hasChanged = true;
         });
         controllers.ctrlDrawSum = gui.add(parameters, 'Draw Sum', false, true).onFinishChange(() => {
@@ -495,11 +505,10 @@
     };
 
     const parameters = {
-        'Scale': 5,
+        'Scale': 1,
         'Real Part': 0.5,
         'Imaginary Part': Z[0],
         'Riemann Zero #': 0,
-        'Smoothing Factor': 1,
         'Draw Even': true,
         'Draw Odd': true,
         'Draw Sum': true,
