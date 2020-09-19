@@ -5,6 +5,7 @@
     <style href="main.css"></style>
 <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/93/three.js"></script>-->
     <script src="lib/math.min.js"></script>
+    <script src="node_modules/dat.gui/build/dat.gui.min.js"></script>
 </head>
 <body>
 <script type="module">
@@ -65,6 +66,40 @@
 
     function norm(r) {
         return r * 2;
+    }
+
+    function getSmoothPointsSpiral(a, b) {
+        let curvePointsObj = { even: [], odd: [], sum:[] };
+        var k = 1;
+        var s;
+        var vector, vectorSum;
+        var z = 0;
+        var sumRe = 0;
+        var sumIm = 0;
+
+        while(k < 1000) {
+            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
+            vector = new THREE.Vector3(norm(z / 10), norm(s.re), norm(s.im));
+
+            z += 1 / k;
+
+            if (k % 2 === 1) {
+                sumRe = sumRe + s.re;
+                sumIm = sumIm + s.im;
+                curvePointsObj.odd.push(vector);
+            } else if (k % 2 === 0) {
+                sumRe = sumRe - s.re;
+                sumIm = sumIm - s.im;
+                curvePointsObj.even.push(vector);
+            }
+            vectorSum = new THREE.Vector3(norm(z / 10), sumRe, sumIm);
+            curvePointsObj.sum.push(vectorSum);
+            k = k + 1;
+        }
+        convergence.im = sumIm;
+        convergence.re = sumRe;
+        convergence.z = norm(z/10);
+        return curvePointsObj;
     }
 
     function getPointsSpiral(a, b) {
@@ -147,7 +182,7 @@
     const scene = new THREE.Scene();
 
     // helper
-    scene.add( new THREE.AxesHelper( 20 ) );
+    scene.add( new THREE.AxesHelper( 40 ) );
 
     const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
     light.position.set(0, 0, 0);
@@ -166,23 +201,47 @@
     group.scale.set(5, 5, 5);
     scene.add(group);
 
-    function addSpiral(curvePoints, group, color) {
-        let curve = new THREE.CatmullRomCurve3(curvePoints);
-        let geoPoints = curve.getPoints(500);
-        let geo = new THREE.BufferGeometry().setFromPoints(geoPoints);
-        let mat = new THREE.LineBasicMaterial({
-            color: color
-        });
-        let mesh = new THREE.Line(geo, mat);
-        group.add(mesh);
+    function getSpiral(curvePoints) {
+        const obj = {};
+        obj.curvePoints = curvePoints;
+        obj.curve = new THREE.CatmullRomCurve3(obj.curvePoints);
+        obj.geoPoints = obj.curve.getPoints((obj.curvePoints.length-1) * parameters["Smoothing Factor"]);
+        obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
+        return obj;
     }
 
-    function makeSpiral(group, a, b, colors) {
-        let curvePoints = getPointsSpiral(a, b);
-        addSpiral(curvePoints.even, group, colors[0]);
-        addSpiral(curvePoints.odd, group, colors[1]);
-        // addSpiral(curvePoints.sum, group, false, colors[2]);
-        return curvePoints.sum[curvePoints.sum.length-1];
+    let errorCount = 0;
+    function addSpiral(curvePoints, material) {
+        if (material) {
+            const obj = getSpiral(curvePoints);
+            obj.mat = material;
+            obj.mesh = new THREE.Line(obj.geo, obj.mat);
+            return obj;
+        } else {
+            if (errorCount++ < 2) {
+                console.log('color undefined', {curvePoints, group, color});
+            }
+        }
+        return null;
+    }
+
+    function getMaterial(colorN) {
+        return new THREE.LineBasicMaterial({
+            color: colorsA[colorN]
+        })
+    }
+
+    function makeSpiral(a, b, materials = null) {
+        if (!materials) {
+            materials = [getMaterial(0), getMaterial(10), getMaterial(29)];
+        }
+        let curvePoints = getSmoothPointsSpiral(a, b);
+        let spiralObjs = { odd: {}, even: {}, sum: {}, convergence: {} };
+        spiralObjs.even = addSpiral(curvePoints.even, materials[0]);
+        spiralObjs.odd = addSpiral(curvePoints.odd, materials[1]);
+        spiralObjs.sum = addSpiral(curvePoints.sum, materials[2]);
+        console.log('spiralObjs', spiralObjs);
+        return spiralObjs;
     }
 
     const colorsA = [
@@ -218,21 +277,43 @@
         "#101090",
     ];
 
-    function loopRealPart() {
+    function addSpiralObjsToGroup(spiralObjs) {
+        group.add(spiralObjs.even.mesh);
+        group.add(spiralObjs.odd.mesh);
+        if (!sumDrawn && parameters['Draw Sum']) {
+            sumDrawn = true;
+            group.add(spiralObjs.sum.mesh);
+        }
+    }
+
+    function drawOneSpiral() {
+        let a = parameters["Real Part"];
+        let b = parameters["Imaginary Part"];
+        let spiralObjs = makeSpiral(a, b);
+        addSpiralObjsToGroup(spiralObjs);
+        return spiralObjs;
+    }
+
+    function loopRealPart(group) {
         let a = 0.325;
-        var colorIx = 5;
-        var sums = [];
-        var sumVector;
-        while (a < 6) {
-            sumVector = makeSpiral(group, a, Z[0], [colorsA[colorIx], colorsA[colorIx], colorsA[colorIx]]);
-            sums.push(sumVector);
+        let colorIx = 0;
+        let sums = [];
+        let sumVector;
+        let spirals = 0;
+        let material = null;
+        while (colorIx < colorsA.length) {
+            material = getMaterial(colorIx);
+            let spiralObjs = makeSpiral(a, Z[0], [material, material, material]);
+            addSpiralObjsToGroup(spiralObjs, group);
+            sums.push(spiralObjs.sum.curvePoints[spiralObjs.sum.curvePoints.length-1]);
             a = a + 0.025;
             colorIx++;
+            spirals++;
         }
+        console.log('checking: ', { spirals, colorIx, nColors: colorsA.length } );
         // draw a line that connects the convergence points of the above graphs
-        addSpiral(sums, group, "blue");
+        group.add(addSpiral(sums, getMaterial(30)).mesh);
     }
-    loopRealPart();
 
     function loopImaginaryPart() {
         let a = 0.5;
@@ -253,8 +334,38 @@
      * animate objects per frame
      */
     function updateObjects() {
-        // group.rotation.x += 0.001;
-        // group.rotation.y += 0.002;
+        if (hasChanged) {
+            let a = parameters['Real Part'];
+            let b = parameters['Imaginary Part'];
+            let curvePoints = getSmoothPointsSpiral(a, b);
+
+            let spiralObjsTarget = {
+                even: getSpiral(curvePoints.even),
+                odd: getSpiral(curvePoints.odd),
+                sum: getSpiral(curvePoints.sum)
+            };
+            spiralObjects.even.geo.dispose();
+            spiralObjects.even.geo.setFromPoints(spiralObjsTarget.even.geoPoints);
+            spiralObjects.odd.geo.dispose();
+            spiralObjects.odd.geo.setFromPoints(spiralObjsTarget.odd.geoPoints);
+            if (parameters['Draw Sum']) {
+                if(!sumDrawn) {
+                    group.add(spiralObjsTarget.sum.mesh);
+                }
+                spiralObjects.sum.geo.setFromPoints(spiralObjsTarget.sum.geoPoints);
+            } else {
+                spiralObjects.sum.geo.setFromPoints([]);
+            }
+
+            renderer.render( scene, camera );
+            if(parameters['Loop Re']) {
+                doLoopRe();
+            } else if (parameters['Loop Im']) {
+                doLoopIm();
+            } else {
+                hasChanged = false;
+            }
+        }
     }
 
     // rendering functions
@@ -271,6 +382,139 @@
         render();
     }
 
+    let loopReSign = 1;
+    function doLoopRe() {
+        if(parameters['Loop Re']) {
+            parameters['Real Part'] = parameters['Real Part'] + (loopReSign * 0.0125);
+            if (parameters['Real Part'] <= 0) {
+                loopReSign = 1;
+                parameters['Real Part'] = 0;
+            } else if (parameters['Real Part'] >= 1) {
+                loopReSign = -1;
+                parameters['Real Part'] = 1;
+            }
+            hasChanged = true;
+            if ((parameters['Real Part'] * 10) % 1 === 0) {
+                controllers.ctrlRe.setValue(parameters['Real Part']);
+            }
+        } else {
+            hasChanged = false;
+        }
+    }
+
+    let loopImSign = 1;
+    let plotPath = [];
+    let plotHasStarted = false;
+    let plotHasEnded = false;
+    let plotPathDrawn = false;
+    function doLoopIm() {
+        // adsgf;lkjasdflkasdjf;lasdfjas
+        if (plotPath.length < 100) {
+            plotPath.push(new THREE.Vector3(0, convergence.re, convergence.im));
+        }
+        if (plotPathDrawn) {
+            spiralObjects.convergence.geo.dispose();
+            spiralObjects.convergence.geo.setFromPoints(addSpiral(plotPath, getMaterial(20)).geoPoints);
+        } else {
+            spiralObjects.convergence = addSpiral(plotPath, getMaterial(20));
+            group.add(spiralObjects.convergence.mesh);
+            plotPathDrawn = true;
+        }
+        if(parameters['Loop Im']) {
+            parameters['Imaginary Part'] = parameters['Imaginary Part'] + (loopImSign * (0.005 * parameters['Loop Im Speed']));
+            if (parameters['Imaginary Part'] <= 0) {
+                loopImSign = 1;
+                parameters['Imaginary Part'] = 0;
+                plotHasStarted = true;
+                console.log('plot has started');
+            } else if (parameters['Imaginary Part'] >= 100) {
+                loopImSign = -1;
+                parameters['Imaginary Part'] = 100;
+                if (plotHasStarted) {
+                    plotHasEnded = true;
+                    console.log('plot has ended');
+                }
+            }
+            hasChanged = true;
+            if ((parameters['Imaginary Part'] * 10) % 1 === 0) {
+                controllers.ctrlIm.setValue(parameters['Imaginary Part']);
+            }
+        } else {
+            plotPath = [];
+            hasChanged = false;
+        }
+    }
+
+    function popGui(parameters) {
+        const gui = new dat.GUI({ name: 'My GUI', load: parameters, autoPlace: true, hideable: true, closed: false, closeOnTop: true });
+        controllers.ctrlLoopRe = gui.add(parameters, 'Loop Re', false, true).onFinishChange(() => {
+            doLoopRe();
+        });
+        controllers.ctrlLoopIm = gui.add(parameters, 'Loop Im', false, true).onFinishChange(() => {
+            controllers.ctrlIm.setValue(99);
+            doLoopIm();
+        });
+        controllers.ctrlLoopImSpeed = gui.add(parameters, 'Loop Im Speed', 1, 20).onFinishChange(() => {
+        });
+        controllers.ctrlScale = gui.add(parameters, 'Scale', 1, 10, 1).onFinishChange(() => {
+            group.scale.set(parameters['Scale'], parameters['Scale'], parameters['Scale']);
+            hasChanged = true;
+        });
+        controllers.ctrlRe = gui.add(parameters, 'Real Part', 0.0, 1.0).onFinishChange(() => {
+            hasChanged = true;
+        });
+        controllers.ctrlIm = gui.add(parameters, 'Imaginary Part', 0.000, 99.9999).onFinishChange(() => {
+            hasChanged = true;
+        });
+        controllers.ctrlZero = gui.add(parameters, 'Riemann Zero #', 0, Z.length, 1).onFinishChange(() => {
+            controllers.ctrlRe.setValue(0.5);
+            console.log('parameters[\'Riemann Zero #\']', parameters['Riemann Zero #']);
+            controllers.ctrlIm.setValue(Z[parameters['Riemann Zero #']]);
+            hasChanged = true;
+        });
+        controllers.ctrlSmoothing = gui.add(parameters, 'Smoothing Factor', 1, 5).onFinishChange(() => {
+            hasChanged = true;
+        });
+        controllers.ctrlDrawSum = gui.add(parameters, 'Draw Sum', false, true).onFinishChange(() => {
+            hasChanged = true;
+        });
+    }
+
+    const controllers = {
+        ctrlLoopRe: null,
+        ctrlLoopIm: null,
+        ctrlScale: null,
+        ctrlRe: null,
+        ctrlIm: null,
+        ctrlZero: null,
+        ctrlSmoothing: null,
+        ctrlDrawSum: null,
+    };
+
+    const parameters = {
+        'Scale': 5,
+        'Real Part': 0.5,
+        'Imaginary Part': Z[0],
+        'Riemann Zero #': 0,
+        'Smoothing Factor': 1,
+        'Draw Even': true,
+        'Draw Odd': true,
+        'Draw Sum': true,
+        'Loop Re': false,
+        'Loop Im': false,
+        'Loop Im Speed': 20,
+    };
+    let hasChanged = false;
+    let sumDrawn = false;
+    let convergence = {
+        z: 0,
+        re: 0,
+        im: 0
+    };
+
+    // loopRealPart(group);
+    let spiralObjects = drawOneSpiral(group);
+    popGui(parameters);
     animationLoop()
 </script>
 
