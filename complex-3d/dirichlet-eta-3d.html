@@ -3,16 +3,13 @@
 <head>
 <!--    https://stackoverflow.com/questions/50992863/creating-a-helix-following-a-curve-->
     <style href="main.css"></style>
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/93/three.js"></script>-->
     <script src="lib/math.min.js"></script>
-    <script src="node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
 </head>
 <body>
 <script type="module">
-    import * as THREE from './node_modules/three/build/three.module.js';
-
-    import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
-    // import { ConvexBufferGeometry } from './node_modules/three/examples/jsm/geometries/ConvexGeometry.js';
+    import * as THREE from './lib/three.module.js';
+    import { OrbitControls } from './lib/OrbitControls.js';
 
     const Z = [
         14.134725142,
@@ -77,7 +74,7 @@
         var sumRe = 0;
         var sumIm = 0;
 
-        while(k < 1000) {
+        while(k < 2000) {
             s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
             vector = new THREE.Vector3(norm(s.re), norm(s.im), norm(z / 10));
 
@@ -100,62 +97,6 @@
         convergence.re = sumRe;
         convergence.z = norm(z/10);
         return curvePointsObj;
-    }
-
-    function getPointsSpiral(a, b) {
-        let curvePointsObj = { even: [], odd: [], sum:[] };
-        var k = 1;
-        var s;
-        var vector, vectorSum;
-        var angle = 0;
-        var radius2 = 0;
-        var z = 0;
-        var cos = 0;
-        var sign = (k % 2 === 1)? 1 : -1;
-        var sumRe = 0;
-        var sumIm = 0;
-        var pn = 0;
-
-        while(k < 400) {
-            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
-            radius2 = (s.re * s.re + s.im * s.im);
-            angle = math.evaluate(`asin(sqrt(${radius2}))*180/pi`);
-            cos = math.evaluate(`cos(${angle} * pi / 180)`);
-            // console.log(`angle ${angle} : cos ${cos}`);
-            z += 2 / k;
-
-            sumRe += (sign * s.re);
-            sumIm += (sign * s.im);
-
-            if (k > 20) {
-                vector = new THREE.Vector3(norm(sign * s.re), norm(sign * s.im), norm(z / 10));
-                vectorSum = new THREE.Vector3(norm(sumRe), norm(sumIm), norm(z / 10));
-                curvePointsObj.sum.push(vectorSum);
-
-                if (k % 2 === 1) {
-                    curvePointsObj.odd.push(vector);
-                } else if (k % 2 === 0) {
-                    curvePointsObj.even.push(vector);
-                }
-            }
-            k = k + 1;
-            sign = (k % 2 === 1)? 1 : -1;
-        }
-        return curvePointsObj;
-    }
-
-    /**
-     * just an example helix
-     *
-     * @returns {[]}
-     */
-    function getPoints() {
-        let curvePoints = [];
-        let rad = Math.PI / 4;
-        for (let i = -10; i <= 10; ++i) {
-            curvePoints.push(new THREE.Vector3(Math.sin(rad * i), Math.cos(rad * i), i / 5));
-        }
-        return curvePoints;
     }
 
     // prepare the renderer
@@ -181,7 +122,7 @@
 
     const scene = new THREE.Scene();
 
-    // helper
+    // xyz thingy
     scene.add( new THREE.AxesHelper( 40 ) );
 
     const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
@@ -198,7 +139,7 @@
     // populate the scene
 
     let group = new THREE.Group();
-    group.scale.set(5, 5, 5);
+    group.scale.set(3, 3, 3);
     scene.add(group);
 
     function getSpiral(curvePoints) {
@@ -294,42 +235,6 @@
         return spiralObjs;
     }
 
-    function loopRealPart(group) {
-        let a = 0.325;
-        let colorIx = 0;
-        let sums = [];
-        let sumVector;
-        let spirals = 0;
-        let material = null;
-        while (colorIx < colorsA.length) {
-            material = getMaterial(colorIx);
-            let spiralObjs = makeSpiral(a, Z[0], [material, material, material]);
-            addSpiralObjsToGroup(spiralObjs, group);
-            sums.push(spiralObjs.sum.curvePoints[spiralObjs.sum.curvePoints.length-1]);
-            a = a + 0.025;
-            colorIx++;
-            spirals++;
-        }
-        console.log('checking: ', { spirals, colorIx, nColors: colorsA.length } );
-        // draw a line that connects the convergence points of the above graphs
-        group.add(addSpiral(sums, getMaterial(30)).mesh);
-    }
-
-    function loopImaginaryPart() {
-        let a = 0.5;
-        let b = 10;
-        var colorIx = 0;
-        var sums = [];
-        var sumVector;
-        while (b < 15) {
-            sumVector = makeSpiral(group, a, b, [colorsA[colorIx*2], colorsA[colorIx*2], colorsA[colorIx*2]]);
-            sums.push(sumVector);
-            b++;
-            colorIx++;
-        }
-    }
-    // loopImaginaryPart();
-
     /**
      * animate objects per frame
      */
@@ -368,8 +273,6 @@
         }
     }
 
-    // rendering functions
-
     function render() {
         renderer.render(scene, camera);
     }
@@ -407,7 +310,7 @@
         const points = addSpiral(plotPath, getMaterial(20)).geoPoints;
         let n = 0;
         const sortedPoints = points.map((point) => {
-            return { x: point.x, y: point.y, z: ((plotPoints - n++)*5 / plotPoints) + 1.5 };
+            return { x: point.x, y: point.y, z: ((plotPoints - n++)*5 / plotPoints) + 1.6 };
         });
         spiralObjects.convergence.geo.setFromPoints(sortedPoints);
     }
@@ -417,6 +320,7 @@
     let plotHasStarted = false;
     let plotHasEnded = false;
     let plotPathDrawn = false;
+
     function doLoopIm() {
         const totalPoints = 250;
         plotPath.push(new THREE.Vector3(convergence.re, convergence.im, plotPath.length / totalPoints));
@@ -468,7 +372,11 @@
             doLoopRe();
         });
         controllers.ctrlLoopIm = gui.add(parameters, 'Loop Im', false, true).onFinishChange(() => {
-            doLoopIm();
+            if (parameters['Loop Im']) {
+                doLoopIm();
+            } else {
+                hasChanged = false;
+            }
         });
         controllers.ctrlLoopImSpeed = gui.add(parameters, 'Loop Im Speed', 0, 40).onFinishChange(() => {
         });
@@ -505,7 +413,7 @@
     };
 
     const parameters = {
-        'Scale': 1,
+        'Scale': 3,
         'Real Part': 0.5,
         'Imaginary Part': Z[0],
         'Riemann Zero #': 0,
@@ -513,7 +421,7 @@
         'Draw Odd': true,
         'Draw Sum': true,
         'Loop Re': false,
-        'Loop Im': false,
+        'Loop Im': true,
         'Loop Im Speed': 20,
     };
     let hasChanged = false;
@@ -524,10 +432,10 @@
         im: 0
     };
 
-    // loopRealPart(group);
     let spiralObjects = drawOneSpiral(group);
     popGui(parameters);
-    animationLoop()
+    animationLoop();
+    doLoopIm();
 </script>
 
 </body>
