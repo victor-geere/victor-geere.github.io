@@ -47,9 +47,9 @@
             curvePointsObj.sum.push(vectorSum);
             k = k + 1;
         }
-        convergence.im = sumIm;
-        convergence.re = sumRe;
-        convergence.z = z/10;
+        metaPlots.convergence.im = sumIm;
+        metaPlots.convergence.re = sumRe;
+        metaPlots.convergence.z = z/10;
         return curvePointsObj;
     }
 
@@ -126,24 +126,22 @@
         })
     }
 
-    function makeSpiral(a, b, materials = null) {
+    function makeSpiral(a, b, materialN = 29) {
         let curvePoints = getSmoothPointsSpiral(a, b);
-        let spiralObjs = { sum: {}, convergence: {} };
-        spiralObjs.sum = addSpiral(curvePoints.sum, getMaterial(29));
-        return spiralObjs;
+        return { sum: addSpiral(curvePoints.sum, getMaterial(materialN)) };
     }
 
     function addSpiralObjsToGroup(spiralObjs) {
-        if (!sumDrawn && gui.parameters['Draw Sum']) {
+        if (!sumDrawn && gui.controllers.ctrlDrawSum.getValue()) {
             sumDrawn = true;
             group.add(spiralObjs.sum.mesh);
         }
     }
 
     function drawOneSpiral() {
-        let a = gui.parameters["Real Part"];
-        let b = gui.parameters["Imaginary Part"];
-        let spiralObjs = makeSpiral(a, b);
+        let a = gui.controllers.ctrlRe.getValue();
+        let b = gui.controllers.ctrlIm.getValue();
+        let spiralObjs = makeSpiral(a, b, 20);
         addSpiralObjsToGroup(spiralObjs);
         return spiralObjs;
     }
@@ -153,14 +151,14 @@
      */
     function updateObjects() {
         if (hasChanged) {
-            let a = gui.parameters['Real Part'];
-            let b = gui.parameters['Imaginary Part'];
+            let a = gui.controllers.ctrlRe.getValue();
+            let b = gui.controllers.ctrlIm.getValue();
             let curvePoints = getSmoothPointsSpiral(a, b);
 
             let spiralObjsTarget = {
                 sum: getSpiral(curvePoints.sum)
             };
-            if (gui.parameters['Draw Sum']) {
+            if (gui.controllers.ctrlDrawSum.getValue()) {
                 if(!sumDrawn) {
                     group.add(spiralObjsTarget.sum.mesh);
                 }
@@ -170,9 +168,9 @@
             }
 
             renderer.render( scene, camera );
-            if(gui.parameters['Loop Re']) {
+            if(gui.controllers.ctrlLoopRe.getValue()) {
                 doLoopRe();
-            } else if (gui.parameters['Loop Im']) {
+            } else if (gui.controllers.ctrlLoopIm.getValue()) {
                 doLoopIm();
             } else {
                 hasChanged = false;
@@ -194,18 +192,22 @@
 
     let loopReSign = 1;
     function doLoopRe() {
-        if(gui.parameters['Loop Re']) {
-            gui.parameters['Real Part'] = gui.parameters['Real Part'] + (loopReSign * 0.0125);
-            if (gui.parameters['Real Part'] <= 0) {
+        let reLoopA = gui.controllers.ctrlRe.getValue();
+        if(gui.controllers.ctrlLoopRe.getValue()) {
+            reLoopA = reLoopA + (loopReSign * 0.0125);
+            gui.controllers.ctrlRe.setValue(reLoopA);
+            if (reLoopA <= 0) {
                 loopReSign = 1;
-                gui.parameters['Real Part'] = 0;
-            } else if (gui.parameters['Real Part'] >= 1) {
+                reLoopA = 0;
+                gui.controllers.ctrlRe.setValue(reLoopA);
+            } else if (reLoopA >= 1) {
                 loopReSign = -1;
-                gui.parameters['Real Part'] = 1;
+                reLoopA = 1;
+                gui.controllers.ctrlRe.setValue(reLoopA);
             }
             hasChanged = true;
-            if ((gui.parameters['Real Part'] * 10) % 1 === 0) {
-                gui.controllers.ctrlRe.setValue(gui.parameters['Real Part']);
+            if ((reLoopA * 10) % 1 === 0) {
+                gui.controllers.ctrlRe.setValue(reLoopA);
             }
         } else {
             hasChanged = false;
@@ -214,7 +216,7 @@
 
     function recalc() {
         const plotPoints = plotPath.length;
-        const points = addSpiral(plotPath, getMaterial(20)).geoPoints;
+        const points = addSpiral(plotPath, getMaterial(29)).geoPoints;
         let n = 0;
         const sortedPoints = points.map((point) => {
             return { x: point.x, y: point.y, z: ((plotPoints - n++)*5 / plotPoints) + 1.6 };
@@ -222,16 +224,11 @@
         spiralObjects.convergence.geo.setFromPoints(sortedPoints);
     }
 
-    let loopImSign = 1;
     let plotPath = [];
     let plotPathDrawn = false;
-
-    function doLoopIm() {
-        let imLoopB = gui.parameters['Imaginary Part'];
-        const totalPoints = 250;
-        plotPath.push(new THREE.Vector3(convergence.re, convergence.im, plotPath.length / totalPoints));
-        const allowedLength = 49 - Math.abs(50 - imLoopB);
-        const tooLong = plotPath.length - (allowedLength * allowedLength);
+    function buildPlotPath(totalPoints, allowedLength) {
+        plotPath.push(new THREE.Vector3(metaPlots.convergence.re, metaPlots.convergence.im, plotPath.length / totalPoints));
+        const tooLong = plotPath.length - allowedLength;
         if (tooLong > 10) {
             plotPath.splice(0, tooLong - 10);
         }
@@ -241,22 +238,41 @@
             recalc();
         } else {
             if(plotPath.length > 2) {
-                spiralObjects.convergence = addSpiral(plotPath, getMaterial(20));
+                spiralObjects.convergence = addSpiral(plotPath, getMaterial(29));
                 recalc();
                 group.add(spiralObjects.convergence.mesh);
                 plotPathDrawn = true;
             }
         }
-        if(gui.parameters['Loop Im']) {
-            imLoopB = imLoopB + (loopImSign * (0.005 * imLoopB));
+    }
+
+    /**
+     * Exponentially shrink ping-pong plot as start and end is reached to make ping pong smooth
+     */
+    function getAllowedLength(maxN, n) {
+        const midPoint = Math.floor(maxN/2);
+        return Math.pow((midPoint - 1) - Math.abs(midPoint - n), 2);
+    }
+
+    let loopImSign = 1;
+    function doLoopIm() {
+        let imLoopB = gui.controllers.ctrlIm.getValue();
+        let maxImLoopB = 100;
+        const totalPoints = 250;
+        const allowedLength = getAllowedLength(maxImLoopB, imLoopB);
+
+        buildPlotPath(totalPoints, allowedLength);
+
+        if(gui.controllers.ctrlLoopIm.getValue()) {
+            imLoopB = imLoopB + (loopImSign * (0.005 * gui.controllers.ctrlLoopImSpeed.getValue()));
             gui.controllers.ctrlIm.setValue(imLoopB);
             if (imLoopB <= 0) {
                 loopImSign = 1;
                 imLoopB = 0;
                 gui.controllers.ctrlIm.setValue(imLoopB);
-            } else if (imLoopB >= 100) {
+            } else if (imLoopB >= maxImLoopB) {
                 loopImSign = -1;
-                imLoopB = 100;
+                imLoopB = maxImLoopB;
                 gui.controllers.ctrlIm.setValue(imLoopB);
             }
             hasChanged = true;
@@ -308,6 +324,7 @@
     const gui = {
         options: { name: 'My GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: true },
         controllers : {
+            ctrlLoopImSpeed: null,
             ctrlLoopRe: null,
             ctrlLoopIm: null,
             ctrlScale: null,
@@ -328,17 +345,19 @@
             'Loop Im Speed': 20,
         }
     };
+    popGui(gui);
 
     let hasChanged = false;
     let sumDrawn = false;
-    let convergence = {
-        z: 0,
-        re: 0,
-        im: 0
+    let metaPlots = {
+        convergence : {
+            z: 0,
+            re: 0,
+            im: 0
+        }
     };
 
     let spiralObjects = drawOneSpiral(group);
-    popGui(gui);
     animationLoop();
     doLoopIm();
 </script>
