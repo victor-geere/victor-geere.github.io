@@ -45,11 +45,18 @@
             }
             vectorSum = new THREE.Vector3(sumRe, sumIm, z / 10);
             curvePointsObj.sum.push(vectorSum);
+
+            if (k === 3) {
+                metaPlots.degree1.points.im = sumIm;
+                metaPlots.degree1.points.re = sumRe;
+                metaPlots.degree1.points.z = z/10;
+            }
+
             k = k + 1;
         }
-        metaPlots.convergence.im = sumIm;
-        metaPlots.convergence.re = sumRe;
-        metaPlots.convergence.z = z/10;
+        metaPlots.convergence.points.im = sumIm;
+        metaPlots.convergence.points.re = sumRe;
+        metaPlots.convergence.points.z = z/10;
         return curvePointsObj;
     }
 
@@ -98,10 +105,16 @@
 
     function getSpiral(curvePoints) {
         const obj = {};
-        obj.curvePoints = curvePoints;
-        obj.curve = new THREE.CatmullRomCurve3(obj.curvePoints);
-        obj.geoPoints = obj.curve.getPoints(obj.curvePoints.length-1);
-        obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
+        try {
+            obj.curvePoints = curvePoints;
+            obj.curve = new THREE.CatmullRomCurve3(obj.curvePoints);
+            if (curvePoints.length > 1) {
+                obj.geoPoints = obj.curve.getPoints(obj.curvePoints.length - 1);
+                obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
+            }
+        } catch (error) {
+            console.log(`error ${error} curvePoints length: ${obj.curvePoints.length}`);
+        }
         return obj;
     }
 
@@ -214,34 +227,41 @@
         }
     }
 
-    function recalc() {
-        const plotPoints = plotPath.length;
-        const points = addSpiral(plotPath, getMaterial(29)).geoPoints;
+    function recalc(plotName) {
+        const plot = metaPlots[plotName];
+        const plotPoints = plot.plotPath.length;
+        const points = addSpiral(plot.plotPath, plot.material).geoPoints;
         let n = 0;
-        const sortedPoints = points.map((point) => {
-            return { x: point.x, y: point.y, z: ((plotPoints - n++)*5 / plotPoints) + 1.6 };
-        });
-        spiralObjects.convergence.geo.setFromPoints(sortedPoints);
+        let sortedPoints = [];
+        if (Array.isArray(points)) {
+            sortedPoints = points.map((point) => {
+                return {x: point.x, y: point.y, z: ((plotPoints - n++) * 5 / plotPoints) + 1.6};
+            });
+        }
+        if (plot.plotObjs && plot.plotObjs.geo && plot.plotObjs.geo.setFromPoints) {
+            plot.plotObjs.geo.setFromPoints(sortedPoints);
+        }
     }
 
-    let plotPath = [];
-    let plotPathDrawn = false;
-    function buildPlotPath(totalPoints, allowedLength) {
-        plotPath.push(new THREE.Vector3(metaPlots.convergence.re, metaPlots.convergence.im, plotPath.length / totalPoints));
-        const tooLong = plotPath.length - allowedLength;
+    function buildPlotPath(plotName, allowedLength) {
+        const plot = metaPlots[plotName];
+        plot.plotPath.push(
+            new THREE.Vector3(plot.points.re, plot.points.im, plot.plotPath.length / plot.totalPoints)
+        );
+        const tooLong = plot.plotPath.length - allowedLength;
         if (tooLong > 10) {
-            plotPath.splice(0, tooLong - 10);
+            plot.plotPath.splice(0, tooLong - 10);
         }
 
-        if (plotPathDrawn) {
-            spiralObjects.convergence.geo.dispose();
-            recalc();
+        if (plot.drawn) {
+            plot.plotObjs.geo.dispose();
+            recalc(plotName);
         } else {
-            if(plotPath.length > 2) {
-                spiralObjects.convergence = addSpiral(plotPath, getMaterial(29));
-                recalc();
-                group.add(spiralObjects.convergence.mesh);
-                plotPathDrawn = true;
+            if(plot.plotPath.length > 2) {
+                plot.plotObjs = addSpiral(plot.plotPath, plot.material);
+                recalc(plotName);
+                group.add(plot.plotObjs.mesh);
+                plot.drawn = true;
             }
         }
     }
@@ -258,10 +278,20 @@
     function doLoopIm() {
         let imLoopB = gui.controllers.ctrlIm.getValue();
         let maxImLoopB = 100;
-        const totalPoints = 250;
         const allowedLength = getAllowedLength(maxImLoopB, imLoopB);
 
-        buildPlotPath(totalPoints, allowedLength);
+        if (gui.controllers.ctrlDrawImLoop.getValue()) {
+            buildPlotPath('convergence', allowedLength);
+        } else {
+            metaPlots.convergence.plotPath = [];
+            recalc('convergence');
+        }
+        if (gui.controllers.ctrlDrawElbow.getValue()) {
+            buildPlotPath('degree1', allowedLength);
+        } else {
+            metaPlots.degree1.plotPath = [];
+            recalc('degree1');
+        }
 
         if(gui.controllers.ctrlLoopIm.getValue()) {
             imLoopB = imLoopB + (loopImSign * (0.005 * gui.controllers.ctrlLoopImSpeed.getValue()));
@@ -280,8 +310,30 @@
                 gui.controllers.ctrlIm.setValue(imLoopB);
             }
         } else {
-            plotPath = [];
+            metaPlots.convergence.plotPath = [];
             hasChanged = false;
+        }
+    }
+
+    function makeMetaPlot(material, totalPoints) {
+        return {
+            plotObjs: {
+                curvePoints: [],
+                curve: null,
+                geoPoints: [],
+                geo: [],
+                mat: null,
+                mesh: null
+            },
+            material,
+            totalPoints,
+            drawn: false,
+            plotPath: [],
+            points: {
+                z: 0,
+                re: 0,
+                im: 0
+            }
         }
     }
 
@@ -319,6 +371,8 @@
         gui.controllers.ctrlDrawSum = datGui.add(gui.parameters, 'Draw Sum', false, true).onFinishChange(() => {
             hasChanged = true;
         });
+        gui.controllers.ctrlDrawImLoop = datGui.add(gui.parameters, 'Draw Im Loop', false, true);
+        gui.controllers.ctrlDrawElbow = datGui.add(gui.parameters, 'Draw Elbow', false, true);
     }
 
     const gui = {
@@ -333,6 +387,8 @@
             ctrlZero: null,
             ctrlSmoothing: null,
             ctrlDrawSum: null,
+            ctrlDrawImLoop: null,
+            ctrlDrawElbow: null,
         },
         parameters : {
             'Scale': 3,
@@ -343,6 +399,8 @@
             'Loop Re': false,
             'Loop Im': true,
             'Loop Im Speed': 20,
+            'Draw Im Loop': true,
+            'Draw Elbow': false
         }
     };
     popGui(gui);
@@ -350,11 +408,8 @@
     let hasChanged = false;
     let sumDrawn = false;
     let metaPlots = {
-        convergence : {
-            z: 0,
-            re: 0,
-            im: 0
-        }
+        convergence : makeMetaPlot(getMaterial(29), 250),
+        degree1 : makeMetaPlot(getMaterial(1), 250)
     };
 
     let spiralObjects = drawOneSpiral(group);
