@@ -21,42 +21,76 @@
         camera.updateProjectionMatrix();
     }
 
-    function getSmoothPointsSpiral(a, b) {
-        let curvePointsObj = { sum:[] };
-        var k = 1;
-        var s;
-        var vector, vectorSum;
-        var z = 0;
-        var sumRe = 0;
-        var sumIm = 0;
+    let tempN = 0;
 
-        while(k < 2000) {
-            s = math.evaluate(`1/(${k}^(${a} + ${b}i))`);
-            vector = new THREE.Vector3(s.re, s.im, z / 10);
+    function getSmoothPointsSpiral(a, b) {
+        let k = gui.controllers.ctrlSigmaIncrements.getValue();
+        let z = 0;
+        let s;
+        let sumRe = 0;
+        let sumIm = 0;
+        let curvePointsObj = { sum:[] };
+        // curvePointsObj.sum.push(new THREE.Vector3(0, 0, 0));
+        let x = 0;
+        let sign = 1;
+
+        let n = 0;
+
+        while (k < gui.controllers.ctrlSigmaIterations.getValue()) {
+            if (k % 1 === 0) {
+                sign = math.evaluate(`(-(-1)^${k})`);
+            } else {
+                sign = math.evaluate(`(-(-1)^${k})`).im;
+            }
+            s = math.evaluate(`${sign}/(${k}^(${a} + ${b}*i*e*10.00/3))`);
 
             z += 1 / k;
+            sumRe = sumRe + s.re;
+            sumIm = sumIm + s.im;
 
-            if (k % 2 === 1) {
-                sumRe = sumRe + s.re;
-                sumIm = sumIm + s.im;
-            } else if (k % 2 === 0) {
-                sumRe = sumRe - s.re;
-                sumIm = sumIm - s.im;
+            x = x + math.sin(s.im)/100;
+
+            curvePointsObj.sum.push(new THREE.Vector3(sumRe-1, sumIm, z/10));
+            // curvePointsObj.sum.push(new THREE.Vector3(0, sumIm, x));
+
+            if (n++ === gui.controllers.ctrlElbowN.getValue()) {
+                metaPlots.degree1.addComplexPoint(sumRe-1, sumIm, z/10);
             }
-            vectorSum = new THREE.Vector3(sumRe, sumIm, z / 10);
-            curvePointsObj.sum.push(vectorSum);
+
+            k = k + gui.controllers.ctrlSigmaIncrements.getValue(); // normally n=n+1
+        }
+        metaPlots.convergence.addComplexPoint(sumRe-1, sumIm, z/10);
+
+        return curvePointsObj;
+    }
+
+    function getSmoothPointsSpiralx(a, b) {
+        let curvePointsObj = { sum:[] };
+        let k = gui.controllers.ctrlSigmaIncrements.getValue();
+        let s;
+        let z = 0;
+        let sumRe = 0;
+        let sumIm = 0;
+
+        while(k < gui.controllers.ctrlSigmaIterations.getValue()) {
+            s = math.evaluate(`(-(-1)^${k})/(${k}^(${a} + ${b}*i*e*10.00/3))`);
+
+            z += 1 / k;
+            sumRe = sumRe + s.re;
+            sumIm = sumIm + s.im;
+
+            curvePointsObj.sum.push(new THREE.Vector3(sumRe, sumIm, z / 100));
 
             if (k === 3) {
-                metaPlots.degree1.points.im = sumIm;
-                metaPlots.degree1.points.re = sumRe;
-                metaPlots.degree1.points.z = z/10;
+                metaPlots.degree1.addComplexPoint(sumRe, sumIm, z);
             }
 
-            k = k + 1;
+            k = k + gui.controllers.ctrlSigmaIncrements.getValue(); // normally n=n+1
         }
-        metaPlots.convergence.points.im = sumIm;
-        metaPlots.convergence.points.re = sumRe;
-        metaPlots.convergence.points.z = z/10;
+        if (math.abs(sumRe) < 0.05 && math.abs(sumIm) < 0.05) {
+            console.log(`${b} = ${sumRe} + ${sumIm}i`);
+        }
+        metaPlots.convergence.addComplexPoint(sumRe, sumIm, z);
         return curvePointsObj;
     }
 
@@ -234,8 +268,17 @@
         let n = 0;
         let sortedPoints = [];
         if (Array.isArray(points)) {
+            points.reverse();
             sortedPoints = points.map((point) => {
-                return {x: point.x, y: point.y, z: ((plotPoints - n++) * 5 / plotPoints) + 1.6};
+                //(100*gui.controllers.ctrlSigmaIterations.getValue())
+                // const relativeOffset = gui.controllers.ctrlSigmaIterations.getValue()/100;
+                // const inc = gui.controllers.ctrlSigmaIncrements.getValue();
+                //((plotPoints - n++) * (1 / plotPoints) + relativeOffset)/inc
+                // return { x: point.x, y: point.y, z: (plotPoints - n++) * (1 / plotPoints) + 0.8 };
+
+                n = n + 0.01;
+
+                return { x: point.x, y: point.y, z: point.z + n };
             });
         }
         if (plot.plotObjs && plot.plotObjs.geo && plot.plotObjs.geo.setFromPoints) {
@@ -246,7 +289,8 @@
     function buildPlotPath(plotName, allowedLength) {
         const plot = metaPlots[plotName];
         plot.plotPath.push(
-            new THREE.Vector3(plot.points.re, plot.points.im, plot.plotPath.length / plot.totalPoints)
+            // new THREE.Vector3(plot.points.re, plot.points.im, plot.plotPath.length / plot.totalPoints)
+            new THREE.Vector3(plot.points.re, plot.points.im, plot.points.z)
         );
         const tooLong = plot.plotPath.length - allowedLength;
         if (tooLong > 10) {
@@ -277,7 +321,7 @@
     let loopImSign = 1;
     function doLoopIm() {
         let imLoopB = gui.controllers.ctrlIm.getValue();
-        let maxImLoopB = 100;
+        let maxImLoopB = 30;
         const allowedLength = getAllowedLength(maxImLoopB, imLoopB);
 
         if (gui.controllers.ctrlDrawImLoop.getValue()) {
@@ -294,7 +338,7 @@
         }
 
         if(gui.controllers.ctrlLoopIm.getValue()) {
-            imLoopB = imLoopB + (loopImSign * (0.005 * gui.controllers.ctrlLoopImSpeed.getValue()));
+            imLoopB = imLoopB + (loopImSign * ((1/100) * gui.controllers.ctrlLoopImSpeed.getValue()));
             gui.controllers.ctrlIm.setValue(imLoopB);
             if (imLoopB <= 0) {
                 loopImSign = 1;
@@ -316,7 +360,7 @@
     }
 
     function makeMetaPlot(material, totalPoints) {
-        return {
+        let obj = {
             plotObjs: {
                 curvePoints: [],
                 curve: null,
@@ -330,11 +374,17 @@
             drawn: false,
             plotPath: [],
             points: {
-                z: 0,
                 re: 0,
-                im: 0
+                im: 0,
+                z: 0
             }
-        }
+        };
+        obj.addComplexPoint = function(re, im, z) {
+            this.points.re = re;
+            this.points.im = im;
+            this.points.z = z;
+        };
+        return obj;
     }
 
     function popGui(gui) {
@@ -350,13 +400,13 @@
                 hasChanged = false;
             }
         });
-        gui.controllers.ctrlLoopImSpeed = datGui.add(gui.parameters, 'Loop Im Speed', 0, 40).onFinishChange(() => {
+        gui.controllers.ctrlLoopImSpeed = datGui.add(gui.parameters, 'Loop Im Speed', 0, 2).onFinishChange(() => {
         });
         gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.1).onChange(() => {
             group.scale.set(gui.parameters['Scale'], gui.parameters['Scale'], gui.parameters['Scale']);
             hasChanged = true;
         });
-        gui.controllers.ctrlRe = datGui.add(gui.parameters, 'Real Part', 0.0, 1.0).onChange(() => {
+        gui.controllers.ctrlRe = datGui.add(gui.parameters, 'Real Part', 0.0, 10.0, 0.25).onChange(() => {
             hasChanged = true;
         });
         gui.controllers.ctrlIm = datGui.add(gui.parameters, 'Imaginary Part', 0.000, 199.9999, 0.0001).onChange(() => {
@@ -373,6 +423,9 @@
         });
         gui.controllers.ctrlDrawImLoop = datGui.add(gui.parameters, 'Draw Im Loop', false, true);
         gui.controllers.ctrlDrawElbow = datGui.add(gui.parameters, 'Draw Elbow', false, true);
+        gui.controllers.ctrlElbowN = datGui.add(gui.parameters, 'Elbow #', 0, 100, 1);
+        gui.controllers.ctrlSigmaIterations = datGui.add(gui.parameters, 'Sigma Iterations', 10, 1000, 1);
+        gui.controllers.ctrlSigmaIncrements = datGui.add(gui.parameters, 'Sigma Increments', 0.05, 1, 0.05);
     }
 
     const gui = {
@@ -389,18 +442,24 @@
             ctrlDrawSum: null,
             ctrlDrawImLoop: null,
             ctrlDrawElbow: null,
+            ctrlElbowN: null,
+            ctrlSigmaIterations: null,
+            ctrlSigmaIncrements: null,
         },
         parameters : {
-            'Scale': 3,
-            'Real Part': 0.5,
-            'Imaginary Part': Z[0],
+            'Scale': 4,
+            'Real Part': 1,
+            'Imaginary Part': 0,
             'Riemann Zero #': 0,
             'Draw Sum': true,
             'Loop Re': false,
             'Loop Im': true,
-            'Loop Im Speed': 20,
+            'Loop Im Speed': 1,
             'Draw Im Loop': true,
-            'Draw Elbow': false
+            'Draw Elbow': false,
+            'Sigma Iterations': 250,
+            'Sigma Increments': 1,
+            'Elbow #': 1,
         }
     };
     popGui(gui);
@@ -408,8 +467,8 @@
     let hasChanged = false;
     let sumDrawn = false;
     let metaPlots = {
-        convergence : makeMetaPlot(getMaterial(29), 250),
-        degree1 : makeMetaPlot(getMaterial(1), 250)
+        convergence : makeMetaPlot(getMaterial(29), 1000),
+        degree1 : makeMetaPlot(getMaterial(1), 500)
     };
 
     let spiralObjects = drawOneSpiral(group);
