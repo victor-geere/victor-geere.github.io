@@ -1,0 +1,218 @@
+<html>
+<title>Harmonics</title>
+<head>
+  <!--    https://stackoverflow.com/questions/50992863/creating-a-helix-following-a-curve-->
+  <style href="main.css"></style>
+  <script src="lib/math.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+</head>
+<body>
+<script type="module">
+    import * as THREE from './lib/three.module.js';
+    import {OrbitControls} from './lib/OrbitControls.js';
+    import {colorsA} from './colors.js';
+    import {Z} from './zeta.js';
+
+    function resize() {
+        WIDTH = window.innerWidth;
+        HEIGHT = window.innerHeight;
+        renderer.setSize(WIDTH, HEIGHT);
+        camera.aspect = aspectRatio();
+        camera.updateProjectionMatrix();
+    }
+
+    // prepare the renderer
+
+    let WIDTH;
+    let HEIGHT;
+    let aspectRatio = function () {
+        return WIDTH / HEIGHT
+    };
+
+    const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+    });
+    document.body.appendChild(renderer.domElement);
+
+    const camera = new THREE.PerspectiveCamera(32, aspectRatio(), 1, 1000);
+    camera.position.set(0, 0, 50);
+
+    resize();
+
+    window.addEventListener("resize", resize);
+
+    const scene = new THREE.Scene();
+
+    // xyz thingy
+    scene.add(new THREE.AxesHelper(40));
+
+    const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
+    light.position.set(0, 0, 0);
+    camera.add(light);
+    scene.add(camera);
+
+    // controls
+    var controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 20;
+    controls.maxDistance = 50;
+    controls.maxPolarAngle = Math.PI / 2;
+
+    // populate the scene
+
+    let group = new THREE.Group();
+    group.scale.set(3, 3, 3);
+    scene.add(group);
+
+    function getMaterial(colorN) {
+        return new THREE.LineBasicMaterial({
+            color: colorsA[colorN]
+        })
+    }
+
+    function polarCos(degrees, radius, offset) {
+        return math.cos(math.pi * degrees / 180) * radius + offset;
+    }
+
+    function polarSin(degrees, radius, offset) {
+        return math.sin(math.pi * degrees / 180) * radius + offset;
+    }
+
+    function getCirclePoints(a, b, r, ngon = 8, rotated = 0) {
+        let k = rotated;
+        let plotPoints = [];
+
+        while (k <= 360 + rotated) {
+            plotPoints.push(new THREE.Vector3(polarCos(k, r, a), polarSin(k, r, b), 0));
+            k = k + 360 / ngon;
+        }
+        return plotPoints;
+    }
+
+    function makeCircle(a, b, r, ngon = 8, rotated = 0, materialN = 10) {
+        let curvePoints = getCirclePoints(a, b, r, ngon, rotated);
+
+        const obj = {};
+        obj.curvePoints = curvePoints;
+        obj.curve = new THREE.CatmullRomCurve3(obj.curvePoints);
+        if (curvePoints.length > 1) {
+            obj.geoPoints = obj.curve.getPoints(obj.curvePoints.length - 1);
+            obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
+        }
+        obj.mat = getMaterial(materialN);
+        obj.mesh = new THREE.Line(obj.geo, obj.mat);
+        return obj;
+    }
+
+    function drawCircles() {
+        const ngon = 16;
+        const rotated = 0;
+        drawCirclesOnCircle([new THREE.Vector3(0, 0, 0)], 10, 9, ngon, rotated);
+    }
+
+    function drawCirclesOnCircle(curvePoints, n, r, ngon, rotated) {
+        const ratio = gui.controllers.ctrlChildRatio.getValue();
+        if (n > 0) {
+            let circle;
+            let target = Math.floor(Math.random()*curvePoints.length);
+            let k = 0;
+            curvePoints.forEach(point => {
+                if (k++ === target) {
+                    circle = makeCircle(point.x, point.y, r, ngon, rotated, Math.floor(math.random()*colorsA.length));
+                    group.add(circle.mesh);
+                    drawCirclesOnCircle(circle.curvePoints, n - 1, r / ratio, ngon, rotated);
+                }
+                // drawCirclesOnCircle(circle.curvePoints, n - 1, r / ratio, ngon, rotated);
+            })
+        }
+    }
+
+    /**
+     * animate objects per frame
+     */
+    function updateObjects() {
+        if (hasChanged) {
+            // if() {
+            //     spiralObjects.sum.geo.setFromPoints(spiralObjsTarget.sum.geoPoints);
+            // } else {
+            //     spiralObjects.sum.geo.setFromPoints([]);
+            // }
+
+            group.scale.set(gui.controllers.ctrlScale.getValue(), gui.controllers.ctrlScale.getValue(), gui.controllers.ctrlScale.getValue());
+            renderer.render(scene, camera);
+            if (gui.controllers.ctrlLoopIm.getValue()) {
+                doLoopIm();
+            } else {
+                hasChanged = false;
+            }
+        }
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    let animationLoopId = null;
+
+    function animationLoop() {
+        animationLoopId = requestAnimationFrame(animationLoop);
+        updateObjects();
+        render();
+    }
+
+    function doLoopIm() {
+
+    }
+
+    function popGui(gui) {
+        gui.options.load = gui.parameters;
+        const datGui = new dat.GUI(gui.options);
+        gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop Im', false, true).onChange(() => {
+            if (gui.parameters['Loop Im']) {
+                doLoopIm();
+            } else {
+                hasChanged = false;
+            }
+        });
+        gui.controllers.ctrlLoopImSpeed = datGui.add(gui.parameters, 'Loop Im Speed', 0, 5).onChange(() => {
+            hasChanged = true;
+        });
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 3, 0.1).onChange(() => {
+            hasChanged = true;
+        });
+        gui.controllers.ctrlChildRatio = datGui.add(gui.parameters, 'Child Ratio', 1, 3).onFinishChange(() => {
+            while (group.children.length > 0) {
+                group.remove(group.children[group.children.length - 1]);
+            }
+            drawCircles();
+            render();
+        })
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: true},
+        controllers: {
+            ctrlLoopImSpeed: null,
+            ctrlLoopIm: null,
+            ctrlScale: null,
+            ctrlChildRatio: null
+        },
+        parameters: {
+            'Loop Im': true,
+            'Loop Im Speed': 1,
+            'Scale': 0.6,
+            'Child Ratio': 1.3
+        }
+    };
+    popGui(gui);
+
+    let hasChanged = false;
+
+    let circles = drawCircles();
+    group.scale.set(gui.controllers.ctrlScale.getValue(), gui.controllers.ctrlScale.getValue(), gui.controllers.ctrlScale.getValue());
+    animationLoop();
+    doLoopIm();
+</script>
+
+</body>
+</html>
