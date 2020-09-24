@@ -1,4 +1,4 @@
-var colorsA = [
+const colorsA = [
     "#10f080",
     "#20e080",
     "#30d080",

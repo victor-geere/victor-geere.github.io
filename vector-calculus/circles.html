@@ -158,6 +158,41 @@
         return new THREE.Vector3(vector1.x - vector2.x, vector1.y - vector2.y, vector1.z - vector2.z);
     }
 
+    function makeTrail() {
+        if (!trailDrawn) {
+            if(trail.length > 10) {
+                trailGraph = {};
+                trailGraph.curvePoints = [];
+                trail.forEach((point, index) => {
+                    trailGraph.curvePoints.push(new THREE.Vector3(
+                        point.x,
+                        point.y,
+                        (trail.length - index)/10)
+                    );
+                });
+                trailGraph.mat = getMaterial(29);
+                trailGraph.curve = new THREE.CatmullRomCurve3(trailGraph.curvePoints);
+                trailGraph.geoPoints = trailGraph.curve.getPoints(trailGraph.curvePoints.length - 1);
+                trailGraph.geo = new THREE.BufferGeometry().setFromPoints(trailGraph.geoPoints);
+                trailGraph.mesh = new THREE.Line(trailGraph.geo, trailGraph.mat);
+                group.add(trailGraph.mesh);
+                trailDrawn = true;
+            }
+        } else {
+            trailGraph.curvePoints = [];
+            trail.forEach((point, index) => {
+                trailGraph.curvePoints.push(new THREE.Vector3(
+                  point.x,
+                  point.y,
+                  (trail.length - index)/10)
+                );
+            });
+            trailGraph.curve = new THREE.CatmullRomCurve3(trailGraph.curvePoints);
+            trailGraph.geoPoints = trailGraph.curve.getPoints(2000);
+            trailGraph.geo.setFromPoints(trailGraph.geoPoints);
+        }
+    }
+
     function rotateCircle(circle, parentOrigin, rotZ, parentRotZ, nthNode) {
         let ratio = gui.controllers.ctrlChildRatio.getValue();
         let props = circle.properties;
@@ -179,15 +214,26 @@
         circle.curve = new THREE.CatmullRomCurve3(circle.curvePoints);
         circle.geoPoints = circle.curve.getPoints(circle.curvePoints.length - 1);
         circle.geo = circle.geo.setFromPoints(circle.geoPoints);
-        circle.children.forEach((childCircle, index) => {
-            rotateCircle(childCircle, props.origin, rotZ * ratio, modRotZ, index);
-        });
+        if (circle.children.length === 0 && !pushedPath) {
+            pushedPath = true;
+            trail.push(props.origin);
+            if (trail.length > 1000) {
+                trail.splice(0,1);
+            }
+            makeTrail();
+        } else {
+            circle.children.forEach((childCircle, index) => {
+                rotateCircle(childCircle, props.origin, rotZ * ratio, modRotZ, index);
+            });
+        }
     }
 
+    let pushedPath = false;
     function redrawCircles(rotZ = 1) {
         circles.forEach((circle, index) => {
             rotateCircle(circle, new THREE.Vector3(0,0,0), rotZ, rotZ, 0);
         });
+        pushedPath = false;
     }
 
     /**
@@ -229,7 +275,17 @@
             group.remove(group.children[group.children.length - 1]);
         }
         circles = drawCircles(gui.controllers.ctrlDepth.getValue(), 10, 16, gui.controllers.ctrlRotation.getValue());
+        resetTrail();
         render();
+    }
+
+    function resetTrail() {
+        if (trailGraph.mesh) {
+            group.remove(trailGraph.mesh);
+        }
+        trail = [];
+        trailGraph = {};
+        trailDrawn = false;
     }
 
     function popGui(gui) {
@@ -237,12 +293,14 @@
         const datGui = new dat.GUI(gui.options);
         gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop Im', false, true).onChange(() => {
             if (gui.controllers.ctrlLoopIm.getValue()) {
+                resetTrail();
                 doLoopIm();
             } else {
                 hasChanged = false;
             }
         });
         gui.controllers.ctrlLoopImSpeed = datGui.add(gui.parameters, 'Loop Im Speed', 0, 5).onChange(() => {
+            resetTrail();
             hasChanged = true;
         });
         gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 3, 0.1).onChange(() => {
@@ -278,9 +336,10 @@
     popGui(gui);
 
     let hasChanged = false;
-
+    let trailDrawn = false;
+    let trail = [];
+    let trailGraph = {};
     let circles = drawCircles(4, 10, 16, gui.controllers.ctrlRotation.getValue());
-    // console.log('circles', circles);
     const scale = gui.controllers.ctrlScale.getValue();
     group.scale.set(scale, scale, scale);
     animationLoop();
