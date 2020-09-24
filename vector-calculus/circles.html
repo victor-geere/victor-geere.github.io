@@ -78,7 +78,7 @@
         return math.sin(math.pi * degrees / 180) * radius + offset;
     }
 
-    function getCirclePoints(a, b, r, ngon = 8, rotated = 0) {
+    function getCirclePoints(pivot, a, b, r, ngon = 8, rotated = 0) {
         let k = rotated;
         let plotPoints = [];
 
@@ -90,7 +90,7 @@
     }
 
     function makeCircle(pivot, a, b, r, ngon = 8, rotation = 0, material) {
-        let curvePoints = getCirclePoints(a, b, r, ngon, rotation);
+        let curvePoints = getCirclePoints(pivot, a, b, r, ngon, rotation);
 
         const obj = {
             properties: {
@@ -107,7 +107,6 @@
         if (curvePoints.length > 1) {
             obj.geoPoints = obj.curve.getPoints(obj.curvePoints.length - 1);
             obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
-            // obj.geo.translate(-a, -b, 0);
         }
         obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
         return obj;
@@ -119,51 +118,71 @@
         const everyNthChild = gui.controllers.ctrlChildNth.getValue();
         if (n > 0) {
             let circle;
-            // let target = Math.floor(Math.random() * curvePoints.length);
-            let k = 0;
-            curvePoints.forEach(point => {
-                if (k++ % everyNthChild === 0) {
+            let drawn = false;
+            for (let k = 0; k < curvePoints.length; ++k) {
+                if (k % everyNthChild === 0 && (k < curvePoints.length - 1 || !drawn)) {
+                    let point = curvePoints[k];
                     circle = makeCircle(pivot, point.x, point.y, radius, ngon, rotated, getMaterial(Math.floor(math.random() * colorsA.length)));
                     group.add(circle.mesh);
+                    // console.log('circle pivot', circle.properties.pivot);
                     let childPivot = new THREE.Vector3(point.x, point.y, 0);
                     circle.children = drawCirclesOnCircle(childPivot, circle.curvePoints, n - 1, radius / ratio, ngon, rotated);
                     newCircles.push(circle);
+                    drawn = true;
                 }
-            })
+            }
         }
         return newCircles;
     }
 
-    function drawCircles() {
-        const ngon = 16;
-        const rotated = 0;
-        const circleTree = drawCirclesOnCircle(new THREE.Vector3(0, 0, 0), [new THREE.Vector3(0, 0, 0)], 3, 9, ngon, rotated);
+    function drawCircles(depth=4, radius=10, ngon=16, rotated=0) {
+        const circleTree = drawCirclesOnCircle(new THREE.Vector3(0, 0, 0), [new THREE.Vector3(0, 0, 0)], depth, radius, ngon, rotated);
         console.log('circleTree', circleTree);
         return circleTree;
     }
 
-    function rotateCircle(circle, rotZ) {
+    function square(n) {
+        return n * n;
+    }
+
+    function getDistance(vector1, vector2) {
+        return Math.sqrt(square(vector1.x - vector2.x) + square(vector1.y - vector2.y));
+    }
+
+    function addVectors(vector1, vector2) {
+        return new THREE.Vector3(vector1.x + vector2.x, vector1.y + vector2.y, vector1.z + vector2.z);
+    }
+
+    function subVectors(vector1, vector2) {
+        return new THREE.Vector3(vector1.x - vector2.x, vector1.y - vector2.y, vector1.z - vector2.z);
+    }
+
+    function rotateCircle(circle, parentOrigin, rotZ, parentRotZ) {
+        let ratio = gui.controllers.ctrlChildRatio.getValue();
         let props = circle.properties;
-        // let newOriginX =
-        circle.curvePoints = getCirclePoints(props.origin.x, props.origin.y, props.radius, props.ngon, props.rotation + rotZ);
-        circle.properties.rotation += rotZ;
+        let modRotZ = (props.rotation + rotZ) % 360;
+        props.rotation = modRotZ;
+
+        let distanceFromPivot = getDistance(props.pivot, props.origin);
+        let newOriginX = polarCos(parentRotZ, distanceFromPivot, props.pivot.x);
+        let newOriginY = polarSin(parentRotZ, distanceFromPivot, props.pivot.y);
+        props.origin = new THREE.Vector3(newOriginX , newOriginY, 0);
+        let delta = subVectors(parentOrigin, props.pivot);
+        props.origin = addVectors(props.origin, delta);
+        props.pivot = parentOrigin;
+
+        circle.curvePoints = getCirclePoints(parentOrigin, props.origin.x, props.origin.y, props.radius, props.ngon, modRotZ);
         circle.curve = new THREE.CatmullRomCurve3(circle.curvePoints);
         circle.geoPoints = circle.curve.getPoints(circle.curvePoints.length - 1);
         circle.geo = circle.geo.setFromPoints(circle.geoPoints);
         circle.children.forEach((childCircle) => {
-            rotateCircle(childCircle, rotZ);
+            rotateCircle(childCircle, props.origin, rotZ * ratio, modRotZ);
         });
     }
 
-    let logs = 0;
-
     function redrawCircles(rotZ = 1) {
-        // console.log('redrawing', rotZ);
         circles.forEach((circle, index) => {
-            rotateCircle(circle, rotZ);
-            if (logs++ < 10 && index === 0) {
-                console.log('circle', circle.curvePoints);
-            }
+            rotateCircle(circle, new THREE.Vector3(0,0,0), rotZ, rotZ);
         });
     }
 
@@ -201,6 +220,14 @@
         }
     }
 
+    function remake() {
+        while (group.children.length > 0) {
+            group.remove(group.children[group.children.length - 1]);
+        }
+        circles = drawCircles(gui.controllers.ctrlDepth.getValue(), 10, 16, gui.controllers.ctrlRotation.getValue());
+        render();
+    }
+
     function popGui(gui) {
         gui.options.load = gui.parameters;
         const datGui = new dat.GUI(gui.options);
@@ -217,20 +244,10 @@
         gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 3, 0.1).onChange(() => {
             hasChanged = true;
         });
-        gui.controllers.ctrlChildRatio = datGui.add(gui.parameters, 'Child Ratio', 1, 3).onFinishChange(() => {
-            while (group.children.length > 0) {
-                group.remove(group.children[group.children.length - 1]);
-            }
-            circles = drawCircles();
-            render();
-        });
-        gui.controllers.ctrlChildNth = datGui.add(gui.parameters, 'Child Nth', 1, 16, 1).onFinishChange(() => {
-            while (group.children.length > 0) {
-                group.remove(group.children[group.children.length - 1]);
-            }
-            circles = drawCircles();
-            render();
-        })
+        gui.controllers.ctrlChildRatio = datGui.add(gui.parameters, 'Child Ratio', 1, 3).onFinishChange(remake);
+        gui.controllers.ctrlChildNth = datGui.add(gui.parameters, 'Child Nth', 1, 16, 1).onFinishChange(remake),
+        gui.controllers.ctrlRotation = datGui.add(gui.parameters, 'Rotation', 0, 360, 1).onFinishChange(remake),
+        gui.controllers.ctrlDepth = datGui.add(gui.parameters, 'Depth', 1, 10, 1).onFinishChange(remake)
     }
 
     const gui = {
@@ -240,22 +257,26 @@
             ctrlLoopIm: null,
             ctrlScale: null,
             ctrlChildRatio: null,
-            ctrlChildNth: null
+            ctrlChildNth: null,
+            ctrlRotation: null,
+            ctrlDepth: null
         },
         parameters: {
             'Loop Im': false,
             'Loop Im Speed': 1,
             'Scale': 0.6,
-            'Child Ratio': 1.3,
+            'Child Ratio': 2,
             'Child Nth': 8,
+            'Rotation': 45,
+            'Depth': 4
         }
     };
     popGui(gui);
 
     let hasChanged = false;
 
-    let circles = drawCircles();
-    console.log('circles', circles);
+    let circles = drawCircles(4, 10, 16, gui.controllers.ctrlRotation.getValue());
+    // console.log('circles', circles);
     const scale = gui.controllers.ctrlScale.getValue();
     group.scale.set(scale, scale, scale);
     animationLoop();
