@@ -112,11 +112,11 @@
         return obj;
     }
 
-    function drawCirclesOnCircle(pivot, curvePoints, n, radius, ngon, rotated) {
+    function drawCirclesOnCircle(pivot, curvePoints, depth, radius, ngon, rotated, level) {
         let newCircles = [];
         const ratio = gui.controllers.ctrlChildRatio.getValue();
         const everyNthChild = gui.controllers.ctrlChildNth.getValue();
-        if (n > 0) {
+        if (depth > 0) {
             let circle;
             let drawn = false;
             let point, childPivot;
@@ -127,7 +127,11 @@
                     circle = makeCircle(pivot, point.x, point.y, radius, ngon, rotated, material);
                     group.add(circle.mesh);
                     childPivot = new THREE.Vector3(point.x, point.y, 0);
-                    circle.children = drawCirclesOnCircle(childPivot, circle.curvePoints, n - 1, radius / ratio, ngon, rotated);
+                    if (gui.controllers.ctrlPowerSeries.getValue()) {
+                        circle.children = drawCirclesOnCircle(childPivot, circle.curvePoints, depth - 1, radius / Math.sqrt(level+1), ngon, rotated, level + 1);
+                    } else {
+                        circle.children = drawCirclesOnCircle(childPivot, circle.curvePoints, depth - 1, radius / ratio, ngon, rotated);
+                    }
                     newCircles.push(circle);
                     drawn = true;
                 }
@@ -137,7 +141,7 @@
     }
 
     function drawCircles(depth=4, radius=10, ngon=16, rotated=0) {
-        const circleTree = drawCirclesOnCircle(new THREE.Vector3(0, 0, 0), [new THREE.Vector3(0, 0, 0)], depth, radius, ngon, rotated);
+        const circleTree = drawCirclesOnCircle(new THREE.Vector3(0, 0, 0), [new THREE.Vector3(0, 0, 0)], depth, radius, ngon, rotated, 1);
         console.log('circleTree', circleTree);
         return circleTree;
     }
@@ -193,7 +197,7 @@
         }
     }
 
-    function rotateCircle(circle, parentOrigin, rotZ, parentRotZ, nthNode) {
+    function rotateCircle(circle, parentOrigin, rotZ, parentRotZ, nthNode, depth) {
         let ratio = gui.controllers.ctrlChildRatio.getValue();
         let props = circle.properties;
         let modRotZ = (props.rotation + rotZ) % 360;
@@ -223,7 +227,11 @@
             makeTrail();
         } else {
             circle.children.forEach((childCircle, index) => {
-                rotateCircle(childCircle, props.origin, rotZ * ratio, modRotZ, index);
+                if (gui.controllers.ctrlPowerSeries.getValue()) {
+                    rotateCircle(childCircle, props.origin, 1 / math.sqrt(depth+1), modRotZ, index, depth + 1);
+                } else {
+                    rotateCircle(childCircle, props.origin, rotZ * ratio, modRotZ, index, depth + 1);
+                }
             });
         }
     }
@@ -231,7 +239,7 @@
     let pushedPath = false;
     function redrawCircles(rotZ = 1) {
         circles.forEach((circle, index) => {
-            rotateCircle(circle, new THREE.Vector3(0,0,0), rotZ, rotZ, 0);
+            rotateCircle(circle, new THREE.Vector3(0,0,0), rotZ, rotZ, 0, 1);
         });
         pushedPath = false;
     }
@@ -306,10 +314,11 @@
         gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 3, 0.1).onChange(() => {
             hasChanged = true;
         });
-        gui.controllers.ctrlChildRatio = datGui.add(gui.parameters, 'Child Ratio', 1, 3).onFinishChange(remake);
-        gui.controllers.ctrlChildNth = datGui.add(gui.parameters, 'Child Nth', 1, 16, 1).onFinishChange(remake),
+        gui.controllers.ctrlChildRatio = datGui.add(gui.parameters, 'Child Ratio', 1, 10, 1).onFinishChange(remake);
+        gui.controllers.ctrlChildNth = datGui.add(gui.parameters, 'Draw Every nth Child', 1, 16, 1).onFinishChange(remake),
         gui.controllers.ctrlRotation = datGui.add(gui.parameters, 'Rotation', 0, 360, 1).onFinishChange(remake),
         gui.controllers.ctrlDepth = datGui.add(gui.parameters, 'Depth', 1, 10, 1).onFinishChange(remake)
+        gui.controllers.ctrlPowerSeries = datGui.add(gui.parameters, 'Power Series', false, true).onFinishChange(remake)
     }
 
     const gui = {
@@ -321,16 +330,18 @@
             ctrlChildRatio: null,
             ctrlChildNth: null,
             ctrlRotation: null,
-            ctrlDepth: null
+            ctrlDepth: null,
+            ctrlPowerSeries: null
         },
         parameters: {
             'Loop Im': false,
             'Loop Im Speed': 1,
             'Scale': 0.6,
             'Child Ratio': 2,
-            'Child Nth': 8,
+            'Draw Every nth Child': 8,
             'Rotation': 45,
-            'Depth': 4
+            'Depth': 4,
+            'Power Series': false,
         }
     };
     popGui(gui);
