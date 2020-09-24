@@ -200,14 +200,14 @@
         }
     }
 
-    function rotateCircle(circle, parentOrigin, rotZ, parentRotZ, nthNode, depth) {
+    function rotateCircle(circle, parentOrigin, rotZ, parentRotZ, nthNode, level) {
         let ratio = gui.controllers.ctrlChildRatio.getValue();
         let props = circle.properties;
         let modRotZ = (props.rotation + rotZ) % 360;
         props.rotation = modRotZ;
 
         let drawEveryNth = gui.controllers.ctrlChildNth.getValue();
-        let rotationalOffset = (360/(16 / drawEveryNth)) * nthNode;
+        let rotationalOffset = (360/(ngon / drawEveryNth)) * nthNode;
 
         let distanceFromPivot = getDistance(props.pivot, props.origin);
         let newOriginX = polarCos(parentRotZ + rotationalOffset, distanceFromPivot, props.pivot.x);
@@ -219,7 +219,7 @@
 
         circle.curvePoints = getCirclePoints(parentOrigin, props.origin.x, props.origin.y, props.radius, props.ngon, modRotZ);
         circle.curve = new THREE.CatmullRomCurve3(circle.curvePoints);
-        circle.geoPoints = circle.curve.getPoints(circle.curvePoints.length - 1);
+        circle.geoPoints = circle.curve.getPoints(32);
         circle.geo = circle.geo.setFromPoints(circle.geoPoints);
         if (circle.children.length === 0 && !pushedPath) {
             pushedPath = true;
@@ -231,9 +231,9 @@
         } else {
             circle.children.forEach((childCircle, index) => {
                 if (gui.controllers.ctrlPowerSeries.getValue()) {
-                    rotateCircle(childCircle, props.origin, 1 / math.sqrt(depth+1), modRotZ, index, depth + 1);
+                    rotateCircle(childCircle, props.origin, 1 / math.sqrt(level+1), modRotZ, index, level + 1);
                 } else {
-                    rotateCircle(childCircle, props.origin, rotZ * ratio, modRotZ, index, depth + 1);
+                    rotateCircle(childCircle, props.origin, rotZ * ratio, modRotZ, index, level + 1);
                 }
             });
         }
@@ -285,7 +285,7 @@
         while (group.children.length > 0) {
             group.remove(group.children[group.children.length - 1]);
         }
-        circles = drawCircles(gui.controllers.ctrlDepth.getValue(), 10, 16, gui.controllers.ctrlRotation.getValue());
+        circles = drawCircles(gui.controllers.ctrlDepth.getValue(), 10, ngon, gui.controllers.ctrlRotation.getValue());
         resetTrail();
         render();
     }
@@ -318,11 +318,13 @@
             hasChanged = true;
         });
         gui.controllers.ctrlChildRatio = datGui.add(gui.parameters, 'Child Ratio', 1, 10, 1).onFinishChange(remake);
-        gui.controllers.ctrlChildNth = datGui.add(gui.parameters, 'Draw Every nth Child', 1, 16, 1).onFinishChange(remake),
+        gui.controllers.ctrlChildNth = datGui.add(gui.parameters, 'Draw Every nth Child', 1, ngon, 1).onFinishChange(remake),
         gui.controllers.ctrlRotation = datGui.add(gui.parameters, 'Rotation', 0, 360, 1).onFinishChange(remake),
         gui.controllers.ctrlDepth = datGui.add(gui.parameters, 'Depth', 1, 10, 1).onFinishChange(remake)
         gui.controllers.ctrlPowerSeries = datGui.add(gui.parameters, 'Power Series', false, true).onFinishChange(remake)
     }
+
+    let ngon = 16;
 
     const gui = {
         options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: true},
@@ -341,7 +343,7 @@
             'Loop Im Speed': 1,
             'Scale': 0.3,
             'Child Ratio': 2,
-            'Draw Every nth Child': 16,
+            'Draw Every nth Child': ngon,
             'Rotation': 0,
             'Depth': 10,
             'Power Series': true,
@@ -359,7 +361,7 @@
     let circles = drawCircles(
         gui.controllers.ctrlDepth.getValue(),
         10,
-        16,
+        ngon,
         gui.controllers.ctrlRotation.getValue()
     );
     animationLoop();
