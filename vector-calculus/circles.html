@@ -120,7 +120,10 @@
             let circle;
             let drawn = false;
             let point, childPivot;
-            let material = getMaterial(Math.floor(math.random() * colorsA.length));
+            // let material = getMaterial(Math.floor(math.random() * colorsA.length));
+            let levels = gui.controllers.ctrlDepth.getValue();
+            let colorDistance = Math.floor(colorsA.length / levels);
+            let material = getMaterial(level*colorDistance);
             for (let k = 0; k < curvePoints.length; ++k) {
                 if (k % everyNthChild === 0 && (k < curvePoints.length - 1 || !drawn)) {
                     point = curvePoints[k];
@@ -130,7 +133,7 @@
                     if (gui.controllers.ctrlPowerSeries.getValue()) {
                         circle.children = drawCirclesOnCircle(childPivot, circle.curvePoints, depth - 1, radius / Math.sqrt(level+1), ngon, rotated, level + 1);
                     } else {
-                        circle.children = drawCirclesOnCircle(childPivot, circle.curvePoints, depth - 1, radius / ratio, ngon, rotated);
+                        circle.children = drawCirclesOnCircle(childPivot, circle.curvePoints, depth - 1, radius / ratio, ngon, rotated, level + 1);
                     }
                     newCircles.push(circle);
                     drawn = true;
@@ -311,7 +314,7 @@
             resetTrail();
             hasChanged = true;
         });
-        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 3, 0.1).onChange(() => {
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 2, 0.05).onChange(() => {
             hasChanged = true;
         });
         gui.controllers.ctrlChildRatio = datGui.add(gui.parameters, 'Child Ratio', 1, 10, 1).onFinishChange(remake);
@@ -334,14 +337,14 @@
             ctrlPowerSeries: null
         },
         parameters: {
-            'Loop Im': false,
+            'Loop Im': true,
             'Loop Im Speed': 1,
-            'Scale': 0.6,
+            'Scale': 0.3,
             'Child Ratio': 2,
-            'Draw Every nth Child': 8,
-            'Rotation': 45,
-            'Depth': 4,
-            'Power Series': false,
+            'Draw Every nth Child': 16,
+            'Rotation': 0,
+            'Depth': 10,
+            'Power Series': true,
         }
     };
     popGui(gui);
@@ -350,11 +353,19 @@
     let trailDrawn = false;
     let trail = [];
     let trailGraph = {};
-    let circles = drawCircles(4, 10, 16, gui.controllers.ctrlRotation.getValue());
     const scale = gui.controllers.ctrlScale.getValue();
     group.scale.set(scale, scale, scale);
+
+    let circles = drawCircles(
+        gui.controllers.ctrlDepth.getValue(),
+        10,
+        16,
+        gui.controllers.ctrlRotation.getValue()
+    );
     animationLoop();
-    doLoopIm();
+    if (gui.controllers.ctrlLoopIm.getValue()) {
+        doLoopIm();
+    }
 </script>
 
 </body>
