@@ -2,15 +2,46 @@
 <title>Harmonics</title>
 <head>
   <!--    https://stackoverflow.com/questions/50992863/creating-a-helix-following-a-curve-->
-  <style href="main.css"></style>
+  <style href="./main.css"></style>
   <script src="lib/math.min.js"></script>
   <script src="lib/dat.gui.min.js"></script>
+  <style>
+    html, body {
+      background-color: #303035;
+      text-align: center;
+      vertical-align: middle;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+    }
+    /*
+    canvas {
+      margin: auto;
+      user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      -webkit-user-select: none !important;
+      pointer-events: none;
+    }
+     */
+    .dg .c .slider-fg {
+      background-color: #808080 !important;
+    }
+    .dg .cr.number, .dg .cr.boolean {
+      border-left: 3px solid #808080;
+    }
+    .dg .cr.number input[type=text] {
+      color: #808080;
+    }
+  </style>
 </head>
 <body>
 <script type="module">
     import * as THREE from './lib/three.module.js';
-    import {OrbitControls} from './lib/OrbitControls.js';
-    import {colorsA} from './colors.js';
+    import { OrbitControls } from './lib/OrbitControls.js';
+    import { colorsA, colorsB, colorsGrey } from './colors.js';
     import {Z} from './zeta.js';
 
     function resize() {
@@ -43,11 +74,12 @@
     window.addEventListener("resize", resize);
 
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0x303035 );
 
     // xyz thingy
-    scene.add(new THREE.AxesHelper(40));
+    // scene.add(new THREE.AxesHelper(40));
 
-    const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
+    const light = new THREE.DirectionalLight(0x000000, 1, Infinity);
     light.position.set(0, 0, 0);
     camera.add(light);
     scene.add(camera);
@@ -66,7 +98,13 @@
 
     function getMaterial(colorN) {
         return new THREE.LineBasicMaterial({
-            color: colorsA[colorN]
+            color: colorsB[colorN]
+        })
+    }
+
+    function getGrey(colorN) {
+        return new THREE.LineBasicMaterial({
+            color: colorsGrey[colorN]
         })
     }
 
@@ -120,9 +158,9 @@
             let circle;
             let drawn = false;
             let point, childPivot;
-            // let material = getMaterial(Math.floor(math.random() * colorsA.length));
+            // let material = getMaterial(Math.floor(math.random() * colorsB.length));
             let levels = gui.controllers.ctrlDepth.getValue();
-            let colorDistance = Math.floor(colorsA.length / levels);
+            let colorDistance = Math.floor(colorsB.length / levels);
             let material = getMaterial(level*colorDistance);
             for (let k = 0; k < curvePoints.length; ++k) {
                 if (k % everyNthChild === 0 && (k < curvePoints.length - 1 || !drawn)) {
@@ -299,6 +337,26 @@
         trailDrawn = false;
     }
 
+    function drawAxis() {
+        let geoPoints = {
+          x: [
+            new THREE.Vector3(-40, 0, 0),
+            new THREE.Vector3( 40, 0, 0),
+          ],
+          y: [
+            new THREE.Vector3(0, -40, 0),
+            new THREE.Vector3(0,  40, 0),
+          ],
+          z: [
+            new THREE.Vector3(0, 0, -40),
+            new THREE.Vector3(0, 0, 40),
+          ],
+        };
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(geoPoints.x), getGrey(1)));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(geoPoints.y), getGrey(1)));
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(geoPoints.z), getGrey(1)));
+    }
+
     function popGui(gui) {
         gui.options.load = gui.parameters;
         const datGui = new dat.GUI(gui.options);
@@ -327,7 +385,7 @@
     let ngon = 16;
 
     const gui = {
-        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: true},
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
         controllers: {
             ctrlLoopImSpeed: null,
             ctrlLoopIm: null,
@@ -350,6 +408,7 @@
         }
     };
     popGui(gui);
+    drawAxis();
 
     let hasChanged = false;
     let trailDrawn = false;
@@ -368,6 +427,10 @@
     if (gui.controllers.ctrlLoopIm.getValue()) {
         doLoopIm();
     }
+
+    document.getElementsByTagName('canvas')[0].addEventListener('focus', (event) => {
+        document.getElementsByTagName('div')[0].focus();
+    });
 </script>
 
 </body>
