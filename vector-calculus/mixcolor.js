@@ -51,7 +51,6 @@ function mixColor() {
                 let t = Math.floor((g+b) / 2);
                 if (r + g + b >= (24*8) && p === (180) && g >= 64 && g <= 200 && r-g === 52) {
                     colorsC.push(makeColor(r,g,b));
-                    saveColor(r,g,b);
                 }
                 b = b + bjump;
             }
