@@ -19,9 +19,7 @@ function getMaterial(palette, colorN) {
     })
 }
 
-function makeCircle(pivot, a, b, r, ngon, rotation, material) {
-    let curvePoints = getCirclePoints(pivot, a, b, r, ngon, rotation);
-
+function makeCurve(pivot, a, b, r, ngon, rotation, material, curvePoints = [], resolution) {
     const obj = {
         properties: {
             pivot: pivot,
@@ -32,14 +30,28 @@ function makeCircle(pivot, a, b, r, ngon, rotation, material) {
             mat: material
         },
         curvePoints: curvePoints,
-        curve: new THREE.CatmullRomCurve3(curvePoints),
+        curve: null,
+        geoPoints: null,
+        geo: null,
+        mesh: null
     };
     if (curvePoints.length > 1) {
-        obj.geoPoints = obj.curve.getPoints(ngon * Math.ceil(r));
-        obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
+        if (!resolution) {
+            obj.geo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+            obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
+        } else {
+            obj.curve = new THREE.CatmullRomCurve3(curvePoints);
+            obj.geoPoints = obj.curve.getPoints(resolution);
+            obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
+            obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
+        }
     }
-    obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
     return obj;
+}
+
+function makeCircle(pivot, a, b, r, ngon, rotation, material) {
+    let curvePoints = getCirclePoints(pivot, a, b, r, ngon, rotation);
+    return makeCurve(pivot, a, b, r, ngon, rotation, material, curvePoints);
 }
 
 function getCirclePoints(pivot, a, b, r, ngon = 8, rotated = 0) {
@@ -141,5 +153,8 @@ function drawAxis(parent, size, material) {
     parent.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(geoPoints.z), material));
 }
 
+function newVec(x, y, z) {
+    return new THREE.Vector3(x, y, z);
+}
 
-export { getMaterial, drawAxis, getCirclePoints, makeCircle, buildScene, resize }
+export { getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve, buildScene, resize, newVec }
