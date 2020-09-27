@@ -4,6 +4,7 @@ import {OrbitControls} from './lib/OrbitControls.js';
 
 function resize(renderer, camera, x, y) {
     renderer.setSize(x, y);
+    //only for perspective camera!!!
     camera.aspect = aspectRatio(x, y);
     camera.updateProjectionMatrix();
 }

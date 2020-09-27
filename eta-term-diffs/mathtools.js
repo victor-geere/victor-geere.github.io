@@ -17,6 +17,14 @@ function square(n) {
     return n * n;
 }
 
+function scaleVectors(vectorArray, xRatio, yRatio, zRatio) {
+    vectorArray.forEach((vector) => {
+        vector.x = vector.x * xRatio;
+        vector.y = vector.y * yRatio;
+        vector.z = vector.z * zRatio;
+    });
+}
+
 function getDistance(vector1, vector2) {
     return Math.sqrt(square(vector1.x - vector2.x) + square(vector1.y - vector2.y));
 }
@@ -41,4 +49,4 @@ function moveVectors(vectorArray, x, y, z) {
     });
 }
 
-export { polarCos, polarSin, square, getDistance, addVectors, subVectors, moveVectors, subVectorsXY, roundTo }
+export { polarCos, polarSin, square, getDistance, addVectors, subVectors, moveVectors, subVectorsXY, roundTo, scaleVectors }

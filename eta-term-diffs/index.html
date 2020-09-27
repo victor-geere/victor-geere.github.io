@@ -55,8 +55,7 @@
         getPerspectiveCamera,
         getOrthoCamera
     } from './threetools.js';
-    import {subVectorsXY, addVectors, moveVectors} from './mathtools.js';
-    import {roundTo} from "./mathtools.js";
+    import { roundTo, scaleVectors, subVectorsXY, addVectors, subVectors, moveVectors } from './mathtools.js';
 
     let formula = '';
     let formulas = [];
@@ -128,15 +127,23 @@
         let curve1 = sceneInfo.objects[0].curvePoints;
         let curve2 = sceneInfo.objects[1].curvePoints;
         let curve3 = [];
+        let curve4 = [newVec(0,0,0)];
         if (curve1.length === curve2.length) {
             for (let i = 0; i < curve1.length; i++) {
                 curve3.push(subVectorsXY(curve1[i], curve2[i]));
+                curve4.push(addVectors(curve4[curve4.length-1], subVectors(curve1[i], curve2[i])));
             }
         }
+        scaleVectors(curve4, 0.01, 1, 1);
         moveVectors(curve3, 5, 0, 0);
         const pivot = new THREE.Vector3(0, 0, 0);
-        let curve = makeCurve(pivot, 0, 0, radiusFactor, 16, 0, getMaterial(rainbow, 30), curve3, 0);
-        sceneInfo.addObject(curve);
+
+        let curveObj3 = makeCurve(pivot, 0, 0, radiusFactor, 16, 0, getMaterial(rainbow, 20), curve3, 0);
+        sceneInfo.addObject(curveObj3);
+
+        let curveObj4 = makeCurve(pivot, 0, 0, radiusFactor, 16, 0, getMaterial(rainbow, 40), curve4, 0);
+        sceneInfo.addObject(curveObj4);
+
     }
 
     function drawArches(radiusFactor) {
