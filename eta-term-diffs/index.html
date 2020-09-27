@@ -65,7 +65,7 @@
             formulas.splice(0, 1);
         }
         formulas.push(text);
-        const title = `1/n^(a + bi) - 1/n^(a + bi (${roundTo(imInc, 3)}*e)i)`;
+        const title = `1/n^(a + bi) - 1/n^(a + bi + (${roundTo(imInc, 3)}*e)i)`;
         document.getElementById('floatingText').innerHTML = `${title}<br><span>${formulas[0]}</span> <br> <span>${formulas[1]}</span>`
     }
 
@@ -73,6 +73,9 @@
         const n = roundTo(r, 3);
         const sign = n < 0 ? '-' : '+';
         const nAbs = Math.abs(n);
+        if (nAbs === 0) {
+            return '+ 0.000';
+        }
         const nAbsStr = `${nAbs}0000000`.substr(0,5);
         return `${sign} ${nAbsStr}`;
     }
@@ -87,8 +90,10 @@
         // const result = math.evaluate(`i^${b}`);
         // console.log(`result : i^${b} = ${result.re} + ${result.im}i`);
 
-        const formattedText = `${numerator}/(${roundTo(kx, 3)}^(${a} ${fn(b)}i))`;
-        setFormula(`${formattedText} = ${fn(result.re)} ${fn(result.im)}i`, numerator, k, a, b, imInc);
+        let formattedText = `${numerator}/(${roundTo(kx, 3)}^(${fn(a)} (b1..b2)i))`;
+        setFormula(`${formattedText}`, numerator, k, a, b, imInc);
+        formattedText = `${numerator}/(${roundTo(kx + 1, 3)}^(${fn(a)} (b1..b2)i))`;
+        setFormula(`${formattedText}`, numerator, k+1, a, b, imInc);
 
         return result;
     }
@@ -120,7 +125,7 @@
         const depthOffset = gui.controllers.ctrlDepth.getValue() - 2;
         const points = getPoints(n + depthOffset, x, y, radiusFactor, nPoints);
         const pivot = new THREE.Vector3(x, y, 0);
-        return makeCurve(pivot, x, y, radiusFactor, 16, 0, getMaterial(rainbow, Math.floor((n + depthOffset) % 60)), points, 0);
+        return makeCurve(pivot, x, y, radiusFactor, 16, 0, getMaterial(rainbow, n * 30), points, 0);
     }
 
     function drawSum(radiusFactor) {
