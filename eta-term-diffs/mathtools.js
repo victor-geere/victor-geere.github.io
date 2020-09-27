@@ -1,7 +1,12 @@
-import {Vector3}  from './lib/three.module.js';
+import {Vector3} from './lib/three.module.js';
 
 function polarCos(degrees, radius, offset) {
     return math.cos(math.pi * degrees / 180) * radius + offset;
+}
+
+function roundTo(real, radix) {
+    let factor = Math.pow(10, radix);
+    return Math.round(real * factor) / factor;
 }
 
 function polarSin(degrees, radius, offset) {
@@ -36,4 +41,4 @@ function moveVectors(vectorArray, x, y, z) {
     });
 }
 
-export { polarCos, polarSin, square, getDistance, addVectors, subVectors, moveVectors, subVectorsXY }
+export { polarCos, polarSin, square, getDistance, addVectors, subVectors, moveVectors, subVectorsXY, roundTo }

@@ -27,17 +27,58 @@
     .dg .cr.number input[type=text] {
       color: #808080;
     }
+
+    #floatingText {
+      display: block;
+      position: absolute;
+      bottom: 0.3em;
+      left: 0.5em;
+      color: #808080;
+      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
+<div id="floatingText"></div>
+
 <script type="module">
     import * as THREE from './lib/three.module.js';
-    import { colorsGrey, rainbow } from './colors.js';
-    import { getMaterial, drawAxis, makeCurve, buildScene, resize, newVec } from './threetools.js';
-    import { subVectorsXY, addVectors, moveVectors } from './mathtools.js';
+    import {colorsGrey, rainbow} from './colors.js';
+    import {
+        getMaterial,
+        drawAxis,
+        makeCurve,
+        buildScene,
+        resize,
+        newVec,
+        getPerspectiveCamera,
+        getOrthoCamera
+    } from './threetools.js';
+    import {subVectorsXY, addVectors, moveVectors} from './mathtools.js';
+    import {roundTo} from "./mathtools.js";
 
+    let formula = '';
+    let formulas = [];
 
-    function getEta(numerator, k, a, b) {
+    function setFormula(text, numerator, k, a, b, imInc) {
+        if (formulas.length > 1) {
+            formulas.splice(0, 1);
+        }
+        formulas.push(text);
+        const title = `1/n^(a + bi) - 1/n^(a + bi (${roundTo(imInc, 3)}*e)i)`;
+        document.getElementById('floatingText').innerHTML = `${title}<br><span>${formulas[0]}</span> <br> <span>${formulas[1]}</span>`
+    }
+
+    function fn(r) {
+        const n = roundTo(r, 3);
+        const sign = n < 0 ? '-' : '+';
+        const nAbs = Math.abs(n);
+        const nAbsStr = `${nAbs}0000000`.substr(0,5);
+        return `${sign} ${nAbsStr}`;
+    }
+
+    function getEta(numerator, k, a, b, imInc) {
         const baseFactor = gui.controllers.ctrlBaseFactor.getValue();
         const kx = k * baseFactor;
         const text = `${numerator}/(${kx}^(${a} + ${b}i))`;
@@ -47,7 +88,9 @@
         // const result = math.evaluate(`i^${b}`);
         // console.log(`result : i^${b} = ${result.re} + ${result.im}i`);
 
-        // console.log(`result : ${text} = ${result.re} + ${result.im}i`);
+        const formattedText = `${numerator}/(${roundTo(kx, 3)}^(${a} ${fn(b)}i))`;
+        setFormula(`${formattedText} = ${fn(result.re)} ${fn(result.im)}i`, numerator, k, a, b, imInc);
+
         return result;
     }
 
@@ -59,23 +102,23 @@
         // const test = `e^${imInc}`;
         // console.log(`math.evaluate(test) : ${math.evaluate(test)}`);
 
-        const e4th = math.evaluate(`e * ${imInc}`);
+        const ex = math.evaluate(`e * ${imInc}`);
 
         let b = 0;
         let n = 0;
         while (n++ < nPoints) {
-            let coords = getEta(1, k, realPart, b);
-            points.push(newVec(coords.re * r + x, coords.im * r + y, n/10));
-            b = b + e4th;
+            let coords = getEta(1, k, realPart, b, imInc);
+            points.push(newVec(coords.re * r + x, coords.im * r + y, n / 10));
+            b = b + ex;
         }
         return points;
     }
 
     function makeArch(depth, n, radiusFactor = 10) {
-        const x = n * 5 - ((depth+1) * 5)/2;
-        const y = 0;
+        const x = n * 5 - ((depth + 1) * 5) / 2;
+        const y = 7.5;
         const nPoints = gui.controllers.ctrlPoints.getValue();
-        const depthOffset = gui.controllers.ctrlDepth.getValue();
+        const depthOffset = gui.controllers.ctrlDepth.getValue() - 2;
         const points = getPoints(n + depthOffset, x, y, radiusFactor, nPoints);
         const pivot = new THREE.Vector3(x, y, 0);
         return makeCurve(pivot, x, y, radiusFactor, 16, 0, getMaterial(rainbow, Math.floor((n + depthOffset) % 60)), points, 0);
@@ -90,7 +133,7 @@
                 curve3.push(subVectorsXY(curve1[i], curve2[i]));
             }
         }
-        moveVectors(curve3, 5, 7.5, 0);
+        moveVectors(curve3, 5, 0, 0);
         const pivot = new THREE.Vector3(0, 0, 0);
         let curve = makeCurve(pivot, 0, 0, radiusFactor, 16, 0, getMaterial(rainbow, 30), curve3, 0);
         sceneInfo.addObject(curve);
@@ -107,14 +150,32 @@
 
     function onResize() {
         resize(sceneInfo.renderer, sceneInfo.camera, window.innerWidth, window.innerHeight);
+        sceneInfo.render();
     }
 
     /**
      * animate objects per frame
      */
+    let sign = 1;
+    let nth = 0;
+
     function updateObjects() {
         if (sceneInfo.hasChanged) {
-            sceneInfo.hasChanged = doLoopIm(sceneInfo.objects, gui.controllers.ctrlLoopIm.getValue(), gui.controllers.ctrlLoopImSpeed.getValue());
+            let depth = gui.controllers.ctrlDepth.getValue();
+            let speed = gui.controllers.ctrlLoopSpeed.getValue();
+            depth = depth + (sign / speed);
+            if (depth > 120) {
+                sign = -1;
+                depth = 119;
+            } else if (depth < 2) {
+                sign = 1;
+                depth = 2;
+            }
+            if (nth++ === 5) {
+                gui.controllers.ctrlDepth.setValue(depth);
+                drawChoice();
+                nth = 0;
+            }
             sceneInfo.scale(gui.controllers.ctrlScale.getValue());
         }
     }
@@ -125,28 +186,17 @@
         sceneInfo.render();
     }
 
-    function doLoopIm(objects, doLoop, angle) {
-        let didChange = false;
-        if (doLoop) {
-            objects.forEach((circle, index) => {
-                // ... rotateByAngle(circle, angle);
-            });
-            didChange = true;
-        }
-        return didChange;
-    }
-
     function hasChanged() {
-        sceneInfo.hasChanged = true;
+        sceneInfo.hasChanged = gui.controllers.ctrlLoopIm.getValue();
     }
 
     function popGui(gui) {
         gui.options.load = gui.parameters;
         const datGui = new dat.GUI(gui.options);
-        gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop Im', false, true).onChange(hasChanged);
-        gui.controllers.ctrlLoopImSpeed = datGui.add(gui.parameters, 'Loop Im Speed', 0, 5).onChange(hasChanged);
-        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 2, 0.05).onChange(hasChanged);
-        gui.controllers.ctrlDepth = datGui.add(gui.parameters, 'Depth', 0, 120, 1).onChange(drawChoice);
+        gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop', false, true).onChange(hasChanged);
+        gui.controllers.ctrlLoopSpeed = datGui.add(gui.parameters, 'Loop Speed', 0, 1.9, 0.1).onChange(hasChanged);
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.05).onChange(hasChanged);
+        gui.controllers.ctrlDepth = datGui.add(gui.parameters, 'Depth', 2, 120, 0.1).onChange(drawChoice);
         gui.controllers.ctrlReal = datGui.add(gui.parameters, 'Real', -1, 1, 0.05).onChange(drawChoice);
         gui.controllers.ctrlImInc1 = datGui.add(gui.parameters, 'Im Inc 1', 0, 2, 0.1).onChange(drawChoice);
         gui.controllers.ctrlImInc2 = datGui.add(gui.parameters, 'Im Inc 2', 0, 0.1, 0.01).onChange(drawChoice);
@@ -159,7 +209,7 @@
         options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
         controllers: {
             ctrlLoopIm: null,
-            ctrlLoopImSpeed: null,
+            ctrlLoopSpeed: null,
             ctrlScale: null,
             ctrlDepth: null,
             ctrlReal: null,
@@ -170,16 +220,16 @@
             ctrlPoints: null
         },
         parameters: {
-            'Loop Im': true,
-            'Loop Im Speed': 1,
-            'Scale': 1,
+            'Loop': true,
+            'Loop Speed': 1,
+            'Scale': 1.5,
             'Depth': 20,
             'Real': 0,
-            'Im Inc 1': 0.5,
-            'Im Inc 2': 0,
-            'Im Inc 3': 0,
+            'Im Inc 1': 0.1,
+            'Im Inc 2': 0.02,
+            'Im Inc 3': 0.004,
             'Base Factor': 1.00,
-            'Points': 100
+            'Points': 350
         }
     };
 
@@ -197,14 +247,15 @@
     const ARCHES = 2;
     let type = ARCHES;
 
-    const sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff);
+    const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
+    const sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
     window.addEventListener("resize", onResize);
     popGui(gui);
     drawAxis(sceneInfo.scene, 40, getMaterial(colorsGrey, 1));
     drawChoice();
     sceneInfo.scale(gui.controllers.ctrlScale.getValue());
     animationLoop();
-    sceneInfo.hasChanged = doLoopIm(sceneInfo.objects, gui.controllers.ctrlLoopIm.getValue(), gui.controllers.ctrlLoopImSpeed.getValue());
+    sceneInfo.hasChanged = gui.controllers.ctrlLoopIm.getValue();
 
 </script>
 

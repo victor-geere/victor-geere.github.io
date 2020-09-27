@@ -99,7 +99,23 @@ function newSceneInfo() {
     };
 }
 
-function buildScene(parentHtmlElement, x, y, scale, backgroudColor, lightColor) {
+function getPerspectiveCamera(x, y) {
+    const camera = new THREE.PerspectiveCamera(32, aspectRatio(x, y), 1, 500);
+    camera.position.set(0, 0, 50);
+    return camera;
+}
+
+function getOrthoCamera(x, y) {
+    const camera = new THREE.OrthographicCamera(-x / 2, x/2, y/2, -y/2, 0, 1500);
+    camera.position.set(0, 0, 50);
+    return camera;
+}
+
+function buildScene(parentHtmlElement, x, y, scale, backgroudColor, lightColor, camera) {
+    if (!camera) {
+        camera = getOrthoCamera(x, y);
+        // camera = getPerspectiveCamera(x, y);
+    }
     let info = newSceneInfo();
     info.renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -107,8 +123,7 @@ function buildScene(parentHtmlElement, x, y, scale, backgroudColor, lightColor) 
     });
     parentHtmlElement.appendChild(info.renderer.domElement);
 
-    info.camera = new THREE.PerspectiveCamera(32, aspectRatio(x, y), 1, 1000);
-    info.camera.position.set(0, 0, 50);
+    info.camera = camera;
 
     resize(info.renderer, info.camera, x, y);
 
@@ -157,4 +172,4 @@ function newVec(x, y, z) {
     return new THREE.Vector3(x, y, z);
 }
 
-export { getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve, buildScene, resize, newVec }
+export { getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve, buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera }
