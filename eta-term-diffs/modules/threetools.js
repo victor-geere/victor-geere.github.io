@@ -1,6 +1,6 @@
 import { polarCos, polarSin } from "./mathtools.js";
-import * as THREE from './lib/three.module.js';
-import {OrbitControls} from './lib/OrbitControls.js';
+import * as THREE from '../lib/three.module.js';
+import {OrbitControls} from '../lib/OrbitControls.js';
 
 function resize(renderer, camera, x, y) {
     renderer.setSize(x, y);
@@ -20,7 +20,41 @@ function getMaterial(palette, colorN) {
     })
 }
 
-function makeCurve(pivot, a, b, r, ngon, rotation, material, curvePoints = [], resolution) {
+function addMesh(obj, curvePoints = [], resolution= 0) {
+    try {
+        if (obj.curvePoints.length > 1) {
+            if (!resolution) {
+                obj.geo = new THREE.BufferGeometry().setFromPoints(obj.curvePoints);
+                obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
+            } else {
+                obj.curve = new THREE.CatmullRomCurve3(obj.curvePoints);
+                obj.geoPoints = obj.curve.getPoints(resolution);
+                obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
+                obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
+            }
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function makeSimpleCurve(curvePoints, material, xOrigin = 0, yOrigin = 0, resolution= 0) {
+    const obj = {
+        properties: {
+            origin: {x: xOrigin, y: yOrigin, z: 0},
+            mat: material
+        },
+        curvePoints: curvePoints,
+        curve: null,
+        geoPoints: null,
+        geo: null,
+        mesh: null
+    };
+    addMesh(obj);
+    return obj;
+}
+
+function makeCurve(pivot, a, b, r, ngon, rotation, material, curvePoints = [], resolution= 0) {
     const obj = {
         properties: {
             pivot: pivot,
@@ -36,17 +70,7 @@ function makeCurve(pivot, a, b, r, ngon, rotation, material, curvePoints = [], r
         geo: null,
         mesh: null
     };
-    if (curvePoints.length > 1) {
-        if (!resolution) {
-            obj.geo = new THREE.BufferGeometry().setFromPoints(curvePoints);
-            obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
-        } else {
-            obj.curve = new THREE.CatmullRomCurve3(curvePoints);
-            obj.geoPoints = obj.curve.getPoints(resolution);
-            obj.geo = new THREE.BufferGeometry().setFromPoints(obj.geoPoints);
-            obj.mesh = new THREE.Line(obj.geo, obj.properties.mat);
-        }
-    }
+    addMesh(obj, curvePoints, resolution);
     return obj;
 }
 
@@ -96,6 +120,11 @@ function newSceneInfo() {
         },
         render: function () {
             this.renderer.render(this.scene, this.camera);
+        },
+        redo: function() {
+            while (this.scene.children.length > 0) {
+                this.scene.remove(this.scene.children[this.scene.children.length - 1]);
+            }
         }
     };
 }
@@ -173,4 +202,7 @@ function newVec(x, y, z) {
     return new THREE.Vector3(x, y, z);
 }
 
-export { getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve, buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera }
+export {
+    getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve,
+    buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera, makeSimpleCurve
+}

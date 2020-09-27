@@ -128,3 +128,5 @@ function fxLine2(n, k, p) {
     // console.log(`${x1.re} + ${x1.im}i`);
     return math.complex(n, x1.re);
 }
+
+export { getLayout, repeatReIm, animate, animateData, fxLine, fxLine2, repeatReImN, repeatXFx, unitCircle2SineX, unitCircle2SineY }

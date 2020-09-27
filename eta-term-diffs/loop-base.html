@@ -1,4 +1,5 @@
-<html>
+<!doctype html>
+<html >
 <head>
   <title>Harmonics</title>
   <link rel="stylesheet" type="text/css" href="main.css">
@@ -14,23 +15,26 @@
     import {
         getMaterial,
         drawAxis,
-        makeCurve,
+        makeSimpleCurve,
         buildScene,
         newVec,
         getPerspectiveCamera,
         getOrthoCamera
     } from './modules/threetools.js';
-    import {roundTo, scaleVectors, subVectorsXY, addVectors, subVectors, moveVectors} from './modules/mathtools.js';
+    import {
+        roundTo, scaleVectors, subVectorsXY, addVectors,
+        subVectors, moveVectors, addVectorArray, subtractVectorArray
+    } from './modules/mathtools.js';
 
     let formula = '';
     let formulas = [];
 
-    function setFormula(text, numerator, k, a, b, imInc) {
+    function setFormula(text, numerator, k, a, b) {
         if (formulas.length > 1) {
             formulas.splice(0, 1);
         }
         formulas.push(text);
-        const title = `1/n^(a + bi) - 1/n^(a + bi + (${roundTo(imInc, 3)}*e)i)`;
+        const title = `1/(n1...n2)^(a + bi)`;
         document.getElementById('floatingText').innerHTML = `${title}<br><span>${formulas[0]}</span> <br> <span>${formulas[1]}</span>`
     }
 
@@ -45,83 +49,87 @@
         return `${sign} ${nAbsStr}`;
     }
 
-    function getEta(numerator, k, a, b, imInc) {
+    function getEta(numerator, k, a, b) {
         const baseFactor = gui.controllers.ctrlBaseFactor.getValue();
         const kx = k * baseFactor;
         const text = `${numerator}/(${kx}^(${a} + ${b}i))`;
         const result = math.evaluate(text);
-        // return math.evaluate(`(${k}i^(${a}+${b}))`);
 
-        // const result = math.evaluate(`i^${b}`);
-        // console.log(`result : i^${b} = ${result.re} + ${result.im}i`);
-
-        let formattedText = `${numerator}/(${roundTo(kx, 3)}^(${fn(a)} (b1..b2)i))`;
-        setFormula(`${formattedText}`, numerator, k, a, b, imInc);
-        formattedText = `${numerator}/(${roundTo(kx + 1, 3)}^(${fn(a)} (b1..b2)i))`;
-        setFormula(`${formattedText}`, numerator, k + 1, a, b, imInc);
+        let formattedText = `${numerator}/(${roundTo(kx, 3)}^(${fn(a)} bi))`;
+        setFormula(`${formattedText}`, numerator, k, a, b);
 
         return result;
     }
 
-    function getPoints(k, x, y, r, nPoints) {
-        const points = [];
+    function getPoints(x, y, im, nPoints, radiusX) {
+        const points = {
+            neg: [],
+            pos: []
+        };
         let realPart = gui.controllers.ctrlReal.getValue();
         let imInc = gui.controllers.ctrlImInc1.getValue() + gui.controllers.ctrlImInc2.getValue() + gui.controllers.ctrlImInc3.getValue();
 
-        // const test = `e^${imInc}`;
-        // console.log(`math.evaluate(test) : ${math.evaluate(test)}`);
-
-        const ex = math.evaluate(`e * ${imInc}`);
-
-        let b = 0;
-        let n = 0;
+        let n = 1;
         while (n++ < nPoints) {
-            let coords = getEta(1, k, realPart, b, imInc);
-            points.push(newVec(coords.re * r + x, coords.im * r + y, n / 10));
-            b = b + ex;
+            let coords = getEta(1, n, realPart, im);
+            if (n % 2 === 1) {
+                points.pos.push(newVec(coords.re * radiusX + x, coords.im * radiusX + y + 5, n / 10));
+            } else {
+                points.neg.push(newVec(coords.re * radiusX + x, coords.im * radiusX + y - 5, n / 10));
+            }
         }
+        points.diff = subtractVectorArray(points.pos, points.neg);
         return points;
     }
 
-    function makeArch(depth, n, radiusFactor = 10) {
-        const x = n * 5 - ((depth + 1) * 5) / 2;
-        const y = 7.5;
-        const nPoints = gui.controllers.ctrlPoints.getValue();
-        const depthOffset = gui.controllers.ctrlDepth.getValue() - 2;
-        const points = getPoints(n + depthOffset, x, y, radiusFactor, nPoints);
-        const pivot = new THREE.Vector3(x, y, 0);
-        return makeCurve(pivot, x, y, radiusFactor, 16, 0, getMaterial(rainbow, 30), points, 0);
+    function makeArch(points, colorN=30) {
+        return {
+            pos: makeSimpleCurve(points.pos, getMaterial(rainbow, colorN)),
+            neg: makeSimpleCurve(points.neg, getMaterial(rainbow, colorN)),
+            diff: makeSimpleCurve(points.diff, getMaterial(rainbow, colorN))
+        }
     }
 
     function drawSum(radiusFactor) {
         let curve1 = sceneInfo.objects[0].curvePoints;
         let curve2 = sceneInfo.objects[1].curvePoints;
         let curve3 = [];
-        let curve4 = [newVec(0, 0, 0)];
         if (curve1.length === curve2.length) {
             for (let i = 0; i < curve1.length; i++) {
                 curve3.push(subVectorsXY(curve1[i], curve2[i]));
-                curve4.push(addVectors(curve4[curve4.length - 1], subVectors(curve1[i], curve2[i])));
             }
         }
-        scaleVectors(curve4, 0.01, 1, 1);
         moveVectors(curve3, 5, 0, 0);
         const pivot = new THREE.Vector3(0, 0, 0);
 
-        let curveObj3 = makeCurve(pivot, 0, 0, radiusFactor, 16, 0, getMaterial(rainbow, 20), curve3, 0);
+        let curveObj3 = makeSimpleCurve(curve3, getMaterial(rainbow, 20));
         sceneInfo.addObject(curveObj3);
-
-        let curveObj4 = makeCurve(pivot, 0, 0, radiusFactor, 16, 0, getMaterial(rainbow, 40), curve4, 0);
-        sceneInfo.addObject(curveObj4);
-
     }
 
-    function drawArches(radiusFactor) {
+    function drawArches() {
         sceneInfo.clear();
-        for (let i = 1; i < 3; i++) {
-            sceneInfo.addObject(makeArch(2, i, radiusFactor));
-        }
-        drawSum(radiusFactor);
+
+        const offset = gui.controllers.ctrlOffset.getValue();
+        const diffs = gui.controllers.ctrlDiffs.getValue();
+
+        const nPoints = gui.controllers.ctrlPoints.getValue();
+        const points1 = getPoints(-10, 0, offset, nPoints, 4);
+        moveVectors(points1.diff, -10, -10, 0);
+        let arch1 = makeArch(points1, 20);
+
+        sceneInfo.addObject(arch1.neg);
+        sceneInfo.addObject(arch1.pos);
+        sceneInfo.addObject(arch1.diff);
+
+        const points2 = getPoints( 10, 0, offset + diffs, nPoints, 4,);
+        moveVectors(points2.diff, 10, -10, 0);
+        let arch2 = makeArch(points2, 40);
+
+        sceneInfo.addObject(arch2.neg);
+        sceneInfo.addObject(arch2.pos);
+        sceneInfo.addObject(arch2.diff);
+
+        // drawSum(radiusFactor);
         sceneInfo.render();
     }
 
@@ -132,26 +140,10 @@
     /**
      * animate objects per frame
      */
-    let sign = 1;
-    let nth = 0;
-
     function updateObjects() {
         if (sceneInfo.hasChanged) {
-            let depth = gui.controllers.ctrlDepth.getValue();
+            let offset = gui.controllers.ctrlOffset.getValue();
             let speed = gui.controllers.ctrlLoopSpeed.getValue();
-            depth = depth + (sign / speed);
-            if (depth > 120) {
-                sign = -1;
-                depth = 119;
-            } else if (depth < 2) {
-                sign = 1;
-                depth = 2;
-            }
-            if (nth++ === 5) {
-                gui.controllers.ctrlDepth.setValue(depth);
-                drawChoice();
-                nth = 0;
-            }
             sceneInfo.scale(gui.controllers.ctrlScale.getValue());
         }
     }
@@ -172,7 +164,8 @@
         gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop', false, true).onChange(hasChanged);
         gui.controllers.ctrlLoopSpeed = datGui.add(gui.parameters, 'Loop Speed', 0, 1.9, 0.1).onChange(hasChanged);
         gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.05).onChange(hasChanged);
-        gui.controllers.ctrlDepth = datGui.add(gui.parameters, 'Depth', 2, 120, 0.1).onChange(drawChoice);
+        gui.controllers.ctrlOffset = datGui.add(gui.parameters, 'Offset', 2, 120, 0.1).onChange(drawChoice);
+        gui.controllers.ctrlDiffs = datGui.add(gui.parameters, 'Difference', 2, 120, 0.1).onChange(drawChoice);
         gui.controllers.ctrlReal = datGui.add(gui.parameters, 'Real', -1, 1, 0.05).onChange(drawChoice);
         gui.controllers.ctrlImInc1 = datGui.add(gui.parameters, 'Im Inc 1', 0, 2, 0.1).onChange(drawChoice);
         gui.controllers.ctrlImInc2 = datGui.add(gui.parameters, 'Im Inc 2', 0, 0.1, 0.01).onChange(drawChoice);
@@ -187,7 +180,8 @@
             ctrlLoopIm: null,
             ctrlLoopSpeed: null,
             ctrlScale: null,
-            ctrlDepth: null,
+            ctrlOffset: null,
+            ctrlDiffs: null,
             ctrlReal: null,
             ctrlImInc1: null,
             ctrlImInc2: null,
@@ -199,8 +193,9 @@
             'Loop': true,
             'Loop Speed': 1,
             'Scale': 1.5,
-            'Depth': 20,
-            'Real': 0,
+            'Offset': 20,
+            'Difference': 20,
+            'Real': 0.5,
             'Im Inc 1': 0.1,
             'Im Inc 2': 0.02,
             'Im Inc 3': 0.004,
@@ -214,7 +209,7 @@
             case CIRCLES:
                 break;
             case ARCHES:
-                drawArches(2);
+                drawArches();
                 break;
         }
     }
@@ -224,7 +219,7 @@
     let type = ARCHES;
 
     const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
-    const sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
+    let sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
     window.addEventListener("resize", onResize);
     popGui(gui);
     drawAxis(sceneInfo.scene, 40, getMaterial(colorsGrey, 1));

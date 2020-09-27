@@ -1,4 +1,4 @@
-import {Vector3} from './lib/three.module.js';
+import {Vector3} from '../lib/three.module.js';
 
 function polarCos(degrees, radius, offset) {
     return math.cos(math.pi * degrees / 180) * radius + offset;
@@ -33,6 +33,35 @@ function addVectors(vector1, vector2) {
     return new Vector3(vector1.x + vector2.x, vector1.y + vector2.y, vector1.z + vector2.z);
 }
 
+function addVectorArray(vectorA1, vectorA2) {
+    const vectorA3 = [];
+    vectorA1.forEach((vector1, index) => {
+        if (vectorA2[index]) {
+            vectorA3.push(new Vector3(
+                vector1.x + vectorA2[index].x,
+                vector1.y + vectorA2[index].y,
+                vector1.z + vectorA2[index].z,
+            ));
+        }
+    });
+    return vectorA3;
+}
+
+function subtractVectorArray(vectorA1, vectorA2, onlyXY = true) {
+    const vectorA3 = [];
+    vectorA1.forEach((vector1, index) => {
+        if (vectorA2[index]) {
+            let z = onlyXY ? vector1.z : vector1.z - vectorA2[index].z;
+            vectorA3.push(new Vector3(
+                vector1.x - vectorA2[index].x,
+                vector1.y - vectorA2[index].y,
+                z,
+            ));
+        }
+    });
+    return vectorA3;
+}
+
 function subVectors(vector1, vector2) {
     return new Vector3(vector1.x - vector2.x, vector1.y - vector2.y, vector1.z - vector2.z);
 }
@@ -49,4 +78,5 @@ function moveVectors(vectorArray, x, y, z) {
     });
 }
 
-export { polarCos, polarSin, square, getDistance, addVectors, subVectors, moveVectors, subVectorsXY, roundTo, scaleVectors }
+export { polarCos, polarSin, square, getDistance, addVectors, subVectors,
+    moveVectors, subVectorsXY, roundTo, scaleVectors, addVectorArray, subtractVectorArray }
