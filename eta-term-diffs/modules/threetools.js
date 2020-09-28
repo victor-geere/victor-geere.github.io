@@ -14,6 +14,17 @@ let aspectRatio = function (width, height) {
     return width / height;
 };
 
+function getMaterialOptions() {
+    return {
+        color: 0x808080,
+        transparent: true,
+        opacity: 0.5
+    }
+}
+
+function getCustomMaterial(palette, colorN, options) {
+    return new THREE.MeshBasicMaterial({...options, color: palette[colorN]});
+}
 
 function getMaterial(palette, colorN, opacity = 0) {
     if (opacity) {
@@ -226,5 +237,6 @@ function newVec(x, y, z) {
 
 export {
     getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve,
-    buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera, makeSimpleCurve
+    buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera, makeSimpleCurve,
+    getCustomMaterial, getMaterialOptions
 }

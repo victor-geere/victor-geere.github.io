@@ -1,5 +1,5 @@
 <!doctype html>
-<html >
+<html>
 <head>
   <title>Harmonics</title>
   <link rel="stylesheet" type="text/css" href="main.css">
@@ -19,6 +19,7 @@
         buildScene,
         newVec,
         getPerspectiveCamera,
+        getCustomMaterial, getMaterialOptions,
         getOrthoCamera
     } from './modules/threetools.js';
     import {
@@ -61,72 +62,41 @@
         return result;
     }
 
-    function makeSphere() {
-        const objTree = [];
+    function makeRing(innerRadius, outerRadius, colorN) {
+        const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 8, 2);
+        const options = getMaterialOptions();
+        options.side = THREE.DoubleSide;
+        options.transparent = true;
+        options.opacity = 0.2;
+        options.wireframe = false;
+        const material = getCustomMaterial(rainbow, colorN, options);
+        const mesh = new THREE.Mesh(geometry, material);
+        let obj = { mesh: mesh, geo: geometry };
+        sceneInfo.addObject(obj);
+        return obj;
+    }
 
-        const meshMaterial = new THREE.MeshBasicMaterial( {
-            color: 0xffffff,
-            opacity: 0.05,
-            transparent: true
-        } );
-
-        const outlineMaterial = new THREE.LineBasicMaterial( {
-            color: 0x707080,
-            opacity: 0.75,
-            transparent: true
-        } );
-
-        let geometry = new THREE.SphereGeometry( 1, 16, 16 );
-        // let material = new THREE.MeshBasicMaterial( getMaterial(rainbow, 20) );
-
-        const sphereBack = new THREE.Mesh( geometry, meshMaterial );
-        sphereBack.material.side = THREE.BackSide; // back faces
-        sphereBack.renderOrder = 0;
-        objTree.push(sphereBack);
-        sceneInfo.group.add(sphereBack);
-
-        const sphereFront = new THREE.Mesh( geometry, meshMaterial.clone() );
-        sphereFront.material.side = THREE.FrontSide; // front faces
-        sphereFront.renderOrder = 1;
-        objTree.push(sphereFront);
-        sceneInfo.group.add(sphereFront);
-
-        // new THREE.LineBasicMaterial( { color: 0xffffff } )
-        const edges = new THREE.EdgesGeometry( geometry );
-        const line = new THREE.LineSegments( edges, outlineMaterial );
-        objTree.push(line);
-        sceneInfo.group.add( line );
-
-        const x = gui.controllers.ctrlX.getValue();
-        const y = gui.controllers.ctrlY.getValue();
-        const z = gui.controllers.ctrlZ.getValue();
-
-        const lineX = gui.controllers.ctrlLineX.getValue();
-        const lineY = gui.controllers.ctrlLineY.getValue();
-        const lineZ = gui.controllers.ctrlLineZ.getValue();
-
-        const lineYC = math.sin(lineZ * math.pi / 180);
-
-        let lineZC = -math.sin(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
-        let lineXC = math.cos(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
-
-        const points = [newVec(0,0,0), newVec(lineXC, lineYC, lineZC)];
-        const guideLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), getMaterial(rainbow, 20));
-        objTree.push(guideLine);
-        sceneInfo.group.add(guideLine);
-
-        objTree.forEach((obj) => {
-            obj.rotateX(x * math.pi / 180);
-            obj.rotateY(y * math.pi / 180);
-            obj.rotateZ(z * math.pi / 180);
-        });
-
-        return objTree;
+    function getTerm(n) {
+        return 1/math.sqrt(n);
     }
 
     function drawArches() {
         sceneInfo.clear();
-        const tree = makeSphere();
+        let terms = [];
+        let prevTerm = { inner: 1, outer: 1 };
+        let k = 1;
+        for (let n = 0; n < 60; n++) {
+            k++;
+            let thisTerm = getTerm(k);
+            terms.push({
+                inner: prevTerm.inner - thisTerm,
+                outer: prevTerm.outer + thisTerm
+            });
+            let r = makeRing(0.5, 1.5, n);
+            r.geo.translate(n * 0.1, 0, n/10);
+            prevTerm = terms[n];
+        }
+        console.log(terms);
     }
 
     function onResize() {
@@ -172,7 +142,7 @@
     }
 
     const gui = {
-        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: true, closeOnTop: false},
         controllers: {
             ctrlLoopIm: null,
             ctrlLoopSpeed: null,
@@ -217,7 +187,7 @@
     let sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
     window.addEventListener("resize", onResize);
     popGui(gui);
-    drawAxis(sceneInfo.scene, 40);
+    drawAxis(sceneInfo.scene, 40, getMaterial(colorsGrey, 1));
     drawChoice();
     sceneInfo.scale(gui.controllers.ctrlScale.getValue());
     animationLoop();
