@@ -1,0 +1,228 @@
+<!doctype html>
+<html >
+<head>
+  <title>Harmonics</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="lib/math.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import * as THREE from './lib/three.module.js';
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        getMaterial,
+        drawAxis,
+        makeSimpleCurve,
+        buildScene,
+        newVec,
+        getPerspectiveCamera,
+        getOrthoCamera
+    } from './modules/threetools.js';
+    import {
+        roundTo, scaleVectors, subVectorsXY, addVectors,
+        subVectors, moveVectors, addVectorArray, subtractVectorArray
+    } from './modules/mathtools.js';
+
+    let formula = '';
+    let formulas = [];
+
+    function setFormula(text, numerator, k, a, b) {
+        if (formulas.length > 1) {
+            formulas.splice(0, 1);
+        }
+        formulas.push(text);
+        const title = `1/(n1...n2)^(a + bi)`;
+        document.getElementById('floatingText').innerHTML = `${title}<br><span>${formulas[0]}</span> <br> <span>${formulas[1]}</span>`
+    }
+
+    function fn(r) {
+        const n = roundTo(r, 3);
+        const sign = n < 0 ? '-' : '+';
+        const nAbs = Math.abs(n);
+        if (nAbs === 0) {
+            return '+ 0.000';
+        }
+        const nAbsStr = `${nAbs}0000000`.substr(0, 5);
+        return `${sign} ${nAbsStr}`;
+    }
+
+    function getEta(numerator, k, a, b) {
+        const baseFactor = gui.controllers.ctrlBaseFactor.getValue();
+        const kx = k * baseFactor;
+        const text = `${numerator}/(${kx}^(${a} + ${b}i))`;
+        const result = math.evaluate(text);
+
+        let formattedText = `${numerator}/(${roundTo(kx, 3)}^(${fn(a)} bi))`;
+        setFormula(`${formattedText}`, numerator, k, a, b);
+
+        return result;
+    }
+
+    function makeSphere() {
+        const objTree = [];
+
+        const meshMaterial = new THREE.MeshBasicMaterial( {
+            color: 0xffffff,
+            opacity: 0.05,
+            transparent: true
+        } );
+
+        const outlineMaterial = new THREE.LineBasicMaterial( {
+            color: 0x707080,
+            opacity: 0.75,
+            transparent: true
+        } );
+
+        let geometry = new THREE.SphereGeometry( 1, 16, 16 );
+        // let material = new THREE.MeshBasicMaterial( getMaterial(rainbow, 20) );
+
+        const sphereBack = new THREE.Mesh( geometry, meshMaterial );
+        sphereBack.material.side = THREE.BackSide; // back faces
+        sphereBack.renderOrder = 0;
+        objTree.push(sphereBack);
+        sceneInfo.group.add(sphereBack);
+
+        const sphereFront = new THREE.Mesh( geometry, meshMaterial.clone() );
+        sphereFront.material.side = THREE.FrontSide; // front faces
+        sphereFront.renderOrder = 1;
+        objTree.push(sphereFront);
+        sceneInfo.group.add(sphereFront);
+
+        // new THREE.LineBasicMaterial( { color: 0xffffff } )
+        const edges = new THREE.EdgesGeometry( geometry );
+        const line = new THREE.LineSegments( edges, outlineMaterial );
+        objTree.push(line);
+        sceneInfo.group.add( line );
+
+        const x = gui.controllers.ctrlX.getValue();
+        const y = gui.controllers.ctrlY.getValue();
+        const z = gui.controllers.ctrlZ.getValue();
+
+        const lineX = gui.controllers.ctrlLineX.getValue();
+        const lineY = gui.controllers.ctrlLineY.getValue();
+        const lineZ = gui.controllers.ctrlLineZ.getValue();
+
+        const lineYC = math.sin(lineZ * math.pi / 180);
+
+        let lineZC = -math.sin(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
+        let lineXC = math.cos(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
+
+        const points = [newVec(0,0,0), newVec(lineXC, lineYC, lineZC)];
+        const guideLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), getMaterial(rainbow, 20));
+        objTree.push(guideLine);
+        sceneInfo.group.add(guideLine);
+
+        objTree.forEach((obj) => {
+            obj.rotateX(x * math.pi / 180);
+            obj.rotateY(y * math.pi / 180);
+            obj.rotateZ(z * math.pi / 180);
+        });
+
+        return objTree;
+    }
+
+    function drawArches() {
+        sceneInfo.clear();
+        const tree = makeSphere();
+    }
+
+    function onResize() {
+        drawChoice();
+    }
+
+    /**
+     * animate objects per frame
+     */
+    function updateObjects() {
+        if (sceneInfo.hasChanged) {
+            let offset = gui.controllers.ctrlOffset.getValue();
+            let speed = gui.controllers.ctrlLoopSpeed.getValue();
+            sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+        }
+    }
+
+    function animationLoop() {
+        sceneInfo.animationLoopId = requestAnimationFrame(animationLoop);
+        updateObjects();
+        sceneInfo.render();
+    }
+
+    function hasChanged() {
+        sceneInfo.hasChanged = gui.controllers.ctrlLoopIm.getValue();
+    }
+
+    function popGui(gui) {
+        gui.options.load = gui.parameters;
+        const datGui = new dat.GUI(gui.options);
+        gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop', false, true).onChange(hasChanged);
+        gui.controllers.ctrlLoopSpeed = datGui.add(gui.parameters, 'Loop Speed', 0, 1.9, 0.1).onChange(hasChanged);
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.05).onChange(hasChanged);
+        gui.controllers.ctrlOffset = datGui.add(gui.parameters, 'Offset', 2, 120, 0.1).onChange(drawChoice);
+
+        gui.controllers.ctrlX = datGui.add(gui.parameters, 'X', 0, 90, 1).onChange(drawChoice);
+        gui.controllers.ctrlY = datGui.add(gui.parameters, 'Y', 0, 90, 1).onChange(drawChoice);
+        gui.controllers.ctrlZ = datGui.add(gui.parameters, 'Z', 0, 90, 1).onChange(drawChoice);
+
+        gui.controllers.ctrlLineX = datGui.add(gui.parameters, 'Line X', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLineY = datGui.add(gui.parameters, 'Line Y', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLineZ = datGui.add(gui.parameters, 'Line Z', 0, 360, 1).onChange(drawChoice);
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        controllers: {
+            ctrlLoopIm: null,
+            ctrlLoopSpeed: null,
+            ctrlScale: null,
+            ctrlOffset: null,
+            ctrlX: null,
+            ctrlY: null,
+            ctrlZ: null,
+            ctrlLineX: null,
+            ctrlLineY: null,
+            ctrlLineZ: null,
+        },
+        parameters: {
+            'Loop': true,
+            'Loop Speed': 1,
+            'Scale': 5,
+            'Offset': 20,
+            'X': 0,
+            'Y': 0,
+            'Z': 0,
+            'Line X': 0,
+            'Line Y': 0,
+            'Line Z': 0,
+        }
+    };
+
+    function drawChoice() {
+        switch (type) {
+            case CIRCLES:
+                break;
+            case ARCHES:
+                drawArches();
+                break;
+        }
+    }
+
+    const CIRCLES = 1;
+    const ARCHES = 2;
+    let type = ARCHES;
+
+    const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
+    let sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
+    window.addEventListener("resize", onResize);
+    popGui(gui);
+    drawAxis(sceneInfo.scene, 40);
+    drawChoice();
+    sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+    animationLoop();
+
+</script>
+
+</body>
+</html>
