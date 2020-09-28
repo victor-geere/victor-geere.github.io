@@ -4,12 +4,14 @@
 <!--    https://stackoverflow.com/questions/50992863/creating-a-helix-following-a-curve-->
     <script src="lib/math.min.js"></script>
     <script src="lib/dat.gui.min.js"></script>
+    <link rel="stylesheet" href="main.css">
 </head>
 <body>
 <script type="module">
     import * as THREE from './lib/three.module.js';
     import { OrbitControls } from './lib/OrbitControls.js';
-    import { colorsA } from './colors.js';
+    import { rainbow, colorsGrey } from './colors.js';
+    import { drawAxis } from './threetools.js';
     import { Z } from  './zeta.js';
 
     function resize() {
@@ -90,7 +92,7 @@
     const scene = new THREE.Scene();
 
     // xyz thingy
-    scene.add( new THREE.AxesHelper( 40 ) );
+    drawAxis(scene, 20, getMaterial(colorsGrey, 2));
 
     const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
     light.position.set(0, 0, 0);
@@ -139,15 +141,15 @@
         return null;
     }
 
-    function getMaterial(colorN) {
+    function getMaterial(palette, colorN) {
         return new THREE.LineBasicMaterial({
-            color: colorsA[colorN]
+            color: palette[colorN]
         })
     }
 
     function makeSpiral(a, b, materialN = 29) {
         let curvePoints = getSmoothPointsSpiral(a, b);
-        return { sum: addSpiral(curvePoints.sum, getMaterial(materialN)) };
+        return { sum: addSpiral(curvePoints.sum, getMaterial(rainbow, materialN)) };
     }
 
     function addSpiralObjsToGroup(spiralObjs) {
@@ -160,7 +162,7 @@
     function drawOneSpiral() {
         let a = gui.controllers.ctrlRe.getValue();
         let b = gui.controllers.ctrlIm.getValue();
-        let spiralObjs = makeSpiral(a, b, 20);
+        let spiralObjs = makeSpiral(a, b, 1);
         addSpiralObjsToGroup(spiralObjs);
         return spiralObjs;
     }
@@ -334,7 +336,7 @@
                 hasChanged = false;
             }
         });
-        gui.controllers.ctrlLoopImSpeed = datGui.add(gui.parameters, 'Loop Im Speed', 0, 5);
+        gui.controllers.ctrlLoopImSpeed = datGui.add(gui.parameters, 'Loop Im Speed', 0, 10);
         gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.1).onChange(() => {
             group.scale.set(gui.parameters['Scale'], gui.parameters['Scale'], gui.parameters['Scale']);
             hasChanged = true;
@@ -373,13 +375,13 @@
             ctrlSigmaIncrements: null,
         },
         parameters : {
-            'Scale': 4,
+            'Scale': 7,
             'Real Part': 1,
             'Imaginary Part': 0,
             'Riemann Zero #': 0,
             'Draw Sum': true,
             'Loop Im': true,
-            'Loop Im Speed': 1,
+            'Loop Im Speed': 5,
             'Draw Im Loop': true,
             'Draw Elbow': false,
             'Sigma Iterations': 250,
@@ -392,8 +394,8 @@
     let hasChanged = false;
     let sumDrawn = false;
     let metaPlots = {
-        convergence : makeMetaPlot(getMaterial(29), 1000),
-        degree1 : makeMetaPlot(getMaterial(1), 1500)
+        convergence : makeMetaPlot(getMaterial(rainbow, 48), 1000),
+        degree1 : makeMetaPlot(getMaterial(rainbow, 24), 1500)
     };
 
     let spiralObjects = drawOneSpiral(group);
