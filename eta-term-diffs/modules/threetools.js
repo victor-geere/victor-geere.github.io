@@ -1,6 +1,6 @@
 import { polarCos, polarSin } from "./mathtools.js";
 import * as THREE from '../lib/three.module.js';
-import {OrbitControls} from '../lib/OrbitControls.js';
+import { OrbitControls } from '../lib/OrbitControls.js';
 import * as Colors from './colors.js';
 
 function resize(renderer, camera, x, y) {
@@ -55,6 +55,33 @@ function addMesh(obj, curvePoints = [], resolution= 0) {
     } catch (e) {
         console.error(e);
     }
+}
+
+function makeDotTrail(curvePoints, material, xOrigin = 0, yOrigin = 0, resolution= 0) {
+    console.log(curvePoints);
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load( 'textures/sprites/disc.png' );
+    const pointsMaterial = new THREE.PointsMaterial( {
+        color: 0x0080ff,
+        map: texture,
+        size: 1,
+        alphaTest: 0.5
+    });
+
+    const pointsGeometry = new THREE.BufferGeometry().setFromPoints( curvePoints );
+    const points = new THREE.Points( pointsGeometry, pointsMaterial );
+
+    return {
+        properties: {
+            origin: {x: xOrigin, y: yOrigin, z: 0},
+            mat: pointsMaterial
+        },
+        curvePoints: curvePoints,
+        curve: null,
+        geoPoints: null,
+        geo: pointsGeometry,
+        mesh: points
+    };
 }
 
 function makeSimpleCurve(curvePoints, material, xOrigin = 0, yOrigin = 0, resolution= 0) {
@@ -131,6 +158,13 @@ function newSceneInfo() {
             this.objects.push(obj);
             this.addObjectToGroup(obj.mesh);
         },
+        removeFirstObject: function() {
+            if (this.objects.length > 1) {
+                let obj = this.objects[0];
+                this.group.remove(obj.mesh);
+                this.objects.splice(0, 1);
+            }
+        },
         clear: function () {
             while (this.group.children.length > 0) {
                 this.group.remove(this.group.children[this.group.children.length - 1]);
@@ -150,7 +184,7 @@ function newSceneInfo() {
 
 function getPerspectiveCamera(x, y) {
     const camera = new THREE.PerspectiveCamera(32, aspectRatio(x, y), 1, 500);
-    camera.position.set(0, 0, 50);
+    camera.position.set(0, 0, 20);
     return camera;
 }
 
@@ -160,10 +194,16 @@ function getOrthoCamera(x, y) {
     return camera;
 }
 
-function buildScene(parentHtmlElement, x, y, scale, backgroudColor, lightColor, camera) {
+function buildDefaultScene() {
+    // const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
+    const camera = getPerspectiveCamera(window.innerWidth, window.innerHeight);
+    return buildScene(document.body, window.innerWidth, window.innerHeight, 1, 0x303035, 0xffffff, camera);
+}
+
+function buildScene(parentHtmlElement, x, y, scale, backgroundColor, lightColor, camera) {
     if (!camera) {
-        camera = getOrthoCamera(x, y);
-        // camera = getPerspectiveCamera(x, y);
+        // camera = getOrthoCamera(x, y);
+        camera = getPerspectiveCamera(x, y);
     }
     let info = newSceneInfo();
     info.renderer = new THREE.WebGLRenderer({
@@ -177,7 +217,7 @@ function buildScene(parentHtmlElement, x, y, scale, backgroudColor, lightColor, 
     resize(info.renderer, info.camera, x, y);
 
     info.scene = new THREE.Scene();
-    info.scene.background = new THREE.Color(backgroudColor);
+    info.scene.background = new THREE.Color(backgroundColor);
 
     const light = new THREE.DirectionalLight(lightColor, 1, Infinity);
     light.position.set(0, 0, 0);
@@ -238,5 +278,5 @@ function newVec(x, y, z) {
 export {
     getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve,
     buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera, makeSimpleCurve,
-    getCustomMaterial, getMaterialOptions
+    getCustomMaterial, getMaterialOptions, makeDotTrail, buildDefaultScene
 }

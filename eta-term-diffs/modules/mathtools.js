@@ -1,4 +1,10 @@
-import {Vector3} from '../lib/three.module.js';
+import { Vector3 } from '../lib/three.module.js';
+
+function getEta(k, a, b, baseFactor = 1, numerator = 1) {
+    const kx = k * baseFactor;
+    const text = `${numerator}/(${kx}^(${a} + ${b}i))`;
+    return math.evaluate(text);
+}
 
 function polarCos(degrees, radius, offset) {
     return math.cos(math.pi * degrees / 180) * radius + offset;
@@ -79,4 +85,5 @@ function moveVectors(vectorArray, x, y, z) {
 }
 
 export { polarCos, polarSin, square, getDistance, addVectors, subVectors,
-    moveVectors, subVectorsXY, roundTo, scaleVectors, addVectorArray, subtractVectorArray }
+    moveVectors, subVectorsXY, roundTo, scaleVectors, addVectorArray, subtractVectorArray,
+    getEta }
