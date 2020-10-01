@@ -194,9 +194,15 @@ function getOrthoCamera(x, y) {
     return camera;
 }
 
-function buildDefaultScene() {
-    // const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
-    const camera = getPerspectiveCamera(window.innerWidth, window.innerHeight);
+const PERSPECTIVE = 0;
+const ORTHO = 1;
+function buildDefaultScene(cameraType = PERSPECTIVE) {
+    let camera;
+    if (cameraType === ORTHO) {
+        camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
+    } else {
+        camera = getPerspectiveCamera(window.innerWidth, window.innerHeight);
+    }
     return buildScene(document.body, window.innerWidth, window.innerHeight, 1, 0x303035, 0xffffff, camera);
 }
 
