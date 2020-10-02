@@ -1,6 +1,59 @@
 import { rainbow } from "./colors.js";
+import * as THREE from "../lib/three.module.js";
 
 let materialCache = {};
+
+
+function getMaterialOptions() {
+    return {
+        color: 0x808080,
+        transparent: true,
+        opacity: 0.5
+    }
+}
+
+function getCustomMaterial(palette, colorN, options) {
+    return new THREE.MeshBasicMaterial({...options, color: palette[colorN]});
+}
+
+function getMaterial(palette, colorN, opacity = 0) {
+    if (opacity) {
+        return new THREE.MeshBasicMaterial({
+            color: palette[colorN],
+            opacity: opacity,
+            transparent: true
+        })
+    }
+    return new THREE.MeshBasicMaterial({
+        color: palette[colorN]
+    })
+}
+
+function getPhongMaterial(palette, colorN, opacity = 0) {
+    if (opacity) {
+        return new THREE.MeshPhongMaterial({
+            color: palette[colorN],
+            opacity: opacity,
+            transparent: true
+        })
+    }
+    return new THREE.MeshPhongMaterial({
+        color: palette[colorN]
+    })
+}
+
+function getLineMaterial(palette, colorN, opacity = 0) {
+    if (opacity) {
+        return new THREE.LineBasicMaterial({
+            color: palette[colorN],
+            opacity: opacity,
+            transparent: true
+        })
+    }
+    return new THREE.LineBasicMaterial({
+        color: palette[colorN]
+    })
+}
 
 function getPointsMaterial(colorN, size=0.125) {
     let color = rainbow[colorN];
@@ -20,4 +73,5 @@ function getPointsMaterial(colorN, size=0.125) {
     return mat;
 }
 
-export { getPointsMaterial }
+export { getPointsMaterial, getMaterial, getLineMaterial, getCustomMaterial, getMaterialOptions,
+    getPhongMaterial }

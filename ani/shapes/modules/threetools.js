@@ -2,6 +2,7 @@ import { polarCos, polarSin } from "./mathtools.js";
 import * as THREE from '../lib/three.module.js';
 import { OrbitControls } from '../lib/OrbitControls.js';
 import * as Colors from './colors.js';
+import { getMaterial}  from './materials.js';
 
 function resize(renderer, camera, x, y) {
     renderer.setSize(x, y);
@@ -13,44 +14,6 @@ function resize(renderer, camera, x, y) {
 let aspectRatio = function (width, height) {
     return width / height;
 };
-
-function getMaterialOptions() {
-    return {
-        color: 0x808080,
-        transparent: true,
-        opacity: 0.5
-    }
-}
-
-function getCustomMaterial(palette, colorN, options) {
-    return new THREE.MeshBasicMaterial({...options, color: palette[colorN]});
-}
-
-function getMaterial(palette, colorN, opacity = 0) {
-    if (opacity) {
-        return new THREE.MeshBasicMaterial({
-            color: palette[colorN],
-            opacity: opacity,
-            transparent: true
-        })
-    }
-    return new THREE.MeshBasicMaterial({
-        color: palette[colorN]
-    })
-}
-
-function getLineMaterial(palette, colorN, opacity = 0) {
-    if (opacity) {
-        return new THREE.LineBasicMaterial({
-            color: palette[colorN],
-            opacity: opacity,
-            transparent: true
-        })
-    }
-    return new THREE.LineBasicMaterial({
-        color: palette[colorN]
-    })
-}
 
 function addMesh(obj, curvePoints = [], resolution= 0) {
     try {
@@ -171,6 +134,10 @@ function newSceneInfo() {
         },
         addObjectToGroup: function (obj3d) {
             this.group.add(obj3d);
+        },
+        addDoubleGeoToGroup: function (obj) {
+            this.group.add(obj.meshBack);
+            this.group.add(obj.meshFront);
         },
         addObject: function (obj) {
             this.objects.push(obj);
@@ -300,7 +267,7 @@ function newVec(x, y, z) {
 }
 
 export {
-    getMaterial, drawAxis, getCirclePoints, makeCircle, makeCurve,
+    drawAxis, getCirclePoints, makeCircle, makeCurve,
     buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera, makeSimpleCurve,
-    getCustomMaterial, getMaterialOptions, makeDotTrail, buildDefaultScene
+    makeDotTrail, buildDefaultScene
 }
