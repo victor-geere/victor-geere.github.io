@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <title>Ani</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="lib/math.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+  <script src="lib/gui.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import  { ConvexBufferGeometry } from './node_modules/three/examples/jsm/geometries/ConvexGeometry.js';
+    import * as THREE from './lib/three.module.js';
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        getMaterial,
+        drawAxis,
+        buildDefaultScene,
+        newVec
+    } from './modules/threetools.js';
+
+    let sceneInfo;
+    let useCache = false;
+
+    function initScene() {
+        sceneInfo = buildDefaultScene();
+        sceneInfo.scale(gui.get('Scale'));
+        drawAxis(sceneInfo.scene, 50, getMaterial(colorsGrey, 1));
+    }
+
+    let nth = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        if (sceneInfo.animation.doLoop && !sceneInfo.animation.busy && sceneInfo.animation.nth++ % 5 === 0) {
+            nth = 1;
+        }
+        sceneInfo.render();
+        // group.rotation.y += 0.001;
+    }
+
+    function makeScene() {
+        let obj = {
+            vertices: new THREE.DodecahedronGeometry( 10 ).vertices,
+            mat: getMaterial(rainbow, 30, 0.2),
+            geo: null,
+            mesh: null
+        };
+
+        let meshGeometry = new ConvexBufferGeometry( obj.vertices );
+
+        let meshBack = new THREE.Mesh( meshGeometry, obj.mat );
+        meshBack.material.side = THREE.BackSide; // back faces
+        meshBack.renderOrder = 0;
+        sceneInfo.addObjectToGroup(meshBack);
+
+        let meshFront = new THREE.Mesh( meshGeometry, obj.mat.clone() );
+        meshFront.material.side = THREE.FrontSide; // front faces
+        meshFront.renderOrder = 1;
+        sceneInfo.addObjectToGroup(meshFront);
+
+        sceneInfo.render();
+
+        return obj;
+    }
+
+    function reset() {
+        sceneInfo.clear();
+        makeScene();
+    }
+
+    function update() {
+        sceneInfo.scale(gui.get('Scale'));
+        sceneInfo.render();
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        init : [
+            { ctrl: 'ctrlScale', param: 'Scale', min: 0, max: 100, interval: 0.5, default: 1, onChange: update, onFinishChange: () => {} },
+            { ctrl: 'ctrlPoints', param: 'Points', min: 4, max: 100, interval: 0.5, default: 100, onChange: reset, onFinishChange: () => {} },
+        ],
+        get: function(key) {
+            return this.controllers[`ctrl${key}`].getValue();
+        },
+    };
+
+    popGui(gui);
+    initScene();
+    makeScene();
+    animate();
+
+</script>
+
+</body>
+</html>
