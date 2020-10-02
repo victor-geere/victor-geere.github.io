@@ -42,6 +42,19 @@ function getPhongMaterial(palette, colorN, opacity = 0) {
     })
 }
 
+function getLambertMaterial(palette, colorN, opacity = 0) {
+    if (opacity) {
+        return new THREE.MeshLambertMaterial({
+            color: palette[colorN],
+            opacity: opacity,
+            transparent: true
+        })
+    }
+    return new THREE.MeshLambertMaterial({
+        color: palette[colorN]
+    })
+}
+
 function getLineMaterial(palette, colorN, opacity = 0) {
     if (opacity) {
         return new THREE.LineBasicMaterial({
@@ -53,6 +66,14 @@ function getLineMaterial(palette, colorN, opacity = 0) {
     return new THREE.LineBasicMaterial({
         color: palette[colorN]
     })
+}
+
+function getOutlineMaterial() {
+    return new THREE.LineBasicMaterial( {
+        color: 0x707080,
+        opacity: 0.75,
+        transparent: true
+    } );
 }
 
 function getPointsMaterial(colorN, size=0.125) {
@@ -74,4 +95,4 @@ function getPointsMaterial(colorN, size=0.125) {
 }
 
 export { getPointsMaterial, getMaterial, getLineMaterial, getCustomMaterial, getMaterialOptions,
-    getPhongMaterial }
+    getPhongMaterial, getOutlineMaterial }

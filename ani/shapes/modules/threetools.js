@@ -136,8 +136,14 @@ function newSceneInfo() {
             this.group.add(obj3d);
         },
         addDoubleGeoToGroup: function (obj) {
-            this.group.add(obj.meshBack);
-            this.group.add(obj.meshFront);
+            obj.mesh = new THREE.Group();
+            this.objects.push(obj);
+            obj.mesh.add(obj.meshBack);
+            obj.mesh.add(obj.meshFront);
+            if (obj.outline) {
+                obj.mesh.add(obj.outline);
+            }
+            this.group.add(obj.mesh);
         },
         addObject: function (obj) {
             this.objects.push(obj);
