@@ -1,5 +1,5 @@
 import { polarCos, polarSin } from "./mathtools.js";
-import * as THREE from '../lib/three.module.js';
+import * as THREE from '../lib/three/build/three.module.js';
 import { OrbitControls } from '../lib/OrbitControls.js';
 import * as Colors from './colors.js';
 import { getMaterial}  from './materials.js';

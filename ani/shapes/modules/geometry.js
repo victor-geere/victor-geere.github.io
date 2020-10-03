@@ -1,6 +1,6 @@
-import { ConvexBufferGeometry } from '../node_modules/three/examples/jsm/geometries/ConvexGeometry.js'
+import { ConvexBufferGeometry } from '../lib/three/examples/jsm/geometries/ConvexGeometry.js'
 import { Mesh, FrontSide, BackSide, DodecahedronGeometry,
-    BoxGeometry, SphereBufferGeometry, EdgesGeometry, LineSegments } from '../lib/three.module.js';
+    BoxGeometry, SphereBufferGeometry, EdgesGeometry, LineSegments } from '../lib/three/build/three.module.js';
 import { getOutlineMaterial} from "./materials.js";
 
 function __makeDoubleSided(obj) {

@@ -1,5 +1,5 @@
 import { rainbow } from "./colors.js";
-import * as THREE from "../lib/three.module.js";
+import * as THREE from "../lib/three/build/three.module.js";
 
 let materialCache = {};
 

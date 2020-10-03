@@ -1,4 +1,4 @@
-import { Vector3 } from '../lib/three.module.js';
+import { Vector3 } from '../lib/three/build/three.module.js';
 
 function getEta(k, a, b, baseFactor = 1, numerator = 1) {
     const kx = k * baseFactor;
