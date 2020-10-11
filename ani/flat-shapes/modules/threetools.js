@@ -202,7 +202,12 @@ function getSceneOptions() {
         },
         scale: 1,
         backgroundColor: 0x303035,
-        lightColor: 0xffffff,
+        light: {
+            color: 0xffffff,
+            position: { x: -10, y: 10, z: 10 },
+            target: { x: 10, y: -10, z: -10 },
+            intensity: 1
+        },
         controls: {
             enabled: true,
             minDistance: 0,
@@ -228,11 +233,11 @@ function buildDefaultScene(sceneOptions) {
         sceneOptions.backgroundColor,
         sceneOptions.lightColor,
         camera,
-        sceneOptions.controls.enabled
+        sceneOptions
     );
 }
 
-function buildScene(parentHtmlElement, x, y, scale, backgroundColor, lightColor, camera, controlsEnabled = true) {
+function buildScene(parentHtmlElement, x, y, scale, backgroundColor, lightColor, camera, sceneOptions) {
     if (!camera) {
         // camera = getOrthoCamera(x, y);
         camera = getPerspectiveCamera(x, y);
@@ -251,13 +256,17 @@ function buildScene(parentHtmlElement, x, y, scale, backgroundColor, lightColor,
     info.scene = new THREE.Scene();
     info.scene.background = new THREE.Color(backgroundColor);
 
-    const light = new THREE.DirectionalLight(lightColor, 1, Infinity);
-    light.position.set(0, 0, 0);
+    const targetObject = new THREE.Object3D();
+    targetObject.position.set(sceneOptions.light.target.x, sceneOptions.light.target.y, sceneOptions.light.target.z);
+    info.scene.add(targetObject);
+    const light = new THREE.DirectionalLight(sceneOptions.light.color, sceneOptions.light.intensity, Infinity);
+    light.position.set(sceneOptions.light.position.x, sceneOptions.light.position.y, sceneOptions.light.position.z);
+    light.target = targetObject;
     info.camera.add(light);
     info.addObjectToScene(info.camera);
 
     // controls
-    if (controlsEnabled) {
+    if (sceneOptions.controls.enabled) {
         let controls = new OrbitControls(info.camera, info.renderer.domElement);
         controls.minDistance = 10;
         controls.maxDistance = 100;
@@ -309,8 +318,20 @@ function newVec(x, y, z) {
     return new THREE.Vector3(x, y, z);
 }
 
+/**
+ *
+ * @param x
+ * @param y
+ * @param z
+ * @param order e.g. 'XYZ','YZX','XZY',
+ * @returns {THREE.Euler}
+ */
+function getEuler(x, y, z, order) {
+    return new THREE.Euler(x, y, z, order);
+}
+
 export {
     drawAxis, getCirclePoints, makeCircle, makeCurve,
     buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera, makeSimpleCurve,
-    makeDotTrail, buildDefaultScene, getSceneOptions
+    makeDotTrail, buildDefaultScene, getSceneOptions, getEuler
 }

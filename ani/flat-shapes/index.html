@@ -17,7 +17,7 @@
         drawAxis,
         getSceneOptions,
         buildDefaultScene,
-        newVec
+        getEuler
     } from './modules/threetools.js';
     import { Interaction } from './lib/three.interaction/three.interaction.module.js';
 
@@ -27,10 +27,11 @@
     function initScene() {
         let options = getSceneOptions();
         options.cameraType = options.types.camera.ORTHO;
-        options.controls.enabled = false;
+        options.controls.enabled = true;
+        options.lightColor = 0xffffff;
         sceneInfo = buildDefaultScene(options);
-        sceneInfo.scale(gui.get('Scale'));
-        // drawAxis(sceneInfo.scene, 50, getMaterial(colorsGrey, 1));
+        // sceneInfo.scale(gui.get('Scale'));
+        drawAxis(sceneInfo.scene, 50);
     }
 
     function animate() {
@@ -59,8 +60,14 @@
         return box;
     }
 
-    function addCylinder(radius, colorN, opacity) {
-        const box = getCylinder(radius * 0.9, radius, 4, 1, 1, getPhongMaterial(rainbow, colorN, opacity));
+    function addNgon(radius, ngon, height, colorN, opacity, rotation = { x: 0, y: 0, z: 0 }) {
+        const box = getCylinder(radius, radius, ngon, 1, height, getPhongMaterial(rainbow, colorN, opacity), false, rotation);
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function addCylinder(radius, colorN, opacity, rotation = { x: 0, y: 0, z: 0 }) {
+        const box = getCylinder(radius * 0.9, radius, 4, 1, 1, getPhongMaterial(rainbow, colorN, opacity), false, rotation);
         sceneInfo.addDoubleGeoToGroup(box);
         return box;
     }
@@ -71,34 +78,52 @@
         return sphere;
     }
 
-    function rotateObject(obj) {
-        obj.geo.rotateX(90 * Math.PI / 180);
-        obj.outline.geometry.rotateX(90 * Math.PI / 180);
-        obj.geo.rotateZ(45 * Math.PI / 180);
-        obj.outline.geometry.rotateZ(45 * Math.PI / 180);
-    }
-
-    function moveObject(obj, x, y) {
-        obj.geo.translate(x, y, 0);
-        obj.outline.geometry.translate(x, y, 0);
-    }
-
-    function addInteractiveButton(x, y) {
-        const cyl = addCylinder(5, 30, 0.2);
-        rotateObject(cyl);
-        moveObject(cyl, x, y);
-        cyl.meshFront.cursor = 'pointer';
-        cyl.meshFront.on('click', function(ev) {
-            console.log('clicked : ', ev);
+    function rotateObject(obj, x = 90, y = 0, z = 45) {
+        obj.mesh.rotateZ(z * Math.PI / 180);
+        obj.mesh.rotateX(x * Math.PI / 180);
+        obj.children.forEach((obj) => {
+            rotateObject(obj, x, y, z);
         });
+    }
+
+    function moveObject(obj, x, y, z = 0) {
+        obj.mesh.translateX(x);
+        obj.mesh.translateY(y);
+        obj.mesh.translateZ(z);
+        obj.children.forEach((obj) => {
+            moveObject(obj, x, y, z);
+        });
+    }
+
+    function getIcons(colorN, onClick) {
+        const icon = addNgon(0.7, 8, 0.2, colorN, 0.2, { x: 0, y: 22.5, z: 0 });
+        icon.mesh.translateZ(0.5);
+        icon.mesh.cursor = 'pointer';
+        icon.mesh.on('click', onClick);
+        return [icon];
+    }
+
+    function addInteractiveButton(x, y, colorN) {
+        let offset = 10;
+        let offsetCorrection = Math.sin(45 * Math.PI / 180);
+        const onClick = (ev) => {
+            console.log('clicked : ', ev);
+        };
+        const cyl = addCylinder(5, colorN, 0.2);
+        cyl.children = getIcons(colorN, onClick);
+        moveObject(cyl, x * offset * offsetCorrection, (offset - 10) * -1);
+        rotateObject(cyl);
+        cyl.meshFront.cursor = 'pointer';
+        cyl.meshFront.on('click', onClick);
     }
 
     function makeScene() {
         const interaction = new Interaction(sceneInfo.renderer, sceneInfo.scene, sceneInfo.camera);
-        let offset = 10;
-        let offsetCorrection = Math.sin(45 * Math.PI / 180);
-        addInteractiveButton(0, 0);
-        addInteractiveButton(offset * offsetCorrection, 0);
+        addInteractiveButton(-2, 0, 10);
+        addInteractiveButton(-1, 0, 20);
+        addInteractiveButton(0, 0, 30);
+        addInteractiveButton(1, 0, 40);
+        addInteractiveButton(2, 0, 50);
         sceneInfo.render();
     }
 
@@ -108,10 +133,11 @@
     }
 
     function update() {
-        sceneInfo.scale(gui.get('Scale'));
+        // sceneInfo.scale(gui.get('Scale'));
         sceneInfo.render();
     }
 
+    /*
     const gui = {
         options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
         init : [
@@ -124,6 +150,7 @@
     };
 
     popGui(gui);
+    */
     initScene();
     makeScene();
     animate();

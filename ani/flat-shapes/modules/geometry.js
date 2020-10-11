@@ -24,7 +24,9 @@ function getDodecahedron(radius, material) {
         mat: material,
         geo: null,
         meshBack: null,
-        meshFront: null
+        meshFront: null,
+        outline: null,
+        children: []
     };
 
     obj.geo = new ConvexBufferGeometry(obj.vertices);
@@ -37,7 +39,9 @@ function getBox(size, material) {
         mat: material,
         geo: new BoxGeometry( size, size, size),
         meshBack: null,
-        meshFront: null
+        meshFront: null,
+        outline: null,
+        children: []
     };
     __makeDoubleSided(obj);
     return obj;
@@ -49,23 +53,33 @@ function getSphere(radius, material, widthSegments = 16, heightSegments = 16) {
         geo: new SphereBufferGeometry( radius, widthSegments, heightSegments ),
         meshBack: null,
         meshFront: null,
-        outline: null
+        outline: null,
+        children: []
     };
     __makeDoubleSided(obj);
     __addOutline(obj);
     return obj;
 }
 
-function getCylinder(radiusTop, radiusBottom, radialSegments = 16, heightSegments = 1, height, material) {
+function getCylinder(radiusTop, radiusBottom, radialSegments = 16, heightSegments = 1, height, material, outline, rotation) {
     let obj = {
         mat: material,
         geo: new CylinderBufferGeometry( radiusTop, radiusBottom, height, radialSegments, heightSegments, false, 0, 2 * Math.PI ),
         meshBack: null,
         meshFront: null,
-        outline: null
+        outline: null,
+        children: []
     };
     __makeDoubleSided(obj);
-    __addOutline(obj);
+    obj.meshBack.rotateX(rotation.x * Math.PI / 180);
+    obj.meshFront.rotateX(rotation.x * Math.PI / 180);
+    obj.meshBack.rotateY(rotation.y * Math.PI / 180);
+    obj.meshFront.rotateY(rotation.y * Math.PI / 180);
+    obj.meshBack.rotateZ(rotation.z * Math.PI / 180);
+    obj.meshFront.rotateZ(rotation.z * Math.PI / 180);
+    if (outline) {
+        __addOutline(obj);
+    }
     return obj;
 }
 
