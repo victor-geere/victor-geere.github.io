@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+  <title>Ani</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="lib/math.min.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import { popGui } from "./modules/gui.js";
+    import { getMaterial, getPhongMaterial } from "./modules/materials.js";
+    import { getDodecahedron, getBox, getSphere, getCylinder } from "./modules/geometry.js";
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        drawAxis,
+        getSceneOptions,
+        buildDefaultScene,
+        newVec
+    } from './modules/threetools.js';
+    import { Interaction } from './lib/three.interaction/three.interaction.module.js';
+
+    let sceneInfo;
+    let useCache = false;
+
+    function initScene() {
+        let options = getSceneOptions();
+        options.cameraType = options.types.camera.ORTHO;
+        options.controls.enabled = false;
+        sceneInfo = buildDefaultScene(options);
+        sceneInfo.scale(gui.get('Scale'));
+        // drawAxis(sceneInfo.scene, 50, getMaterial(colorsGrey, 1));
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (sceneInfo.animation.doLoop) {
+            sceneInfo.objects.forEach((item) => {
+                item.mesh.rotateY(0.003);
+            });
+            if (!sceneInfo.animation.busy && sceneInfo.animation.nth++ % 5 === 0) {
+                sceneInfo.animation.nth = 1;
+            }
+        }
+        sceneInfo.render();
+        // group.rotation.y += 0.001;
+    }
+
+    function addDodecaHedron(radius, colorN, opacity) {
+        const dodecahedron = getDodecahedron(radius, getPhongMaterial(rainbow, colorN, opacity));
+        sceneInfo.addDoubleGeoToGroup(dodecahedron);
+        return dodecahedron;
+    }
+
+    function addBox(radius, colorN, opacity) {
+        const box = getBox(radius, getPhongMaterial(rainbow, colorN, opacity));
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function addCylinder(radius, colorN, opacity) {
+        const box = getCylinder(radius * 0.9, radius, 4, 1, 1, getPhongMaterial(rainbow, colorN, opacity));
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function addSphere(size, colorN, opacity) {
+        const sphere = getSphere(size, getPhongMaterial(rainbow, colorN, opacity), 16, 16);
+        sceneInfo.addDoubleGeoToGroup(sphere);
+        return sphere;
+    }
+
+    function rotateObject(obj) {
+        obj.geo.rotateX(90 * Math.PI / 180);
+        obj.outline.geometry.rotateX(90 * Math.PI / 180);
+        obj.geo.rotateZ(45 * Math.PI / 180);
+        obj.outline.geometry.rotateZ(45 * Math.PI / 180);
+    }
+
+    function moveObject(obj, x, y) {
+        obj.geo.translate(x, y, 0);
+        obj.outline.geometry.translate(x, y, 0);
+    }
+
+    function addInteractiveButton(x, y) {
+        const cyl = addCylinder(5, 30, 0.2);
+        rotateObject(cyl);
+        moveObject(cyl, x, y);
+        cyl.meshFront.cursor = 'pointer';
+        cyl.meshFront.on('click', function(ev) {
+            console.log('clicked : ', ev);
+        });
+    }
+
+    function makeScene() {
+        const interaction = new Interaction(sceneInfo.renderer, sceneInfo.scene, sceneInfo.camera);
+        let offset = 10;
+        let offsetCorrection = Math.sin(45 * Math.PI / 180);
+        addInteractiveButton(0, 0);
+        addInteractiveButton(offset * offsetCorrection, 0);
+        sceneInfo.render();
+    }
+
+    function reset() {
+        sceneInfo.clear();
+        makeScene();
+    }
+
+    function update() {
+        sceneInfo.scale(gui.get('Scale'));
+        sceneInfo.render();
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        init : [
+            { ctrl: 'ctrlScale', param: 'Scale', min: 0, max: 100, interval: 0.5, default: 1, onChange: update, onFinishChange: () => {} },
+            { ctrl: 'ctrlPoints', param: 'Points', min: 4, max: 100, interval: 0.5, default: 100, onChange: reset, onFinishChange: () => {} },
+        ],
+        get: function(key) {
+            return this.controllers[`ctrl${key}`].getValue();
+        },
+    };
+
+    popGui(gui);
+    initScene();
+    makeScene();
+    animate();
+
+</script>
+
+</body>
+</html>
