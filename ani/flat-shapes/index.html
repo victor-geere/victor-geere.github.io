@@ -10,6 +10,7 @@
 
 <script type="module">
     import { popGui } from "./modules/gui.js";
+    import { loadSvg } from "./modules/textures.js";
     import { getMaterial, getPhongMaterial } from "./modules/materials.js";
     import { getDodecahedron, getBox, getSphere, getCylinder } from "./modules/geometry.js";
     import {colorsGrey, rainbow} from './modules/colors.js';
@@ -26,11 +27,11 @@
 
     function initScene() {
         let options = getSceneOptions();
-        options.cameraType = options.types.camera.ORTHO;
+        options.cameraType = options.types.camera.PERSPECTIVE;
         options.controls.enabled = true;
         options.lightColor = 0xffffff;
         sceneInfo = buildDefaultScene(options);
-        // sceneInfo.scale(gui.get('Scale'));
+        sceneInfo.scale(1);
         drawAxis(sceneInfo.scene, 50);
     }
 
@@ -78,18 +79,19 @@
         return sphere;
     }
 
-    function rotateObject(obj, x = 90, y = 0, z = 45) {
-        obj.mesh.rotateZ(z * Math.PI / 180);
-        obj.mesh.rotateX(x * Math.PI / 180);
+    function rotateObject(obj, x = 90, y = 45, z = 0) {
+        obj.mesh.rotation.x = x * Math.PI / 180;
+        obj.mesh.rotation.y = y * Math.PI / 180;
+        obj.mesh.rotation.z = z * Math.PI / 180;
         obj.children.forEach((obj) => {
             rotateObject(obj, x, y, z);
         });
     }
 
     function moveObject(obj, x, y, z = 0) {
-        obj.mesh.translateX(x);
-        obj.mesh.translateY(y);
-        obj.mesh.translateZ(z);
+        obj.mesh.position.x = x;
+        obj.mesh.position.y = y;
+        obj.mesh.position.z = z;
         obj.children.forEach((obj) => {
             moveObject(obj, x, y, z);
         });
@@ -106,11 +108,11 @@
     function addInteractiveButton(x, y, colorN) {
         let offset = 10;
         let offsetCorrection = Math.sin(45 * Math.PI / 180);
-        const onClick = (ev) => {
-            console.log('clicked : ', ev);
-        };
         const cyl = addCylinder(5, colorN, 0.2);
-        cyl.children = getIcons(colorN, onClick);
+        const onClick = ((obj) => {
+            // moveObject(obj, obj.mesh.position.x, 1, obj.mesh.position.z);
+        }).bind(undefined, cyl);
+        // cyl.children = getIcons(colorN, onClick);
         moveObject(cyl, x * offset * offsetCorrection, (offset - 10) * -1);
         rotateObject(cyl);
         cyl.meshFront.cursor = 'pointer';
@@ -119,11 +121,16 @@
 
     function makeScene() {
         const interaction = new Interaction(sceneInfo.renderer, sceneInfo.scene, sceneInfo.camera);
+        // loadSvg('./textures/fa-svg/tiger.svg', sceneInfo);
+        loadSvg('./textures/fa-svg/bullseye.svg', sceneInfo, { color: 0xffffff });
         addInteractiveButton(-2, 0, 10);
+        /*
         addInteractiveButton(-1, 0, 20);
         addInteractiveButton(0, 0, 30);
         addInteractiveButton(1, 0, 40);
         addInteractiveButton(2, 0, 50);
+
+         */
         sceneInfo.render();
     }
 
