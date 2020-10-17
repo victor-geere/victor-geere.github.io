@@ -16,23 +16,29 @@
             color: #808080;
             font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
         }
+
+        #floatingText {
+            display: block;
+            position: absolute;
+            bottom: 0.3em;
+            left: 0.5em;
+            color: #808080;
+            font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+            text-align: left;
+        }
     </style>
     <script type="module">
         import { popGui } from "./modules/gui.js";
-        import { loadSvg } from "./modules/textures.js";
-        import { getMaterial, getPhongMaterial } from "./modules/materials.js";
-        import { getDodecahedron, getBox, getSphere, getCylinder } from "./modules/geometry.js";
-        import {colorsGrey, rainbow} from './modules/colors.js';
+        import { getMaterial } from "./modules/materials.js";
+        import { colorsGrey } from './modules/colors.js';
         import {
             drawAxis,
             getSceneOptions,
             buildDefaultScene,
             makeSimpleCurve,
-            getEuler,
             newVec
         } from './modules/threetools.js';
-        import { Interaction } from './lib/three.interaction/three.interaction.module.js';
-        import { start, play, setRisk } from './modules/roulette.js';
+        import { start, play, setRisk, setTrain, resetGame, setReap, getGame, setSaving } from './modules/roulette.js';
 
         let sceneInfo;
         let useCache = false;
@@ -44,7 +50,7 @@
             options.lightColor = 0xffffff;
             sceneInfo = buildDefaultScene(options);
             sceneInfo.scale(1);
-            drawAxis(sceneInfo.scene, 50);
+            // drawAxis(sceneInfo.scene, 50);
         }
 
         let max = 0;
@@ -143,17 +149,36 @@
         }
 
         function animate() {
-            requestAnimationFrame(animate);
-            setRisk(gui.get('Risk'));
-            const points = play(gui.get('Target'));
-            plot1.updatePoints(makePoints(points.player1));
-            plot2.updatePoints(makePoints(points.player2));
-            updateGuides();
+                requestAnimationFrame(animate);
+                setRisk(gui.get('Risk'));
+                if (getGame().totalBalance() > 0) {
+                    const points = play(gui.get('Target'), gui.get('Risk'));
+                    plot1.updatePoints(makePoints(points.player1));
+                    plot2.updatePoints(makePoints(points.player2));
+                    updateGuides();
+                }
             sceneInfo.render();
         }
 
+        const gameStats = [];
         function update() {
+            const gm = getGame();
+            if (gm.ticks > 100) {
+                gameStats.push({
+                    risk: gm.risk,
+                    maxTrain: gm.maxTrain,
+                    ticks: gm.ticks,
+                    reapAt: gm.reapAt,
+                    reaped: gm.reaped,
+                    maxBalance: gm.maxBalance
+                });
+                console.log(gameStats);
+            }
             setRisk(gui.get('Risk'));
+            setTrain(gui.get('MaxTrain'));
+            setReap(gui.get('Reap'));
+            setSaving(gui.get('Saving'));
+            resetGame();
         }
 
         function reset() {
@@ -164,7 +189,10 @@
             options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
             init : [
                 { ctrl: 'ctrlTarget', param: 'Target', min: 0, max: 5, interval: 0.1, default: 2, onChange: update, onFinishChange: () => {} },
-                { ctrl: 'ctrlRisk', param: 'Risk', min: 0, max: 0.1, interval: 0.01, default: 0.01, onChange: update, onFinishChange: () => {} }
+                { ctrl: 'ctrlRisk', param: 'Risk', min: 0, max: 0.01, interval: 0.001, default: 0.01, onChange: update, onFinishChange: () => {} },
+                { ctrl: 'ctrlMaxTrain', param: 'MaxTrain', min: 0, max: 20, interval: 1, default: 2, onChange: update, onFinishChange: () => {} },
+                { ctrl: 'ctrlReap', param: 'Reap', min: 1, max: 25, interval: 1, default: 10, onChange: update, onFinishChange: () => {} },
+                { ctrl: 'ctrlSaving', param: 'Saving', min: 0, max: 1, interval: 0.1, default: 0.1, onChange: update, onFinishChange: () => {} }
             ],
             get: function(key) {
                 return this.controllers[`ctrl${key}`].getValue();
@@ -179,8 +207,6 @@
     </script>
 </head>
 <body>
-<div id="content">
-
-</div>
+<div id="floatingText"></div>
 </body>
 </html>

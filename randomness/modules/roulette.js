@@ -1,72 +1,103 @@
-const player1 = getPlayer();
-const player2 = getPlayer();
+const game = setGame();
 
-const game = {
-    n: 0,
-    width: 600
-};
+function setGame() {
+    const gm = {
+        n: 0,
+        width: 600,
+        startingBalance: 100000,
+        player1 : getPlayer(),
+        player2 : getPlayer(),
+        reaped : 0,
+        maxTrain: 2,
+        reapAt: 10,
+        ticks: 0,
+        risk: 0.01,
+        maxBalance: 0,
+        saving: 0
+    };
+    gm.reset = function() {
+        this.player1.balance = this.startingBalance;
+        this.player2.balance = this.startingBalance;
+        this.reaped = 0;
+        this.ticks = 0;
+        this.maxBalance = 0;
+        this.player1.reset();
+        this.player2.reset();
+        prime();
+    };
+    gm.totalBalance = function() {
+        return this.player1.balance + this.player2.balance;
+    };
+    return gm;
+}
+
+const formulas = [];
+function setText(text) {
+    if (formulas.length > 1) {
+        formulas.splice(0, 1);
+    }
+    formulas.push(text);
+    document.getElementById('floatingText').innerHTML = text;
+}
 
 function get(id) {
     return document.getElementById(id);
-}
-
-function setText(id, text) {
-    const element = get(id);
-    if (!element) {
-        console.log(`no element : ${id}`);
-    } else {
-        element.innerText = text;
-    }
 }
 
 function getSuccess() {
     return Math.random() > 0.5;
 }
 
-function getPlayer(risk = 0.01) {
+function getPlayer() {
     const player = {
         maxbalance : 0,
         minbalance : 100000,
         balance : 100000,
-        risk : risk,
         target : 100,
         tran : 50,
         trade : 0,
         train : [],
-        plot : []
+        plot : [],
+        targetAim: 0
     };
     player.setTarget = function() {
-        this.target = this.balance * this.risk;
-        // console.log(`this.target : ${this.target}`);
+        this.target = game.startingBalance * game.risk;
     };
-    player.reset = function() {
-      this.trade = 0;
-      this.tran = 50;
-      this.train = [];
-    };
-    player.win = function(targetAim = 2) {
-        this.train.push({ bal: this.balance, tran: this.tran, trade: this.trade});
-        this.balance += this.tran;
-        if (this.balance > this.maxbalance) {
-            this.maxbalance = this.balance;
-        }
-        this.trade += this.tran;
-
-        if (this.trade >= this.target) {
-            // console.log(this.train);
-            this.reset();
-            this.setTarget();
+    player.setTran = function() {
+        if (this.train.length === 0) {
+            this.tran = this.target;
         } else {
-            this.tran = Math.ceil((this.target - this.trade) / targetAim);
+            this.tran = Math.ceil((this.target - this.trade) / this.targetAim);
             this.tran = this.tran < 5 ? 10 : this.tran;
         }
     };
-    player.lose = function(targetAim = 2) {
+    player.reset = function() {
+      this.setTarget();
+      this.trade = 0;
+      this.setTran();
+      this.train = [];
+      // this.plot = [];
+    };
+    player.win = function() {
+        this.train.push({ bal: this.balance, tran: this.tran, trade: this.trade});
+        game.reaped += this.tran * game.saving;
+        this.balance += this.tran * (1 - game.saving);
+        if (this.balance > this.maxbalance) {
+            this.maxbalance = this.balance;
+        }
+        this.trade += this.tran * (1 - game.saving);
+        if (this.trade >= this.target) {
+            // console.log(this.train);
+            this.reset();
+        } else {
+            this.setTran();
+        }
+    };
+    player.lose = function() {
         this.train.push({ bal: this.balance, tran: this.tran, trade: this.trade});
         this.balance -= this.tran;
         this.trade -= this.tran;
-        this.tran = Math.ceil((this.target - this.trade) / targetAim);
-        this.tran = this.tran < 5 ? 10 : this.tran;
+        this.setTran();
         if (this.balance < this.minbalance) {
             this.minbalance = this.balance;
         }
@@ -85,62 +116,98 @@ function getPlayer(risk = 0.01) {
     return player;
 }
 
-function consolidate(p1, p2) {
-    if (p1.train.length > 6 || p2.train.length > 6) {
-        const total = p1.balance + p2.balance;
-        p1.balance = total / 2;
-        p2.balance = total / 2;
-        p1.reset();
-        p2.reset();
+let x = 1;
+function consolidate() {
+    const balance = game.totalBalance();
+    const perc = (1 + (game.reapAt / 100));
+    const threshold = 2 * game.startingBalance * perc;
+    /*
+    if (x++ % 1000 === 0) {
+        x = 1;
+        console.log({
+            threshold: threshold,
+            balance: balance,
+            reapAt: game.reapAt,
+            perc: perc
+        });
     }
+    */
+    if (balance > threshold) {
+        const surplus = balance - game.startingBalance * 2;
+        // console.log(`reaped ${surplus}`);
+        game.reaped += surplus;
+        const total = game.player1.balance + game.player2.balance - surplus;
+        game.player1.balance = total / 2;
+        game.player2.balance = total / 2;
+        game.player1.reset();
+        game.player2.reset();
+    }
+    if (game.player1.train.length > game.maxTrain || game.player2.train.length > game.maxTrain) {
+        const total = game.player1.balance + game.player2.balance;
+        game.player1.balance = total / 2;
+        game.player2.balance = total / 2;
+        game.player1.reset();
+        game.player2.reset();
+    }
+}
+
+function setTrain(train) {
+    game.maxTrain = train;
 }
 
 function setRisk(risk) {
-    player1.risk = risk;
-    player2.risk = risk;
+    game.risk = risk;
 }
 
-function play(targetAim = 2, risk = 0.01) {
+function play() {
+    game.ticks++;
     game.n++;
     if (getSuccess()) {
-        player1.win(targetAim);
-        player2.lose(targetAim);
+        game.player1.win();
+        game.player2.lose();
     } else {
-        player2.win(targetAim);
-        player1.lose(targetAim);
+        game.player2.win();
+        game.player1.lose();
     }
-    consolidate(player1, player2);
-    player1.plot.push({
+    if (game.totalBalance() > game.maxBalance) {
+        game.maxBalance = game.totalBalance();
+    }
+    consolidate(game.player1, game.player2);
+    game.player1.plot.push({
         x: game.n,
-        y: player1.balance
+        y: game.player1.balance
     });
-    player2.plot.push({
+    game.player2.plot.push({
         x: game.n,
-        y: player2.balance
+        y: game.player2.balance
     });
-    if (player1.plot.length > game.width) {
-        player1.plot.splice(0,1);
+    if (game.player1.plot.length > game.width) {
+        game.player1.plot.splice(0,1);
     }
-    if (player2.plot.length > game.width) {
-        player2.plot.splice(0,1);
+    if (game.player2.plot.length > game.width) {
+        game.player2.plot.splice(0,1);
     }
+    setText(`${Math.round(game.player1.balance + game.player2.balance)} <br> ${game.reaped}`);
     // console.log(`player1.balance : ${player1.balance} ${player1.tran} ${player1.trade}`);
     return {
-        player1 : player1.plot,
-        player2 : player2.plot
+        player1 : game.player1.plot,
+        player2 : game.player2.plot
     };
 }
 
-function loop(targetAim = 2, risk = 0.01) {
-    while (player1.isLiquid() && player2.isLiquid() && game.n < game.width) {
-        play(targetAim, risk);
+function prime() {
+    while (game.player1.isLiquid() && game.player2.isLiquid() && game.n < game.width) {
+        play();
     }
-    // console.log(player1);
-    // console.log(player2);
-    // console.log(`balance : ${player1.balance + player2.balance - 200000}`);
+}
+
+function loop(targetAim = 2, risk = 0.01) {
+    game.player1.targetAim = targetAim;
+    game.player2.targetAim = targetAim;
+    prime();
     return {
-        player1 : player1.plot,
-        player2 : player2.plot
+        player1 : game.player1.plot,
+        player2 : game.player2.plot
     };
 }
 
@@ -157,8 +224,24 @@ function testSuccess() {
     return `a : ${a} b : ${b}`;
 }
 
+function setReap(reapAt) {
+    game.reapAt = reapAt;
+}
+
 function start(targetAim = 2, risk = 0.01) {
     return loop(targetAim, risk);
 }
 
-export { start, play, setRisk }
+function resetGame() {
+    game.reset();
+}
+
+function getGame() {
+    return game;
+}
+
+function setSaving(saving) {
+    game.saving = saving;
+}
+
+export { start, play, setRisk, setTrain, resetGame, setReap, getGame, setSaving }
