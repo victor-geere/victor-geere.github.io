@@ -32,13 +32,12 @@
         import { getMaterial } from "./modules/materials.js";
         import { colorsGrey } from './modules/colors.js';
         import {
-            drawAxis,
             getSceneOptions,
             buildDefaultScene,
             makeSimpleCurve,
             newVec
         } from './modules/threetools.js';
-        import { start, play, setRisk, setTrain, resetGame, setReap, getGame, setSaving } from './modules/roulette.js';
+        import { start, play, setRisk, setTrain, resetGame, setReap, getGame, setSaving, setTarget } from './modules/roulette.js';
 
         let sceneInfo;
         let useCache = false;
@@ -50,7 +49,6 @@
             options.lightColor = 0xffffff;
             sceneInfo = buildDefaultScene(options);
             sceneInfo.scale(1);
-            // drawAxis(sceneInfo.scene, 50);
         }
 
         let max = 0;
@@ -90,7 +88,7 @@
             let x = 0;
             getScale(points);
             points.forEach((point) => {
-                plot.push(newVec(x++/xFactor - mid, (point.y - graphScale.vMid) / 400, 0));
+                plot.push(newVec(x++/xFactor - mid, (point.y - graphScale.vMid) / 2000, 0));
             });
             return plot;
         }
@@ -99,7 +97,7 @@
             const mid = (points[0].x + points[1].x) / 2;
             const plot = [];
             points.forEach((point) => {
-                plot.push(newVec(point.x - mid, (point.y - graphScale.vMid) / 400, 0));
+                plot.push(newVec(point.x - mid, (point.y - graphScale.vMid) / 2000, 0));
             });
             return plot;
         }
@@ -123,12 +121,14 @@
         let plot2 = null;
         let guides = [];
         function makeScene() {
-            addGuide(101000);
-            addGuide(100500);
-            addGuide(101000);
-            addGuide(99500);
-            addGuide(99000);
-            const points = start(gui.get('Target'), gui.get('Risk'));
+            addGuide(200000);
+            addGuide(175000);
+            addGuide(150000);
+            addGuide(100000);
+            addGuide(50000);
+            addGuide(25000);
+            addGuide(0);
+            const points = start(gui.get('Target'));
             plot1 = addPlot(points.player1, 6);
             plot2 = addPlot(points.player2, 4);
             sceneInfo.scale(0.3);
@@ -137,11 +137,13 @@
 
         function updateGuides() {
             const guidelines = [
-                [{ x: -200, y: 99000 }, { x: 200, y: 99000 }],
-                [{ x: -200, y: 99500 }, { x: 200, y: 99500 }],
-                [{ x: -200, y: 100000 }, { x: 200, y: 100000 }],
-                [{ x: -200, y: 100500 }, { x: 200, y: 100500 }],
-                [{ x: -200, y: 101000 }, { x: 200, y: 101000 }]
+                [{ x: -2000, y: 200000 }, { x: 2000, y: 200000 }],
+                [{ x: -2000, y: 175000 }, { x: 2000, y: 175000 }],
+                [{ x: -2000, y: 150000 }, { x: 2000, y: 150000 }],
+                [{ x: -2000, y: 100000 }, { x: 2000, y: 100000 }],
+                [{ x: -2000, y: 50000 }, { x: 2000, y: 50000 }],
+                [{ x: -2000, y: 25000 }, { x: 2000, y: 25000 }],
+                [{ x: -2000, y: 0 }, { x: 2000, y: 0 }]
             ];
             guides.forEach((guide, ix) => {
                 guide.updatePoints(makeGuidePoints(guidelines[ix]));
@@ -149,14 +151,14 @@
         }
 
         function animate() {
-                requestAnimationFrame(animate);
-                setRisk(gui.get('Risk'));
-                if (getGame().totalBalance() > 0) {
-                    const points = play(gui.get('Target'), gui.get('Risk'));
-                    plot1.updatePoints(makePoints(points.player1));
-                    plot2.updatePoints(makePoints(points.player2));
-                    updateGuides();
-                }
+            requestAnimationFrame(animate);
+            setRisk(gui.get('Risk'));
+            if (getGame().totalBalance() > 0) {
+                const points = play();
+                plot1.updatePoints(makePoints(points.player1));
+                plot2.updatePoints(makePoints(points.player2));
+                updateGuides();
+            }
             sceneInfo.render();
         }
 
@@ -174,6 +176,7 @@
                 });
                 console.log(gameStats);
             }
+            setTarget(gui.get('Target'));
             setRisk(gui.get('Risk'));
             setTrain(gui.get('MaxTrain'));
             setReap(gui.get('Reap'));
@@ -189,10 +192,10 @@
             options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
             init : [
                 { ctrl: 'ctrlTarget', param: 'Target', min: 0, max: 5, interval: 0.1, default: 2, onChange: update, onFinishChange: () => {} },
-                { ctrl: 'ctrlRisk', param: 'Risk', min: 0, max: 0.01, interval: 0.001, default: 0.01, onChange: update, onFinishChange: () => {} },
-                { ctrl: 'ctrlMaxTrain', param: 'MaxTrain', min: 0, max: 20, interval: 1, default: 2, onChange: update, onFinishChange: () => {} },
-                { ctrl: 'ctrlReap', param: 'Reap', min: 1, max: 25, interval: 1, default: 10, onChange: update, onFinishChange: () => {} },
-                { ctrl: 'ctrlSaving', param: 'Saving', min: 0, max: 1, interval: 0.1, default: 0.1, onChange: update, onFinishChange: () => {} }
+                { ctrl: 'ctrlRisk', param: 'Risk', min: 0, max: 0.1, interval: 0.001, default: 0.02, onChange: update, onFinishChange: () => {} },
+                { ctrl: 'ctrlMaxTrain', param: 'MaxTrain', min: 0, max: 30, interval: 1, default: 30, onChange: update, onFinishChange: () => {} },
+                { ctrl: 'ctrlReap', param: 'Reap', min: 1, max: 100, interval: 1, default: 20, onChange: update, onFinishChange: () => {} },
+                { ctrl: 'ctrlSaving', param: 'Saving', min: 0, max: 1, interval: 0.1, default: 0, onChange: update, onFinishChange: () => {} }
             ],
             get: function(key) {
                 return this.controllers[`ctrl${key}`].getValue();
