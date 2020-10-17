@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Normal Distribution</title>
+    <style>
+        html, body {
+            background-color: #303035;
+            text-align: center;
+            vertical-align: middle;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            color: #808080;
+            font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+        }
+    </style>
+    <script type="module">
+        import { popGui } from "./modules/gui.js";
+        import { loadSvg } from "./modules/textures.js";
+        import { getMaterial, getPhongMaterial } from "./modules/materials.js";
+        import { getDodecahedron, getBox, getSphere, getCylinder } from "./modules/geometry.js";
+        import {colorsGrey, rainbow} from './modules/colors.js';
+        import {
+            drawAxis,
+            getSceneOptions,
+            buildDefaultScene,
+            makeSimpleCurve,
+            getEuler,
+            newVec
+        } from './modules/threetools.js';
+        import { Interaction } from './lib/three.interaction/three.interaction.module.js';
+        import { start, play, setRisk } from './modules/roulette.js';
+
+        let sceneInfo;
+        let useCache = false;
+
+        function initScene() {
+            let options = getSceneOptions();
+            options.cameraType = options.types.camera.PERSPECTIVE;
+            options.controls.enabled = true;
+            options.lightColor = 0xffffff;
+            sceneInfo = buildDefaultScene(options);
+            sceneInfo.scale(1);
+            drawAxis(sceneInfo.scene, 50);
+        }
+
+        let max = 0;
+        function newMax(value) {
+            if (value > max * 1.1) {
+                max = value;
+                console.log(`value : ${value}`);
+            }
+        }
+
+        const graphScale = {
+            min: null,
+            max: null,
+            vMid: null
+        };
+        function getScale(points) {
+            graphScale.min = null;
+            graphScale.max = null;
+            graphScale.vMid = null;
+
+            points.forEach((point) => {
+                if (graphScale.max === null || point.y > graphScale.max) {
+                    newMax(point.y);
+                    graphScale.max = point.y;
+                }
+                if (graphScale.min === null || point.y < graphScale.min) {
+                    graphScale.min = point.y;
+                }
+            });
+            graphScale.vMid = (graphScale.max + graphScale.min) / 2;
+        }
+
+        function makePoints(points) {
+            const xFactor = 10;
+            const mid = points.length / ( 2 * xFactor );
+            const plot = [];
+            let x = 0;
+            getScale(points);
+            points.forEach((point) => {
+                plot.push(newVec(x++/xFactor - mid, (point.y - graphScale.vMid) / 400, 0));
+            });
+            return plot;
+        }
+
+        function makeGuidePoints(points) {
+            const mid = (points[0].x + points[1].x) / 2;
+            const plot = [];
+            points.forEach((point) => {
+                plot.push(newVec(point.x - mid, (point.y - graphScale.vMid) / 400, 0));
+            });
+            return plot;
+        }
+
+        function addPlot(points, colorN) {
+            const plot = makePoints(points);
+            const graph = makeSimpleCurve(plot, getMaterial(colorsGrey, colorN));
+            sceneInfo.addObject(graph);
+            return graph;
+        }
+
+        function addGuide(n) {
+            const points = [{ x: -2000, y: n }, { x: 2000, y: n }];
+            const plot = makeGuidePoints(points);
+            const graph = makeSimpleCurve(plot, getMaterial(colorsGrey, 2));
+            sceneInfo.addObject(graph);
+            guides.push(graph);
+        }
+
+        let plot1 = null;
+        let plot2 = null;
+        let guides = [];
+        function makeScene() {
+            addGuide(101000);
+            addGuide(100500);
+            addGuide(101000);
+            addGuide(99500);
+            addGuide(99000);
+            const points = start(gui.get('Target'), gui.get('Risk'));
+            plot1 = addPlot(points.player1, 6);
+            plot2 = addPlot(points.player2, 4);
+            sceneInfo.scale(0.3);
+            sceneInfo.render();
+        }
+
+        function updateGuides() {
+            const guidelines = [
+                [{ x: -200, y: 99000 }, { x: 200, y: 99000 }],
+                [{ x: -200, y: 99500 }, { x: 200, y: 99500 }],
+                [{ x: -200, y: 100000 }, { x: 200, y: 100000 }],
+                [{ x: -200, y: 100500 }, { x: 200, y: 100500 }],
+                [{ x: -200, y: 101000 }, { x: 200, y: 101000 }]
+            ];
+            guides.forEach((guide, ix) => {
+                guide.updatePoints(makeGuidePoints(guidelines[ix]));
+            })
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            setRisk(gui.get('Risk'));
+            const points = play(gui.get('Target'));
+            plot1.updatePoints(makePoints(points.player1));
+            plot2.updatePoints(makePoints(points.player2));
+            updateGuides();
+            sceneInfo.render();
+        }
+
+        function update() {
+            setRisk(gui.get('Risk'));
+        }
+
+        function reset() {
+
+        }
+
+        const gui = {
+            options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+            init : [
+                { ctrl: 'ctrlTarget', param: 'Target', min: 0, max: 5, interval: 0.1, default: 2, onChange: update, onFinishChange: () => {} },
+                { ctrl: 'ctrlRisk', param: 'Risk', min: 0, max: 0.1, interval: 0.01, default: 0.01, onChange: update, onFinishChange: () => {} }
+            ],
+            get: function(key) {
+                return this.controllers[`ctrl${key}`].getValue();
+            },
+        };
+
+        popGui(gui);
+
+        initScene();
+        makeScene();
+        animate();
+    </script>
+</head>
+<body>
+<div id="content">
+
+</div>
+</body>
+</html>

@@ -72,6 +72,9 @@ function makeSimpleCurve(curvePoints, material, xOrigin = 0, yOrigin = 0, resolu
         geo: null,
         mesh: null
     };
+    obj.updatePoints = function(points) {
+        this.geo.setFromPoints( points );
+    };
     addMesh(obj);
     return obj;
 }
