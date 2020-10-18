@@ -1,36 +1,39 @@
 let game = null;
 
+let gameOptions = {
+    n: 0,
+    width: 600,
+    startingBalance: 100000,
+    player1: null,
+    player2: null,
+    reaped: 0,
+    maxTrain: 30,
+    reapAt: 10,
+    ticks: 0,
+    risk: 0.01,
+    maxBalance: 0,
+    saving: 0.0,
+    targetAim: 2,
+    stopped: false,
+    plot: [{ x: 0, y: 200000 }],
+    lastResult: null,
+    streak: 0,
+    maxStreak: 0,
+    maxPoint: 0,
+    maxDip: 0
+};
+
 function setGame() {
-    game = {
-        n: 0,
-        width: 600,
-        startingBalance: 100000,
-        player1: null,
-        player2: null,
-        reaped: 0,
-        maxTrain: 11,
-        reapAt: 10,
-        ticks: 0,
-        risk: 0.01,
-        maxBalance: 0,
-        saving: 0.01,
-        targetAim: 2,
-        stopped: false,
-        plot: [{ x: 0, y: 200000 }],
-        lastResult: null,
-        streak: 0,
-        maxStreak: 0
-    };
+    game = { ...gameOptions };
     game.player1 = getPlayer({balance: game.startingBalance});
     game.player2 = getPlayer({balance: game.startingBalance});
     game.reset = function () {
-        this.player1.balance = this.startingBalance;
-        this.player2.balance = this.startingBalance;
-        this.reaped = 0;
-        this.ticks = 0;
-        this.maxBalance = 0;
-        this.player1.reset();
-        this.player2.reset();
+        Object.keys(gameOptions).forEach((optionKey) => {
+            this[optionKey] = gameOptions[optionKey];
+        });
+        this.plot = [{ x: 0, y: 200000 }];
+        this.player1 = getPlayer({balance: game.startingBalance});
+        this.player2 = getPlayer({balance: game.startingBalance});
     };
     game.totalBalance = function () {
         return this.player1.balance + this.player2.balance;
@@ -83,13 +86,13 @@ function setGame() {
         }
 
          */
-        if (this.player1.balance < 50000) {
-            this.player1.balance = 100000;
-            console.log(`reset`);
+        if (this.player1.balance < 10000) {
+            console.log(`reset at ${game.ticks}`, game.player1.train);
+            game.reset();
         }
-        if (this.player2.balance < 50000) {
-            this.player2.balance = 100000;
-            console.log(`reset`);
+        if (this.player2.balance < 10000) {
+            console.log(`reset at ${game.ticks}`, game.player2.train);
+            game.reset();
         }
         if (this.player1.balance < (this.player2.balance / 4) || this.player2.balance < (this.player1.balance / 4)) {
             const amount = this.totalBalance();
@@ -106,7 +109,9 @@ function setText() {
     Balance : ${Math.round(game.totalBalance())} <br>
     Banked  : ${Math.round(game.reaped)} <br>
     Max     : ${Math.round(game.maxBalance)} <br>
-    MaxStreak : ${game.maxStreak} 
+    MaxStreak : ${game.maxStreak} <br>
+    Max Point : ${game.maxPoint} <br>
+    Max Draw Down : ${game.maxDip}
     `;
     get('floatingText').innerHTML = text;
 }
@@ -159,6 +164,12 @@ function getPlayer(options) {
             this.tran = this.balance;
         }
     };
+    player.setMaxTran = function() {
+        this.tran = this.target;
+        if (this.tran > this.balance) {
+            this.tran = this.balance;
+        }
+    };
     player.reset = function () {
         this.setTarget();
         this.trade = 0;
@@ -174,6 +185,7 @@ function getPlayer(options) {
         this.trade += this.tran * (1 - game.saving);
         if (this.trade >= this.target) {
             this.reset();
+            this.setMaxTran();
         } else {
             this.setTran();
         }
@@ -239,6 +251,10 @@ function play() {
         }
         if ((game.totalBalance() + game.reaped) > game.maxBalance) {
             game.maxBalance = game.totalBalance() + game.reaped;
+            game.maxPoint = game.ticks;
+        }
+        if ((game.totalBalance() + game.reaped) - game.maxBalance < game.maxDip) {
+            game.maxDip = (game.totalBalance() + game.reaped) - game.maxBalance;
         }
         game.checkTrain();
         setText();
