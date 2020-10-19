@@ -63,6 +63,18 @@ function setGame() {
         }
         game.pushPlot();
     };
+    game.setup = function() {
+        /*
+        const sum = Math.round(this.player1.tran + this.player2.tran);
+        const tranSum = sum / 4;
+        this.player1.tran = this.player1.tran / 2 + tranSum;
+        this.player2.tran = this.player2.tran / 2 + tranSum;
+        if (Math.round(this.player1.tran + this.player2.tran) !== sum) {
+            console.log(`error sum: ${sum} != ${this.player1.tran + this.player2.tran}`);
+        }
+
+         */
+    };
     game.consolidate = function () {
         /*
         if (this.reaped > this.startingBalance) {
@@ -170,7 +182,7 @@ function getPlayer(options) {
         }
     };
     player.setMaxTran = function() {
-        this.tran = this.target * Math.pow(1.5, this.streak);
+        this.tran = this.target * Math.pow(1.2, this.streak);
         if (this.tran > (this.balance - 9000) / 2) {
             this.tran = (this.balance - 9000) / 2;
         }
@@ -187,7 +199,7 @@ function getPlayer(options) {
             this.maxStreak = this.streak;
         }
         game.reaped += this.tran * game.saving;
-        this.balance += this.tran * (1 - game.saving) * 0.95;
+        this.balance += this.tran * (1 - game.saving);
         if (this.balance > this.maxbalance) {
             this.maxbalance = this.balance;
         }
@@ -201,9 +213,6 @@ function getPlayer(options) {
         this.pushPlot();
         this.train = [];
         // this.train.push({bal: this.balance, tran: this.tran, trade: this.trade});
-    };
-    player.setup = function() {
-
     };
     player.lose = function () {
         this.streak = 0;
@@ -271,8 +280,7 @@ function play() {
         }
         game.checkTrain();
         setText();
-        game.player2.setup();
-        game.player1.setup();
+        game.setup();
     }
 }
 
