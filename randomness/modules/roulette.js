@@ -38,6 +38,9 @@ function setGame() {
     game.totalBalance = function () {
         return this.player1.balance + this.player2.balance;
     };
+    game.equity = function () {
+        return this.player1.balance + this.player2.balance + this.reaped;
+    };
     game.split = function (amount) {
         this.player1.balance = amount / 2;
         this.player2.balance = amount / 2;
@@ -145,6 +148,8 @@ function getPlayer(options) {
         trade: 0,
         train: [],
         plot: [],
+        streak: 0,
+        maxStreak: 0,
         ...options
     };
     player.setTarget = function () {
@@ -160,14 +165,14 @@ function getPlayer(options) {
         // if (this.balance < this.tran / 2) {
         //     this.tran = 0;
         // }
-        if (this.tran > this.balance) {
-            this.tran = this.balance;
+        if (this.tran > (this.balance - 9000) / 2) {
+            this.tran = (this.balance - 9000) / 2;
         }
     };
     player.setMaxTran = function() {
-        this.tran = this.target;
-        if (this.tran > this.balance) {
-            this.tran = this.balance;
+        this.tran = this.target * Math.pow(1.5, this.streak);
+        if (this.tran > (this.balance - 9000) / 2) {
+            this.tran = (this.balance - 9000) / 2;
         }
     };
     player.reset = function () {
@@ -177,13 +182,17 @@ function getPlayer(options) {
         this.setTran();
     };
     player.win = function () {
+        this.streak++;
+        if (this.streak > this.maxStreak) {
+            this.maxStreak = this.streak;
+        }
         game.reaped += this.tran * game.saving;
-        this.balance += this.tran * (1 - game.saving);
+        this.balance += this.tran * (1 - game.saving) * 0.95;
         if (this.balance > this.maxbalance) {
             this.maxbalance = this.balance;
         }
         this.trade += this.tran * (1 - game.saving);
-        if (this.trade >= this.target) {
+        if (this.trade >= 0) {
             this.reset();
             this.setMaxTran();
         } else {
@@ -193,7 +202,11 @@ function getPlayer(options) {
         this.train = [];
         // this.train.push({bal: this.balance, tran: this.tran, trade: this.trade});
     };
+    player.setup = function() {
+
+    };
     player.lose = function () {
+        this.streak = 0;
         this.balance -= this.tran;
         this.trade -= this.tran;
         this.setTran();
@@ -249,15 +262,17 @@ function play() {
             game.player2.win();
             game.player1.lose();
         }
-        if ((game.totalBalance() + game.reaped) > game.maxBalance) {
-            game.maxBalance = game.totalBalance() + game.reaped;
+        if (game.equity() > game.maxBalance) {
+            game.maxBalance = game.equity();
             game.maxPoint = game.ticks;
         }
-        if ((game.totalBalance() + game.reaped) - game.maxBalance < game.maxDip) {
-            game.maxDip = (game.totalBalance() + game.reaped) - game.maxBalance;
+        if (game.equity() - game.maxBalance < game.maxDip) {
+            game.maxDip = game.equity() - game.maxBalance;
         }
         game.checkTrain();
         setText();
+        game.player2.setup();
+        game.player1.setup();
     }
 }
 
