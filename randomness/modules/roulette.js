@@ -165,7 +165,7 @@ function getPlayer(options) {
         ...options
     };
     player.setTarget = function () {
-        this.target = game.startingBalance * game.risk;
+        this.target = Math.round(((game.totalBalance() + game.startingBalance) / 2) * game.risk);
     };
     player.setTran = function () {
         if (this.train.length === 0 || this.trade > 0) {
