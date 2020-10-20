@@ -57,8 +57,11 @@ function setGame() {
         }
     };
     game.setup = function() {
+        const maxDiff = this.totalBalance() / 500;
+        this.backLog = this.backLog < 0 ? 0 : this.backLog;
         let maxPlayer, minPlayer;
         let difference = 0;
+        let playerDifference = 0;
         if (this.player1.train.length >= this.maxTrain) {
             console.log(this.player1.train);
             this.split(this.totalBalance());
@@ -71,7 +74,7 @@ function setGame() {
             this.player1.setTarget();
             this.player1.setTran();
             this.player2.setTran();
-            this.player1.tran += 100;
+            this.player1.tran += maxDiff;
         } else {
             if (this.player1.balance > this.player2.balance) {
                 maxPlayer = this.player1;
@@ -80,14 +83,20 @@ function setGame() {
                 minPlayer = this.player1;
                 maxPlayer = this.player2;
             }
-            difference = Math.abs(this.player1.balance - this.player2.balance);
+            playerDifference = Math.abs(this.player1.balance - this.player2.balance);
+            if (playerDifference > maxDiff) {
+                const totBal = this.totalBalance();
+                this.player1.balance = totBal / 2 + maxDiff;
+                this.player2.balance = totBal / 2;
+            }
+            difference = 2.5 * Math.abs(this.player1.balance - this.player2.balance) - (this.backLog / 5);
             const diffSplit = Math.round(difference / 2) * (this.totalBalance() / (this.startingBalance * 2));
             maxPlayer.tran = diffSplit;
             minPlayer.tran = diffSplit * 2;
             // maxPlayer.tran += this.backLog / 4;
             // minPlayer.tran += this.backLog / 12;
-            maxPlayer.tran += maxPlayer.tran * Math.pow(1.1, maxPlayer.winningStreak);
-            minPlayer.tran += minPlayer.tran * Math.pow(1.1, minPlayer.winningStreak);
+            maxPlayer.tran = maxPlayer.tran * Math.pow(1.1, maxPlayer.winningStreak);
+            minPlayer.tran = minPlayer.tran * Math.pow(1.1, minPlayer.winningStreak);
         }
         const diff = Math.abs(this.player1.tran - this.player2.tran);
         if (this.player1.tran > this.player2.tran) {
@@ -141,7 +150,8 @@ function setText() {
     Max     : ${Math.round(game.maxBalance)} <br>
     MaxStreak : ${game.maxStreak} <br>
     Max Point : ${game.maxPoint} <br>
-    Max Draw Down : ${game.maxDip}
+    Max Draw Down : ${game.maxDip} <br>
+    Back Log : ${Math.round(game.backLog)}
     `;
     get('floatingText').innerHTML = text;
 }
