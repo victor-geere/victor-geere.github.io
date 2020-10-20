@@ -85,12 +85,12 @@ function setGame() {
             }
             playerDifference = Math.abs(this.player1.balance - this.player2.balance);
             if (playerDifference > maxDiff) {
-                const totBal = this.totalBalance();
+                const totBal = this.totalBalance(); // - maxDiff;
                 this.player1.balance = totBal / 2 + maxDiff;
                 this.player2.balance = totBal / 2;
             }
             difference = 2.5 * Math.abs(this.player1.balance - this.player2.balance) - (this.backLog / 5);
-            const diffSplit = Math.round(difference / 2) * (this.totalBalance() / (this.startingBalance * 2));
+            const diffSplit = Math.round(difference / 2); // * (this.totalBalance() / (this.startingBalance * 2));
             maxPlayer.tran = diffSplit;
             minPlayer.tran = diffSplit * 2;
             // maxPlayer.tran += this.backLog / 4;
