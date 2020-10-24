@@ -60,6 +60,9 @@ const strategy = {
     },
     lose: function(player) {
         this.doLog('lose', player);
+        if (player.getBalance() < player.getStats().startingBalance) {
+            player.setBalance(player.getStats().startingBalance);
+        }
         player.clearBet();
     }
 };
