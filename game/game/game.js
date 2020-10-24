@@ -64,6 +64,10 @@ function makeGame(strategy) {
     };
 
     game.start(strategy);
+
+    game.score = function() {
+        console.log(this.players[0].strategy.getLog());
+    };
     return game;
 }
 

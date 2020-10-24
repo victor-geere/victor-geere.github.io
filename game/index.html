@@ -56,11 +56,15 @@
             const stats = getGame().getStats();
             const text = `
     # : ${game.n} <br>
-    StartingBalance : ${Math.round(stats.startingBalance * 2)} <br>
+    StartingBalance : ${Math.round(stats.startingBalance)} <br>
     Balance : ${Math.round(stats.balance)} <br>
     Max     : ${Math.round(stats.maxBalance)} <br>
+    Min     : ${Math.round(stats.minBalance)} <br>
     MaxStreak : ${stats.maxStreak} <br>
-    Max Draw Down : ${stats.maxDip}
+    MaxStreakAt : ${stats.maxStreakAt} <br>
+    Max Draw Down : ${stats.maxDip} <br>
+    Max Draw Down  % : ${stats.maxDipPerc} <br>
+    Max Target Attempts : ${stats.maxTargetAttempts} <br>
     `;
             document.getElementById('floatingText').innerHTML = text;
         }
@@ -87,22 +91,26 @@
         let locked = false;
         let played = 0;
         function animate() {
-            if (!locked) {
-                locked = true;
-                if (game && played++ < 200000) {
-                    setText();
-                    requestAnimationFrame(animate);
-                    game.setOptions({ risk: gui.get('Risk') });
-                    game.play();
-                    if (getGame().totalBalance() > 0) {
+            if (getGame().totalBalance() > 1000) {
+                if (!locked) {
+                    locked = true;
+                    if (played++ < 100000) {
+                        setText();
+                        requestAnimationFrame(animate);
+                        game.setOptions({ risk: gui.get('Risk') });
+                        game.play();
                         game.plot.updatePoints(graph.makePoints(game.points));
                         graph.updateGuides();
+                        sceneInfo.render();
+                    } else {
+                        game.score();
                     }
-                    sceneInfo.render();
+                    locked = false;
+                } else {
+                    requestAnimationFrame(animate);
                 }
-                locked = false;
             } else {
-                requestAnimationFrame(animate);
+                console.log(game.strategy.getLog());
             }
         }
 
