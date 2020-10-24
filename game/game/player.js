@@ -16,7 +16,9 @@ function getPlayer(strategy) {
             maxStreak: 0,
             maxStreakAt: 0,
             targetAttempts: 0,
-            maxTargetAttempts: 0
+            maxTargetAttempts: 0,
+            boomed: 0,
+            busted: 0
         },
         target: 0
     };
