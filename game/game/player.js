@@ -5,6 +5,7 @@ function getPlayer(strategy) {
         bet: 0,
         stats: {
             n: 0,
+            rate: 0,
             losingStreak: 0,
             winningStreak: 0,
             maxBalance: 0,
@@ -27,6 +28,8 @@ function getPlayer(strategy) {
     };
     player.updateStats = function(win) {
         this.stats.n++;
+        const rounding = 1000;
+        this.stats.rate = Math.round(((this.balance - this.stats.startingBalance) * 100 * rounding / this.stats.startingBalance) / this.stats.n) / rounding;
         this.stats.balance = this.balance;
         if (win) {
             this.stats.losingStreak = 0;

@@ -66,24 +66,23 @@ const graph = {
         this.guides.push(curve);
     },
     addGuides: function() {
-        this.addGuide(200000);
-        this.addGuide(175000);
-        this.addGuide(150000);
-        this.addGuide(100000);
-        this.addGuide(50000);
-        this.addGuide(25000);
+        this.addGuide(160000);
+        this.addGuide(80000);
+        this.addGuide(40000);
+        this.addGuide(20000);
+        this.addGuide(10000);
         this.addGuide(0);
         return this.guides;
     },
     updateGuides: function () {
+        const y = [0, 10000, 20000, 40000, 80000, 160000];
         const guidelines = [
-            [{ x: -2000, y: 200000 }, { x: 2000, y: 200000 }],
-            [{ x: -2000, y: 175000 }, { x: 2000, y: 175000 }],
-            [{ x: -2000, y: 150000 }, { x: 2000, y: 150000 }],
-            [{ x: -2000, y: 100000 }, { x: 2000, y: 100000 }],
-            [{ x: -2000, y: 50000 }, { x: 2000, y: 50000 }],
-            [{ x: -2000, y: 25000 }, { x: 2000, y: 25000 }],
-            [{ x: -2000, y: 0 }, { x: 2000, y: 0 }]
+            [{ x: -2000, y: y[5] }, { x: 2000, y: y[5] }],
+            [{ x: -2000, y: y[4] }, { x: 2000, y: y[4] }],
+            [{ x: -2000, y: y[3] }, { x: 2000, y: y[3] }],
+            [{ x: -2000, y: y[2] }, { x: 2000, y: y[2] }],
+            [{ x: -2000, y: y[1] }, { x: 2000, y: y[1] }],
+            [{ x: -2000, y: y[0] }, { x: 2000, y: y[0] }]
         ];
         this.guides.forEach((guide, ix) => {
             guide.updatePoints(this.makeGuidePoints(guidelines[ix]));
