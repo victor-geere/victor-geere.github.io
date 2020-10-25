@@ -22,7 +22,7 @@ const strategy = {
         // let gain = (player.getBalance() - player.stats.startingBalance) / player.stats.startingBalance;
         // let growth = (1 - gain) / 10;
         // let risk = 1 + growth;
-        let risk = 1.05;
+        let risk = 1.025;
         player.setTarget(player.getBalance() * risk);
     },
     guess: function() {
@@ -56,27 +56,13 @@ const strategy = {
         if (player.getTarget() < relativeAmount) {
             this.setTarget(player);
         }
-        // reset if above 20 * starting balance
-        if (player.getBalance() > 2.2 * player.getStats().startingBalance) {
-            player.setBalance(player.getStats().startingBalance * 1.1);
-            player.stats.boomed++;
-            // window.location.href = 'index.html';
-        }
         player.clearBet();
     },
     lose: function(player) {
         this.doLog('lose', player);
-        if (player.getStats().targetAttempts > 9) {
-            const oldTarget = player.getTarget();
-            let newTarget = ((player.getTarget() - player.getBalance()) / 1.5) + player.getBalance();
-            console.log(`newTarget : ${newTarget}, oldTarget : ${oldTarget}`);
-            player.setTarget(newTarget);
-        }
-        // reset if below starting balance
-        if (player.getBalance() < player.getStats().startingBalance * 0.55) {
+        if (player.getBalance() < player.getStats().startingBalance * 0.3) {
             player.setBalance(player.getStats().startingBalance * 1.1);
             player.stats.busted++;
-            // window.location.href = 'index.html';
         }
         player.clearBet();
     }

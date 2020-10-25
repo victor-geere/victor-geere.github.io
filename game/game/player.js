@@ -19,7 +19,9 @@ function getPlayer(strategy) {
             targetAttempts: 0,
             maxTargetAttempts: 0,
             boomed: 0,
-            busted: 0
+            busted: 0,
+            won: false,                      // the last outcome of the game was successful
+            lastBet: 0
         },
         target: 0
     };
@@ -28,6 +30,7 @@ function getPlayer(strategy) {
     };
     player.updateStats = function(win) {
         this.stats.n++;
+        this.stats.won = win;
         const rounding = 1000;
         this.stats.rate = Math.round(((this.balance - this.stats.startingBalance) * 100 * rounding / this.stats.startingBalance) / this.stats.n) / rounding;
         this.stats.balance = this.balance;
@@ -92,6 +95,7 @@ function getPlayer(strategy) {
     };
 
     player.clearBet = function() {
+        this.stats.lastBet = this.bet;
         this.bet = 0;
     };
 

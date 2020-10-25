@@ -46,8 +46,8 @@ const graph = {
         return plot;
     },
     makeGuidePoints: function(points) {
-        const mid = (points[0].x + points[1].x) / 2;
         const plot = [];
+        const mid = (points[0].x + points[1].x) / 2;
         points.forEach((point) => {
             plot.push(newVec(point.x - mid, (point.y - this.scale.vMid) / 2000, 0));
         });
@@ -62,10 +62,11 @@ const graph = {
     addGuide: function(n) {
         const points = [{ x: -2000, y: n }, { x: 2000, y: n }];
         const plot = this.makeGuidePoints(points);
-        const curve = makeSimpleCurve(plot, getMaterial(colorsGrey, 2));
+        const curve = makeSimpleCurve(plot, getMaterial(colorsGrey, 1));
         this.guides.push(curve);
     },
     addGuides: function() {
+        this.guides = [];
         this.addGuide(160000);
         this.addGuide(80000);
         this.addGuide(40000);

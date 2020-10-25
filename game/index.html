@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Game</title>
+    <title>Half Martingale</title>
     <style>
         html, body {
             background-color: #303035;
@@ -69,8 +69,6 @@
     Boomed x2 : ${stats.boomed} <br>
     Busted x0.5: ${stats.busted} <br>
     `;
-            // Boomed : ${stats.boomed} <br>
-            // Busted : ${stats.busted} <br>
 
             document.getElementById('floatingText').innerHTML = text;
         }
@@ -97,27 +95,26 @@
         let locked = false;
         let played = 0;
         function animate() {
-            // if (getGame().totalBalance() > 1000 && getGame().totalBalance() < 200000) {
-                if (!locked) {
-                    locked = true;
-                    if (played++ < 100000) {
-                        setText();
-                        requestAnimationFrame(animate);
-                        game.setOptions({ risk: gui.get('Risk') });
-                        game.play();
-                        game.plot.updatePoints(graph.makePoints(game.points));
-                        graph.updateGuides();
-                        sceneInfo.render();
-                    } else {
-                        game.score();
-                    }
-                    locked = false;
-                } else {
-                    requestAnimationFrame(animate);
+            if (!locked) {
+                locked = true;
+                if (game.totalBalance() > 30000) {
+                    return restartGame();
                 }
-            // } else {
-            //     console.log(game.strategy.getLog());
-            // }
+                if (played++ < 100000) {
+                    setText();
+                    requestAnimationFrame(animate);
+                    game.setOptions({ risk: gui.get('Risk') });
+                    game.play();
+                    game.plot.updatePoints(graph.makePoints(game.points));
+                    graph.updateGuides();
+                    sceneInfo.render();
+                } else {
+                    game.score();
+                }
+                locked = false;
+            } else {
+                requestAnimationFrame(animate);
+            }
         }
 
         const gameStats = [];
@@ -159,9 +156,19 @@
         };
 
         // popGui(gui);
-        initScene();
-        makeScene();
-        animate();
+        function startGame() {
+            played = 0;
+            initScene();
+            makeScene();
+            locked = false;
+            animate();
+        }
+
+        function restartGame() {
+            window.location.href = 'index.html';
+        }
+
+        startGame();
     </script>
 </head>
 <body>
