@@ -57,10 +57,10 @@ const strategy = {
             this.setTarget(player);
         }
         // reset if above 20 * starting balance
-        if (player.getBalance() > 20 * player.getStats().startingBalance) {
-            // player.setBalance(player.getStats().startingBalance * 1.1);
-            // player.stats.boomed++;
-            window.location.href = 'index.html';
+        if (player.getBalance() > 2.2 * player.getStats().startingBalance) {
+            player.setBalance(player.getStats().startingBalance * 1.1);
+            player.stats.boomed++;
+            // window.location.href = 'index.html';
         }
         player.clearBet();
     },
@@ -73,10 +73,10 @@ const strategy = {
             player.setTarget(newTarget);
         }
         // reset if below starting balance
-        if (player.getBalance() < player.getStats().startingBalance / 2) {
-            // player.setBalance(player.getStats().startingBalance * 1.1);
-            // player.stats.busted++;
-            window.location.href = 'index.html';
+        if (player.getBalance() < player.getStats().startingBalance * 0.55) {
+            player.setBalance(player.getStats().startingBalance * 1.1);
+            player.stats.busted++;
+            // window.location.href = 'index.html';
         }
         player.clearBet();
     }
