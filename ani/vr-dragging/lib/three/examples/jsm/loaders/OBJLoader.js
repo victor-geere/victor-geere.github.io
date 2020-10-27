@@ -1,7 +1,3 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- */
-
 import {
 	BufferGeometry,
 	FileLoader,
@@ -451,8 +447,10 @@ var OBJLoader = ( function () {
 
 			var scope = this;
 
-			var loader = new FileLoader( scope.manager );
+			var loader = new FileLoader( this.manager );
 			loader.setPath( this.path );
+			loader.setRequestHeader( this.requestHeader );
+			loader.setWithCredentials( this.withCredentials );
 			loader.load( url, function ( text ) {
 
 				try {

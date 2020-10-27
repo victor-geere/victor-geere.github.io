@@ -1,8 +1,3 @@
-/**
- * @author WestLangley / http://github.com/WestLangley
- *
- */
-
 
 import { LineSegments2 } from "../lines/LineSegments2.js";
 import { LineGeometry } from "../lines/LineGeometry.js";
@@ -10,12 +5,12 @@ import { LineMaterial } from "../lines/LineMaterial.js";
 
 var Line2 = function ( geometry, material ) {
 
-	LineSegments2.call( this );
+	if ( geometry === undefined ) geometry = new LineGeometry();
+	if ( material === undefined ) material = new LineMaterial( { color: Math.random() * 0xffffff } );
+
+	LineSegments2.call( this, geometry, material );
 
 	this.type = 'Line2';
-
-	this.geometry = geometry !== undefined ? geometry : new LineGeometry();
-	this.material = material !== undefined ? material : new LineMaterial( { color: Math.random() * 0xffffff } );
 
 };
 
