@@ -10,7 +10,7 @@
 
 <script type="module">
 
-    import { rainbow } from './modules/colors.js';
+    import { rainbow, colorsGrey } from './modules/colors.js';
     import * as THREE from './lib/three/build/three.module.js';
     import {OrbitControls} from './lib/three/examples/jsm/controls/OrbitControls.js';
     import {VRButton} from './lib/three/examples/jsm/webxr/VRButton.js';
@@ -35,9 +35,15 @@
             size: 4,
             pieces: 10,
             gapRatio: 0.25,
-            blockSize: 0
+            blockSize: 0.4
         },
-
+        getMaterial: function(colorN, palette=rainbow) {
+            return new THREE.MeshStandardMaterial({
+                color: palette[colorN],
+                roughness: 0.7,
+                metalness: 0.0
+            });
+        },
         addRandomGeometries: function(vrScene) {
             const n = vrScene.board.pieces;
             let radius = vrScene.board.pieceRadius;
@@ -47,7 +53,6 @@
             let gap = vrScene.board.gapRatio;
             vrScene.board.gapSize = gap * radius2x;
             let spacing = 1 + gap;
-            vrScene.board.blockSize = boardSize / n;
 
             const addPiece = (object) => {
                 object.scale.setScalar(1);
@@ -57,16 +62,9 @@
 
                 vrScene.group.add(object);
             };
-            const getMaterial = (colorN) => {
-                return new THREE.MeshStandardMaterial({
-                    color: rainbow[colorN],
-                    roughness: 0.7,
-                    metalness: 0.0
-                });
-            };
             const makePiece = (x, z, colorOffset) => {
                 let geometry = new THREE.CylinderBufferGeometry(radius, radius, radius, 64);
-                let material = getMaterial(x * 2 + colorOffset);
+                let material = vrScene.getMaterial(x * 2 + colorOffset);
                 let object = new THREE.Mesh(geometry, material);
 
                 object.position.x = x * vrScene.board.blockSize + vrScene.board.blockSize / 2 - halfBoard;
@@ -93,6 +91,31 @@
             floor.rotation.x = -Math.PI / 2;
             floor.receiveShadow = true;
             vrScene.scene.add(floor);
+
+            const addTile = (x, z) => {
+                let tile = new THREE.BoxBufferGeometry(0.4, 0.1, 0.4);
+                let tile1Mat = vrScene.getMaterial(2, colorsGrey);
+                let object = new THREE.Mesh(tile, tile1Mat);
+
+                const halfBlock = vrScene.board.blockSize / 2;
+                const halfBoard = vrScene.board.size / 2;
+                object.position.x = x * vrScene.board.blockSize - halfBoard - halfBlock;
+                object.position.y = -0.04;
+                object.position.z = z * vrScene.board.blockSize - halfBoard - halfBlock;
+
+                object.scale.setScalar(1);
+                object.castShadow = false;
+                object.receiveShadow = true;
+                vrScene.scene.add(object);
+            };
+            const tileN = vrScene.board.pieces;
+            for (let n = 1; n <= tileN; n++) {
+                for (let k = 1; k <= tileN; k++) {
+                    if (n % 2 === 1 || k % 2 === 1) {
+                        addTile(n, k);
+                    }
+                }
+            }
         },
         addLight: function(vrScene) {
             vrScene.scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
