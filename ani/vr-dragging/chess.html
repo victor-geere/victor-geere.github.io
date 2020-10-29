@@ -37,11 +37,11 @@
             gapRatio: 0.25,
             blockSize: 0.4
         },
-        getMaterial: function(colorN, palette=rainbow) {
+        getMaterial: function(colorN, palette=rainbow, metal=0) {
             return new THREE.MeshStandardMaterial({
                 color: palette[colorN],
-                roughness: 0.7,
-                metalness: 0.0
+                roughness: metal > 0 ? 0.6 : 0.7,
+                metalness: metal
             });
         },
         addRandomGeometries: function(vrScene) {
@@ -92,9 +92,9 @@
             floor.receiveShadow = true;
             vrScene.scene.add(floor);
 
-            const addTile = (x, z) => {
+            const addTile = (x, z, colorN) => {
                 let tile = new THREE.BoxBufferGeometry(0.4, 0.1, 0.4);
-                let tile1Mat = vrScene.getMaterial(2, colorsGrey);
+                let tile1Mat = vrScene.getMaterial(colorN, colorsGrey, 1);
                 let object = new THREE.Mesh(tile, tile1Mat);
 
                 const halfBlock = vrScene.board.blockSize / 2;
@@ -111,9 +111,8 @@
             const tileN = vrScene.board.pieces;
             for (let n = 1; n <= tileN; n++) {
                 for (let k = 1; k <= tileN; k++) {
-                    if (n % 2 === 1 || k % 2 === 1) {
-                        addTile(n, k);
-                    }
+                    const colorN = (n % 2) !== (k % 2) ? 2 : 5;
+                    addTile(n, k, colorN);
                 }
             }
         },
