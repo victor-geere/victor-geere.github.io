@@ -30,46 +30,55 @@
         raycaster: new THREE.Raycaster(),
         intersected: [],
         tempMatrix: new THREE.Matrix4(),
-        pieceRadius: 0.16,
+        board: {
+            pieceRadius: 0.16,
+            size: 4,
+            pieces: 10,
+            gapRatio: 0.25
+        },
 
         addRandomGeometries: function(vrScene) {
-            let radius = vrScene.pieceRadius;
+            const n = vrScene.board.pieces;
+            let radius = vrScene.board.pieceRadius;
             let radius2x = radius * 2;
-            let boardSize = 4;
+            let boardSize = vrScene.board.size;
             let halfBoard = boardSize / 2;
-            let gap = 0.25;
+            let gap = vrScene.board.gapRatio;
+            let gapSize = gap * radius2x;
             let spacing = 1 + gap;
+            let blockSize = boardSize / n;
 
-            let geometries = [
-                new THREE.CylinderBufferGeometry(radius, radius, radius, 64)
-            ];
-
-            const n = 10;
-            for (let x = 0; x < n; x++) {
-
-                let geometry = geometries[Math.floor(Math.random() * geometries.length)];
-                let material = new THREE.MeshStandardMaterial({
-                    color: rainbow[x * 2 + 20],
-                    roughness: 0.7,
-                    metalness: 0.0
-                });
-
-                let object = new THREE.Mesh(geometry, material);
-
-                object.position.x = x * radius2x * spacing - halfBoard + radius + (0.5 * gap * radius2x);
-                object.position.y = radius/2;
-                object.position.z = radius - halfBoard + (0.5 * gap * radius2x);
-
-                // object.position.x = (i % 5)/10 * 9 - 2 + 0.2;
-                // object.position.y = 0.1;
-                // object.position.z = (i % 2)/10 * 4.5 - 2 + 0.2;
-
+            const addPiece = (object) => {
                 object.scale.setScalar(1);
 
                 object.castShadow = true;
                 object.receiveShadow = true;
 
                 vrScene.group.add(object);
+            };
+            const getMaterial = (colorN) => {
+                return new THREE.MeshStandardMaterial({
+                    color: rainbow[colorN],
+                    roughness: 0.7,
+                    metalness: 0.0
+                });
+            };
+            const makePiece = (x, z, colorOffset) => {
+                let geometry = new THREE.CylinderBufferGeometry(radius, radius, radius, 64);
+                let material = getMaterial(x * 2 + colorOffset);
+                let object = new THREE.Mesh(geometry, material);
+
+                object.position.x = x * blockSize + blockSize / 2 - halfBoard;
+                object.position.y = radius/2;
+                object.position.z = z * blockSize + blockSize / 2 - halfBoard;
+                addPiece(object);
+            };
+
+            for (let x = 0; x < n; x++) {
+                makePiece(x, 0, 5);
+                makePiece(x, 1, 15);
+                makePiece(x, 8, 35);
+                makePiece(x, 9, 45);
             }
         },
         addFloor: function(vrScene) {
