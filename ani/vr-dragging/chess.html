@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>three.js vr - dragging</title>
+  <title>Chess V1.343</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <link type="text/css" rel="stylesheet" href="main.css">
@@ -15,292 +15,346 @@
     import {OrbitControls} from './lib/three/examples/jsm/controls/OrbitControls.js';
     import {VRButton} from './lib/three/examples/jsm/webxr/VRButton.js';
     import {XRControllerModelFactory} from './lib/three/examples/jsm/webxr/XRControllerModelFactory.js';
+    import {Interaction} from './lib/three.interaction/three.interaction.module.js';
 
-    const sceneVR = {
-        camera: null,
-        scene: null,
-        renderer: null,
-        container: null,
-        controller1: null,
-        controller2: null,
-        controllerGrip1: null,
-        controllerGrip2: null,
-        controls: null,
-        group: null,
-        raycaster: new THREE.Raycaster(),
-        intersected: [],
-        tempMatrix: new THREE.Matrix4(),
-        board: {
-            pieceHeight: 0.32,
-            pieceRadius: 0.16,
-            size: 4,
-            pieces: 10,
-            gapRatio: 0.25,
-            blockSize: 0.4
-        },
-        getMaterial: function (colorN, palette = rainbow, metal = 0) {
-            return new THREE.MeshStandardMaterial({
-                color: palette[colorN],
-                roughness: metal > 0 ? 0.8 : 0.7,
-                metalness: metal
-            });
-        },
-        addRandomGeometries: function (vrScene) {
-            const n = vrScene.board.pieces;
-            let radius = vrScene.board.pieceRadius;
-            let height = vrScene.board.pieceHeight;
-            let radius2x = radius * 2;
-            let boardSize = vrScene.board.size;
-            let halfBoard = boardSize / 2;
-            let gap = vrScene.board.gapRatio;
-            vrScene.board.gapSize = gap * radius2x;
-            let spacing = 1 + gap;
+    function getVRScene() {
+        return {
+            ...getBaseScene(),
 
-            const addPiece = (object) => {
-                object.scale.setScalar(1);
-                object.castShadow = true;
-                object.receiveShadow = true;
-                vrScene.group.add(object);
-            };
-            const makePiece = (x, z, colorOffset) => {
-                // let geometry = new THREE.CylinderBufferGeometry(radius*0.75, radius*1.25, height, 64);
-                let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
-                const matNum = x * 2 + colorOffset;
-                let material = vrScene.getMaterial(matNum);
-                let object = new THREE.Mesh(geometry, material);
+            vrSupported: true,
 
-                object.position.x = x * vrScene.board.blockSize + vrScene.board.blockSize / 2 - halfBoard;
-                object.position.y = height / 2;
-                object.position.z = z * vrScene.board.blockSize + vrScene.board.blockSize / 2 - halfBoard;
+            addControllers: function (vrScene) {
+                // vrScene.ctrl.controller1.addEventListener( 'select', () => {} );
+                // vrScene.ctrl.controller1.addEventListener( 'selectstart', () => {} );
+                // vrScene.ctrl.controller1.addEventListener( 'selectend', () => {} );
+                // vrScene.ctrl.controller1.addEventListener( 'squeeze', () => {} );
+                // vrScene.ctrl.controller1.addEventListener( 'squeezestart', () => {} );
+                // vrScene.ctrl.controller1.addEventListener( 'squeezeend', () => {} );
+                // vrScene.ctrl.controller1.addEventListener( 'end', () => {} );
 
-                object.rotation.y = -Math.PI / 8;
-                addPiece(object);
-            };
+                vrScene.ctrl.controller1 = vrScene.renderer.xr.getController(0);
+                vrScene.ctrl.controller1.addEventListener('squeezestart', vrScene.onSelectStart.bind(vrScene));
+                vrScene.ctrl.controller1.addEventListener('squeezeend', vrScene.onSelectEnd.bind(vrScene));
+                vrScene.scene.add(vrScene.ctrl.controller1);
 
-            for (let x = 0; x < n; x++) {
-                makePiece(x, 0, 0);
-                makePiece(x, 1, 10);
-                makePiece(x, 8, 30);
-                makePiece(x, 9, 40);
-            }
-        },
-        addFloor: function (vrScene) {
-            let geometry = new THREE.PlaneBufferGeometry(4, 4);
-            let material = new THREE.MeshStandardMaterial({
-                color: 0xeeeeee,
-                roughness: 1.0,
-                metalness: 0.0
-            });
-            let floor = new THREE.Mesh(geometry, material);
-            floor.rotation.x = -Math.PI / 2;
-            floor.receiveShadow = true;
-            vrScene.scene.add(floor);
+                vrScene.ctrl.controller2 = vrScene.renderer.xr.getController(1);
+                vrScene.ctrl.controller2.addEventListener('squeezestart', vrScene.onSelectStart.bind(vrScene));
+                vrScene.ctrl.controller2.addEventListener('squeezeend', vrScene.onSelectEnd.bind(vrScene));
+                vrScene.scene.add(vrScene.ctrl.controller2);
 
-            const addTile = (x, z, colorN) => {
-                let tile = new THREE.BoxBufferGeometry(0.4, 0.1, 0.4);
-                let tile1Mat = vrScene.getMaterial(colorN, colorsGrey, 1);
-                let object = new THREE.Mesh(tile, tile1Mat);
+                let controllerModelFactory = new XRControllerModelFactory();
 
-                const halfBlock = vrScene.board.blockSize / 2;
-                const halfBoard = vrScene.board.size / 2;
-                object.position.x = x * vrScene.board.blockSize - halfBoard - halfBlock;
-                object.position.y = -0.04;
-                object.position.z = z * vrScene.board.blockSize - halfBoard - halfBlock;
+                vrScene.ctrl.controllerGrip1 = vrScene.renderer.xr.getControllerGrip(0);
+                vrScene.ctrl.controllerGrip1.add(controllerModelFactory.createControllerModel(vrScene.ctrl.controllerGrip1));
+                vrScene.scene.add(vrScene.ctrl.controllerGrip1);
 
-                object.scale.setScalar(1);
-                object.castShadow = false;
-                object.receiveShadow = true;
-                vrScene.scene.add(object);
-            };
-            const tileN = vrScene.board.pieces;
-            for (let n = 1; n <= tileN; n++) {
-                for (let k = 1; k <= tileN; k++) {
-                    const colorN = (n % 2) !== (k % 2) ? 2 : 5;
-                    addTile(n, k, colorN);
-                }
-            }
-        },
-        addLight: function (vrScene) {
-            vrScene.scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+                vrScene.ctrl.controllerGrip2 = vrScene.renderer.xr.getControllerGrip(1);
+                vrScene.ctrl.controllerGrip2.add(controllerModelFactory.createControllerModel(vrScene.ctrl.controllerGrip2));
+                vrScene.scene.add(vrScene.ctrl.controllerGrip2);
 
-            let light = new THREE.DirectionalLight(0xffffff);
-            light.position.set(0, 6, 0);
-            light.castShadow = true;
-            light.shadow.camera.top = 2;
-            light.shadow.camera.bottom = -2;
-            light.shadow.camera.right = 2;
-            light.shadow.camera.left = -2;
-            light.shadow.mapSize.set(4096, 4096);
-            vrScene.scene.add(light);
-        },
-        addControllers: function (vrScene) {
-            // vrScene.controller1.addEventListener( 'select', () => {} );
-            // vrScene.controller1.addEventListener( 'selectstart', () => {} );
-            // vrScene.controller1.addEventListener( 'selectend', () => {} );
-            // vrScene.controller1.addEventListener( 'squeeze', () => {} );
-            // vrScene.controller1.addEventListener( 'squeezestart', () => {} );
-            // vrScene.controller1.addEventListener( 'squeezeend', () => {} );
-            // vrScene.controller1.addEventListener( 'end', () => {} );
-
-            vrScene.controller1 = vrScene.renderer.xr.getController(0);
-            vrScene.controller1.addEventListener('squeezestart', vrScene.onSelectStart.bind(vrScene));
-            vrScene.controller1.addEventListener('squeezeend', vrScene.onSelectEnd.bind(vrScene));
-            vrScene.scene.add(vrScene.controller1);
-
-            vrScene.controller2 = vrScene.renderer.xr.getController(1);
-            vrScene.controller2.addEventListener('squeezestart', vrScene.onSelectStart.bind(vrScene));
-            vrScene.controller2.addEventListener('squeezeend', vrScene.onSelectEnd.bind(vrScene));
-            vrScene.scene.add(vrScene.controller2);
-
-            let controllerModelFactory = new XRControllerModelFactory();
-
-            vrScene.controllerGrip1 = vrScene.renderer.xr.getControllerGrip(0);
-            vrScene.controllerGrip1.add(controllerModelFactory.createControllerModel(vrScene.controllerGrip1));
-            vrScene.scene.add(vrScene.controllerGrip1);
-
-            vrScene.controllerGrip2 = vrScene.renderer.xr.getControllerGrip(1);
-            vrScene.controllerGrip2.add(controllerModelFactory.createControllerModel(vrScene.controllerGrip2));
-            vrScene.scene.add(vrScene.controllerGrip2);
-
-            let lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
-            let line = new THREE.Line(lineGeometry);
-            line.name = 'line';
-            line.scale.z = 5;
-
-            vrScene.controller1.add(line.clone());
-            vrScene.controller2.add(line.clone());
-        },
-        init: function (generatorFx) {
-            this.container = document.createElement('div');
-            document.body.appendChild(this.container);
-            this.renderer = new THREE.WebGLRenderer({antialias: true});
-            this.renderer.setPixelRatio(window.devicePixelRatio);
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.renderer.outputEncoding = THREE.sRGBEncoding;
-            this.renderer.shadowMap.enabled = true;
-            this.renderer.xr.enabled = true;
-            this.container.appendChild(this.renderer.domElement);
-            document.body.appendChild(VRButton.createButton(this.renderer));
-
-            this.scene = new THREE.Scene();
-            this.scene.background = new THREE.Color(0x809090);
-
-            this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10);
-            this.camera.position.set(0, 1.6, 3);
-
-            this.controls = new OrbitControls(this.camera, this.container);
-            this.controls.target.set(0, 1.6, 0);
-            this.controls.update();
-
-            this.group = new THREE.Group();
-            this.scene.add(this.group);
-
-            this.addFloor(this);
-            this.addLight(this);
-
-            navigator.xr.isSessionSupported('immersive-vr').then(function (supported) {
-                supported ? console.log('vr supported') : console.log('vr not supported');
-                this.vrSupported = supported;
-            }.bind(this));
-
-            this.addControllers(this);
-
-            generatorFx(this);
-
-            window.addEventListener('resize', this.onWindowResize, false);
-        },
-
-        onWindowResize: function () {
-            if (this.camera) {
-                this.camera.aspect = window.innerWidth / window.innerHeight;
-                this.camera.updateProjectionMatrix();
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-        },
-
-        onSelectStart: function (event) {
-            let controller = event.target;
-            let intersections = this.getIntersections(controller);
-
-            if (intersections.length > 0) {
-                let intersection = intersections[0];
-                let object = intersection.object;
-                object.material.emissive.b = 1;
-                controller.attach(object);
-                controller.userData.selected = object;
-            }
-        },
-
-        onSelectEnd: function (event) {
-            let controller = event.target;
-
-            if (controller.userData.selected !== undefined) {
-                let object = controller.userData.selected;
-                object.material.emissive.b = 0;
-                this.group.attach(object);
-                object.rotation.x = 0;
-                object.rotation.y = 0;
-                object.rotation.z = 0;
-
-                object.position.y = this.board.pieceRadius / 2;
-                const halfBlock = this.board.blockSize / 2;
-                object.position.x = Math.round((object.position.x - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
-                object.position.z = Math.round((object.position.z - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
-                controller.userData.selected = undefined;
-            }
-        },
-
-        getIntersections: function (controller) {
-            this.tempMatrix.identity().extractRotation(controller.matrixWorld);
-
-            this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-            this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.tempMatrix);
-
-            return this.raycaster.intersectObjects(this.group.children);
-        },
-
-        intersectObjects: function (controller) {
-            // Do not highlight when already selected
-            if (controller.userData.selected !== undefined) return;
-
-            let line = controller.getObjectByName('line');
-            let intersections = this.getIntersections(controller);
-
-            if (intersections.length > 0) {
-                let intersection = intersections[0];
-                let object = intersection.object;
-                object.material.emissive.r = 1;
-                this.intersected.push(object);
-
-                line.scale.z = intersection.distance;
-            } else {
+                let lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+                let line = new THREE.Line(lineGeometry);
+                line.name = 'line';
                 line.scale.z = 5;
-            }
-        },
 
-        cleanIntersected: function () {
-            while (this.intersected.length) {
-                let object = this.intersected.pop();
-                object.material.emissive.r = 0;
-            }
-        },
+                vrScene.ctrl.controller1.add(line.clone());
+                vrScene.ctrl.controller2.add(line.clone());
+            },
 
-        animate: function () {
-            this.renderer.setAnimationLoop(this.render.bind(this));
-        },
+            onSelectStart: function (event) {
+                let controller = event.target;
+                let intersections = this.getIntersections(controller);
 
-        render: function () {
-            this.cleanIntersected();
-            if (this.vrSupported) {
-                this.intersectObjects(this.controller1);
-                this.intersectObjects(this.controller2);
+                if (intersections.length > 0) {
+                    let intersection = intersections[0];
+                    let object = intersection.object;
+                    object.material.emissive.b = 1;
+                    controller.attach(object);
+                    controller.userData.selected = object;
+                }
+            },
+
+            onSelectEnd: function (event) {
+                let controller = event.target;
+
+                if (controller.userData.selected !== undefined) {
+                    let object = controller.userData.selected;
+                    object.material.emissive.b = 0;
+                    this.group.attach(object);
+                    object.rotation.x = 0;
+                    object.rotation.y = -Math.PI / 8;
+                    object.rotation.z = 0;
+
+                    object.position.y = this.board.pieceHeight / 2;
+                    const halfBlock = this.board.blockSize / 2;
+                    object.position.x = Math.round((object.position.x - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
+                    object.position.z = Math.round((object.position.z - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
+                    controller.userData.selected = undefined;
+                }
+            },
+
+            getIntersections: function (controller) {
+                this.tempMatrix.identity().extractRotation(controller.matrixWorld);
+
+                this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+                this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.tempMatrix);
+
+                return this.raycaster.intersectObjects(this.group.children);
+            },
+
+            intersectObjects: function (controller) {
+                // Do not highlight when already selected
+                if (controller.userData.selected !== undefined) return;
+
+                let line = controller.getObjectByName('line');
+                let intersections = this.getIntersections(controller);
+
+                if (intersections.length > 0) {
+                    let intersection = intersections[0];
+                    let object = intersection.object;
+                    object.material.emissive.r = 1;
+                    this.intersected.push(object);
+
+                    line.scale.z = intersection.distance;
+                } else {
+                    line.scale.z = 5;
+                }
+            },
+
+            cleanIntersected: function () {
+                while (this.intersected.length) {
+                    let object = this.intersected.pop();
+                    object.material.emissive.r = 0;
+                }
+            },
+
+            animate: function () {
+                this.renderer.setAnimationLoop(this.render.bind(this));
+            },
+
+            render: function () {
+                this.cleanIntersected();
+                if (this.vrSupported) {
+                    this.intersectObjects(this.ctrl.controller1);
+                    this.intersectObjects(this.ctrl.controller2);
+                }
+                this.renderer.render(this.scene, this.camera);
             }
-            this.renderer.render(this.scene, this.camera);
         }
-    };
+    }
 
-    sceneVR.init(sceneVR.addRandomGeometries);
-    sceneVR.animate();
+    function getBaseScene() {
+        return {
+            camera: null,
+            scene: null,
+            renderer: null,
+            container: null,
+            vrSupported: false,
+            ctrl: {
+                controller1: null,
+                controller2: null,
+                controllerGrip1: null,
+                controllerGrip2: null,
+            },
+            controls: null,
+            group: null,
+            raycaster: new THREE.Raycaster(),
+            intersected: [],
+            tempMatrix: new THREE.Matrix4(),
+            board: {
+                pieceHeight: 0.32,
+                pieceRadius: 0.16,
+                size: 4,
+                pieces: 10,
+                gapRatio: 0.25,
+                blockSize: 0.4
+            },
+            getMaterial: function (colorN, palette = rainbow, metal = 0) {
+                return new THREE.MeshStandardMaterial({
+                    color: palette[colorN],
+                    roughness: metal > 0 ? 0.8 : 0.7,
+                    metalness: metal
+                });
+            },
+            addGeometries: function (vrScene) {
+                const n = vrScene.board.pieces;
+                let radius = vrScene.board.pieceRadius;
+                let height = vrScene.board.pieceHeight;
+                let radius2x = radius * 2;
+                let boardSize = vrScene.board.size;
+                let halfBoard = boardSize / 2;
+                let gap = vrScene.board.gapRatio;
+                vrScene.board.gapSize = gap * radius2x;
+                let spacing = 1 + gap;
+
+                const addPiece = (object) => {
+                    object.scale.setScalar(1);
+                    object.castShadow = true;
+                    object.receiveShadow = true;
+                    vrScene.group.add(object);
+                };
+                const makePiece = (x, z, colorOffset) => {
+                    // let geometry = new THREE.CylinderBufferGeometry(radius*0.75, radius*1.25, height, 64);
+                    let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
+                    const matNum = x * 2 + colorOffset;
+                    let material = vrScene.getMaterial(matNum);
+                    let object = new THREE.Mesh(geometry, material);
+
+                    object.cursor = 'pointer';
+                    object.on('click', (obj) => {
+                    });
+
+                    object.position.x = x * vrScene.board.blockSize + vrScene.board.blockSize / 2 - halfBoard;
+                    object.position.y = height / 2;
+                    object.position.z = z * vrScene.board.blockSize + vrScene.board.blockSize / 2 - halfBoard;
+
+                    object.rotation.y = -Math.PI / 8;
+                    addPiece(object);
+                };
+
+                for (let x = 0; x < n; x++) {
+                    makePiece(x, 0, 0);
+                    makePiece(x, 1, 10);
+                    makePiece(x, 8, 30);
+                    makePiece(x, 9, 40);
+                }
+            },
+
+            addFloor: function (vrScene) {
+                let geometry = new THREE.PlaneBufferGeometry(4, 4);
+                let material = new THREE.MeshStandardMaterial({
+                    color: 0xeeeeee,
+                    roughness: 1.0,
+                    metalness: 0.0
+                });
+                let floor = new THREE.Mesh(geometry, material);
+                floor.rotation.x = -Math.PI / 2;
+                floor.receiveShadow = true;
+                vrScene.scene.add(floor);
+
+                const addTile = (x, z, colorN) => {
+                    let tile = new THREE.BoxBufferGeometry(0.4, 0.1, 0.4);
+                    let tile1Mat = vrScene.getMaterial(colorN, colorsGrey, 1);
+                    let object = new THREE.Mesh(tile, tile1Mat);
+
+                    const halfBlock = vrScene.board.blockSize / 2;
+                    const halfBoard = vrScene.board.size / 2;
+                    object.position.x = x * vrScene.board.blockSize - halfBoard - halfBlock;
+                    object.position.y = -0.04;
+                    object.position.z = z * vrScene.board.blockSize - halfBoard - halfBlock;
+
+                    object.scale.setScalar(1);
+                    object.castShadow = false;
+                    object.receiveShadow = true;
+                    vrScene.scene.add(object);
+                };
+                const tileN = vrScene.board.pieces;
+                for (let n = 1; n <= tileN; n++) {
+                    for (let k = 1; k <= tileN; k++) {
+                        const colorN = (n % 2) !== (k % 2) ? 2 : 5;
+                        addTile(n, k, colorN);
+                    }
+                }
+            },
+            addLight: function (vrScene) {
+                vrScene.scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+
+                let light = new THREE.DirectionalLight(0xffffff);
+                light.position.set(0, 6, 0);
+                light.castShadow = true;
+                light.shadow.camera.top = 2;
+                light.shadow.camera.bottom = -2;
+                light.shadow.camera.right = 2;
+                light.shadow.camera.left = -2;
+                light.shadow.mapSize.set(4096, 4096);
+                vrScene.scene.add(light);
+            },
+            addControllers: () => {},
+            setupScene: function(universe) {
+                universe.container = document.createElement('div');
+                document.body.appendChild(universe.container);
+                universe.renderer = new THREE.WebGLRenderer({antialias: true});
+                universe.renderer.setPixelRatio(window.devicePixelRatio);
+                universe.renderer.setSize(window.innerWidth, window.innerHeight);
+                universe.renderer.outputEncoding = THREE.sRGBEncoding;
+                universe.renderer.shadowMap.enabled = true;
+                universe.renderer.xr.enabled = true;
+                universe.container.appendChild(universe.renderer.domElement);
+                document.body.appendChild(VRButton.createButton(universe.renderer));
+
+                universe.scene = new THREE.Scene();
+                universe.scene.background = new THREE.Color(0x809090);
+
+                universe.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10);
+                universe.camera.position.set(0, 1.6, 3);
+
+                universe.group = new THREE.Group();
+                universe.scene.add(universe.group);
+            },
+            setupWorldControl: function(universe) {
+                const interaction = new Interaction(universe.renderer, universe.scene, universe.camera);
+
+                universe.controls = new OrbitControls(universe.camera, universe.container);
+                universe.controls.target.set(0, 1.6, 0);
+                universe.controls.update();
+            },
+
+            postSetup: function(universe) {
+                window.addEventListener('resize', universe.onWindowResize.bind(universe), false);
+            },
+
+            init: function () {
+                this.setupScene(this);
+                this.setupWorldControl(this);
+                this.addFloor(this);
+                this.addLight(this);
+                this.addControllers(this);
+                this.addGeometries(this);
+                this.postSetup(this);
+            },
+            onWindowResize: function () {
+                if (this.camera) {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                }
+            },
+            onSelectStart: () => {},
+            onSelectEnd: () => {},
+            getIntersections: () => {},
+            intersectObjects: () => {},
+            cleanIntersected: () => {},
+            animate: function() {
+                requestAnimationFrame(this.animate.bind(this));
+                this.render();
+            }.bind(this),
+            render: function() {
+                this.renderer.render(this.scene, this.camera);
+            }.bind(this)
+        }
+    }
+
+    function vrSession() {
+        const scene = getVRScene();
+        scene.init();
+        scene.animate();
+    }
+
+    function desktopSession() {
+        const scene = getVRScene();
+        scene.init();
+        scene.animate();
+    }
+
+    navigator.xr.isSessionSupported('immersive-vr').then(function (supported) {
+        if (supported) {
+            console.log('vr supported');
+            vrSession();
+        } else {
+            console.log('vr not supported');
+            desktopSession();
+        }
+    });
 
 </script>
 </body>
