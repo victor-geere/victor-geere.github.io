@@ -6,17 +6,22 @@ import {XRControllerModelFactory} from '../lib/three/examples/jsm/webxr/XRContro
 import {Interaction} from '../lib/three.interaction/three.interaction.module.js';
 
 const rank = {
-    PAWN: 0,
-    ROOK: 1,
-    KNIGHT: 2,
-    BISHOP: 3,
-    QUEEN: 4,
-    KING: 5,
+    PAWN: 1,
+    ROOK: 2,
+    KNIGHT: 3,
+    BISHOP: 4,
+    QUEEN: 5,
+    KING: 6,
 };
 
 const playerType = {
-    WHITE: 0,
-    BLACK: 1,
+    WHITE: 1,
+    BLACK: 2,
+};
+
+const objectType = {
+    PIECE: 1,
+    TILE: 2,
 };
 
 const geometries = {
@@ -45,24 +50,34 @@ function getVRScene() {
     baseScene.game = {
         ...baseScene.game,
         onSelectStart: function(universe, event) {
+            console.log('select start');
             let controller = event.target;
             let intersections = this.getIntersections(controller);
 
             if (intersections.length > 0) {
                 let intersection = intersections[0];
                 let object = intersection.object;
-                this.game.onClickPiece(this, object, event);
+                if (object.userData.objectType === objectType.PIECE) {
+                    universe.game.onClickPiece(universe, object, event);
+                } else {
+                    universe.game.onClickTile(universe, object, event);
+                }
             }
         },
 
         onSelectEnd: function(universe, event) {
+            console.log('select end');
             let controller = event.target;
             let intersections = this.getIntersections(controller);
 
             if (intersections.length > 0) {
                 let intersection = intersections[0];
                 let object = intersection.object;
-                this.game.onClickTile(this, object, event);
+                if (object.userData.objectType === objectType.PIECE) {
+                    universe.game.onClickPiece(universe, object, event);
+                } else {
+                    universe.game.onClickTile(universe, object, event);
+                }
             }
         },
 
@@ -105,6 +120,9 @@ function getVRScene() {
         ...baseScene,
 
         vrSupported: true,
+
+        addTileEvents: (vrScene, object) => {
+        },
 
         addController: function (vrScene, ctrlN, factory, line) {
             // vrScene.ctrl.controller[0].addEventListener( 'select', () => {} );
@@ -282,7 +300,8 @@ function getBaseScene() {
             },
             onClickPiece: (universe, clickedPiece, event) => {
                 const selectedPiece = universe.game.info.selectedPieces[0];
-                console.log(`clickedPiece.position x : ${clickedPiece.position.x} z : ${clickedPiece.position.z}`);
+                console.log(`clickedPiece : `, clickedPiece);
+                console.log(`selectedPiece : `, selectedPiece);
                 const target = {...clickedPiece.position};
                 if (selectedPiece) {
                     if (clickedPiece === selectedPiece) {
@@ -302,6 +321,7 @@ function getBaseScene() {
                 }
             },
             onClickTile: (universe, clickedTile, event) => {
+                console.log('clickedTile : ', clickedTile);
                 const piece = universe.game.info.selectedPieces[0];
                 if (piece) {
                     piece.position.x = clickedTile.position.x;
@@ -351,6 +371,7 @@ function getBaseScene() {
                 object.position.z = z * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
 
                 object.rotation.y = -Math.PI / geoFactory.rotation;
+                object.userData.objectType = objectType.PIECE;
                 this.addPieceEvents(object, universe);
                 return object;
             }
@@ -396,6 +417,10 @@ function getBaseScene() {
             addOfficers(vrScene, vrScene.game.players.white);
         },
 
+        addTileEvents: function(vrScene, object) {
+            object.on('click', vrScene.game.onClickTile.bind(vrScene, vrScene, object));
+        },
+
         addFloor: function (vrScene) {
             const addTile = (x, z, colorN) => {
                 const tileHeight = 0.1;
@@ -406,6 +431,7 @@ function getBaseScene() {
                 tile1Mat.emissive.g = 0.1;
                 tile1Mat.emissive.b = 0.1;
                 let object = new THREE.Mesh(tile, tile1Mat);
+                object.userData.objectType = objectType.TILE;
 
                 const halfBlock = vrScene.game.board.blockSize / 2;
                 const halfBoard = vrScene.game.board.size / 2;
@@ -417,11 +443,9 @@ function getBaseScene() {
                 object.castShadow = false;
                 object.receiveShadow = true;
 
-                object.on('click', this.game.onClickTile.bind(this, vrScene, object));
-
+                vrScene.addTileEvents(vrScene, object);
                 vrScene.game.addTile(vrScene.game, object, x - 1, z - 1);
-
-                vrScene.scene.add(object);
+                vrScene.group.add(object);
             };
             const tileN = vrScene.game.board.pieces;
             for (let n = 1; n <= tileN; n++) {
