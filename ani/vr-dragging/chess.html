@@ -10,7 +10,7 @@
 
 <script type="module">
 
-    import { rainbow, colorsGrey } from './modules/colors.js';
+    import {rainbow, colorsGrey} from './modules/colors.js';
     import * as THREE from './lib/three/build/three.module.js';
     import {OrbitControls} from './lib/three/examples/jsm/controls/OrbitControls.js';
     import {VRButton} from './lib/three/examples/jsm/webxr/VRButton.js';
@@ -31,22 +31,24 @@
         intersected: [],
         tempMatrix: new THREE.Matrix4(),
         board: {
+            pieceHeight: 0.32,
             pieceRadius: 0.16,
             size: 4,
             pieces: 10,
             gapRatio: 0.25,
             blockSize: 0.4
         },
-        getMaterial: function(colorN, palette=rainbow, metal=0) {
+        getMaterial: function (colorN, palette = rainbow, metal = 0) {
             return new THREE.MeshStandardMaterial({
                 color: palette[colorN],
-                roughness: metal > 0 ? 0.6 : 0.7,
+                roughness: metal > 0 ? 0.8 : 0.7,
                 metalness: metal
             });
         },
-        addRandomGeometries: function(vrScene) {
+        addRandomGeometries: function (vrScene) {
             const n = vrScene.board.pieces;
             let radius = vrScene.board.pieceRadius;
+            let height = vrScene.board.pieceHeight;
             let radius2x = radius * 2;
             let boardSize = vrScene.board.size;
             let halfBoard = boardSize / 2;
@@ -56,31 +58,33 @@
 
             const addPiece = (object) => {
                 object.scale.setScalar(1);
-
                 object.castShadow = true;
                 object.receiveShadow = true;
-
                 vrScene.group.add(object);
             };
             const makePiece = (x, z, colorOffset) => {
-                let geometry = new THREE.CylinderBufferGeometry(radius, radius, radius, 64);
-                let material = vrScene.getMaterial(x * 2 + colorOffset);
+                // let geometry = new THREE.CylinderBufferGeometry(radius*0.75, radius*1.25, height, 64);
+                let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
+                const matNum = x * 2 + colorOffset;
+                let material = vrScene.getMaterial(matNum);
                 let object = new THREE.Mesh(geometry, material);
 
                 object.position.x = x * vrScene.board.blockSize + vrScene.board.blockSize / 2 - halfBoard;
-                object.position.y = radius/2;
+                object.position.y = height / 2;
                 object.position.z = z * vrScene.board.blockSize + vrScene.board.blockSize / 2 - halfBoard;
+
+                object.rotation.y = -Math.PI / 8;
                 addPiece(object);
             };
 
             for (let x = 0; x < n; x++) {
-                makePiece(x, 0, 5);
-                makePiece(x, 1, 15);
-                makePiece(x, 8, 35);
-                makePiece(x, 9, 45);
+                makePiece(x, 0, 0);
+                makePiece(x, 1, 10);
+                makePiece(x, 8, 30);
+                makePiece(x, 9, 40);
             }
         },
-        addFloor: function(vrScene) {
+        addFloor: function (vrScene) {
             let geometry = new THREE.PlaneBufferGeometry(4, 4);
             let material = new THREE.MeshStandardMaterial({
                 color: 0xeeeeee,
@@ -116,7 +120,7 @@
                 }
             }
         },
-        addLight: function(vrScene) {
+        addLight: function (vrScene) {
             vrScene.scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
             let light = new THREE.DirectionalLight(0xffffff);
@@ -129,15 +133,23 @@
             light.shadow.mapSize.set(4096, 4096);
             vrScene.scene.add(light);
         },
-        addControllers: function(vrScene) {
+        addControllers: function (vrScene) {
+            // vrScene.controller1.addEventListener( 'select', () => {} );
+            // vrScene.controller1.addEventListener( 'selectstart', () => {} );
+            // vrScene.controller1.addEventListener( 'selectend', () => {} );
+            // vrScene.controller1.addEventListener( 'squeeze', () => {} );
+            // vrScene.controller1.addEventListener( 'squeezestart', () => {} );
+            // vrScene.controller1.addEventListener( 'squeezeend', () => {} );
+            // vrScene.controller1.addEventListener( 'end', () => {} );
+
             vrScene.controller1 = vrScene.renderer.xr.getController(0);
-            vrScene.controller1.addEventListener('selectstart', vrScene.onSelectStart.bind(vrScene));
-            vrScene.controller1.addEventListener('selectend', vrScene.onSelectEnd.bind(vrScene));
+            vrScene.controller1.addEventListener('squeezestart', vrScene.onSelectStart.bind(vrScene));
+            vrScene.controller1.addEventListener('squeezeend', vrScene.onSelectEnd.bind(vrScene));
             vrScene.scene.add(vrScene.controller1);
 
             vrScene.controller2 = vrScene.renderer.xr.getController(1);
-            vrScene.controller2.addEventListener('selectstart', vrScene.onSelectStart.bind(vrScene));
-            vrScene.controller2.addEventListener('selectend', vrScene.onSelectEnd.bind(vrScene));
+            vrScene.controller2.addEventListener('squeezestart', vrScene.onSelectStart.bind(vrScene));
+            vrScene.controller2.addEventListener('squeezeend', vrScene.onSelectEnd.bind(vrScene));
             vrScene.scene.add(vrScene.controller2);
 
             let controllerModelFactory = new XRControllerModelFactory();
@@ -185,6 +197,12 @@
 
             this.addFloor(this);
             this.addLight(this);
+
+            navigator.xr.isSessionSupported('immersive-vr').then(function (supported) {
+                supported ? console.log('vr supported') : console.log('vr not supported');
+                this.vrSupported = supported;
+            }.bind(this));
+
             this.addControllers(this);
 
             generatorFx(this);
@@ -224,7 +242,7 @@
                 object.rotation.y = 0;
                 object.rotation.z = 0;
 
-                object.position.y = this.board.pieceRadius/2;
+                object.position.y = this.board.pieceRadius / 2;
                 const halfBlock = this.board.blockSize / 2;
                 object.position.x = Math.round((object.position.x - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
                 object.position.z = Math.round((object.position.z - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
@@ -273,8 +291,10 @@
 
         render: function () {
             this.cleanIntersected();
-            this.intersectObjects(this.controller1);
-            this.intersectObjects(this.controller2);
+            if (this.vrSupported) {
+                this.intersectObjects(this.controller1);
+                this.intersectObjects(this.controller2);
+            }
             this.renderer.render(this.scene, this.camera);
         }
     };
