@@ -6,46 +6,45 @@ import {XRControllerModelFactory} from '../lib/three/examples/jsm/webxr/XRContro
 import {Interaction} from '../lib/three.interaction/three.interaction.module.js';
 
 function getVRScene() {
-    return {
-        ...getBaseScene(),
+    const baseScene = getBaseScene();
+    baseScene.game.uiEvents = {
+        onSelectStart: function (event) {
+            let controller = event.target;
+            let intersections = this.getIntersections(controller);
 
-        vrSupported: true,
-
-        game: {
-            uiEvents: {
-                onSelectStart: function (event) {
-                    let controller = event.target;
-                    let intersections = this.getIntersections(controller);
-
-                    if (intersections.length > 0) {
-                        let intersection = intersections[0];
-                        let object = intersection.object;
-                        object.material.emissive.b = 1;
-                        controller.attach(object);
-                        controller.userData.selected = object;
-                    }
-                },
-
-                onSelectEnd: function (event) {
-                    let controller = event.target;
-
-                    if (controller.userData.selected !== undefined) {
-                        let object = controller.userData.selected;
-                        object.material.emissive.b = 0;
-                        this.group.attach(object);
-                        object.rotation.x = 0;
-                        object.rotation.y = -Math.PI / 8;
-                        object.rotation.z = 0;
-
-                        object.position.y = this.board.pieceHeight / 2;
-                        const halfBlock = this.board.blockSize / 2;
-                        object.position.x = Math.round((object.position.x - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
-                        object.position.z = Math.round((object.position.z - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
-                        controller.userData.selected = undefined;
-                    }
-                }
+            if (intersections.length > 0) {
+                let intersection = intersections[0];
+                let object = intersection.object;
+                object.material.emissive.b = 1;
+                controller.attach(object);
+                controller.userData.selected = object;
             }
         },
+
+        onSelectEnd: function (event) {
+            let controller = event.target;
+
+            if (controller.userData.selected !== undefined) {
+                let object = controller.userData.selected;
+                object.material.emissive.b = 0;
+                this.group.attach(object);
+                object.rotation.x = 0;
+                object.rotation.y = -Math.PI / 8;
+                object.rotation.z = 0;
+
+                object.position.y = this.board.pieceHeight / 2;
+                const halfBlock = this.board.blockSize / 2;
+                object.position.x = Math.round((object.position.x - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
+                object.position.z = Math.round((object.position.z - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
+                controller.userData.selected = undefined;
+            }
+        }
+    };
+
+    return {
+        ...baseScene,
+
+        vrSupported: true,
 
         addControllers: function (vrScene) {
             // vrScene.ctrl.controller1.addEventListener( 'select', () => {} );
@@ -136,8 +135,13 @@ function getVRScene() {
 }
 
 function getWebScene() {
+    const baseScene = getBaseScene();
+    baseScene.game.uiEvents = {
+        onSelectStart: () => {},
+        onSelectEnd: () => {},
+    };
     return {
-        ...getBaseScene(),
+        ...baseScene,
         vrSupported: false,
     }
 }
@@ -168,31 +172,6 @@ function getBaseScene() {
             gapRatio: 0.25,
             blockSize: 0.4
         },
-        getMaterial: function (colorN, palette = rainbow, metal = 0) {
-            return new THREE.MeshStandardMaterial({
-                color: palette[colorN],
-                roughness: metal > 0 ? 0.8 : 0.7,
-                metalness: metal
-            });
-        },
-        addGeometries: function (vrScene) {
-            const n = vrScene.board.pieces;
-
-            const addPiece = (object) => {
-                object.scale.setScalar(1);
-                object.castShadow = true;
-                object.receiveShadow = true;
-                vrScene.group.add(object);
-            };
-
-            for (let x = 0; x < n; x++) {
-                addPiece(vrScene.game.makePiece(vrScene, x, 0, 0));
-                addPiece(vrScene.game.makePiece(vrScene, x, 1, 10));
-                addPiece(vrScene.game.makePiece(vrScene, x, 8, 30));
-                addPiece(vrScene.game.makePiece(vrScene, x, 9, 40));
-            }
-        },
-
         game: {
             uiEvents: {
                 onSelectStart: () => {},
@@ -226,6 +205,31 @@ function getBaseScene() {
                 return object;
             }
         },
+        getMaterial: function (colorN, palette = rainbow, metal = 0) {
+            return new THREE.MeshStandardMaterial({
+                color: palette[colorN],
+                roughness: metal > 0 ? 0.8 : 0.7,
+                metalness: metal
+            });
+        },
+        addGeometries: function (vrScene) {
+            const n = vrScene.board.pieces;
+
+            const addPiece = (object) => {
+                object.scale.setScalar(1);
+                object.castShadow = true;
+                object.receiveShadow = true;
+                vrScene.group.add(object);
+            };
+
+            for (let x = 0; x < n; x++) {
+                addPiece(vrScene.game.makePiece(vrScene, x, 0, 0));
+                addPiece(vrScene.game.makePiece(vrScene, x, 1, 10));
+                addPiece(vrScene.game.makePiece(vrScene, x, 8, 30));
+                addPiece(vrScene.game.makePiece(vrScene, x, 9, 40));
+            }
+        },
+
         addFloor: function (vrScene) {
             let geometry = new THREE.PlaneBufferGeometry(4, 4);
             let material = new THREE.MeshStandardMaterial({
