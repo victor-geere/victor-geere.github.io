@@ -22,7 +22,7 @@ const playerType = {
 const geometries = {
     getCylinder: {
         rotation: 8,
-        make: function(universe, material) {
+        make: function (universe, material) {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
@@ -31,7 +31,7 @@ const geometries = {
     },
     getBox: {
         rotation: 1,
-        make: function(universe, material) {
+        make: function (universe, material) {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);
@@ -44,7 +44,29 @@ function getVRScene() {
     const baseScene = getBaseScene();
     baseScene.game = {
         ...baseScene.game,
-        onSelectStart: function (universe, event) {
+        onSelectStart: function(universe, event) {
+            let controller = event.target;
+            let intersections = this.getIntersections(controller);
+
+            if (intersections.length > 0) {
+                let intersection = intersections[0];
+                let object = intersection.object;
+                this.game.onClickPiece(this, object, event);
+            }
+        },
+
+        onSelectEnd: function(universe, event) {
+            let controller = event.target;
+            let intersections = this.getIntersections(controller);
+
+            if (intersections.length > 0) {
+                let intersection = intersections[0];
+                let object = intersection.object;
+                this.game.onClickTile(this, object, event);
+            }
+        },
+
+        onSqeezeStart: function (universe, event) {
             let controller = event.target;
             let intersections = this.getIntersections(controller);
 
@@ -57,7 +79,7 @@ function getVRScene() {
             }
         },
 
-        onSelectEnd: function (universe, event) {
+        onSqeezeEnd: function (universe, event) {
             let controller = event.target;
 
             if (controller.userData.selected !== undefined) {
@@ -94,8 +116,11 @@ function getVRScene() {
             // vrScene.ctrl.controller[0].addEventListener( 'end', () => {} );
 
             vrScene.ctrl.controller[ctrlN] = vrScene.renderer.xr.getController(ctrlN);
-            vrScene.ctrl.controller[ctrlN].addEventListener('squeezestart', vrScene.game.onSelectStart.bind(vrScene, vrScene));
-            vrScene.ctrl.controller[ctrlN].addEventListener('squeezeend', vrScene.game.onSelectEnd.bind(vrScene, vrScene));
+            vrScene.ctrl.controller[ctrlN].addEventListener('selectstart', vrScene.game.onSelectStart.bind(vrScene, vrScene));
+            vrScene.ctrl.controller[ctrlN].addEventListener('selectend', vrScene.game.onSelectEnd.bind(vrScene, vrScene));
+
+            vrScene.ctrl.controller[ctrlN].addEventListener('squeezestart', vrScene.game.onSqeezeStart.bind(vrScene, vrScene));
+            vrScene.ctrl.controller[ctrlN].addEventListener('squeezeend', vrScene.game.onSqeezeEnd.bind(vrScene, vrScene));
             vrScene.scene.add(vrScene.ctrl.controller[ctrlN]);
 
             vrScene.ctrl.controllerGrip[ctrlN] = vrScene.renderer.xr.getControllerGrip(ctrlN);
@@ -182,56 +207,6 @@ function getWebScene() {
             piece.cursor = 'pointer';
             piece.on('click', universe.game.onClickPiece.bind(universe.game, universe, piece));
         },
-        onClickPiece: (universe, clickedPiece, event) => {
-            const selectedPiece = universe.game.info.selectedPieces[0];
-            console.log(`clickedPiece.position x : ${clickedPiece.position.x} z : ${clickedPiece.position.z}`);
-            const target = { ...clickedPiece.position };
-            if (selectedPiece) {
-                if (clickedPiece === selectedPiece) {
-                    selectedPiece.material.emissive.r = 0;
-                    universe.game.info.selectedPieces = [];
-                } else {
-                    universe.group.remove(clickedPiece);
-                    selectedPiece.position.x = target.x;
-                    selectedPiece.position.y = target.y;
-                    selectedPiece.position.z = target.z;
-                    selectedPiece.material.emissive.r = 0;
-                    universe.game.info.selectedPieces = [];
-                }
-            } else {
-                universe.game.info.selectedPieces.push(clickedPiece);
-                clickedPiece.material.emissive.r = 2;
-            }
-        },
-        onClickTile: (universe, clickedTile, event) => {
-            const piece = universe.game.info.selectedPieces[0];
-            if (piece) {
-                piece.position.x = clickedTile.position.x;
-                piece.position.z = clickedTile.position.z;
-                piece.material.emissive.r = 0;
-                universe.game.info.selectedPieces = [];
-            }
-        },
-        onSelectTile: (universe, clickedTile, event) => {
-            let secondClick = false;
-            let removeTileId = -1;
-            universe.game.info.selectedTiles.forEach((tile, ix) => {
-                tile.material.emissive.r = 0.1;
-                tile.material.emissive.g = 0.1;
-                tile.material.emissive.b = 0.1;
-                if (tile === clickedTile) {
-                    secondClick = true;
-                    removeTileId = ix;
-                }
-            });
-            universe.game.info.selectedTiles = [];
-            if (!secondClick) {
-                universe.game.info.selectedTiles.push(clickedTile);
-                clickedTile.material.emissive.r = 0.3;
-                clickedTile.material.emissive.g = 0.3;
-                clickedTile.material.emissive.b = 0.3;
-            }
-        },
     };
     return {
         ...baseScene,
@@ -245,8 +220,8 @@ function makePlayer(playerT) {
         pieces: [
             // {type: rank.PAWN, position: {x: 0, z: 0}, id}
         ],
-        addPiece: function(id, rank, x, z) {
-            this.pieces.push({ id, rank, position: {x, z}});
+        addPiece: function (id, rank, x, z) {
+            this.pieces.push({id, rank, position: {x, z}});
         }
     }
 }
@@ -275,10 +250,10 @@ function getBaseScene() {
             tiles: [[]],
             addTile: (gameObj, tile, x, z) => {
                 const tiles = gameObj.tiles;
-                while(tiles.length - 1 < x) {
+                while (tiles.length - 1 < x) {
                     tiles.push([]);
                 }
-                while(tiles[x].length - 1 < z) {
+                while (tiles[x].length - 1 < z) {
                     tiles[x].push([]);
                 }
                 tiles[x][z] = tile;
@@ -297,13 +272,63 @@ function getBaseScene() {
             },
             setPiece: () => {
             },
+            onSqeezeEnd: () => {
+            },
+            onSqeezeStart: () => {
+            },
             onSelectStart: () => {
             },
             onSelectEnd: () => {
             },
-            onClickPiece: () => {
+            onClickPiece: (universe, clickedPiece, event) => {
+                const selectedPiece = universe.game.info.selectedPieces[0];
+                console.log(`clickedPiece.position x : ${clickedPiece.position.x} z : ${clickedPiece.position.z}`);
+                const target = {...clickedPiece.position};
+                if (selectedPiece) {
+                    if (clickedPiece === selectedPiece) {
+                        selectedPiece.material.emissive.r = 0;
+                        universe.game.info.selectedPieces = [];
+                    } else {
+                        universe.group.remove(clickedPiece);
+                        selectedPiece.position.x = target.x;
+                        selectedPiece.position.y = target.y;
+                        selectedPiece.position.z = target.z;
+                        selectedPiece.material.emissive.r = 0;
+                        universe.game.info.selectedPieces = [];
+                    }
+                } else {
+                    universe.game.info.selectedPieces.push(clickedPiece);
+                    clickedPiece.material.emissive.r = 2;
+                }
             },
-            onClickTile: () => {
+            onClickTile: (universe, clickedTile, event) => {
+                const piece = universe.game.info.selectedPieces[0];
+                if (piece) {
+                    piece.position.x = clickedTile.position.x;
+                    piece.position.z = clickedTile.position.z;
+                    piece.material.emissive.r = 0;
+                    universe.game.info.selectedPieces = [];
+                }
+            },
+            onSelectTile: (universe, clickedTile, event) => {
+                let secondClick = false;
+                let removeTileId = -1;
+                universe.game.info.selectedTiles.forEach((tile, ix) => {
+                    tile.material.emissive.r = 0.1;
+                    tile.material.emissive.g = 0.1;
+                    tile.material.emissive.b = 0.1;
+                    if (tile === clickedTile) {
+                        secondClick = true;
+                        removeTileId = ix;
+                    }
+                });
+                universe.game.info.selectedTiles = [];
+                if (!secondClick) {
+                    universe.game.info.selectedTiles.push(clickedTile);
+                    clickedTile.material.emissive.r = 0.3;
+                    clickedTile.material.emissive.g = 0.3;
+                    clickedTile.material.emissive.b = 0.3;
+                }
             },
             addPieceEvents: () => {
             },
@@ -394,7 +419,7 @@ function getBaseScene() {
 
                 object.on('click', this.game.onClickTile.bind(this, vrScene, object));
 
-                vrScene.game.addTile(vrScene.game, object, x-1, z-1);
+                vrScene.game.addTile(vrScene.game, object, x - 1, z - 1);
 
                 vrScene.scene.add(object);
             };
