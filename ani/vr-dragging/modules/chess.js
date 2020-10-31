@@ -55,7 +55,7 @@ function getVRScene() {
     const baseScene = getBaseScene();
     baseScene.game = {
         ...baseScene.game,
-        onSelectStart: function(universe, event) {
+        onSelectStart: function (universe, event) {
             let controller = event.target;
             let intersections = this.getIntersections(controller);
 
@@ -70,7 +70,7 @@ function getVRScene() {
             }
         },
 
-        onSelectEnd: function(universe, event) {
+        onSelectEnd: function (universe, event) {
             /*
             console.log('select end');
             let controller = event.target;
@@ -96,9 +96,11 @@ function getVRScene() {
             if (intersections.length > 0) {
                 let intersection = intersections[0];
                 let object = intersection.object;
-                object.material.emissive.b = 1;
-                controller.attach(object);
-                controller.userData.selected = object;
+                if (object.userData.objectType === objectType.PIECE) {
+                    setEmission(object.material.emissive, universe.settings.pieces.emissive.selected);
+                    controller.attach(object);
+                    controller.userData.selected = object;
+                }
             }
         },
 
@@ -107,7 +109,7 @@ function getVRScene() {
 
             if (controller.userData.selected !== undefined) {
                 let object = controller.userData.selected;
-                object.material.emissive.b = 0;
+                setEmission(object.material.emissive, universe.settings.pieces.emissive.default);
                 this.group.attach(object);
                 object.rotation.x = 0;
                 object.rotation.y = -Math.PI / object.userData.rotation;
@@ -188,7 +190,7 @@ function getVRScene() {
                 let intersection = intersections[0];
                 let object = intersection.object;
                 if (object.userData.objectType === objectType.PIECE) {
-                    object.material.emissive.r = 1;
+                    setEmission(object.material.emissive, this.settings.pieces.emissive.intersected);
                     this.intersected.push(object);
                 }
 
@@ -201,7 +203,11 @@ function getVRScene() {
         cleanIntersected: function () {
             while (this.intersected.length) {
                 let object = this.intersected.pop();
-                object.material.emissive.r = 0;
+                if (object.userData.objectType === objectType.PIECE) {
+                    setEmission(object.material.emissive, this.settings.pieces.emissive.default);
+                } else {
+                    setEmission(object.material.emissive, this.settings.tiles.emissive.default);
+                }
             }
         },
 
@@ -254,8 +260,30 @@ function makePlayer(playerT) {
     }
 }
 
+function setEmission(target, source) {
+    target.r = source.r;
+    target.g = source.g;
+    target.b = source.b;
+}
+
 function getBaseScene() {
     return {
+        settings: {
+            tiles: {
+                emissive: {
+                    intersected: {r: 0, g: 0, b: 0.1},
+                    default: {r: 0.1, g: 0.1, b: 0.1},
+                    selected: {r: 0.2, g: 0.2, b: 0.2}
+                }
+            },
+            pieces: {
+                emissive: {
+                    intersected: {r: 0, g: 0, b: 0.1},
+                    default: {r: 0, g: 0, b: 0},
+                    selected: {r: 0, g: 0, b: 0.2},
+                }
+            },
+        },
         camera: null,
         scene: null,
         renderer: null,
@@ -313,19 +341,19 @@ function getBaseScene() {
                 const target = {...clickedPiece.position};
                 if (selectedPiece) {
                     if (clickedPiece === selectedPiece) {
-                        selectedPiece.material.emissive.r = 0;
+                        setEmission(selectedPiece.material.emissive, universe.settings.pieces.emissive.default);
                         universe.game.info.selectedPieces = [];
                     } else {
                         universe.group.remove(clickedPiece);
                         selectedPiece.position.x = target.x;
                         selectedPiece.position.y = target.y;
                         selectedPiece.position.z = target.z;
-                        selectedPiece.material.emissive.r = 0;
+                        setEmission(selectedPiece.material.emissive, universe.settings.pieces.emissive.default);
                         universe.game.info.selectedPieces = [];
                     }
                 } else {
                     universe.game.info.selectedPieces.push(clickedPiece);
-                    clickedPiece.material.emissive.r = 2;
+                    setEmission(clickedPiece.material.emissive, universe.settings.pieces.emissive.selected);
                 }
             },
             onClickTile: (universe, clickedTile, event) => {
@@ -333,7 +361,7 @@ function getBaseScene() {
                 if (piece) {
                     piece.position.x = clickedTile.position.x;
                     piece.position.z = clickedTile.position.z;
-                    piece.material.emissive.r = 0;
+                    setEmission(piece.material.emissive, universe.settings.pieces.emissive.default);
                     universe.game.info.selectedPieces = [];
                 }
             },
@@ -341,9 +369,7 @@ function getBaseScene() {
                 let secondClick = false;
                 let removeTileId = -1;
                 universe.game.info.selectedTiles.forEach((tile, ix) => {
-                    tile.material.emissive.r = 0.1;
-                    tile.material.emissive.g = 0.1;
-                    tile.material.emissive.b = 0.1;
+                    setEmission(tile.material.emissive, universe.settings.tiles.emissive.default);
                     if (tile === clickedTile) {
                         secondClick = true;
                         removeTileId = ix;
@@ -352,9 +378,7 @@ function getBaseScene() {
                 universe.game.info.selectedTiles = [];
                 if (!secondClick) {
                     universe.game.info.selectedTiles.push(clickedTile);
-                    clickedTile.material.emissive.r = 0.3;
-                    clickedTile.material.emissive.g = 0.3;
-                    clickedTile.material.emissive.b = 0.3;
+                    setEmission(clickedTile.material.emissive, universe.settings.tiles.emissive.selected);
                 }
             },
             addPieceEvents: () => {
@@ -423,7 +447,7 @@ function getBaseScene() {
             addOfficers(vrScene, vrScene.game.players.white);
         },
 
-        addTileEvents: function(vrScene, object) {
+        addTileEvents: function (vrScene, object) {
             object.on('click', vrScene.game.onClickTile.bind(vrScene, vrScene, object));
         },
 
@@ -433,9 +457,7 @@ function getBaseScene() {
                 const halfHeight = 0.05;
                 let tile = new THREE.BoxBufferGeometry(0.35, tileHeight, 0.35);
                 let tile1Mat = vrScene.getMaterial(colorN, colorsGrey, 1);
-                tile1Mat.emissive.r = 0.1;
-                tile1Mat.emissive.g = 0.1;
-                tile1Mat.emissive.b = 0.1;
+                setEmission(tile1Mat.emissive, vrScene.settings.tiles.emissive.default);
                 let object = new THREE.Mesh(tile, tile1Mat);
                 object.userData.objectType = objectType.TILE;
 
