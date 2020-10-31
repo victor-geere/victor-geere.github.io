@@ -5,6 +5,29 @@ import {VRButton} from '../lib/three/examples/jsm/webxr/VRButton.js';
 import {XRControllerModelFactory} from '../lib/three/examples/jsm/webxr/XRControllerModelFactory.js';
 import {Interaction} from '../lib/three.interaction/three.interaction.module.js';
 
+const rank = {
+    PAWN: 0,
+    ROOK: 1,
+    KNIGHT: 2,
+    BISHOP: 3,
+    QUEEN: 4,
+    KING: 5,
+};
+
+const playerType = {
+    WHITE: 0,
+    BLACK: 1,
+};
+
+const geometries = {
+    getCylinder: function(universe, material) {
+        let radius = universe.game.board.pieceRadius;
+        let height = universe.game.board.pieceHeight;
+        let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
+        return new THREE.Mesh(geometry, material);
+    }
+};
+
 function getVRScene() {
     const baseScene = getBaseScene();
     baseScene.game = {
@@ -145,22 +168,36 @@ function getWebScene() {
             piece.on('click', universe.game.onClickPiece.bind(universe.game, universe, piece));
         },
         onClickPiece: (universe, clickedPiece, event) => {
-            let secondClick = false;
-            let removePieceId = -1;
-            universe.game.info.selectedPieces.forEach((piece, ix) => {
-                piece.material.emissive.b = 0;
-                if (piece === clickedPiece) {
-                    secondClick = true;
-                    removePieceId = ix;
+            const selectedPiece = universe.game.info.selectedPieces[0];
+            console.log(`clickedPiece.position x : ${clickedPiece.position.x} z : ${clickedPiece.position.z}`);
+            const target = { ...clickedPiece.position };
+            if (selectedPiece) {
+                if (clickedPiece === selectedPiece) {
+                    selectedPiece.material.emissive.g = 0;
+                    universe.game.info.selectedPieces = [];
+                } else {
+                    universe.group.remove(clickedPiece);
+                    selectedPiece.position.x = target.x;
+                    selectedPiece.position.y = target.y;
+                    selectedPiece.position.z = target.z;
+                    selectedPiece.material.emissive.g = 0;
+                    universe.game.info.selectedPieces = [];
                 }
-            });
-            universe.game.info.selectedPieces = [];
-            if (!secondClick) {
+            } else {
                 universe.game.info.selectedPieces.push(clickedPiece);
-                clickedPiece.material.emissive.b = 5;
+                clickedPiece.material.emissive.g = 2;
             }
         },
         onClickTile: (universe, clickedTile, event) => {
+            const piece = universe.game.info.selectedPieces[0];
+            if (piece) {
+                piece.position.x = clickedTile.position.x;
+                piece.position.z = clickedTile.position.z;
+                piece.material.emissive.g = 0;
+                universe.game.info.selectedPieces = [];
+            }
+        },
+        onSelectTile: (universe, clickedTile, event) => {
             let secondClick = false;
             let removeTileId = -1;
             universe.game.info.selectedTiles.forEach((tile, ix) => {
@@ -187,6 +224,18 @@ function getWebScene() {
     }
 }
 
+function makePlayer(playerT) {
+    return {
+        type: playerT,
+        pieces: [
+            // {type: rank.PAWN, position: {x: 0, z: 0}, id}
+        ],
+        addPiece: function(id, rank, x, z) {
+            this.pieces.push({ id, rank, position: {x, z}});
+        }
+    }
+}
+
 function getBaseScene() {
     return {
         camera: null,
@@ -204,13 +253,28 @@ function getBaseScene() {
         intersected: [],
         tempMatrix: new THREE.Matrix4(),
         game: {
+            players: {
+                white: makePlayer(playerType.WHITE),
+                black: makePlayer(playerType.BLACK)
+            },
+            tiles: [[]],
+            addTile: (gameObj, tile, x, z) => {
+                const tiles = gameObj.tiles;
+                while(tiles.length - 1 < x) {
+                    tiles.push([]);
+                }
+                while(tiles[x].length - 1 < z) {
+                    tiles[x].push([]);
+                }
+                tiles[x][z] = tile;
+            },
             info: {
                 selectedPieces: [],
                 selectedTiles: [],
             },
             board: {
                 pieceHeight: 0.32,
-                pieceRadius: 0.16,
+                pieceRadius: 0.12,
                 pieces: 8,
                 size: 4 * (8 / 10),
                 gapRatio: 0.25,
@@ -220,9 +284,12 @@ function getBaseScene() {
             },
             onSelectEnd: () => {
             },
-            onClickPiece: () => {},
-            onClickTile: () => {},
-            addPieceEvents: () => {},
+            onClickPiece: () => {
+            },
+            onClickTile: () => {
+            },
+            addPieceEvents: () => {
+            },
             makePiece: function (universe, x, z, colorOffset) {
                 let radius = universe.game.board.pieceRadius;
                 let height = universe.game.board.pieceHeight;
@@ -233,10 +300,10 @@ function getBaseScene() {
                 let boardSize = universe.game.board.size;
                 let halfBoard = boardSize / 2;
 
-                let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
                 const matNum = x + colorOffset;
                 let material = universe.getMaterial(matNum);
-                let object = new THREE.Mesh(geometry, material);
+
+                let object = geometries.getCylinder(universe, material);
 
                 object.position.x = x * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
                 object.position.y = height / 2;
@@ -257,24 +324,38 @@ function getBaseScene() {
         addGeometries: function (vrScene) {
             const n = vrScene.game.board.pieces;
 
-            const addPiece = (object) => {
+            const addPiece = (universe, player, object) => {
                 object.scale.setScalar(1);
                 object.castShadow = true;
                 object.receiveShadow = true;
                 vrScene.group.add(object);
             };
 
-            for (let x = 0; x < n; x++) {
-                addPiece(vrScene.game.makePiece(vrScene, x, 0, 5));
-                addPiece(vrScene.game.makePiece(vrScene, x, 1, 15));
-                addPiece(vrScene.game.makePiece(vrScene, x, 6, 35));
-                addPiece(vrScene.game.makePiece(vrScene, x, 7, 45));
-            }
+            const addOfficers = (vrScene, player) => {
+                const row = player.type === playerType.WHITE ? 0 : 7;
+                for (let x = 0; x < n; x++) {
+                    addPiece(vrScene, player, vrScene.game.makePiece(vrScene, x, row, 15));
+                }
+            };
+
+            const addPawns = (vrScene, player) => {
+                const row = player.type === playerType.WHITE ? 1 : 6;
+                for (let x = 0; x < n; x++) {
+                    addPiece(vrScene, player, vrScene.game.makePiece(vrScene, x, row, 5));
+                }
+            };
+
+            addPawns(vrScene, vrScene.game.players.black);
+            addOfficers(vrScene, vrScene.game.players.black);
+            addPawns(vrScene, vrScene.game.players.white);
+            addOfficers(vrScene, vrScene.game.players.white);
         },
 
         addFloor: function (vrScene) {
             const addTile = (x, z, colorN) => {
-                let tile = new THREE.BoxBufferGeometry(0.35, 1.1, 0.35);
+                const tileHeight = 0.1;
+                const halfHeight = 0.05;
+                let tile = new THREE.BoxBufferGeometry(0.35, tileHeight, 0.35);
                 let tile1Mat = vrScene.getMaterial(colorN, colorsGrey, 1);
                 tile1Mat.emissive.r = 0.1;
                 tile1Mat.emissive.g = 0.1;
@@ -284,7 +365,7 @@ function getBaseScene() {
                 const halfBlock = vrScene.game.board.blockSize / 2;
                 const halfBoard = vrScene.game.board.size / 2;
                 object.position.x = x * vrScene.game.board.blockSize - halfBoard - halfBlock;
-                object.position.y = -0.55;
+                object.position.y = -halfHeight;
                 object.position.z = z * vrScene.game.board.blockSize - halfBoard - halfBlock;
 
                 object.scale.setScalar(1);
@@ -292,6 +373,8 @@ function getBaseScene() {
                 object.receiveShadow = true;
 
                 object.on('click', this.game.onClickTile.bind(this, vrScene, object));
+
+                vrScene.game.addTile(vrScene.game, object, x-1, z-1);
 
                 vrScene.scene.add(object);
             };
