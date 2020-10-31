@@ -96,8 +96,24 @@ const rainbow = [
     '#94c0d4', '#9cc4cc', '#a4c4c4', '#acc4bc'
 ];
 
+const fields = [
+    '#b4b4c8', '#b0b8c4', '#a8c0c4', '#a0c8c4',
+    '#98d0c0', '#90d8bc', '#8cdcb8', '#84e4b4',
+    '#80e8b0', '#7ceca8', '#78f0a4', '#74f49c',
+    '#70f898', '#70f890', '#70f888', '#6cfc84',
+    '#70f87c', '#70f874', '#70f86c', '#74f468'
+];
+
+const blossoms = [
+    '#f47460', '#f87068', '#fc6c6c', '#fc6c74',
+    '#fc6c7c', '#fc6c80', '#fc6c88', '#fc6c90',
+    '#fc6c98', '#f8709c', '#f474a4', '#f078a8',
+    '#ec7cb0', '#e880b4', '#e088b8', '#dc8cbc',
+    '#d494c0', '#cc9cc4', '#c4a4c4', '#bcacc4'
+];
+
 const primary = [
     '#ff0000', '#00ff00', '#0000ff'
 ];
 
-export { colorsA, colorsB, colorsGrey, rainbow, primary }
+export { colorsA, colorsB, colorsGrey, rainbow, primary, fields, blossoms }

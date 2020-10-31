@@ -1,4 +1,4 @@
-import {rainbow, colorsGrey} from './colors.js';
+import {rainbow, colorsGrey, fields} from './colors.js';
 import * as THREE from '../lib/three/build/three.module.js';
 import {OrbitControls} from '../lib/three/examples/jsm/controls/OrbitControls.js';
 import {VRButton} from '../lib/three/examples/jsm/webxr/VRButton.js';
@@ -57,8 +57,8 @@ function getVRScene() {
             // vrScene.ctrl.controller[0].addEventListener( 'end', () => {} );
 
             vrScene.ctrl.controller[ctrlN] = vrScene.renderer.xr.getController(ctrlN);
-            vrScene.ctrl.controller[ctrlN].addEventListener('squeezestart', vrScene.game.onSelectStart.bind(vrScene));
-            vrScene.ctrl.controller[ctrlN].addEventListener('squeezeend', vrScene.game.onSelectEnd.bind(vrScene));
+            vrScene.ctrl.controller[ctrlN].addEventListener('squeezestart', vrScene.game.onSelectStart.bind(vrScene.game));
+            vrScene.ctrl.controller[ctrlN].addEventListener('squeezeend', vrScene.game.onSelectEnd.bind(vrScene.game));
             vrScene.scene.add(vrScene.ctrl.controller[ctrlN]);
 
             vrScene.ctrl.controllerGrip[ctrlN] = vrScene.renderer.xr.getControllerGrip(ctrlN);
@@ -138,6 +138,46 @@ function getWebScene() {
         },
         onSelectEnd: () => {
         },
+        addPieceEvents: (piece, universe) => {
+            piece.cursor = 'pointer';
+            piece.on('click', universe.game.onClickPiece.bind(universe.game, universe, piece));
+        },
+        onClickPiece: (universe, clickedPiece, event) => {
+            let secondClick = false;
+            let removePieceId = -1;
+            universe.game.info.selectedPieces.forEach((piece, ix) => {
+                piece.material.emissive.b = 0;
+                if (piece === clickedPiece) {
+                    secondClick = true;
+                    removePieceId = ix;
+                }
+            });
+            universe.game.info.selectedPieces = [];
+            if (!secondClick) {
+                universe.game.info.selectedPieces.push(clickedPiece);
+                clickedPiece.material.emissive.b = 5;
+            }
+        },
+        onClickTile: (universe, clickedTile, event) => {
+            let secondClick = false;
+            let removeTileId = -1;
+            universe.game.info.selectedTiles.forEach((tile, ix) => {
+                tile.material.emissive.r = 0.1;
+                tile.material.emissive.g = 0.1;
+                tile.material.emissive.b = 0.1;
+                if (tile === clickedTile) {
+                    secondClick = true;
+                    removeTileId = ix;
+                }
+            });
+            universe.game.info.selectedTiles = [];
+            if (!secondClick) {
+                universe.game.info.selectedTiles.push(clickedTile);
+                clickedTile.material.emissive.r = 0.3;
+                clickedTile.material.emissive.g = 0.3;
+                clickedTile.material.emissive.b = 0.3;
+            }
+        },
     };
     return {
         ...baseScene,
@@ -169,8 +209,8 @@ function getBaseScene() {
             board: {
                 pieceHeight: 0.32,
                 pieceRadius: 0.16,
-                size: 4,
-                pieces: 10,
+                pieces: 8,
+                size: 4 * (8 / 10),
                 gapRatio: 0.25,
                 blockSize: 0.4
             },
@@ -178,42 +218,9 @@ function getBaseScene() {
             },
             onSelectEnd: () => {
             },
-            onClickPiece: (universe, clickedPiece, event) => {
-                let secondClick = false;
-                let removePieceId = -1;
-                universe.game.info.selectedPieces.forEach((piece, ix) => {
-                    piece.material.emissive.b = 0;
-                    if (piece === clickedPiece) {
-                        secondClick = true;
-                        removePieceId = ix;
-                    }
-                });
-                universe.game.info.selectedPieces = [];
-                if (!secondClick) {
-                    universe.game.info.selectedPieces.push(clickedPiece);
-                    clickedPiece.material.emissive.b = 5;
-                }
-            },
-            onClickTile: (universe, clickedTile, event) => {
-                let secondClick = false;
-                let removeTileId = -1;
-                universe.game.info.selectedTiles.forEach((tile, ix) => {
-                    tile.material.emissive.r = 0.1;
-                    tile.material.emissive.g = 0.1;
-                    tile.material.emissive.b = 0.1;
-                    if (tile === clickedTile) {
-                        secondClick = true;
-                        removeTileId = ix;
-                    }
-                });
-                universe.game.info.selectedTiles = [];
-                if (!secondClick) {
-                    universe.game.info.selectedTiles.push(clickedTile);
-                    clickedTile.material.emissive.r = 0.3;
-                    clickedTile.material.emissive.g = 0.3;
-                    clickedTile.material.emissive.b = 0.3;
-                }
-            },
+            onClickPiece: () => {},
+            onClickTile: () => {},
+            addPieceEvents: () => {},
             makePiece: function (universe, x, z, colorOffset) {
                 let radius = universe.game.board.pieceRadius;
                 let height = universe.game.board.pieceHeight;
@@ -224,20 +231,17 @@ function getBaseScene() {
                 let boardSize = universe.game.board.size;
                 let halfBoard = boardSize / 2;
 
-                // let geometry = new THREE.CylinderBufferGeometry(radius*0.75, radius*1.25, height, 64);
                 let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
-                const matNum = x * 2 + colorOffset;
+                const matNum = x + colorOffset;
                 let material = universe.getMaterial(matNum);
                 let object = new THREE.Mesh(geometry, material);
-
-                object.cursor = 'pointer';
-                object.on('click', this.onClickPiece.bind(this, universe, object));
 
                 object.position.x = x * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
                 object.position.y = height / 2;
                 object.position.z = z * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
 
                 object.rotation.y = -Math.PI / 8;
+                this.addPieceEvents(object, universe);
                 return object;
             }
         },
@@ -259,10 +263,10 @@ function getBaseScene() {
             };
 
             for (let x = 0; x < n; x++) {
-                addPiece(vrScene.game.makePiece(vrScene, x, 0, 0));
-                addPiece(vrScene.game.makePiece(vrScene, x, 1, 10));
-                addPiece(vrScene.game.makePiece(vrScene, x, 8, 30));
-                addPiece(vrScene.game.makePiece(vrScene, x, 9, 40));
+                addPiece(vrScene.game.makePiece(vrScene, x, 0, 5));
+                addPiece(vrScene.game.makePiece(vrScene, x, 1, 15));
+                addPiece(vrScene.game.makePiece(vrScene, x, 6, 35));
+                addPiece(vrScene.game.makePiece(vrScene, x, 7, 45));
             }
         },
 
