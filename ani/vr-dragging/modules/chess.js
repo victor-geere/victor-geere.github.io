@@ -9,7 +9,7 @@ function getVRScene() {
     const baseScene = getBaseScene();
     baseScene.game = {
         ...baseScene.game,
-        onSelectStart: function (event) {
+        onSelectStart: function (universe, event) {
             let controller = event.target;
             let intersections = this.getIntersections(controller);
 
@@ -22,7 +22,7 @@ function getVRScene() {
             }
         },
 
-        onSelectEnd: function (event) {
+        onSelectEnd: function (universe, event) {
             let controller = event.target;
 
             if (controller.userData.selected !== undefined) {
@@ -33,10 +33,12 @@ function getVRScene() {
                 object.rotation.y = -Math.PI / 8;
                 object.rotation.z = 0;
 
-                object.position.y = this.board.pieceHeight / 2;
-                const halfBlock = this.board.blockSize / 2;
-                object.position.x = Math.round((object.position.x - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
-                object.position.z = Math.round((object.position.z - halfBlock) / this.board.blockSize) * this.board.blockSize + halfBlock;
+                const board = this.game.board;
+
+                object.position.y = board.pieceHeight / 2;
+                const halfBlock = board.blockSize / 2;
+                object.position.x = Math.round((object.position.x - halfBlock) / board.blockSize) * board.blockSize + halfBlock;
+                object.position.z = Math.round((object.position.z - halfBlock) / board.blockSize) * board.blockSize + halfBlock;
                 controller.userData.selected = undefined;
             }
         }
@@ -57,8 +59,8 @@ function getVRScene() {
             // vrScene.ctrl.controller[0].addEventListener( 'end', () => {} );
 
             vrScene.ctrl.controller[ctrlN] = vrScene.renderer.xr.getController(ctrlN);
-            vrScene.ctrl.controller[ctrlN].addEventListener('squeezestart', vrScene.game.onSelectStart.bind(vrScene.game));
-            vrScene.ctrl.controller[ctrlN].addEventListener('squeezeend', vrScene.game.onSelectEnd.bind(vrScene.game));
+            vrScene.ctrl.controller[ctrlN].addEventListener('squeezestart', vrScene.game.onSelectStart.bind(vrScene, vrScene));
+            vrScene.ctrl.controller[ctrlN].addEventListener('squeezeend', vrScene.game.onSelectEnd.bind(vrScene, vrScene));
             vrScene.scene.add(vrScene.ctrl.controller[ctrlN]);
 
             vrScene.ctrl.controllerGrip[ctrlN] = vrScene.renderer.xr.getControllerGrip(ctrlN);
