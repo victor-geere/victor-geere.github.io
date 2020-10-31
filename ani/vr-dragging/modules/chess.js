@@ -20,11 +20,23 @@ const playerType = {
 };
 
 const geometries = {
-    getCylinder: function(universe, material) {
-        let radius = universe.game.board.pieceRadius;
-        let height = universe.game.board.pieceHeight;
-        let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
-        return new THREE.Mesh(geometry, material);
+    getCylinder: {
+        rotation: 8,
+        make: function(universe, material) {
+            let radius = universe.game.board.pieceRadius;
+            let height = universe.game.board.pieceHeight;
+            let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
+            return new THREE.Mesh(geometry, material);
+        }
+    },
+    getBox: {
+        rotation: 1,
+        make: function(universe, material) {
+            let radius = universe.game.board.pieceRadius;
+            let height = universe.game.board.pieceHeight;
+            let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);
+            return new THREE.Mesh(geometry, material);
+        }
     }
 };
 
@@ -163,6 +175,9 @@ function getWebScene() {
         },
         onSelectEnd: () => {
         },
+        setPiece(piece) {
+
+        },
         addPieceEvents: (piece, universe) => {
             piece.cursor = 'pointer';
             piece.on('click', universe.game.onClickPiece.bind(universe.game, universe, piece));
@@ -173,19 +188,19 @@ function getWebScene() {
             const target = { ...clickedPiece.position };
             if (selectedPiece) {
                 if (clickedPiece === selectedPiece) {
-                    selectedPiece.material.emissive.g = 0;
+                    selectedPiece.material.emissive.r = 0;
                     universe.game.info.selectedPieces = [];
                 } else {
                     universe.group.remove(clickedPiece);
                     selectedPiece.position.x = target.x;
                     selectedPiece.position.y = target.y;
                     selectedPiece.position.z = target.z;
-                    selectedPiece.material.emissive.g = 0;
+                    selectedPiece.material.emissive.r = 0;
                     universe.game.info.selectedPieces = [];
                 }
             } else {
                 universe.game.info.selectedPieces.push(clickedPiece);
-                clickedPiece.material.emissive.g = 2;
+                clickedPiece.material.emissive.r = 2;
             }
         },
         onClickTile: (universe, clickedTile, event) => {
@@ -193,7 +208,7 @@ function getWebScene() {
             if (piece) {
                 piece.position.x = clickedTile.position.x;
                 piece.position.z = clickedTile.position.z;
-                piece.material.emissive.g = 0;
+                piece.material.emissive.r = 0;
                 universe.game.info.selectedPieces = [];
             }
         },
@@ -280,6 +295,8 @@ function getBaseScene() {
                 gapRatio: 0.25,
                 blockSize: 0.4
             },
+            setPiece: () => {
+            },
             onSelectStart: () => {
             },
             onSelectEnd: () => {
@@ -290,7 +307,7 @@ function getBaseScene() {
             },
             addPieceEvents: () => {
             },
-            makePiece: function (universe, x, z, colorOffset) {
+            makePiece: function (universe, x, z, colorNum, geoFactory) {
                 let radius = universe.game.board.pieceRadius;
                 let height = universe.game.board.pieceHeight;
                 let radius2x = radius * 2;
@@ -300,16 +317,15 @@ function getBaseScene() {
                 let boardSize = universe.game.board.size;
                 let halfBoard = boardSize / 2;
 
-                const matNum = x + colorOffset;
-                let material = universe.getMaterial(matNum);
+                let material = universe.getMaterial(colorNum);
 
-                let object = geometries.getCylinder(universe, material);
+                let object = geoFactory.make(universe, material);
 
                 object.position.x = x * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
                 object.position.y = height / 2;
                 object.position.z = z * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
 
-                object.rotation.y = -Math.PI / 8;
+                object.rotation.y = -Math.PI / geoFactory.rotation;
                 this.addPieceEvents(object, universe);
                 return object;
             }
@@ -333,15 +349,19 @@ function getBaseScene() {
 
             const addOfficers = (vrScene, player) => {
                 const row = player.type === playerType.WHITE ? 0 : 7;
+                const colNum = player.type === playerType.WHITE ? 12 : 40;
                 for (let x = 0; x < n; x++) {
-                    addPiece(vrScene, player, vrScene.game.makePiece(vrScene, x, row, 15));
+                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, geometries.getCylinder);
+                    addPiece(vrScene, player, piece);
                 }
             };
 
             const addPawns = (vrScene, player) => {
                 const row = player.type === playerType.WHITE ? 1 : 6;
+                const colNum = player.type === playerType.WHITE ? 12 : 40;
                 for (let x = 0; x < n; x++) {
-                    addPiece(vrScene, player, vrScene.game.makePiece(vrScene, x, row, 5));
+                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, geometries.getBox);
+                    addPiece(vrScene, player, piece);
                 }
             };
 
