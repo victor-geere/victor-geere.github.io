@@ -31,7 +31,10 @@ const geometries = {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
-            return new THREE.Mesh(geometry, material);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.userData.objectType = objectType.PIECE;
+            mesh.userData.rotation = 8;
+            return mesh;
         }
     },
     getBox: {
@@ -40,7 +43,10 @@ const geometries = {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);
-            return new THREE.Mesh(geometry, material);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.userData.objectType = objectType.PIECE;
+            mesh.userData.rotation = 1;
+            return mesh;
         }
     }
 };
@@ -50,7 +56,6 @@ function getVRScene() {
     baseScene.game = {
         ...baseScene.game,
         onSelectStart: function(universe, event) {
-            console.log('select start');
             let controller = event.target;
             let intersections = this.getIntersections(controller);
 
@@ -66,6 +71,7 @@ function getVRScene() {
         },
 
         onSelectEnd: function(universe, event) {
+            /*
             console.log('select end');
             let controller = event.target;
             let intersections = this.getIntersections(controller);
@@ -79,6 +85,8 @@ function getVRScene() {
                     universe.game.onClickTile(universe, object, event);
                 }
             }
+
+             */
         },
 
         onSqeezeStart: function (universe, event) {
@@ -102,7 +110,7 @@ function getVRScene() {
                 object.material.emissive.b = 0;
                 this.group.attach(object);
                 object.rotation.x = 0;
-                object.rotation.y = -Math.PI / 8;
+                object.rotation.y = -Math.PI / object.userData.rotation;
                 object.rotation.z = 0;
 
                 const board = this.game.board;
@@ -179,8 +187,10 @@ function getVRScene() {
             if (intersections.length > 0) {
                 let intersection = intersections[0];
                 let object = intersection.object;
-                object.material.emissive.r = 1;
-                this.intersected.push(object);
+                if (object.userData.objectType === objectType.PIECE) {
+                    object.material.emissive.r = 1;
+                    this.intersected.push(object);
+                }
 
                 line.scale.z = intersection.distance;
             } else {
@@ -300,8 +310,6 @@ function getBaseScene() {
             },
             onClickPiece: (universe, clickedPiece, event) => {
                 const selectedPiece = universe.game.info.selectedPieces[0];
-                console.log(`clickedPiece : `, clickedPiece);
-                console.log(`selectedPiece : `, selectedPiece);
                 const target = {...clickedPiece.position};
                 if (selectedPiece) {
                     if (clickedPiece === selectedPiece) {
@@ -321,7 +329,6 @@ function getBaseScene() {
                 }
             },
             onClickTile: (universe, clickedTile, event) => {
-                console.log('clickedTile : ', clickedTile);
                 const piece = universe.game.info.selectedPieces[0];
                 if (piece) {
                     piece.position.x = clickedTile.position.x;
@@ -371,7 +378,6 @@ function getBaseScene() {
                 object.position.z = z * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
 
                 object.rotation.y = -Math.PI / geoFactory.rotation;
-                object.userData.objectType = objectType.PIECE;
                 this.addPieceEvents(object, universe);
                 return object;
             }
