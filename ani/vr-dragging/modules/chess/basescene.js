@@ -412,7 +412,7 @@ function getBaseScene() {
             document.body.appendChild(VRButton.createButton(universe.renderer));
 
             universe.scene = new THREE.Scene();
-            universe.scene.background = new THREE.Color(0x809090);
+            universe.scene.background = new THREE.Color(0xf0bedd);
 
             universe.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10);
             universe.camera.position.set(0, 1.6, 3);

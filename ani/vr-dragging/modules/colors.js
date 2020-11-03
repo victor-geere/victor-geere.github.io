@@ -78,6 +78,11 @@ const colorsGrey = [
     '#d0d0d0',
 ];
 
+const subtle = [
+    '#f0bedd',
+
+];
+
 const rainbow = [
     '#b4c8b4', '#b8c4b0', '#c0c4a8', '#c8c4a0',
     '#d0c098', '#d8bc90', '#dcb88c', '#e4b484',
