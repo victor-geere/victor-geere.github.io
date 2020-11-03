@@ -123,11 +123,9 @@ function getVRScene() {
                 let intersection = intersections[0];
                 let object = intersection.object;
                 if (object.userData.objectType === objectType.PIECE) {
-                    const playerName = getPlayerTypeName(object.userData.player.type);
-                    setEmission(object.material.emissive, this.settings.pieces.emissive.intersected[playerName]);
-                    this.intersected.push(object);
+                    this.game.onPieceOver(this, object);
                 } else {
-                    setEmission(object.material.emissive, this.settings.tiles.emissive.intersected);
+                    this.game.onTileOver(this, object);
                 }
 
                 line.scale.z = intersection.distance;
@@ -140,9 +138,9 @@ function getVRScene() {
             while (this.intersected.length) {
                 let object = this.intersected.pop();
                 if (object.userData.objectType === objectType.PIECE) {
-                    setEmission(object.material.emissive, this.settings.pieces.emissive.default);
+                    this.game.onPieceOut(this, object);
                 } else {
-                    setEmission(object.material.emissive, this.settings.tiles.emissive.default);
+                    this.game.onTileOut(this, object);
                 }
             }
         },

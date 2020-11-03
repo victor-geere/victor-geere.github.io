@@ -45,11 +45,7 @@ const getUserData = function() {
             intersected: false,
             taken: false
         },
-        position: {
-            x: 0, // position in world, should be same as tile position
-            z: 0, // position in world, should be same as tile position
-            tile: {} // the tile mesh that the piece is standing on
-        }
+        tile: {} // the tile mesh that the piece is standing on
     }
 };
 
@@ -158,6 +154,9 @@ function getBaseScene() {
                 }
                 tiles[x][z] = tile;
             },
+            getTileAt: function(x, z) {
+                return this.tiles[x][z];
+            },
             info: {
                 selectedPieces: [],
                 selectedTiles: [],
@@ -181,6 +180,28 @@ function getBaseScene() {
             onSelectStart: () => {
             },
             onSelectEnd: () => {
+            },
+            onPieceOver: function(universe, piece) {
+                // console.log('piece ', piece);
+                const playerName = getPlayerTypeName(piece.userData.player.type);
+                setEmission(piece.material.emissive, universe.settings.pieces.emissive.intersected[playerName]);
+                universe.intersected.push(piece);
+            },
+            onPieceOut: function(universe, piece) {
+                if (piece.userData.state.selected) {
+                    const playerName = getPlayerTypeName(piece.userData.player.type);
+                    setEmission(piece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
+                } else {
+                    setEmission(piece.material.emissive, universe.settings.pieces.emissive.default);
+                }
+            },
+            onTileOver: function(universe, tile) {
+                if(universe.game.info.selectedPieces.length > 0) {
+                    setEmission(tile.material.emissive, universe.settings.tiles.emissive.intersected);
+                }
+            },
+            onTileOut: function(universe, tile) {
+                setEmission(tile.material.emissive, universe.settings.tiles.emissive.default);
             },
             onClickPiece: (universe, clickedPiece, event) => {
                 const selectedPiece = universe.game.info.selectedPieces[0];
@@ -210,12 +231,20 @@ function getBaseScene() {
                     setEmission(clickedPiece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
                 }
             },
+            movePiece: function(piece, tile) {
+                piece.userData.state.selected = false;
+                piece.userData.tile = tile;
+                piece.position.x = tile.position.x;
+                piece.position.z = tile.position.z;
+                if(!tile.userData) {
+                    tile.userData = {};
+                }
+                tile.userData.piece = piece;
+            },
             onClickTile: (universe, clickedTile, event) => {
                 const piece = universe.game.info.selectedPieces[0];
                 if (piece) {
-                    piece.userData.state.selected = false;
-                    piece.position.x = clickedTile.position.x;
-                    piece.position.z = clickedTile.position.z;
+                    universe.game.movePiece(piece, clickedTile);
                     setEmission(piece.material.emissive, universe.settings.pieces.emissive.default);
                     universe.game.info.selectedPieces = [];
                 }
@@ -259,6 +288,8 @@ function getBaseScene() {
 
                 object.rotation.y = -Math.PI / geoFactory.rotation;
                 this.addPieceEvents(object, universe);
+                const tile = this.getTileAt(x, z);
+                this.movePiece(object, tile);
                 return object;
             }
         },
@@ -305,6 +336,8 @@ function getBaseScene() {
 
         addTileEvents: function (vrScene, object) {
             object.on('click', vrScene.game.onClickTile.bind(vrScene, vrScene, object));
+            object.on('mouseover', vrScene.game.onTileOver.bind(vrScene, vrScene, object));
+            object.on('mouseout', vrScene.game.onTileOut.bind(vrScene, vrScene, object));
         },
 
         addFloor: function (vrScene) {
