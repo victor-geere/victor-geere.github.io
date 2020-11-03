@@ -1,6 +1,6 @@
 import {XRControllerModelFactory} from "../../lib/three/examples/jsm/webxr/XRControllerModelFactory.js";
 import * as THREE from "../../lib/three/build/three.module.js";
-import { getBaseScene, rank, playerType, geometries, makePlayer, setEmission, objectType } from './basescene.js'
+import { getPlayerTypeName,getBaseScene, rank, playerType, geometries, makePlayer, setEmission, objectType } from './basescene.js'
 
 function getVRScene() {
     const baseScene = getBaseScene();
@@ -123,7 +123,8 @@ function getVRScene() {
                 let intersection = intersections[0];
                 let object = intersection.object;
                 if (object.userData.objectType === objectType.PIECE) {
-                    setEmission(object.material.emissive, this.settings.pieces.emissive.intersected);
+                    const playerName = getPlayerTypeName(object.userData.player.type);
+                    setEmission(object.material.emissive, this.settings.pieces.emissive.intersected[playerName]);
                     this.intersected.push(object);
                 } else {
                     setEmission(object.material.emissive, this.settings.tiles.emissive.intersected);

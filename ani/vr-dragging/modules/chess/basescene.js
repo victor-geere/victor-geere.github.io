@@ -18,40 +18,40 @@ const playerType = {
     BLACK: 2,
 };
 
-
+function getPlayerTypeName(playerTypeNum) {
+    if (playerTypeNum === playerType.WHITE) {
+        return 'white';
+    } else if(playerTypeNum === playerType.BLACK) {
+        return 'black';
+    }
+    return null;
+}
 
 const objectType = {
     PIECE: 1,
     TILE: 2,
 };
 
-const geometries = {
-    getCylinder: {
-        rotation: 8,
-        make: function (universe, material) {
-            let radius = universe.game.board.pieceRadius;
-            let height = universe.game.board.pieceHeight;
-            let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.userData.objectType = objectType.PIECE;
-            mesh.userData.rotation = 8;
-            return mesh;
-        }
-    },
-    getBox: {
-        rotation: 1,
-        make: function (universe, material) {
-            let radius = universe.game.board.pieceRadius;
-            let height = universe.game.board.pieceHeight;
-            let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.userData.objectType = objectType.PIECE;
-            mesh.userData.rotation = 1;
-            return mesh;
+const getUserData = function() {
+    return {
+        objectType: 0, // objectType.PIECE or objectType.TILE
+        rotation: 0, // radians
+        player: {
+            type: 0, // playerType.WHITE or playerType.BLACK
+            pieces: [] // [{type: rank.PAWN, position: {x: 0, z: 0}, id}]
+        },
+        state: {
+            selected: false,
+            intersected: false,
+            taken: false
+        },
+        position: {
+            x: 0, // position in world, should be same as tile position
+            z: 0, // position in world, should be same as tile position
+            tile: {} // the tile mesh that the piece is standing on
         }
     }
 };
-
 
 function makePlayer(playerT) {
     return {
@@ -64,6 +64,39 @@ function makePlayer(playerT) {
         }
     }
 }
+
+const geometries = {
+    getCylinder: {
+        rotation: 8,
+        make: function (universe, material) {
+            let radius = universe.game.board.pieceRadius;
+            let height = universe.game.board.pieceHeight;
+            let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.userData = {
+                ...getUserData(),
+                objectType: objectType.PIECE,
+                rotation: 8
+            };
+            return mesh;
+        }
+    },
+    getBox: {
+        rotation: 1,
+        make: function (universe, material) {
+            let radius = universe.game.board.pieceRadius;
+            let height = universe.game.board.pieceHeight;
+            let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.userData = {
+                ...getUserData(),
+                objectType: objectType.PIECE,
+                rotation: 1
+            };
+            return mesh;
+        }
+    }
+};
 
 function setEmission(target, source) {
     target.r = source.r;
@@ -83,9 +116,15 @@ function getBaseScene() {
             },
             pieces: {
                 emissive: {
-                    intersected: {r: 0, g: 0, b: 1},
+                    intersected: {
+                        black: {r: 0, g: 0, b: 1},
+                        white: {r: 0.5, g: 0, b: 0},
+                    },
                     default: {r: 0, g: 0, b: 0},
-                    selected: {r: 1, g: 0, b: 0},
+                    selected: {
+                        black: {r: 1, g: 0, b: 0},
+                        white: {r: 1, g: 0, b: 0}
+                    },
                 }
             },
         },
@@ -148,9 +187,13 @@ function getBaseScene() {
                 const target = {...clickedPiece.position};
                 if (selectedPiece) {
                     if (clickedPiece === selectedPiece) {
+                        //unselect selected piece
+                        selectedPiece.userData.state.selected = false;
                         setEmission(selectedPiece.material.emissive, universe.settings.pieces.emissive.default);
                         universe.game.info.selectedPieces = [];
                     } else {
+                        //move piece to previously selected piece, take a piece
+                        selectedPiece.userData.state.selected = false;
                         universe.group.remove(clickedPiece);
                         selectedPiece.position.x = target.x;
                         selectedPiece.position.y = target.y;
@@ -159,13 +202,18 @@ function getBaseScene() {
                         universe.game.info.selectedPieces = [];
                     }
                 } else {
+                    clickedPiece.userData.state.selected = true;
+                    const playerName = getPlayerTypeName(clickedPiece.userData.player.type);
+                    console.log(`playerName : ${playerName}`);
+                    console.log('emissive : ', universe.settings.pieces.emissive.selected[playerName]);
                     universe.game.info.selectedPieces.push(clickedPiece);
-                    setEmission(clickedPiece.material.emissive, universe.settings.pieces.emissive.selected);
+                    setEmission(clickedPiece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
                 }
             },
             onClickTile: (universe, clickedTile, event) => {
                 const piece = universe.game.info.selectedPieces[0];
                 if (piece) {
+                    piece.userData.state.selected = false;
                     piece.position.x = clickedTile.position.x;
                     piece.position.z = clickedTile.position.z;
                     setEmission(piece.material.emissive, universe.settings.pieces.emissive.default);
@@ -190,7 +238,7 @@ function getBaseScene() {
             },
             addPieceEvents: () => {
             },
-            makePiece: function (universe, x, z, colorNum, geoFactory) {
+            makePiece: function (universe, x, z, colorNum, player, geoFactory) {
                 let radius = universe.game.board.pieceRadius;
                 let height = universe.game.board.pieceHeight;
                 let radius2x = radius * 2;
@@ -203,6 +251,7 @@ function getBaseScene() {
                 let material = universe.getMaterial(colorNum);
 
                 let object = geoFactory.make(universe, material);
+                object.userData.player = player;
 
                 object.position.x = x * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
                 object.position.y = height / 2;
@@ -234,7 +283,7 @@ function getBaseScene() {
                 const row = player.type === playerType.WHITE ? 0 : 7;
                 const colNum = player.type === playerType.WHITE ? 12 : 40;
                 for (let x = 0; x < n; x++) {
-                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, geometries.getCylinder);
+                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, player, geometries.getCylinder);
                     addPiece(vrScene, player, piece);
                 }
             };
@@ -243,7 +292,7 @@ function getBaseScene() {
                 const row = player.type === playerType.WHITE ? 1 : 6;
                 const colNum = player.type === playerType.WHITE ? 12 : 40;
                 for (let x = 0; x < n; x++) {
-                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, geometries.getBox);
+                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, player, geometries.getBox);
                     addPiece(vrScene, player, piece);
                 }
             };
@@ -371,4 +420,4 @@ function getBaseScene() {
     }
 }
 
-export { getBaseScene, rank, playerType, geometries, makePlayer, setEmission, objectType }
+export { getBaseScene, rank, playerType, geometries, makePlayer, setEmission, objectType, getPlayerTypeName }
