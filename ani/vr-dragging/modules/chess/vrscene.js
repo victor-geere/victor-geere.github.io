@@ -42,6 +42,7 @@ function getVRScene() {
             if (controller.userData.selected !== undefined) {
                 let object = controller.userData.selected;
                 setEmission(object.material.emissive, universe.settings.pieces.emissive.default);
+                object.userData.state.selected = false;
                 this.group.attach(object);
                 object.rotation.x = 0;
                 object.rotation.y = -Math.PI / object.userData.rotation;

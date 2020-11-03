@@ -184,7 +184,11 @@ function getBaseScene() {
             onPieceOver: function(universe, piece) {
                 // console.log('piece ', piece);
                 const playerName = getPlayerTypeName(piece.userData.player.type);
-                setEmission(piece.material.emissive, universe.settings.pieces.emissive.intersected[playerName]);
+                if (piece.userData.state.selected) {
+                    setEmission(piece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
+                } else {
+                    setEmission(piece.material.emissive, universe.settings.pieces.emissive.intersected[playerName]);
+                }
                 universe.intersected.push(piece);
             },
             onPieceOut: function(universe, piece) {
@@ -244,6 +248,11 @@ function getBaseScene() {
             onClickTile: (universe, clickedTile, event) => {
                 const piece = universe.game.info.selectedPieces[0];
                 if (piece) {
+                    if (clickedTile.userData.piece) {
+                        universe.group.remove(clickedTile.userData.piece);
+                        clickedTile.userData.piece.userData.state.taken = true;
+                        clickedTile.userData.piece = null;
+                    }
                     universe.game.movePiece(piece, clickedTile);
                     setEmission(piece.material.emissive, universe.settings.pieces.emissive.default);
                     universe.game.info.selectedPieces = [];
