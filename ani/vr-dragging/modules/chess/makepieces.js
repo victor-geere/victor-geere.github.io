@@ -24,13 +24,13 @@ const getUserData = function(type, objectType, rotation) {
 };
 
 const geometries = {
-    getCastle: {
+    getMesh: {
         rotation: 1,
-        make: function (universe, player, callback) {
+        make: function (universe, player, options, callback) {
             const loader = new GLTFLoader();
-            loader.load('assets/castle.glb',
+            loader.load('assets/pieces.glb',
                 function (gltf) {
-                    const mesh = gltf.scene.children[0].children[0];
+                    const mesh = gltf.scene.children[0].children[options.meshNumber];
                     mesh.material = player.material.clone();
                     mesh.userData = getUserData(player.type, objectType.PIECE, 8);
                     callback(mesh);
@@ -43,7 +43,7 @@ const geometries = {
     },
     getCylinder: {
         rotation: 8,
-        make: function (universe, player, callback) {
+        make: function (universe, player, options, callback) {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
@@ -54,7 +54,7 @@ const geometries = {
     },
     getBox: {
         rotation: 1,
-        make: function (universe, player, callback) {
+        make: function (universe, player, options, callback) {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);

@@ -188,6 +188,9 @@ function getBaseScene() {
                 }
             },
             movePiece: function(piece, tile) {
+                try {
+                    piece.userData.tile.userData.piece = null;
+                } catch (e) {}
                 piece.userData.state.selected = false;
                 piece.userData.tile = tile;
                 piece.position.x = tile.position.x;
@@ -228,14 +231,16 @@ function getBaseScene() {
             },
             addPieceEvents: () => {
             },
-            makeModel: function (universe, x, z, player, geoFactory) {
-                geoFactory.make(universe, player, (object) => {
+            makeModel: function (universe, x, z, player, options, geoFactory) {
+                geoFactory.make(universe, player, options, (object) => {
                     let board = universe.game.board;
                     board.gapSize = board.gapRatio * board.pieceRadius * 2;
 
                     object.userData.player = player;
-                    object.position.y = board.pieceHeight;
+                    object.position.y = 0;
+
                     object.rotation.y = -Math.PI / geoFactory.rotation;
+                    object.rotation.x = -Math.PI / 2;
 
                     universe.game.addPieceEvents(object, universe);
                     const tile = universe.game.getTileAt(x, z);
@@ -246,8 +251,8 @@ function getBaseScene() {
                     universe.group.add(object);
                 });
             },
-            makePiece: function (universe, x, z, player, geoFactory) {
-                geoFactory.make(universe, player, (object) => {
+            makePiece: function (universe, x, z, player, options, geoFactory) {
+                geoFactory.make(universe, player, options, (object) => {
                     let board = universe.game.board;
                     board.gapSize = board.gapRatio * board.pieceRadius * 2;
 
@@ -271,16 +276,23 @@ function getBaseScene() {
 
             const addOfficers = (universe, player) => {
                 const row = player.type === playerType.WHITE ? 0 : 7;
-                for (let x = 0; x < n; x++) {
-                    universe.game.makeModel(universe, x, row, player, geometries.getCastle);
-                    // universe.game.makePiece(universe, x, row, player, geometries.getCylinder);
-                }
+                universe.game.makeModel(universe, 0, row, player, { meshNumber: 0}, geometries.getMesh);
+                universe.game.makeModel(universe, 7, row, player, { meshNumber: 0}, geometries.getMesh);
+
+                universe.game.makeModel(universe, 2, row, player, { meshNumber: 2}, geometries.getMesh);
+                universe.game.makeModel(universe, 5, row, player, { meshNumber: 2}, geometries.getMesh);
+
+                universe.game.makeModel(universe, 1, row, player, { meshNumber: 5}, geometries.getMesh);
+                universe.game.makeModel(universe, 6, row, player, { meshNumber: 5}, geometries.getMesh);
+
+                universe.game.makeModel(universe, 2 + player.type, row, player, { meshNumber: 3}, geometries.getMesh);
+                universe.game.makeModel(universe, 5 - player.type, row, player, { meshNumber: 4}, geometries.getMesh);
             };
 
             const addPawns = (universe, player) => {
                 const row = player.type === playerType.WHITE ? 1 : 6;
                 for (let x = 0; x < n; x++) {
-                    universe.game.makePiece(universe, x, row, player, geometries.getBox);
+                    universe.game.makeModel(universe, x, row, player, { meshNumber: 1}, geometries.getMesh);
                 }
             };
 
