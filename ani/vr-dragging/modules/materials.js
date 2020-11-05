@@ -16,6 +16,14 @@ function getCustomMaterial(palette, colorN, options) {
     return new THREE.MeshBasicMaterial({...options, color: palette[colorN]});
 }
 
+function getMetalMaterial(colorN, palette = rainbow, metal = 0) {
+    return new THREE.MeshStandardMaterial({
+        color: palette[colorN],
+        roughness: metal > 0 ? 0.8 : 0.7,
+        metalness: metal
+    });
+}
+
 function getMaterial(palette, colorN, opacity = 0) {
     if (opacity) {
         return new THREE.MeshBasicMaterial({
@@ -95,4 +103,4 @@ function getPointsMaterial(colorN, size=0.125) {
 }
 
 export { getPointsMaterial, getMaterial, getLineMaterial, getCustomMaterial, getMaterialOptions,
-    getPhongMaterial, getOutlineMaterial }
+    getPhongMaterial, getOutlineMaterial, getMetalMaterial }

@@ -1,9 +1,10 @@
 import * as THREE from "../../lib/three/build/three.module.js";
-import {colorsGrey, rainbow} from "../colors.js";
-import {VRButton} from "../../lib/three/examples/jsm/webxr/VRButton.js";
-import {Interaction} from "../../lib/three.interaction/three.interaction.module.js";
-import {OrbitControls} from "../../lib/three/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from '../../lib/three/examples/jsm/loaders/GLTFLoader.js';
+import { colorsGrey, rainbow } from "../colors.js";
+import { VRButton } from "../../lib/three/examples/jsm/webxr/VRButton.js";
+import { Interaction } from "../../lib/three.interaction/three.interaction.module.js";
+import { OrbitControls } from "../../lib/three/examples/jsm/controls/OrbitControls.js";
+import {geometries} from "./makepieces.js";
+import {getMetalMaterial} from "../materials.js";
 
 const rank = {
     PAWN: 1,
@@ -19,14 +20,6 @@ const playerType = {
     BLACK: 2,
 };
 
-function getMaterial(colorN, palette = rainbow, metal = 0) {
-    return new THREE.MeshStandardMaterial({
-        color: palette[colorN],
-        roughness: metal > 0 ? 0.8 : 0.7,
-        metalness: metal
-    });
-}
-
 function getPlayerTypeName(playerTypeNum) {
     if (playerTypeNum === playerType.WHITE) {
         return 'white';
@@ -41,30 +34,9 @@ const objectType = {
     TILE: 2,
 };
 
-const getUserData = function(type) {
-    const colNum = type === playerType.WHITE ? 12 : 40;
-    const mat = getMaterial(colNum);
-    // console.log(mat);
-    return {
-        objectType: 0, // objectType.PIECE or objectType.TILE
-        rotation: 0, // radians
-        player: {
-            type: 0, // playerType.WHITE or playerType.BLACK
-            material: mat,
-            pieces: [] // [{type: rank.PAWN, position: {x: 0, z: 0}, id}]
-        },
-        state: {
-            selected: false,
-            intersected: false,
-            taken: false
-        },
-        tile: {} // the tile mesh that the piece is standing on
-    }
-};
-
 function makePlayer(playerT) {
     const colNum = playerT === playerType.WHITE ? 12 : 40;
-    const mat = getMaterial(colNum);
+    const mat = getMetalMaterial(colNum);
     return {
         type: playerT,
         material: mat,
@@ -76,56 +48,6 @@ function makePlayer(playerT) {
         }
     }
 }
-
-const geometries = {
-    getCastle: {
-        rotation: 1,
-        make: function (universe, player, callback) {
-            const loader = new GLTFLoader();
-            loader.load('assets/castle.glb',
-            function (gltf) {
-                const mesh = gltf.scene.children[0].children[0];
-                mesh.material = player.material.clone();
-                console.log(`mesh : `, mesh);
-                // universe.scene.add(mesh);
-                mesh.userData = getUserData(player.type);
-                mesh.userData.objectType = objectType.PIECE;
-                mesh.userData.rotation = 8;
-                callback(mesh);
-            },
-                undefined,
-                function (error) {
-                console.error(error);
-            });
-        }
-    },
-    getCylinder: {
-        rotation: 8,
-        make: function (universe, player, callback) {
-            let radius = universe.game.board.pieceRadius;
-            let height = universe.game.board.pieceHeight;
-            let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
-            const mesh = new THREE.Mesh(geometry, player.material.clone());
-            mesh.userData = getUserData(player.type);
-            mesh.userData.objectType = objectType.PIECE;
-            mesh.userData.rotation = 8;
-            callback(mesh);
-        }
-    },
-    getBox: {
-        rotation: 1,
-        make: function (universe, player, callback) {
-            let radius = universe.game.board.pieceRadius;
-            let height = universe.game.board.pieceHeight;
-            let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);
-            const mesh = new THREE.Mesh(geometry, player.material.clone());
-            mesh.userData = getUserData(player.type);
-            mesh.userData.objectType = objectType.PIECE;
-            mesh.userData.rotation = 1;
-            callback(mesh);
-        }
-    }
-};
 
 function setEmission(target, source) {
     target.r = source.r;
@@ -215,7 +137,6 @@ function getBaseScene() {
             onSelectEnd: () => {
             },
             onPieceOver: function(universe, piece) {
-                // console.log('piece ', piece);
                 const playerName = getPlayerTypeName(piece.userData.player.type);
                 if (piece.userData.state.selected) {
                     setEmission(piece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
@@ -225,7 +146,6 @@ function getBaseScene() {
                 universe.intersected.push(piece);
             },
             onPieceOut: function(universe, piece) {
-                // console.log(`piece.material.emissive : `, piece.material.emissive);
                 if (piece.userData.state.selected) {
                     const playerName = getPlayerTypeName(piece.userData.player.type);
                     setEmission(piece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
@@ -321,7 +241,6 @@ function getBaseScene() {
                     const tile = universe.game.getTileAt(x, z);
                     universe.game.movePiece(object, tile);
 
-                    // object.scale.setScalar(1);
                     object.castShadow = true;
                     object.receiveShadow = true;
                     universe.group.add(object);
@@ -382,7 +301,7 @@ function getBaseScene() {
                 const tileHeight = 0.1;
                 const halfHeight = 0.05;
                 let tile = new THREE.BoxBufferGeometry(0.35, tileHeight, 0.35);
-                let tile1Mat = getMaterial(colorN, colorsGrey, 1);
+                let tile1Mat = getMetalMaterial(colorN, colorsGrey, 1);
                 setEmission(tile1Mat.emissive, vrScene.settings.tiles.emissive.default);
                 let object = new THREE.Mesh(tile, tile1Mat);
                 object.userData.objectType = objectType.TILE;
