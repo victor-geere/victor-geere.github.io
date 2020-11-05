@@ -3,7 +3,6 @@ import {colorsGrey, rainbow} from "../colors.js";
 import {VRButton} from "../../lib/three/examples/jsm/webxr/VRButton.js";
 import {Interaction} from "../../lib/three.interaction/three.interaction.module.js";
 import {OrbitControls} from "../../lib/three/examples/jsm/controls/OrbitControls.js";
-import {loadModel} from "../loadmodels.js";
 import { GLTFLoader } from '../../lib/three/examples/jsm/loaders/GLTFLoader.js';
 
 const rank = {
