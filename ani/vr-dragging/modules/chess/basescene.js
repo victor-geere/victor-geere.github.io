@@ -3,6 +3,8 @@ import {colorsGrey, rainbow} from "../colors.js";
 import {VRButton} from "../../lib/three/examples/jsm/webxr/VRButton.js";
 import {Interaction} from "../../lib/three.interaction/three.interaction.module.js";
 import {OrbitControls} from "../../lib/three/examples/jsm/controls/OrbitControls.js";
+import {loadModel} from "../loadmodels.js";
+import { GLTFLoader } from '../../lib/three/examples/jsm/loaders/GLTFLoader.js';
 
 const rank = {
     PAWN: 1,
@@ -18,6 +20,14 @@ const playerType = {
     BLACK: 2,
 };
 
+function getMaterial(colorN, palette = rainbow, metal = 0) {
+    return new THREE.MeshStandardMaterial({
+        color: palette[colorN],
+        roughness: metal > 0 ? 0.8 : 0.7,
+        metalness: metal
+    });
+}
+
 function getPlayerTypeName(playerTypeNum) {
     if (playerTypeNum === playerType.WHITE) {
         return 'white';
@@ -32,12 +42,16 @@ const objectType = {
     TILE: 2,
 };
 
-const getUserData = function() {
+const getUserData = function(type) {
+    const colNum = type === playerType.WHITE ? 12 : 40;
+    const mat = getMaterial(colNum);
+    // console.log(mat);
     return {
         objectType: 0, // objectType.PIECE or objectType.TILE
         rotation: 0, // radians
         player: {
             type: 0, // playerType.WHITE or playerType.BLACK
+            material: mat,
             pieces: [] // [{type: rank.PAWN, position: {x: 0, z: 0}, id}]
         },
         state: {
@@ -50,8 +64,11 @@ const getUserData = function() {
 };
 
 function makePlayer(playerT) {
+    const colNum = playerT === playerType.WHITE ? 12 : 40;
+    const mat = getMaterial(colNum);
     return {
         type: playerT,
+        material: mat,
         pieces: [
             // {type: rank.PAWN, position: {x: 0, z: 0}, id}
         ],
@@ -62,34 +79,51 @@ function makePlayer(playerT) {
 }
 
 const geometries = {
+    getCastle: {
+        rotation: 1,
+        make: function (universe, player, callback) {
+            const loader = new GLTFLoader();
+            loader.load('assets/castle.glb',
+            function (gltf) {
+                const mesh = gltf.scene.children[0].children[0];
+                mesh.material = player.material.clone();
+                console.log(`mesh : `, mesh);
+                // universe.scene.add(mesh);
+                mesh.userData = getUserData(player.type);
+                mesh.userData.objectType = objectType.PIECE;
+                mesh.userData.rotation = 8;
+                callback(mesh);
+            },
+                undefined,
+                function (error) {
+                console.error(error);
+            });
+        }
+    },
     getCylinder: {
         rotation: 8,
-        make: function (universe, material) {
+        make: function (universe, player, callback) {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.CylinderBufferGeometry(radius, radius, height, 8);
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.userData = {
-                ...getUserData(),
-                objectType: objectType.PIECE,
-                rotation: 8
-            };
-            return mesh;
+            const mesh = new THREE.Mesh(geometry, player.material.clone());
+            mesh.userData = getUserData(player.type);
+            mesh.userData.objectType = objectType.PIECE;
+            mesh.userData.rotation = 8;
+            callback(mesh);
         }
     },
     getBox: {
         rotation: 1,
-        make: function (universe, material) {
+        make: function (universe, player, callback) {
             let radius = universe.game.board.pieceRadius;
             let height = universe.game.board.pieceHeight;
             let geometry = new THREE.BoxBufferGeometry(radius * 1.5, height, radius * 1.5, 8);
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.userData = {
-                ...getUserData(),
-                objectType: objectType.PIECE,
-                rotation: 1
-            };
-            return mesh;
+            const mesh = new THREE.Mesh(geometry, player.material.clone());
+            mesh.userData = getUserData(player.type);
+            mesh.userData.objectType = objectType.PIECE;
+            mesh.userData.rotation = 1;
+            callback(mesh);
         }
     }
 };
@@ -192,6 +226,7 @@ function getBaseScene() {
                 universe.intersected.push(piece);
             },
             onPieceOut: function(universe, piece) {
+                // console.log(`piece.material.emissive : `, piece.material.emissive);
                 if (piece.userData.state.selected) {
                     const playerName = getPlayerTypeName(piece.userData.player.type);
                     setEmission(piece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
@@ -229,8 +264,6 @@ function getBaseScene() {
                 } else {
                     clickedPiece.userData.state.selected = true;
                     const playerName = getPlayerTypeName(clickedPiece.userData.player.type);
-                    console.log(`playerName : ${playerName}`);
-                    console.log('emissive : ', universe.settings.pieces.emissive.selected[playerName]);
                     universe.game.info.selectedPieces.push(clickedPiece);
                     setEmission(clickedPiece.material.emissive, universe.settings.pieces.emissive.selected[playerName]);
                 }
@@ -276,64 +309,60 @@ function getBaseScene() {
             },
             addPieceEvents: () => {
             },
-            makePiece: function (universe, x, z, colorNum, player, geoFactory) {
-                let radius = universe.game.board.pieceRadius;
-                let height = universe.game.board.pieceHeight;
-                let radius2x = radius * 2;
-                let gap = universe.game.board.gapRatio;
-                universe.game.board.gapSize = gap * radius2x;
-                let spacing = 1 + gap;
-                let boardSize = universe.game.board.size;
-                let halfBoard = boardSize / 2;
+            makeModel: function (universe, x, z, player, geoFactory) {
+                geoFactory.make(universe, player, (object) => {
+                    let board = universe.game.board;
+                    board.gapSize = board.gapRatio * board.pieceRadius * 2;
 
-                let material = universe.getMaterial(colorNum);
+                    object.userData.player = player;
+                    object.position.y = board.pieceHeight;
+                    object.rotation.y = -Math.PI / geoFactory.rotation;
 
-                let object = geoFactory.make(universe, material);
-                object.userData.player = player;
+                    universe.game.addPieceEvents(object, universe);
+                    const tile = universe.game.getTileAt(x, z);
+                    universe.game.movePiece(object, tile);
 
-                object.position.x = x * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
-                object.position.y = height / 2;
-                object.position.z = z * universe.game.board.blockSize + universe.game.board.blockSize / 2 - halfBoard;
+                    // object.scale.setScalar(1);
+                    object.castShadow = true;
+                    object.receiveShadow = true;
+                    universe.group.add(object);
+                });
+            },
+            makePiece: function (universe, x, z, player, geoFactory) {
+                geoFactory.make(universe, player, (object) => {
+                    let board = universe.game.board;
+                    board.gapSize = board.gapRatio * board.pieceRadius * 2;
 
-                object.rotation.y = -Math.PI / geoFactory.rotation;
-                this.addPieceEvents(object, universe);
-                const tile = this.getTileAt(x, z);
-                this.movePiece(object, tile);
-                return object;
+                    object.userData.player = player;
+                    object.position.y = board.pieceHeight / 2;
+                    object.rotation.y = -Math.PI / geoFactory.rotation;
+
+                    universe.game.addPieceEvents(object, universe);
+                    const tile = universe.game.getTileAt(x, z);
+                    universe.game.movePiece(object, tile);
+
+                    object.scale.setScalar(1);
+                    object.castShadow = true;
+                    object.receiveShadow = true;
+                    universe.group.add(object);
+                });
             }
-        },
-        getMaterial: function (colorN, palette = rainbow, metal = 0) {
-            return new THREE.MeshStandardMaterial({
-                color: palette[colorN],
-                roughness: metal > 0 ? 0.8 : 0.7,
-                metalness: metal
-            });
         },
         addGeometries: function (vrScene) {
             const n = vrScene.game.board.pieces;
 
-            const addPiece = (universe, player, object) => {
-                object.scale.setScalar(1);
-                object.castShadow = true;
-                object.receiveShadow = true;
-                vrScene.group.add(object);
-            };
-
-            const addOfficers = (vrScene, player) => {
+            const addOfficers = (universe, player) => {
                 const row = player.type === playerType.WHITE ? 0 : 7;
-                const colNum = player.type === playerType.WHITE ? 12 : 40;
                 for (let x = 0; x < n; x++) {
-                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, player, geometries.getCylinder);
-                    addPiece(vrScene, player, piece);
+                    universe.game.makeModel(universe, x, row, player, geometries.getCastle);
+                    // universe.game.makePiece(universe, x, row, player, geometries.getCylinder);
                 }
             };
 
-            const addPawns = (vrScene, player) => {
+            const addPawns = (universe, player) => {
                 const row = player.type === playerType.WHITE ? 1 : 6;
-                const colNum = player.type === playerType.WHITE ? 12 : 40;
                 for (let x = 0; x < n; x++) {
-                    const piece = vrScene.game.makePiece(vrScene, x, row, colNum, player, geometries.getBox);
-                    addPiece(vrScene, player, piece);
+                    universe.game.makePiece(universe, x, row, player, geometries.getBox);
                 }
             };
 
@@ -354,7 +383,7 @@ function getBaseScene() {
                 const tileHeight = 0.1;
                 const halfHeight = 0.05;
                 let tile = new THREE.BoxBufferGeometry(0.35, tileHeight, 0.35);
-                let tile1Mat = vrScene.getMaterial(colorN, colorsGrey, 1);
+                let tile1Mat = getMaterial(colorN, colorsGrey, 1);
                 setEmission(tile1Mat.emissive, vrScene.settings.tiles.emissive.default);
                 let object = new THREE.Mesh(tile, tile1Mat);
                 object.userData.objectType = objectType.TILE;
@@ -430,9 +459,13 @@ function getBaseScene() {
         postSetup: function (universe) {
             window.addEventListener('resize', universe.onWindowResize.bind(universe), false);
         },
+        loadPieces: function () {
+            // loadModel(this.scene);
+        },
         init: function () {
             this.setupScene(this);
             this.setupWorldControl(this);
+            this.loadPieces(this);
             this.addFloor(this);
             this.addLight(this);
             this.addControllers(this);
