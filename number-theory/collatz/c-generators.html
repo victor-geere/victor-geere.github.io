@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Collatz</title>
+  <style>
+    body, pre {
+      font-family: "Raleway Mono", monospace;
+    }
+  </style>
+</head>
+<body>
+<script>
+    const ops = [[0]];
+
+    function getBin(dec) {
+        return parseInt(dec, 10).toString(2);
+    }
+
+
+    function calcSum(sum, n) {
+        let response = 0;
+        if (n === 0) {
+            response = sum * 2;
+        } else {
+            response = (sum - 1) / 3;
+        }
+        return response
+    }
+
+    function checkOddEven(recipe, series) {
+        let valid = true;
+        for (let n = 0; n < recipe.length; n++) {
+            let lastR = recipe[n];
+            let lastS = series[n];
+            valid = valid && ((lastR === 1 && lastS % 2 === 1) || (lastR === 0 && lastS % 2 === 0));
+        }
+        return valid;
+    }
+
+    function round(r) {
+        return Math.round(r * 1000) / 1000;
+    }
+
+    function trunc(r) {
+        return Math.floor(r * 1000) / 1000;
+    }
+
+    function loadOpsBin() {
+        const results = [];
+        const start = 1;
+        let n = start;
+        while (n < (start + 15000)) {
+            let n3 = (n-1)/3;
+            n3 = (n3 % 2 === 1)? n3 : 0;
+            document.write(n * 2 + ' ' + floor(n3) + ' => ' + n + '<br>');
+            n = n + 1;
+        }
+    }
+
+    function processBin(s, seed) {
+        let result = null;
+        let sum = 1;
+        let print = true;
+        let series = [];
+        let goal = 0;
+        s.forEach((n) => {
+            if (sum % 1 === 0) {
+                sum = calcSum(sum, n);
+                goal += (sum === 1)? 1 : 0;
+            } else {
+                print = false;
+            }
+            series.push(sum);
+        });
+        if (sum % 1 === 0 && sum > 0 && goal === 0 && checkOddEven(s, series)) {
+            result = { gen: seed, recipe: s, series, n: sum };
+        } else {
+            // console.log(`invalid : `, { recipe: s, series, n: sum });
+        }
+        return result;
+    }
+
+    function ratio(a, b) {
+        return ((a * b) > 0) ? (a/b) : 0;
+    }
+
+    function isMulti(n) {
+        return ((n - 4) / 6) % 1 === 0;
+    }
+
+    function grain(a) {
+        return isMulti(a) ? round((a-4)/6) : 0;
+    }
+
+    function pad(l1, l2) {
+        let p = '';
+        while (l2 > l1 && p.length < l2 - l1) {
+            p = p + ' ';
+        }
+        return p;
+    }
+
+    function checkx(n) {
+        let a = trunc((2 * (n * 3 + 2) - 4) / 6);
+        let b = trunc((2 * (n * 3 + 2) - 1) / 3);
+
+        return `${a} : ${b}`;
+    }
+
+    function generators() {
+        const delta = 1;
+        const start = 27;
+        let n = start;
+        document.write('<pre>');
+        while (n < (start + 100)) {
+            let a = n * 2;
+            let b = isMulti(n) ? (n - 1) / 3 : 0;
+            let aMulti = isMulti(a)? '*' : ' ';
+            let bMulti = isMulti(b)? '*' : ' ';
+            let txt = a + aMulti + ' ' + b + bMulti + ' => ' + n;
+            let grains = ' [' + grain(a) + ',' + grain(n) + ']  ';
+            document.write(txt + pad(txt.length, 20) + grains + pad(grains.length, 10) + checkx(n) + '<br>');
+            n = n + delta;
+        }
+        document.write('</pre>');
+    }
+
+    generators();
+</script>
+</body>
+</html>

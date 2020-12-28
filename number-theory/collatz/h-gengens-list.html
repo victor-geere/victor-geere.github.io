@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>h-gengens-list</title>
+  <style>
+    body, pre.text {
+      font-family: "Raleway Mono", monospace;
+      font-size: 11px;
+    }
+
+    span.red {
+      color: red;
+    }
+
+    span.black {
+      color: black;
+    }
+
+    span.blue {
+      color: blue;
+    }
+
+    span.cyan {
+      color: #61accb;
+    }
+  </style>
+</head>
+<body>
+<pre class="text" id="text">
+</pre>
+<script>
+    let z = [];
+    const results = {};
+
+    function getBin(dec) {
+        return parseInt(dec, 10).toString(2);
+    }
+
+    function round(r) {
+        return Math.round(r * 1000) / 1000;
+    }
+
+    function trunc(r, radix = 3) {
+        const s = Math.pow(10, radix);
+        return Math.floor(r * s) / s;
+    }
+
+    function ratio(a, b) {
+        return ((a * b) > 0) ? (a / b) : 0;
+    }
+
+    function isMulti(n) {
+        return (((n - 4) / 6) % 1 === 0);
+    }
+
+    function grain(a) {
+        return isMulti(a) ? round((a - 4) / 6) : 0;
+    }
+
+    function pad(l1, l2) {
+        let p = '';
+        while (l2 > l1 && p.length < l2 - l1) {
+            p = p + ' ';
+        }
+        return p;
+    }
+
+    function processNumbers() {
+        z.forEach((a, ix) => {
+            let n = a[a.length - 1];
+            a.push(n * 2);
+        });
+    }
+
+    function padn(n, l) {
+        let p = '' + n;
+        while (p.length < l) {
+            p = ' ' + p;
+        }
+        return p;
+    }
+
+    function append(txt) {
+        const tx = document.getElementById('text');
+        tx.innerHTML += txt;
+    }
+
+    function loadZ() {
+        // z.push([{ pow2: 2, num: 4, gen: 1 }]);
+        z.push([{ pow2: 4, num: 16, gen: 1 }]);
+    }
+
+    function print(s) {
+        append(padn(s, 10));
+    }
+
+    function printLn(s) {
+        print(s);
+        append('\n');
+    };
+
+    function printColor(s) {
+        if (isMulti(s)) {
+            append('<span class="red">' + padn(s, 10) + '</span>');
+        } else if (s % 3 === 0) {
+            append('<span class="black">' + padn(s, 10) + '</span>');
+        } else if (s % 3 === 1) {
+            append('<span class="cyan">' + padn(s, 10) + '</span>');
+        } else {
+            append('<span class="blue">' + padn(s, 10) + '</span>');
+        }
+    }
+
+    function getRealGeneration(n) {
+        let recipe = '';
+        let t = n;
+        let done = false;
+        let gen = 0;
+        while (!done && gen < 50) {
+            let ln = Math.log2(t);
+            // console.log(`n : ${n}  gen : ${gen} t: ${t} ln : ${ln}`);
+            let oLine = 0;
+            while (t % 2 === 0) {
+                // recipe += `o`;
+                t = t / 2;
+                oLine ++;
+            }
+            if (ln % 1 === 0) {
+                done = true;
+                recipe = `${oLine}` + recipe;
+                oLine = '';
+            } else {
+                // recipe += oLine;
+                recipe = `-${oLine}` + recipe;
+                oLine = '';
+                t = t * 3 + 1;
+                gen++;
+            }
+        }
+        return done ? { gen, recipe } : { gen, recipe: '' };
+    }
+
+    function printAllSimple() {
+        z.forEach((ar, iz) => {
+            let number = 0;
+            append(`<span>` + padn(iz, 4) + `</span>\t`);
+            ar.forEach((obj, ix) => {
+                append(obj.pow2);
+                if (ix === 0) {
+                    number = obj.num;
+                } else if (ix < ar.length) {
+                    const seed = (number - 1) / 3;
+                    number = seed * Math.pow(2, obj.pow2);
+                }
+            });
+            append(`\t = ${number}`);
+            append('<br>');
+        });
+    }
+
+    function printAll() {
+        const theList = [];
+        z.forEach((ar, iz) => {
+            const last = ar[ar.length - 1];
+            theList.push(last.num);
+            /*
+            let number = 0;
+            append(`<span>` + padn(iz, 4) + `</span>\t`);
+            ar.forEach((obj, ix) => {
+                append('[');
+                append(obj.pow2); append(`, `);
+                append(obj.num); append(`] `);
+                if (ix === 0) {
+                    number = obj.num;
+                } else if (ix < ar.length) {
+                    const seed = (number - 1) / 3;
+                    number = seed * Math.pow(2, obj.pow2);
+                }
+            });
+            append('<br>');
+            */
+        });
+        theList.sort((v1, v2) => {
+            return v1 - v2;
+        });
+        theList.forEach((s) => {
+            printLn(s);
+        });
+    }
+
+    function addToRow(row, n) {
+        let last = row[row.length - 1];
+        let number = last.num;
+        const newSeed = (number - 1) / 3;
+        let newEle = null;
+        if (newSeed % 3 === 1) {
+            const factor = 2 * n;
+            newEle = { pow2: factor, num: newSeed * Math.pow(2, factor), gen: last.gen };
+        } else if (newSeed % 3 === 2) {
+            const factor = 2 * n - 1;
+            newEle = { pow2: factor, num: newSeed * Math.pow(2, factor), gen: last.gen };
+        }
+        // console.log(`n: ${n} newSeed: ${newSeed} newSeed % 3 ${(newSeed % 3)} newEle : `, newEle);
+
+        return newEle;
+    }
+
+    function makeNewRow(s, n) {
+        const newArray = [...s];
+        const newElement = addToRow([...s], n);
+        if (newElement) {
+            newArray.push(newElement);
+            return newArray;
+        }
+        return null;
+    }
+
+    function makeNextThree(s) {
+        const temp = [];
+        const l1 = makeNewRow(s, 1);
+        if (l1) { temp.push(l1); }
+        const l2 = makeNewRow(s, 2);
+        if (l2) { temp.push(l2); }
+        const l3 = makeNewRow(s, 3);
+        if (l3) { temp.push(l3); }
+        return temp;
+    }
+
+    function generators() {
+        document.getElementById('text').innerHTML = '';
+        loadZ();
+        let todo = 1;
+        for(let i = 0; i < 6; i++) {
+            let temp = [];
+            z.forEach((s, iz) => {
+                if (iz >= z.length - todo) {
+                    temp.push(...makeNextThree(s));
+                }
+            });
+            todo = temp.length;
+            z.push(...temp);
+        }
+        printAll();
+    }
+
+    generators();
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>f-whole</title>
+  <style>
+    body, pre.text {
+      font-family: "Raleway Mono", monospace;
+      font-size: 11px;
+    }
+
+    span.red {
+      color: red;
+    }
+
+    span.black {
+      color: black;
+    }
+
+    span.blue {
+      color: blue;
+    }
+
+    span.cyan {
+      color: #61accb;
+    }
+  </style>
+</head>
+<body>
+<pre class="text" id="text">
+</pre>
+<script>
+    let z = [];
+    const results = {};
+
+    function getBin(dec) {
+        return parseInt(dec, 10).toString(2);
+    }
+
+    function round(r) {
+        return Math.round(r * 1000) / 1000;
+    }
+
+    function trunc(r, radix = 3) {
+        const s = Math.pow(10, radix);
+        return Math.floor(r * s) / s;
+    }
+
+    function ratio(a, b) {
+        return ((a * b) > 0) ? (a / b) : 0;
+    }
+
+    function isMulti(n) {
+        return (((n - 4) / 6) % 1 === 0);
+    }
+
+    function grain(a) {
+        return isMulti(a) ? round((a - 4) / 6) : 0;
+    }
+
+    function pad(l1, l2) {
+        let p = '';
+        while (l2 > l1 && p.length < l2 - l1) {
+            p = p + ' ';
+        }
+        return p;
+    }
+
+    function processNumbers() {
+        z.forEach((a, ix) => {
+            let n = a[a.length - 1];
+            a.push(n * 2);
+        });
+    }
+
+    function padn(n, l) {
+        let p = '' + n;
+        while (p.length < l) {
+            p = ' ' + p;
+        }
+        return p;
+    }
+
+    function append(txt) {
+        const tx = document.getElementById('text');
+        tx.innerHTML += txt;
+    }
+
+    function loadZ() {
+        for (let i = 1; i < 400; i = i + 2) {
+            z.push([(3 * i + 1) ,i]);
+        }
+    }
+
+    function printColor(s) {
+        if (s % 3 === 0) {
+            append('<span class="black">' + padn(s, 10) + '</span>');
+        } else if (s % 3 === 1) {
+            append('<span class="cyan">' + padn(s, 10) + '</span>');
+        } else {
+            append('<span class="blue">' + padn(s, 10) + '</span>');
+        }
+    }
+
+    function generators() {
+        document.getElementById('text').innerHTML = '';
+        loadZ();
+        const delta = 1;
+        const start = 1;
+        const max = 10;
+        let n = start;
+        while (n < (start + max)) {
+            processNumbers();
+            n = n + delta;
+        }
+        /*
+        z.forEach((n) => {
+            n.sort((v1, v2) => { return v1-v2; });
+        });
+        */
+        z.sort((v1, v2) => {
+            return v1[0] - v2[0];
+        });
+        z.forEach((n, iz) => {
+            append('<span>' + padn(iz, 6) + '</span>');
+            n.forEach((s, ix) => {
+                if (isMulti(s)) {
+                    if (ix !== 0) {
+                        append('<span class="red">' + padn(s, 10) + '</span>');
+                    } else {
+                        printColor(s);
+                    }
+                } else {
+                    printColor(s);
+                }
+                // if (ix === 0) {
+                //     append(padn(trunc((s - 4)/6, 3), 8));
+                // }
+            });
+            append('<br>');
+        });
+    }
+
+    generators();
+</script>
+</body>
+</html>
