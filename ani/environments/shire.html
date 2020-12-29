@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ani</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="lib/math.min.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import { popGui } from "./modules/gui.js";
+    import { getMaterial, getPhongMaterial, getPhongLight } from "./modules/materials.js";
+    import { getDodecahedron, getBox, getSphere, getCylinder } from "./modules/geometry.js";
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        drawAxis,
+        getSceneOptions,
+        buildDefaultScene,
+        getComposer,
+        getEuler
+    } from './modules/threetools.js';
+    import { Interaction } from './lib/three.interaction/three.interaction.module.js';
+
+    let sceneInfo;
+    let useCache = false;
+
+    // let composer;
+    //
+    // function compositeRender() {
+    //     composer.render();
+    // }
+    //
+    // function initPostProcPass() {
+    //     composer = getComposer(sceneInfo);
+    // }
+
+    function initScene() {
+        let options = getSceneOptions();
+        options.light.addBloom = true;
+        options.cameraType = options.types.camera.PERSPECTIVE;
+        options.controls.enabled = true;
+        options.lightColor = 0xffffff;
+        options.backgroundColor = 0x000000;
+        sceneInfo = buildDefaultScene(options);
+        sceneInfo.animation.doLoop = true;
+        // sceneInfo.scale(gui.get('Scale'));
+        drawAxis(sceneInfo.scene, 50);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (sceneInfo.animation.doLoop) {
+            sceneInfo.objects.forEach((item) => {
+                item.mesh.rotateY(0.003);
+            });
+            if (!sceneInfo.animation.busy && sceneInfo.animation.nth++ % 1000 === 0) {
+                sceneInfo.animation.nth = 1;
+            }
+        }
+        sceneInfo.render();
+        // group.rotation.y += 0.001;
+    }
+
+    function defaultMaterial() {
+        return getPhongLight(rainbow[30], rainbow[45], 0.5);
+    }
+
+    function addDodecaHedron(radius, colorN, opacity) {
+        const dodecahedron = getDodecahedron(radius, getPhongMaterial(rainbow, colorN, opacity));
+        sceneInfo.addDoubleGeoToGroup(dodecahedron);
+        return dodecahedron;
+    }
+
+    function makeBox(radius, mat) {
+        const material = mat || defaultMaterial();
+        const box = getBox(radius, material);
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function addBox(radius, colorN, opacity) {
+        const box = getBox(radius, getPhongMaterial(rainbow, colorN, opacity));
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function addNgon(radius, ngon, height, colorN, opacity, rotation = { x: 0, y: 0, z: 0 }) {
+        const box = getCylinder(radius, radius, ngon, 1, height, getPhongMaterial(rainbow, colorN, opacity), false, rotation);
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function addCylinder(radius, colorN, opacity, rotation = { x: 0, y: 0, z: 0 }) {
+        const box = getCylinder(radius * 0.9, radius, 4, 1, 1, getPhongMaterial(rainbow, colorN, opacity), false, rotation);
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function addSphere(size, colorN, opacity) {
+        const sphere = getSphere(size, getPhongMaterial(rainbow, colorN, opacity), 16, 16);
+        sceneInfo.addDoubleGeoToGroup(sphere);
+        return sphere;
+    }
+
+    function addInteractiveObj(obj) {
+        const onClick = (ev) => {
+            console.log('clicked : ', ev);
+        };
+        // const cyl = addBox(5, colorN, 0.2);
+        obj.meshFront.cursor = 'pointer';
+        obj.meshFront.on('click', onClick);
+    }
+
+    function makeScene() {
+        const interaction = new Interaction(sceneInfo.renderer, sceneInfo.scene, sceneInfo.camera);
+        // addNgon(radius, ngon, height, colorN, opacity, rotation = { x: 0, y: 0, z: 0 });
+        addNgon(5, 8, 1, 20, 0.5);
+        // const box = addBox(5, 30, 0.2);
+        const box = makeBox(5);
+        addInteractiveObj(box);
+        sceneInfo.render();
+    }
+
+    function reset() {
+        sceneInfo.clear();
+        makeScene();
+    }
+
+    function update() {
+        // sceneInfo.scale(gui.get('Scale'));
+        sceneInfo.objects[0].mesh.rotation.x = gui.get('X') * Math.PI / 180;
+        sceneInfo.objects[0].mesh.rotation.y = gui.get('Y') * Math.PI / 180;
+        sceneInfo.objects[0].mesh.rotation.z = gui.get('Z') * Math.PI / 180;
+
+        sceneInfo.objects[0].mesh.position.x = gui.get('MoveX');
+        sceneInfo.objects[0].mesh.position.y = gui.get('MoveY');
+        sceneInfo.objects[0].mesh.position.z = gui.get('MoveZ');
+        sceneInfo.render();
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        init : [
+            { ctrl: 'ctrlScale', param: 'Scale', min: 0, max: 100, interval: 0.5, default: 1, onChange: update, onFinishChange: () => {} },
+            { ctrl: 'ctrlX', param: 'X', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+            { ctrl: 'ctrlY', param: 'Y', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+            { ctrl: 'ctrlZ', param: 'Z', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+
+            { ctrl: 'ctrlMoveX', param: 'MoveX', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+            { ctrl: 'ctrlMoveY', param: 'MoveY', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+            { ctrl: 'ctrlMoveZ', param: 'MoveZ', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+        ],
+        get: function(key) {
+            return this.controllers[`ctrl${key}`].getValue();
+        },
+    };
+
+    popGui(gui);
+    initScene();
+    makeScene();
+    animate();
+
+</script>
+
+</body>
+</html>
