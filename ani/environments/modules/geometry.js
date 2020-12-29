@@ -4,12 +4,19 @@ import { Mesh, FrontSide, BackSide, DodecahedronGeometry, CylinderBufferGeometry
 import { getOutlineMaterial} from "./materials.js";
 
 function __makeDoubleSided(obj) {
-    obj.meshBack = new Mesh(obj.geo, obj.mat );
-    obj.meshBack.material.side = BackSide; // back faces
+    let mats = [];
+    if (!Array.isArray(obj.mat)) {
+        mats = [obj.mat, obj.mat.clone()];
+    } else {
+        mats = obj.mat;
+    }
+
+    mats[0].side = BackSide; // back faces
+    obj.meshBack = new Mesh(obj.geo, mats[0] );
     obj.meshBack.renderOrder = 0;
 
-    obj.meshFront = new Mesh(obj.geo, obj.mat.clone() );
-    obj.meshFront.material.side = FrontSide; // front faces
+    mats[1].side = FrontSide; // front faces
+    obj.meshFront = new Mesh(obj.geo, mats[1] );
     obj.meshFront.renderOrder = 1;
 }
 

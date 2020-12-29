@@ -6,7 +6,7 @@ import { getMaterial}  from './materials.js';
 import { EffectComposer } from '../lib/three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from '../lib/three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from '../lib/three/examples/jsm/postprocessing/UnrealBloomPass.js';
-
+import { RGBELoader } from '../lib/three/examples/jsm/loaders/RGBELoader.js';
 function resize(sceneInfo, x, y) {
     sceneInfo.renderer.setSize(x, y);
     if (sceneInfo.composer) {
@@ -369,8 +369,60 @@ function getComposer(sceneInfo) {
     return composer;
 }
 
+const threeFacade = {
+    FrontSide: THREE.FrontSide,
+    BackSide: THREE.BackSide
+};
+
+function addLights(sceneInfo, gemBackMaterial, gemFrontMaterial) {
+    let hdrCubeRenderTarget;
+    new RGBELoader()
+        .setDataType( THREE.UnsignedByteType )
+        .setPath( 'textures/equirectangular/' )
+        //studio001small.hdr
+        //satara_night_no_lamps_1k.hdr
+        .load( 'georgentor_1k.hdr', function ( hdrEquirect ) {
+
+            hdrCubeRenderTarget = pmremGenerator.fromEquirectangular( hdrEquirect );
+            pmremGenerator.dispose();
+
+            gemFrontMaterial.envMap = gemBackMaterial.envMap = hdrCubeRenderTarget.texture;
+            gemFrontMaterial.needsUpdate = gemBackMaterial.needsUpdate = true;
+
+            hdrEquirect.dispose();
+
+        } );
+
+    const pmremGenerator = new THREE.PMREMGenerator( sceneInfo.renderer );
+    pmremGenerator.compileEquirectangularShader();
+
+
+    sceneInfo.scene.add( new THREE.AmbientLight( 0x222222 ) );
+/*
+    const pointLight1 = new THREE.PointLight( 0xffffff );
+    pointLight1.position.set( 150, 10, 0 );
+    pointLight1.castShadow = false;
+    sceneInfo.scene.add( pointLight1 );
+
+    const pointLight2 = new THREE.PointLight( 0xffffff );
+    pointLight2.position.set( - 150, 0, 0 );
+    sceneInfo.scene.add( pointLight2 );
+
+    const pointLight3 = new THREE.PointLight( 0xffffff );
+    pointLight3.position.set( 0, - 10, - 150 );
+    sceneInfo.scene.add( pointLight3 );
+
+    const pointLight4 = new THREE.PointLight( 0xffffff );
+    pointLight4.position.set( 0, 0, 150 );
+    sceneInfo.scene.add( pointLight4 );
+*/
+    sceneInfo.renderer.shadowMap.enabled = true;
+
+    sceneInfo.renderer.outputEncoding = THREE.sRGBEncoding;
+}
+
 export {
     drawAxis, getCirclePoints, makeCircle, makeCurve,
     buildScene, resize, newVec, getPerspectiveCamera, getOrthoCamera, makeSimpleCurve,
-    makeDotTrail, buildDefaultScene, getSceneOptions, getEuler, getComposer
+    makeDotTrail, buildDefaultScene, getSceneOptions, getEuler, getComposer, threeFacade, addLights
 }

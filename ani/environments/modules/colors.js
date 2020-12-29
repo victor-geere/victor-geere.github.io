@@ -96,8 +96,15 @@ const rainbow = [
     '#94c0d4', '#9cc4cc', '#a4c4c4', '#acc4bc'
 ];
 
+const cartoon = {
+    rl: '#e21f05', rd: '#891f05',
+    yl: '#dd9f00', yd: '#b36b0f',
+    bl: '#86e6ff', bm: '#009fdd', bd: '#0f6bb3',
+    gl: '#a8d59e', gm: '#88F08C', gd: '#6eb440',
+};
+
 const primary = [
     '#ff0000', '#00ff00', '#0000ff'
 ];
 
-export { colorsA, colorsB, colorsGrey, rainbow, primary }
+export { colorsA, colorsB, colorsGrey, rainbow, primary, cartoon }

@@ -1,4 +1,4 @@
-import { rainbow } from "./colors.js";
+import { cartoon, rainbow } from './colors.js';
 import * as THREE from "../lib/three/build/three.module.js";
 
 let materialCache = {};
@@ -29,14 +29,46 @@ function getMaterial(palette, colorN, opacity = 0) {
     })
 }
 
-function getPhongLight(colorHex, emissiveColorHex, intensity) {
+function getCartoonMaterial(colName) {
+    console.log(`cartoon[${colName}] : `, cartoon[colName]);
+    return new THREE.MeshLambertMaterial({
+        color: cartoon[colName],
+        opacity: 1,
+        transparent: true
+    })
+}
+
+function getStandardMaterial(options) {
+    return new THREE.MeshStandardMaterial(options)
+}
+
+function getPhongLight(colorHex, emissiveColorHex, intensity, opacity = 0.1) {
     return new THREE.MeshPhongMaterial({
         color: colorHex,
-        opacity: 0.2,
+        opacity,
         transparent: true,
         emissive: emissiveColorHex,
         emissiveIntensity: intensity
     })
+}
+
+function getGlassOptions() {
+    const m = {
+        map: null,
+        color: 0x0000ff,
+        metalness: 0,
+        roughness: 0,
+        opacity: 0.25,
+        side: THREE.FrontSide,
+        transparent: true,
+        envMapIntensity: 10,
+        premultipliedAlpha: true
+    };
+    return m;
+}
+
+function getGlassMaterial(options) {
+    return new THREE.MeshPhysicalMaterial(options);
 }
 
 function getPhongMaterial(palette, colorN, opacity = 0) {
@@ -105,4 +137,5 @@ function getPointsMaterial(colorN, size=0.125) {
 }
 
 export { getPointsMaterial, getMaterial, getLineMaterial, getCustomMaterial, getMaterialOptions,
-    getPhongMaterial, getOutlineMaterial, getPhongLight }
+    getPhongMaterial, getLambertMaterial, getOutlineMaterial, getPhongLight, getCartoonMaterial,
+    getStandardMaterial, getGlassMaterial, getGlassOptions }

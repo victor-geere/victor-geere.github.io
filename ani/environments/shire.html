@@ -1,24 +1,32 @@
 <!doctype html>
 <html>
 <head>
-    <title>Ani</title>
-    <link rel="stylesheet" type="text/css" href="main.css">
-    <script src="lib/math.min.js"></script>
+  <title>Ani</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="lib/math.min.js"></script>
 </head>
 <body>
 <div id="floatingText"></div>
 
 <script type="module">
-    import { popGui } from "./modules/gui.js";
-    import { getMaterial, getPhongMaterial, getPhongLight } from "./modules/materials.js";
-    import { getDodecahedron, getBox, getSphere, getCylinder } from "./modules/geometry.js";
-    import {colorsGrey, rainbow} from './modules/colors.js';
+    import { popGui } from './modules/gui.js';
+    import {
+        getMaterial,
+        getPhongMaterial,
+        getPhongLight,
+        getLambertMaterial,
+        getCartoonMaterial, getStandardMaterial, getGlassOptions, getGlassMaterial
+    } from './modules/materials.js';
+    import { getDodecahedron, getBox, getSphere, getCylinder } from './modules/geometry.js';
+    import { cartoon, colorsGrey, rainbow } from './modules/colors.js';
     import {
         drawAxis,
         getSceneOptions,
         buildDefaultScene,
         getComposer,
-        getEuler
+        getEuler,
+        resize, threeFacade,
+        addLights
     } from './modules/threetools.js';
     import { Interaction } from './lib/three.interaction/three.interaction.module.js';
 
@@ -37,15 +45,19 @@
 
     function initScene() {
         let options = getSceneOptions();
-        options.light.addBloom = true;
+        options.light.addBloom = false;
         options.cameraType = options.types.camera.PERSPECTIVE;
         options.controls.enabled = true;
         options.lightColor = 0xffffff;
-        options.backgroundColor = 0x000000;
+        options.backgroundColor = 0x555555;
         sceneInfo = buildDefaultScene(options);
-        sceneInfo.animation.doLoop = true;
+        sceneInfo.camera.position.y = 30;
+        sceneInfo.camera.position.z = 60;
+        sceneInfo.camera.rotation.x = -30 * Math.PI / 180;
+        sceneInfo.animation.doLoop = false;
+        sceneInfo.camera.lookAt( sceneInfo.scene.position );
         // sceneInfo.scale(gui.get('Scale'));
-        drawAxis(sceneInfo.scene, 50);
+        // drawAxis(sceneInfo.scene, 50);
     }
 
     function animate() {
@@ -58,6 +70,7 @@
                 sceneInfo.animation.nth = 1;
             }
         }
+        resize(sceneInfo, window.innerWidth, innerHeight);
         sceneInfo.render();
         // group.rotation.y += 0.001;
     }
@@ -85,13 +98,13 @@
         return box;
     }
 
-    function addNgon(radius, ngon, height, colorN, opacity, rotation = { x: 0, y: 0, z: 0 }) {
+    function addNgon(radius, ngon, height, colorN, opacity, rotation = {x: 0, y: 0, z: 0}) {
         const box = getCylinder(radius, radius, ngon, 1, height, getPhongMaterial(rainbow, colorN, opacity), false, rotation);
         sceneInfo.addDoubleGeoToGroup(box);
         return box;
     }
 
-    function addCylinder(radius, colorN, opacity, rotation = { x: 0, y: 0, z: 0 }) {
+    function addCylinder(radius, colorN, opacity, rotation = {x: 0, y: 0, z: 0}) {
         const box = getCylinder(radius * 0.9, radius, 4, 1, 1, getPhongMaterial(rainbow, colorN, opacity), false, rotation);
         sceneInfo.addDoubleGeoToGroup(box);
         return box;
@@ -112,13 +125,98 @@
         obj.meshFront.on('click', onClick);
     }
 
+    function getOffset(radius, n, maxN) {
+        return radius * n - (radius * maxN) / (maxN / ((maxN - 1) / 2));
+    }
+
+    function makeOctagon(radius, mat, x, z) {
+        let material;
+        if ((x + z) % 2 === 1) {
+            material = mat[0]
+        } else {
+            material = mat[1]
+        }
+        material.flatShading = true;
+        const box = getCylinder(radius * 0.9, radius, 8, 1, 1, material, false, {x: 0, y: 22.5, z: 0});
+        sceneInfo.addDoubleGeoToGroup(box);
+        return box;
+    }
+
+    function glassFront() {
+        const options = {
+            map: null,
+            color: 0x226666,
+            metalness: 1,
+            roughness: 0.125,
+            opacity: 0.5,
+            side: threeFacade.FrontSide,
+            transparent: true,
+            envMapIntensity: 5,
+            premultipliedAlpha: true,
+            reflectivity: 0.1
+        };
+        return getGlassMaterial(options);
+    }
+
+    function glassBack() {
+        const options = {
+            map: null,
+            color: 0x226666,
+            metalness: 1,
+            roughness: 0.125,
+            opacity: 0.5,
+            side: threeFacade.BackSide,
+            transparent: true,
+            envMapIntensity: 5,
+            premultipliedAlpha: true,
+            reflectivity: 0.1
+            // TODO: Add custom blend mode that modulates background color by this materials color.
+        };
+        return getGlassMaterial(options);
+    }
+
+    function makeFloor() {
+        const radius = 30;
+        const matBack = glassBack();
+        const matFront = glassFront();
+        const box = getCylinder(radius * 0.9, radius, 8, 1, 1, [matBack, matFront], false, {x: 0, y: 22.5, z: 0});
+        sceneInfo.addDoubleGeoToGroup(box);
+        sceneInfo.renderer.toneMappingExposure = 2;
+        addLights(sceneInfo, matBack, matFront);
+        box.mesh.position.y = -1.5;
+        return box;
+    }
+
+    function makeOctagons() {
+        const nx = 3;
+        const nz = 3;
+        const radius = 10;
+
+        const mats = [
+            getPhongLight(0x113333, 0x113333, 1, 1),
+            getStandardMaterial({
+                color: 0x808080,
+                emissive: 0x333333,
+                intensity: 0.1
+            })
+        ];
+
+        makeFloor();
+
+        for (let x = 0; x < nx; x++) {
+            for (let z = 0; z < nz; z++) {
+                const ngon = makeOctagon(5, mats, x , z);
+                // ngon.mesh.rotation.y = y * 45 * Math.PI / 180;
+                ngon.mesh.position.z = getOffset(radius, z, nz);
+                ngon.mesh.position.x = getOffset(radius, x, nx);
+                addInteractiveObj(ngon);
+            }
+        }
+    }
+
     function makeScene() {
         const interaction = new Interaction(sceneInfo.renderer, sceneInfo.scene, sceneInfo.camera);
-        // addNgon(radius, ngon, height, colorN, opacity, rotation = { x: 0, y: 0, z: 0 });
-        addNgon(5, 8, 1, 20, 0.5);
-        // const box = addBox(5, 30, 0.2);
-        const box = makeBox(5);
-        addInteractiveObj(box);
+        makeOctagons();
         sceneInfo.render();
     }
 
@@ -141,17 +239,87 @@
 
     const gui = {
         options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
-        init : [
-            { ctrl: 'ctrlScale', param: 'Scale', min: 0, max: 100, interval: 0.5, default: 1, onChange: update, onFinishChange: () => {} },
-            { ctrl: 'ctrlX', param: 'X', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
-            { ctrl: 'ctrlY', param: 'Y', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
-            { ctrl: 'ctrlZ', param: 'Z', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+        init: [
+            {
+                ctrl: 'ctrlScale',
+                param: 'Scale',
+                min: 0,
+                max: 100,
+                interval: 0.5,
+                default: 1,
+                onChange: update,
+                onFinishChange: () => {
+                }
+            },
+            {
+                ctrl: 'ctrlX',
+                param: 'X',
+                min: 0,
+                max: 360,
+                interval: 1,
+                default: 0,
+                onChange: update,
+                onFinishChange: () => {
+                }
+            },
+            {
+                ctrl: 'ctrlY',
+                param: 'Y',
+                min: 0,
+                max: 360,
+                interval: 1,
+                default: 0,
+                onChange: update,
+                onFinishChange: () => {
+                }
+            },
+            {
+                ctrl: 'ctrlZ',
+                param: 'Z',
+                min: 0,
+                max: 360,
+                interval: 1,
+                default: 0,
+                onChange: update,
+                onFinishChange: () => {
+                }
+            },
 
-            { ctrl: 'ctrlMoveX', param: 'MoveX', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
-            { ctrl: 'ctrlMoveY', param: 'MoveY', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
-            { ctrl: 'ctrlMoveZ', param: 'MoveZ', min: 0, max: 360, interval: 1, default: 0, onChange: update, onFinishChange: () => {} },
+            {
+                ctrl: 'ctrlMoveX',
+                param: 'MoveX',
+                min: 0,
+                max: 360,
+                interval: 1,
+                default: 0,
+                onChange: update,
+                onFinishChange: () => {
+                }
+            },
+            {
+                ctrl: 'ctrlMoveY',
+                param: 'MoveY',
+                min: 0,
+                max: 360,
+                interval: 1,
+                default: 0,
+                onChange: update,
+                onFinishChange: () => {
+                }
+            },
+            {
+                ctrl: 'ctrlMoveZ',
+                param: 'MoveZ',
+                min: 0,
+                max: 360,
+                interval: 1,
+                default: 0,
+                onChange: update,
+                onFinishChange: () => {
+                }
+            },
         ],
-        get: function(key) {
+        get: function (key) {
             return this.controllers[`ctrl${key}`].getValue();
         },
     };
