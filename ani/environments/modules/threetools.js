@@ -259,7 +259,7 @@ function buildScene(parentHtmlElement, x, y, scale, backgroundColor, lightColor,
     let info = newSceneInfo();
     info.renderer = new THREE.WebGLRenderer({
         antialias: true,
-        alpha: true
+        alpha: false
     });
     parentHtmlElement.appendChild(info.renderer.domElement);
 
