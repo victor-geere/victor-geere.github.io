@@ -49,7 +49,7 @@ const graph = {
         const plot = [];
         const mid = (points[0].x + points[1].x) / 2;
         points.forEach((point) => {
-            plot.push(newVec(point.x - mid, (point.y - this.scale.vMid) / 2000, 0));
+            plot.push(newVec(point.x - mid, (point.y - this.scale.vMid) / 2000, -1));
         });
         return plot;
     },
@@ -65,22 +65,19 @@ const graph = {
         const curve = makeSimpleCurve(plot, getMaterial(colorsGrey, 1));
         this.guides.push(curve);
     },
-    addGuides: function() {
+    addGuides: function(baseline) {
+        const interval = baseline * 0.05;
+        const y = [baseline - interval, baseline, baseline + interval];
         this.guides = [];
-        this.addGuide(160000);
-        this.addGuide(80000);
-        this.addGuide(40000);
-        this.addGuide(20000);
-        this.addGuide(10000);
-        this.addGuide(0);
+        this.addGuide(y[0]);
+        this.addGuide(y[1]);
+        this.addGuide(y[2]);
         return this.guides;
     },
-    updateGuides: function () {
-        const y = [0, 10000, 20000, 40000, 80000, 160000];
+    updateGuides: function (baseline) {
+        const interval = baseline * 0.05;
+        const y = [baseline - interval, baseline, baseline + interval];
         const guidelines = [
-            [{ x: -2000, y: y[5] }, { x: 2000, y: y[5] }],
-            [{ x: -2000, y: y[4] }, { x: 2000, y: y[4] }],
-            [{ x: -2000, y: y[3] }, { x: 2000, y: y[3] }],
             [{ x: -2000, y: y[2] }, { x: 2000, y: y[2] }],
             [{ x: -2000, y: y[1] }, { x: 2000, y: y[1] }],
             [{ x: -2000, y: y[0] }, { x: 2000, y: y[0] }]

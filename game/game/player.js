@@ -1,10 +1,12 @@
 function getPlayer(strategy) {
+    const startingBalance = 500000;
     const player = {
-        balance: 10000,
+        balance: startingBalance,
         strategy: strategy,
         bet: 0,
         stats: {
             n: 0,
+            maxDeviation: 0,
             rate: 0,
             losingStreak: 0,
             winningStreak: 0,
@@ -13,7 +15,7 @@ function getPlayer(strategy) {
             maxDip: 0,
             maxDipPerc: 0,
             balance: 0,
-            startingBalance: 10000,
+            startingBalance: startingBalance,
             maxStreak: 0,
             maxStreakAt: 0,
             targetAttempts: 0,
@@ -21,7 +23,12 @@ function getPlayer(strategy) {
             boomed: 0,
             busted: 0,
             won: false,                      // the last outcome of the game was successful
-            lastBet: 0
+            lastBet: 100,
+            wins: 0,
+            losses: 0,
+            maxDrift: 0,
+            startingBet: 100,
+            betFactor: 1
         },
         target: 0
     };
@@ -30,6 +37,7 @@ function getPlayer(strategy) {
     };
     player.updateStats = function(win) {
         this.stats.n++;
+        this.stats.maxDeviation = math.round(math.sqrt(this.stats.n) * 1000) / 1000;
         this.stats.won = win;
         const rounding = 1000;
         this.stats.rate = Math.round(((this.balance - this.stats.startingBalance) * 100 * rounding / this.stats.startingBalance) / this.stats.n) / rounding;

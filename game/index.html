@@ -27,6 +27,7 @@
             text-align: left;
         }
     </style>
+    <script src="lib/math.min.js"></script>
     <script type="module">
         import { popGui } from "./modules/gui.js";
         import {
@@ -61,6 +62,9 @@
     Balance : ${Math.round(stats.balance)} <br>
     Max     : ${Math.round(stats.maxBalance)} <br>
     Min     : ${Math.round(stats.minBalance)} <br>
+    Max Deviation : ${stats.maxDeviation} <br>
+    Max Drift    : ${stats.maxDrift} <br>
+    Drift : ${math.round(1000 * stats.wins / stats.losses)/1000} <br>
     MaxStreak : ${stats.maxStreak} <br>
     MaxStreakAt : ${stats.maxStreakAt} <br>
     Max Draw Down : ${stats.maxDip} <br>
@@ -83,11 +87,11 @@
         }
 
         function makeScene() {
-            const guides = graph.addGuides();
+            start(gui.get('Risk'));
+            const guides = graph.addGuides(game.getStats().startingBalance);
             guides.forEach((guide) => {
                 sceneInfo.addObject(guide);
             });
-            start(gui.get('Risk'));
             sceneInfo.scale(0.3);
             sceneInfo.render();
         }
@@ -98,15 +102,15 @@
             if (!locked) {
                 locked = true;
                 if (game.totalBalance() > 30000) {
-                    return restartGame();
+                    // return restartGame();
                 }
                 if (played++ < 100000) {
                     setText();
                     requestAnimationFrame(animate);
                     game.setOptions({ risk: gui.get('Risk') });
                     game.play();
+                    graph.updateGuides(game.getStats().startingBalance);
                     game.plot.updatePoints(graph.makePoints(game.points));
-                    graph.updateGuides();
                     sceneInfo.render();
                 } else {
                     game.score();

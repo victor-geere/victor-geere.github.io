@@ -2,7 +2,7 @@ import { getPlayer } from "./player.js";
 
 function makeGame(strategy) {
     const game = {
-        strategy: null,
+        strategy,
         maxBalance: 0,
         minBalance: 0,
         n: 0,
@@ -10,7 +10,7 @@ function makeGame(strategy) {
         risk: 0,
         plot: [],
         width: 600,
-        points: [{ x: 0, y:0 }, { x: 1, y:1 }],
+        points: [{ x: 0, y: strategy.startingBalance * 0.9 }, { x: 1, y:strategy.startingBalance }],
         players: []
     };
     game.totalBalance = function () {

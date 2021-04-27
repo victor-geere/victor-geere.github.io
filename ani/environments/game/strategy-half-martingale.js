@@ -29,24 +29,19 @@ const strategy = {
         return (Math.round(Math.random() * 10) % 2 === 1);
     },
     turn: function(player) {
-        const balance = player.getBalance();
-        const stats = player.getStats();
-        const minBet = 1;
-        const maxBet = balance;
-        let bet = stats.lastBet;
-
-        if (stats.won) {
-            bet = bet -1;
-        } else {
-            bet = bet + 1;
+        const relativeAmount = player.getBalance();
+        if (player.getTarget() === 0) {
+            this.setTarget(player);
         }
-
+        const offTarget = player.getTarget() - relativeAmount;
+        const minBet = Math.round(relativeAmount * 0.0005);
+        let bet = Math.ceil(offTarget / 2);
+        if (player.getStats().targetAttempts > 5) {
+            bet = Math.ceil(offTarget);
+        }
         if (bet < minBet) {
             bet = minBet;
-        } else if (bet > maxBet) {
-            bet = maxBet;
         }
-
         player.placeBet(bet);
         const guess = this.guess();
         return {

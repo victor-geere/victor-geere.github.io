@@ -29,19 +29,41 @@ const strategy = {
         return (Math.round(Math.random() * 10) % 2 === 1);
     },
     turn: function(player) {
-        const relativeAmount = player.getBalance();
-        if (player.getTarget() === 0) {
-            this.setTarget(player);
+        const balance = player.getBalance();
+        const stats = player.getStats();
+        const minBet = 1;
+        const maxBet = balance;
+        let bet = stats.lastBet;
+
+        let factor = stats.betFactor;
+        factor = Math.round(factor * 1000) / 1000;
+
+        if (stats.won) {
+            // bet = bet - factor;
+            bet = bet - (bet * 0.025);
+            if (balance > stats.startingBalance + 200) {
+                stats.startingBet = balance / 600;
+                bet = stats.startingBet;
+                stats.startingBalance = balance;
+            }
+        } else {
+            // bet = bet + factor;
+            bet = bet + (bet * 0.025);
+            /*
+            if (balance < stats.startingBalance - 10000) {
+                bet = stats.startingBet;
+                stats.startingBalance = balance;
+                stats.betFactor = Math.ceil(balance / (150 * 300));
+            }
+             */
         }
-        const offTarget = player.getTarget() - relativeAmount;
-        const minBet = Math.round(relativeAmount * 0.0005);
-        let bet = Math.ceil(offTarget / 2);
-        if (player.getStats().targetAttempts > 5) {
-            bet = Math.ceil(offTarget);
-        }
+
         if (bet < minBet) {
             bet = minBet;
+        } else if (bet > maxBet) {
+            bet = maxBet;
         }
+
         player.placeBet(bet);
         const guess = this.guess();
         return {
@@ -50,18 +72,22 @@ const strategy = {
         }
     },
     win: function(player) {
-        const relativeAmount = player.getBalance();
         this.doLog('win', player);
-        player.addBalance(player.getBet() * 2);
-        if (player.getTarget() < relativeAmount) {
-            this.setTarget(player);
+        player.getStats().wins++;
+        if (player.getStats().maxDrift < Math.abs(player.getStats().wins - player.getStats().losses)) {
+            player.getStats().maxDrift = Math.abs(player.getStats().wins - player.getStats().losses);
         }
+        player.addBalance(player.getBet() * 2);
         player.clearBet();
     },
     lose: function(player) {
         this.doLog('lose', player);
-        if (player.getBalance() < player.getStats().startingBalance * 0.3) {
-            player.setBalance(player.getStats().startingBalance * 1.1);
+        player.getStats().losses++;
+        if (player.getStats().maxDrift < Math.abs(player.getStats().wins - player.getStats().losses)) {
+            player.getStats().maxDrift = Math.abs(player.getStats().wins - player.getStats().losses);
+        }
+        if (player.getBalance() <= 0) {
+            player.setBalance(player.getStats().startingBalance);
             player.stats.busted++;
         }
         player.clearBet();
