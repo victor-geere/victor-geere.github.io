@@ -10,7 +10,6 @@ export class Output extends React.Component {
     avgLen = 20;
     interval: any = null;
 
-    outputBuffer: Array<string> = [];
     buffer: Array<number> = [];
 
     deltasWeighted: { delta1: Array<number>, delta2: Array<number> } = {
@@ -25,7 +24,10 @@ export class Output extends React.Component {
         trades: 0,
         feePerc: 0.05,
         c1: 1,
-        c2: 2
+        c2: 2,
+        c1Balance: 5000,
+        c2Balance: 0,
+        ratio: 0
     };
 
     trader: Trader = new Trader();
@@ -44,9 +46,8 @@ export class Output extends React.Component {
         const c1 = deltas.avg1;
         const c2 = deltas.avg2;
         const ratio = this.getRatio(c1, c2);
-        this.outputBuffer.push(`${ratio}`);
         this.buffer.push(ratio);
-        this.setState({c1, c2});
+        this.setState({c1, c2, ratio});
         this.doTrade();
         this.drawGraph();
 
@@ -108,29 +109,10 @@ export class Output extends React.Component {
     }
 
     doTrade() {
-        const price = this.getRatio(this.state.c1, this.state.c2);
-        const trade = this.trader.makeTrade(this.book, price);
+        const trade = this.trader.makeTrade(this.book, this.state);
         if (trade) {
             this.book.positions.push(trade);
         }
-    }
-
-    calculate() {
-        this.prime();
-        let n = 0;
-        let deltas = {avg1: 0, avg2: 0};
-        let c1 = 0, c2 = 0;
-        while (n++ < 200) {
-            deltas = this.getRandom();
-            c1 = deltas.avg1;
-            c2 = deltas.avg2;
-            const ratio = this.getRatio(c1, c2);
-            this.outputBuffer.push(`${ratio}`);
-            this.buffer.push(ratio);
-            console.log(`c1 : ${c1}, c2 : ${c2}, ratio : ${ratio}`);
-        }
-        this.setState({c1, c2});
-        this.doTrade();
     }
 
     drawGraph() {
@@ -140,6 +122,27 @@ export class Output extends React.Component {
 
             ctx.fillStyle = 'rgb(200, 200, 200)';
             ctx.fillRect(0, 0, 800, 600);
+
+            ctx.beginPath();
+            ctx.moveTo(0, 300);
+            let maxPoint = 0;
+            let minPoint = 100000;
+            this.buffer.forEach((price) => {
+                maxPoint = price > maxPoint ? price : maxPoint;
+                minPoint = price < minPoint ? price : minPoint;
+            });
+            let y = 0;
+            let x = 0;
+            let yFactor = 600 / (maxPoint - minPoint);
+            let xFactor = 800 / this.buffer.length;
+
+            this.buffer.forEach((price, ix) => {
+                y = (price - minPoint) * yFactor * 0.9;
+                x = ix * xFactor;
+                console.log(`maxPoint: ${maxPoint} minPoint: ${minPoint} y: ${y} x: ${x} yFactor: ${yFactor} xFactor: ${xFactor}`);
+                ctx.lineTo(x, y);
+            });
+            ctx.stroke();
         }
     }
 
@@ -147,24 +150,13 @@ export class Output extends React.Component {
         console.log(`book.positions`, this.book.positions);
 
         let output = '';
-        let finalPrice = this.buffer[this.buffer.length - 1];
         let profit = 0;
-        let minProfit = 0;
-        let maxProfit = 0;
         this.book.positions.forEach((pos: Position) => {
-            profit += this.trader.getProfit(pos, finalPrice);
-            // minProfit = (profit < minProfit) ? profit : minProfit;
-            // maxProfit = (profit > maxProfit) ? profit : minProfit;
-            output += `amount: ${this.rnd(pos.amount)} \t price: ${this.rnd(pos.price)}...${this.rnd(finalPrice)} \t profit: ${this.rnd(profit)} \t risk: ${this.rnd(pos.risk)}\n`;
+            profit += this.trader.getProfit(pos, this.state.ratio);
+            output += `amount: ${this.rnd(pos.amount)} \t price: ${this.rnd(pos.price)}...${this.rnd(this.state.ratio)} \t profit: ${this.rnd(profit)} \t risk: ${this.rnd(pos.risk)}\n`;
         });
-        output += `\n closing price: ${finalPrice} balance: ${this.state.balance}`;
+        output += `\n closing price: ${this.state.ratio} balance: ${this.state.balance}`;
         return output;
-    }
-
-    check() {
-        let finalPrice = this.buffer[this.buffer.length - 1];
-        console.log(`this.book : ${finalPrice}`, this.book);
-        return Checks.checkProfit() ? 'yes' : 'no';
     }
 
     render() {

@@ -26,8 +26,13 @@ export class Trader {
         
     }
 
-    makeTrade(book: Book, price: number): Position | null {
+    makeTrade(book: Book, state: { c1: number, c2: number, c1Balance: number, c2Balance: number, ratio: number}): Position | null {
         let position = null;
+        const c1Value = state.c1 * state.c1Balance;
+        const c2Value = state.c2 * state.c2Balance;
+
+
+
 /*
         const valuation = this.evaluate(book.positions, price);
         const balance = valuation.unrealised + valuation.invested;
