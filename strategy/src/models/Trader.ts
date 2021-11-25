@@ -26,36 +26,21 @@ export class Trader {
         
     }
 
-    makeTrade(book: Book, state: { c1: number, c2: number, c1Balance: number, c2Balance: number, ratio: number}): Position | null {
-        let position = null;
-        const c1Value = state.c1 * state.c1Balance;
-        const c2Value = state.c2 * state.c2Balance;
-
-
-
-/*
-        const valuation = this.evaluate(book.positions, price);
-        const balance = valuation.unrealised + valuation.invested;
-        const worth = valuation.unrealised + valuation.invested + book.balance;
-        const risk = balance / worth;
-        if (risk < book.targetRisk) {
-            const diffRisk = book.targetRisk - risk;
-            const diffAmount = worth * diffRisk;
-            if (diffAmount > this.options.minTrade) {
-                position = new Position(price, diffAmount, valuation.unrealised, valuation.invested, book.balance, risk);
-                book.useBalance(diffAmount);
-            }
-        } else if (risk > book.targetRisk) {
-            const diffRisk = risk - book.targetRisk;
-            const diffAmount = worth * diffRisk;
-            if (diffAmount > this.options.minTrade) {
-                this.takeProfit(book, diffAmount);
-                // position = new Position(price, -diffAmount, valuation.unrealised, valuation.invested, book.balance, risk);
-                // book.addBalance(diffAmount);
-            }
+    makeTrade(book: Book, state: { c1: number, c2: number, c1Balance: number, c2Balance: number, ratio: number} | any): {aState: any, position?: Position | null} {
+        const aState = { ...state };
+        let position: Position | null;
+        const c1Value = aState.c1 * aState.c1Balance;
+        const c2Value = aState.c2 * aState.c2Balance;
+        const diffValue = (c1Value - c2Value) / 2;
+        if (Math.abs(diffValue) > 100) {
+            const c1DiffVolume =  diffValue / aState.c1;
+            const c2DiffVolume =  diffValue / aState.c2;
+            aState.c1Balance += c1DiffVolume;
+            aState.c2Balance += c2DiffVolume;
+            position = new Position(0, 0, 0, 0, 0, 0);
+        } else {
+            position = null
         }
-
- */
-        return position;
+        return {aState, position};
     }
 }

@@ -58,7 +58,7 @@ export class Output extends React.Component {
         // this.calculate();
         this.prime();
         this.tickMove();
-        setInterval(this.tickMove, 10000);
+        setInterval(this.tickMove, 2000);
     }
 
     componentWillUnmount(): void {
@@ -110,8 +110,9 @@ export class Output extends React.Component {
 
     doTrade() {
         const trade = this.trader.makeTrade(this.book, this.state);
-        if (trade) {
-            this.book.positions.push(trade);
+        this.setState(trade.aState);
+        if (trade.position) {
+            this.book.positions.push(trade.position);
         }
     }
 
