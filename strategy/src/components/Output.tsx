@@ -3,10 +3,12 @@ import {Book} from "../models/Book";
 import {Position} from "../models/Position";
 import {Trader} from "../models/Trader";
 import {Checks} from "../models/Checks";
+const numeral = require('numeral');
 
 export class Output extends React.Component {
 
     avgLen = 20;
+    interval: any = null;
 
     outputBuffer: Array<string> = [];
     buffer: Array<number> = [];
@@ -17,6 +19,7 @@ export class Output extends React.Component {
     };
 
     state = {
+        maxIncrements: 100,
         openingBalance: 1000,
         balance: 1000,
         trades: 0,
@@ -32,11 +35,33 @@ export class Output extends React.Component {
     constructor(props: any) {
         super(props);
         this.getRandom = this.getRandom.bind(this);
-        this.calculate = this.calculate.bind(this);
+        // this.calculate = this.calculate.bind(this);
+        this.tickMove = this.tickMove.bind(this);
+    }
+
+    tickMove() {
+        const deltas = this.getRandom();
+        const c1 = deltas.avg1;
+        const c2 = deltas.avg2;
+        const ratio = this.getRatio(c1, c2);
+        this.outputBuffer.push(`${ratio}`);
+        this.buffer.push(ratio);
+        this.setState({c1, c2});
+        this.doTrade();
+        this.drawGraph();
+
+        console.log(`c1 : ${c1}, c2 : ${c2}, ratio : ${ratio}`);
     }
 
     componentDidMount(): void {
-        this.calculate();
+        // this.calculate();
+        this.prime();
+        this.tickMove();
+        setInterval(this.tickMove, 10000);
+    }
+
+    componentWillUnmount(): void {
+        clearInterval(this.interval);
     }
 
     getAverage(deltaList: Array<number>) {
@@ -74,7 +99,7 @@ export class Output extends React.Component {
     }
 
     rnd(amount: number) {
-        return `${Math.round(1000 * amount) / 1000}          `;
+        return numeral(amount).format(`0,0.0000`);
     }
 
     getRatio(c1: number, c2: number) {
@@ -83,12 +108,11 @@ export class Output extends React.Component {
     }
 
     doTrade() {
-        this.buffer.forEach((price) => {
-            const trade = this.trader.makeTrade(this.book, price);
-            if (trade) {
-                this.book.positions.push(trade);
-            }
-        });
+        const price = this.getRatio(this.state.c1, this.state.c2);
+        const trade = this.trader.makeTrade(this.book, price);
+        if (trade) {
+            this.book.positions.push(trade);
+        }
     }
 
     calculate() {
@@ -103,14 +127,25 @@ export class Output extends React.Component {
             const ratio = this.getRatio(c1, c2);
             this.outputBuffer.push(`${ratio}`);
             this.buffer.push(ratio);
-            console.log({c1, c2, ratio});
+            console.log(`c1 : ${c1}, c2 : ${c2}, ratio : ${ratio}`);
         }
         this.setState({c1, c2});
         this.doTrade();
     }
 
+    drawGraph() {
+        const canvas: HTMLCanvasElement | any = document.getElementById('canvas');
+        if (canvas.getContext) {
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgb(200, 200, 200)';
+            ctx.fillRect(0, 0, 800, 600);
+        }
+    }
+
     printOutput() {
         console.log(`book.positions`, this.book.positions);
+
         let output = '';
         let finalPrice = this.buffer[this.buffer.length - 1];
         let profit = 0;
@@ -122,7 +157,7 @@ export class Output extends React.Component {
             // maxProfit = (profit > maxProfit) ? profit : minProfit;
             output += `amount: ${this.rnd(pos.amount)} \t price: ${this.rnd(pos.price)}...${this.rnd(finalPrice)} \t profit: ${this.rnd(profit)} \t risk: ${this.rnd(pos.risk)}\n`;
         });
-        output += `\n closing price: ${finalPrice}`;
+        output += `\n closing price: ${finalPrice} balance: ${this.state.balance}`;
         return output;
     }
 
@@ -133,7 +168,10 @@ export class Output extends React.Component {
     }
 
     render() {
-        return <pre>{this.printOutput()}</pre>
+        return <>
+            <canvas id="canvas" width="800" height="600"></canvas>
+            <pre className={`tradebook`}>{this.printOutput()}</pre>
+            </>
         // return <pre>{this.check()}</pre>
     }
 }

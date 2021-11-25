@@ -28,6 +28,7 @@ export class Trader {
 
     makeTrade(book: Book, price: number): Position | null {
         let position = null;
+/*
         const valuation = this.evaluate(book.positions, price);
         const balance = valuation.unrealised + valuation.invested;
         const worth = valuation.unrealised + valuation.invested + book.balance;
@@ -48,6 +49,8 @@ export class Trader {
                 // book.addBalance(diffAmount);
             }
         }
+
+ */
         return position;
     }
 }
