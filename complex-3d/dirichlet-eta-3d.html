@@ -2,7 +2,7 @@
 <title>Helix</title>
 <head>
 <!--    https://stackoverflow.com/questions/50992863/creating-a-helix-following-a-curve-->
-    <style href="main.css"></style>
+    <link rel="stylesheet" href="./main.css">
     <script src="lib/math.min.js"></script>
     <script src="lib/dat.gui.min.js"></script>
 </head>
@@ -10,6 +10,7 @@
 <script type="module">
     import * as THREE from './lib/three.module.js';
     import { OrbitControls } from './lib/OrbitControls.js';
+    import { rainbow, colorsGrey } from './colors.js';
 
     const Z = [
         14.134725142,
@@ -65,6 +66,26 @@
         return r * 2;
     }
 
+    function drawAxis(parent, size, material) {
+        let geoPoints = {
+            x: [
+                new THREE.Vector3(-size, 0, 0),
+                new THREE.Vector3( size, 0, 0),
+            ],
+            y: [
+                new THREE.Vector3(0, -size, 0),
+                new THREE.Vector3(0,  size, 0),
+            ],
+            z: [
+                new THREE.Vector3(0, 0, -size),
+                new THREE.Vector3(0, 0,  size),
+            ],
+        };
+        parent.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(geoPoints.x), material));
+        parent.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(geoPoints.y), material));
+        parent.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(geoPoints.z), material));
+    }
+
     function getSmoothPointsSpiral(a, b) {
         let curvePointsObj = { even: [], odd: [], sum:[] };
         var k = 1;
@@ -114,16 +135,18 @@
     document.body.appendChild(renderer.domElement);
 
     const camera = new THREE.PerspectiveCamera(32, aspectRatio(), 1, 1000);
-    camera.position.set(0, 0, 50);
+    camera.position.set(50, 25, 50);
 
     resize();
 
     window.addEventListener("resize", resize);
 
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0x303035 );
 
     // xyz thingy
-    scene.add( new THREE.AxesHelper( 40 ) );
+    drawAxis(scene, 20, getMaterial(2, colorsGrey));
+    // scene.add( new THREE.AxesHelper( 40 ) );
 
     const light = new THREE.DirectionalLight(0xffffff, 1, Infinity);
     light.position.set(0, 0, 0);
@@ -133,7 +156,7 @@
     // controls
     var controls = new OrbitControls( camera, renderer.domElement );
     controls.minDistance = 20;
-    controls.maxDistance = 50;
+    controls.maxDistance = 70;
     controls.maxPolarAngle = Math.PI / 2;
 
     // populate the scene
@@ -166,15 +189,15 @@
         return null;
     }
 
-    function getMaterial(colorN) {
+    function getMaterial(colorN, palette = rainbow) {
         return new THREE.LineBasicMaterial({
-            color: colorsA[colorN]
+            color: palette[colorN]
         })
     }
 
     function makeSpiral(a, b, materials = null) {
         if (!materials) {
-            materials = [getMaterial(0), getMaterial(10), getMaterial(29)];
+            materials = [getMaterial(36), getMaterial(48), getMaterial(4)];
         }
         let curvePoints = getSmoothPointsSpiral(a, b);
         let spiralObjs = { odd: {}, even: {}, sum: {}, convergence: {} };
@@ -184,39 +207,6 @@
         console.log('spiralObjs', spiralObjs);
         return spiralObjs;
     }
-
-    const colorsA = [
-        "#10f080",
-        "#20e080",
-        "#30d080",
-        "#40c080",
-        "#50b080",
-        "#60a080",
-        "#709080",
-        "#808080",
-        "#907080",
-        "#a06080",
-        "#b05080",
-        "#c04080",
-        "#d03080",
-        "#e02080",
-        "#f01080",
-        "#e01070",
-        "#d01060",
-        "#c01050",
-        "#b01040",
-        "#a01030",
-        "#901020",
-        "#801010",
-        "#701020",
-        "#601030",
-        "#501040",
-        "#401050",
-        "#301060",
-        "#201070",
-        "#101080",
-        "#101090",
-    ];
 
     function addSpiralObjsToGroup(spiralObjs) {
         group.add(spiralObjs.even.mesh);
