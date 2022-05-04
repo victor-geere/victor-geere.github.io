@@ -1,10 +1,10 @@
 <!doctype html>
-<html >
+<html>
 <head>
-  <title>Quaternions</title>
-  <link rel="stylesheet" type="text/css" href="main.css">
-  <script src="lib/math.min.js"></script>
-  <script src="lib/dat.gui.min.js"></script>
+    <title>Quaternions</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="lib/math.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
 </head>
 <body>
 <div id="floatingText"></div>
@@ -64,38 +64,44 @@
     function makeSphere() {
         const objTree = [];
 
-        const meshMaterial = new THREE.MeshBasicMaterial( {
+        const meshMaterial = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             opacity: 0.05,
             transparent: true
-        } );
+        });
 
-        const outlineMaterial = new THREE.LineBasicMaterial( {
+        const outlineMaterial = new THREE.LineBasicMaterial({
             color: 0x707080,
             opacity: 0.75,
             transparent: true
-        } );
+        });
 
-        let geometry = new THREE.SphereGeometry( 1, 16, 16 );
+        const outline2Material = new THREE.LineBasicMaterial({
+            color: 0x707080,
+            opacity: 0.75,
+            transparent: true
+        });
+
+        let geometry = new THREE.SphereGeometry(1, 16, 16);
         // let material = new THREE.MeshBasicMaterial( getMaterial(rainbow, 20) );
 
-        const sphereBack = new THREE.Mesh( geometry, meshMaterial );
+        const sphereBack = new THREE.Mesh(geometry, meshMaterial);
         sphereBack.material.side = THREE.BackSide; // back faces
         sphereBack.renderOrder = 0;
         objTree.push(sphereBack);
         sceneInfo.group.add(sphereBack);
 
-        const sphereFront = new THREE.Mesh( geometry, meshMaterial.clone() );
+        const sphereFront = new THREE.Mesh(geometry, meshMaterial.clone());
         sphereFront.material.side = THREE.FrontSide; // front faces
         sphereFront.renderOrder = 1;
         objTree.push(sphereFront);
         sceneInfo.group.add(sphereFront);
 
         // new THREE.LineBasicMaterial( { color: 0xffffff } )
-        const edges = new THREE.EdgesGeometry( geometry );
-        const line = new THREE.LineSegments( edges, outlineMaterial );
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(edges, outlineMaterial);
         objTree.push(line);
-        sceneInfo.group.add( line );
+        sceneInfo.group.add(line);
 
         const x = gui.controllers.ctrlX.getValue();
         const y = gui.controllers.ctrlY.getValue();
@@ -103,24 +109,77 @@
 
         const lineY = gui.controllers.ctrlLatitude.getValue();
         const lineZ = gui.controllers.ctrlLongitude.getValue();
-
         const lineYC = math.sin(lineZ * math.pi / 180);
-
         let lineZC = -math.sin(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
         let lineXC = math.cos(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
-
-        const points = [newVec(0,0,0), newVec(lineXC, lineYC, lineZC)];
-        const guideLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), getMaterial(colorsGrey, 6));
+        const points = [newVec(0, 0, 0), newVec(lineXC, lineYC, lineZC)];
+        const guideLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), getMaterial(rainbow, 16));
         objTree.push(guideLine);
         sceneInfo.group.add(guideLine);
 
-        objTree.forEach((obj) => {
-            obj.rotateX(x * math.pi / 180);
-            obj.rotateY(y * math.pi / 180);
-            obj.rotateZ(z * math.pi / 180);
-        });
+        const line2Y = gui.controllers.ctrlLatitude2.getValue();
+        const line2Z = gui.controllers.ctrlLongitude2.getValue();
+        const line2YC = math.sin(line2Z * math.pi / 180);
+        let line2ZC = -math.sin(line2Y * math.pi / 180) * math.cos(line2Z * math.pi / 180);
+        let line2XC = math.cos(line2Y * math.pi / 180) * math.cos(line2Z * math.pi / 180);
+        const points2 = [newVec(0, 0, 0), newVec(line2XC, line2YC, line2ZC)];
+        const guideLine2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points2), getMaterial(rainbow, 42));
+        objTree.push(guideLine2);
+        sceneInfo.group.add(guideLine2);
+
+        const arc = drawArch({z: lineZ, y: lineY, p: points}, {z: line2Z, y: line2Y, p: points2});
+        // const arc = drawArch(points[1], points2[1]);
+        if (arc.length !== 0) {
+            objTree.push(arc);
+            sceneInfo.group.add(arc);
+        }
+
+        //
+        // objTree.forEach((obj) => {
+        //     obj.rotateX(x * math.pi / 180);
+        //     obj.rotateY(y * math.pi / 180);
+        //     obj.rotateZ(z * math.pi / 180);
+        // });
 
         return objTree;
+    }
+
+    function getPoints(p1, p2) {
+        const yDiff = p1.y;
+        for (let i = 0; i < 64; i++) {
+        }
+
+        return points;
+    }
+
+    function drawArch(p1, p2) {
+        if (p1.z === p2.z) {
+            return [];
+        }
+        let a1 = p1.z;
+        let a2 = p2.z;
+        if (p1.z > p2.z) {
+            a1 = p2.z;
+            a2 = p1.z;
+        }
+
+        // console.log(`${point1.x} ${point1.y} - ${point2.x} ${point2.y}`)
+        const curve = new THREE.EllipseCurve(
+            0, 0,                                       // ax, aY
+            1, 1,                                       // xRadius, yRadius
+            0, (360 - (a1 - a2)) * Math.PI / 180,       // aStartAngle, aEndAngle
+            false,                                      // aClockwise
+            a1 * Math.PI / 180                        // aRotation
+        );
+
+        const points = curve.getPoints( 64 ); //getPoints(p1, p2);
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+        const material = new THREE.LineBasicMaterial({color: 0xffff00});
+
+// Create the final object to add to the scene
+        const ellipse = new THREE.Line(geometry, material);
+        return ellipse;
     }
 
     function drawArches() {
@@ -161,8 +220,11 @@
         gui.controllers.ctrlY = datGui.add(gui.parameters, 'Y', 0, 360, 1).onChange(drawChoice);
         gui.controllers.ctrlZ = datGui.add(gui.parameters, 'Z', 0, 360, 1).onChange(drawChoice);
 
-        gui.controllers.ctrlLatitude = datGui.add(gui.parameters, 'Latitude', 0, 360, 1).onChange(drawChoice);
-        gui.controllers.ctrlLongitude = datGui.add(gui.parameters, 'Longitude', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLatitude = datGui.add(gui.parameters, 'Latitude1', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLongitude = datGui.add(gui.parameters, 'Longitude1', 0, 360, 1).onChange(drawChoice);
+
+        gui.controllers.ctrlLatitude2 = datGui.add(gui.parameters, 'Latitude2', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLongitude2 = datGui.add(gui.parameters, 'Longitude2', 0, 360, 1).onChange(drawChoice);
     }
 
     const gui = {
@@ -172,16 +234,20 @@
             ctrlX: null,
             ctrlY: null,
             ctrlZ: null,
-            ctrlLongitude: null,
-            ctrlLatitude: null,
+            ctrlLongitude1: null,
+            ctrlLatitude1: null,
+            ctrlLongitude2: null,
+            ctrlLatitude2: null,
         },
         parameters: {
             'Scale': 5,
             'X': 0,
             'Y': 0,
             'Z': 0,
-            'Latitude': 0,
-            'Longitude': 0,
+            'Latitude1': 0,
+            'Longitude1': 0,
+            'Latitude2': 0,
+            'Longitude2': 13,
         }
     };
 
