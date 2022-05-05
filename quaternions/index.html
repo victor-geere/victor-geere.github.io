@@ -61,6 +61,80 @@
         return result;
     }
 
+    function drawLine(ctrlLongitude, ctrlLatitude, colourNum) {
+        const latDeg = ctrlLatitude.getValue();
+        const longDeg = ctrlLongitude.getValue();
+        const points = [newVec(0, 0, 0), outerPoint(latDeg, longDeg)];
+        return new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), getMaterial(rainbow, colourNum));
+    }
+
+    function cos(deg) {
+        return math.cos(deg * math.pi / 180);
+    }
+
+    function sin(deg) {
+        return math.sin(deg * math.pi / 180);
+    }
+
+    function outerPoint(latDeg, longDeg) {
+        const lineYC = sin(longDeg);
+        let lineZC = -sin(latDeg) * cos(longDeg);
+        let lineXC = cos(latDeg) * cos(longDeg);
+        return newVec(lineXC, lineYC, lineZC);
+    }
+
+    function drawFlight() {
+        const points = [];
+        let flipLat = false;
+        let flipLong = false;
+
+        const lat1 = gui.controllers.ctrlLatitude.getValue();
+        const lat2 = gui.controllers.ctrlLatitude2.getValue();
+        const long1 = gui.controllers.ctrlLongitude.getValue();
+        const long2 = gui.controllers.ctrlLongitude2.getValue();
+
+        let lessLong = long1 > long2 ? long2 : long1;
+        let bigLong = long1 > long2 ? long1 : long2;
+        let diffLong = (bigLong - lessLong);
+        if (360 - bigLong + lessLong < diffLong) {
+            diffLong = 360 - bigLong + lessLong;
+            // const tmp = lessLong;
+            // lessLong = bigLong;
+            // bigLong = tmp;
+            flipLong = true;
+        }
+        let lessLat = lat1 > lat2 ? lat2 : lat1;
+        let bigLat = lat1 > lat2 ? lat1 : lat2;
+        let diffLat = (bigLat - lessLat);
+        if (360 - bigLat + lessLat < diffLat) {
+            diffLat = 360 - bigLat + lessLat;
+            // const tmp = lessLat;
+            // lessLat = bigLat;
+            // bigLat = tmp;
+            flipLat = true;
+        }
+
+        for (let n = 0; n <= 64; n++) {
+            if (flipLat) {
+                if (flipLong) {
+                    points.push(outerPoint(bigLat + diffLat * n / 64, bigLong + diffLong * n / 64));
+                } else {
+                    points.push(outerPoint(bigLat + diffLat * n / 64, lessLong + diffLong * n / 64));
+                }
+            } else {
+                if (flipLong) {
+                    points.push(outerPoint(lessLat + diffLat * n / 64, bigLong + diffLong * n / 64));
+                } else {
+                    points.push(outerPoint(lessLat + diffLat * n / 64, lessLong + diffLong * n / 64));
+                }
+            }
+        }
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({color: 0xffff00});
+        return new THREE.Line(geometry, material);
+    }
+
     function makeSphere() {
         const objTree = [];
 
@@ -76,28 +150,20 @@
             transparent: true
         });
 
-        const outline2Material = new THREE.LineBasicMaterial({
-            color: 0x707080,
-            opacity: 0.75,
-            transparent: true
-        });
-
         let geometry = new THREE.SphereGeometry(1, 16, 16);
-        // let material = new THREE.MeshBasicMaterial( getMaterial(rainbow, 20) );
 
         const sphereBack = new THREE.Mesh(geometry, meshMaterial);
-        sphereBack.material.side = THREE.BackSide; // back faces
+        sphereBack.material.side = THREE.BackSide;
         sphereBack.renderOrder = 0;
         objTree.push(sphereBack);
         sceneInfo.group.add(sphereBack);
 
         const sphereFront = new THREE.Mesh(geometry, meshMaterial.clone());
-        sphereFront.material.side = THREE.FrontSide; // front faces
+        sphereFront.material.side = THREE.FrontSide;
         sphereFront.renderOrder = 1;
         objTree.push(sphereFront);
         sceneInfo.group.add(sphereFront);
 
-        // new THREE.LineBasicMaterial( { color: 0xffffff } )
         const edges = new THREE.EdgesGeometry(geometry);
         const line = new THREE.LineSegments(edges, outlineMaterial);
         objTree.push(line);
@@ -107,39 +173,23 @@
         const y = gui.controllers.ctrlY.getValue();
         const z = gui.controllers.ctrlZ.getValue();
 
-        const lineY = gui.controllers.ctrlLatitude.getValue();
-        const lineZ = gui.controllers.ctrlLongitude.getValue();
-        const lineYC = math.sin(lineZ * math.pi / 180);
-        let lineZC = -math.sin(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
-        let lineXC = math.cos(lineY * math.pi / 180) * math.cos(lineZ * math.pi / 180);
-        const points = [newVec(0, 0, 0), newVec(lineXC, lineYC, lineZC)];
-        const guideLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), getMaterial(rainbow, 16));
-        objTree.push(guideLine);
-        sceneInfo.group.add(guideLine);
+        let line1 = drawLine(gui.controllers.ctrlLongitude, gui.controllers.ctrlLatitude, 36);
+        objTree.push(line1);
+        sceneInfo.group.add(line1);
 
-        const line2Y = gui.controllers.ctrlLatitude2.getValue();
-        const line2Z = gui.controllers.ctrlLongitude2.getValue();
-        const line2YC = math.sin(line2Z * math.pi / 180);
-        let line2ZC = -math.sin(line2Y * math.pi / 180) * math.cos(line2Z * math.pi / 180);
-        let line2XC = math.cos(line2Y * math.pi / 180) * math.cos(line2Z * math.pi / 180);
-        const points2 = [newVec(0, 0, 0), newVec(line2XC, line2YC, line2ZC)];
-        const guideLine2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points2), getMaterial(rainbow, 42));
-        objTree.push(guideLine2);
-        sceneInfo.group.add(guideLine2);
+        let line2 = drawLine(gui.controllers.ctrlLongitude2, gui.controllers.ctrlLatitude2, 16);
+        objTree.push(line2);
+        sceneInfo.group.add(line2);
 
-        const arc = drawArch({z: lineZ, y: lineY, p: points}, {z: line2Z, y: line2Y, p: points2});
-        // const arc = drawArch(points[1], points2[1]);
-        if (arc.length !== 0) {
-            objTree.push(arc);
-            sceneInfo.group.add(arc);
-        }
+        const flight = drawFlight();
+        objTree.push(flight);
+        sceneInfo.group.add(flight);
 
-        //
-        // objTree.forEach((obj) => {
-        //     obj.rotateX(x * math.pi / 180);
-        //     obj.rotateY(y * math.pi / 180);
-        //     obj.rotateZ(z * math.pi / 180);
-        // });
+        objTree.forEach((obj) => {
+            obj.rotateX(x * math.pi / 180);
+            obj.rotateY(y * math.pi / 180);
+            obj.rotateZ(z * math.pi / 180);
+        });
 
         return objTree;
     }
@@ -163,13 +213,12 @@
             a2 = p1.z;
         }
 
-        // console.log(`${point1.x} ${point1.y} - ${point2.x} ${point2.y}`)
         const curve = new THREE.EllipseCurve(
             0, 0,                                       // ax, aY
             1, 1,                                       // xRadius, yRadius
             0, (360 - (a1 - a2)) * Math.PI / 180,       // aStartAngle, aEndAngle
             false,                                      // aClockwise
-            a1 * Math.PI / 180                        // aRotation
+            a1 * Math.PI / 180                          // aRotation
         );
 
         const points = curve.getPoints( 64 ); //getPoints(p1, p2);
@@ -177,9 +226,7 @@
 
         const material = new THREE.LineBasicMaterial({color: 0xffff00});
 
-// Create the final object to add to the scene
-        const ellipse = new THREE.Line(geometry, material);
-        return ellipse;
+        return new THREE.Line(geometry, material);
     }
 
     function drawArches() {
