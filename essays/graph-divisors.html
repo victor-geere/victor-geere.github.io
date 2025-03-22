@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph of y = 2 - cos(2πkx) - cos(2πk/x)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Graph of y = 2 - cos(2πkx) - cos(2πk/x)</h1>
+<canvas id="graphCanvas" width="800" height="400"></canvas>
+<div id="controls">
+    <label for="kSlider">k:</label>
+    <input type="range" id="kSlider" min="1" max="24" value="12" step="0.1">
+    <span id="kValue">12</span>
+</div>
+
+<script>
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    const kSlider = document.getElementById('kSlider');
+    const kValueDisplay = document.getElementById('kValue');
+
+    // Canvas dimensions
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Graph parameters
+    const xMin = 0.1; // Avoid x = 0 due to division
+    const xMax = 24;
+    const yMin = -1;
+    const yMax = 4;
+
+    // Function to evaluate y(x)
+    function yFunc(x, k) {
+        return 2 - Math.cos(2 * Math.PI * k * x) - Math.cos(2 * Math.PI * k / x);
+    }
+
+    // Find divisors of k where y = 0
+    function getDivisors(k) {
+        const divisors = [];
+        for (let i = 1; i <= k; i++) {
+            if (k % i === 0) {
+                divisors.push(i);
+            }
+        }
+        return divisors.filter(d => d <= xMax); // Only within graph range
+    }
+
+    // Convert coordinates to canvas pixels
+    function toCanvasX(x) {
+        return (x - xMin) * width / (xMax - xMin);
+    }
+
+    function toCanvasY(y) {
+        return height - (y - yMin) * height / (yMax - yMin);
+    }
+
+    // Draw the graph
+    function drawGraph(k) {
+        ctx.clearRect(0, 0, width, height);
+
+        // Draw axes
+        ctx.beginPath();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        const yZero = toCanvasY(0);
+        const xZero = toCanvasX(0);
+        ctx.moveTo(xZero, 0);
+        ctx.lineTo(xZero, height);
+        ctx.moveTo(0, yZero);
+        ctx.lineTo(width, yZero);
+        ctx.stroke();
+
+        // Plot the function
+        ctx.beginPath();
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 2;
+        let first = true;
+        for (let px = 0; px <= width; px += 1) {
+            const x = xMin + (px / width) * (xMax - xMin);
+            const y = yFunc(x, k);
+            const py = toCanvasY(y);
+            if (first) {
+                ctx.moveTo(px, py);
+                first = false;
+            } else {
+                ctx.lineTo(px, py);
+            }
+        }
+        ctx.stroke();
+
+        // Find and display zeros (divisors)
+        const divisors = getDivisors(k);
+        ctx.fillStyle = 'red';
+        ctx.font = '12px Arial';
+        divisors.forEach(d => {
+            const xCanvas = toCanvasX(d);
+            const yCanvas = toCanvasY(0);
+            ctx.beginPath();
+            ctx.arc(xCanvas, yCanvas, 3, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillText(d.toString(), xCanvas + 5, yCanvas - 5);
+        });
+    }
+
+    // Update graph when k changes
+    kSlider.addEventListener('input', () => {
+        const k = (kSlider.value);
+        kValueDisplay.textContent = k;
+        drawGraph(k);
+    });
+
+    // Initial draw
+    drawGraph(parseInt(kSlider.value));
+</script>
+</body>
+</html>
