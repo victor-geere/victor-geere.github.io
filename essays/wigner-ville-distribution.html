@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OU Process, BTCUSD Prices, Hilbert Transform, Wigner-Ville Distribution, and Hurst Exponent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.0.0/math.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #e0e5ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+    .container {
+      width: 1200px;
+      padding: 20px;
+      background: #e0e5ec;
+      border-radius: 20px;
+      box-shadow: 8px 8px 16px #b3b9c5, -8px -8px 16px #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      width: 100%;
+    }
+    .grid-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    canvas {
+      width: 580px;
+      height: 256px;
+      border-radius: 10px;
+      background: #e0e5ec;
+      box-shadow: inset 4px 4px 8px #b3b9c5, inset -4px -4px 8px #ffffff;
+      margin: 10px 0;
+    }
+    .slider-container, .selector-container {
+      margin: 15px 0;
+      width: 80%;
+      padding: 10px;
+      background: #e0e5ec;
+      border-radius: 10px;
+      box-shadow: inset 4px 4px 8px #b3b9c5, inset -4px -4px 8px #ffffff;
+      display: none; /* Hidden by default */
+    }
+    .slider-container.active, .selector-container.active {
+      display: block;
+    }
+    .slider-container label, .selector-container label {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, #a4b0be 0%, #a4b0be 50%, #d1d8e0 50%, #d1d8e0 100%);
+      border-radius: 5px;
+      height: 8px;
+      outline: none;
+      box-shadow: inset 2px 2px 4px #b3b9c5, inset -2px -2px 4px #ffffff;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #e0e5ec;
+      box-shadow: 2px 2px 4px #b3b9c5, -2px -2px 4px #ffffff;
+      cursor: pointer;
+    }
+    .toggle-container {
+      margin: 15px 0;
+      padding: 10px;
+      background: #e0e5ec;
+      border-radius: 10px;
+      box-shadow: inset 4px 4px 8px #b3b9c5, inset -4px -4px 8px #ffffff;
+    }
+    select {
+      padding: 8px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background: #e0e5ec;
+      box-shadow: inset 2px 2px 4px #b3b9c5, inset -2px -2px 4px #ffffff;
+      cursor: pointer;
+    }
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 15px 0 5px;
+      color: #333;
+    }
+    .description {
+      width: 80%;
+      padding: 15px;
+      background: #e0e5ec;
+      border-radius: 10px;
+      box-shadow: 4px 4px 8px #b3b9c5, -4px -4px 8px #ffffff;
+      margin: 20px 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .description h2 {
+      font-size: 1.3rem;
+      margin-top: 0;
+    }
+    .description ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="toggle-container">
+    <label for="input-type">Input Signal: </label>
+    <select id="input-type">
+      <option value="ou">Ornstein-Uhlenbeck</option>
+      <option value="btcusd">BTCUSD Prices</option>
+    </select>
+  </div>
+  <div class="selector-container" id="interval-selector">
+    <label for="interval">Time Interval: </label>
+    <select id="interval">
+      <option value="15m">15 Minutes</option>
+      <option value="30m">30 Minutes</option>
+      <option value="1h" selected>1 Hour</option>
+      <option value="4h">4 Hours</option>
+      <option value="1d">1 Day</option>
+    </select>
+  </div>
+  <div class="slider-container" id="theta-slider">
+    <label for="theta">\(\theta\): <span id="theta-value">1.0</span></label>
+    <input type="range" id="theta" min="0.1" max="10" step="0.1" value="1.0">
+  </div>
+  <div class="slider-container" id="mu-slider">
+    <label for="mu">\(\mu\): <span id="mu-value">0.0</span></label>
+    <input type="range" id="mu" min="-5" max="5" step="0.1" value="0.0">
+  </div>
+  <div class="slider-container" id="sigma-slider">
+    <label for="sigma">\(\sigma\): <span id="sigma-value">1.0</span></label>
+    <input type="range" id="sigma" min="0.1" max="5" step="0.1" value="1.0">
+  </div>
+  <div class="slider-container" id="X0-slider">
+    <label for="X0">\(X_0\): <span id="X0-value">0.0</span></label>
+    <input type="range" id="X0" min="-5" max="5" step="0.1" value="0.0">
+  </div>
+  <div class="slider-container" id="min-segment-slider">
+    <label for="min-segment">Min Segment Size: <span id="min-segment-value">8</span></label>
+    <input type="range" id="min-segment" min="2" max="64" step="2" value="8">
+  </div>
+  <div class="slider-container" id="max-segment-slider">
+    <label for="max-segment">Max Segment Size: <span id="max-segment-value">128</span></label>
+    <input type="range" id="max-segment" min="16" max="256" step="16" value="128">
+  </div>
+  <div class="grid-container">
+    <div class="grid-item">
+      <h3>Input Signal</h3>
+      <canvas id="ou-canvas"></canvas>
+    </div>
+    <div class="grid-item">
+      <h3>Hilbert Transform</h3>
+      <canvas id="hilbert-canvas"></canvas>
+    </div>
+    <div class="grid-item">
+      <h3>Wigner-Ville Distribution</h3>
+      <canvas id="wvd-canvas"></canvas>
+    </div>
+    <div class="grid-item">
+      <h3>Hurst Exponent</h3>
+      <canvas id="hurst-canvas"></canvas>
+    </div>
+  </div>
+  <div class="description">
+    <h2>Interpretation of the Visualizations</h2>
+    <p><strong>Input Signal:</strong> The top-left graph shows the selected input signal, either an Ornstein-Uhlenbeck (OU) process or normalized BTCUSD prices. The OU process is a stochastic process modeling mean-reverting behavior, commonly used in finance, physics, and biology. It is controlled by four parameters adjustable via sliders when selected:</p>
+    <ul>
+      <li><strong>\(\theta\)</strong>: Controls the speed of reversion to the mean. Higher values make the process return to the mean faster, reducing fluctuations.</li>
+      <li><strong>\(\mu\)</strong>: The long-term mean the process reverts to. Adjusting this shifts the process vertically.</li>
+      <li><strong>\(\sigma\)</strong>: The volatility, controlling the magnitude of random fluctuations. Higher values increase the noise.</li>
+      <li><strong>\(X_0\)</strong>: The initial value of the process, setting the starting point.</li>
+    </ul>
+    <p>When BTCUSD prices are selected, the graph shows the normalized closing prices of Bitcoin in USD over the last 256 intervals, fetched from the Binance public API. Use the time interval selector (15m, 30m, 1h, 4h, 1d) to choose the granularity of the data (e.g., 256 15-minute intervals cover 3,840 minutes or ~64 hours). Normalization (zero mean, unit variance) ensures comparability with the OU process visualizations.</p>
+    <p><strong>Hilbert Transform (Analytic Signal):</strong> The top-right graph displays the analytic signal derived from the input signal. The blue line is the original signal (real part), and the red line is its Hilbert transform (imaginary part). The Hilbert transform shifts the phase of each frequency component by 90 degrees, creating an analytic signal with only positive frequency components. This is useful for analyzing instantaneous amplitude and phase. The imaginary part often appears as a smoother, oscillatory version of the original signal, reflecting local frequency content.</p>
+    <p><strong>Wigner-Ville Distribution:</strong> The bottom-left heatmap shows the Wigner-Ville distribution of the analytic signal, a time-frequency representation revealing how the signal's frequency content evolves over time. The x-axis represents time, and the y-axis represents frequency. Colors indicate the distribution's magnitude: blue for negative values, white for near-zero, and red for positive values. This distribution provides high-resolution time-frequency analysis but may include cross-term artifacts due to the signal's stochastic nature.</p>
+    <p><strong>Hurst Exponent:</strong> The bottom-right graph displays the Hurst exponent calculated using Rescaled Range (R/S) analysis. The Hurst exponent measures the long-term memory of the time series, indicating whether it is mean-reverting (\(H < 0.5\)), trending (\(H > 0.5\)), or random (\(H = 0.5\)). The graph shows the log-log plot of segment size vs. average R/S, with the regression line whose slope is the Hurst exponent. Adjust the minimum and maximum segment sizes using the sliders to explore different ranges in the R/S analysis.</p>
+    <p><strong>Interpreting the Toggle and Sliders:</strong> Use the toggle to switch between the OU process and BTCUSD prices. When OU is selected, adjust \(\theta\), \(\mu\), \(\sigma\), and \(X_0\) to control the process. Higher \(\theta\) stabilizes the OU signal around \(\mu\), visible in the input and Hilbert plots, and narrows the frequency spread in the Wigner-Ville heatmap. Changing \(\mu\) shifts the mean level, increasing \(\sigma\) amplifies fluctuations, and \(X_0\) sets the starting point. When BTCUSD is selected, OU sliders are hidden, and the time interval selector appears to choose the data granularity. The Hurst exponent sliders (min and max segment sizes) remain active for both signals to adjust the R/S analysis range.</p>
+  </div>
+</div>
+
+<script>
+  // Generates a standard normal random variable using Box-Muller transform
+  function normalRandom() {
+    let u = Math.random();
+    let v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  // Generates OU process using Euler-Maruyama method
+  function generateOU(theta, mu, sigma, X0, N, dt) {
+    let X = new Array(N);
+    X[0] = X0;
+    for (let i = 1; i < N; i++) {
+      let dW = normalRandom() * Math.sqrt(dt);
+      X[i] = X[i - 1] + theta * (mu - X[i - 1]) * dt + sigma * dW;
+    }
+    return X;
+  }
+
+  // Fetches BTCUSD prices from Binance API
+  async function fetchBTCUSD(N, interval) {
+    try {
+      const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=${N}`);
+      const data = await response.json();
+      let prices = data.map(candle => parseFloat(candle[4])); // Closing prices
+      // Normalize to zero mean and unit variance using Math.js
+      let mean = math.mean(prices);
+      let std = math.std(prices);
+      return prices.map(v => (v - mean) / std);
+    } catch (error) {
+      console.error('Failed to fetch BTCUSD prices:', error);
+      return null; // Return null to fallback to OU
+    }
+  }
+
+  // Simple FFT implementation (Cooley-Tukey algorithm)
+  function fft(x) {
+    const N = x.length;
+    if (N <= 1) return x.map(v => ({ real: v, imag: 0 }));
+
+    let even = fft(x.filter((_, i) => i % 2 === 0));
+    let odd = fft(x.filter((_, i) => i % 2 === 1));
+
+    let X = new Array(N);
+    for (let k = 0; k < N / 2; k++) {
+      let t = even[k];
+      let e = odd[k];
+      let angle = -2 * Math.PI * k / N;
+      let twiddle = {
+        real: Math.cos(angle),
+        imag: Math.sin(angle)
+      };
+      let complexMult = {
+        real: e.real * twiddle.real - e.imag * twiddle.imag,
+        imag: e.real * twiddle.imag + e.imag * twiddle.real
+      };
+      X[k] = {
+        real: t.real + complexMult.real,
+        imag: t.imag + complexMult.imag
+      };
+      X[k + N / 2] = {
+        real: t.real - complexMult.real,
+        imag: t.imag - complexMult.imag
+      };
+    }
+    return X;
+  }
+
+  // Inverse FFT (conjugate and normalize)
+  function ifft(X) {
+    let N = X.length;
+    let conj = X.map(z => ({ real: z.real, imag: -z.imag }));
+    let Y = fft(conj.map(z => z.real));
+    return Y.map(z => ({ real: z.real / N, imag: z.imag / N }));
+  }
+
+  // Computes Hilbert transform using FFT
+  function hilbertTransform(x) {
+    let N = x.length;
+    let X = fft(x);
+    for (let k = 0; k < N; k++) {
+      if (k === 0 || k === N / 2) {
+      } else if (k < N / 2) {
+        X[k].real *= 2;
+        X[k].imag *= 2;
+      } else {
+        X[k].real = 0;
+        X[k].imag = 0;
+      }
+    }
+    let analytic = ifft(X);
+    return {
+      real: analytic.map(z => z.real),
+      imag: analytic.map(z => z.imag)
+    };
+  }
+
+  // Computes Wigner-Ville Distribution using FFT on analytic signal
+  function computeWVD(analytic) {
+    let N = analytic.real.length;
+    let M = Math.floor(N / 2);
+    let wvd = new Array(N);
+    for (let n = 0; n < N; n++) {
+      let y = new Array(N).fill(0);
+      for (let m = -M; m <= M; m++) {
+        let i = n + m;
+        let j = n - m;
+        if (i >= 0 && i < N && j >= 0 && j < N) {
+          let m_idx = m >= 0 ? m : m + N;
+          let z1 = { real: analytic.real[i], imag: analytic.imag[i] };
+          let z2 = { real: analytic.real[j], imag: -analytic.imag[j] };
+          y[m_idx] = z1.real * z2.real - z1.imag * z2.imag;
+        }
+      }
+      let fft_y = fft(y);
+      wvd[n] = fft_y.map(z => 2 * z.real);
+    }
+    return wvd;
+  }
+
+  // Calculates Hurst exponent using R/S analysis with custom linear regression
+  function calculateHurst(x, minSegment, maxSegment) {
+    const N = x.length;
+    let segmentSizes = [];
+    for (let i = minSegment; i <= maxSegment; i *= 2) {
+      segmentSizes.push(i);
+    }
+
+    let logN = [];
+    let logRS = [];
+
+    for (let n of segmentSizes) {
+      let numSegments = Math.floor(N / n);
+      let RS = [];
+
+      for (let seg = 0; seg < numSegments; seg++) {
+        let start = seg * n;
+        let end = start + n;
+        let segment = x.slice(start, end);
+
+        let mean = math.mean(segment);
+        let deviations = segment.map(v => v - mean);
+        let cumDev = deviations.reduce((acc, v, i) => {
+          acc[i] = (i > 0 ? acc[i - 1] : 0) + v;
+          return acc;
+        }, []);
+        let R = Math.max(...cumDev) - Math.min(...cumDev);
+        let S = math.std(segment);
+        if (S > 0) {
+          RS.push(R / S);
+        }
+      }
+
+      if (RS.length > 0) {
+        let avgRS = math.mean(RS);
+        logN.push(Math.log(n));
+        logRS.push(Math.log(avgRS));
+      }
+    }
+
+    // Custom linear regression
+    let n = logN.length;
+    let sumX = math.sum(logN);
+    let sumY = math.sum(logRS);
+    let sumXY = logN.reduce((sum, v, i) => sum + v * logRS[i], 0);
+    let sumX2 = math.sum(logN.map(v => v * v));
+    let m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    let b = (sumY - m * sumX) / n;
+    let regression = x => m * x + b;
+
+    return { hurst: m, logN, logRS, regression };
+  }
+
+  // Plots input signal on canvas
+  function plotOU(canvas, x) {
+    let ctx = canvas.getContext('2d');
+    let W = canvas.width = 580;
+    let H = canvas.height = 256;
+    let minX = Math.min(...x);
+    let maxX = Math.max(...x);
+    let range = maxX - minX || 1;
+    let padding = 0.1 * range;
+    let yMin = minX - padding;
+    let yMax = maxX + padding;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.beginPath();
+    let N = x.length;
+    for (let i = 0; i < N; i++) {
+      let px = (i / (N - 1)) * W;
+      let py = H - ((x[i] - yMin) / (yMax - yMin)) * H;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.strokeStyle = '#333';
+    ctx.stroke();
+  }
+
+  // Plots Hilbert transform (real and imaginary parts)
+  function plotHilbert(canvas, analytic) {
+    let ctx = canvas.getContext('2d');
+    let W = canvas.width = 580;
+    let H = canvas.height = 256;
+    let real = analytic.real;
+    let imag = analytic.imag;
+    let minY = Math.min(...real, ...imag);
+    let maxY = Math.max(...real, ...imag);
+    let range = maxY - minY || 1;
+    let padding = 0.1 * range;
+    let yMin = minY - padding;
+    let yMax = maxY + padding;
+
+    ctx.clearRect(0, 0, W, H);
+    let N = real.length;
+
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      let px = (i / (N - 1)) * W;
+      let py = H - ((real[i] - yMin) / (yMax - yMin)) * H;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.strokeStyle = '#1e90ff';
+    ctx.stroke();
+
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      let px = (i / (N - 1)) * W;
+      let py = H - ((imag[i] - yMin) / (yMax - yMin)) * H;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.strokeStyle = '#ff4500';
+    ctx.stroke();
+  }
+
+  // Plots Wigner-Ville Distribution as a heatmap
+  function plotHeatmap(canvas, wvd) {
+    let ctx = canvas.getContext('2d');
+    let W = canvas.width = 580;
+    let H = canvas.height = 256;
+    let N = wvd.length;
+    let imageData = ctx.createImageData(W, H);
+
+    let v_abs_max = 0;
+    for (let n = 0; n < N; n++) {
+      for (let k = 0; k < N; k++) {
+        let v = Math.abs(wvd[n][k]);
+        if (v > v_abs_max) v_abs_max = v;
+      }
+    }
+    v_abs_max = v_abs_max || 1;
+
+    for (let n = 0; n < N; n++) {
+      for (let k = 0; k < N; k++) {
+        let v = wvd[n][k] / v_abs_max;
+        let r, g, b;
+        if (Math.abs(v) < 0.01) {
+          r = 255;
+          g = 255;
+          b = 255;
+        } else if (v < 0) {
+          let t = Math.abs(v);
+          r = 255 * (1 - t);
+          g = 255 * (1 - t);
+          b = 255;
+        } else {
+          let t = v;
+          r = 255;
+          g = 255 * (1 - t);
+          b = 255 * (1 - t);
+        }
+        let idx = (k * W + n) * 4;
+        imageData.data[idx] = r;
+        imageData.data[idx + 1] = g;
+        imageData.data[idx + 2] = b;
+        imageData.data[idx + 3] = 255;
+      }
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  // Plots Hurst exponent log-log graph
+  function plotHurst(canvas, hurstData) {
+    let ctx = canvas.getContext('2d');
+    let W = canvas.width = 580;
+    let H = canvas.height = 256;
+
+    let logN = hurstData.logN;
+    let logRS = hurstData.logRS;
+    let regression = hurstData.regression;
+    let hurst = hurstData.hurst;
+
+    let minX = Math.min(...logN);
+    let maxX = Math.max(...logN);
+    let minY = Math.min(...logRS, regression(minX), regression(maxX));
+    let maxY = Math.max(...logRS, regression(minX), regression(maxX));
+
+    let padding = 0.1 * (maxY - minY);
+    let yMin = minY - padding;
+    let yMax = maxY + padding;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Plot points
+    ctx.beginPath();
+    for (let i = 0; i < logN.length; i++) {
+      let px = ((logN[i] - minX) / (maxX - minX)) * W;
+      let py = H - ((logRS[i] - yMin) / (yMax - yMin)) * H;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.strokeStyle = '#333';
+    ctx.stroke();
+
+    // Plot regression line
+    ctx.beginPath();
+    let px1 = 0;
+    let py1 = H - ((regression(minX) - yMin) / (yMax - yMin)) * H;
+    let px2 = W;
+    let py2 = H - ((regression(maxX) - yMin) / (yMax - yMin)) * H;
+    ctx.moveTo(px1, py1);
+    ctx.lineTo(px2, py2);
+    ctx.strokeStyle = '#ff4500';
+    ctx.stroke();
+
+    // Display Hurst exponent
+    ctx.font = '16px Inter';
+    ctx.fillStyle = '#333';
+    ctx.fillText(`Hurst Exponent: ${hurst.toFixed(2)}`, 10, 20);
+  }
+
+  // Updates plots based on input type and slider values
+  async function updatePlots() {
+    let inputType = document.getElementById('input-type').value;
+    let N = 256;
+    let dt = 0.01;
+    let x;
+
+    if (inputType === 'ou') {
+      let theta = parseFloat(document.getElementById('theta').value);
+      let mu = parseFloat(document.getElementById('mu').value);
+      let sigma = parseFloat(document.getElementById('sigma').value);
+      let X0 = parseFloat(document.getElementById('X0').value);
+      x = generateOU(theta, mu, sigma, X0, N, dt);
+    } else {
+      let interval = document.getElementById('interval').value;
+      x = await fetchBTCUSD(N, interval);
+      if (!x) {
+        console.log('Falling back to OU process');
+        x = generateOU(1.0, 0.0, 1.0, 0.0, N, dt);
+      }
+    }
+
+    let analytic = hilbertTransform(x);
+    let wvd = computeWVD(analytic);
+
+    let minSegment = parseInt(document.getElementById('min-segment').value);
+    let maxSegment = parseInt(document.getElementById('max-segment').value);
+    let hurstData = calculateHurst(x, minSegment, maxSegment);
+
+    let ouCanvas = document.getElementById('ou-canvas');
+    plotOU(ouCanvas, x);
+
+    let hilbertCanvas = document.getElementById('hilbert-canvas');
+    plotHilbert(hilbertCanvas, analytic);
+
+    let wvdCanvas = document.getElementById('wvd-canvas');
+    plotHeatmap(wvdCanvas, wvd);
+
+    let hurstCanvas = document.getElementById('hurst-canvas');
+    plotHurst(hurstCanvas, hurstData);
+  }
+
+  // Toggle sliders and selectors based on input type
+  function toggleControls(inputType) {
+    let ouSliders = ['theta-slider', 'mu-slider', 'sigma-slider', 'X0-slider'];
+    let hurstSliders = ['min-segment-slider', 'max-segment-slider'];
+    let intervalSelector = ['interval-selector'];
+
+    ouSliders.forEach(id => {
+      let slider = document.getElementById(id);
+      if (inputType === 'ou') {
+        slider.classList.add('active');
+      } else {
+        slider.classList.remove('active');
+      }
+    });
+
+    hurstSliders.forEach(id => {
+      let slider = document.getElementById(id);
+      slider.classList.add('active');
+    });
+
+    intervalSelector.forEach(id => {
+      let selector = document.getElementById(id);
+      if (inputType === 'btcusd') {
+        selector.classList.add('active');
+      } else {
+        selector.classList.remove('active');
+      }
+    });
+  }
+
+  // Event listeners
+  document.getElementById('input-type').addEventListener('change', (e) => {
+    toggleControls(e.target.value);
+    updatePlots();
+  });
+
+  document.getElementById('interval').addEventListener('change', () => {
+    if (document.getElementById('input-type').value === 'btcusd') {
+      updatePlots();
+    }
+  });
+
+  ['theta', 'mu', 'sigma', 'X0', 'min-segment', 'max-segment'].forEach(id => {
+    let slider = document.getElementById(id);
+    slider.addEventListener('input', () => {
+      document.getElementById(`${id}-value`).textContent = slider.value;
+      updatePlots();
+    });
+  });
+
+  // Initial setup
+  toggleControls('ou');
+  updatePlots();
+</script>
+
+<!--
+To recreate the HTML page in its entirety, I'll provide a detailed query that captures all the key components, features, and styling of the current page. The query will describe the structure, functionality, and specific requirements, including the Math.js CDN, 2x2 grid layout, selectors, sliders, and visualizations. The goal is to ensure the recreated page matches the existing one, including the Ornstein-Uhlenbeck (OU) process, BTCUSD price fetching, Hilbert transform, Wigner-Ville distribution, and Hurst exponent calculations.
+
+**Query:**
+
+Create an HTML page with the following specifications:
+
+1. **General Structure and Styling**:
+   - Center all content using Flexbox, with a neumorphic design (soft shadows, rounded corners, and a light gray background `#e0e5ec`).
+   - Use the Inter font (via Google Fonts CDN) for a modern, clean look.
+   - Wrap all content in a container with a width of 600px, padded by 20px, with neumorphic styling (box-shadow: `8px 8px 16px #b3b9c5, -8px -8px 16px #ffffff`).
+   - Include MathJax CDN (`https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js`) to format LaTeX math terms (e.g., \(\theta\), \(\mu\), \(\sigma\)).
+   - Include Math.js CDN (`https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.0.0/math.min.js`) for mathematical operations.
+   - Include Polyfill.io CDN (`https://polyfill.io/v3/polyfill.min.js?features=es6`) for browser compatibility.
+
+2. **Input Signal Selection**:
+   - Add a dropdown selector at the top to choose between "Ornstein-Uhlenbeck" (value: `ou`) and "BTCUSD Prices" (value: `btcusd`), styled in the neumorphic theme (inset shadow, rounded corners).
+   - When BTCUSD is selected, show a second dropdown for time intervals (`15m`, `30m`, `1h`, `4h`, `1d`), defaulting to `1h`. Hide this selector when OU is selected.
+   - Both selectors should be wrapped in neumorphic containers.
+
+3. **Sliders**:
+   - For OU, include sliders for:
+     - \(\theta\): Range 0.1 to 10, step 0.1, default 1.0.
+     - \(\mu\): Range -5 to 5, step 0.1, default 0.0.
+     - \(\sigma\): Range 0.1 to 5, step 0.1, default 1.0.
+     - \(X_0\): Range -5 to 5, step 0.1, default 0.0.
+   - For Hurst exponent (active for both OU and BTCUSD):
+     - Min Segment Size: Range 2 to 64, step 2, default 8.
+     - Max Segment Size: Range 16 to 256, step 16, default 128.
+   - Each slider should be in a neumorphic container, hidden by default and shown with a CSS `active` class. OU sliders are hidden when BTCUSD is selected; Hurst sliders are always visible.
+   - Sliders should display their current value next to the label, updating dynamically.
+
+4. **Visualizations**:
+   - Display four graphs in a 2x2 grid (CSS Grid, equal columns, 20px gap):
+     - Top-left: Input Signal (OU or BTCUSD).
+     - Top-right: Hilbert Transform (Analytic Signal).
+     - Bottom-left: Wigner-Ville Distribution.
+     - Bottom-right: Hurst Exponent.
+   - Each graph uses a `<canvas>` element, 290px wide, 256px high, with neumorphic styling (inset shadow).
+   - Label each graph with an `<h3>` tag in the Inter font, size 1.2rem, above the canvas.
+
+5. **Functionality**:
+   - **Input Signal**:
+     - For OU, generate a 256-point time series using the Euler-Maruyama method with parameters \(\theta\), \(\mu\), \(\sigma\), and \(X_0\). Use a time step `dt = 0.01`.
+     - For BTCUSD, fetch 256 closing prices from the Binance API (`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=<interval>&limit=256`). Normalize the data to zero mean and unit variance using Math.js. Fallback to OU (default parameters) if the API fails.
+     - Plot the signal as a line graph (black, `#333`) scaled to fit the canvas with 10% padding.
+   - **Hilbert Transform**:
+     - Compute the analytic signal using a custom FFT-based Hilbert transform. Plot the real part (blue, `#1e90ff`) and imaginary part (red, `#ff4500`) on the same canvas, scaled with 10% padding.
+   - **Wigner-Ville Distribution**:
+     - Compute the Wigner-Ville distribution of the analytic signal using FFT. Display as a heatmap where the x-axis is time, y-axis is frequency, and colors represent magnitude: blue for negative, white for near-zero (|v| < 0.01), red for positive. Normalize colors by the maximum absolute value.
+   - **Hurst Exponent**:
+     - Calculate the Hurst exponent using Rescaled Range (R/S) analysis with segment sizes from `minSegment` to `maxSegment` (doubling each step). Perform linear regression on the log-log plot of segment size vs. average R/S using a custom implementation (not `math.lstsq`).
+     - Plot the log-log data points (black line, `#333`) and regression line (red, `#ff4500`). Display the Hurst exponent value (to 2 decimal places) in the top-left corner of the canvas (16px Inter font).
+   - Update all graphs when sliders or selectors change. For BTCUSD, update when the time interval changes.
+
+6. **Description Section**:
+   - Below the grid, include a description section in a neumorphic container (80% width, padded).
+   - Use the following content, formatted with MathJax for LaTeX:
+     - **Input Signal**: Describe OU (stochastic, mean-reverting, used in finance/physics/biology) and BTCUSD (normalized 256-point data from Binance, with interval selector). List OU parameters (\(\theta\), \(\mu\), \(\sigma\), \(X_0\)).
+     - **Hilbert Transform**: Explain the analytic signal (real = original, imaginary = Hilbert transform, 90-degree phase shift). Highlight its use for amplitude/phase analysis.
+     - **Wigner-Ville Distribution**: Describe the time-frequency heatmap (x=time, y=frequency, colors: blue=negative, white=near-zero, red=positive). Note high-resolution but possible cross-term artifacts.
+     - **Hurst Exponent**: Explain R/S analysis and long-term memory (\(H < 0.5\): mean-reverting, \(H > 0.5\): trending, \(H = 0.5\): random). Mention sliders for segment size range.
+     - **Interpreting Toggle and Sliders**: Detail how to use the toggle, OU sliders, interval selector (for BTCUSD), and Hurst sliders. Explain the visual impact of parameter changes.
+   - Use `<h2>` for the title ("Interpretation of the Visualizations") and `<ul>` for OU parameter descriptions.
+
+7. **JavaScript**:
+   - Implement event listeners for the input type selector, interval selector, and all sliders to trigger plot updates.
+   - Use a `toggleControls` function to show/hide OU sliders and the interval selector based on input type. Hurst sliders are always visible.
+   - Ensure the page initializes with OU selected, `1h` interval, and default slider values, displaying all graphs correctly.
+
+8. **Additional Notes**:
+   - Maintain the artifact ID `fed1f88a-1415-45c1-a11c-0e763b08479e` as this is a recreation.
+   - Ensure all visualizations update dynamically and handle edge cases (e.g., API failure, zero standard deviation).
+   - Keep the neumorphic aesthetic consistent across all elements (sliders, selectors, canvases, containers).
+
+This query should recreate the HTML page in its entirety, matching the current functionality, styling, and content. Let me know if you need further clarification or modifications!
+
+-->
+
+</body>
+</html>
