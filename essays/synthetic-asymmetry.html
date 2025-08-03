@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Synthetic Asymmetry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 100px;
+            background-color: #e0e5ec;
+        }
+        .slider-container {
+            margin: 10px 0;
+        }
+        canvas {
+            max-width: 800px;
+            margin-top: 20px;
+            background-color: #e0e5ec;
+            border-radius: 10px;
+            box-shadow: 8px 8px 16px #b3b9c4, -8px -8px 16px #ffffff;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #e0e5ec;
+            box-shadow: 4px 4px 8px #b3b9c4, -4px -4px 8px #ffffff;
+            cursor: pointer;
+        }
+        button:hover {
+            box-shadow: inset 4px 4px 8px #b3b9c4, inset -4px -4px 8px #ffffff;
+        }
+        #optimizeStatus {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Synthetic Asymmetry</h1>
+    <div class="slider-container">
+        <label for="balance">Opening Balance: <span id="balance-value">1000</span></label>
+        <input type="range" id="balance" min="10" max="10000" value="1000" step="10">
+    </div>
+    <div class="slider-container">
+        <label for="betFraction">Initial Bet Fraction (f): <span id="betFraction-value">0.25</span></label>
+        <input type="range" id="betFraction" min="0.001" max="0.5" value="0.25" step="0.001">
+    </div>
+    <div class="slider-container">
+        <label for="streakLength">Streak Length (k): <span id="streakLength-value">4</span></label>
+        <input type="range" id="streakLength" min="2" max="20" value="4" step="1">
+    </div>
+    <div class="slider-container">
+        <label for="sharePercent">Winner Share Percent (p): <span id="sharePercent-value">0.5</span></label>
+        <input type="range" id="sharePercent" min="0.1" max="0.9" value="0.5" step="0.001">
+    </div>
+    <div class="slider-container">
+        <label for="adjustFactor">Adjustment Factor (a): <span id="adjustFactor-value">0.330</span></label>
+        <input type="range" id="adjustFactor" min="0" max="1" value="0.33" step="0.001">
+    </div>
+    <button id="startPause">Start</button>
+    <button id="reset">Reset</button>
+    <button id="optimize">Optimize</button>
+    <div id="optimizeStatus"></div>
+    <canvas id="bankrollChart" width="800" height="400"></canvas>
+
+    <script>
+        // Initial parameters
+        let initialBalance = 1000;
+        let betFraction = 0.25;
+        let streakLength = 4;
+        let sharePercent = 0.5;
+        let adjustFactor = 0.33;
+        let bankrollA = initialBalance;
+        let bankrollB = initialBalance;
+        let streakCount = 0;
+        let streakPlayer = null;
+        let historyA = [];
+        let historyB = [];
+        let historyAvg = [];
+        let running = false;
+        let interval;
+        const canvas = document.getElementById('bankrollChart');
+        const ctx = canvas.getContext('2d');
+
+        // Update slider displays
+        function updateDisplays() {
+            document.getElementById('balance-value').textContent = initialBalance;
+            document.getElementById('betFraction-value').textContent = betFraction.toFixed(3);
+            document.getElementById('streakLength-value').textContent = streakLength;
+            document.getElementById('sharePercent-value').textContent = sharePercent.toFixed(3);
+            document.getElementById('adjustFactor-value').textContent = adjustFactor.toFixed(3);
+        }
+
+        // Slider event listeners
+        document.getElementById('balance').addEventListener('input', (e) => {
+            initialBalance = parseInt(e.target.value);
+            resetGame();
+        });
+        document.getElementById('betFraction').addEventListener('input', (e) => {
+            betFraction = parseFloat(e.target.value);
+            updateDisplays();
+        });
+        document.getElementById('streakLength').addEventListener('input', (e) => {
+            streakLength = parseInt(e.target.value);
+            updateDisplays();
+        });
+        document.getElementById('sharePercent').addEventListener('input', (e) => {
+            sharePercent = parseFloat(e.target.value);
+            updateDisplays();
+        });
+        document.getElementById('adjustFactor').addEventListener('input', (e) => {
+            adjustFactor = parseFloat(e.target.value);
+            updateDisplays();
+        });
+
+        // Game logic
+        function simulateFlip() {
+            const heads = Math.random() < 0.5;
+            const winner = heads ? 'A' : 'B';
+            const loser = heads ? 'B' : 'A';
+            
+            // Adjust bet fraction based on streak
+            // const streakAdjust = streakPlayer === winner ? (1 - adjustFactor * (streakCount / streakLength)) : 1;
+            // const fA = bankrollA < initialBalance ? betFraction * streakAdjust : betFraction * (1-streakAdjust);
+            // const fB = bankrollB < initialBalance ? betFraction * streakAdjust : betFraction * (1-streakAdjust);
+
+            const streakAdjust = streakPlayer === winner ? (adjustFactor * (streakCount / streakLength)) : 1;
+//            const streakAdjust = streakPlayer === winner ? ((streakCount / streakLength**2)) : 1;
+            const fA = bankrollA < initialBalance * 0.5 ? betFraction / 2 : betFraction * Math.max(1-streakAdjust, 0);
+            const fB = bankrollB < initialBalance * 0.5 ? betFraction / 2 : betFraction * Math.max(1-streakAdjust, 0);
+
+
+            const betA = Math.min(fA * bankrollA, bankrollA);
+            const betB = Math.min(fB * bankrollB, bankrollB);
+
+            // Update bankrolls
+            if (heads) {
+                bankrollA += betA;
+                bankrollB -= betB;
+            } else {
+                bankrollA -= betA;
+                bankrollB += betB;
+            }
+
+            // Update streak
+            if (streakPlayer === winner) {
+                streakCount++;
+            } else {
+                streakPlayer = winner;
+                streakCount = 1;
+            }
+
+            // Sharing condition
+            if (streakCount >= streakLength) {
+                const total = bankrollA + bankrollB;
+                if (streakPlayer === 'A') {
+                    bankrollA = sharePercent * total;
+                    bankrollB = (1 - sharePercent) * total;
+                } else {
+                    bankrollA = (1 - sharePercent) * total;
+                    bankrollB = sharePercent * total;
+                }
+                streakCount = 0;
+            }
+
+            // Update history
+            historyA.push(bankrollA);
+            historyB.push(bankrollB);
+            historyAvg.push((bankrollA + bankrollB) / 2);
+            if (historyA.length > 200) {
+                historyA.shift();
+                historyB.shift();
+                historyAvg.shift();
+            }
+
+            // Draw chart
+            drawChart();
+        }
+
+        // Draw chart on canvas
+        function drawChart() {
+            const maxBalance = Math.max(...historyA, ...historyB, ...historyAvg) * 1.1;
+            const minBalance = Math.min(...historyA, ...historyB, ...historyAvg) * 0.9;
+            const range = maxBalance - minBalance;
+            const step = range / 5;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw y-axis labels
+            ctx.fillStyle = 'black';
+            ctx.font = '12px Arial';
+            for (let i = 0; i <= 5; i++) {
+                const y = canvas.height - (i * canvas.height / 5);
+                const label = (minBalance + i * step).toFixed(0);
+                ctx.fillText(label, 10, y);
+            }
+
+            // Draw lines
+            const colors = ['blue', 'red', 'green'];
+            [historyA, historyB, historyAvg].forEach((data, index) => {
+                ctx.beginPath();
+                ctx.strokeStyle = colors[index];
+                data.forEach((value, i) => {
+                    const x = (i / 199) * canvas.width;
+                    const y = canvas.height - ((value - minBalance) / range) * canvas.height;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            });
+        }
+
+        // Start/Pause button
+        document.getElementById('startPause').addEventListener('click', () => {
+            if (running) {
+                clearInterval(interval);
+                running = false;
+                document.getElementById('startPause').textContent = 'Start';
+            } else {
+                interval = setInterval(simulateFlip, 10);
+                running = true;
+                document.getElementById('startPause').textContent = 'Pause';
+            }
+        });
+
+        // Reset button
+        function resetGame() {
+            bankrollA = initialBalance;
+            bankrollB = initialBalance;
+            streakCount = 0;
+            streakPlayer = null;
+            historyA = [];
+            historyB = [];
+            historyAvg = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (running) {
+                clearInterval(interval);
+                interval = setInterval(simulateFlip, 10);
+            }
+            updateDisplays();
+        }
+        document.getElementById('reset').addEventListener('click', resetGame);
+
+        // Optimization with simulated annealing
+        document.getElementById('optimize').addEventListener('click', () => {
+            if (running) return;
+            let bestF = betFraction;
+            let bestK = streakLength;
+            let bestP = sharePercent;
+            let bestA = adjustFactor;
+            let bestScore = -Infinity;
+            let temp = 1000;
+            const iterations = 1000;
+            const statusDiv = document.getElementById('optimizeStatus');
+
+            function optimizeStep(i) {
+                if (i >= iterations) {
+                    betFraction = bestF;
+                    streakLength = bestK;
+                    sharePercent = bestP;
+                    adjustFactor = bestA;
+                    document.getElementById('betFraction').value = betFraction;
+                    document.getElementById('streakLength').value = streakLength;
+                    document.getElementById('sharePercent').value = sharePercent;
+                    document.getElementById('adjustFactor').value = adjustFactor;
+                    resetGame();
+                    statusDiv.textContent = 'Optimization complete.';
+                    return;
+                }
+
+                resetGame();
+                for (let j = 0; j < 1000; j++) simulateFlip();
+                const score = bankrollA + bankrollB;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestF = betFraction;
+                    bestK = streakLength;
+                    bestP = sharePercent;
+                    bestA = adjustFactor;
+                }
+
+                // Perturb parameters
+                const newF = Math.max(0.001, Math.min(0.5, betFraction + (Math.random() - 0.5) * 0.1 * temp / 1000));
+                const newK = Math.max(2, Math.min(20, streakLength + Math.round((Math.random() - 0.5) * 2)));
+                const newP = Math.max(0.01, Math.min(0.99, sharePercent + (Math.random() - 0.5) * 0.2 * temp / 1000));
+                const newA = Math.max(0.01, Math.min(0.99, adjustFactor + (Math.random() - 0.5) * 0.2 * temp / 1000));
+
+                betFraction = newF;
+                streakLength = newK;
+                sharePercent = newP;
+                adjustPercent = newA;
+                temp *= 0.99; // Cooling
+
+                statusDiv.textContent = `Iteration: ${i + 1}, Temperature: ${temp.toFixed(2)}`;
+                setTimeout(() => optimizeStep(i + 1), 1);
+            }
+
+            optimizeStep(0);
+        });
+
+        // Initial setup
+        updateDisplays();
+    </script>
+</body>
+</html>
