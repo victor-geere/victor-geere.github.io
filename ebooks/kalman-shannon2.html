@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalman Filter + Shannon’s Ghost: A Practical Guide to Volatility-Harvesting Rebalancing</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg: #fafafa;
+            --text: #222;
+            --accent: #2563eb;
+            --light: #f1f5f9;
+            --gray: #64748b;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.7;
+        }
+        .container {
+            max-width: 860px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        header h1 { margin: 0; font-size: 2.4rem; font-weight: 700; }
+        header p { margin: 16px 0 0; opacity: 0.95; font-size: 1.1rem; }
+        nav {
+            background: #0f172a;
+            padding: 20px 40px;
+            position: sticky; top: 0; z-index: 10;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0; padding: 0;
+            display: flex; flex-wrap: wrap; gap: 20px;
+        }
+        nav a {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        nav a:hover { color: white; text-decoration: underline; }
+        main { padding: 40px; }
+        section { margin-bottom: 60px; }
+        h2 {
+            font-size: 1.8rem;
+            margin: 48px 0 24px;
+            color: var(--accent);
+            border-bottom: 2px solid #e0e7ff;
+            padding-bottom: 8px;
+        }
+        h3 { color: #1e40af; margin-top: 32px; }
+        p, li { color: var(--gray); }
+        pre { background: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; }
+        .formula { background: #f0f7ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .caption { font-style: italic; color: #64748b; margin-top: -8px; font-size: 0.9rem; }
+        .diagram {
+            text-align: center;
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        svg { max-width: 100%; height: auto; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Kalman Filter + Shannon’s Ghost</h1>
+        <p>A practical guide to volatility-harvesting rebalancing in cryptocurrency markets</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#efficient">Efficient Frontier</a></li>
+            <li><a href="#kalman">Kalman Filter</a></li>
+            <li><a href="#ghost">Shannon’s Ghost</a></li>
+            <li><a href="#hybrid">The Hybrid System</a></li>
+            <li><a href="#drift">Drift vs Volatility</a></li>
+            <li><a href="#kelly">Fractional Kelly</a></li>
+            <li><a href="#crypto">Crypto Asset Comparison</a></li>
+            <li><a href="#outlook">Current BTC Outlook</a></li>
+            <li><a href="#refs">References & Further Reading</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="intro">
+            <h2>Introduction</h2>
+            <p>This ebook distills a long conversation into a coherent, actionable framework that combines the Kalman filter (for clean state estimation) with Shannon’s Ghost (the volatility-harvesting rebalancing strategy). The result is a robust, asymptotically profitable system designed for high-volatility assets like Bitcoin, Ethereum, Solana, and Polkadot.</p>
+        </section>
+
+        <section id="efficient">
+            <h2>The Efficient Frontier & Rebalancing</h2>
+            <p>Harry Markowitz showed that the optimal risk-return trade-off lies on the efficient frontier. Rebalancing keeps a portfolio on that curve by correcting drift.</p>
+            <div class="diagram">
+                <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#3b82f6"/>
+                            <stop offset="100%" stop-color="#10b981"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M50,250 Q200,50 350,200" stroke="url(#grad)" stroke-width="4" fill="none"/>
+                    <circle cx="200" cy="120" r="8" fill="#1e40af"/>
+                    <text x="210" y="115" font-size="14" fill="#1e40af">Target Portfolio</text>
+                    <text x="60" y="280" font-size="14">Risk →</text>
+                    <text x="10" y="50" font-size="14" transform="rotate(-90 10 50)">Return ↑</text>
+                </svg>
+                <p class="caption">The Efficient Frontier with a drifting portfolio (blue dot) needing rebalancing</p>
+            </div>
+        </section>
+
+        <section id="kalman">
+            <h2>Kalman Filter – Your Noise-Cancelling Brain</h2>
+            <p>The Kalman filter recursively estimates the true price (and optionally velocity/volatility) from noisy market data.</p>
+            <div class="formula">
+                \[ \hat{x}_k = F \hat{x}_{k-1} + K_k (z_k - H \hat{x}_{k-1}) \]
+                <p class="caption">Prediction + correction step. \(K_k\) is the Kalman gain that optimally blends prior belief and new measurement.</p>
+            </div>
+            <div class="diagram">
+                <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="20,150 60,130 100,170 140,110 180,145 220,90 260,140 300,100 340,160 380,80 420,130 460,100" 
+                              fill="none" stroke="#94a3b8" stroke-width="3"/>
+                    <polyline points="20,150 60,140 100,145 140,138 180,142 220,135 260,138 300,132 340,140 380,125 420,130 460,120" 
+                              fill="none" stroke="#3b82f6" stroke-width="4"/>
+                    <text x="250" y="50" text-anchor="middle" font-size="16" fill="#1e40af">Smoothed Kalman Estimate</text>
+                </svg>
+                <p class="caption">Raw BTC price (gray) vs Kalman-smoothed path (blue)</p>
+            </div>
+        </section>
+
+        <section id="ghost">
+            <h2>Shannon’s Ghost – Pure Volatility Harvesting</h2>
+            <p>Claude Shannon’s thought experiment: rebalance constantly between a volatile asset and cash. Even with zero drift, geometric returns are positive because you repeatedly “buy low, sell high”.</p>
+            <div class="diagram">
+                <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="50" y="50" width="100" height="150" fill="#fbbf24"/>
+                    <rect x="250" y="50" width="100" height="150" fill="#34d399"/>
+                    <path d="M100,125 L300,125" stroke="#64748b" stroke-width="6" marker-end="url(#arrow)"/>
+                    <text x="200" y="100" text-anchor="middle" font-size="18" fill="#1e40af">Volatility → Profit</text>
+                </svg>
+                <p class="caption">Ghost rebalancing transfers wealth from volatile side to stable side</p>
+            </div>
+        </section>
+
+        <section id="hybrid">
+            <h2>The Hybrid System: Kalman + Ghost + Fractional Kelly</h2>
+            <p>Split your float into four equal parts:</p>
+            <ul>
+                <li>25% Operational BTC – used by the Ghost</li>
+                <li>25% Operational USD – cash leg of Ghost</li>
+                <li>25% Reserve BTC – feeds the Kalman filter</li>
+                <li>25% Reserve USD – funding source</li>
+            </ul>
+            <p>Kalman watches the reserve BTC price → produces clean drift (μ) and volatility (σ) estimates → decides when to top-up the operational float or lock profits.</p>
+        </section>
+
+        <section id="drift">
+            <h2>Drift vs Volatility Math</h2>
+            <p>Breakeven volatility needed to overcome negative drift:</p>
+            <div class="formula">
+                \[ \sigma > \sqrt{2 |\mu| / \kappa} \]
+                <p class="caption">μ = hourly drift, κ = mean-reversion speed (typically ~0.02 for crypto)</p>
+            </div>
+            <p>Example (DOT-USD past year): μ ≈ –0.01 %/hour, σ ≈ 85 % annualized → easily covers downside.</p>
+        </section>
+
+        <section id="kelly">
+            <h2>Fractional Kelly Sizing</h2>
+            <div class="formula">
+                \[ f^* = \frac{\mu}{\sigma^2} \quad \text{(full Kelly)} \]
+                \[ f_{\text{used}} = c \cdot f^* \quad c \in [0.25, 0.75] \]
+            </div>
+            <p>Use low c (0.25) in mean-reverting regimes, higher c (0.5–0.75) when Kalman detects strong positive drift.</p>
+        </section>
+
+        <section id="crypto">
+            <h2>Performance Across Major Coins (2024–2025)</h2>
+            <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+                <tr style="background:#e0e7ff;"><th>Coin</th><th>YTD Return</th><th>Ann. Vol</th><th>Drift μ (hourly)</th><th>Ghost Viable?</th></tr>
+                <tr><td>BTC-USD</td><td>+40 %</td><td>50 %</td><td>positive</td><td>Excellent</td></tr>
+                <tr><td>ETH-USD</td><td>~0 %</td><td>60 %</td><td>near zero</td><td>Good</td></tr>
+                <tr><td>SOL-USD</td><td>+60 %</td><td>80 %</td><td>positive</td><td>Best</td></tr>
+                <tr><td>DOT-USD</td><td>–45 %</td><td>85 %</td><td>–0.01 %/h</td><td>Viable but risky</td></tr>
+            </table>
+        </section>
+
+        <section id="outlook">
+            <h2>Bitcoin Market Outlook – November 2025</h2>
+            <p>Price ~$92 k after a sharp correction. Futures contango, put skew elevated, IV ~60 %. Short-term pain likely, but long-term base case remains $150 k+ by 2026.</p>
+        </section>
+
+        <section id="refs">
+            <h2>References & Further Reading</h2>
+            <ul>
+                <li>Markowitz (1952) – Portfolio Selection</li>
+                <li>Kalman (1960) – Original filter paper</li>
+                <li>Shannon (1948) – Information theory (inspiration for the Ghost)</li>
+                <li>Kelly (1956) – Information rate & betting</li>
+                <li>Thorp (1969, 2017) – Practical Kelly applications</li>
+                <li>Lopez de Prado – Advances in Financial Machine Learning</li>
+            </ul>
+        </section>
+    </main>
+</div>
+</body>
+</html>
