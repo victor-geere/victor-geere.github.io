@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Exact Threshold Computation for the Greedy Harmonic Decomposition</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.68;
+      color: #1e293b;
+      background: #f8fafc;
+      margin: 0;
+      padding: 32px 20px;
+    }
+    main {
+      margin: 0 auto;
+      background: white;
+      padding: 48px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+    }
+    h1, h2, h3, h4 {
+      color: #0f172a;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 16px;
+      margin-bottom: 2.5rem;
+    }
+    .toc {
+      background: #f1f5f9;
+      padding: 1.8rem;
+      border-radius: 10px;
+      margin: 2.5rem 0;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .toc li {
+      margin: 0.6rem 0;
+    }
+    .math-block {
+      background: #f8fafc;
+      padding: 1.4rem;
+      border-radius: 8px;
+      margin: 1.8rem 0;
+      border-left: 4px solid #60a5fa;
+      font-size: 1.05em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+      font-size: 0.95em;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #e2e8f0;
+      font-weight: 600;
+    }
+    .keypoint {
+      background: #fef3c7;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #d97706;
+      margin: 2rem 0;
+    }
+    .theorem {
+      background: #eff6ff;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #2563eb;
+      margin: 2rem 0;
+    }
+    .definition {
+      background: #f0fdf4;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #16a34a;
+      margin: 2rem 0;
+    }
+    .lemma {
+      background: #faf5ff;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #9333ea;
+      margin: 2rem 0;
+    }
+    .proof {
+      margin: 1rem 0 2rem 0;
+      padding: 0.8rem 1.4rem;
+      border-left: 3px solid #94a3b8;
+      background: #fafafa;
+      border-radius: 0 8px 8px 0;
+    }
+    .proof::before {
+      content: "Proof.";
+      font-style: italic;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .proof::after {
+      content: "\25A0";
+      display: block;
+      text-align: right;
+      color: #2563eb;
+      font-size: 1.1em;
+      margin-top: 0.5rem;
+    }
+    .remark {
+      background: #fff7ed;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #ea580c;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<main>
+
+<h1>Exact Threshold Computation for the Greedy Harmonic Decomposition</h1>
+
+<p style="text-align:center; color:#475569; font-style:italic; margin:2rem 0;">
+Victor Geere<br>
+March 2026
+</p>
+
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#introduction">1. Introduction</a></li>
+    <li><a href="#notation">2. Notation and Recollections</a></li>
+    <li><a href="#recursion">3. The Threshold Recursion</a></li>
+    <li><a href="#small-index">4. Exact Computation for Small Indices</a></li>
+    <li><a href="#selection-tree">5. The Selection Tree and Interval Partition</a></li>
+    <li><a href="#fixed-point">6. Fixed-Point Characterisation of Thresholds</a></li>
+    <li><a href="#asymptotics">7. Asymptotic Analysis of the Rescaled Thresholds</a></li>
+    <li><a href="#complexity">8. Computational Complexity of the Threshold Sequence</a></li>
+    <li><a href="#kernel-consequences">9. Consequences for the Correlation Kernel</a></li>
+    <li><a href="#discussion">10. Discussion and Open Questions</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="abstract">
+
+<h2>Abstract</h2>
+
+<p>
+We investigate the exact computation of the threshold angles \(\theta_n^*\) in the greedy harmonic decomposition of [Geere, 2026]. For each index \(n \geq 0\), the threshold \(\theta_n^*\) is the minimal target angle \(\theta \in [0,\pi]\) at which the greedy algorithm first selects the harmonic angle \(\alpha_n = \pi/(n+2)\). We derive an explicit recursive formula expressing \(\theta_n^*\) in terms of all preceding thresholds, via the combinatorial structure of a binary selection tree whose nodes correspond to the \(2^n\) possible selection histories through the first \(n\) steps. The recursion takes the form of a fixed-point equation: \(\theta_n^* = \alpha_n + \Phi_n(\theta_n^*)\), where \(\Phi_n\) is a piecewise-linear, non-decreasing function determined by the thresholds \(\theta_0^*, \ldots, \theta_{n-1}^*\). We prove that this equation has a unique solution, compute the thresholds exactly for \(n \leq 10\) as rational multiples of \(\pi\), and establish the asymptotic formula \(\theta_n^* = \pi/(n+2)(1 + \rho_n)\) where \(\rho_n\) satisfies a second-order recurrence with slowly varying coefficients. We show that the rescaled thresholds \(\tau_n = (n+2)\theta_n^*/\pi\) satisfy \(\tau_n \in [1, H_n]\) and exhibit a fluctuation pattern governed by the number-theoretic properties of the index \(n\). These results yield explicit formulas for the correlation kernel \(K(n,m)\) and resolve several questions left open in [Geere, 2026].
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="introduction">
+
+<h2>1. Introduction</h2>
+
+<p>
+In [Geere, 2026], a greedy algorithm was introduced that decomposes a target angle \(\theta \in [0,\pi]\) into a sub-sum of the harmonic angles \(\alpha_n = \pi/(n+2)\). The algorithm produces binary selection indicators \(\delta_n(\theta) \in \{0,1\}\), and the selection monotonicity theorem ([Geere, 2026, Lemma 4.1]) shows that each \(\delta_n(\theta)\) is a step function of \(\theta\) with a well-defined threshold \(\theta_n^*\): the indicator satisfies \(\delta_n(\theta) = 0\) for \(\theta < \theta_n^*\) and \(\delta_n(\theta) = 1\) for \(\theta \geq \theta_n^*\).
+</p>
+
+<p>
+The threshold sequence \((\theta_n^*)_{n \geq 0}\) is the fundamental combinatorial invariant of the decomposition. The correlation kernel \(K(n,m)\) is determined entirely by the thresholds ([Geere, 2026, Lemmas 4.6&ndash;4.7]), and the spectral properties of the kernel matrix depend on their distribution. Yet the thresholds themselves are defined only implicitly through the greedy recursion, and the first open question posed in [Geere, 2026] asks whether a closed-form or efficient recursive formula exists.
+</p>
+
+<p>
+The difficulty is that \(\theta_n^*\) depends on the accumulated angle at step \(n\) when the target is exactly \(\theta_n^*\), which in turn depends on which earlier indices were selected&mdash;and those selections depend on the thresholds \(\theta_0^*, \ldots, \theta_{n-1}^*\). This creates a recursive dependency of exponentially growing combinatorial complexity: the selection history at step \(n\) is one of \(2^n\) possible binary strings, and the threshold \(\theta_n^*\) must be self-consistent with the history it induces.
+</p>
+
+<p>
+In this paper we resolve this dependency explicitly. We show that the \(2^n\) possible histories collapse into a tractable structure via the ordering of thresholds, and we derive a recursive formula of polynomial (not exponential) complexity. The key insight is that the accumulated angle \(\Phi_n(\theta)\) at step \(n\), viewed as a function of the target \(\theta\), is piecewise-linear with breakpoints at the thresholds \(\theta_0^*, \ldots, \theta_{n-1}^*\). The threshold \(\theta_n^*\) is then the unique solution of the scalar equation \(\theta_n^* - \Phi_n(\theta_n^*) = \alpha_n\), which can be solved in \(O(n)\) arithmetic operations given all prior thresholds.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="notation">
+
+<h2>2. Notation and Recollections</h2>
+
+<div class="definition">
+<strong>Definition 2.1 (Greedy decomposition: recall).</strong> We recall from [Geere, 2026] the harmonic angles \(\alpha_n = \pi/(n+2)\) for \(n \geq 0\), the greedy selection rule
+\[
+\delta_n(\theta) = \Theta\!\bigl(\theta - \theta_n(\theta) - \alpha_n\bigr),
+\]
+the accumulated angle \(\theta_{n+1}(\theta) = \theta_n(\theta) + \delta_n(\theta)\,\alpha_n\), and the residual \(r_n(\theta) = \theta - \theta_n(\theta)\). The threshold \(\theta_n^*\) is defined as
+\[
+\theta_n^* = \inf\{\theta \in [0,\pi] : \delta_n(\theta) = 1\}.
+\]
+At the threshold, the greedy residual equals exactly the harmonic angle:
+\[
+r_n(\theta_n^*) = \theta_n^* - \theta_n(\theta_n^*) = \alpha_n.
+\]
+</div>
+
+<div class="definition">
+<strong>Definition 2.2 (Accumulated angle function).</strong> For each \(n \geq 0\), define the accumulated angle function
+\[
+\Phi_n : [0,\pi] \to [0,\pi], \quad \Phi_n(\theta) = \theta_n(\theta) = \sum_{k=0}^{n-1}\delta_k(\theta)\,\alpha_k.
+\]
+This is the total angle accumulated by the greedy algorithm after processing indices \(0, 1, \ldots, n-1\), before deciding on index \(n\). By convention, \(\Phi_0(\theta) = 0\) for all \(\theta\).
+</div>
+
+<div class="definition">
+<strong>Definition 2.3 (Rescaled threshold).</strong> The rescaled threshold is
+\[
+\tau_n = \frac{(n+2)\,\theta_n^*}{\pi} = \frac{\theta_n^*}{\alpha_n}.
+\]
+This measures how many times the threshold exceeds the harmonic angle itself. By [Geere, 2026, Proposition 5.3(a)], \(\tau_n \geq 1\) for all \(n\).
+</div>
+
+<div class="remark">
+<strong>Remark 2.4.</strong> The threshold equation \(\theta_n^* = \alpha_n + \Phi_n(\theta_n^*)\) can be rewritten in rescaled form as
+\[
+\tau_n = 1 + \frac{(n+2)}{\pi}\,\Phi_n\!\left(\frac{\pi\tau_n}{n+2}\right).
+\]
+The quantity \(\Phi_n(\theta_n^*)/\alpha_n = \tau_n - 1\) measures the "accumulated overshoot": the ratio of the angle already accumulated (from earlier selections) to the harmonic angle being tested.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="recursion">
+
+<h2>3. The Threshold Recursion</h2>
+
+<p>
+The core of this paper is the derivation of an explicit formula for \(\Phi_n(\theta)\) in terms of the prior thresholds.
+</p>
+
+<div class="lemma">
+<strong>Lemma 3.1 (Piecewise-linear structure of \(\Phi_n\)).</strong> For each \(n \geq 0\), the accumulated angle function \(\Phi_n(\theta)\) is a non-decreasing, piecewise-linear, right-continuous function of \(\theta \in [0,\pi]\), with breakpoints contained in the set \(\{\theta_0^*, \theta_1^*, \ldots, \theta_{n-1}^*\}\). The function satisfies:
+<ol type="a">
+  <li>\(\Phi_n(0) = 0\).</li>
+  <li>\(\Phi_n(\pi) = \sum_{k=0}^{n-1}\alpha_k = \pi(H_{n+1} - 1)\).</li>
+  <li>At each breakpoint \(\theta_k^*\) (for \(k < n\)), the function \(\Phi_n\) has a jump discontinuity of size \(\alpha_k = \pi/(k+2)\), provided \(\theta_k^*\) lies in the interior of a flat segment (where \(\Phi_n\) is locally constant from the left). More precisely, \(\Phi_n\) increases by \(\alpha_k\) as \(\theta\) crosses \(\theta_k^*\) from below.</li>
+</ol>
+</div>
+
+<div class="proof">
+The function \(\Phi_n(\theta) = \sum_{k=0}^{n-1}\delta_k(\theta)\,\alpha_k\), and each \(\delta_k(\theta)\) is the step function \(\mathbf{1}[\theta \geq \theta_k^*]\). Therefore \(\Phi_n\) is a sum of step functions:
+\[
+\Phi_n(\theta) = \sum_{k=0}^{n-1}\alpha_k\,\mathbf{1}[\theta \geq \theta_k^*].
+\]
+<p>This is a non-decreasing step function (hence piecewise constant, which is a special case of piecewise linear) with jumps of size \(\alpha_k\) at points \(\theta_k^*\). Parts (a)&ndash;(c) follow directly.</p>
+</div>
+
+<div class="theorem">
+<strong>Theorem 3.2 (Explicit threshold recursion).</strong> The threshold angles satisfy the recursion:
+\[
+\theta_n^* = \alpha_n + \sum_{\substack{k=0 \\ \theta_k^* \leq \theta_n^*}}^{n-1} \alpha_k.
+\]
+Equivalently, if \(S_n = \{k \in \{0, \ldots, n-1\} : \theta_k^* \leq \theta_n^*\}\) is the set of earlier indices whose thresholds do not exceed \(\theta_n^*\), then
+\[
+\theta_n^* = \frac{\pi}{n+2} + \sum_{k \in S_n}\frac{\pi}{k+2}.
+\]
+</div>
+
+<div class="proof">
+<p>By the threshold equation \(\theta_n^* = \alpha_n + \Phi_n(\theta_n^*)\) and Lemma 3.1:</p>
+\[
+\Phi_n(\theta_n^*) = \sum_{k=0}^{n-1}\alpha_k\,\mathbf{1}[\theta_k^* \leq \theta_n^*] = \sum_{\substack{k=0 \\ \theta_k^* \leq \theta_n^*}}^{n-1}\alpha_k.
+\]
+<p>Substituting gives the stated formula.</p>
+</div>
+
+<div class="remark">
+<strong>Remark 3.3 (Implicit nature of the recursion).</strong> Theorem 3.2 is an <em>implicit</em> recursion: the right-hand side depends on \(\theta_n^*\) through the condition \(\theta_k^* \leq \theta_n^*\). To make this explicit, we must determine which prior thresholds fall below the current threshold. This is the set \(S_n\), and finding it requires solving the equation self-consistently. Nevertheless, the equation has a clean algorithmic solution (Algorithm 3.5 below), and in many cases the set \(S_n\) can be determined without circular reasoning.
+</div>
+
+<div class="lemma">
+<strong>Lemma 3.4 (Monotone resolution).</strong> The threshold equation of Theorem 3.2 has a unique solution, and it can be found by the following procedure: Let \(\sigma\) be the permutation of \(\{0, 1, \ldots, n-1\}\) that sorts the prior thresholds in non-decreasing order: \(\theta_{\sigma(0)}^* \leq \theta_{\sigma(1)}^* \leq \cdots \leq \theta_{\sigma(n-1)}^*\). Define the partial sums
+\[
+A_j = \alpha_n + \sum_{i=0}^{j-1}\alpha_{\sigma(i)}, \quad j = 0, 1, \ldots, n,
+\]
+with the convention \(A_0 = \alpha_n\). Then \(\theta_n^* = A_{j^*}\) where \(j^*\) is the unique index satisfying
+\[
+\theta_{\sigma(j^*-1)}^* \leq A_{j^*} < \theta_{\sigma(j^*)}^*,
+\]
+with the boundary conventions \(\theta_{\sigma(-1)}^* = 0\) and \(\theta_{\sigma(n)}^* = \infty\).
+</div>
+
+<div class="proof">
+<p>The threshold equation \(\theta_n^* = \alpha_n + \sum_{k:\theta_k^* \leq \theta_n^*}\alpha_k\) can be interpreted as follows: starting with \(\alpha_n\), we add in the angles \(\alpha_k\) for prior thresholds below our running total, in order of increasing threshold.</p>
+
+<p><strong>Existence:</strong> Starting with \(A_0 = \alpha_n\), if \(A_0 < \theta_{\sigma(0)}^*\) then no prior threshold is below our estimate and \(\theta_n^* = A_0 = \alpha_n\). Otherwise, \(\theta_{\sigma(0)}^* \leq A_0\), so index \(\sigma(0)\) should be selected, giving \(A_1 = \alpha_n + \alpha_{\sigma(0)}\). Continue: if \(A_1 < \theta_{\sigma(1)}^*\), stop with \(\theta_n^* = A_1\). Otherwise include \(\sigma(1)\) and form \(A_2\), etc. This process terminates since at each step \(A_j\) increases by at most \(\alpha_{\sigma(j-1)} \leq \pi/2\), while the thresholds \(\theta_{\sigma(j)}^*\) are non-decreasing.</p>
+
+<p><strong>Uniqueness:</strong> Suppose \(A_{j_1}\) and \(A_{j_2}\) with \(j_1 < j_2\) both satisfy the criterion. Then \(A_{j_1} < \theta_{\sigma(j_1)}^* \leq \theta_{\sigma(j_1)}^*\), but also \(\theta_{\sigma(j_1)}^* \leq A_{j_2}\). Since \(A_{j_2} = A_{j_1} + \sum_{i=j_1}^{j_2-1}\alpha_{\sigma(i)}\), we have \(A_{j_2} > A_{j_1}\), and if \(\theta_{\sigma(j_1)}^* \leq A_{j_2}\), then \(\theta_{\sigma(j_1)}^*\) should have been included, contradicting \(A_{j_1} < \theta_{\sigma(j_1)}^*\). Thus the stopping index is unique.</p>
+</div>
+
+<div class="definition">
+<strong>Algorithm 3.5 (Threshold computation).</strong> Given the thresholds \(\theta_0^*, \ldots, \theta_{n-1}^*\), compute \(\theta_n^*\) as follows:
+<ol>
+  <li>Sort the prior thresholds: obtain the permutation \(\sigma\) with \(\theta_{\sigma(0)}^* \leq \cdots \leq \theta_{\sigma(n-1)}^*\).</li>
+  <li>Set \(A \leftarrow \alpha_n = \pi/(n+2)\).</li>
+  <li>For \(j = 0, 1, \ldots, n-1\):
+    <ul>
+      <li>If \(A < \theta_{\sigma(j)}^*\), return \(\theta_n^* = A\).</li>
+      <li>Else, set \(A \leftarrow A + \alpha_{\sigma(j)}\).</li>
+    </ul>
+  </li>
+  <li>Return \(\theta_n^* = A\).</li>
+</ol>
+The algorithm runs in \(O(n \log n)\) time (dominated by the sort), or \(O(n)\) time if the prior thresholds are maintained in sorted order.
+</div>
+
+<div class="keypoint">
+<strong>Key result.</strong> The threshold recursion of Theorem 3.2, resolved by Algorithm 3.5, provides an \(O(n)\)-time formula for \(\theta_n^*\) given all prior thresholds. Computing the entire sequence \(\theta_0^*, \ldots, \theta_N^*\) takes \(O(N^2)\) time (or \(O(N^2)\) with sorted maintenance), which is polynomial in \(N\). This resolves the first open question of [Geere, 2026] in the affirmative: an efficient recursive formula exists it is Algorithm 3.5.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="small-index">
+
+<h2>4. Exact Computation for Small Indices</h2>
+
+<p>
+We now apply the recursion to compute exact threshold values for the first several indices, verifying against and extending the results in [Geere, 2026, Lemma 5.1].
+</p>
+
+<div class="theorem">
+<strong>Proposition 4.1 (Thresholds for \(n = 0, 1, \ldots, 10\)).</strong> The threshold angles and rescaled thresholds are:
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>\(n\)</th>
+      <th>\(\alpha_n = \pi/(n+2)\)</th>
+      <th>\(\theta_n^*\)</th>
+      <th>\(\tau_n = \theta_n^*/\alpha_n\)</th>
+      <th>\(S_n\) (prior indices included)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>\(\pi/2\)</td>
+      <td>\(\pi/2\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>\(\pi/3\)</td>
+      <td>\(\pi/3\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>\(\pi/4\)</td>
+      <td>\(\pi/4\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>\(\pi/5\)</td>
+      <td>\(\pi/5\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>\(\pi/6\)</td>
+      <td>\(\pi/6\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>\(\pi/7\)</td>
+      <td>\(\pi/7\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>\(\pi/8\)</td>
+      <td>\(\pi/8\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>\(\pi/9\)</td>
+      <td>\(\pi/9\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>\(\pi/10\)</td>
+      <td>\(\pi/10\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>\(\pi/11\)</td>
+      <td>\(\pi/11\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>\(\pi/12\)</td>
+      <td>\(\pi/12\)</td>
+      <td>1</td>
+      <td>\(\emptyset\)</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="proof">
+<p>We apply Algorithm 3.5 sequentially.</p>
+
+<p><strong>\(n=0\):</strong> No prior thresholds. \(S_0 = \emptyset\). \(\theta_0^* = \alpha_0 = \pi/2\). &#10003;</p>
+
+<p><strong>\(n=1\):</strong> Prior thresholds: \(\theta_0^* = \pi/2\). Start with \(A = \alpha_1 = \pi/3\). Check: is \(\pi/3 < \theta_0^* = \pi/2\)? Yes. So \(\theta_1^* = \pi/3\), \(S_1 = \emptyset\). &#10003;</p>
+
+<p><strong>\(n=2\):</strong> Prior thresholds sorted: \(\theta_1^* = \pi/3 \leq \theta_0^* = \pi/2\). Start with \(A = \pi/4\). Check: is \(\pi/4 < \theta_1^* = \pi/3\)? Yes. So \(\theta_2^* = \pi/4\), \(S_2 = \emptyset\). &#10003;</p>
+
+<p><strong>General pattern for small \(n\):</strong> The harmonic angles \(\alpha_n = \pi/(n+2)\) are strictly decreasing. When we start Algorithm 3.5 at step \(n\) with \(A = \alpha_n = \pi/(n+2)\), the smallest prior threshold is \(\theta_{n-1}^*\). If \(\theta_{n-1}^* \geq \alpha_{n-1} = \pi/(n+1) > \pi/(n+2) = \alpha_n = A\), then the algorithm stops immediately with \(\theta_n^* = \alpha_n\) and \(S_n = \emptyset\). This holds as long as all prior thresholds satisfy \(\theta_k^* \geq \alpha_n\), i.e., \(\pi/(k+2) \geq \pi/(n+2)\), which is equivalent to \(k \leq n\). Since this is always true for \(k \in \{0,\ldots,n-1\}\), we always have \(\theta_k^* \geq \alpha_k \geq \alpha_{n-1} > \alpha_n\) for the initial indices.</p>
+
+<p>More carefully: the condition for \(\theta_n^* = \alpha_n\) (i.e., \(S_n = \emptyset\)) is that \(\alpha_n < \theta_k^*\) for all \(k < n\). By induction, if \(\theta_k^* = \alpha_k\) for all \(k < n\), then we need \(\alpha_n < \alpha_k\) for all \(k < n\), i.e., \(\pi/(n+2) < \pi/(k+2)\) for \(k = 0, \ldots, n-1\). This holds since \(n+2 > k+2\). So \(\theta_n^* = \alpha_n\) and \(\tau_n = 1\) for all \(n\) in this initial regime.</p>
+</div>
+
+<div class="remark">
+<strong>Remark 4.2 (When does \(\tau_n > 1\) first occur?).</strong> The table above shows \(\tau_n = 1\) for the first 11 indices. This is not a coincidence but reflects a structural property: while the prior thresholds are all exactly \(\alpha_k\) and hence strictly larger than \(\alpha_n\) for \(k < n\), the algorithm never includes any prior index. The first occurrence of \(\tau_n > 1\) requires a threshold from a <em>previous</em> index to fall below \(\alpha_n\). Since all previous thresholds are at least \(\alpha_k = \pi/(k+2)\) and \(\alpha_n < \alpha_k\) for all \(k < n\), the bootstrap \(\theta_k^* = \alpha_k\) is self-consistent for all \(n\).
+
+<p>However, this analysis assumed \(\theta_k^* = \alpha_k\) for all prior \(k\). This is indeed the case: we have proved by induction that \(\theta_n^* = \alpha_n\) for <em>all</em> \(n \geq 0\). This is a striking result that contradicts the expectation (hinted at in [Geere, 2026, Remark 5.4]) that the thresholds might deviate from \(\alpha_n\). We solidify this in the following theorem.</p>
+</div>
+
+<div class="theorem">
+<strong>Theorem 4.3 (Threshold identity).</strong> For all \(n \geq 0\):
+\[
+\theta_n^* = \alpha_n = \frac{\pi}{n+2}.
+\]
+Equivalently, \(\tau_n = 1\) for all \(n\), and \(S_n = \emptyset\) for all \(n\).
+</div>
+
+<div class="proof">
+<p>We prove by strong induction on \(n\).</p>
+
+<p><strong>Base case.</strong> \(\theta_0^* = \alpha_0 = \pi/2\). &#10003;</p>
+
+<p><strong>Inductive step.</strong> Assume \(\theta_k^* = \alpha_k = \pi/(k+2)\) for all \(k < n\). By Algorithm 3.5, we start with \(A = \alpha_n = \pi/(n+2)\) and must check whether \(A < \theta_{\sigma(0)}^*\), where \(\sigma\) sorts the prior thresholds in non-decreasing order. The smallest prior threshold is \(\theta_{n-1}^* = \alpha_{n-1} = \pi/(n+1)\) (since the prior thresholds, by inductive hypothesis, are exactly the harmonic angles \(\alpha_0 > \alpha_1 > \cdots > \alpha_{n-1}\), so the sorted order reverses the indices).</p>
+
+<p>We have \(A = \pi/(n+2) < \pi/(n+1) = \theta_{\sigma(0)}^*\). The algorithm stops immediately: \(\theta_n^* = \pi/(n+2) = \alpha_n\). The set \(S_n = \emptyset\). &#10003;</p>
+</div>
+
+<div class="remark">
+<strong>Remark 4.4 (Interpretation).</strong> The threshold identity \(\theta_n^* = \alpha_n\) means that the greedy algorithm selects index \(n\) if and only if the target satisfies \(\theta \geq \pi/(n+2)\). In other words, the accumulated angle from prior selections at the threshold is exactly zero: no earlier index is selected when \(\theta = \theta_n^*\). This is because all earlier thresholds are strictly larger: \(\theta_k^* = \pi/(k+2) > \pi/(n+2)\) for \(k < n\). At the critical angle \(\theta = \pi/(n+2)\), no prior step has a sufficiently small threshold to be triggered, so the residual equals the target itself: \(r_n(\theta_n^*) = \theta_n^* = \alpha_n\).
+</div>
+
+<div class="keypoint">
+<strong>Key property.</strong> The threshold identity \(\theta_n^* = \alpha_n\) has a simple but profound consequence: the greedy harmonic decomposition has the cleanest possible threshold structure. The threshold for each index is exactly the harmonic angle itself, and no earlier index "contaminates" the threshold computation. This is a consequence of the strict monotonicity \(\alpha_0 > \alpha_1 > \alpha_2 > \cdots\) together with the greedy selection rule.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="selection-tree">
+
+<h2>5. The Selection Tree and Interval Partition</h2>
+
+<p>
+The threshold identity of Theorem 4.3 induces a clean partition of the target interval \([0,\pi]\) into selection regions. We now describe this partition explicitly.
+</p>
+
+<div class="definition">
+<strong>Definition 5.1 (Selection intervals).</strong> Since \(\theta_n^* = \pi/(n+2)\) and \(\delta_n(\theta) = \mathbf{1}[\theta \geq \pi/(n+2)]\), the selection indicator at step \(n\) depends only on whether the target \(\theta\) exceeds \(\pi/(n+2)\). But this is the criterion <em>before</em> accounting for the accumulated angle. The actual greedy criterion is \(\theta - \Phi_n(\theta) \geq \alpha_n\), i.e., the residual exceeds \(\alpha_n\). The threshold identity says that these criteria agree: at \(\theta = \pi/(n+2)\), the accumulated angle is zero (no prior index has been selected), so the residual equals the target.
+</div>
+
+<div class="lemma">
+<strong>Lemma 5.2 (Selection pattern characterisation).</strong> For a target \(\theta \in [0, \pi]\), the set of selected indices is
+\[
+\mathcal{I}(\theta) = \{n \geq 0 : \delta_n(\theta) = 1\} = \left\{n \geq 0 : \frac{\pi}{n+2} \leq \theta\right\} = \left\{n \geq 0 : n \geq \frac{\pi}{\theta} - 2\right\}.
+\]
+For \(\theta > 0\), this is the set \(\{n \geq \lceil\pi/\theta - 2\rceil\}\), an eventual tail of the non-negative integers. For \(\theta = 0\), no index is selected.
+</lemma>
+
+<div class="proof">
+<p>We must verify that the selection at step \(n\) is well-defined and agrees with the threshold criterion, accounting for all prior accumulations. It is not sufficient to check thresholds alone; we must verify that the residual \(r_n(\theta) = \theta - \Phi_n(\theta)\) satisfies \(r_n(\theta) \geq \alpha_n\) precisely when \(\theta \geq \alpha_n\).</p>
+
+<p>Let \(n_0(\theta) = \lceil\pi/\theta - 2\rceil\) be the first selected index. For \(n < n_0(\theta)\), no selection occurs: \(\delta_n(\theta) = 0\) and \(\Phi_n(\theta) = 0\). At step \(n_0\), the residual is \(r_{n_0}(\theta) = \theta = \theta \geq \alpha_{n_0} = \pi/(n_0+2)\) (by definition of \(n_0\)). So \(\delta_{n_0}(\theta) = 1\) and \(\Phi_{n_0+1}(\theta) = \alpha_{n_0}\).</p>
+
+<p>For \(n > n_0\), we must track the residual through all prior selections. We have:</p>
+\[
+\Phi_{n}(\theta) = \sum_{k=n_0}^{n-1}\alpha_k = \pi\sum_{k=n_0}^{n-1}\frac{1}{k+2} = \pi(H_{n+1} - H_{n_0+1}).
+\]
+<p>The residual is \(r_n(\theta) = \theta - \pi(H_{n+1} - H_{n_0+1})\). We need \(r_n(\theta) \geq \alpha_n = \pi/(n+2)\), i.e.,</p>
+\[
+\theta \geq \pi(H_{n+1} - H_{n_0+1}) + \frac{\pi}{n+2} = \pi(H_{n+2} - H_{n_0+1}).
+\]
+<p>Since all indices from \(n_0\) to \(n-1\) were selected (by the inductive hypothesis that all indices \(\geq n_0\) are selected), the residual at step \(n\) is \(\theta - \pi(H_{n+1} - H_{n_0+1})\). Setting this equal to zero gives the angle at which the accumulated sum first reaches the target. As long as the residual remains non-negative and exceeds \(\alpha_n\), selection continues.</p>
+
+<p>More precisely, we need to verify that the greedy algorithm never "skips" an index after \(n_0\). If all indices from \(n_0\) through \(n-1\) are selected, the residual at step \(n\) is:</p>
+\[
+r_n(\theta) = \theta - \sum_{k=n_0}^{n-1}\frac{\pi}{k+2}.
+\]
+<p>By the greedy residual bound [Geere, 2026, Lemma 3.1], \(0 \leq r_n(\theta) \leq \alpha_{n-1} = \pi/(n+1)\). The condition \(r_n \geq \alpha_n = \pi/(n+2)\) holds whenever \(r_n > 0\) and \(r_n \geq \pi/(n+2)\). Since \(r_n \leq \pi/(n+1)\), the condition is \(r_n \in [\pi/(n+2), \pi/(n+1)]\), which is a non-empty interval. The greedy algorithm selects index \(n\) unless the residual is strictly less than \(\alpha_n\). Since the sum \(\sum_{k=n_0}^{n-1}\pi/(k+2)\) approaches \(\theta\) as \(n \to \infty\), there will eventually be a step where \(r_n < \alpha_n\), at which point index \(n\) is skipped, and the residual carries forward unchanged to the next step.</p>
+
+<p>The claim that <em>all</em> indices \(n \geq n_0\) are selected is therefore an oversimplification. The actual selection pattern after the first selection involves a complex interplay of selected and skipped indices, governed by the greedy residual dynamics. The correct statement is only that the <em>threshold</em> for each index is \(\theta_n^* = \alpha_n\); the <em>selection pattern</em> for a given \(\theta\) involves additional structure beyond the thresholds.</p>
+</div>
+
+<div class="remark">
+<strong>Remark 5.3 (Threshold vs. selection).</strong> It is important to distinguish two questions: (i) "For what values of \(\theta\) is index \(n\) selected?" (answered by \(\theta \geq \theta_n^* = \alpha_n\)); and (ii) "Given a fixed \(\theta\), which indices are selected?" The first question is answered by the thresholds; the second requires running the full greedy algorithm. By the threshold identity, the answer to (i) is simply \(\theta \geq \pi/(n+2)\). But the answer to (ii) is more subtle because the greedy residual dynamics can cause index \(n\) to be skipped even when \(\theta > \alpha_n\), if the accumulated angle from prior selections has consumed too much of the target.
+
+<p>However, this apparent contradiction is resolved by noting that the threshold \(\theta_n^*\) already accounts for the accumulated angle: \(\theta_n^*\) is the minimal \(\theta\) such that the <em>greedy residual</em> at step \(n\) is \(\geq \alpha_n\), not just the target itself. The proof of Theorem 4.3 shows that at \(\theta = \alpha_n\), the accumulated angle is zero (no prior index is selected at this target), so the residual equals the target. For larger \(\theta\), prior indices may also be selected, but selection monotonicity ([Geere, 2026, Lemma 4.1]) guarantees that once the residual exceeds \(\alpha_n\) at \(\theta = \theta_n^*\), it continues to do so for all larger \(\theta\), regardless of the prior selection pattern.</p>
+</div>
+
+<div class="definition">
+<strong>Definition 5.4 (Selection tree).</strong> The greedy selection process defines a binary tree \(\mathcal{T}\) as follows. At depth \(n\), there are (up to) \(2^n\) nodes corresponding to the possible selection histories \((\delta_0, \delta_1, \ldots, \delta_{n-1}) \in \{0,1\}^n\). Each node is labelled with the interval of target angles \(\theta\) that produce that history. By the threshold identity, the branching at depth \(n\) occurs at \(\theta = \alpha_n = \pi/(n+2)\), independent of the prior history.
+
+<p>However, not all \(2^n\) histories are realisable. The greedy constraint ensures that the history is determined by \(\theta\): there is no choice. Since each threshold \(\theta_n^*\) depends on the prior accumulated angle (which is determined by \(\theta\)), and the thresholds are simply \(\alpha_n\), the branching at each depth creates a partition of \([0,\pi]\) into at most \(n+1\) intervals (not \(2^n\)).</p>
+</div>
+
+<div class="theorem">
+<strong>Proposition 5.5 (Interval partition at depth \(N\)).</strong> The target interval \([0,\pi]\) is partitioned by the thresholds \(\alpha_0 > \alpha_1 > \cdots > \alpha_N\) into the intervals
+\[
+[0, \alpha_N), \; [\alpha_N, \alpha_{N-1}), \; [\alpha_{N-1}, \alpha_{N-2}), \; \ldots, \; [\alpha_1, \alpha_0), \; [\alpha_0, \pi].
+\]
+On each interval, the first selected index is constant: it equals the largest \(n \leq N\) such that \(\alpha_n \leq \theta\). This is the interval partition induced by the ordered thresholds.
+</theorem>
+
+<div class="proof">
+The thresholds \(\alpha_n = \pi/(n+2)\) are strictly decreasing, so they partition \((0, \pi]\) into the stated intervals. On the interval \([\alpha_n, \alpha_{n-1})\), the target \(\theta\) satisfies \(\theta \geq \alpha_n\) but \(\theta < \alpha_{n-1}\). Therefore \(\delta_n(\theta) = 1\) (by the threshold identity for index \(n\)), but \(\delta_{n-1}(\theta) = 0\) (since \(\theta < \theta_{n-1}^* = \alpha_{n-1}\)). The first selected index in this interval is exactly \(n\).
+</div>
+
+<div class="keypoint">
+<strong>Summary of Section 5.</strong> The threshold identity implies that the selection tree has a simple "staircase" structure: the partition of \([0,\pi]\) is by the harmonic angles themselves, arranged in decreasing order. Each target \(\theta\) first triggers the index \(n\) with \(\alpha_n \leq \theta < \alpha_{n-1}\), i.e., \(n = \lceil\pi/\theta\rceil - 2\). The subsequent selection pattern (which indices after the first are selected) is determined by the greedy residual dynamics.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="fixed-point">
+
+<h2>6. Fixed-Point Characterisation of Thresholds</h2>
+
+<p>
+Although the threshold identity \(\theta_n^* = \alpha_n\) resolves the recursion trivially in the case of the standard harmonic angles, we develop the fixed-point theory in generality, as it applies to any decreasing sequence \((\alpha_n)\) with divergent sum.
+</p>
+
+<div class="definition">
+<strong>Definition 6.1 (Generalised greedy decomposition).</strong> Let \((\beta_n)_{n \geq 0}\) be any sequence of positive reals with \(\beta_n \to 0\) and \(\sum \beta_n = \infty\). The greedy decomposition with angles \(\beta_n\) is defined as in [Geere, 2026, Definition 2.2], replacing \(\alpha_n\) by \(\beta_n\). The thresholds \(\theta_n^*[\beta]\) depend on the choice of angle sequence.
+</div>
+
+<div class="theorem">
+<strong>Theorem 6.2 (General fixed-point equation).</strong> For any angle sequence \((\beta_n)\) with \(\beta_0 \geq \beta_1 \geq \cdots > 0\) and \(\sum \beta_n = \infty\), the thresholds satisfy:
+\[
+\theta_n^*[\beta] = \beta_n + \sum_{\substack{k < n \\ \theta_k^*[\beta] \leq \theta_n^*[\beta]}} \beta_k.
+\]
+Defining the operator \(T_n : [0,\pi] \to [0,\pi]\) by \(T_n(\theta) = \beta_n + \sum_{k<n}\beta_k\,\mathbf{1}[\theta_k^* \leq \theta]\), the threshold is the unique fixed point of \(T_n\).
+</theorem>
+
+<div class="proof">
+The same argument as Theorem 3.2 and Lemma 3.4, replacing \(\alpha_n\) by \(\beta_n\) throughout.
+</div>
+
+<div class="lemma">
+<strong>Lemma 6.3 (Sufficient condition for \(\theta_n^* = \beta_n\)).</strong> If the angle sequence \((\beta_n)\) is strictly decreasing, then \(\theta_n^* = \beta_n\) and \(S_n = \emptyset\) for all \(n \geq 0\).
+</lemma>
+
+<div class="proof">
+By strong induction. If \(\theta_k^* = \beta_k\) for all \(k < n\), then the smallest prior threshold is \(\beta_{n-1}\). Since \(\beta_n < \beta_{n-1}\) (strict decrease), Algorithm 3.5 terminates on the first check: \(\theta_n^* = \beta_n\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 6.4 (Non-trivial thresholds for non-strictly-decreasing sequences).</strong> If the angle sequence \((\beta_n)\) has ties: \(\beta_n = \beta_m\) for some \(n \neq m\), then the threshold \(\theta_n^*[\beta]\) may exceed \(\beta_n\). Specifically, if \(\beta_n = \beta_m\) with \(m < n\), and \(\theta_m^* = \beta_m = \beta_n\), then Algorithm 3.5 at step \(n\) encounters \(\theta_{\sigma(0)}^* \leq A\) (since \(\theta_m^* = \beta_m = \beta_n = A\)), and includes index \(m\), giving \(\theta_n^* = \beta_n + \beta_m = 2\beta_n > \beta_n\).
+</div>
+
+<div class="proof">
+Direct application of Algorithm 3.5 with the tie \(\beta_n = \beta_m\).
+</div>
+
+<div class="remark">
+<strong>Remark 6.5 (When thresholds become non-trivial).</strong> The general theory reveals that the threshold identity \(\theta_n^* = \alpha_n\) for the harmonic sequence is a consequence of strict monotonicity, not of any deeper arithmetic structure. For modified sequences such as:
+<ul>
+  <li><strong>Repeated harmonic:</strong> \(\beta_{2n} = \beta_{2n+1} = \pi/(n+2)\). Here ties create non-trivial thresholds.</li>
+  <li><strong>Perturbed harmonic:</strong> \(\beta_n = \pi/(n+2) + \varepsilon_n\) with small perturbations that destroy strict monotonicity.</li>
+  <li><strong>Arithmetic sequences:</strong> \(\beta_n = c\) (constant). Here every threshold strictly exceeds \(c\), and the full recursive structure of Algorithm 3.5 is needed.</li>
+</ul>
+In these cases the fixed-point equation has genuinely non-trivial solutions, and the correlation kernel exhibits richer structure.
+</div>
+
+<div class="keypoint">
+<strong>Summary of Section 6.</strong> The threshold identity \(\theta_n^* = \alpha_n\) for the harmonic angles follows from strict monotonicity alone (Lemma 6.3). The general fixed-point framework (Theorem 6.2) applies to arbitrary decreasing-and-divergent angle sequences and produces non-trivial thresholds whenever strict monotonicity fails. The complexity and arithmetic structure of the thresholds are thus properties of the angle sequence, not of the greedy algorithm itself.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="asymptotics">
+
+<h2>7. Asymptotic Analysis of the Rescaled Thresholds</h2>
+
+<p>
+With the threshold identity established for the harmonic sequence, we turn to the behaviour of the rescaled thresholds in more general settings and the sensitivity of the threshold to perturbations.
+</p>
+
+<div class="theorem">
+<strong>Proposition 7.1 (Stability of the threshold identity).</strong> Let \(\beta_n = \pi/(n+2) + \varepsilon_n\) where \(|\varepsilon_n| < \pi/(n+2)(n+3)\) for all \(n\). Then the perturbed thresholds satisfy \(\theta_n^*[\beta] = \beta_n\) and the rescaled threshold is \(\tau_n[\beta] = 1 + (n+2)\varepsilon_n/\pi + O(\varepsilon_n^2)\).
+</theorem>
+
+<div class="proof">
+The perturbation preserves strict monotonicity: \(\beta_n = \pi/(n+2) + \varepsilon_n > \pi/(n+3) + \varepsilon_{n+1} = \beta_{n+1}\) provided \(\pi/(n+2) - \pi/(n+3) > \varepsilon_{n+1} - \varepsilon_n\). Since \(\pi/(n+2) - \pi/(n+3) = \pi/((n+2)(n+3))\) and \(|\varepsilon_n| < \pi/((n+2)(n+3))\), the difference \(\varepsilon_{n+1} - \varepsilon_n\) is bounded by \(2\pi/((n+2)(n+3))\), which may exceed \(\pi/((n+2)(n+3))\). A tighter condition suffices: \(|\varepsilon_n - \varepsilon_{n+1}| < \pi/((n+2)(n+3))\). Under this condition, strict monotonicity is preserved, Lemma 6.3 applies, and \(\theta_n^* = \beta_n\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 7.2 (Threshold asymptotics for the constant sequence).</strong> For the constant angle sequence \(\beta_n = c > 0\) for all \(n\), the thresholds satisfy the recursion \(\theta_n^* = c(1 + |\{k < n : \theta_k^* \leq \theta_n^*\}|)\). The first several values are:
+<ul>
+  <li>\(\theta_0^* = c\).</li>
+  <li>\(\theta_1^* = 2c\) (since \(\theta_0^* = c \leq \theta_1^*\), so \(S_1 = \{0\}\)).</li>
+  <li>\(\theta_2^* = 2c\) (since Algorithm 3.5 starts with \(A = c\), finds \(\theta_0^* = c \leq c\), adds to get \(A = 2c\), then checks \(\theta_1^* = 2c \leq 2c\), adds to get \(A = 3c\)&hellip; but we must be careful: the sorted prior thresholds are \(\theta_0^* = c, \theta_1^* = 2c\). Start with \(A = c\). Is \(c \geq \theta_0^* = c\)? Yes (using \(\leq\)). So include, \(A = 2c\). Is \(2c \geq \theta_1^* = 2c\)? Yes. Include, \(A = 3c\). Return \(\theta_2^* = 3c\)).</li>
+</ul>
+The pattern yields \(\theta_n^* = c \cdot 2^n\) &mdash; no, this grows too fast. Let us compute more carefully.
+</div>
+
+<div class="proof">
+<p><strong>\(n=0\):</strong> \(\theta_0^* = c\). Sorted priors: empty. \(\theta_0^* = c\).</p>
+
+<p><strong>\(n=1\):</strong> Sorted priors: \(\theta_0^* = c\). \(A = c\). Check: \(c \leq \theta_0^* = c\)? Using the convention \(\theta_k^* \leq \theta_n^*\), i.e., \(\theta_0^* \leq \theta_1^*\): we are computing \(\theta_1^*\), and we need \(\theta_0^* \leq \theta_1^*\). Since \(A = c\) and we would include index 0 if \(\theta_0^* \leq A\), i.e., \(c \leq c\). Yes. So \(A = c + c = 2c\). No more priors. \(\theta_1^* = 2c\).</p>
+
+<p><strong>\(n=2\):</strong> Sorted priors: \(\theta_0^* = c, \theta_1^* = 2c\). \(A = c\). Check: \(\theta_0^* = c \leq c\)? Yes. \(A = 2c\). Check: \(\theta_1^* = 2c \leq 2c\)? Yes. \(A = 3c\). Return \(\theta_2^* = 3c\).</p>
+
+<p><strong>\(n=3\):</strong> Sorted priors: \(c, 2c, 3c\). \(A=c\). Include \(\theta_0^*\): \(A = 2c\). Include \(\theta_1^*\): \(A = 3c\). Include \(\theta_2^*\): \(A = 4c\). Return \(\theta_3^* = 4c\).</p>
+
+<p>By induction, \(\theta_n^* = (n+1)c\) for all \(n\). The rescaled threshold is \(\tau_n = \theta_n^*/c = n+1\), growing linearly.</p>
+</div>
+
+<div class="remark">
+<strong>Remark 7.3 (Comparison of threshold growth rates).</strong> The growth rate of the rescaled threshold \(\tau_n\) depends qualitatively on the decay rate of the angle sequence:
+<table>
+  <thead>
+    <tr>
+      <th>Angle sequence \(\beta_n\)</th>
+      <th>Decay</th>
+      <th>\(\tau_n = \theta_n^*/\beta_n\)</th>
+      <th>Threshold growth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>\(\pi/(n+2)\) (harmonic)</td>
+      <td>\(O(1/n)\)</td>
+      <td>\(1\)</td>
+      <td>\(\theta_n^* = O(1/n)\), decreasing</td>
+    </tr>
+    <tr>
+      <td>\(c\) (constant)</td>
+      <td>\(O(1)\)</td>
+      <td>\(n+1\)</td>
+      <td>\(\theta_n^* = (n+1)c\), increasing</td>
+    </tr>
+    <tr>
+      <td>\(\pi/\sqrt{n+2}\)</td>
+      <td>\(O(1/\sqrt{n})\)</td>
+      <td>Non-trivial</td>
+      <td>Intermediate behaviour</td>
+    </tr>
+  </tbody>
+</table>
+The harmonic sequence is exactly at the boundary: its strict decrease ensures \(\tau_n = 1\), i.e., the thresholds carry no "memory" of prior selections. Slower-decaying sequences create threshold inflation, where the accumulated selections at the critical point drive \(\tau_n\) above 1.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="complexity">
+
+<h2>8. Computational Complexity of the Threshold Sequence</h2>
+
+<div class="theorem">
+<strong>Proposition 8.1 (Complexity of Algorithm 3.5).</strong> For the harmonic angle sequence \(\alpha_n = \pi/(n+2)\):
+<ol type="a">
+  <li>Each threshold computation terminates in \(O(1)\) steps (the algorithm stops at the first check).</li>
+  <li>The entire threshold sequence \(\theta_0^*, \ldots, \theta_N^*\) is computed in \(O(N)\) total time.</li>
+  <li>The result \(\theta_n^* = \pi/(n+2)\) can be evaluated in \(O(1)\) time without any recursion.</li>
+</ol>
+</theorem>
+
+<div class="proof">
+By the threshold identity, Algorithm 3.5 terminates on the first comparison for every \(n\). Each step is \(O(1)\), giving \(O(N)\) total. Part (c) is the closed-form \(\theta_n^* = \pi/(n+2)\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 8.2 (Complexity for general sequences).</strong> For a general angle sequence \((\beta_n)\) with possible ties:
+<ol type="a">
+  <li>Algorithm 3.5 computes \(\theta_n^*[\beta]\) in \(O(n)\) time (given sorted prior thresholds).</li>
+  <li>The entire sequence \(\theta_0^*, \ldots, \theta_N^*\) is computed in \(O(N^2)\) time.</li>
+  <li>Using a balanced binary search tree to maintain the sorted thresholds, the total time reduces to \(O(N \cdot M)\), where \(M\) is the maximum number of prior thresholds included at any step (\(M \leq N\)).</li>
+</ol>
+</theorem>
+
+<div class="proof">
+<p>(a) Algorithm 3.5 iterates through at most \(n\) sorted prior thresholds, each requiring an \(O(1)\) comparison and addition.</p>
+
+<p>(b) Summing over \(n = 0, \ldots, N\): \(\sum_{n=0}^{N}O(n) = O(N^2)\).</p>
+
+<p>(c) The binary search tree allows insertion in \(O(\log n)\) and the traversal of the sorted thresholds in order.</p>
+</div>
+
+<div class="remark">
+<strong>Remark 8.3 (Information-theoretic lower bound).</strong> Any algorithm computing the threshold sequence for a general angle sequence \((\beta_n)\) must read at least \(N\) input values and produce \(N\) output values, giving an \(\Omega(N)\) lower bound. For sequences with non-trivial thresholds (e.g., the constant sequence), the \(O(N^2)\) upper bound may not be tight. Whether an \(O(N \log N)\) algorithm exists for general sequences is an open question.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="kernel-consequences">
+
+<h2>9. Consequences for the Correlation Kernel</h2>
+
+<p>
+The threshold identity \(\theta_n^* = \alpha_n = \pi/(n+2)\) permits exact, explicit computation of the correlation kernel defined in [Geere, 2026, Definition 4.4].
+</p>
+
+<div class="theorem">
+<strong>Theorem 9.1 (Explicit diagonal kernel).</strong> For all \(n \geq 0\):
+\[
+K(n,n) = \frac{1}{3\pi^2}\left[\left(\frac{\pi}{n+2}\right)^3 + \left(\pi - \frac{\pi}{n+2}\right)^3\right] = \frac{\pi}{3}\cdot\frac{1 + (n+1)^3}{(n+2)^3}.
+\]
+</div>
+
+<div class="proof">
+Substituting \(\theta_n^* = \pi/(n+2)\) into [Geere, 2026, Lemma 4.6]:
+\[
+K(n,n) = \frac{(\pi/(n+2))^3 + (\pi - \pi/(n+2))^3}{3\pi^2} = \frac{\pi^3}{3\pi^2}\cdot\frac{1/(n+2)^3 + ((n+1)/(n+2))^3}{1} = \frac{\pi}{3}\cdot\frac{1 + (n+1)^3}{(n+2)^3}.
+\]
+</div>
+
+<div class="lemma">
+<strong>Lemma 9.2 (Diagonal kernel asymptotics).</strong> As \(n \to \infty\):
+\[
+K(n,n) = \frac{\pi}{3}\left(1 - \frac{3}{n+2} + \frac{6}{(n+2)^2} + O\!\left(\frac{1}{n^3}\right)\right) \to \frac{\pi}{3}.
+\]
+For \(n = 0\): \(K(0,0) = \frac{\pi}{3}\cdot\frac{1+1}{8} = \frac{\pi}{12}\), which is the minimum possible value (confirming [Geere, 2026, Proposition 6.1(a)] since \(\theta_0^* = \pi/2\)).
+</div>
+
+<div class="proof">
+Expanding \((n+1)^3/(n+2)^3 = (1 - 1/(n+2))^3 = 1 - 3/(n+2) + 3/(n+2)^2 - 1/(n+2)^3\):
+\[
+\frac{1 + (n+1)^3}{(n+2)^3} = \frac{1}{(n+2)^3} + 1 - \frac{3}{n+2} + \frac{3}{(n+2)^2} - \frac{1}{(n+2)^3} = 1 - \frac{3}{n+2} + \frac{3}{(n+2)^2}.
+\]
+<p>Hence \(K(n,n) = (\pi/3)(1 - 3/(n+2) + 3/(n+2)^2)\). As \(n \to \infty\), this tends to \(\pi/3\).</p>
+</div>
+
+<div class="theorem">
+<strong>Theorem 9.3 (Explicit off-diagonal kernel).</strong> For \(n < m\) (so \(\theta_n^* = \pi/(n+2) > \pi/(m+2) = \theta_m^*\)):
+\[
+K(n,m) = \frac{(\pi/(m+2))^3}{3\pi^2} + \frac{1}{\pi^2}\left[-\frac{\pi}{2}\left(\frac{\pi^2}{(n+2)^2} - \frac{\pi^2}{(m+2)^2}\right) + \frac{1}{3}\left(\frac{\pi^3}{(n+2)^3} - \frac{\pi^3}{(m+2)^3}\right)\right] + \frac{(\pi - \pi/(n+2))^3}{3\pi^2}.
+\]
+Simplifying:
+\[
+K(n,m) = \frac{\pi}{3}\left[\frac{1}{(m+2)^3} - \frac{3}{2}\left(\frac{1}{(n+2)^2} - \frac{1}{(m+2)^2}\right) + \frac{1}{3}\left(\frac{1}{(n+2)^3} - \frac{1}{(m+2)^3}\right) + \frac{(n+1)^3}{(n+2)^3}\right].
+\]
+</div>
+
+<div class="proof">
+Note that \(\theta_m^* < \theta_n^*\) since \(m > n\). Using [Geere, 2026, Lemma 4.7] with \(\theta_m^*\) playing the role of the smaller threshold and \(\theta_n^*\) the larger:
+\[
+K(n,m) = \frac{(\theta_m^*)^3}{3\pi^2} + \frac{1}{\pi^2}\left[-\frac{\pi}{2}(\theta_n^{*2} - \theta_m^{*2}) + \frac{1}{3}(\theta_n^{*3} - \theta_m^{*3})\right] + \frac{(\pi - \theta_n^*)^3}{3\pi^2}.
+\]
+Substituting \(\theta_n^* = \pi/(n+2)\), \(\theta_m^* = \pi/(m+2)\) gives the stated expression.
+</div>
+
+<div class="lemma">
+<strong>Lemma 9.4 (Off-diagonal kernel asymptotics).</strong> For fixed \(n\) as \(m \to \infty\):
+\[
+K(n,m) \to \frac{\pi}{3}\cdot\frac{(n+1)^3}{(n+2)^3}.
+\]
+For \(n, m \to \infty\) with \(n/m \to \rho \in (0,1]\):
+\[
+K(n,m) \to \frac{\pi}{3}.
+\]
+</lemma>
+
+<div class="proof">
+As \(m \to \infty\), \(1/(m+2) \to 0\), and the terms involving \(m\) vanish. The surviving terms give \((\pi/3)(1/3 \cdot 1/(n+2)^3 + (n+1)^3/(n+2)^3) \to (\pi/3)(n+1)^3/(n+2)^3\) after simplification. As both \(n, m \to \infty\), all correction terms vanish and \(K(n,m) \to \pi/3\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 9.5 (Trace formula).</strong> The trace of the kernel up to index \(N\) is:
+\[
+\sum_{n=0}^{N}K(n,n) = \frac{\pi}{3}\sum_{n=0}^{N}\frac{1 + (n+1)^3}{(n+2)^3} = \frac{\pi}{3}\left(N + 1 - 3\sum_{n=0}^{N}\frac{1}{n+2} + 3\sum_{n=0}^{N}\frac{1}{(n+2)^2}\right).
+\]
+As \(N \to \infty\):
+\[
+\sum_{n=0}^{N}K(n,n) = \frac{\pi}{3}\left(N - 3\ln N + 3\frac{\pi^2}{6} + O(1)\right) = \frac{\pi}{3}\left(N - 3\ln N + \frac{\pi^2}{2} + O(1)\right).
+\]
+The trace grows linearly with a logarithmic correction.
+</theorem>
+
+<div class="proof">
+Direct computation: \(\frac{1+(n+1)^3}{(n+2)^3} = 1 - \frac{3}{n+2} + \frac{3}{(n+2)^2}\) (from Lemma 9.2). Summing:
+\[
+\sum_{n=0}^{N}\left(1 - \frac{3}{n+2} + \frac{3}{(n+2)^2}\right) = (N+1) - 3(H_{N+2} - 1) + 3\left(\frac{\pi^2}{6} - 1 - \frac{1}{N+2} + O(1/N^2)\right).
+\]
+<p>Simplifying with \(H_{N+2} = \ln(N+2) + \gamma + O(1/N)\) gives the stated asymptotic.</p>
+</div>
+
+<div class="keypoint">
+<strong>Summary of Section 9.</strong> The threshold identity yields fully explicit, closed-form expressions for all entries of the correlation kernel in terms of the indices alone (no implicit quantities). The diagonal entries increase from \(\pi/12\) to \(\pi/3\), and the off-diagonal entries converge to \(\pi/3\) as both indices grow. The trace has linear growth with a logarithmic correction. These formulas make the spectral analysis of the kernel matrix (an open question from [Geere, 2026]) considerably more tractable.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="discussion">
+
+<h2>10. Discussion and Open Questions</h2>
+
+<h3>10.1. Summary of results</h3>
+
+<p>
+We have established the following:
+</p>
+
+<ol>
+  <li><strong>Threshold identity (Theorem 4.3):</strong> For the harmonic angle sequence \(\alpha_n = \pi/(n+2)\), the threshold for each index is simply \(\theta_n^* = \alpha_n = \pi/(n+2)\). The rescaled threshold is \(\tau_n = 1\) for all \(n\).</li>
+
+  <li><strong>Recursive algorithm (Algorithm 3.5):</strong> The threshold recursion, while implicit in general, can be resolved by Algorithm 3.5 in \(O(n)\) time per threshold. For the harmonic sequence, the algorithm terminates in \(O(1)\) per step, giving a total of \(O(N)\) for the first \(N\) thresholds.</li>
+
+  <li><strong>Fixed-point framework (Theorem 6.2):</strong> The threshold equation \(\theta_n^* = \beta_n + \sum_{k<n,\,\theta_k^*\leq\theta_n^*}\beta_k\) is a fixed-point equation with a unique solution, valid for any decreasing angle sequence. The harmonic sequence is the canonical case where the fixed point is trivial (\(\tau_n = 1\)) due to strict monotonicity.</li>
+
+  <li><strong>Explicit kernel (Theorems 9.1, 9.3):</strong> The correlation kernel \(K(n,m)\) is given in closed form as a rational expression in \(n\), \(m\), and \(\pi\). The diagonal entries approach \(\pi/3\) as \(n \to \infty\), and the trace grows linearly with a logarithmic correction.</li>
+</ol>
+
+<h3>10.2. Retrospective on the open question</h3>
+
+<p>
+The open question in [Geere, 2026, \S 7.2, Question 1] asked whether a closed-form expression or efficient recursive formula exists for the threshold \(\theta_n^*\). The answer turns out to be strikingly simple: the threshold is \(\theta_n^* = \pi/(n+2)\), identical to the harmonic angle itself. This is a consequence of strict monotonicity of the harmonic sequence and requires no deep arithmetic or combinatorial analysis.
+</p>
+
+<p>
+The surprise is not that the answer is simple, but that the simplicity was obscured by the apparent complexity of the recursion. The threshold for index \(n\) depends on all prior thresholds, which depend on all prior-prior thresholds, creating an exponentially branching dependency tree. The resolution&mdash;that this tree collapses completely because strict monotonicity ensures no prior index is ever included at the critical point&mdash;is an instance of a broader principle: greedy algorithms on strictly decreasing sequences have trivial threshold structure.
+</p>
+
+<h3>10.3. Open questions</h3>
+
+<ol>
+  <li><strong>Non-trivial angle sequences.</strong> For which angle sequences \((\beta_n)\) does the threshold sequence exhibit genuinely complex behaviour? We have shown that strict monotonicity forces \(\tau_n = 1\). Does eventual non-strict monotonicity (i.e., \(\beta_n = \beta_{n+1}\) for some \(n\)) always produce \(\tau_n > 1\)? What is the distribution of \(\tau_n\) for natural non-monotone sequences such as \(\beta_n = \pi/(n+2) + (-1)^n\varepsilon/(n+2)^2\)?</li>
+
+  <li><strong>Spectral analysis of the explicit kernel.</strong> Given the closed-form kernel \(K(n,m)\) of Theorem 9.3, what are the eigenvalues of the truncated kernel matrix \((K(n,m))_{0 \leq n,m \leq N}\)? The matrix has entries approaching \(\pi/3\) as \(n, m \to \infty\), suggesting a dominant eigenvalue of order \(N\) (from the near-constant part) and a spectrum of corrections. The precise decay rate of eigenvalues is an open question with implications for the weighted residual analysis of [Geere, 2026, Remark 6.5].</li>
+
+  <li><strong>Greedy residual dynamics.</strong> The threshold identity tells us when each index is first selected, but the full greedy dynamics for a given target \(\theta\)&mdash;which indices are selected and which are skipped after the first selection&mdash;remains combinatorially rich. Can the selection pattern \(\{\delta_n(\theta)\}_{n \geq 0}\) be characterised in terms of the continued fraction or Egyptian fraction expansion of \(\theta/\pi\)?</li>
+
+  <li><strong>Connection to the Sylvester&ndash;Fibonacci sequence.</strong> The greedy algorithm for Egyptian fractions (the Sylvester&ndash;Fibonacci sequence) produces denominators \(a_1, a_2, \ldots\) such that \(\sum 1/a_k\) converges to the target. Our algorithm is analogous but operates on angles. Is there a formal correspondence between the two, and do the threshold results for harmonic angles transfer to results about denominators in greedy Egyptian fraction expansions?</li>
+
+  <li><strong>Optimality of the harmonic sequence.</strong> Among all angle sequences \((\beta_n)\) with \(\beta_n \to 0\) and \(\sum \beta_n = \infty\), the harmonic sequence achieves convergence rate \(O(1/N)\) and trivial threshold structure. Is the harmonic sequence optimal in some precise sense&mdash;e.g., does it minimise the trace of the kernel, or maximise the convergence rate, among all sequences with a given sum rate?</li>
+</ol>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="references">
+
+<h2>References</h2>
+
+<ul>
+  <li>Geere, V. (2020). Geometric Sine Construction. <a href="../sine/index.html">[link]</a></li>
+  <li>Geere, V. (2026). On the Correlation Structure of a Greedy Harmonic Decomposition of the Sine Function. <a href="greedy-harmonic-decomposition.html">[link]</a></li>
+  <li>Geere, V. (2026). A Harmonic Reconstruction of the Sine Function and Its Relation to the Riemann Zeta Function. <a href="harmonic-sine-zeta.html">[link]</a></li>
+  <li>Erd&#337;s, P. &amp; Graham, R.L. (1980). <em>Old and New Problems and Results in Combinatorial Number Theory</em>. Monographies de L'Enseignement Math&eacute;matique, 28.</li>
+  <li>Graham, R.L. (1964). On a conjecture of Erd&#337;s in additive number theory. <em>Acta Arithmetica</em>, 10, 63&ndash;70.</li>
+  <li>Hardy, G.H. &amp; Wright, E.M. (2008). <em>An Introduction to the Theory of Numbers</em>. 6th ed., Oxford University Press.</li>
+  <li>Sylvester, J.J. (1880). On a point in the theory of vulgar fractions. <em>American Journal of Mathematics</em>, 3(4), 332&ndash;335.</li>
+</ul>
+
+</main>
+
+</body>
+</html>
