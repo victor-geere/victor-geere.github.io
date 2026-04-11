@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectural Solution: REST API in C++ with gRPC to COBOL Backend for Claims Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .main-section {
+            width: 1080px;
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        ol {
+            list-style-type: decimal;
+            padding-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-section">
+        <h1>Architectural Solution: REST API in C++ with gRPC to COBOL Backend for Claims Management</h1>
+        
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#design-considerations">Design Considerations</a></li>
+            <li><a href="#optimal-solution">Optimal Architectural Solution</a></li>
+            <li><a href="#decisions-made">Decisions Made</a></li>
+            <li><a href="#implementation-plan">Step-by-Step Implementation Plan</a></li>
+            <li><a href="#generated-code">Generated Code from PDL and Implementation</a></li>
+            <li><a href="#glossary">Glossary</a></li>
+            <li><a href="#critical-analysis">Critical Analysis of the Contents</a></li>
+            <li><a href="#references">References</a></li>
+            <li><a href="#further-reading">Further Reading</a></li>
+            <li><a href="#adjacent-concepts">Relevant Adjacent Concepts</a></li>
+        </ul>
+        
+        <h2 id="introduction">Introduction</h2>
+        <p>This eBook describes an architectural solution for a client-facing <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> (Representational State Transfer) API written in C++, which connects to a <a href="https://en.wikipedia.org/wiki/COBOL">COBOL</a> application server backend via <a href="https://en.wikipedia.org/wiki/GRPC">gRPC</a>. The system manages claims data, in a healthcare context. The REST API exposes endpoints for retrieving claims by provider, member and beneficiary, and batch. The backend COBOL server provides data through gRPC services mapped from query-like endpoints.</p>
+        <p>The endpoints include:</p>
+        <ul>
+            <li><code>/provider/:providerId/claims</code> - Retrieves claims for a specific provider.</li>
+            <li><code>/member/:memberId/beneficiary/:beneficiaryId/claims</code> - Retrieves claims for a beneficiary under a member.</li>
+            <li><code>/batch/:batchId/claims</code> - Retrieves claims for a specific batch.</li>
+        </ul>
+        <p>The COBOL backend exposes gRPC methods equivalent to <code>claims?providerId=...</code>, <code>claims?memberId=...</code>, <code>claims?batchId=...</code>, <code>member?memberId=...</code>, and <code>provider?providerId=...</code>. The database schema is defined in a <a href="https://en.wikipedia.org/wiki/Cognos">Cognos</a> PowerHouse <a href="https://public.dhe.ibm.com/software/data/cognos/documentation/docs/en/powerhouse/8.4g/PHRDB.pdf">PDL</a> (PowerHouse Dictionary Language) file, from which we generate relevant code such as <a href="https://en.wikipedia.org/wiki/Protocol_Buffers">Protocol Buffers</a> (Protobuf) definitions for gRPC.</p>
+        <p>This architecture bridges modern API practices with COBOL systems, ensuring efficiency, scalability, and maintainability. We explore design considerations, the optimal solution, decisions, a step-by-step implementation plan, generated code, a glossary, and more.</p>
+        
+        <h2 id="design-considerations">Design Considerations</h2>
+        <p>Integrating a C++ REST API with a COBOL backend via gRPC requires addressing interoperability, performance, security, and constraints. Key considerations include:</p>
+        
+        <h3>RESTful Principles in C++</h3>
+        <p>The API follows REST principles with resource-oriented paths. Using C++ libraries like <a href="https://github.com/crowcpp/crow">Crow</a> or <a href="https://github.com/oktal/pistache">Pistache</a> for HTTP handling ensures high performance.</p>
+        <ul>
+            <li><strong>Endpoint Mapping:</strong> Path parameters map to gRPC request fields.</li>
+            <li><strong>Pagination:</strong> Support query params like <code>?page=1&limit=50</code>.</li>
+        </ul>
+        
+        <h3>gRPC Integration</h3>
+        <p>gRPC provides efficient RPC over HTTP/2 with Protobuf serialization. For COBOL, tools like <a href="https://driver8.io/docs/3-examples/grpc/">driver8</a> enable gRPC server implementation in COBOL.</p>
+        <ul>
+            <li><strong>Protobuf Definitions:</strong> Derived from PDL schema for data consistency.</li>
+            <li><strong>Client-Server Communication:</strong> C++ acts as gRPC client to COBOL server.</li>
+        </ul>
+        
+        <h3>COBOL Backend and PDL Schema</h3>
+        <p>The schema in PDL defines data structures. Considerations include mapping PDL to Protobuf and handling COBOL's fixed-length records.</p>
+        
+        <h3>Scalability, Security, and Resilience</h3>
+        <ul>
+            <li><strong>Scalability:</strong> gRPC's multiplexing aids high throughput.</li>
+            <li><strong>Security:</strong> Use mTLS for gRPC, JWT for REST.</li>
+            <li><strong>Error Handling:</strong> Standardized responses and circuit breakers.</li>
+        </ul>
+        
+        <h2 id="optimal-solution">Optimal Architectural Solution</h2>
+        <p>The solution features a C++ REST API as the client-facing layer, using gRPC to query the COBOL backend. The PDL schema informs Protobuf messages.</p>
+        
+        <h3>High-Level Components</h3>
+        <ul>
+            <li><strong>Client Layer:</strong> HTTP clients interact with REST endpoints.</li>
+            <li><strong>REST API (C++):</strong> Handles requests, calls gRPC.</li>
+            <li><strong>gRPC Layer:</strong> Protobuf-based RPC to COBOL.</li>
+            <li><strong>COBOL App Server:</strong> Implements gRPC services, accesses database via PDL dictionary.</li>
+            <li><strong>Database:</strong> Relational DB defined by PDL.</li>
+        </ul>
+        
+        <h3>Data Flow</h3>
+        <ol>
+            <li>Client GETs <code>/provider/:providerId/claims</code>.</li>
+            <li>C++ API validates, creates gRPC request.</li>
+            <li>gRPC call to COBOL's GetClaimsByProvider.</li>
+            <li>COBOL queries DB, returns response.</li>
+            <li>API formats and returns JSON.</li>
+        </ol>
+        
+        <h2 id="decisions-made">Decisions Made</h2>
+        <ul>
+            <li><strong>C++ for REST:</strong> For performance in high-load scenarios.</li>
+            <li><strong>gRPC over Alternatives:</strong> Efficient binary protocol suits COBOL integration.</li>
+            <li><strong>PDL to Protobuf:</strong> Ensures schema consistency across layers.</li>
+            <li><strong>COBOL gRPC via driver8:</strong> Enables modern RPC without full migration.</li>
+        </ul>
+        
+        <h2 id="implementation-plan">Step-by-Step Implementation Plan</h2>
+        <ol>
+            <li><strong>Analyze PDL Schema:</strong> Review the Cognos PowerHouse PDL file to extract data definitions for providers, members, beneficiaries, claims, and batches.</li>
+            <li><strong>Generate Protobuf Definitions:</strong> Map PDL items to Protobuf messages and services.</li>
+            <li><strong>Set Up gRPC in COBOL:</strong> Use driver8 or similar to create gRPC server stubs in COBOL, implementing methods to query the database via PowerHouse dictionary.</li>
+            <li><strong>Develop C++ REST API:</strong> Use Crow framework to define endpoints, integrate gRPC client stubs.</li>
+            <li><strong>Implement Data Mapping:</strong> Convert gRPC responses to JSON for REST.</li>
+            <li><strong>Add Security and Logging:</strong> Integrate JWT, mTLS, and monitoring.</li>
+            <li><strong>Test and Deploy:</strong> Unit/integration tests, deploy with Docker/Kubernetes.</li>
+        </ol>
+        
+        <h2 id="generated-code">Generated Code from PDL and Implementation</h2>
+        <p>Assuming a hypothetical PDL file based on typical Cognos PowerHouse syntax (derived from documentation), we generate Protobuf, C++ code, and COBOL stubs. The PDL defines a relational schema for a claims database.</p>
+        
+        <h3>Hypothetical PDL File</h3>
+        <pre><code>
+DATABASE CLAIMS_DB
+  TYPE RELATIONAL
+  DBMS ORACLE  -- Assuming Oracle as backend
+
+FILE PROVIDERS
+  LOCATION CLAIMS_DB.PROVIDERS
+
+RECORD PROVIDER
+  ITEM PROVIDER_ID TYPE CHARACTER SIZE 10 PRIMARY
+  ITEM NAME TYPE CHARACTER SIZE 50
+  ITEM ADDRESS TYPE CHARACTER SIZE 100
+
+FILE MEMBERS
+  LOCATION CLAIMS_DB.MEMBERS
+
+RECORD MEMBER
+  ITEM MEMBER_ID TYPE CHARACTER SIZE 10 PRIMARY
+  ITEM NAME TYPE CHARACTER SIZE 50
+
+FILE BENEFICIARIES
+  LOCATION CLAIMS_DB.BENEFICIARIES
+
+RECORD BENEFICIARY
+  ITEM BENEFICIARY_ID TYPE CHARACTER SIZE 10 PRIMARY
+  ITEM MEMBER_ID TYPE CHARACTER SIZE 10 FOREIGN REFERENCES MEMBER(MEMBER_ID)
+  ITEM NAME TYPE CHARACTER SIZE 50
+
+FILE CLAIMS
+  LOCATION CLAIMS_DB.CLAIMS
+
+RECORD CLAIM
+  ITEM CLAIM_ID TYPE CHARACTER SIZE 10 PRIMARY
+  ITEM PROVIDER_ID TYPE CHARACTER SIZE 10 FOREIGN REFERENCES PROVIDER(PROVIDER_ID)
+  ITEM MEMBER_ID TYPE CHARACTER SIZE 10 FOREIGN REFERENCES MEMBER(MEMBER_ID)
+  ITEM BENEFICIARY_ID TYPE CHARACTER SIZE 10 FOREIGN REFERENCES BENEFICIARY(BENEFICIARY_ID)
+  ITEM BATCH_ID TYPE CHARACTER SIZE 10
+  ITEM AMOUNT TYPE NUMERIC SIZE 10.2
+  ITEM STATUS TYPE CHARACTER SIZE 20
+
+FILE BATCHES
+  LOCATION CLAIMS_DB.BATCHES
+
+RECORD BATCH
+  ITEM BATCH_ID TYPE CHARACTER SIZE 10 PRIMARY
+  ITEM DATE TYPE DATE
+        </code></pre>
+        
+        <h3>Generated Protobuf Definitions (from PDL)</h3>
+        <p>Mapping PDL records to Protobuf messages and defining services.</p>
+        <pre><code>
+// claims.proto
+syntax = "proto3";
+
+package claims;
+
+message Provider {
+  string provider_id = 1;
+  string name = 2;
+  string address = 3;
+}
+
+message Member {
+  string member_id = 1;
+  string name = 2;
+}
+
+message Beneficiary {
+  string beneficiary_id = 1;
+  string member_id = 2;
+  string name = 3;
+}
+
+message Claim {
+  string claim_id = 1;
+  string provider_id = 2;
+  string member_id = 3;
+  string beneficiary_id = 4;
+  string batch_id = 5;
+  double amount = 6;
+  string status = 7;
+}
+
+message Batch {
+  string batch_id = 1;
+  string date = 2;  // ISO date string
+}
+
+message GetClaimsByProviderRequest {
+  string provider_id = 1;
+}
+
+message GetClaimsByMemberRequest {
+  string member_id = 1;
+  string beneficiary_id = 2;
+}
+
+message GetClaimsByBatchRequest {
+  string batch_id = 1;
+}
+
+message ClaimsResponse {
+  repeated Claim claims = 1;
+}
+
+message GetMemberRequest {
+  string member_id = 1;
+}
+
+message GetMemberResponse {
+  Member member = 1;
+}
+
+message GetProviderRequest {
+  string provider_id = 1;
+}
+
+message GetProviderResponse {
+  Provider provider = 1;
+}
+
+service ClaimsService {
+  rpc GetClaimsByProvider(GetClaimsByProviderRequest) returns (ClaimsResponse);
+  rpc GetClaimsByMember(GetClaimsByMemberRequest) returns (ClaimsResponse);
+  rpc GetClaimsByBatch(GetClaimsByBatchRequest) returns (ClaimsResponse);
+  rpc GetMember(GetMemberRequest) returns (GetMemberResponse);
+  rpc GetProvider(GetProviderRequest) returns (GetProviderResponse);
+}
+        </code></pre>
+        
+        <h3>C++ REST API Code (Using Crow Framework)</h3>
+        <p>Example main.cpp for REST API, assuming gRPC stubs generated via grpc_cpp_plugin.</p>
+        <pre><code>
+#include &lt;crow.h&gt;
+#include &lt;grpc++/grpc++.h&gt;
+#include "claims.grpc.pb.h"  // Generated from proto
+
+using claims::ClaimsService;
+using claims::GetClaimsByProviderRequest;
+using claims::ClaimsResponse;
+// ... other imports
+
+int main() {
+  std::shared_ptr&lt;grpc::Channel&gt; channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+  std::unique_ptr&lt;ClaimsService::Stub&gt; stub = ClaimsService::NewStub(channel);
+
+  crow::SimpleApp app;
+
+  CROW_ROUTE(app, "/provider/&lt;string&gt;/claims")([&amp;stub](const crow::request&amp; req, std::string providerId) {
+    GetClaimsByProviderRequest request;
+    request.set_provider_id(providerId);
+    ClaimsResponse response;
+    grpc::ClientContext context;
+    grpc::Status status = stub-&gt;GetClaimsByProvider(&amp;context, request, &amp;response);
+    if (!status.ok()) {
+      return crow::response(500, "gRPC error");
+    }
+    // Convert response to JSON (using nlohmann/json or similar)
+    crow::json::wvalue jsonClaims;
+    // ... populate jsonClaims from response.claims()
+    return crow::response(jsonClaims);
+  });
+
+  // Similar routes for /member/&lt;string&gt;/beneficiary/&lt;string&gt;/claims and /batch/&lt;string&gt;/claims
+
+  app.port(8080).multithreaded().run();
+}
+        </code></pre>
+        
+        <h3>COBOL gRPC Server Stub (Hypothetical with driver8)</h3>
+        <p>Using driver8 framework for COBOL gRPC. Example stub implementation.</p>
+        <pre><code>
+IDENTIFICATION DIVISION.
+PROGRAM-ID. ClaimsService.
+DATA DIVISION.
+WORKING-STORAGE SECTION.
+01 PROVIDER-ID PIC X(10).
+* ... other variables from PDL
+
+PROCEDURE DIVISION.
+* Implement GetClaimsByProvider
+    ACCEPT PROVIDER-ID.
+    * Query database using PowerHouse QUIZ or similar
+    * Populate response
+    DISPLAY "Claims for provider: " PROVIDER-ID.
+    * Use driver8 APIs to send gRPC response
+    GOBACK.
+        </code></pre>
+        <p>Note: Actual COBOL gRPC requires framework-specific code; this is simplified.</p>
+        
+        <h2 id="glossary">Glossary</h2>
+        <ul>
+            <li><strong>REST (Representational State Transfer):</strong> An architectural style for designing networked applications using HTTP.</li>
+            <li><strong>gRPC:</strong> A high-performance RPC framework using HTTP/2 and Protobuf.</li>
+            <li><strong>COBOL (Common Business-Oriented Language):</strong> A programming language for business applications.</li>
+            <li><strong>PDL (PowerHouse Dictionary Language):</strong> A language for defining data dictionaries in Cognos PowerHouse 4GL.</li>
+            <li><strong>Protobuf (Protocol Buffers):</strong> A language-neutral data serialization format.</li>
+            <li><strong>JWT (JSON Web Token):</strong> A compact means of representing claims securely.</li>
+            <li><strong>mTLS (Mutual Transport Layer Security):</strong> Authentication where both client and server verify each other.</li>
+            <li><strong>Cognos PowerHouse:</strong> A 4GL tool for rapid application development.</li>
+            <li><strong>driver8:</strong> A framework for running COBOL as gRPC services.</li>
+            <li><strong>Crow:</strong> A C++ micro web framework for building HTTP APIs.</li>
+        </ul>
+        
+        <h2 id="critical-analysis">Critical Analysis of the Contents</h2>
+        <p>This architecture effectively modernizes COBOL systems but potentially requiring custom wrappers. Performance gains from gRPC are significant, but schema evolution between PDL and Protobuf needs careful management. Scalability is enhanced, yet COBOL's procedural nature may limit concurrency. Overall, it's a pragmatic bridge to COBOL.</p>
+        
+        <h2 id="references">References</h2>
+        <ul>
+            <li>gRPC Documentation: <a href="https://grpc.io/docs/">https://grpc.io/docs/</a></li>
+            <li>C++ gRPC Quick Start: <a href="https://grpc.io/docs/languages/cpp/quickstart/">https://grpc.io/docs/languages/cpp/quickstart/</a></li>
+            <li>gRPC and JSON : <a href="https://protobuf.dev/programming-guides/proto3/#json">https://protobuf.dev/programming-guides/proto3/#json</a></li>
+            <li>IBM Cognos PowerHouse 4GL Documentation: <a href="https://public.dhe.ibm.com/software/data/cognos/documentation/docs/en/powerhouse/8.4g/PHRDB.pdf">https://public.dhe.ibm.com/software/data/cognos/documentation/docs/en/powerhouse/8.4g/PHRDB.pdf</a></li>
+            <li>driver8 for COBOL gRPC: <a href="https://driver8.io/docs/3-examples/grpc/">https://driver8.io/docs/3-examples/grpc/</a></li>
+            <li>COBOL gRPC on Google Code: <a href="https://code.google.com/archive/p/protobuf-cobol/source/default/source">https://code.google.com/archive/p/protobuf-cobol/source/default/source</a></li>
+            <li>Crow Framework: <a href="https://github.com/crowcpp/crow">https://github.com/crowcpp/crow</a></li>
+        </ul>
+        
+        <h2 id="further-reading">Further Reading</h2>
+        <ul>
+            <li>"gRPC: Up and Running" by Kasun Indrasiri and Danesh Kuruppu.</li>
+            <li>"COBOL Modernization and Migration: A Guide for 2025" from Swimm.</li>
+            <li>"Microservices Patterns" by Chris Richardson.</li>
+        </ul>
+        
+        <h2 id="adjacent-concepts">Relevant Adjacent Concepts</h2>
+        <ul>
+            <li><strong>API Gateways:</strong> Using Kong to front the REST API.</li>
+            <li><strong>Event-Driven Architecture:</strong> Integrating Kafka for claims events.</li>
+            <li><strong>GraphQL Federation:</strong> As an alternative client-facing layer.</li>
+        </ul>
+    </div>
+</body>
+</html>
