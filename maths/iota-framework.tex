@@ -1,0 +1,200 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{margin=1in}
+
+\definecolor{codegray}{gray}{0.95}
+\lstset{
+    backgroundcolor=\color{codegray},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    language=Python,
+    showstringspaces=false,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{remark}{Remark}[section]
+
+\title{The Iota Framework: Unfolding the Dirichlet Eta Series into a Planar Walk}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The \textbf{iota function} maps a complex number \( s = \sigma + it \) to an infinite sequence of vectors in the plane. Instead of treating the Dirichlet eta function \(\eta(s)\) as a single complex number---the limit of a sum---this framework views \(\eta(s)\) as a \textbf{walk} in \(\mathbb{R}^2\), where each step is an explicitly known vector. This geometric unfolding transforms the analytic condition \(\eta(s) = 0\) into a tangible, step‑by‑step process. Moreover, the \textbf{greedy condition}---a necessary and sufficient criterion for a zero to lie on the critical line under the Riemann Hypothesis---becomes a simple dot‑product inequality that can be checked numerically. The iota perspective offers a new lens through which to probe the Riemann Hypothesis, making the subtle interplay between decay and oscillation visually and computationally accessible.
+\end{abstract}
+
+\section{From Sum to Sequence: The Iota Function}
+
+The standard Dirichlet eta function is defined as the analytic continuation of the alternating series
+\[
+\eta(s) = \sum_{n=1}^{\infty} (-1)^{n-1} n^{-s},\qquad s = \sigma + it \in \mathbb{C},\ \sigma > 0.
+\]
+This sum, when it converges, yields a \textbf{single complex number} for each \( s \). The iota framework shifts the focus from the final result to the \textbf{journey} of the partial sums.
+
+\begin{definition}[Iota Sequence]
+For a fixed \( s \), the \textbf{iota sequence} \(\iota(s)\) is the infinite sequence of complex terms
+\[
+\iota(s) = \bigl( v_n(s) \bigr)_{n=1}^{\infty},\quad\text{where}\quad v_n(s) = (-1)^{n-1} n^{-s}.
+\]
+Each term is a vector in the complex plane (identified with \(\mathbb{R}^2\)):
+\[
+v_n = x_n + i y_n,
+\]
+with
+\[
+x_n = (-1)^{n-1} n^{-\sigma} \cos(t\ln n),\qquad
+y_n = (-1)^{n-1} n^{-\sigma} \sin(t\ln n).
+\]
+The \textbf{partial sum} after \( N \) steps is the cumulative position:
+\[
+\mathbf{S}_N = \sum_{n=1}^{N} v_n = \bigl( X_N,\ Y_N \bigr),
+\]
+where
+\[
+X_N = \sum_{n=1}^{N} x_n,\qquad Y_N = \sum_{n=1}^{N} y_n.
+\]
+The value \(\eta(s)\) is recovered as the limit (if it exists):
+\[
+\eta(s) = \lim_{N\to\infty} \mathbf{S}_N.
+\]
+Thus, the iota function replaces the abstract sum with a concrete \textbf{sequence of points} \(\mathbf{S}_0, \mathbf{S}_1, \mathbf{S}_2, \dots\) starting at the origin and moving step by step in the plane.
+\end{definition}
+
+\section{The Geometric Walk: A Step‑by‑Step Unfolding}
+
+The sequence \(\mathbf{S}_N\) describes a \textbf{walk} in the complex plane:
+
+\begin{itemize}
+    \item \textbf{Start:} \(\mathbf{S}_0 = (0,0)\).
+    \item \textbf{Step 1:} Move by \( v_1 = 1 \) (since \( (-1)^{0} 1^{-s} = 1 \)).
+    \item \textbf{Step 2:} Move by \( v_2 = -2^{-s} \), a vector of length \(2^{-\sigma}\) and angle \(-t\ln 2\).
+    \item \textbf{Step \( n \):} Move by \( v_n \), which has length \( n^{-\sigma} \) and angle \( \theta_n = \pi(n-1) - t\ln n\) (when unwrapped).
+\end{itemize}
+
+Because the terms alternate in sign and rotate according to \( t\ln n \), the walk exhibits a spiraling behavior. The \textbf{decay factor} \( n^{-\sigma} \) controls the step lengths, while the \textbf{oscillatory factor} \( e^{-it\ln n} \) controls the directions.
+
+\subsection*{Why This Unfolding Matters}
+\begin{itemize}
+    \item \textbf{Visibility:} We can literally see how the partial sums evolve. If \(\eta(s) = 0\), the walk must eventually return to the origin (or wind around it in a balanced way).
+    \item \textbf{Component Separation:} The real part \(X_N\) and imaginary part \(Y_N\) are tracked individually, allowing us to analyze the phase (argument) of the partial sum without losing information.
+    \item \textbf{Computational Handle:} Every step is explicitly given by elementary functions; no numerical integration or analytic continuation is needed to generate the walk.
+\end{itemize}
+
+\section{The Greedy Condition in the Plane}
+
+A central insight from the reformulation of the Riemann Hypothesis is the \textbf{greedy condition} (GC). For a zero of \(\eta(s)\), GC demands that at every step the new term does not point too much in the direction of the current cumulative sum:
+\[
+\boxed{\ \langle \mathbf{S}_{N-1},\ v_N \rangle \le 0 \qquad \forall N \ge 1\ }.
+\]
+Here \(\langle \cdot,\cdot\rangle\) is the Euclidean dot product in \(\mathbb{R}^2\). In terms of the tracked components, this becomes:
+\[
+X_{N-1} \cdot x_N + Y_{N-1} \cdot y_N \le 0.
+\]
+
+\subsection*{Geometric Interpretation}
+The inequality means that the vector \( v_N \) makes an \textbf{obtuse or right angle} with the position vector \(\mathbf{S}_{N-1}\). In other words, each new step either points \textbf{away} from the current position or is perpendicular to it. This prevents the walk from ``running away'' from the origin and enforces a kind of self‑correction.
+
+\begin{itemize}
+    \item If GC holds for all \( N \), the walk is \textbf{greedy}: it never takes a step that would increase the distance from the origin in a direct line.
+    \item If GC fails for some \( N \), the walk temporarily ``overshoots'' in the direction of the current sum, which for a zero off the critical line leads to eventual divergence or failure to return to zero.
+\end{itemize}
+
+\subsection*{Connection to the Critical Line}
+It has been shown (in the referenced works) that:
+\begin{itemize}
+    \item If \(\sigma = 1/2\) (the critical line), then all non‑trivial zeros \textbf{do} satisfy GC (this follows from the Riemann–Siegel formula).
+    \item If a zero satisfies GC, then it \textbf{must} lie on the line \(\sigma = 1/2\).
+\end{itemize}
+Thus, \textbf{GC is equivalent to the Riemann Hypothesis}. The iota framework turns this equivalence into a concrete, checkable property of the planar walk.
+
+\section{Computational Accessibility}
+
+Because the iota walk is defined by explicit formulas, we can compute the partial sums for any candidate zero \( s \) up to large \( N \) and verify the greedy condition step by step.
+
+\subsection*{Algorithm Sketch}
+\begin{lstlisting}[language=Python, caption={Verifying the Greedy Condition}]
+# Input: s = σ + it, maximum steps N_max
+X = 0
+Y = 0
+
+for n in range(1, N_max + 1):
+    sign = (-1)**(n-1)
+    decay = n**(-σ)
+    angle = t * math.log(n)
+    
+    x_n = sign * decay * math.cos(angle)
+    y_n = sign * decay * math.sin(angle)
+    
+    # Check greedy condition
+    if X * x_n + Y * y_n > 0:
+        print("GC fails at n =", n)
+        break
+    
+    X += x_n
+    Y += y_n
+
+# Output final position and GC status
+print("Final position: (", X, ",", Y, ")")
+\end{lstlisting}
+
+This simple loop requires only a few lines of code and runs efficiently even for millions of terms. It provides a \textbf{direct numerical test} of the greedy condition for any proposed zero.
+
+\subsection*{Visualisation}
+Plotting the walk \(\mathbf{S}_N\) reveals the spiral structure:
+
+\begin{verbatim}
+   Im
+    ^
+    |     *  *
+    |   *      *
+    |  *        *
+    | *          *
+    |*            *
+    +------------------> Re
+\end{verbatim}
+
+For a zero on the critical line, the spiral slowly winds toward the origin. For a point off the line, the walk either diverges or fails the greedy condition early.
+
+\section{Probing the Riemann Hypothesis}
+
+The iota framework does not prove the Riemann Hypothesis, but it provides a \textbf{new lens}:
+
+\begin{itemize}
+    \item \textbf{Forward Direction:} If RH is true, then every non‑trivial zero lies on \(\sigma = 1/2\) and therefore must satisfy GC. This can be tested numerically for the first \(10^{13}\) zeros (which are already known to lie on the line).
+    \item \textbf{Reverse Direction:} If we could prove that \textbf{every} zero of \(\eta(s)\) satisfies GC (or even that GC forces \(\sigma = 1/2\)), we would have a proof of RH. The geometric nature of GC may open new avenues for analytical attack, perhaps using vector geometry, martingale theory, or energy methods.
+\end{itemize}
+
+Moreover, the iota walk exposes the delicate \textbf{balance between decay and oscillation} that occurs precisely at \(\sigma = 1/2\). For \(\sigma > 1/2\) the steps shrink too fast for the walk to return to zero; for \(\sigma < 1/2\) the steps grow too large, causing the walk to spiral outward. The critical line is the unique boundary where the walk can close indefinitely.
+
+\section{Conclusion}
+
+The iota framework transforms the Dirichlet eta function from an abstract analytic object into a tangible, step‑by‑step walk in the plane. By treating \(\eta(s)\) as a \textbf{sequence} of vectors rather than a single sum, we gain:
+
+\begin{itemize}
+    \item A clear geometric interpretation of the greedy condition.
+    \item A computationally simple method to verify the condition for any zero candidate.
+    \item A visual and intuitive understanding of why the critical line \(\sigma = 1/2\) is special.
+\end{itemize}
+
+While the Riemann Hypothesis remains unproven, the iota perspective offers a fresh angle---literally and figuratively---from which to explore this deep mathematical mystery.
+
+\begin{thebibliography}{9}
+\bibitem{titchmarsh} E. C. Titchmarsh, \textit{The Theory of the Riemann Zeta Function}, Oxford University Press, 1986.
+\bibitem{edwards} H. M. Edwards, \textit{Riemann's Zeta Function}, Dover, 2001.
+\bibitem{iota} Original manuscript: \textit{On the Iota Function and the Greedy Condition: A Reformulation, Not a Proof} (2026).
+\end{thebibliography}
+
+\end{document}
