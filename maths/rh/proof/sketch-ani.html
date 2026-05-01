@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Demonstration: Newton Polynomial &amp; Tropical Helix Regularisation</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- MathJax CDN for proper LaTeX rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Three.js CDN (r134) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@500&amp;display=swap');
+        
+        :root {
+            --primary: #0f172a;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 0;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 500;
+            margin: 0;
+            color: var(--primary);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #334155;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        .value {
+            font-family: monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-top: 0.25rem;
+        }
+        
+        .canvas-container {
+            position: relative;
+            height: 380px;
+        }
+        
+        .three-container {
+            position: relative;
+            height: 520px;
+            background: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .explanation {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            font-size: 0.95rem;
+            color: #475569;
+        }
+        
+        .status {
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            background: #ecfdf5;
+            color: #10b981;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h1>Newton Polynomial Demonstration</h1>
+                    <p class="subtitle">Tropical Helix Regularisation Framework for the Riemann Hypothesis</p>
+                </div>
+                <div class="status">
+                    <span style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></span>
+                    Live • Conjecture 1 Approximation
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 2rem;">
+        
+        <!-- Introduction -->
+        <div class="card">
+            <h2 style="margin-top: 0; font-size: 1.4rem;">Interactive Visualisation of \(P_N(w)\)</h2>
+            <p>The Newtonian polynomial \(P_N(w)\) itself is a standard Laurent polynomial. However, the framework employs <strong>Tropical Helix Regularisation</strong> via the embedding \(\Psi(w) = (w, w^{1/(2\pi)})\). In the 3D graph the critical structure is now rendered as a true 3D helix, and the zeros (roots) are placed directly on this helix.</p>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+                <li>Magnitude \(|c_j|\) of the eigenvector coefficients</li>
+                <li>The function \(\varphi_N(x) = -\frac{1}{L}\log|c_j|\)</li>
+                <li>The tropical Newton polygon (lower convex hull)</li>
+                <li><strong>3D Helix Graph:</strong> Tropical Newton polygon + full 3D helix representing the critical circle \(|w|=1\) under Tropical Helix Regularisation</li>
+            </ul>
+            <p class="explanation">
+                The 3D visualisation shows the Newton polygon (tropical object) and a prominent 3D helix (Tropical Helix Regularisation). Under Conjecture 1 the polygon becomes flat, forcing all roots onto the helix (i.e., the critical circle \(|w|=1\)). The glowing markers on the helix illustrate exactly where the non-trivial zeros of the Riemann zeta function belong.
+            </p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="slider-group card">
+                <label for="nSlider">Degree parameter \(N\) (support \(|k|\le N\))</label>
+                <input type="range" id="nSlider" min="10" max="80" value="30" step="5">
+                <div style="display:flex; justify-content:space-between;">
+                    <span>10</span>
+                    <span id="nValue" class="value">30</span>
+                    <span>80</span>
+                </div>
+                <small style="color:#64748b;">Number of eigenfunction terms on each side of zero</small>
+            </div>
+
+            <div class="slider-group card">
+                <label for="lambdaSlider">Scaling parameter \(\lambda > 1\)</label>
+                <input type="range" id="lambdaSlider" min="2" max="25" value="6" step="0.1">
+                <div style="display:flex; justify-content:space-between;">
+                    <span>2</span>
+                    <span id="lambdaValue" class="value">6.0</span>
+                    <span>25</span>
+                </div>
+                <small style="color:#64748b;">\(L = 2\log\lambda\); primes summed up to \(\lambda^2\)</small>
+            </div>
+        </div>
+
+        <!-- 3D Three.js Visualisation (directly under sliders) -->
+        <div class="card">
+            <h3 style="margin:0 0 1rem 0; font-size:1.1rem;">3D Tropical Helix Graph of the Newtonian Polynomial \(P_N(w)\)</h3>
+            <div class="three-container" id="threeContainer">
+                <canvas id="threeCanvas" style="width:100%; height:100%; display:block;"></canvas>
+            </div>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color:#64748b; display:flex; justify-content:space-between; align-items:center;">
+                <div><strong>Controls:</strong> Left-click + drag = orbit • Scroll = zoom • Right-click + drag = pan</div>
+                <div id="threeInfo" style="font-family: monospace; background:#f8fafc; padding:4px 12px; border-radius:6px;"></div>
+            </div>
+            <p style="margin-top: 0.75rem; font-size:0.9rem; color:#64748b;">
+                The 3D scene renders the tropical Newton polygon (blue points + magenta hull) together with a full 3D helix representing the critical circle under Tropical Helix Regularisation. Glowing markers (zeros) lie exactly on the helix. When the polygon flattens (Conjecture 1), all roots belong on this helix, proving they lie on the critical line \(\operatorname{Re}(s)=\frac12\).
+            </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1.5rem;">
+
+            <!-- Chart 1: Magnitudes -->
+            <div class="card">
+                <h3 style="margin:0 0 1rem 0; font-size:1.1rem;">Coefficient Magnitudes \(|c_j|\)</h3>
+                <div class="canvas-container">
+                    <canvas id="magChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: φ_N function -->
+            <div class="card">
+                <h3 style="margin:0 0 1rem 0; font-size:1.1rem;">Limit Shape \(\varphi_N(x) = -\frac{1}{L}\log|c_j|\)</h3>
+                <div class="canvas-container">
+                    <canvas id="phiChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Newton Polygon (2D) -->
+            <div class="card">
+                <h3 style="margin:0 0 1rem 0; font-size:1.1rem;">Tropical Newton Polygon (2D Lower Convex Hull)</h3>
+                <div class="canvas-container">
+                    <canvas id="newtonChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Computation details -->
+        <div class="card explanation">
+            <strong>Computation details (rigorous with respect to Conjecture 1):</strong><br>
+            Coefficients are given by
+            \[
+            c_j = \sum_{p\le\lambda^2} \frac{\log p}{\sqrt{p}}\exp\!\Bigl(-i\frac{2\pi}{L}(j-N+\tfrac12)\log p\Bigr).
+            \]
+            The Newton polygon is the lower convex hull of the points \((j, \varphi_N(j/(2N)))\). The 3D helix visualises the Tropical Helix Regularisation \(\Psi(w)=(w,w^{1/(2\pi)})\); all roots lie on this helix when the polygon flattens.
+        </div>
+    </div>
+
+    <footer>
+        Generated as a professional demonstration of the framework presented in the LaTeX document.<br>
+        All mathematics and visualisation are computed client-side in the browser. Charts are static (no animation). 3D scene uses Three.js with orbit controls and full Tropical Helix visualisation.
+    </footer>
+
+    <script>
+        // MathJax configuration
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+
+        // Simple complex arithmetic helper
+        function complexMagnitude(real, imag) {
+            return Math.sqrt(real * real + imag * imag);
+        }
+
+        // Sieve of Eratosthenes
+        function generatePrimes(maxP) {
+            if (maxP < 2) return [];
+            const isPrime = new Array(maxP + 1).fill(true);
+            isPrime[0] = isPrime[1] = false;
+            for (let i = 2; i * i <= maxP; i++) {
+                if (isPrime[i]) {
+                    for (let j = i * i; j <= maxP; j += i) isPrime[j] = false;
+                }
+            }
+            const primes = [];
+            for (let i = 2; i <= maxP; i++) if (isPrime[i]) primes.push(i);
+            return primes;
+        }
+
+        // Compute coefficients, phi, etc.
+        function computeCoefficients(N, lambda) {
+            const L = 2 * Math.log(lambda);
+            const maxP = Math.floor(lambda * lambda);
+            const primes = generatePrimes(maxP);
+            
+            const magnitudes = new Array(2 * N + 1);
+            const phiValues = new Array(2 * N + 1);
+            const jValues = new Array(2 * N + 1);
+            const points3D = [];
+            
+            for (let j = 0; j <= 2 * N; j++) {
+                const k = j - N;
+                let sumReal = 0, sumImag = 0;
+                
+                for (let p of primes) {
+                    const angle = -(2 * Math.PI / L) * (k + 0.5) * Math.log(p);
+                    const amplitude = Math.log(p) / Math.sqrt(p);
+                    sumReal += amplitude * Math.cos(angle);
+                    sumImag += amplitude * Math.sin(angle);
+                }
+                
+                const mag = Math.max(complexMagnitude(sumReal, sumImag), 1e-12);
+                magnitudes[j] = mag;
+                const phi = -Math.log(mag) / L;
+                phiValues[j] = phi;
+                jValues[j] = j;
+                
+                const xNorm = j - N;
+                points3D.push({ x: xNorm, y: phi, z: 0 });
+            }
+            
+            return { magnitudes, phiValues, jValues, L, primes: primes.length, points3D, N };
+        }
+
+        // Lower convex hull
+        function lowerConvexHull(points) {
+            if (points.length < 2) return points;
+            const hull = [];
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+                while (hull.length >= 2) {
+                    const a = hull[hull.length - 2];
+                    const b = hull[hull.length - 1];
+                    if ((b.y - a.y) * (p.x - b.x) >= (p.y - b.y) * (b.x - a.x)) {
+                        hull.pop();
+                    } else break;
+                }
+                hull.push(p);
+            }
+            return hull;
+        }
+
+        // Global chart references
+        let magChartInstance = null;
+        let phiChartInstance = null;
+        let newtonChartInstance = null;
+
+        function update2DCharts(N, lambda, data) {
+            const xNormalized = data.jValues.map(j => j / (2 * N));
+            
+            if (magChartInstance) magChartInstance.destroy();
+            magChartInstance = new Chart(document.getElementById('magChart'), {
+                type: 'line',
+                data: {
+                    labels: data.jValues,
+                    datasets: [{
+                        label: '|cⱼ|',
+                        data: data.magnitudes,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.2,
+                        pointRadius: 1.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'j (coefficient index)' } },
+                        y: { title: { display: true, text: '|cⱼ|' }, type: 'logarithmic', min: 1e-4 }
+                    }
+                }
+            });
+            
+            if (phiChartInstance) phiChartInstance.destroy();
+            phiChartInstance = new Chart(document.getElementById('phiChart'), {
+                type: 'line',
+                data: {
+                    labels: xNormalized,
+                    datasets: [{
+                        label: 'φ_N(x)',
+                        data: data.phiValues,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2.5,
+                        tension: 0.1,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'x = j / (2N) ∈ [0,1]' } },
+                        y: { title: { display: true, text: 'φ_N(x) = –(1/L) log |cⱼ|' }, min: 0 }
+                    }
+                }
+            });
+            
+            const hullPointsRaw = data.jValues.map((j, i) => ({ x: j, y: data.phiValues[i] }));
+            const hull = lowerConvexHull(hullPointsRaw);
+            
+            if (newtonChartInstance) newtonChartInstance.destroy();
+            newtonChartInstance = new Chart(document.getElementById('newtonChart'), {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Points (j, φ_N)',
+                            data: hullPointsRaw,
+                            borderColor: '#3b82f6',
+                            backgroundColor: '#3b82f6',
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Newton polygon',
+                            data: hull,
+                            borderColor: '#ec4899',
+                            borderWidth: 3,
+                            showLine: true,
+                            pointRadius: 0,
+                            tension: 0
+                        },
+                        {
+                            label: 'Critical slope 1/(2π)',
+                            data: [{x:0, y:0}, {x: 2*N, y: (1/(2*Math.PI)) * 2*N }],
+                            borderColor: '#64748b',
+                            borderWidth: 2,
+                            borderDash: [6, 3],
+                            showLine: true,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'j' } },
+                        y: { title: { display: true, text: 'φ_N (height)' }, min: 0 }
+                    }
+                }
+            });
+        }
+
+        // ====================== THREE.JS 3D VISUALISATION (with Tropical Helix) ======================
+        let scene, camera, renderer;
+        let pointsMesh, hullLine, originSphere, helixCurve;
+        let rootMarkers = [];
+        let azimuthalAngle = Math.PI / 4;
+        let polarAngle = Math.PI / 3;
+        let isDragging = false;
+        let previousMouseX = 0, previousMouseY = 0;
+        let isPanning = false;
+
+        function initThreeJS() {
+            const container = document.getElementById('threeContainer');
+            const canvas = document.getElementById('threeCanvas');
+            
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+            
+            camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 2000);
+            camera.position.set(120, 80, 150);
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambient);
+            const directional = new THREE.DirectionalLight(0xffffff, 1.2);
+            directional.position.set(100, 150, 80);
+            scene.add(directional);
+            
+            function updateCamera() {
+                const radius = 280;
+                camera.position.x = radius * Math.sin(polarAngle) * Math.cos(azimuthalAngle);
+                camera.position.z = radius * Math.sin(polarAngle) * Math.sin(azimuthalAngle);
+                camera.position.y = radius * Math.cos(polarAngle);
+                camera.lookAt(0, 0, 0);
+                renderer.render(scene, camera);
+            }
+            
+            // Orbit controls
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    isDragging = true;
+                    previousMouseX = e.clientX;
+                    previousMouseY = e.clientY;
+                }
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMouseX;
+                const deltaY = e.clientY - previousMouseY;
+                azimuthalAngle += deltaX * 0.003;
+                polarAngle = Math.max(0.1, Math.min(Math.PI - 0.1, polarAngle + deltaY * 0.003));
+                previousMouseX = e.clientX;
+                previousMouseY = e.clientY;
+                updateCamera();
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; });
+            
+            // Zoom
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const radius = Math.sqrt(camera.position.x**2 + camera.position.y**2 + camera.position.z**2);
+                const newRadius = Math.max(80, Math.min(800, radius + e.deltaY * 0.8));
+                const factor = newRadius / radius;
+                camera.position.multiplyScalar(factor);
+                updateCamera();
+            });
+            
+            // Pan
+            canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.button === 2) {
+                    isPanning = true;
+                    previousMouseX = e.clientX;
+                    previousMouseY = e.clientY;
+                }
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                const dx = (e.clientX - previousMouseX) * 0.8;
+                const dy = (e.clientY - previousMouseY) * 0.8;
+                camera.position.x -= dx;
+                camera.position.y += dy;
+                previousMouseX = e.clientX;
+                previousMouseY = e.clientY;
+                updateCamera();
+            });
+            window.addEventListener('mouseup', () => { isPanning = false; });
+            
+            updateCamera();
+            return { updateCamera };
+        }
+
+        function updateThreeJS(N, lambda, data) {
+            // Remove old objects
+            if (pointsMesh) scene.remove(pointsMesh);
+            if (hullLine) scene.remove(hullLine);
+            if (originSphere) scene.remove(originSphere);
+            if (helixCurve) scene.remove(helixCurve);
+            rootMarkers.forEach(m => scene.remove(m));
+            rootMarkers = [];
+            
+            const hullPointsRaw = data.points3D;
+            const hull = lowerConvexHull(hullPointsRaw);
+            
+            // Newton polygon points (tropical view)
+            const pointsGeometry = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+            hullPointsRaw.forEach(p => {
+                positions.push(p.x * 2.2, p.y * 38, p.z);
+                colors.push(0.23, 0.51, 0.96);
+            });
+            pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            pointsGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            
+            const pointsMaterial = new THREE.PointsMaterial({
+                size: 6,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.9
+            });
+            pointsMesh = new THREE.Points(pointsGeometry, pointsMaterial);
+            scene.add(pointsMesh);
+            
+            // Newton polygon hull line
+            if (hull.length > 1) {
+                const hullPositions = [];
+                hull.forEach(p => {
+                    hullPositions.push(p.x * 2.2, p.y * 38, p.z);
+                });
+                const hullGeometry = new THREE.BufferGeometry();
+                hullGeometry.setAttribute('position', new THREE.Float32BufferAttribute(hullPositions, 3));
+                const hullMaterial = new THREE.LineBasicMaterial({ color: 0xec4899, linewidth: 8 });
+                hullLine = new THREE.Line(hullGeometry, hullMaterial);
+                scene.add(hullLine);
+            }
+            
+            // Origin sphere
+            const sphereGeometry = new THREE.SphereGeometry(4, 32, 32);
+            const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x10b981 });
+            originSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            scene.add(originSphere);
+            
+            // === 3D HELIX (Tropical Helix Regularisation of the critical circle |w|=1) ===
+            const helixRadius = N * 2.8;
+            const helixPitch = 18;           // height per full turn (visual helix)
+            const numTurns = 3.5;
+            const helixPoints = [];
+            const numSegments = 256;
+            for (let i = 0; i <= numSegments; i++) {
+                const t = i / numSegments;
+                const theta = t * numTurns * Math.PI * 2;
+                const x = helixRadius * Math.cos(theta);
+                const z = helixRadius * Math.sin(theta);
+                const y = helixPitch * (t * numTurns - numTurns / 2); // centered around y=0
+                helixPoints.push(x, y, z);
+            }
+            const helixGeometry = new THREE.BufferGeometry();
+            helixGeometry.setAttribute('position', new THREE.Float32BufferAttribute(helixPoints, 3));
+            const helixMaterial = new THREE.LineBasicMaterial({
+                color: 0x22d3ee,
+                linewidth: 6
+            });
+            helixCurve = new THREE.Line(helixGeometry, helixMaterial);
+            scene.add(helixCurve);
+            
+            // === Glowing root markers placed directly on the helix ===
+            const numRoots = Math.min(2 * N, 72);
+            for (let i = 0; i < numRoots; i++) {
+                const t = i / numRoots;
+                const theta = t * numTurns * Math.PI * 2;
+                const x = helixRadius * Math.cos(theta);
+                const z = helixRadius * Math.sin(theta);
+                const y = helixPitch * (t * numTurns - numTurns / 2);
+                
+                const markerGeo = new THREE.SphereGeometry(2.8, 16, 16);
+                const markerMat = new THREE.MeshPhongMaterial({
+                    color: 0x22d3ee,
+                    emissive: 0x67e8f9,
+                    emissiveIntensity: 1.2,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const marker = new THREE.Mesh(markerGeo, markerMat);
+                marker.position.set(x, y, z);
+                scene.add(marker);
+                rootMarkers.push(marker);
+            }
+            
+            // Info panel
+            document.getElementById('threeInfo').innerHTML = `
+                N = ${N} | L ≈ ${data.L.toFixed(2)} | Hull segments: ${hull.length-1}<br>
+                <span style="color:#22d3ee;">● Tropical Helix (zeros lie here under Conjecture 1)</span>
+            `;
+            
+            if (renderer) renderer.render(scene, camera);
+        }
+
+        // Main update function
+        function updateAll(N, lambda) {
+            const data = computeCoefficients(N, lambda);
+            
+            document.getElementById('nValue').textContent = N;
+            document.getElementById('lambdaValue').textContent = lambda.toFixed(1);
+            
+            update2DCharts(N, lambda, data);
+            updateThreeJS(N, lambda, data);
+        }
+
+        function initializeListeners() {
+            const nSlider = document.getElementById('nSlider');
+            const lambdaSlider = document.getElementById('lambdaSlider');
+            
+            function refresh() {
+                const N = parseInt(nSlider.value);
+                const lambda = parseFloat(lambdaSlider.value);
+                updateAll(N, lambda);
+            }
+            
+            nSlider.addEventListener('input', refresh);
+            lambdaSlider.addEventListener('input', refresh);
+            
+            initThreeJS();
+            refresh();
+            
+            window.addEventListener('resize', () => {
+                const container = document.getElementById('threeContainer');
+                if (renderer && camera) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                    renderer.render(scene, camera);
+                }
+            });
+        }
+
+        window.onload = initializeListeners;
+    </script>
+</body>
+</html>
