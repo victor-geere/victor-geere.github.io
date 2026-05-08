@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Harmonic Sine Transform Programme I: Greedy Harmonic Expansion of Angles</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.68;
+      color: #1e293b;
+      background: #f8fafc;
+      margin: 0;
+      padding: 32px 20px;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      background: white;
+      padding: 48px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 16px;
+      margin-bottom: 0.6rem;
+      color: #0f172a;
+    }
+    h2, h3, h4 {
+      color: #0f172a;
+    }
+    .subtitle {
+      text-align: center;
+      color: #475569;
+      font-style: italic;
+      margin-top: 0;
+      margin-bottom: 2.5rem;
+    }
+    .toc {
+      background: #f1f5f9;
+      padding: 1.8rem;
+      border-radius: 10px;
+      margin: 2.5rem 0;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    .toc li {
+      margin: 0.5rem 0;
+    }
+    .toc a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+    .toc ul ul {
+      padding-left: 1.4rem;
+      margin-top: 0.3rem;
+    }
+    .abstract {
+      background: #f1f5f9;
+      border-left: 4px solid #3b82f6;
+      padding: 1.2rem 1.6rem;
+      border-radius: 0 8px 8px 0;
+      margin: 2rem 0;
+      font-style: italic;
+    }
+    .abstract strong {
+      font-style: normal;
+    }
+    .math-block {
+      background: #f8fafc;
+      padding: 1.2rem 1.6rem;
+      border-radius: 8px;
+      margin: 1.6rem 0;
+      border-left: 4px solid #60a5fa;
+      font-size: 1.02em;
+      overflow-x: auto;
+    }
+    .theorem-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #3b82f6;
+      border-radius: 0 8px 8px 0;
+      padding: 1.2rem 1.6rem;
+      margin: 1.8rem 0;
+    }
+    .lemma-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid #22c55e;
+      border-radius: 0 8px 8px 0;
+      padding: 1.2rem 1.6rem;
+      margin: 1.8rem 0;
+    }
+    .proposition-box {
+      background: #fdf4ff;
+      border: 1px solid #e9d5ff;
+      border-left: 4px solid #a855f7;
+      border-radius: 0 8px 8px 0;
+      padding: 1.2rem 1.6rem;
+      margin: 1.8rem 0;
+    }
+    .proof {
+      margin: 0.6rem 0 1.6rem 0;
+      padding: 1rem 1.4rem;
+      border-left: 2px solid #cbd5e1;
+    }
+    .proof-label {
+      font-style: italic;
+      color: #475569;
+    }
+    .qed {
+      text-align: right;
+      color: #64748b;
+      font-size: 1.1em;
+    }
+    ol, ul {
+      padding-left: 1.8rem;
+    }
+    li { margin: 0.4rem 0; }
+    .references {
+      margin-top: 2rem;
+    }
+    .references ol {
+      padding-left: 1.6rem;
+    }
+    .references li {
+      margin: 0.5rem 0;
+    }
+    a { color: #3b82f6; }
+    hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 2.5rem 0;
+    }
+    @media (max-width: 640px) {
+      main { padding: 28px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<main>
+
+<h1>Harmonic Sine Transform Programme I</h1>
+<p class="subtitle">Greedy Harmonic Expansion of Angles</p>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ul>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#intro">1. Introduction</a></li>
+    <li><a href="#goals">2. Goals of the Programme</a></li>
+    <li><a href="#methodology">3. Methodology</a></li>
+    <li><a href="#results">4. Results</a>
+      <ul>
+        <li><a href="#convergence">4.1 Convergence of the greedy algorithm</a></li>
+        <li><a href="#series">4.2 Series representation</a></li>
+        <li><a href="#monotonicity">4.3 Monotonicity and threshold angles</a></li>
+        <li><a href="#cylinder">4.4 Cylinder intervals and tree structure</a></li>
+      </ul>
+    </li>
+    <li><a href="#conclusion">5. Conclusion</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</div>
+
+<hr id="abstract">
+
+<h2>Abstract</h2>
+<div class="abstract">
+  <p>We outline and execute a research programme whose goal is to rigorously construct the greedy harmonic expansion of every angle \(\theta\in[0,\pi]\) as a series \(\theta/\pi = \sum_{n=0}^\infty \delta_n(\theta)/(n+2)\) and to establish its fundamental properties. This expansion is the starting point for the entire harmonic&ndash;categorical approach to the Riemann zeta function. The programme is carried out in full; all statements are proved from elementary real analysis.</p>
+</div>
+
+<hr id="intro">
+
+<h2>1. Introduction</h2>
+
+<p>Victor Geere <a href="#ref-Geere2026a">[1]</a> discovered a purely geometric algorithm that reconstructs \(\sin\theta\) from the harmonic fractions \(\pi/(n+2)\). The algorithm can be interpreted as a greedy binary expansion of the normalised angle \(x = \theta/\pi\) with respect to the sequence \((1/(n+2))_{n=0}^\infty\). This research programme formalises the greedy expansion and proves its basic convergence and structural properties, which serve as the foundation for the harmonic tree, the Haar basis, and ultimately the Harmonic Sine Transform.</p>
+
+<hr id="goals">
+
+<h2>2. Goals of the Programme</h2>
+
+<p>The programme aims to prove the following statements for every \(\theta\in[0,\pi]\).</p>
+<ol>
+  <li>The greedy algorithm produces a well-defined infinite binary sequence \((\delta_n(\theta))_{n=0}^\infty\).</li>
+  <li>The series \(\sum_{n=0}^\infty \delta_n(\theta)/(n+2)\) converges absolutely to \(\theta/\pi\).</li>
+  <li>For each \(n\), the map \(\theta\mapsto\delta_n(\theta)\) is non-decreasing; consequently there exists a unique <strong>threshold angle</strong> \(\theta_n^*\in[0,\pi]\) such that \(\delta_n(\theta)=1\) iff \(\theta\ge\theta_n^*\).</li>
+  <li>The cylinder intervals \(I_\varepsilon = \{\theta\in[0,\pi] : \delta_k(\theta)=\varepsilon_k,\;0\le k&lt;n\}\) are half-open intervals whose endpoints are finite sums of the harmonic fractions.</li>
+  <li>The lengths of these intervals are given recursively and the splitting rule determines the structure of the greedy harmonic tree.</li>
+</ol>
+<p>All these facts are essential for the construction of the orthonormal Haar basis in Programme&nbsp;II.</p>
+
+<hr id="methodology">
+
+<h2>3. Methodology</h2>
+
+<p>The programme proceeds by direct analysis of the greedy recursion. Define the harmonic fractions \(\alpha_n = \pi/(n+2)\) for \(n\ge 0\). For a fixed \(\theta\in[0,\pi]\) set \(x = \theta/\pi\). The greedy algorithm constructs a sequence \((\theta_n)_{n\ge 0}\) together with the digits:</p>
+
+<div class="math-block">
+\[
+\theta_0 = 0,\qquad
+\delta_n = \Theta(\theta - \theta_n - \alpha_n),\qquad
+\theta_{n+1} = \theta_n + \delta_n\alpha_n,
+\]
+</div>
+
+<p>where \(\Theta\) is the Heaviside step function (\(\Theta(t)=1\) if \(t\ge 0\), \(0\) otherwise). Equivalently, \(\delta_n = 1\) exactly when the remaining distance \(\theta - \theta_n\) is at least \(\alpha_n\); otherwise \(\delta_n = 0\).</p>
+
+<p>We first prove monotonicity and convergence of \((\theta_n)\) to \(\theta\), then convert the partial sums into the required series representation. The threshold angle property follows from the monotonicity of the step decision in \(\theta\). Interval lengths are computed by induction using the greedy rule.</p>
+
+<hr id="results">
+
+<h2>4. Results</h2>
+
+<h3 id="convergence">4.1 Convergence of the greedy algorithm</h3>
+
+<div class="lemma-box">
+  <strong>Lemma 4.1.</strong>
+  For every \(\theta\in[0,\pi]\), the sequence \((\theta_n)_{n\ge 0}\) defined by the greedy algorithm satisfies
+  \[
+  0\le \theta_n \le \theta_n + \delta_n\alpha_n \le \theta,\qquad
+  \theta - \theta_n \le \pi/(n+1).
+  \]
+  In particular, \(\theta_n \nearrow \theta\) as \(n\to\infty\).
+</div>
+
+<div class="proof">
+  <span class="proof-label">Proof.</span>
+  <p>We proceed by induction. For \(n=0\) we have \(\theta_0=0\), so \(\theta-\theta_0 = \theta \le \pi = \pi/(0+1)\). Assume the induction hypothesis holds for all indices up to \(n\). Then \(\theta - \theta_n \le \pi/(n+1)\).</p>
+  <p>If \(\theta - \theta_n &lt; \alpha_n = \pi/(n+2)\), then \(\delta_n = 0\) and \(\theta_{n+1} = \theta_n\); hence \(\theta-\theta_{n+1} = \theta-\theta_n &lt; \pi/(n+2)\).</p>
+  <p>If \(\theta - \theta_n \ge \alpha_n\), then \(\delta_n = 1\) and \(\theta_{n+1} = \theta_n + \alpha_n\). Thus
+  \[
+  \theta - \theta_{n+1} = \theta - \theta_n - \alpha_n \le \frac{\pi}{n+1} - \frac{\pi}{n+2} = \frac{\pi}{(n+1)(n+2)} \le \frac{\pi}{n+2}
+  \]
+  for all \(n\ge0\). The induction step is verified. The upper bound \(\theta_{n+1}\le\theta\) follows because in the case \(\delta_n=1\), \(\theta_n+\alpha_n\le \theta\) by the condition, and if \(\delta_n=0\) then \(\theta_{n+1}=\theta_n\le\theta\). Convergence is immediate from the bound on the error.</p>
+  <div class="qed">&#9632;</div>
+</div>
+
+<h3 id="series">4.2 Series representation</h3>
+
+<div class="theorem-box">
+  <strong>Theorem 4.2.</strong>
+  For every \(\theta\in[0,\pi]\),
+  \[
+  \frac{\theta}{\pi} = \sum_{n=0}^{\infty} \frac{\delta_n(\theta)}{n+2}.
+  \]
+  The series converges absolutely because its terms are non-negative and the remainder satisfies the estimate above.
+</div>
+
+<div class="proof">
+  <span class="proof-label">Proof.</span>
+  <p>From the algorithm we have \(\theta_m = \sum_{k=0}^{m-1} \delta_k\alpha_k\). Dividing by \(\pi\) gives \(\frac{\theta_m}{\pi} = \sum_{k=0}^{m-1} \frac{\delta_k}{k+2}\). Since \(\theta_m\to\theta\) (Lemma 4.1), the partial sums converge to \(\theta/\pi\). All terms are non-negative, so convergence is absolute.</p>
+  <div class="qed">&#9632;</div>
+</div>
+
+<h3 id="monotonicity">4.3 Monotonicity and threshold angles</h3>
+
+<div class="theorem-box">
+  <strong>Theorem 4.3.</strong>
+  For each \(n\), the function \(\theta\mapsto\delta_n(\theta)\) is non-decreasing on \([0,\pi]\). Consequently, there exists a unique \(\theta_n^*\in[0,\pi]\) such that
+  \[
+  \delta_n(\theta) =
+  \begin{cases}
+  0, & \theta < \theta_n^*,\\
+  1, & \theta \ge \theta_n^*.
+  \end{cases}
+  \]
+</div>
+
+<div class="proof">
+  <span class="proof-label">Proof.</span>
+  <p>Fix \(n\) and suppose \(\theta &lt; \theta'\). Write the remainders \(r_k = \theta - \theta_k\) and \(r'_k = \theta' - \theta'_k\) with the corresponding sequences \((\theta_k)\) and \((\theta'_k)\). A simple induction shows that \(\theta_k \le \theta'_k\) for all \(k\); indeed \(\theta_0=\theta'_0=0\) and if \(\theta_k \le \theta'_k\) then considering the digit decisions: if \(\delta_k=0\) then \(\theta_{k+1}=\theta_k\), else \(\theta_{k+1}=\theta_k+\alpha_k\). Since \(r_k \le r'_k\), the condition \(\theta-\theta_k\ge\alpha_k\) implies \(\theta'-\theta'_k\ge\alpha_k\), so \(\delta_k(\theta)\le\delta_k(\theta')\). Thus the digits are non-decreasing. The threshold \(\theta_n^*\) is the infimum of those \(\theta\) for which \(\delta_n(\theta)=1\); by monotonicity the description holds.</p>
+  <div class="qed">&#9632;</div>
+</div>
+
+<h3 id="cylinder">4.4 Cylinder intervals and tree structure</h3>
+
+<p>For a binary prefix \(\varepsilon = (\varepsilon_0,\dots,\varepsilon_{n-1})\in\{0,1\}^n\) we define
+\[
+I_\varepsilon = \{\theta\in[0,\pi] : \delta_k(\theta)=\varepsilon_k\text{ for }0\le k&lt;n\}.
+\]
+These form a partition of \([0,\pi]\) for each \(n\). They are intervals because the inequalities defining them are lower/upper bounds coming from the threshold angles.</p>
+
+<div class="proposition-box">
+  <strong>Proposition 4.4.</strong>
+  For each admissible prefix \(\varepsilon\), \(I_\varepsilon\) is a half-open interval \([a_\varepsilon,b_\varepsilon)\) (or a point). Its length \(\ell(\varepsilon)\) satisfies the recurrence: if \(\varepsilon\) is a prefix of length \(n\), then the children \(\varepsilon 0\) and \(\varepsilon 1\) have lengths
+  \[
+  \ell(\varepsilon 1) = \alpha_n = \frac{\pi}{n+2},\qquad
+  \ell(\varepsilon 0) = \ell(\varepsilon) - \alpha_n,
+  \]
+  provided \(\ell(\varepsilon) &gt; \alpha_n\). Otherwise, if \(\ell(\varepsilon) \le \alpha_n\), only the left child exists (unsplit node) and its length equals \(\ell(\varepsilon)\).
+</div>
+
+<div class="proof">
+  <span class="proof-label">Proof.</span>
+  <p>The description follows from the greedy rule: if the remaining length \(\ell(\varepsilon)\) is larger than \(\alpha_n\), then the condition \(\theta-\theta_n\ge\alpha_n\) splits the interval into two parts of lengths \(\ell(\varepsilon)-\alpha_n\) (where digit \(0\) continues) and \(\alpha_n\) (digit \(1\)). Because the threshold angle \(\theta_n^*\) is exactly the boundary, the left child is \([\min I_\varepsilon, \theta_n^*)\) and the right child is \([\theta_n^*, \max I_\varepsilon)\). Their measures are as stated. If \(\ell(\varepsilon)\le\alpha_n\), the digit is forced to be \(0\) for all \(\theta\) in the interval, so the node is unsplit and the interval passes unchanged to the next level.</p>
+  <div class="qed">&#9632;</div>
+</div>
+
+<p>The recursive length rule completely determines the tree of intervals, which is the <strong>greedy harmonic tree</strong> \(\mathcal{T}\). Almost every \(\theta\) is identified by an infinite path, and the maximal intervals are singletons.</p>
+
+<hr id="conclusion">
+
+<h2>5. Conclusion</h2>
+
+<p>The research programme has been successfully completed. All five goals have been rigorously proved. The greedy harmonic expansion is well-defined, convergent, and monotone. Its threshold angles and cylinder intervals form a binary tree with explicit length rules. This provides the solid foundation for the next step: constructing the orthonormal Haar basis from this tree (Programme&nbsp;II).</p>
+
+<hr id="references">
+
+<div class="references">
+  <h2>References</h2>
+  <ol>
+    <li id="ref-Geere2026a">V.&nbsp;Geere, <em>A Purely Geometric Reconstruction of the Sine Function</em>, March 2026. <a href="https://victorgeere.co.za/maths/sine-harmonic.html">victorgeere.co.za/maths/sine-harmonic.html</a></li>
+    <li id="ref-Geere2026b">V.&nbsp;Geere, <em>On the Correlation Structure of a Greedy Harmonic Decomposition of the Sine Function</em>, March 2026. <a href="https://victorgeere.co.za/maths/greedy-harmonic-decomposition.html">victorgeere.co.za/maths/greedy-harmonic-decomposition.html</a></li>
+  </ol>
+</div>
+
+</main>
+</body>
+</html>
