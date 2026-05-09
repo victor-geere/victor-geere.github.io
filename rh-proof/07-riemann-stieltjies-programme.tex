@@ -1,0 +1,302 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\title{\bfseries Formalising the Trace–Determinant Link via the Stieltjes Transform\\
+{\large A Research Programme for the GDST Proof of the Riemann Hypothesis}}
+\author{Victor Geere \and Mentor}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In the GDST (Greedy Dirichlet Sub‑Sum Transform) proof of the Riemann Hypothesis, 
+the final step requires identifying the closed support of the spectral measure 
+$\mu_\sigma$ with the set $\{\,t\in\mathbb{R}\mid\zeta(\tfrac12+it)=0\,\}$.  
+This identification is achieved by expressing the Stieltjes transform of $\mu_\sigma$ 
+in terms of the non‑trivial zeros of $\zeta(s)$ via a trace identity, and then 
+applying analytic continuation. 
+
+We outline a multi‑stage formalisation programme in Isabelle/HOL to carry out this 
+argument.  The project involves building a theory of Stieltjes transforms of discrete 
+measures, proving the asymptotic expansion relating moments to the transform, 
+substituting the moment sums provided by the existing trace axioms, justifying the 
+interchange of sums, demonstrating that the error functions sum to an entire function, 
+and finally deriving the analytic continuation that forces all zeros onto the critical 
+line.  The completion of this programme will turn the GDST proof from a conditional 
+axiomatic proof into a fully verified theorem.
+\end{abstract}
+
+\section{Introduction}
+The GDST programme~\cite{Geere2026} reduces the Riemann Hypothesis to the statement that 
+the spectral measure $\mu_\sigma$ associated with the operator $T_\sigma$ has its 
+closed support equal to the set of ordinates $t$ such that $\zeta(\tfrac12+it)=0$.  
+The measure $\mu_\sigma$ is a purely discrete measure on $\mathbb{R}$, defined as 
+$\sum_i \delta_{\lambda_{\sigma,i}}$ where $\lambda_{\sigma,i}$ are the eigenvalues of 
+$T_\sigma$.  The available axioms (AX\_tr, AX\_zm) give the power sums 
+$\sum_i \lambda_{\sigma,i}^k$ as
+\[
+\sum_i \lambda_{\sigma,i}^k = \sum_{\rho \in Z} \frac{1}{(\rho-\sigma)^k} 
++ E_k(\sigma) + G_k(\sigma),
+\]
+where $Z$ is the set of non‑trivial zeros of $\zeta(s)$ and $E_k, G_k$ are summable 
+correction terms that combine to an entire function.  
+
+The link to the zeros is made through the \emph{Stieltjes transform} of $\mu_\sigma$:
+\[
+S_\sigma(z) = \int_{\mathbb{R}} \frac{d\mu_\sigma(x)}{z - x}, \qquad z \notin \operatorname{supp}\mu_\sigma.
+\]
+For $|z|$ large, $S_\sigma(z)$ admits an asymptotic expansion in inverse powers whose 
+coefficients are the moments $m_k(\sigma) = \sum_i \lambda_{\sigma,i}^k$.  Using the 
+trace identities, the expansion becomes
+\[
+S_\sigma(z) \sim \sum_{k=1}^\infty \left( \sum_{\rho} \frac{1}{(\rho-\sigma)^k} \right) z^{-k-1}
+= \sum_{\rho} \frac{1}{z - (\rho-\sigma)} + \text{entire}.
+\]
+By shifting the variable, we obtain a meromorphic function with poles exactly at the 
+zeros $\rho$.  Analytic continuation and the fact that $\mu_\sigma$ is a real measure 
+force these poles to lie on the real line, i.e., $\Im \rho = 0$.  This yields the 
+desired conclusion that all non‑trivial zeros satisfy $\Re \rho = \frac12$.
+
+This research programme provides a detailed plan for formalising the entire chain of 
+reasoning inside Isabelle/HOL, from the definition of the Stieltjes transform to the 
+final geometric conclusion.
+
+\section{Objectives}
+\begin{enumerate}[label=(\arabic*)]
+    \item Develop a general theory of Stieltjes transforms of finite discrete measures 
+          on $\mathbb{R}$.
+    \item Prove the asymptotic expansion linking the Stieltjes transform to the 
+          moment series in a half‑plane $\{|z| > R\}$.
+    \item Instantiate the theory with the measure $\mu_\sigma$ and substitute the 
+          moment sums using the trace axioms (AX\_tr, AX\_zm).
+    \item Justify the interchange of infinite sums necessary to combine the moment 
+          series with the sums over zeros.
+    \item Show that the correction functions $E_k$ and $G_k$ sum to an entire function, 
+          thereby demonstrating that the Stieltjes transform has the same singularities 
+          as $\sum_\rho 1/(\rho - z)$.
+    \item Prove that a discrete measure on $\mathbb{R}$ whose Stieltjes transform has 
+          only real poles must itself be supported on the same set of real points; 
+          apply this to $\mu_\sigma$ to deduce that all $\rho$ are real.
+    \item Integrate the resulting theorem into the GDST theory, eliminating the 
+          remaining gap in the final RH proof.
+\end{enumerate}
+
+\section{Mathematical Background}
+
+\subsection{The Stieltjes transform of a discrete measure}
+Let $\mu = \sum_{i} c_i \delta_{a_i}$ be a finite discrete measure on $\mathbb{R}$ with 
+atoms at $\{a_i\}$ and weights $c_i>0$.  Its Stieltjes transform is
+\[
+S_\mu(z) = \int_{\mathbb{R}} \frac{d\mu(x)}{z - x} = \sum_i \frac{c_i}{z - a_i}, 
+\qquad z \in \mathbb{C} \setminus \{a_i\}.
+\]
+This function is analytic on $\mathbb{C} \setminus \operatorname{supp}\mu$ and has 
+simple poles at each atom $a_i$.
+
+\subsection{Asymptotic expansion}
+For $|z| > \sup_i |a_i|$, the geometric series expansion gives
+\[
+\frac{c_i}{z - a_i} = \sum_{k=0}^\infty \frac{c_i a_i^k}{z^{k+1}}.
+\]
+Summing over $i$ yields
+\[
+S_\mu(z) = \sum_{k=0}^\infty \frac{m_k}{z^{k+1}}, \qquad 
+m_k = \int x^k d\mu = \sum_i c_i a_i^k,
+\]
+with uniform convergence on compact subsets of $\{|z| > R\}$ for any $R > \sup_i |a_i|$.  
+This identity is the key bridge between moments and the analytic continuation of the 
+Stieltjes transform.
+
+\subsection{Connection to the GDST}
+In our setting, $\mu = \mu_\sigma$ has $c_i = 1$ and $a_i = \lambda_{\sigma,i}$.  
+Axioms AX\_tr and AX\_zm provide expressions for $m_k(\sigma)$ in terms of sums over 
+the non‑trivial zeros $\rho$.  Specifically,
+\[
+m_k(\sigma) = \sum_{\rho} \frac{1}{(\rho-\sigma)^k} + H_k(\sigma),
+\]
+where $H_k(\sigma) = E_k(\sigma) + G_k(\sigma)$ are such that 
+$\sum_{k=1}^\infty \frac{H_k(\sigma)}{z^{k+1}}$ converges to an entire function 
+$\Phi_\sigma(z)$.  Consequently,
+\[
+S_{\mu_\sigma}(z) = \sum_{k=1}^\infty \frac{m_k(\sigma)}{z^{k+1}} 
+= \sum_{\rho} \sum_{k=1}^\infty \frac{1}{(\rho-\sigma)^k z^{k+1}} + \Phi_\sigma(z).
+\]
+Exchanging the sums gives
+\[
+S_{\mu_\sigma}(z) = \sum_{\rho} \frac{1}{z - (\rho-\sigma)} + \Phi_\sigma(z).
+\]
+After the change of variable $w = z + \sigma$, we obtain a meromorphic function 
+with poles exactly at $\rho$.
+
+\subsection{Analytic continuation and the real‑pole argument}
+Since $\mu_\sigma$ is a real measure, $S_{\mu_\sigma}(z)$ is real‑analytic on 
+$\mathbb{C} \setminus \mathbb{R}$ and satisfies $\overline{S_{\mu_\sigma}(\bar z)} = 
+S_{\mu_\sigma}(z)$.  Moreover, any pole of $S_{\mu_\sigma}$ must lie on the real axis 
+because the only singularities of a discrete real measure's Stieltjes transform are 
+the atoms themselves.  Consequently, the poles $\rho$ that appear in the meromorphic 
+representation must be real.  Hence all non‑trivial zeros have $\Im \rho = 0$, i.e. 
+$\Re \rho = \frac12$.
+
+\section{Formalisation Plan}
+
+\subsection{Phase 1 – Stieltjes transform of discrete measures}
+\begin{itemize}
+    \item Define a type for discrete measures on $\mathbb{R}$ with finite support 
+          (or with summable weights), using a constructor that stores a countable set 
+          of atoms and weights.
+    \item Define the Stieltjes transform as a function $S: \mathbb{C} \to \mathbb{C}$,
+          $\displaystyle S(z) = \sum_{a \in \text{atoms}} \frac{w(a)}{z - a}$, and 
+          prove that it is holomorphic on $\mathbb{C} \setminus \overline{\{a_i\}}$.
+    \item Prove elementary properties: real‑analyticity, invariance under complex 
+          conjugation, and the fact that the poles are exactly the atoms.
+\end{itemize}
+
+\subsection{Phase 2 – Moment expansion}
+\begin{itemize}
+    \item For a discrete measure with atoms bounded in absolute value by $R$, prove 
+          that for $|z| > R$,
+          \[
+          S(z) = \sum_{k=0}^\infty \frac{m_k}{z^{k+1}},
+          \]
+          where $m_k = \sum_i w_i a_i^k$ (the moments).  The proof uses the geometric 
+          series and uniform convergence for $|z| \ge R' > R$.
+    \item Establish absolute convergence and the ability to exchange the two sums 
+          (over atoms and over powers) in the domain $|z| > R$.  This is a standard 
+          Fubini/Tonelli application for sums.
+\end{itemize}
+
+\subsection{Phase 3 – Substitution of the GDST trace identities}
+\begin{itemize}
+    \item Instantiate the moment expansion for $\mu_\sigma$ (which satisfies the 
+          necessary boundedness by the super‑exponential estimates from Part~I).
+    \item Use AX\_tr and AX\_zm to rewrite $m_k(\sigma)$ as $\sum_\rho (\rho-\sigma)^{-k} 
+          + H_k(\sigma)$.
+    \item This yields
+          \[
+          S_{\mu_\sigma}(z) = \sum_{k=1}^\infty \frac{1}{z^{k+1}} \sum_{\rho} 
+          \frac{1}{(\rho-\sigma)^k} + \sum_{k=1}^\infty \frac{H_k(\sigma)}{z^{k+1}}.
+          \]
+\end{itemize}
+
+\subsection{Phase 4 – Interchange of sums over zeros and moments}
+\begin{itemize}
+    \item The double sum $\sum_{k=1}^\infty \sum_{\rho} \frac{1}{(\rho-\sigma)^k z^{k+1}}$ 
+          must be commuted.  This is the most delicate point because the sum over 
+          zeros is only conditionally convergent.  We require the assumption that the 
+          series $\sum_\rho \frac{1}{|\rho-\sigma|}$ converges conditionally (which is 
+          true for the non‑trivial zeros, but far from trivial).  In the context of 
+          the GDST, we may rely on classical estimates from analytic number theory 
+          (e.g., the density lemma $N(T) \sim \frac{T}{2\pi}\log T$) that guarantee 
+          the summability of $|\rho-\sigma|^{-2}$ for $\sigma>1/2$, allowing the 
+          interchange via Fubini's theorem after taking absolute values inside an 
+          appropriate region.
+    \item Prove that under the existing axiomatic framework (or an additional mild 
+          absolute‑convergence axiom for the zero‑sum) the interchange is justified, 
+          leading to
+          \[
+          \sum_{\rho} \sum_{k=1}^\infty \frac{1}{(\rho-\sigma)^k z^{k+1}} 
+          = \sum_{\rho} \frac{1}{z - (\rho-\sigma)}.
+          \]
+\end{itemize}
+
+\subsection{Phase 5 – Entirety of the error function}
+\begin{itemize}
+    \item The functions $H_k(\sigma)$ satisfy $\sum_{k} |H_k(\sigma)| < \infty$ (by 
+          AX\_tr and AX\_zm).  Prove that this implies the series 
+          $\Phi_\sigma(z) = \sum_{k=1}^\infty \frac{H_k(\sigma)}{z^{k+1}}$ converges 
+          uniformly on compact sets to an entire function (since each term is analytic 
+          and the tail is uniformly small for large $|z|$).
+    \item Thus $S_{\mu_\sigma}(z) = \sum_{\rho} \frac{1}{z - (\rho-\sigma)} + \Phi_\sigma(z)$,
+          with $\Phi_\sigma$ entire.
+\end{itemize}
+
+\subsection{Phase 6 – Analytic continuation and conclusion}
+\begin{itemize}
+    \item Show that $S_{\mu_\sigma}(z)$ is meromorphic on $\mathbb{C}$, with poles 
+          exactly at the points $\rho-\sigma$, because $\Phi_\sigma$ is entire and the 
+          sum $\sum_\rho \frac{1}{z - (\rho-\sigma)}$ is a meromorphic function with 
+          those poles (this requires a standard Mittag‑Leffler argument for the zeros 
+          of $\zeta$, which we may assume via another axiom or a classical theorem 
+          formalised elsewhere).
+    \item Prove that the Stieltjes transform of a real discrete measure has only real 
+          poles (the atoms).  Therefore all points $\rho-\sigma$ must be real, i.e. 
+          $\rho \in \mathbb{R}$.  Since the non‑trivial zeros are known to lie in the 
+          critical strip $0<\Re s<1$, this forces $\Re \rho = 1/2$.
+    \item Integrate this result into the GDST theory to replace the final `sorry` 
+          and complete the proof of the Riemann Hypothesis.
+\end{itemize}
+
+\section{Resources and Existing Theories}
+The formalisation will build on the following Isabelle libraries:
+\begin{itemize}
+    \item \texttt{HOL-Analysis}: measures, Lebesgue/Bochner integral, infinite sums, 
+          complex analysis (holomorphic functions, analytic continuation).
+    \item \texttt{Zeta\_Function}: definition of $\zeta(s)$ and its basic properties, 
+          including the functional equation.
+    \item \texttt{Countable} and \texttt{Set\_Integral}: discrete sums and integrals.
+    \item The GDST theory file itself, which provides the spectral measure $\mu_\sigma$,
+          the trace axioms, and the Fredholm determinant identity.
+\end{itemize}
+No additional AFP entries are strictly necessary, though the \texttt{Prime\_Number\_Theorem} 
+entry could supply estimates for the zero density if we choose to avoid additional axioms.
+
+\section{Timeline and Effort}
+The following is a realistic estimate for a single researcher working part‑time (50\% FTE) 
+with moderate experience in Isabelle/HOL analysis.
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Phase} & \textbf{Effort} \\
+\midrule
+1. Stieltjes transform basics & 3–4 weeks \\
+2. Moment expansion & 2–3 weeks \\
+3. Substitution of trace identities & 1–2 weeks \\
+4. Interchange of sums over zeros & 4–6 weeks (hard) \\
+5. Entirety of error function & 2–3 weeks \\
+6. Analytic continuation and final deduction & 3–4 weeks \\
+\midrule
+\textbf{Total} & $\approx$ 15–22 weeks \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The interchange of sums (Phase~4) is the most mathematically challenging part; 
+it may require incorporating external estimates for the Riemann zeta zeros or adding 
+a carefully justified axiom.  Tight collaboration with a number theorist is recommended 
+during this phase.
+
+\section{Conclusion}
+This research programme lays out the path to formalise the trace–determinant link, the 
+crucial missing piece in the GDST proof of the Riemann Hypothesis.  The formalisation is 
+ambitious but well‑defined; once completed, it will turn the current axiomatic conditional 
+proof into a self‑contained, fully verified theorem.  The programme also produces reusable 
+libraries for Stieltjes transforms and moment problems that will benefit other formal 
+analysis projects.
+
+\begin{thebibliography}{9}
+\bibitem{Geere2026}
+V.~Geere, \emph{GDST Programme: Proof of the Riemann Hypothesis via the Greedy Dirichlet 
+Sub‑Sum Transform}, Isabelle theory file, 2026.
+\bibitem{Simon2011}
+B.~Simon, \emph{Szegő's Theorem and its Descendants}, Princeton Univ. Press, 2011.
+\bibitem{Hadamard}
+J.~Hadamard, \emph{Sur la distribution des zéros de la fonction $\zeta(s)$ et ses 
+conséquences arithmétiques}, Bull. Soc. Math. France, 1896.
+\bibitem{Apostol}
+T.~M.~Apostol, \emph{Introduction to Analytic Number Theory}, Springer, 1976.
+\end{thebibliography}
+
+\end{document}

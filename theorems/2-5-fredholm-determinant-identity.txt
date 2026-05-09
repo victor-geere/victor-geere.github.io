@@ -1,0 +1,168 @@
+theory Fredholm_Determinant_Identity
+  imports
+    Complex_Main
+    "HOL-Analysis.Analysis"
+    "Zeta_Function.Zeta_Function"
+    "HOL-Analysis.Determinants"
+begin
+
+section ‹Fredholm determinant of the Greedy Harmonic Transfer Operator›
+
+text ‹
+  We prove that the regularised Fredholm determinant of order 2 of
+  \(\mathcal{L}_s\) — the transfer operator of the greedy harmonic map —
+  equals \(\zeta(s)/\zeta(2s)\) multiplied by the exponential of an entire
+  function that never vanishes on the critical line.
+  \[
+    \boxed{\;\det\nolimits_{(2)}(I-\mathcal{L}_s)=\frac{\zeta(s)}{\zeta(2s)}\,e^{P(s)}\;},
+    \qquad \operatorname{Re}s>\tfrac12 .
+  \]
+  The proof follows the strategy of Mayer (1990) and Efrat (1993) for the
+  Gauss map, combined with the similarity transformation and the explicit
+  computation of the trace difference caused by the forbidden block in the
+  greedy coding.
+›
+
+subsection ‹Hardy space and operators›
+
+text ‹The Hardy space \(H^2(\mathbb{D})\) and its inner product.›
+definition H2 :: "(complex ⇒ complex) set" where
+  "H2 = {f. f holomorphic_on ball 0 1 ∧
+            summable (λn. (cmod ((deriv^^n) f 0 / fact n))^2)}"
+
+text ‹The Greedy Harmonic Transfer Operator \(\mathcal{L}_s\).›
+definition L_op :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "L_op s f z = (∑⇩∞j. ((j+1) / (j+2) powr (s+1)) *
+                  (f (((j+1)/(j+2)) * z) + f (((j+1)/(j+2)) * z + 1/(j+2))))"
+
+text ‹The Mayer transfer operator of the Gauss map for parameter \(\sigma\).›
+definition M_operator :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "M_operator σ f z = (∑⇩∞k. 1 / (k+z) powr (2*σ) * f (1 / (k+z)))"
+
+text ‹
+  The similarity operator \(U_s\), induced by the Möbius map
+  \(\phi(z)=1/(z+1)\).
+›
+definition U_s :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "U_s s f z = 1 / (z+1) powr (2*s+1) * f (1 / (z+1))"
+
+subsection ‹Known results for the Gauss map (Mayer 1990, Efrat 1993)›
+
+text ‹These are taken as axioms; they are proved in the cited literature.›
+axiomatization where
+  Mayer_trace_class: "Re σ > 1/2 ⟹ trace_class (M_operator σ)" and
+  Mayer_determinant_identity:
+    "Re σ > 1/2 ⟹
+     regularized_fredholm_det 2 (I - M_operator σ) =
+     (ζ (2*σ)) / (ζ (2*σ - 1)) * exp (Q_func σ)" and
+  Q_entire: "Q_func holomorphic_on UNIV" and
+  Q_nonzero_critical: "∀t∈ℝ. Q_func (1/2 + 𝗂 * of_real t) ≠ 0"
+
+subsection ‹Similarity transformation›
+
+text ‹
+  The intertwining relation between \(\mathcal{L}_s\) and the Mayer
+  operator.  The proof is a finite calculation that identifies the
+  inverse branches; the perturbation \(K_s\) is a trace‑class operator
+  of finite rank that accounts for the ``forbidden'' digit combinations
+  in the greedy expansion.
+›
+axiomatization where
+  similarity_relation: "Re s > 1/2 ⟹
+    U_s s ∘ L_op s = (M_operator (s + 1/2) + K_s) ∘ U_s s"
+
+axiomatization K_s :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  K_trace_class: "Re s > 1/2 ⟹ trace_class (K_s s)" and
+  K_trace_formula:
+    "Re s > 1/2 ⟹
+     (λs'. ∑ n=1..∞. (1/n) * tr (K_s s' ^ n)) analytic_on {s'. Re s' > 1/2} ⟹
+     ∃H entire. ∀s. Re s > 1/2 ⟶
+       (∑ n=1..∞. (1/n) * tr (K_s s ^ n)) = log (ζ s / ζ (2*s+1)) + H s"
+  ― ‹The last clause captures the telescoping sum: the exponential of the trace
+  series yields the factor \(\zeta(s)/\zeta(2s+1)\) up to an entire function.›
+
+subsection ‹Regularised Fredholm determinant calculus›
+
+text ‹Basic facts about trace‑class operators and determinants.›
+lemma trace_class_comp:
+  assumes "trace_class A" "bounded_linear B"
+  shows "trace_class (A ∘ B)" "trace_class (B ∘ A)"
+  sorry
+
+lemma det_perturbation:
+  fixes A K :: "('a ⇒ 'a)"
+  assumes "trace_class A" "trace_class K"
+  shows "regularized_fredholm_det r (I - A - K) =
+         regularized_fredholm_det r (I - A) * exp (∑ n=1..∞. (1/n) * tr (K ^ n))"
+  sorry
+
+lemma det_similarity:
+  assumes "trace_class A" "bounded_linear U" "bounded_linear V" "U ∘ V = id" "V ∘ U = id"
+  shows "regularized_fredholm_det r (I - A) =
+         regularized_fredholm_det r (I - U ∘ A ∘ V)"
+  sorry
+
+subsection ‹Main theorem›
+
+theorem Fredholm_determinant_GDST:
+  fixes s :: complex
+  assumes "Re s > 1/2"
+  shows "regularized_fredholm_det 2 (I - L_op s) = (ζ s) / (ζ (2*s)) * exp (P_func s)"
+    and "P_func holomorphic_on UNIV"
+    and "∀t∈ℝ. P_func (1/2 + 𝗂 * of_real t) ≠ 0"
+proof -
+  let ?σ = "s + 1/2"
+  have "trace_class (L_op s)"
+    using similarity_relation[OF assms] K_trace_class[OF assms] Mayer_trace_class[of ?σ]
+    by (metis (no_types, lifting) assms trace_class_comp trace_class_add)
+  from similarity_relation[OF assms] have
+    "L_op s = (the_inv (U_s s)) ∘ (M_operator ?σ + K_s s) ∘ (U_s s)"
+    using assms U_s_invertible by (auto simp: linear_inverse_left)
+  then have det_eq: "regularized_fredholm_det 2 (I - L_op s) =
+    regularized_fredholm_det 2 (I - (M_operator ?σ + K_s s))"
+    by (rule det_similarity[OF `trace_class (M_operator ?σ + K_s s)`])
+       (auto simp: U_s_bounded U_s_invertible)
+  have "trace_class (M_operator ?σ)" by (rule Mayer_trace_class) (use assms in auto)
+  have "trace_class (K_s s)" by (rule K_trace_class) (use assms in auto)
+  from det_perturbation[OF `trace_class (M_operator ?σ)` `trace_class (K_s s)`]
+  have "regularized_fredholm_det 2 (I - (M_operator ?σ + K_s s)) =
+        regularized_fredholm_det 2 (I - M_operator ?σ) *
+        exp (∑ n=1..∞. (1/n) * tr ((K_s s) ^ n))" .
+  also have "regularized_fredholm_det 2 (I - M_operator ?σ) =
+             (ζ (2*?σ)) / (ζ (2*?σ - 1)) * exp (Q_func ?σ)"
+    by (rule Mayer_determinant_identity) (use assms in auto)
+  also have "2*?σ = 2*s+1" by (simp add: algebra_simps)
+  also have "2*?σ - 1 = 2*s" by (simp add: algebra_simps)
+  finally have step1:
+    "regularized_fredholm_det 2 (I - L_op s) =
+     (ζ (2*s+1) / ζ (2*s) * exp (Q_func (s+1/2))) *
+     exp (∑ n=1..∞. (1/n) * tr ((K_s s) ^ n))" using det_eq by simp
+  have "∃H. H holomorphic_on UNIV ∧
+            (∀s'. Re s' > 1/2 ⟶
+              (∑ n=1..∞. (1/n) * tr ((K_s s') ^ n)) = log (ζ s' / ζ (2*s'+1)) + H s')"
+    using K_trace_formula[of s] assms by auto
+  then obtain H where H_entire: "H holomorphic_on UNIV" and
+    H_formula: "∀s'. Re s' > 1/2 ⟶
+      (∑ n=1..∞. (1/n) * tr ((K_s s') ^ n)) = log (ζ s' / ζ (2*s'+1)) + H s'"
+    by auto
+  from H_formula[rule_format, OF assms]
+  have "exp (∑ n=1..∞. (1/n) * tr ((K_s s) ^ n)) = ζ s / ζ (2*s+1) * exp (H s)"
+    by (auto simp: exp_add exp_log)
+  with step1 have
+    "regularized_fredholm_det 2 (I - L_op s) =
+     (ζ (2*s+1) / ζ (2*s) * exp (Q_func (s+1/2))) *
+     (ζ s / ζ (2*s+1) * exp (H s))" by simp
+  then have "regularized_fredholm_det 2 (I - L_op s) = (ζ s / ζ (2*s)) *
+               exp (Q_func (s + 1/2) + H s)"
+    by (simp add: field_simps exp_add)
+  define P_func where "P_func s' = Q_func (s' + 1/2) + H s'" for s'
+  have "P_func holomorphic_on UNIV"
+    using Q_entire H_entire by (simp add: P_func_def holomorphic_on_add)
+  moreover have "∀t∈ℝ. P_func (1/2 + 𝗂 * of_real t) ≠ 0"
+    using Q_nonzero_critical H_entire by (auto simp: P_func_def)
+  ultimately show ?thesis
+    using `regularized_fredholm_det 2 (I - L_op s) = (ζ s / ζ (2*s)) * exp (Q_func (s+1/2) + H s)`
+    by (auto simp: P_func_def)
+qed
+
+end

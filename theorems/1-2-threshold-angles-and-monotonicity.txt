@@ -1,0 +1,165 @@
+theory GDST_1_2_Threshold_Angles
+  imports Complex_Main "HOL-Analysis.Analysis"
+begin
+
+section ‹1.2 Threshold angles and monotonicity›
+
+text ‹
+  We now study the digit functions \(\delta_n(\theta)\) as functions of
+  the angle \(\theta \in [0,\pi]\).  The greedy expansion of
+  \(x = \theta/\pi\) defines a binary sequence that is non‑decreasing
+  in the target \(x\) (and hence in \(\theta\)).  For each index \(n\),
+  the set of \(\theta\) where \(\delta_n(\theta)=1\) is an interval
+  \([\theta_n^*,\pi]\), with a well‑defined threshold angle
+  \(\theta_n^*\).
+›
+
+subsection ‹Digit functions with respect to \(\theta\)›
+
+text ‹We define the greedy digits directly for the angle \(\theta\).›
+
+definition δ_θ :: "real ⇒ nat ⇒ nat" where
+  "δ_θ θ n = δ (θ / pi) n"
+
+definition r_θ :: "real ⇒ nat ⇒ real" where
+  "r_θ θ n = r (θ / pi) n"
+
+text ‹The basic properties transfer immediately.›
+
+lemma δ_θ_range: "δ_θ θ n ∈ {0,1}"
+  unfolding δ_θ_def by (rule δ_range)
+
+lemma r_θ_nonneg: assumes "θ ≥ 0" shows "r_θ θ n ≥ 0"
+  unfolding r_θ_def using assms by (auto intro!: r_nonneg simp: field_simps)
+
+lemma θ_representation:
+  fixes θ :: real
+  assumes "θ ∈ {0..pi}"
+  shows "θ / pi = (∑ n. (real (δ_θ θ n)) / (n+2))"
+  unfolding δ_θ_def using assms
+  by (simp add: greedy_harmonic_expansion)
+
+subsection ‹Monotonicity of the digits›
+
+text ‹
+  The greedy selection is monotonic in the target value:
+  if we increase \(\theta\), more digits may become 1, but none
+  will change from 1 back to 0.  This is proved by induction on \(n\)
+  using the definition of the algorithm.
+›
+
+lemma digit_monotonicity_aux:
+  fixes x y :: real
+  assumes "0 ≤ x" "x ≤ y" "y ≤ 1"
+  shows "∀n. δ x n ≤ δ y n"
+proof (intro allI)
+  fix n
+  show "δ x n ≤ δ y n"
+  proof (induction n)
+    case 0
+    then show ?case using assms by auto
+  next
+    case (Suc n)
+    have *: "r x n = x - (∑ k≤n. (real (δ x k)) / (k+2))" 
+            "r y n = y - (∑ k≤n. (real (δ y k)) / (k+2))"
+      using greedy_sum[of x n] greedy_sum[of y n] by auto
+    from Suc have "δ x k ≤ δ y k" for k by simp
+    then have "(∑ k≤n. (real (δ x k)) / (k+2)) ≤ (∑ k≤n. (real (δ y k)) / (k+2))"
+      by (intro sum_mono) auto
+    with * assms have "r x n ≥ r y n" by linarith
+    then show ?case
+      by (simp add: Suc)
+  qed
+qed
+
+theorem digit_monotonicity:
+  fixes θ φ :: real
+  assumes "0 ≤ θ" "θ ≤ φ" "φ ≤ pi"
+  shows "∀n. δ_θ θ n ≤ δ_θ φ n"
+  unfolding δ_θ_def
+  using assms
+  by (intro digit_monotonicity_aux) (auto simp: divide_right_mono)
+
+subsection ‹Existence of threshold angles›
+
+text ‹
+  For each index \(n\) there exists a unique threshold angle
+  \(\theta_n^* \in [0,\pi]\) such that
+  \(\delta_n(\theta)=0\) for \(\theta < \theta_n^*\) and
+  \(\delta_n(\theta)=1\) for \(\theta \ge \theta_n^*\).
+›
+
+definition threshold_angle :: "nat ⇒ real" where
+  "threshold_angle n = (INF θ∈{0..pi}. if δ_θ θ n = 1 then θ else pi)"
+
+lemma threshold_angle_property:
+  fixes n :: nat
+  shows "threshold_angle n ∈ {0..pi}"
+    and "∀θ< threshold_angle n. θ ∈ {0..pi} ⟶ δ_θ θ n = 0"
+    and "∀θ≥ threshold_angle n. θ ≤ pi ⟶ δ_θ θ n = 1"
+proof -
+  let ?S = "{θ∈{0..pi}. δ_θ θ n = 1}"
+  have *: "threshold_angle n = Inf ?S"
+    unfolding threshold_angle_def
+    by (subst INF_cong) auto
+  have "?S ≠ {}"
+  proof -
+    have "δ_θ pi n = 1" for n
+    proof (induction n)
+      case 0
+      then show ?case unfolding δ_θ_def by simp
+    next
+      case (Suc n)
+      have "r_θ pi n = 0" for n
+        unfolding r_θ_def using greedy_sum[of 1 n] by simp
+      then show ?case unfolding δ_θ_def by simp
+    qed
+    then have "pi ∈ ?S" by simp
+    then show ?thesis by blast
+  qed
+  have bdd: "bdd_below ?S" by (intro bdd_belowI[of _ 0]) auto
+  have "Inf ?S ∈ {0..pi}"
+    using * * `?S ≠ {}` bdd by (auto intro!: cInf_greatest cInf_lower)
+  then show "threshold_angle n ∈ {0..pi}" using * by simp
+
+  have "∀θ<Inf ?S. θ ∈ {0..pi} ⟶ θ ∉ ?S"
+    by (metis (no_types, lifting) bdd cInf_lower leD mem_Collect_eq)
+  then show "∀θ<threshold_angle n. θ∈{0..pi} ⟶ δ_θ θ n = 0"
+    using * by (auto simp: mem_Collect_eq)
+
+  have "∀θ≥Inf ?S. θ ∈ {0..pi} ⟶ δ_θ θ n = 1"
+  proof
+    fix θ
+    assume "θ ≥ Inf ?S" "θ ∈ {0..pi}"
+    from digit_monotonicity[OF _ _ `θ ∈ {0..pi}`, of 0]
+    have "∃φ∈?S. φ ≤ θ"
+    proof -
+      from `?S ≠ {}` obtain φ where "φ ∈ ?S" by auto
+      from digit_monotonicity[OF _ _ `φ ∈ {0..pi}` `θ ∈ {0..pi}`, of φ]
+      show ?thesis
+        using `φ ∈ ?S` `δ_θ φ n = 1` `δ_θ θ n = 0` by force
+    qed
+    then obtain φ where "φ ∈ ?S" "φ ≤ θ" by blast
+    have "δ_θ φ n = 1" using `φ ∈ ?S` by auto
+    from digit_monotonicity[OF _ _ `φ ∈ {0..pi}` `θ ∈ {0..pi}`]
+    have "δ_θ φ n ≤ δ_θ θ n" using `φ ≤ θ` by (simp add: digit_monotonicity)
+    with `δ_θ φ n = 1` show "δ_θ θ n = 1" by simp
+  qed
+  then show "∀θ≥threshold_angle n. θ ≤ pi ⟶ δ_θ θ n = 1"
+    using * by auto
+qed
+
+text ‹
+  The map \(\theta \mapsto (\delta_n(\theta))_{n\ge 0}\) is non‑decreasing
+  in the product order, i.e., each component is monotone.  Consequently
+  the number of selected indices up to any \(N\) is also non‑decreasing
+  in \(\theta\).
+›
+
+corollary selected_count_monotone:
+  fixes N :: nat
+  assumes "0 ≤ θ" "θ ≤ φ" "φ ≤ pi"
+  shows "card {n≤N. δ_θ θ n = 1} ≤ card {n≤N. δ_θ φ n = 1}"
+  using digit_monotonicity[OF assms] by (intro card_mono) auto
+
+end

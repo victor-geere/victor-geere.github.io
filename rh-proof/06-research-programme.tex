@@ -1,0 +1,237 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}[section]
+
+\title{\bfseries Formalising the Spectral Measure and Moment Identity \\ for the GDST Programme}
+\author{Victor Geere \and Mentor}
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The Greedy Dirichlet Sub‑Sum Transform (GDST) proof of the Riemann Hypothesis relies on a 
+moment identity linking a spectral measure $\mu_\sigma$ to the eigenvalues of an integral 
+operator $T_\sigma$:
+\[
+\int_{\mathbb{R}} x^k \, d\mu_\sigma(x) = \sum_{i} \lambda_{\sigma,i}^k \qquad (k\ge 1,\; \sigma>0).
+\]
+At present this identity is assumed as an axiom. We outline a complete formalisation plan in 
+Isabelle/HOL to construct $\mu_\sigma$ as a discrete measure (push‑forward of the counting 
+measure on the index set under the eigenvalue map), to prove that integration with respect to 
+it reduces to a sum over eigenvalues, and to connect this sum to the trace of $T_\sigma^k$ via 
+its spectral decomposition. With this work the GDST theory will become significantly more 
+self‑contained, removing the need for the external measure‑theoretic axiom.
+\end{abstract}
+
+\section{Motivation}
+The GDST programme~\cite{Geere2026} develops a novel proof of the Riemann Hypothesis by 
+associating a Dirichlet series $E(\theta,s)$ to a transfer operator $\mathcal{L}_s$, 
+establishing a Fredholm determinant identity, and then building a spectral model (Jacobi matrix) 
+whose spectrum is shown to consist of the ordinates of the non‑trivial zeros of $\zeta(s)$. 
+A crucial step is the identity
+\begin{equation}\label{eq:moment}
+\int_{\mathbb{R}} x^k \, d\mu_\sigma(x) \;=\; \sum_{i} \lambda_{\sigma,i}^k
+\;\;=\;\; \operatorname{tr}(T_\sigma^k) \qquad (\sigma>0,\;k\ge 1),
+\end{equation}
+where $\lambda_{\sigma,i}$ are the eigenvalues of the integral operator $T_\sigma$ (see 
+Axioms~AX6a–c in the theory) and $\mu_\sigma$ is its spectral measure. In the current version 
+of the formalisation, \eqref{eq:moment} is declared as an axiom.  To obtain a fully rigorous 
+proof one must \emph{construct} $\mu_\sigma$ explicitly, prove the integration--summation 
+equivalence, and then link the sum to the trace using the spectral theorem.
+
+\section{Objectives}
+\begin{enumerate}[label=(\arabic*)]
+    \item Define a discrete spectral measure $\mu_\sigma$ as the push‑forward of the counting 
+          measure on the index set (taken to be $\mathbb{N}$) under the eigenvalue map 
+          $\lambda_\sigma : \mathbb{N} \to \mathbb{R}$.
+    \item Prove that for any measurable $f:\mathbb{R}\to\mathbb{C}$ such that 
+          $\sum_{i} |f(\lambda_{\sigma,i})| < \infty$,
+          \[
+          \int_{\mathbb{R}} f(x)\, d\mu_\sigma(x) \;=\; \sum_{i=0}^\infty f(\lambda_{\sigma,i}).
+          \]
+    \item Instantiate $f(x)=x^k$ to obtain the moment identity.
+    \item Connect the eigenvalue sum to the trace of $T_\sigma^k$ via the spectral decomposition 
+          (AX6a) and a minimal additional axiom (or ultimately a full proof).
+    \item Replace the current axiom \texttt{AX\_moment} in the GDST theory by the proven theorem.
+\end{enumerate}
+
+\section{Prerequisites}
+\begin{itemize}
+    \item Isabelle/HOL with the \texttt{Analysis} library (measure theory, Lebesgue/Bochner 
+          integral).
+    \item The existing axiomatisation of the spectral decomposition of $T_\sigma$ (AX6a–c):
+          \begin{quote}
+          \texttt{T\_sigma\_spectral}: $T_\sigma f = \sum_i \lambda_{\sigma,i} \langle e_{\sigma,i}, f\rangle e_{\sigma,i}$,\\
+          \texttt{lambda\_nonneg}: $\lambda_{\sigma,i} \ge 0$,\\
+          \texttt{e\_orthonormal}: $(e_{\sigma,i})$ orthonormal in $L^2[0,\pi]$.
+          \end{quote}
+    \item The \texttt{Distr} and \texttt{count\_space} constructions from 
+          \texttt{HOL-Analysis.Measure\_Notebook}.
+    \item The \texttt{Trace\_Class} theory (imported in the GDST file).
+\end{itemize}
+
+\section{Phase 1: Construction of the Discrete Spectral Measure}
+Let $I = \mathbb{N}$ be the index set.  The \textbf{counting measure} on $I$ is
+$\kappa = \mathsf{count\_space}\; \mathbb{N}$, which assigns to a set $A\subseteq\mathbb{N}$ 
+the number of elements (possibly $\infty$).  The eigenvalue function is 
+$\lambda_{\sigma} : \mathbb{N} \to \mathbb{R}$, accessible as \texttt{lambda\_sigma $\sigma$}.
+We define the spectral measure as the \textbf{distribution} of $\kappa$ under $\lambda_{\sigma}$:
+\[
+\mu_\sigma \;:=\; \mathrm{distr}\; \kappa\; \mathsf{borel}\; \lambda_{\sigma}.
+\]
+In Isabelle:
+\begin{verbatim}
+definition mu_sigma :: "real ⇒ real measure" where
+  "mu_sigma σ = distr (count_space UNIV) borel (λi. lambda_sigma σ i)"
+\end{verbatim}
+Because $\kappa$ is $\sigma$-finite and $\lambda_\sigma$ is measurable (all functions from a 
+discrete space are measurable), $\mu_\sigma$ is a well‑defined Borel measure on $\mathbb{R}$.  
+Its closed support is the closure of $\{\lambda_{\sigma,i}\mid i\in\mathbb{N}\}$, which by 
+AX6g will later be identified with the spectrum of the Jacobi matrix.
+
+\paragraph{Multiplicity} If some eigenvalues coincide (i.e., $\lambda_{\sigma,i} = 
+\lambda_{\sigma,j}$ for $i\neq j$), the push‑forward automatically adds the weights, so 
+multiplicities are correctly represented.
+
+\section{Phase 2: Integration with respect to the Spectral Measure}
+Let $f:\mathbb{R}\to\mathbb{C}$ be measurable and assume the summability condition 
+$\sum_{i=0}^\infty |f(\lambda_{\sigma,i})| < \infty$. Then $f$ is Bochner integrable with 
+respect to $\mu_\sigma$ and
+\[
+\int_{\mathbb{R}} f \, d\mu_\sigma \;=\; \sum_{i=0}^\infty f(\lambda_{\sigma,i}).
+\]
+This follows from two standard lemmas:
+\begin{lemma}[Integration of a push‑forward]
+$\displaystyle \int_X f \, d(\mathrm{distr}\;M\; \mathcal{B}\; \phi) =
+\int_Y (f \circ \phi) \, dM$, for $M$ a measure on $Y$ and $\phi:Y\to X$ measurable.
+\end{lemma}
+\begin{lemma}[Counting measure integral]
+$\displaystyle \int_{\mathbb{N}} g \, d(\mathsf{count\_space}\; \mathbb{N}) =
+\sum_{i=0}^\infty g(i)$ whenever the sum is absolutely summable (Bochner sense).
+\end{lemma}
+Applying the first lemma with $M = \kappa$, $\phi = \lambda_\sigma$, and then the second 
+with $g = f \circ \lambda_\sigma$ yields the identity.  In Isabelle, the proof becomes:
+\begin{verbatim}
+lemma integral_mu_sigma:
+  assumes "summable (λi. norm (f (lambda_sigma σ i)))"
+  shows "∫ x. f x ∂(mu_sigma σ) = (∑ i. f (lambda_sigma σ i))"
+  unfolding mu_sigma_def
+  by (simp add: integral_distr integral_count_space_nat)
+\end{verbatim}
+(We may need to import the lemma \texttt{integral\_count\_space\_nat} from \texttt{HOL-Analysis}.)
+
+\section{Phase 3: Moment Identity}
+Take $f(x)=x^k$ with $k\ge 1$.  By the non‑negativity of eigenvalues (AX6b), the series 
+$\sum_i \lambda_{\sigma,i}^k$ is absolutely summable provided the eigenvalues are, for instance, 
+square‑summable (Hilbert–Schmidt condition).  In the GDST framework, $T_\sigma$ is trace‑class 
+for $\sigma>0$ (this follows from the spectral decomposition and the super‑exponential growth 
+of the kernel’s support, or can be taken as a mild additional assumption).  Thus 
+$\sum_i \lambda_{\sigma,i} < \infty$, and consequently all higher integer moments converge.  
+
+Applying Phase~2 we obtain:
+\begin{lemma}[Moment identity]
+For $\sigma>0$ and $k\ge 1$,
+\[
+\int_{\mathbb{R}} x^k \, d\mu_\sigma(x) \;=\; \sum_{i=0}^\infty (\lambda_{\sigma,i})^k .
+\]
+\end{lemma}
+In Isabelle:
+\begin{verbatim}
+lemma moment_eq_sum:
+  fixes σ k
+  assumes "σ > 0" "k ≥ 1"
+  shows "(∫ x. x ^ k ∂(mu_sigma σ)) = (∑ i. (lambda_sigma σ i) ^ k)"
+  using integral_mu_sigma[of "λx. x^k"] summable_lambda_pow[of σ k] by auto
+\end{verbatim}
+where \texttt{summable\_lambda\_pow} is a lemma asserting the absolute summability of 
+$\lambda_{\sigma,i}^k$, derivable from the trace‑class property.
+
+\section{Phase 4: Connection to the Trace of $T_\sigma^k$}
+The spectral theorem (AX6a) represents $T_\sigma$ as a multiplication operator.  For a 
+compact self‑adjoint operator, the trace of $T_\sigma^k$ (when defined) equals the sum of the 
+$k$-th powers of its eigenvalues:
+\[
+\operatorname{tr}(T_\sigma^k) \;=\; \sum_{i=0}^\infty (\lambda_{\sigma,i})^k .
+\]
+This is a classical fact but its full formalisation in the Hilbert space setting is involved.  
+As a stepping stone, we temporarily adopt a minimal axiom:
+\begin{verbatim}
+axiomatization where
+  trace_T_sigma_pow_eq_sum:
+    "σ > 0 ⟹ trace (T_sigma σ ^^ k) = (∑ i. (lambda_sigma σ i) ^ k)"
+\end{verbatim}
+This axiom is \emph{independent} of the measure construction and can later be replaced by a 
+complete proof using the trace definition in \texttt{Trace\_Class}.  Once available, the 
+full moment‑trace identity follows:
+\[
+\int x^k d\mu_\sigma \;=\; \sum_i \lambda_{\sigma,i}^k \;=\; \operatorname{tr}(T_\sigma^k).
+\]
+This eliminates the former axiom \texttt{AX\_moment} and replaces it by a much milder (and 
+more directly verifiable) statement.
+
+\section{Phase 5: Integration into the GDST Theory}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Replace} the old \texttt{mu\_sigma} definition (a density on $[0,\pi]$) 
+          with the new push‑forward definition.
+    \item \textbf{Prove} the theorem \texttt{moment\_eq\_trace} as a combination of 
+          \texttt{moment\_eq\_sum} and the trace axiom.
+    \item \textbf{Remove} \texttt{AX\_moment} from the axiom registry.
+    \item \textbf{Adjust} any subsequent lemmas that reference the old measure; the support 
+          of the new measure is the closure of the eigenvalue set, which still satisfies 
+          \texttt{J\_sigma\_spec} (AX6g). The $\sigma$‑independence argument now uses 
+          the discrete nature of the measure, making the Hausdorff moment problem 
+          application more direct.
+\end{itemize}
+
+\section{Timeline and Effort Estimate}
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Phase} & \textbf{Estimated effort} \\
+\midrule
+1 \& 2: Discrete measure and integration theorem & 2--3 weeks \\
+3: Moment identity (monomials) & 1 week \\
+4: Trace axiom and linking & 1 week \\
+5: Integration into GDST file & 1--2 weeks \\
+\midrule
+\textbf{Total} & \textbf{about 8 weeks (part‑time)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+The work is routine measure theory and integration; the main Isabelle files to consult are 
+\texttt{Distr.thy}, \texttt{Bochner\_Integration.thy}, and \texttt{Countable.thy}.  
+Familiarity with the Lebesgue integral on discrete spaces is required.
+
+\section{Conclusion}
+This programme transforms an opaque axiom into a transparent, formally verified identity 
+resting only on the spectral decomposition of $T_\sigma$ and the standard relationship between 
+eigenvalue sums and operator traces (the latter itself reducible to the spectral theorem).  
+The formalisation is modular: the measure‑theoretic part is completely self‑contained and 
+can be developed independently of the deeper GDST structure.  Upon completion the GDST proof 
+of the Riemann Hypothesis will have one fewer external assumption, moving closer to a fully 
+self‑contained formal verification.
+
+\begin{thebibliography}{9}
+\bibitem{Geere2026}
+V.~Geere, \emph{GDST Programme: Proof of the Riemann Hypothesis via the Greedy Dirichlet 
+Sub‑Sum Transform}, Isabelle theory file, 2026.
+\bibitem{IsabelleAnalysis}
+T.~H\"olzl et al., \emph{Isabelle/HOL Analysis Library}, AFP.
+\bibitem{Simon2011}
+B.~Simon, \emph{Szegő's Theorem and its Descendants}, Princeton Univ. Press, 2011.
+\end{thebibliography}
+
+\end{document}

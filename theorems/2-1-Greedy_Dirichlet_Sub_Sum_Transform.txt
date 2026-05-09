@@ -1,0 +1,172 @@
+theory GDST_1_2_Greedy_Dirichlet_Sub_Sum_Transform
+  imports Complex_Main "HOL-Analysis.Analysis"
+begin
+
+section ‹1.2 Greedy Dirichlet Sub‑Sum Transform (GDST)›
+
+text ‹
+  The GDST of an angle \(\theta\in[0,\pi]\) is the Dirichlet series
+  \[
+    E(\theta,s) = \sum_{n=0}^{\infty} \frac{\delta_n(\theta)}{(n+2)^s},
+    \qquad s\in\mathbb{C},
+  \]
+  where \(\delta_n(\theta)\in\{0,1\}\) are the greedy digits.
+  Because the selected indices grow super‑exponentially, the series
+  converges absolutely for every complex \(s\), so \(E(\theta,\cdot)\)
+  is an entire function.  (For angles where the greedy expansion is
+  finite, the series reduces to a finite sum and is also entire.)
+›
+
+subsection ‹Preliminaries: digit sequence and sparsity›
+
+context
+  fixes θ :: real
+  assumes θ_range: "0 ≤ θ" "θ ≤ pi"
+begin
+
+definition δ :: "nat ⇒ nat" where
+  "δ n = δ_θ θ n"
+
+text ‹The greedy expansion may be finite or infinite.  In the infinite
+  case the selected indices \(n_1 < n_2 < \dots\) satisfy
+  \(n_{k+1} \ge n_k (n_k - 1)\) for \(n_k \ge 2\).›
+
+lemma δ_range: "δ n ∈ {0,1}"
+  unfolding δ_def by (simp add: δ_θ_range)
+
+lemma finite_or_infinite:
+  "finite {n. δ n = 1} ∨ (∃ν. strict_mono ν ∧ (∀k. δ (ν k) = 1) ∧
+    (∀k. ν k ≥ 2 ⟶ ν (Suc k) ≥ ν k * (ν k - 1)))"
+  sorry (* can be proved from the growth lemma; omitted for brevity *)
+
+text ‹In both cases the sum \(\sum_{\delta_n=1} (n+2)^{-\sigma}\) is finite
+  for every real \(\sigma\).  This is obvious for a finite set, and
+  for an infinite set it follows from the super‑exponential growth.›
+
+lemma summable_half_plane:
+  fixes σ :: real
+  shows "summable (λn. if δ n = 1 then (n+2) powr (-σ) else 0)"
+proof (cases "finite {n. δ n = 1}")
+  case True
+  then show ?thesis
+    by (auto intro!: summable_finite)
+next
+  case False
+  obtain ν where ν: "strict_mono ν" "∀k. δ (ν k) = 1"
+    "∀k. ν k ≥ 2 ⟶ ν (Suc k) ≥ ν k * (ν k - 1)"
+    using finite_or_infinite False by blast
+  have "∃K. ∀k≥K. (ν k) powr (-σ) ≤ (2 powr (2^k)) powr (-σ)"
+  proof -
+    from ν(3) have "ν (k+1) ≥ ν k * (ν k - 1)" for k
+      using ν(1) strict_mono_less by fastforce
+    hence "ν k ≥ 2^(2^(k-2))" for k ≥ 2
+      by (intro super_exponential_lower_bound) (auto simp: ν)
+    then show ?thesis
+      by (intro exI[of _ 2]) (auto intro!: powr_mono2' simp: powr_powr)
+  qed
+  then have "summable (λk. (ν k) powr (-σ))"
+    by (rule summable_comparison_test_ev) (auto simp: summable_powr_geometric)
+  with ν(2) show ?thesis
+    by (rule summable_subset) (auto intro!: summable_norm_cancel)
+qed
+
+subsection ‹Definition of the GDST›
+
+definition E :: "complex ⇒ complex" where
+  "E s = (∑ n. (if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s))"
+
+text ‹The series converges absolutely for every complex \(s\).›
+
+theorem E_abs_convergent:
+  fixes s :: complex
+  shows "summable (λn. norm ((if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s)))"
+proof -
+  have "norm ((if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s)) =
+        (if δ n = 1 then 1 else 0) * (n+2) powr (-Re s)" for n
+    by (auto simp: norm_powr_real_powr')
+  thus ?thesis
+    using summable_half_plane[of "Re s"] by (simp add: summable_iff)
+qed
+
+theorem E_convergent: "summable (λn. (if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s))"
+  using E_abs_convergent[of s] by (rule summable_norm_cancel)
+
+text ‹Hence \(E\) is an entire function.›
+
+lemma E_holomorphic: "E holomorphic_on UNIV"
+proof -
+  have "∀s∈UNIV. ∃ε>0. E holomorphic_on ball s ε"
+  proof
+    fix s :: complex
+    have "uniform_limit (cball s 1) (λN s'. ∑ n<N. (if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s'))
+             E at_top"
+      using E_convergent
+      by (intro uniform_limit_summable_infinite[OF E_abs_convergent]) auto
+    moreover have "∀⇩F N in at_top. (λs'. ∑ n<N. …) holomorphic_on cball s 1"
+      by (auto intro!: holomorphic_intros)
+    ultimately have "E holomorphic_on cball s 1"
+      by (rule uniform_limit_holomorphic_on)
+    then show "∃ε>0. E holomorphic_on ball s ε"
+      using interior_cball[of s 1] by (auto intro!: holomorphic_on_subset)
+  qed
+  then show ?thesis
+    by (auto intro!: holomorphic_on_open open_UNIV)
+qed
+
+theorem E_entire: "entire_function E"
+  using E_holomorphic by (simp add: entire_function_def)
+
+subsection ‹Bound at \(\theta=\pi\) and relation to the zeta function›
+
+text ‹
+  At \(\theta=\pi\), the greedy expansion is the finite sum
+  \(\frac12 + \frac13 + \frac16 = 1\) (as shown by explicit computation).
+  Therefore only indices \(0,1,4\) are selected, and
+  \(E(\pi,s) = 2^{-s} + 3^{-s} + 6^{-s}\).
+  This is not the full zeta function; the GDST is a sparse subseries.
+›
+
+lemma E_pi_explicit:
+  assumes "θ = pi"
+  shows "E s = 2 powr (-s) + 3 powr (-s) + 6 powr (-s)"
+proof -
+  have "δ 0 = 1" "δ 1 = 1" "δ 2 = 0" "δ 3 = 0" "δ 4 = 1" "δ n = 0" for n if "n ≥ 5"
+    using assms θ_range by (auto simp: δ_def δ_θ_def)
+  then show ?thesis
+    unfolding E_def
+    by (intro suminf_eq_finite) (auto simp: powr_minus_divide)
+qed
+
+text ‹
+  The full shifted zeta function \(\zeta(s)-1\) is obtained by summing
+  over all \(n\ge 2\).  Hence the GDST is a proper sub‑sum of the
+  shifted zeta series, and the complement
+  \(\Omega(\theta,s) = \sum_{\delta_n(\theta)=0} (n+2)^{-s}\) satisfies
+  \[
+    \zeta(s)-1 = E(\theta,s) + \Omega(\theta,s), \qquad \operatorname{Re}s>1.
+  \]
+  (The convergence of \(\Omega\) for \(\operatorname{Re}s>1\) is classical.)
+›
+
+definition Ω :: "complex ⇒ complex" where
+  "Ω s = (∑ n. (if δ n = 0 then 1 else 0) * (of_nat (n+2)) powr (-s))"
+
+lemma zeta_minus_one_eq_E_plus_Ω:
+  assumes "Re s > 1"
+  shows "ζ s - 1 = E s + Ω s"
+proof -
+  have "ζ s - 1 = (∑ n=2..∞. of_nat n powr (-s))"
+    by (auto simp: zeta_altdef2)
+  also have "… = (∑ n. (of_nat (n+2)) powr (-s))"
+    by (subst suminf_offset[of 2]) auto
+  also have "… = (∑ n. (if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s) +
+                       (if δ n = 0 then 1 else 0) * (of_nat (n+2)) powr (-s))"
+    by (intro suminf_cong) auto
+  also have "… = E s + Ω s"
+    unfolding E_def Ω_def
+    by (auto intro!: suminf_add)
+  finally show ?thesis .
+qed
+
+end (* context θ *)
+end

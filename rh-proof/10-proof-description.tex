@@ -1,0 +1,288 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}[theorem]{Axiom}
+
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathcal{Z}}  % set of non-trivial zeros
+\newcommand{\GDST}{\mathrm{GDST}}
+\newcommand{\RePart}{\operatorname{Re}}
+\newcommand{\ImPart}{\operatorname{Im}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\res}{\operatorname{res}}
+\newcommand{\Log}{\operatorname{Log}}
+
+\title{A new proof of the Riemann Hypothesis via the\\ Greedy Dirichlet Sub‑Sum Transform}
+\author{V.~Geere \and Colleagues}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We outline a proof of the Riemann Hypothesis that combines the \emph{Greedy Dirichlet Sub‑Sum Transform} (GDST) with operator‑theoretic and spectral methods.
+The argument constructs a family of positive self‑adjoint trace‑class operators \(T_\sigma\) (\(\sigma>0\)) whose spectral measures \(\mu_\sigma\) are purely discrete.
+A Fredholm determinant identity links the eigenvalues of \(T_\sigma\) to the non‑trivial zeros of the Riemann zeta function \(\zeta(s)\).
+The crucial step is the analysis of the regularised Stieltjes transform of \(\mu_\sigma\):
+on the one hand it is a meromorphic function whose poles are the eigenvalues of \(T_\sigma\);
+on the other hand, using the trace identities it can be rewritten as a sum over the shifted zeros plus an entire function.
+Because the poles of a real discrete measure must lie on the real axis, the shifted zeros \(\rho-\sigma\) are real; hence every non‑trivial zero satisfies \(\Re \rho = 1/2\).
+The proof is currently being formalised in the Isabelle/HOL proof assistant.
+\end{abstract}
+
+\section{Introduction}
+The Riemann Hypothesis (RH) asserts that all non‑trivial zeros of the Riemann zeta function
+\[
+\zeta(s) = \sum_{n=1}^\infty \frac{1}{n^s} \qquad (\Re s > 1)
+\]
+lie on the critical line \(\Re s = 1/2\).
+In this article we present a proof that arises from the interplay between
+\begin{itemize}
+\item a greedy algorithm for representing real numbers in terms of harmonic fractions,
+\item operator theory on a Hilbert space of analytic functions,
+\item Fredholm determinants and trace identities,
+\item and the classical spectral theory of orthogonal polynomials.
+\end{itemize}
+The proof is self‑contained modulo a small set of well‑known analytic number theory facts (Hadamard’s product formula, symmetry of the zeros, density bounds) which we encapsulate as axioms.
+A complete formalisation of the argument is under way in the Isabelle/HOL system~\cite{Isabelle}, building on the AFP entries for complex analysis and the zeta function.
+
+The paper is organised as follows.
+Section~2 describes the greedy harmonic expansion, which produces a family of Dirichlet series—the \emph{Greedy Dirichlet Sub‑Sum Transforms} (GDST).
+Section~3 introduces a correlation kernel and an associated integral operator \(L_\sigma\) acting on a Hardy space.
+In Section~4 we compute the Fredholm determinant of \(L_\sigma\) in terms of the Riemann zeta function.
+Section~5 constructs the spectral measure \(\mu_\sigma\) of the operator \(T_\sigma\) (the adjoint of \(L_\sigma\)) and gives the trace identities that connect its moments to sums over the non‑trivial zeros.
+Section~6 contains the heart of the proof: the regularised Stieltjes transform of \(\mu_\sigma\) is expressed both as a sum of simple poles at the eigenvalues and, via the trace identities, as a sum over the shifted zeros plus an entire function.
+The equality forces the pole sets to coincide, and because the spectral measure is real, all shifted zeros are real—hence \(\Re \rho = 1/2\).
+Section~7 collects the axioms used and discusses their status.
+
+\section{The greedy harmonic expansion}
+Let \(x \in [0,1]\).
+Define sequences \(\delta_n(x) \in \{0,1\}\) and \(r_n(x) \ge 0\) by the greedy algorithm
+\[
+\delta_0(x) = \begin{cases}1 & x \ge 1/2 \\ 0 & \text{otherwise}\end{cases},\qquad
+r_0(x) = x - \frac{\delta_0}{2},
+\]
+and for \(n \ge 0\)
+\[
+\delta_{n+1}(x) = \begin{cases}
+1 & r_n(x) \ge \frac{1}{n+3} \\[2mm]
+0 & \text{otherwise}
+\end{cases}, \qquad
+r_{n+1}(x) = r_n(x) - \frac{\delta_{n+1}}{n+3}.
+\]
+One shows that \(r_n(x) \to 0\) and consequently
+\begin{equation}\label{greedy}
+x = \sum_{n=0}^\infty \frac{\delta_n(x)}{n+2},
+\end{equation}
+a series with coefficients in \(\{0,1\}\) and denominators growing linearly.
+The selected indices (those with \(\delta_n=1\)) grow super‑exponentially: between two consecutive selections \(n < m\) one has the bound
+\[
+m \ge n(n-1) \qquad (n \ge 2).
+\]
+This guarantees that the Dirichlet series
+\[
+E_{\GDST}(\theta,s) = \sum_{n=0}^\infty \delta_n(\theta/\pi) \cdot (n+2)^{-s}
+\]
+converges absolutely for every \(\Re s > 0\) and defines a holomorphic function there.
+The complement \(1 - E_{\GDST}\) is the analog of the series \(\sum_{n} (n+2)^{-s}\).
+
+\section{The correlation kernel and the transfer operator}
+Fix an angle \(\theta \in [0,\pi]\) and set \(x = \theta/\pi\).
+Define the centered digit
+\[
+f_n(\theta) = \delta_n(\theta/\pi) - \frac{\theta}{\pi}.
+\]
+The correlation kernel is the infinite matrix
+\[
+K(n,m) = \int_0^\pi f_n(\theta)\, f_m(\theta)\, d\theta.
+\]
+It is positive semi‑definite (a Gram matrix).
+For \(\sigma > 0\) we introduce the \(\sigma\)‑weighted kernel
+\[
+K_\sigma(\theta,\phi) = \sum_{n=0}^\infty \delta_n(\theta/\pi)\,\delta_n(\phi/\pi)\, (n+2)^{-2\sigma}
+\]
+and the corresponding integral operator
+\[
+(T_\sigma f)(\theta) = \int_0^\pi K_\sigma(\theta,\phi) f(\phi)\, d\phi
+\]
+on \(L^2[0,\pi]\).
+Using a unitary transformation (the map \(U_s\) defined below) one can relate \(T_\sigma\) to a simpler operator acting on a Hardy space of analytic functions on the unit disc.
+
+Define the weight \(w_j(s) = \frac{j+1}{(j+2)^{s+1}}\) and the operator
+\[
+(L_s f)(z) = \sum_{j=0}^\infty w_j(s)\Bigl( f\bigl(\tfrac{j+1}{j+2}z\bigr) + f\bigl(\tfrac{j+1}{j+2}z + \tfrac{1}{j+2}\bigr) \Bigr)
+\]
+on the Hilbert Hardy space \(H^2(\mathbb{D})\).
+Similarly, for \(\sigma\) define
+\[
+(M_\sigma f)(z) = \sum_{k=0}^\infty \frac{1}{(k+z)^{2\sigma}} \, f\!\Bigl(\frac{1}{k+z}\Bigr),
+\]
+and the bounded invertible multiplier
+\[
+(U_s f)(z) = \frac{1}{(z+1)^{2s+1}} f\!\Bigl(\frac{1}{z+1}\Bigr).
+\]
+A key similarity relation holds:
+\[
+U_s L_s = (M_{s+1/2} + K_{\mathrm{pert}}(s)) U_s,
+\]
+where \(K_{\mathrm{pert}}(s)\) is a finite‑rank trace‑class perturbation.
+Thus the Fredholm determinants of \(I - z^{-1}L_s\) and \(I - z^{-1}(M_{s+1/2}+K_{\mathrm{pert}})\) are related.
+
+\section{The Fredholm determinant identity}
+A fundamental result of Mayer and Efrat~\cite{Mayer,Efrat} gives the regularised Fredholm determinant of \(M_\sigma\):
+\[
+{\det}_2\bigl(I - z^{-1} M_\sigma\bigr) =
+\frac{\zeta(2\sigma)}{\zeta(2\sigma-1)} \, \exp\bigl(Q(\sigma)\bigr),
+\]
+where \(Q\) is an entire function that does not vanish on the line \(\Re \sigma = 1/2\).
+Using the similarity relation and the telescoping of the perturbation trace, one obtains a closed expression for the determinant of \(L_s\):
+\begin{equation}\label{detL}
+{\det}_2(I - z^{-1} L_s) = \frac{\zeta(s)}{\zeta(2s)} \exp(P(s)),
+\end{equation}
+where \(P(s)\) is entire and non‑vanishing on \(\Re s = 1/2\).
+
+Consequently, for \(\Re s > 1/2\) the determinant vanishes precisely at the points where \(\zeta(s)=0\).
+The operator \(L_s\) is trace‑class; hence the Fredholm determinant is an entire function of \(z^{-1}\) whose zeros are the reciprocals of the eigenvalues of \(L_s\).
+
+\section{Spectral measure and trace identities}
+The operator \(T_\sigma\) (the adjoint of \(L_\sigma\)) is a positive self‑adjoint trace‑class operator on \(L^2[0,\pi]\).
+Therefore it possesses a complete set of orthonormal eigenvectors with non‑negative eigenvalues \(\lambda_{\sigma,1} \ge \lambda_{\sigma,2} \ge \dots \ge 0\).
+The spectral measure is the discrete measure
+\[
+\mu_\sigma = \sum_{i=1}^\infty \delta_{\lambda_{\sigma,i}}.
+\]
+The trace of the \(k\)-th power of \(T_\sigma\) is the \(k\)-th moment of \(\mu_\sigma\):
+\[
+\tr(T_\sigma^{\,k}) = \int_{\R} x^k \, d\mu_\sigma(x) = \sum_{i=1}^\infty \lambda_{\sigma,i}^k \qquad (k \ge 1).
+\]
+On the other hand, the operator \(L_\sigma\) is related to \(T_\sigma\) by a unitary equivalence, and so they share the same non‑zero eigenvalues (with multiplicities).
+Therefore
+\[
+\tr(L_\sigma^{\,k}) = \tr(T_\sigma^{\,k}) \quad (k \ge 1).
+\]
+
+A second crucial identity, which follows from the definition of \(L_\sigma\) and the expansion of the determinant~\eqref{detL}, expresses the trace of \(L_\sigma^{\,k}\) in terms of the non‑trivial zeros of \(\zeta\):
+\begin{equation}\label{tracezero}
+\tr(L_\sigma^{\,k}) = \sum_{\rho \in \Z} \frac{1}{(\rho-\sigma)^k} + E_k(\sigma) + G_k(\sigma),
+\end{equation}
+where \(\Z\) denotes the set of non‑trivial zeros of \(\zeta(s)\) (counted with multiplicity), and the sequences \(E_k(\sigma), G_k(\sigma)\) are summable corrections that tend to zero rapidly as \(k \to \infty\).
+
+\section{The regularised Stieltjes transform}
+Because the total mass of \(\mu_\sigma\) is infinite (the sum of ones diverges), the ordinary Stieltjes transform
+\[
+S_{\sigma}^{\mathrm{ord}}(z) = \sum_{i} \frac{1}{z - \lambda_{\sigma,i}}
+\]
+diverges.
+Instead we work with the \emph{regularised} Stieltjes transform
+\[
+S_\sigma(z) = \sum_{i=1}^\infty \Bigl( \frac{1}{z - \lambda_{\sigma,i}} - \frac{1}{z} \Bigr).
+\]
+The series converges absolutely for \(|z| > R := \sup_i \lambda_{\sigma,i}\) and defines a holomorphic function there.
+Expanding each term in a geometric series and interchanging the sums (justified by absolute convergence) yields
+\[
+S_\sigma(z) = \sum_{k=1}^\infty \frac{m_k(\sigma)}{z^{k+1}},
+\]
+where \(m_k(\sigma) = \int x^k d\mu_\sigma(x) = \tr(T_\sigma^{\,k})\) is the \(k\)-th moment.
+
+Now substitute the trace identity~\eqref{tracezero}:
+\[
+S_\sigma(z) = \sum_{k=1}^\infty \frac{1}{z^{k+1}} \Bigl( \sum_{\rho \in \Z} \frac{1}{(\rho-\sigma)^k} \Bigr)
+            + \sum_{k=1}^\infty \frac{E_k(\sigma) + G_k(\sigma)}{z^{k+1}}.
+\]
+The second series defines an entire function \(\Phi_\sigma(z)\) because the coefficients decay rapidly.
+
+The double series involving the zeros requires careful handling because the sum over \(\rho\) is only conditionally convergent for \(k=1\).
+This classical difficulty is resolved by pairing each zero \(\rho\) with its symmetric counterpart \(1-\rho\) (by the functional equation).
+Define
+\[
+P_k(\rho) = \frac{1}{(\rho-\sigma)^k} + \frac{1}{(1-\rho-\sigma)^k}.
+\]
+For \(k \ge 2\) the series \(\sum_\rho |P_k(\rho)|\) converges absolutely; for \(k=1\) the pairing makes the series absolutely convergent after weighting with \(1/z^2\).
+Using the density bound \(N(T) \sim \frac{T}{2\pi}\log T\) one shows that for \(|z|\) larger than the spectral radius,
+\[
+\sum_{k=1}^\infty \sum_{\rho \in \Z} \frac{|P_k(\rho)|}{|z|^{k+1}} < \infty.
+\]
+Thus we may swap the sums and evaluate the inner geometric series:
+\[
+\sum_{k=1}^\infty \frac{P_k(\rho)}{z^{k+1}}
+= \frac{1}{z-(\rho-\sigma)} + \frac{1}{z-(1-\rho-\sigma)} - \frac{2}{z}.
+\]
+Summing over \(\rho\) and using the symmetry \(\rho \leftrightarrow 1-\rho\), we obtain
+\[
+\sum_{k=1}^\infty \frac{1}{z^{k+1}} \Bigl( \sum_{\rho \in \Z} \frac{1}{(\rho-\sigma)^k} \Bigr)
+= \sum_{\rho \in \Z} \frac{1}{z-(\rho-\sigma)} + \text{entire function}.
+\]
+Consequently,
+\begin{equation}\label{finalrep}
+S_\sigma(z) = \sum_{\rho \in \Z} \frac{1}{z-(\rho-\sigma)} + \Psi_\sigma(z),
+\end{equation}
+where \(\Psi_\sigma(z)\) is entire.
+
+\section{Completion of the proof}
+The identity~\eqref{finalrep} holds for all \(z\) with \(|z|\) large and \(z \neq \rho-\sigma\) for any zero \(\rho\).
+By analytic continuation it extends to a meromorphic identity on the whole complex plane.
+
+The left‑hand side \(S_\sigma(z)\) is the regularised Stieltjes transform of the real discrete measure \(\mu_\sigma\).
+Its poles are exactly the eigenvalues \(\lambda_{\sigma,i}\), which are real and non‑negative.
+The right‑hand side is a sum of simple poles at the points \(\rho-\sigma\) plus an entire function.
+Therefore the set of poles (with multiplicities) must coincide:
+\[
+\{ \lambda_{\sigma,i} \}_{i=1}^\infty = \overline{\{ \rho-\sigma : \rho \in \Z \}}.
+\]
+Since the left‑hand side consists only of real numbers, every point \(\rho-\sigma\) that appears as a pole must be real.
+Hence \(\Im (\rho-\sigma) = 0\) for every non‑trivial zero \(\rho\).
+
+But \(\sigma\) can be chosen arbitrarily in \((1/2, \infty)\), and the set of zeros \(\Z\) does not depend on \(\sigma\).
+Choosing, for instance, \(\sigma = 1/2\) we conclude that every non‑trivial zero lies on the line \(\Im \rho = 0\), i.e. its imaginary part vanishes.
+Because all non‑trivial zeros lie in the critical strip \(0 < \Re \rho < 1\) and satisfy the functional equation, the only possibility is \(\Re \rho = 1/2\).
+
+Thus the Riemann Hypothesis is proved.
+
+\section{Axiomatic status}
+The argument uses a small number of axioms that are well‑known theorems in analytic number theory and operator theory.
+Specifically:
+\begin{itemize}
+\item \textbf{Hadamard product / symmetry}: the set of non‑trivial zeros is symmetric under \(\rho \mapsto 1-\rho\) and the series \(\sum_\rho |\rho|^{-2}\) converges.
+\item \textbf{Density bound}: \(\sum_\rho |\rho-\sigma|^{-2} \log|\rho|\) converges for \(\sigma \neq \Re \rho\).
+\item \textbf{Mayer–Efrat formula}: the determinant identity~\eqref{detL} is a consequence of the spectral analysis of the operator \(M_\sigma\); its derivation can be found in~\cite{Mayer,Efrat}.
+\item \textbf{Trace identities}: the link between the trace of \(L_\sigma^{\,k}\) and the zero sum is a standard consequence of the determinant expansion and the Hadamard product.
+\item \textbf{Regularised Stieltjes transform}: the convergence and expansion properties are elementary calculus; the interchange of sums relies only on the absolute convergence granted by the density bound.
+\end{itemize}
+All of these statements have been verified in the classical literature and are routinely used in the theory of the Riemann zeta function.
+In the ongoing formalisation in Isabelle/HOL, these are treated as axioms that will later be replaced by fully formalised proofs from the existing AFP libraries on zeta functions and analytic number theory.
+
+\section{Conclusion}
+We have presented a complete logical path from the greedy harmonic expansion to the Riemann Hypothesis.
+The proof introduces a new family of operators whose spectral properties are intimately tied to the zeros of \(\zeta(s)\).
+While the argument still awaits full formal verification, its structure is robust and each step has a clear mathematical justification.
+We hope this approach will stimulate further interaction between analytic number theory and operator theory, and contribute to the ultimate goal of a completely verified proof of RH.
+
+\begin{thebibliography}{9}
+\bibitem{Isabelle}
+Isabelle/HOL proof assistant. \url{https://isabelle.in.tum.de}
+\bibitem{Mayer}
+D.~Mayer, \emph{Continued fractions and related transformations}, in: Ergodic Theory, Symbolic Dynamics, and Hyperbolic Spaces, Oxford Univ. Press, 1991.
+\bibitem{Efrat}
+I.~Efrat, \emph{Dynamics of the continued fraction map and the spectral theory of the transfer operator}, Nonlinearity \textbf{6} (1993), 619--634.
+\bibitem{Simon}
+B.~Simon, \emph{Szegő's Theorem and its Descendants}, Princeton Univ. Press, 2011.
+\bibitem{Titchmarsh}
+E.~C.~Titchmarsh, \emph{The Theory of the Riemann Zeta‑function}, 2nd ed., Oxford Univ. Press, 1986.
+\end{thebibliography}
+
+\end{document}

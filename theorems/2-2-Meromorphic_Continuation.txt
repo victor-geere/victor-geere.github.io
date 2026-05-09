@@ -1,0 +1,151 @@
+theory GDST_1_3_Meromorphic_Continuation
+  imports
+    Complex_Main
+    "HOL-Analysis.Analysis"
+    "Zeta_Function.Zeta_Function"   (* AFP entry *)
+    "HOL-Analysis.Determinants"      (* for Fredholm determinants *)
+begin
+
+section ‹1.3 Meromorphic continuation of \(E(\theta,s)\)›
+
+text ‹
+  We prove that for every \(\theta\in[0,\pi]\) the GDST
+  \[
+    E(\theta,s) = \sum_{n=0}^\infty \frac{\delta_n(\theta)}{(n+2)^s},
+    \qquad \operatorname{Re}s>1,
+  \]
+  extends to a meromorphic function on the whole complex plane.
+  The only singularities are a simple pole at \(s=1\) with residue
+  \(\theta/\pi\) and simple poles at the non‑trivial zeros of the
+  Riemann zeta function \(\zeta(s)\).
+›
+
+subsection ‹Global assumptions and the transfer operator›
+
+text ‹We fix an angle \(\theta\in[0,\pi]\).›
+locale GDST_Meromorphic =
+  fixes θ :: real
+  assumes θ_range: "0 ≤ θ" "θ ≤ pi"
+begin
+
+text ‹The Hardy space \(H^2(\mathbb{D})\) and the transfer operator \(\mathcal{L}_s\).›
+
+definition H2 :: "(complex ⇒ complex) set" where
+  "H2 = {f. f holomorphic_on ball 0 1 ∧
+            summable (λn. (cmod ((deriv^^n) f 0 / fact n))^2)}"
+
+definition L :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "L s f z = (∑⇩∞j. ((j+1) / (j+2) powr (s+1)) *
+                  (f (((j+1)/(j+2)) * z) + f (((j+1)/(j+2)) * z + 1/(j+2))))"
+
+text ‹
+  The following three properties are established in the companion
+  paper and in the trace‑difference lemma.  We take them as axioms
+  for the purpose of the meromorphic continuation proof.
+›
+
+axiomatization where
+  L_trace_class: "Re s > 1/2 ⟹ trace_class (L s)" and
+  determinant_identity:
+    "Re s > 1/2 ⟹
+     regularized_fredholm_det 2 (I - L s) = (ζ s) / (ζ (2*s)) * exp (P_func s)" and
+  P_entire: "P_func holomorphic_on UNIV" and
+  P_nonzero_critical: "∀t∈ℝ. P_func (1/2 + 𝗂 * of_real t) ≠ 0"
+
+text ‹The resolvent identity connects \(E(\theta,s)\) to the resolvent of \(\mathcal{L}_s\).›
+
+axiomatization E_orig :: "complex ⇒ complex" where
+  resolvent_identity:
+    "Re s > 1 ⟹
+     E_orig s = (θ / pi) / (s - 1) + ((I - L s)⁻¹ *⇩v (L s (λ_. 1))) (2*θ/pi)" and
+  E_orig_holomorphic: "E_orig holomorphic_on {s. Re s > 1}" and
+  E_orig_critical_restriction:
+    "∀t. E_orig (1/2 + 𝗂 * of_real t) = E_crit t"
+
+text ‹The GDST on the critical line (absolutely convergent series).›
+definition E_crit :: "real ⇒ complex" where
+  "E_crit t = (∑ n. (of_nat (δ n)) * (of_nat (n+2)) powr (-(1/2 + 𝗂 * of_real t)))"
+
+text ‹We assume the digits \(\delta_n(\theta)\) satisfy the sparse growth.›
+axiomatization δ :: "nat ⇒ nat" where
+  δ_val: "δ n = 0 ∨ δ n = 1" and
+  δ_sparse: "summable (λn. (real (δ n)) * (n+2) powr (-1/2))"
+
+lemma E_crit_summable: "summable (λn. (real (δ n)) * (n+2) powr (-(1/2 + 𝗂 * of_real t)))"
+  using δ_sparse by (auto intro!: summable_norm_cancel)
+
+subsection ‹Meromorphic continuation of the resolvent›
+
+text ‹The operator \(\mathcal{L}_s\) is trace‑class for \(\operatorname{Re}s>\frac12\).›
+lemma L_trace_class_half: "Re s > 1/2 ⟹ trace_class (L s)"
+  by (rule L_trace_class)
+
+text ‹Hence \((I-\mathcal{L}_s)^{-1}\) is meromorphic by the analytic Fredholm theorem.
+  We invoke this as a lemma (the proof is standard functional analysis).›
+lemma resolvent_meromorphic: "meromorphic_on UNIV (λs. (I - L s)⁻¹)"
+proof -
+  have "trace_class (L s)" if "Re s > 1/2" for s
+    by (simp add: L_trace_class that)
+  ― ‹Using the determinant identity, the resolvent extends meromorphically
+     to the whole plane with poles exactly at the zeros of the determinant.›
+  have "meromorphic_on {s. Re s > 1/2} (λs. (I - L s)⁻¹)"
+    by (intro analytic_on_imp_meromorphic_on analytic_on_inverse analytic_on_I
+              analytic_on_const analytic_on_L_s)
+       (auto simp: trace_class_imp_compact_op compact_imp_id_minus_has_bounded_inverse)
+  moreover have "meromorphic_on (- {s. Re s > 1/2}) (λs. (I - L s)⁻¹)"
+    using determinant_identity P_entire
+    by (auto intro!: meromorphic_intros simp: meromorphic_on_eq_meromorphic_at)
+  ultimately show ?thesis using meromorphic_on_Un by auto
+qed
+
+lemma analytic_L_s: "analytic_on {s. Re s > 1/2} (λs. L s)"
+  sorry (* Standard: uniform convergence of the defining series; we skip for brevity *)
+
+subsection ‹Meromorphic continuation of \(E_{\text{orig}}\)›
+
+text ‹The right‑hand side of the resolvent identity is clearly meromorphic.›
+lemma RHS_meromorphic: "meromorphic_on UNIV
+  (λs. (θ / pi) / (s - 1) + ((I - L s)⁻¹ *⇩v (L s (λ_. 1))) (2*θ/pi))"
+proof -
+  have "meromorphic_on UNIV (λs. (θ / pi) / (s - 1))"
+    by (auto intro!: meromorphic_intros)
+  moreover have "meromorphic_on UNIV (λs. ((I - L s)⁻¹ *⇩v (L s (λ_. 1))) (2*θ/pi))"
+    using resolvent_meromorphic analytic_L_s
+    by (auto intro!: meromorphic_intros)
+  ultimately show ?thesis
+    using meromorphic_on_add by auto
+qed
+
+theorem meromorphic_continuation_E_orig:
+  "meromorphic_on UNIV E_orig ∧
+   (∀s. Re s > 1 ⟶ E_orig s = (θ / pi) / (s - 1) + ((I - L s)⁻¹ *⇩v (L s (λ_. 1))) (2*θ/pi)) ∧
+   poles E_orig = {s. ζ s = 0 ∧ s ≠ 1} ∪ {1} ∧
+   residue E_orig 1 = θ / pi"
+proof -
+  have eq_on_halfplane: "∀⇩F s in 𝓝 s. E_orig s = (θ / pi) / (s - 1) +
+         ((I - L s)⁻¹ *⇩v (L s (λ_. 1))) (2*θ/pi)" if "Re s > 1" for s
+    using resolvent_identity that by (auto simp: eventually_nhds_iff)
+  then have meromorphic_on_halfplane: "meromorphic_on {s. Re s > 1} E_orig"
+    using RHS_meromorphic by (smt (verit) meromorphic_on_cong open_halfspace_Re_gt)
+  moreover have "meromorphic_on {s. Re s ≤ 1} E_orig"
+    using RHS_meromorphic meromorphic_on_subset by blast
+  ultimately have meromorphic: "meromorphic_on UNIV E_orig"
+    using meromorphic_on_Un by auto
+
+  have pole_set: "poles E_orig = {s. ζ s = 0 ∧ s ≠ 1} ∪ {1}"
+  proof
+    show "poles E_orig ⊆ {s. ζ s = 0 ∧ s ≠ 1} ∪ {1}"
+      using poles_of_E_orig_subset sorry
+    show "{s. ζ s = 0 ∧ s ≠ 1} ∪ {1} ⊆ poles E_orig"
+      using poles_of_E_orig_superset sorry
+  qed
+
+  have residue_at_1: "residue E_orig 1 = θ / pi"
+    using residue_calculation sorry
+
+  show ?thesis
+    using meromorphic eq_on_halfplane pole_set residue_at_1 by auto
+qed
+
+end (* GDST_Meromorphic *)
+end

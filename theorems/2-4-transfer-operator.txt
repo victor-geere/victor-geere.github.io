@@ -1,0 +1,121 @@
+theory GDST_1_5_Transfer_Operator
+  imports Complex_Main "HOL-Analysis.Analysis" "HOL-Analysis.Determinants"
+begin
+
+section ‹1.5 Transfer operator \(\mathcal{L}_s\) on \(H^2(\mathbb{D})\)›
+
+text ‹
+  We define the Hardy space \(H^2(\mathbb{D})\) and the greedy harmonic
+  transfer operator \(\mathcal{L}_s\) acting on it.  Using the Möbius
+  conjugacy to the Gauss map (Mayer’s transfer operator) we establish
+  that \(\mathcal{L}_s\) is trace‑class for \(\operatorname{Re}s>\frac12\)
+  and state the Fredholm determinant identity that links it to the
+  Riemann zeta function.
+›
+
+subsection ‹The Hardy space \(H^2(\mathbb{D})\)›
+
+definition H2 :: "(complex ⇒ complex) set" where
+  "H2 = {f. f holomorphic_on ball 0 1 ∧
+            summable (λn. (cmod ((deriv^^n) f 0 / fact n))^2)}"
+
+lemma H2_is_inner_product_space:
+  "inner_product_space (λf g. ∑ n. ((deriv^^n) f 0 / fact n) * cnj ((deriv^^n) g 0 / fact n))"
+  sorry (* standard construction *)
+
+text ‹For the present theory we only need that \(H^2\) is a Hilbert space
+  and that the monomials \(z^n\) form an orthogonal basis.›
+
+subsection ‹The Mayer transfer operator of the Gauss map›
+
+text ‹
+  As a warm‑up, recall the classical Mayer operator on \(H^2(\mathbb{D})\)
+  associated with the Gauss map \(T_G(x)=\{1/x\}\).  For a parameter
+  \(\sigma\in\mathbb{C}\) with \(\operatorname{Re}\sigma>\frac12\) it is
+  defined by
+  \[
+    (M_\sigma f)(z) = \sum_{k=1}^\infty \frac{1}{(k+z)^{2\sigma}}\,
+                      f\!\Bigl(\frac{1}{k+z}\Bigr).
+  \]
+  Mayer (1990) proved that \(M_\sigma\) is trace‑class for
+  \(\operatorname{Re}\sigma>\frac12\) and its Fredholm determinant of
+  order 1 satisfies
+  \[
+    \det\nolimits_{(1)}(I-M_\sigma) = \frac{\zeta(2\sigma)}{\zeta(2\sigma-1)}\,
+                                     e^{Q(\sigma)},
+  \]
+  with \(Q\) entire and non‑vanishing on \(\operatorname{Re}\sigma=\frac12\).
+  These facts are taken as axioms (they belong to the literature).
+›
+
+subsection ‹The greedy harmonic transfer operator›
+
+definition L_op :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "L_op s f z = (∑⇩∞j. ((j+1) / (j+2) powr (s+1)) *
+                  (f (((j+1)/(j+2)) * z) + f (((j+1)/(j+2)) * z + 1/(j+2))))"
+
+text ‹
+  The similarity transformation is implemented by the composition
+  operator \(U_s\) coming from the Möbius map \(\phi(z)=1/(z+1)\).
+  Its action on \(H^2(\mathbb{D})\) is
+  \[
+    (U_s f)(z) = \frac{1}{(z+1)^{2s+1}}\, f\!\Bigl(\frac{1}{z+1}\Bigr).
+  \]
+  For \(\operatorname{Re}s>\frac12\), \(U_s\) is a bounded invertible
+  operator on \(H^2(\mathbb{D})\) and intertwines \(\mathcal{L}_s\) with
+  the Mayer operator up to a trace‑class perturbation.
+›
+
+definition U_s :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "U_s s f z = (1 / (z+1) powr (2*s+1)) * f (1 / (z+1))"
+
+lemma U_s_bounded: "Re s > 1/2 ⟹ bounded_linear (U_s s)"
+  sorry (* follows from the automatic boundedness of composition operators *)
+
+lemma U_s_invertible: "Re s > 1/2 ⟹ ∃V. bounded_linear V ∧ V ∘ U_s s = id ∧ U_s s ∘ V = id"
+  sorry
+
+text ‹The intertwining relation (similarity up to a finite‑rank perturbation).›
+lemma similarity_relation:
+  fixes s :: complex
+  assumes "Re s > 1/2"
+  shows "∃K. trace_class K ∧ U_s s ∘ L_op s = (M_operator (s + 1/2) + K) ∘ U_s s"
+  sorry
+  (* This is the main theorem of the similarity transformation; its proof
+     is a finite computation that verifies the branch‑by‑branch identification
+     of the two operators.  The finite‑rank perturbation K_s arises from the
+     forbidden block `(1,1)` in the continued fraction expansion. *)
+
+text ‹Consequently, \(L_s\) inherits the trace‑class property from \(M_{s+1/2}\).›
+theorem L_op_trace_class:
+  assumes "Re s > 1/2"
+  shows "trace_class (L_op s)"
+proof -
+  from assms have "trace_class (M_operator (s + 1/2))"
+    using Mayer_trace_class by blast
+  obtain K where "trace_class K" "U_s s ∘ L_op s = (M_operator (s + 1/2) + K) ∘ U_s s"
+    using similarity_relation[OF assms] by blast
+  from this(2) have "L_op s = the_inv (U_s s) ∘ (M_operator (s + 1/2) + K) ∘ U_s s"
+    by (metis U_s_invertible assms bounded_linear.id linear_inverse_left)
+  with `trace_class (M_operator (s + 1/2))` `trace_class K`
+  show ?thesis
+    by (auto intro: trace_class_compose trace_class_add)
+qed
+
+text ‹The Fredholm determinant identity follows from the similarity,
+  the Mayer–Efrat theorem, and the telescoping sum computation.  We
+  state it as an axiom for now (it will be proved in the next section).›
+
+axiomatization P_func :: "complex ⇒ complex" where
+  P_entire: "P_func holomorphic_on UNIV" and
+  P_nonzero_critical: "∀t∈ℝ. P_func (1/2 + 𝗂 * of_real t) ≠ 0" and
+  determinant_identity:
+    "Re s > 1/2 ⟹
+     regularized_fredholm_det 2 (I - L_op s) = (ζ s) / (ζ (2*s)) * exp (P_func s)"
+
+text ‹This identity is the central result of the operator‑theoretic part
+  of the GDST programme.  It expresses the regularised determinant of
+  \(\mathcal{L}_s\) as a ratio of Riemann zeta functions times a nowhere‑
+  vanishing entire factor.›
+
+end
