@@ -1,0 +1,65 @@
+(* rem_bound_weak.thy *)
+theory rem_bound_weak
+  imports GDST_Base delta_range
+begin
+
+text ‹
+  Lemma @{text rem_bound_weak}:
+  For $x \in [0,1]$, we have $r_n(x) \le 1/(n+2)$.
+›
+
+lemma rem_bound_weak:
+  fixes x :: real
+  assumes "x \<in> {0..1}"
+  shows   "r n x \<le> 1 / of_nat (n+2)"
+proof (induction n)
+  case 0
+  have "delta 0 x \<in> {0,1}"
+    using delta_range by blast
+  then show ?case
+    using assms by (auto simp: r.simps field_simps)
+next
+  case (Suc n)
+  have IH: "r n x \<le> 1 / of_nat (n+2)" by fact
+  have d_range: "delta (Suc n) x \<in> {0,1}"
+    using delta_range by blast
+  have def_d: "delta (Suc n) x = 1 \<longleftrightarrow> r n x \<ge> 1 / of_nat (n+3)"
+    by (simp add: delta.simps)
+  note r_suc_eq = r.simps(4)[of n x]
+
+  show ?case
+  proof (cases "delta (Suc n) x = 1")
+    case True
+    then have "r n x \<ge> 1 / of_nat (n+3)"
+      using def_d by blast
+    then have "r (Suc n) x = r n x - 1 / of_nat (n+3)"
+      using True by (simp add: r_suc_eq)
+    also have "\<dots> \<le> (1 / of_nat (n+2)) - (1 / of_nat (n+3))"
+      using IH by auto
+    also have "(1 / of_nat (n+2)) - (1 / of_nat (n+3)) = 1 / (of_nat (n+2) * of_nat (n+3))"
+      by (simp add: field_simps)
+    also have "\<dots> \<le> 1 / of_nat (n+3)"
+    proof -
+      have "of_nat (n+3) \<le> of_nat (n+2) * of_nat (n+3)"
+        by simp
+      with divide_left_mono[OF this, of 1] show ?thesis
+        by simp
+    qed
+    also have "of_nat (n+3) = of_nat ((Suc n)+2)"
+      by simp
+    finally show ?thesis .
+  next
+    case False
+    then have "r n x < 1 / of_nat (n+3)"
+      using def_d by auto
+    then have "r (Suc n) x = r n x"
+      using False by (simp add: r_suc_eq)
+    also have "\<dots> \<le> 1 / of_nat (n+3)"
+      using `r n x < 1 / of_nat (n+3)` by linarith
+    also have "of_nat (n+3) = of_nat ((Suc n)+2)"
+      by simp
+    finally show ?thesis .
+  qed
+qed
+
+end
