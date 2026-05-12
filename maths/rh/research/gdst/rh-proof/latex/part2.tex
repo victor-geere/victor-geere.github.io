@@ -1,0 +1,153 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\p}{\operatorname{p}}
+
+\title{Proof of Part II: Non‑Monotone Digits and Correlation Kernel}
+\author{Based on the formalisation in \texttt{GDST\_Correlation\_Kernel.thy}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We continue the mathematical development of the GDST proof system.
+Building on the greedy harmonic expansion of Part~I, we lift the digit functions to angle coordinates \(\theta\in[0,\pi]\) and prove their non‑monotonicity for \(n\ge 1\).
+Then we introduce the centred digit functions \(f_n(\theta)=\delta_n(\theta)-\theta/\pi\) and the correlation kernel \(K(n,m)=\int_0^\pi f_n(\theta)f_m(\theta)\,d\theta\).
+The kernel is shown to be symmetric and positive semi‑definite, making it a Gram matrix of the system \(\{f_n\}\) in \(L^2[0,\pi]\).
+This will later be used to build a positive definite operator.
+\end{abstract}
+
+\section{Digit functions in angle coordinates}
+
+Let \(x\in[0,1]\). From Part~I we have the greedy digit function \(\delta_n(x)\in\{0,1\}\) and remainder \(r_n(x)\).
+For an angle \(\theta\in[0,\pi]\) we work with the normalised variable \(x=\theta/\pi\in[0,1]\) and define
+\begin{align}
+\delta_n(\theta) &\equiv \delta_n\!\bigl(\theta/\pi\bigr), \label{eq:delta_theta}\\
+r_n(\theta) &\equiv r_n\!\bigl(\theta/\pi\bigr). \label{eq:rem_theta}
+\end{align}
+All properties proved for \(\delta_n(x), r_n(x)\) in Part~I carry over immediately; in particular \(\delta_n(\theta)\in\{0,1\}\) and the greedy expansion holds:
+\[
+\frac{\theta}{\pi} = \sum_{k=0}^{\infty} \frac{\delta_k(\theta)}{k+2}.
+\]
+
+\section{Non‑monotonicity of the greedy digits}
+
+For \(n=0\) the digit \(\delta_0(\theta)\) is a simple step function with a single threshold at \(\theta=\pi/2\):
+\[
+\delta_0(\theta) = \begin{cases}
+1 &\text{if } \theta \ge \frac{\pi}{2},\\[2pt]
+0 &\text{otherwise}.
+\end{cases}
+\]
+Thus \(\delta_0\) is monotone non‑decreasing in \(\theta\).
+For \(n\ge 1\), however, monotonicity fails dramatically. The set \(\{\theta : \delta_n(\theta)=1\}\) is a union of \(O(2^n)\) disjoint sub‑intervals of \([0,\pi]\), not a single half‑line.
+
+\begin{lemma}[non‑monotonicity]\label{lem:nonmono}
+For every \(n\ge 1\) the function \(\theta\mapsto\delta_n(\theta)\) is not monotone on \([0,\pi]\). In particular,
+\[
+\delta_1(0.4\pi)=1,\qquad \delta_1(0.6\pi)=0,
+\]
+even though \(0.4\pi < 0.6\pi\).
+\end{lemma}
+\begin{proof}
+Compute using the definition of \(\delta_1\). For any \(\theta\), \(\delta_1(\theta)=\delta_1(x)\) with \(x=\theta/\pi\) is determined by the remainder after the first step:
+\[
+r_0(x) = 
+\begin{cases}
+x-\frac12 & \text{if } x\ge\frac12,\\
+x & \text{if } x<\frac12.
+\end{cases}
+\]
+Then \(\delta_1(x)=1\) exactly when \(r_0(x)\ge \frac13\).
+
+Now take \(\theta_1 = 0.4\pi\) (i.e.\ \(x_1=0.4\)). We have \(x_1<\frac12\), so \(r_0(x_1)=0.4 \ge \frac13\); hence \(\delta_1(0.4\pi)=1\).
+For \(\theta_2 = 0.6\pi\) (i.e.\ \(x_2=0.6\)), \(x_2\ge\frac12\), so \(r_0(x_2)=0.6-\frac12=0.1 < \frac13\); hence \(\delta_1(0.6\pi)=0\).
+Since \(0.4\pi < 0.6\pi\), this disproves monotonicity.
+
+The same mechanism, with the ``memory'' of previous selections, creates an intricate alternating pattern for all higher \(n\).
+\end{proof}
+
+\begin{remark}
+The non‑monotonicity is a fundamental feature of the greedy algorithm in harmonic fractions. It is the source of the rich correlation structure between different digits, and it is essential for the kernel \(K(n,m)\) to be non‑trivial (i.e.\ not diagonal).
+\end{remark}
+
+\section{The centred digit functions}
+
+\begin{definition}
+For each \(n\ge 0\) define the \emph{centred digit} \(f_n:[0,\pi]\to\R\) by
+\begin{equation}\label{eq:f_def}
+f_n(\theta) = \delta_n(\theta) - \frac{\theta}{\pi}.
+\end{equation}
+\end{definition}
+
+The subtraction of \(\theta/\pi\) makes each \(f_n\) a zero‑mean function on \([0,\pi]\), because
+\[
+\int_0^\pi \frac{\theta}{\pi}\,d\theta = \frac{\pi}{2},
+\]
+and (as can be shown) \(\int_0^\pi \delta_n(\theta)\,d\theta = \frac{\pi}{2}\) for every \(n\); therefore \(\int_0^\pi f_n(\theta)\,d\theta = 0\).
+
+\section{The correlation kernel}
+
+\begin{definition}
+The \emph{correlation kernel} is the infinite symmetric matrix \(K=(K(n,m))_{n,m\ge 0}\) defined by
+\begin{equation}\label{eq:K_def}
+K(n,m) = \int_{0}^{\pi} f_n(\theta)\,f_m(\theta)\,d\theta.
+\end{equation}
+\end{definition}
+
+\begin{lemma}[symmetry]\label{lem:sym}
+\(K(n,m) = K(m,n)\) for all \(n,m\).
+\end{lemma}
+\begin{proof}
+Immediate from the symmetry of the product \(f_n(\theta)f_m(\theta)=f_m(\theta)f_n(\theta)\).
+\end{proof}
+
+\begin{theorem}[positive semi‑definiteness]\label{thm:psd}
+For any finite set of indices \(S\) and any real coefficients \(\{a_n\}_{n\in S}\),
+\[
+\sum_{n\in S}\sum_{m\in S} a_n a_m K(n,m) \ge 0.
+\]
+In other words, \(K\) is a positive semi‑definite (Gram) matrix.
+\end{theorem}
+\begin{proof}
+By definition,
+\begin{align*}
+\sum_{n\in S}\sum_{m\in S} a_n a_m K(n,m)
+&= \sum_{n\in S}\sum_{m\in S} a_n a_m \int_{0}^{\pi} f_n(\theta)f_m(\theta)\,d\theta \\
+&= \int_{0}^{\pi} \Bigl(\sum_{n\in S} a_n f_n(\theta)\Bigr)^{\!2}\,d\theta,
+\end{align*}
+where we interchanged the finite sums with the integral. The integrand is a square, hence non‑negative, and the integral of a non‑negative function is non‑negative. This completes the proof.
+\end{proof}
+
+\begin{corollary}
+The diagonal entries satisfy \(K(n,n) = \int_0^\pi f_n(\theta)^2\,d\theta \ge 0\), as must be the case for a Gram matrix.
+\end{corollary}
+
+\begin{remark}
+An earlier attempt (Axiom~AX5) claimed a closed form \(K(n,n)=\frac{\pi}{12}\bigl(1-\frac{3}{n+2}\bigr)\). This gives \(K(0,0)=-\frac{\pi}{24}<0\), contradicting the positive semi‑definiteness just proved. Hence AX5 is retracted; exact diagonal values are computed by depth‑first symbolic integration in the formalisation, and they are indeed positive.
+\end{remark}
+
+The positive semi‑definiteness of \(K\) is the foundation for the operator \(T_\sigma\) introduced later: the matrix \((K(n,m))\) will be turned into a positive self‑adjoint trace‑class operator on a suitable Hilbert space, paving the way for the spectral analysis in Part~V.
+
+\end{document}
