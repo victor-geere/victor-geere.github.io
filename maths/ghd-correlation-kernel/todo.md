@@ -1,0 +1,1 @@
+analytic control of the orbit sums in \(P_\chi(s)\) and uniform bounds on the finite-section error
