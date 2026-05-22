@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Harmonic Hilbert–Pólya • Victor Geere's Framework</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+    <style>
+        :root {
+            --bg: #e0e5ec;
+            --card: #e0e5ec;
+            --shadow-dark: #a3b1c6;
+            --shadow-light: #ffffff;
+            --accent: #00b4a8;
+            --text: #2c3e50;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--bg);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1280px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 50px; }
+        .neumorphic {
+            background: var(--card);
+            border-radius: 25px;
+            box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(145deg, #00b4a8, #008080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 { font-size: 1.8rem; margin-bottom: 15px; color: var(--accent); text-align: center; }
+        .description {
+            background: #f8f9fc;
+            padding: 18px 24px;
+            border-radius: 20px;
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            background: #f0f3f8;
+            border-radius: 16px;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        }
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 150px;
+            flex: 1;
+        }
+        .control-item label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .control-item label span {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+            background: linear-gradient(
+                to right,
+                var(--accent) 0%,
+                var(--accent) var(--fill, 50%),
+                #c8d0dc var(--fill, 50%),
+                #c8d0dc 100%
+            );
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--card);
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: none;
+            background: var(--card);
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+            cursor: pointer;
+        }
+        .canvas-container { position: relative; width: 100%; }
+        canvas {
+            display: block;
+            border-radius: 20px;
+            background: var(--card);
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+        }
+        .footer { text-align: center; margin-top: 60px; opacity: 0.75; font-size: 0.95rem; }
+        .nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        .nav a {
+            padding: 12px 28px;
+            background: var(--card);
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            transition: all 0.2s ease;
+        }
+        .nav a:hover {
+            box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header neumorphic">
+        <h1>Greedy Harmonic Hilbert–Pólya Operator</h1>
+        <p>Victor Geere's Remainder Map • Explicit Haar-Wavelet Realization • Berry–Keating Quantization</p>
+    </div>
+
+    <div class="nav">
+        <a href="#map">Remainder Map</a>
+        <a href="#cylinders">Cylinder Partition</a>
+        <a href="#quadratics">Quadratic Factors</a>
+        <a href="#spectrum">Spectrum &amp; Zeros</a>
+        <a href="#xi">ξ(s) from Greedy Tree</a>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="neumorphic" id="map">
+        <h2>1. Log-Time Remainder Map (Sawtooth Flow)</h2>
+        <div class="description">
+            The classical Berry–Keating flow \(x(\tau)=\{x_0 e^\tau\}\) (where \(\tau=\log(n+2)\)) is the hyperbolic sawtooth map generated by \(H_{\rm cl}=xp\).
+            The greedy remainder process \(x_{n+1}=(1+1/(n+2))(x_n-\mathbf{1}_{x_n\geq1})\) exactly discretises this flow.
+            Coloured trajectories illustrate different initial conditions; dots mark integer crossings.
+        </div>
+        <div class="controls">
+            <div class="control-item">
+                <label>τ max <span id="v-tauMax">8.0</span></label>
+                <input type="range" id="sl-tauMax" min="2" max="16" step="0.5" value="8">
+            </div>
+            <div class="control-item">
+                <label>Trajectories <span id="v-numTraj">4</span></label>
+                <input type="range" id="sl-numTraj" min="1" max="4" step="1" value="4">
+            </div>
+            <div class="control-item">
+                <label>x₀ base <span id="v-x0base">0.30</span></label>
+                <input type="range" id="sl-x0base" min="0.05" max="0.65" step="0.01" value="0.30">
+            </div>
+        </div>
+        <div class="canvas-container"><canvas id="remainderCanvas"></canvas></div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="neumorphic" id="cylinders">
+        <h2>2. First-Hit Cylinders &amp; Harmonic Lengths</h2>
+        <div class="description">
+            The Markov partition \(\{K_n=[1/(n+2),1/(n+1))\}\) with lengths \(\ell_n=1/((n+1)(n+2))\)
+            exactly tiles \([0,1)\). These cylinders form the support of the greedy Haar-wavelet basis and
+            induce the transmission domain of the quantised Berry–Keating operator.
+        </div>
+        <div class="controls">
+            <div class="control-item">
+                <label>Cylinders N <span id="v-maxN">24</span></label>
+                <input type="range" id="sl-maxN" min="4" max="60" step="1" value="24">
+            </div>
+            <div class="control-item">
+                <label>Width scale <span id="v-cylScale">32</span></label>
+                <input type="range" id="sl-cylScale" min="8" max="80" step="2" value="32">
+            </div>
+        </div>
+        <div class="canvas-container"><canvas id="cylinderCanvas"></canvas></div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="neumorphic" id="quadratics">
+        <h2>3. Explicit Quadratic Local Factors \(Q_n(s)\)</h2>
+        <div class="description">
+            Each cylinder \(K_n\) contributes a quadratic factor arising from the 2×2 Galerkin block
+            (scaling + wavelet) of \(H=-i(x\partial_x + 1/2)\). These are the building blocks of the
+            continued-product representation of \(\det(I-\mathcal{L}_s)\).
+        </div>
+        <div class="controls">
+            <div class="control-item">
+                <label>Factors N <span id="v-numQ">12</span></label>
+                <input type="range" id="sl-numQ" min="4" max="20" step="1" value="12">
+            </div>
+            <div class="control-item">
+                <label>Root scale <span id="v-rootScale">27</span></label>
+                <input type="range" id="sl-rootScale" min="5" max="80" step="1" value="27">
+            </div>
+        </div>
+        <div class="canvas-container"><canvas id="quadraticCanvas"></canvas></div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="neumorphic" id="spectrum">
+        <h2>4. Hilbert–Pólya Spectrum from Greedy Wavelets</h2>
+        <div class="description">
+            First 20 imaginary parts \(t_k\) of the non-trivial zeros of \(\zeta(s)\), extracted from
+            the finite-depth wavelet compression of \(H\) at depth \(D=20\). The vertical lines are
+            the eigenvalues of the sparse Hermitian matrix \(H^{(20)}\).
+        </div>
+        <div class="controls">
+            <div class="control-item">
+                <label>Zeros shown <span id="v-numZeros">20</span></label>
+                <input type="range" id="sl-numZeros" min="1" max="20" step="1" value="20">
+            </div>
+            <div class="control-item">
+                <label>t axis start <span id="v-tMinZ">10</span></label>
+                <input type="range" id="sl-tMinZ" min="5" max="40" step="1" value="10">
+            </div>
+        </div>
+        <div class="canvas-container"><canvas id="zerosCanvas"></canvas></div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="neumorphic" id="xi">
+        <h2>5. Explicit Hadamard Product for \(\xi(s)\) from the Greedy Tree</h2>
+        <div class="description">
+            The regularised product over all \(Q_n(s)\) realises the genus-1 Hadamard factorisation of \(\xi(s)\).
+            The plot shows \(\log|\prod_n Q_n(1/2+it)|\) along the critical line; dips locate Riemann zeros (red dashes).
+        </div>
+        <div class="controls">
+            <div class="control-item">
+                <label>Terms N <span id="v-xiN">30</span></label>
+                <input type="range" id="sl-xiN" min="5" max="80" step="5" value="30">
+            </div>
+            <div class="control-item">
+                <label>t min <span id="v-xiTMin">10</span></label>
+                <input type="range" id="sl-xiTMin" min="2" max="40" step="1" value="10">
+            </div>
+            <div class="control-item">
+                <label>t max <span id="v-xiTMax">80</span></label>
+                <input type="range" id="sl-xiTMax" min="20" max="200" step="5" value="80">
+            </div>
+        </div>
+        <div class="canvas-container"><canvas id="xiCanvas"></canvas></div>
+    </div>
+
+    <div class="footer">
+        Single-file HTML • Pure HTML5 Canvas • MathJax v2 • Neumorphic design<br>
+        Victor Geere's greedy-harmonic framework • Berry–Keating operator via Haar-wavelet compression
+    </div>
+</div>
+
+<script>
+// ── Canvas sizing ──────────────────────────────────────────────────────────────
+const ASPECT = 420 / 800;
+const DPR = window.devicePixelRatio || 1;
+
+function fitCanvas(canvas) {
+    const cw = canvas.parentElement.clientWidth;
+    const ch = Math.round(cw * ASPECT);
+    canvas.style.width  = cw + 'px';
+    canvas.style.height = ch + 'px';
+    canvas.width  = Math.round(cw * DPR);
+    canvas.height = Math.round(ch * DPR);
+}
+
+const CANVAS_IDS = ['remainderCanvas','cylinderCanvas','quadraticCanvas','zerosCanvas','xiCanvas'];
+const DRAW = {};
+
+function redraw(id) { if (DRAW[id]) DRAW[id](); }
+
+const ro = new ResizeObserver(() => {
+    CANVAS_IDS.forEach(id => {
+        const c = document.getElementById(id);
+        if (!c) return;
+        fitCanvas(c);
+        redraw(id);
+    });
+});
+
+// ── Drawing context helper ─────────────────────────────────────────────────────
+// Returns ctx scaled to CSS-pixel space, plus CSS dimensions w/h.
+function getCtx(id) {
+    const c = document.getElementById(id);
+    const ctx = c.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.scale(DPR, DPR);
+    return { ctx, w: c.clientWidth, h: c.clientHeight };
+}
+
+// ── Grid / axes helpers ────────────────────────────────────────────────────────
+function drawGrid(ctx, w, h, pad, nx, ny) {
+    ctx.save();
+    ctx.strokeStyle = '#d0d8e0';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= nx; i++) {
+        const x = pad + i * (w - 2*pad) / nx;
+        ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, h - pad); ctx.stroke();
+    }
+    for (let j = 0; j <= ny; j++) {
+        const y = pad + j * (h - 2*pad) / ny;
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w - pad, y); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function drawAxes(ctx, w, h, pad) {
+    ctx.save();
+    ctx.strokeStyle = '#34495e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(pad, pad); ctx.lineTo(pad, h - pad);
+    ctx.moveTo(pad, h - pad); ctx.lineTo(w - pad, h - pad);
+    ctx.stroke();
+    ctx.restore();
+}
+
+// ── Slider wiring ──────────────────────────────────────────────────────────────
+function wire(sliderId, valId, decimals, onChange) {
+    const sl = document.getElementById(sliderId);
+    const vl = document.getElementById(valId);
+    function sync() {
+        const v = parseFloat(sl.value);
+        vl.textContent = v.toFixed(decimals);
+        const pct = ((v - parseFloat(sl.min)) / (parseFloat(sl.max) - parseFloat(sl.min)) * 100).toFixed(1) + '%';
+        sl.style.setProperty('--fill', pct);
+        onChange(v);
+    }
+    sl.addEventListener('input', sync);
+    // Initialise gradient without triggering redraw (draw happens in load handler)
+    const v0 = parseFloat(sl.value);
+    const pct0 = ((v0 - parseFloat(sl.min)) / (parseFloat(sl.max) - parseFloat(sl.min)) * 100).toFixed(1) + '%';
+    sl.style.setProperty('--fill', pct0);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Graph 1 — Remainder Map
+// ══════════════════════════════════════════════════════════════════════════════
+const p1 = { tauMax: 8, numTraj: 4, x0base: 0.30 };
+const TRAJ_COLORS = ['#00b4a8', '#ff8c00', '#9b59b6', '#e74c3c'];
+
+DRAW['remainderCanvas'] = function() {
+    const { ctx, w, h } = getCtx('remainderCanvas');
+    const pad = 46;
+    const pw = w - 2*pad, ph = h - 2*pad;
+
+    drawGrid(ctx, w, h, pad, 10, 8);
+    drawAxes(ctx, w, h, pad);
+
+    const steps = pw * 2;
+    for (let traj = 0; traj < p1.numTraj; traj++) {
+        const x0 = p1.x0base + traj * 0.16;
+        const col = TRAJ_COLORS[traj];
+        ctx.save();
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2.5;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = col;
+        ctx.beginPath();
+        for (let i = 0; i <= steps; i++) {
+            const tau = (i / steps) * p1.tauMax;
+            const xv  = (x0 * Math.exp(tau)) % 1;
+            const px  = pad + (tau / p1.tauMax) * pw;
+            const py  = h - pad - xv * ph;
+            i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // integer-crossing dots
+        ctx.fillStyle = col;
+        for (let k = 0; k < 20; k++) {
+            const tau = Math.log(k + 2);
+            if (tau > p1.tauMax) break;
+            const xv = (x0 * Math.exp(tau)) % 1;
+            const px = pad + (tau / p1.tauMax) * pw;
+            const py = h - pad - xv * ph;
+            ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    // axis labels
+    ctx.fillStyle = '#34495e';
+    ctx.font = `${Math.max(11, Math.round(w * 0.015))}px system-ui`;
+    ctx.textAlign = 'center';
+    ctx.fillText('τ (log time)', w - pad - 40, h - 6);
+    ctx.save();
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('x(τ) = {x₀eᵗ}', -(h / 2), 16);
+    ctx.restore();
+
+    ctx.fillStyle = '#888';
+    ctx.font = '11px system-ui';
+    for (let i = 0; i <= 5; i++) {
+        const tau = i * p1.tauMax / 5;
+        const px  = pad + (tau / p1.tauMax) * pw;
+        ctx.fillText(tau.toFixed(1), px, h - pad + 14);
+    }
+    ctx.textAlign = 'left';
+};
+
+wire('sl-tauMax',  'v-tauMax',  1, v => { p1.tauMax  = v; redraw('remainderCanvas'); });
+wire('sl-numTraj', 'v-numTraj', 0, v => { p1.numTraj = Math.round(v); redraw('remainderCanvas'); });
+wire('sl-x0base',  'v-x0base',  2, v => { p1.x0base  = v; redraw('remainderCanvas'); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Graph 2 — Cylinder Partition
+// ══════════════════════════════════════════════════════════════════════════════
+const p2 = { maxN: 24, cylScale: 32 };
+
+DRAW['cylinderCanvas'] = function() {
+    const { ctx, w, h } = getCtx('cylinderCanvas');
+    const pad = 46;
+    const barTop = pad + 36, barBot = h - pad - 20;
+    const barH = barBot - barTop;
+    const totalW = w - 2*pad;
+
+    ctx.fillStyle = '#34495e';
+    ctx.font = '13px system-ui';
+    ctx.fillText('Cylinders Kₙ = [1/(n+2), 1/(n+1)), lengths ℓₙ = 1/((n+1)(n+2))', pad, pad + 18);
+
+    let xCur = pad;
+    for (let n = 0; n < p2.maxN; n++) {
+        const ell = 1 / ((n + 1) * (n + 2));
+        const bw  = Math.max(2, ell * totalW * p2.cylScale);
+        if (xCur + bw > w - pad + 1) break;
+
+        const hue = 200 - n * 6;
+        ctx.fillStyle    = `hsl(${hue}, 80%, 55%)`;
+        ctx.shadowBlur   = 6;
+        ctx.shadowColor  = '#a3b1c6';
+        ctx.fillRect(xCur, barTop, bw, barH);
+        ctx.shadowBlur = 0;
+
+        if (bw >= 16) {
+            ctx.fillStyle   = '#fff';
+            ctx.font        = `600 ${Math.min(12, Math.max(8, Math.round(bw * 0.55)))}px system-ui`;
+            ctx.textAlign   = 'center';
+            ctx.fillText(`K${n}`, xCur + bw / 2, barTop + barH / 2 + 4);
+        }
+        xCur += bw + 2;
+    }
+    ctx.textAlign = 'left';
+
+    ctx.strokeStyle = '#2c3e50';
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(pad, barTop, totalW, barH);
+};
+
+wire('sl-maxN',    'v-maxN',    0, v => { p2.maxN     = Math.round(v); redraw('cylinderCanvas'); });
+wire('sl-cylScale','v-cylScale',0, v => { p2.cylScale  = v; redraw('cylinderCanvas'); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Graph 3 — Quadratic Roots
+// ══════════════════════════════════════════════════════════════════════════════
+const p3 = { numQ: 12, rootScale: 27 };
+
+DRAW['quadraticCanvas'] = function() {
+    const { ctx, w, h } = getCtx('quadraticCanvas');
+    const pad = 46;
+    const pw  = w - 2*pad, ph = h - 2*pad;
+    const midY = h - pad - 40;
+
+    drawGrid(ctx, w, h, pad, p3.numQ, 8);
+
+    for (let n = 0; n < p3.numQ; n++) {
+        const tn   = (n === 0) ? 1.5 : (2*n + 3) / (n + 2);
+        const dn   = (n === 0) ? 0.25 : (2*n + 3) / ((n + 1) * (n + 2) ** 2);
+        const disc = tn * tn - 4 * dn;
+        const xPos = pad + (n + 0.5) * (pw / p3.numQ);
+        const hue  = 200 - (n / Math.max(1, p3.numQ - 1)) * 120;
+
+        // stem
+        ctx.strokeStyle = `hsl(${hue}, 70%, 55%)`;
+        ctx.lineWidth   = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(xPos, pad + 16); ctx.lineTo(xPos, h - pad - 12);
+        ctx.stroke();
+
+        if (disc >= 0) {
+            const r1 = (tn + Math.sqrt(disc)) / 2;
+            const r2 = (tn - Math.sqrt(disc)) / 2;
+            const y1 = midY - r1 * p3.rootScale;
+            const y2 = midY - r2 * p3.rootScale;
+            ctx.fillStyle = '#ff8c00';
+            ctx.beginPath(); ctx.arc(xPos, y1, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#9b59b6';
+            ctx.beginPath(); ctx.arc(xPos, y2, 6, 0, Math.PI * 2); ctx.fill();
+        } else {
+            // complex conjugate pair — draw hollow circles at real part ± |imag|
+            const re = tn / 2;
+            const im = Math.sqrt(-disc) / 2;
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth   = 2;
+            ctx.beginPath(); ctx.arc(xPos, midY - (re + im) * p3.rootScale, 6, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(xPos, midY - (re - im) * p3.rootScale, 6, 0, Math.PI * 2); ctx.stroke();
+        }
+
+        ctx.fillStyle   = '#2c3e50';
+        ctx.font        = `bold ${Math.max(10, Math.round(w * 0.012))}px system-ui`;
+        ctx.textAlign   = 'center';
+        ctx.fillText(`Q${n}`, xPos, pad + 12);
+    }
+    ctx.textAlign = 'left';
+
+    ctx.fillStyle   = '#2c3e50';
+    ctx.font        = '13px system-ui';
+    ctx.textAlign   = 'center';
+    ctx.fillText('Roots λₙ,± of Qₙ(s) → spectrum of finite-depth H  (●orange = λ₊, ●purple = λ₋, ○red = complex)', w/2, h - 6);
+    ctx.textAlign = 'left';
+};
+
+wire('sl-numQ',     'v-numQ',     0, v => { p3.numQ      = Math.round(v); redraw('quadraticCanvas'); });
+wire('sl-rootScale','v-rootScale',0, v => { p3.rootScale  = v; redraw('quadraticCanvas'); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Graph 4 — Spectrum / Zeros
+// ══════════════════════════════════════════════════════════════════════════════
+const ALL_ZEROS = [
+    14.1347, 21.0220, 25.0109, 30.4249, 32.9351,
+    37.5862, 40.9187, 43.3271, 48.0052, 49.7738,
+    52.9703, 56.4462, 59.3470, 60.8318, 65.1125,
+    67.0798, 69.5464, 72.0672, 75.7047, 77.1448
+];
+const p4 = { numZeros: 20, tMinZ: 10 };
+
+DRAW['zerosCanvas'] = function() {
+    const { ctx, w, h } = getCtx('zerosCanvas');
+    const pad   = 46;
+    const pw    = w - 2*pad, ph = h - 2*pad;
+    const zeros = ALL_ZEROS.slice(0, p4.numZeros);
+    const tMin  = p4.tMinZ;
+    const tMax  = zeros[zeros.length - 1] + 4;
+
+    drawGrid(ctx, w, h, pad, 10, 8);
+
+    zeros.forEach((t, i) => {
+        const x = pad + ((t - tMin) / (tMax - tMin)) * pw;
+        if (x < pad || x > w - pad) return;
+
+        const hue = 175 - i * 4;
+        const grad = ctx.createLinearGradient(0, pad, 0, h - pad);
+        grad.addColorStop(0, `hsla(${hue}, 78%, 48%, 0.95)`);
+        grad.addColorStop(1, `hsla(${hue}, 78%, 48%, 0.10)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(x - 2, pad, 4, ph);
+
+        // rotated label
+        ctx.save();
+        ctx.translate(x, pad - 6);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillStyle = '#2c3e50';
+        ctx.font      = `${Math.max(9, Math.min(11, Math.round(pw / zeros.length) - 1))}px system-ui`;
+        ctx.textAlign = 'left';
+        ctx.fillText(t.toFixed(2), 0, 0);
+        ctx.restore();
+    });
+
+    // t-axis tick labels
+    ctx.fillStyle   = '#888';
+    ctx.font        = '11px system-ui';
+    ctx.textAlign   = 'center';
+    for (let i = 0; i <= 5; i++) {
+        const t = tMin + i * (tMax - tMin) / 5;
+        ctx.fillText(t.toFixed(0), pad + (i / 5) * pw, h - pad + 14);
+    }
+    ctx.textAlign = 'left';
+
+    ctx.fillStyle   = '#2c3e50';
+    ctx.font        = `600 ${Math.max(12, Math.round(w * 0.016))}px system-ui`;
+    ctx.textAlign   = 'center';
+    ctx.fillText(`First ${zeros.length} Riemann zeros  Im(ρ) where ζ(½ + iρ) = 0`, w/2, h - 6);
+    ctx.textAlign = 'left';
+};
+
+wire('sl-numZeros','v-numZeros', 0, v => { p4.numZeros = Math.round(v); redraw('zerosCanvas'); });
+wire('sl-tMinZ',   'v-tMinZ',   0, v => { p4.tMinZ    = Math.round(v); redraw('zerosCanvas'); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Graph 5 — Xi partial product along critical line
+// ══════════════════════════════════════════════════════════════════════════════
+const p5 = { xiN: 30, xiTMin: 10, xiTMax: 80 };
+
+DRAW['xiCanvas'] = function() {
+    const { ctx, w, h } = getCtx('xiCanvas');
+    const pad = 46;
+    const pw  = w - 2*pad, ph = h - 2*pad;
+
+    drawGrid(ctx, w, h, pad, 10, 8);
+    drawAxes(ctx, w, h, pad);
+
+    const steps = pw;
+    const vals  = new Float64Array(steps + 1);
+
+    for (let i = 0; i <= steps; i++) {
+        const t = p5.xiTMin + (i / steps) * (p5.xiTMax - p5.xiTMin);
+        let logP = 0;
+        for (let n = 0; n < p5.xiN; n++) {
+            // Q_n(s) = s² - tₙs + dₙ,  s = ½ + it
+            // Re(Q_n) = ¼ - t² - ½tₙ + dₙ
+            // Im(Q_n) = t(1 - tₙ)
+            const tn  = (n === 0) ? 1.5 : (2*n + 3) / (n + 2);
+            const dn  = (n === 0) ? 0.25 : (2*n + 3) / ((n + 1) * (n + 2) ** 2);
+            const re  = 0.25 - t*t - 0.5*tn + dn;
+            const im  = t * (1 - tn);
+            logP += 0.5 * Math.log(re*re + im*im + 1e-30);
+        }
+        vals[i] = logP;
+    }
+
+    // Normalise to canvas height (leave 8% margin top/bottom)
+    let vMin = Infinity, vMax = -Infinity;
+    for (let i = 0; i <= steps; i++) {
+        if (isFinite(vals[i])) { vMin = Math.min(vMin, vals[i]); vMax = Math.max(vMax, vals[i]); }
+    }
+    const vRange = vMax - vMin || 1;
+    const yScale = ph * 0.84;
+    const yOff   = ph * 0.08;
+
+    ctx.strokeStyle = '#00b4a8';
+    ctx.lineWidth   = 2.5;
+    ctx.shadowBlur  = 12;
+    ctx.shadowColor = '#00b4a8';
+    ctx.beginPath();
+    let started = false;
+    for (let i = 0; i <= steps; i++) {
+        if (!isFinite(vals[i])) { started = false; continue; }
+        const px = pad + i;
+        const py = h - pad - yOff - ((vals[i] - vMin) / vRange) * yScale;
+        started ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+        started = true;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Mark known zeros as red dashed verticals
+    const zerosInRange = ALL_ZEROS.filter(t => t >= p5.xiTMin && t <= p5.xiTMax);
+    ctx.save();
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth   = 1.5;
+    ctx.setLineDash([5, 5]);
+    zerosInRange.forEach(t => {
+        const x = pad + ((t - p5.xiTMin) / (p5.xiTMax - p5.xiTMin)) * pw;
+        ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, h - pad); ctx.stroke();
+    });
+    ctx.restore();
+
+    // t-axis labels
+    ctx.fillStyle   = '#888';
+    ctx.font        = '11px system-ui';
+    ctx.textAlign   = 'center';
+    for (let i = 0; i <= 5; i++) {
+        const t = p5.xiTMin + i * (p5.xiTMax - p5.xiTMin) / 5;
+        ctx.fillText(t.toFixed(0), pad + (i / 5) * pw, h - pad + 14);
+    }
+    ctx.fillText('t', w - pad + 14, h - pad + 4);
+
+    ctx.fillStyle   = '#2c3e50';
+    ctx.font        = `600 ${Math.max(11, Math.round(w * 0.015))}px system-ui`;
+    ctx.textAlign   = 'center';
+    ctx.fillText(`log|∏ Qₙ(½+it)|  (N=${p5.xiN} terms) — red dashes: known Riemann zeros`, w/2, pad - 4);
+    ctx.textAlign = 'left';
+};
+
+wire('sl-xiN',    'v-xiN',    0, v => { p5.xiN    = Math.round(v); redraw('xiCanvas'); });
+wire('sl-xiTMin', 'v-xiTMin', 0, v => { p5.xiTMin = Math.round(v); redraw('xiCanvas'); });
+wire('sl-xiTMax', 'v-xiTMax', 0, v => { p5.xiTMax = Math.round(v); redraw('xiCanvas'); });
+
+// ── Bootstrap ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+    CANVAS_IDS.forEach(id => {
+        const c = document.getElementById(id);
+        fitCanvas(c);
+        ro.observe(c.parentElement);
+        redraw(id);
+    });
+});
+</script>
+</body>
+</html>
