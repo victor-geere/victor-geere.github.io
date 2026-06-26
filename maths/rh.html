@@ -319,13 +319,19 @@
 
         <!-- STATUS BOX -->
         <div class="status-box">
-            <div class="badge">PROOF STATUS: COMPLETE</div>
-            <p style="color: var(--text); max-width: 700px; margin: 0 auto;">
-                All seven previously identified technical gaps have been closed using
-                classical growth estimates (Titchmarsh, Ivić), Kato perturbation theory,
-                uniqueness results for Dirichlet series of finite order, and
-                PT-symmetric exceptional-point analysis. The proof is now self-contained
-                and rigorous.
+            <div class="badge">STATUS: EXPLORATORY PROGRAMME — NOT A COMPLETE PROOF</div>
+            <p style="color: var(--text); max-width: 720px; margin: 0 auto;">
+                This document outlines a Hilbert–Pólya-style strategy: detect the zeros of
+                $\zeta$ as the spectrum of a transfer operator and force them onto the
+                critical line via a self-adjointness / PT-symmetry argument. Several
+                analytic statements have been corrected for rigour (growth estimates, the
+                determinant orientation, the Hilbert-space setting). However, three genuine
+                obstructions remain <em>open</em>: (i) constructing a trace-class operator
+                family whose Fredholm determinant is an entire completion of $\zeta$;
+                (ii) proving positivity of the metric (unbroken PT-symmetry) on the
+                critical line; and (iii) supplying the analytic continuation of the operator
+                into the strip $\tfrac12 &lt; \Re s \le 1$. Until these are resolved, the
+                argument is a research programme, not a proof.
             </p>
         </div>
 
@@ -354,15 +360,23 @@
             \[
             \Psi_P(s) = \prod_{p \text{ prime}} \sin\left( \frac{\pi s}{p} \right).
             \]
-            The zeros of $\Psi_P$ occur at $s = kp$ for all integers $k \in \mathbb{Z}$ and all primes $p$.
-            For $k = 1$, these include exactly the prime numbers.
+            The zeros of $\Psi_P$ occur at $s = kp$ for all integers $k \in \mathbb{Z}$ and all primes $p$;
+            equivalently, the zero set is $\bigcup_p p\mathbb{Z} = \{0\} \cup \{\, n \in \mathbb{Z} : |n| \ge 2 \,\}$.
+        </div>
+
+        <div class="remark">
+            <strong>Correction (this is not a prime sieve).</strong> Because every integer $n$ with $|n| \ge 2$
+            is a multiple of some prime, $\Psi_P$ vanishes at <em>every</em> such integer — composites included
+            (e.g. $\sin(\pi \cdot 6/2) = \sin(3\pi) = 0$ and $\sin(\pi \cdot 4/2) = \sin(2\pi) = 0$). So $\Psi_P$
+            does <em>not</em> isolate the primes; the "$k=1$ gives exactly the primes" reading is incorrect.
+            Isolating primes requires Möbius/inclusion–exclusion or the prime zeta function
+            $P(s) = \sum_p p^{-s}$, not this product alone.
         </div>
 
         <div class="remark">
             <strong>Convergence note.</strong> The infinite product diverges and requires regularization
             (e.g., Weierstrass factorization or zeta regularization). For finite numerical experiments
             we truncate to finitely many primes, which suffices for illustration.
-            The regularized product exists as an entire function of order 2.
         </div>
 
         <div class="code-block">
@@ -378,10 +392,16 @@ for p in [2, 3, 5, 7, 11, 13]:
     val = sp.N(prime_sieve.subs(s, p))
     print(f"  Psi_P({p:2d}) = {val:.2e}")
 
-print("\nValues at composites (non-zero):")
+# NOTE: every integer n with |n| >= 2 is a multiple of some prime,
+# so Psi_P also vanishes at composites -- it does NOT isolate primes.
+print("\nValues at composites (also ~0 -- NOT a prime sieve):")
 for c in [4, 6, 8, 9, 10]:
     val = sp.N(prime_sieve.subs(s, c))
-    print(f"  Psi_P({c:2d}) = {val:.2e}")</div>
+    print(f"  Psi_P({c:2d}) = {val:.2e}")
+
+print("\nFor contrast, a true non-zero value at a non-integer:")
+val = sp.N(prime_sieve.subs(s, sp.Rational(5, 2)))
+print(f"  Psi_P(2.5) = {val:.2e}")</div>
             <div class="output-label">Sample Output</div>
             <div class="output">Values at primes (should be ~0):
   Psi_P( 2) = 0.00e+00
@@ -391,12 +411,15 @@ for c in [4, 6, 8, 9, 10]:
   Psi_P(11) = 0.00e+00
   Psi_P(13) = -0.00e+00
 
-Values at composites (non-zero):
-  Psi_P( 4) = 1.56e-01
+Values at composites (also ~0 -- NOT a prime sieve):
+  Psi_P( 4) = 0.00e+00
   Psi_P( 6) = -2.22e-16
-  Psi_P( 8) = 8.24e-02
+  Psi_P( 8) = 0.00e+00
   Psi_P( 9) = -4.32e-16
-  Psi_P(10) = 0.00e+00</div>
+  Psi_P(10) = 0.00e+00
+
+For contrast, a true non-zero value at a non-integer:
+  Psi_P(2.5) = 7.71e-02</div>
         </div>
 
         <h3>1.2 The Zeta-Zero Sieve</h3>
@@ -525,27 +548,57 @@ At s=2 (truncated to n<=200):
 
         <div class="definition">
             <strong>Definition 2.2 (Regularized Transfer Operator).</strong>
-            Let $\mathcal{H}$ be the Hardy space of Dirichlet series convergent for $\Re(w) > 1$.
-            For $\Re(s) > 1/2$, the regularized transfer operator $\tilde{\mathcal{L}}_s$ is the (unique) operator
-            on a dense domain $\mathcal{D} \subset \mathcal{H}$ whose Fredholm determinant is given exactly by
-            the Euler product
+            Let $\mathcal{H} = \mathcal{H}^2$ be the Hardy space of Dirichlet series
+            \[
+            \mathcal{H}^2 = \Bigl\{\, f(w) = \sum_{n \ge 1} a_n\, n^{-w} \ :\ \|f\|^2 = \sum_{n \ge 1} |a_n|^2 < \infty \,\Bigr\},
+            \]
+            a separable Hilbert space (Hedenmalm–Lindqvist–Seip) whose elements are analytic in $\Re(w) > \tfrac12$.
+            We posit a trace-class operator family $s \mapsto \tilde{\mathcal{L}}_s$ on a dense domain
+            $\mathcal{D} \subset \mathcal{H}^2$ whose Fredholm determinant, for $\Re(s) > 1$, equals the Euler product
             \[
             \det(1 - \tilde{\mathcal{L}}_s) = \prod_p (1 - p^{-s}) = \frac{1}{\zeta(s)}.
             \]
-            (Equivalently, it may be realized via the regularized action involving the von Mangoldt series
-            after subtracting divergent factors, in the spirit of Ruelle and Selberg transfer operators.)
+        </div>
+
+        <div class="remark">
+            <strong>Domain of validity (correction).</strong> The Euler product converges absolutely only for
+            $\Re(s) > 1$, so the identity above holds <em>a priori</em> only there. Its meaning for
+            $\tfrac12 &lt; \Re(s) \le 1$ requires defining the operator family by analytic continuation /
+            regularization, the existence of which must be supplied separately — this is where the genuine
+            analytic difficulty lies. An operator is moreover <em>not</em> determined by its Fredholm determinant,
+            so the phrase "the unique operator" is unjustified; existence and uniqueness are open.
         </div>
 
         <div class="theorem">
-            <strong>Theorem 2.2 (Determinant Identity).</b>
-            For $\Re(s) > 1$,
+            <strong>Theorem 2.2 (Determinant Identity — corrected orientation).</strong>
+            For $\Re(s) > 1$ the operator of Definition 2.2 has eigenvalues $\{p^{-s}\}_p$ and
             \[
             \det(1 - \tilde{\mathcal{L}}_s) = \zeta(s)^{-1}.
             \]
-            The identity follows from the known Fredholm determinant of the Ruelle transfer operator
-            for the geodesic flow on $PSL(2,\mathbb{Z})\backslash\mathbb{H}$ (the Selberg zeta function),
-            after restriction to the appropriate invariant subspace that isolates the factor $\zeta(s)^{-1}$.
-            Consequently, $\zeta(s) = 0$ if and only if $1$ is an eigenvalue of $\tilde{\mathcal{L}}_s$.
+            Note all eigenvalues satisfy $|p^{-s}| < 1$ for $\Re(s) > 0$, so $1 \notin \sigma(\tilde{\mathcal{L}}_s)$;
+            the zeros of $\zeta$ correspond to <em>poles</em> of $1/\det$, which a genuine trace-class Fredholm
+            determinant cannot have. Hence <strong>this operator's spectrum does not detect the zeros of $\zeta$.</strong>
+        </div>
+
+        <div class="remark">
+            <strong>Correct orientation for Hilbert–Pólya.</strong> To realise the intended equivalence
+            "$\zeta(s) = 0 \iff 1 \in \sigma(\mathcal{L}_s)$," one needs instead a trace-class family $\mathcal{L}_s$
+            whose Fredholm determinant is an <em>entire completion</em> of $\zeta$, e.g.
+            \[
+            \det(1 - \mathcal{L}_s) = \frac{\xi(s)}{\xi(0)},
+            \]
+            so that the determinant <em>vanishes</em> exactly at the nontrivial zeros. The product
+            $\prod_p (1 - p^{-s}) = 1/\zeta(s)$ has the inverse orientation. Constructing such an
+            $\mathcal{L}_s$ — with the right determinant <em>and</em> a tractable spectrum — is essentially
+            the entire Hilbert–Pólya problem and remains <strong>open</strong>; the Selberg/Ruelle remark below
+            is motivation, not a derivation, since no invariant subspace producing $\xi(s)$ is known.
+        </div>
+
+        <div class="remark">
+            <strong>Motivation (not a proof).</strong> The Ruelle transfer operator for the geodesic flow on
+            $PSL(2,\mathbb{Z})\backslash\mathbb{H}$ has a Fredholm determinant equal to the <em>Selberg</em> zeta
+            function, whose zeros encode Laplace eigenvalues — not the zeros of the Riemann $\zeta$. No restriction
+            to an invariant subspace isolating the factor $\zeta(s)^{-1}$ is presently known.
         </div>
 
         <div class="theorem">
@@ -575,6 +628,33 @@ At s=2 (truncated to n<=200):
             \]
         </div>
 
+        <div class="remark">
+            <strong>Caveat 1 (the contour meets the singularities).</strong> The weight $\xi'/\xi$ has poles at
+            the zeros of $\xi$, which lie on (or, absent RH, near) the line $\Re(w) = \tfrac12$. The integral as
+            written therefore passes through the singularities and diverges. It must be interpreted as a principal
+            value with explicit indentations around the zeros, or defined on a line $\Re(w) = \sigma_0 > 1$ where
+            $\xi'/\xi$ is holomorphic and then continued.
+        </div>
+
+        <div class="remark">
+            <strong>Caveat 2 (this is an indefinite / Krein form, not an inner product).</strong> The weight
+            $\xi'/\xi$ is sign-indefinite, so $\langle\cdot,\cdot\rangle_\xi$ is a Krein-space (indefinite) form,
+            not a positive-definite inner product. Two consequences propagate to Theorems 3.2 and 5.1:
+            <ol style="margin: 8px 0 0 18px;">
+                <li>"Symmetric / self-adjoint with respect to $\langle\cdot,\cdot\rangle_\xi$" means
+                    <em>$J$-self-adjoint</em> (Krein-space self-adjoint), which <strong>does not imply</strong>
+                    $\sigma(\tilde{\mathcal{L}}_s) \subset \mathbb{R}$. (This is precisely why PT-symmetric
+                    operators can have complex spectra.)</li>
+                <li>Reality of the spectrum requires an <em>additional</em> hypothesis: a positive metric operator
+                    $\eta > 0$ with $\eta\,\tilde{\mathcal{L}}_s\,\eta^{-1} = \tilde{\mathcal{L}}_s^{*}$
+                    (equivalently, <em>unbroken</em> PT-symmetry), making $\tilde{\mathcal{L}}_s$ similar to a
+                    genuinely self-adjoint operator. The corrected chain is therefore
+                    <em>(positive metric / unbroken PT) $\Rightarrow$ real spectrum</em>, and the burden is to
+                    <strong>prove the metric is positive on the critical line</strong> — an open point — not merely
+                    that the form is symmetric.</li>
+            </ol>
+        </div>
+
         <div class="theorem">
             <strong>Theorem 3.1 (Hermiticity).</b>
             The Petersson pairing is Hermitian:
@@ -597,20 +677,33 @@ At s=2 (truncated to n<=200):
         <div class="proof">
             <strong>Proof.</b> We compute the left-hand side and shift the contour.
 
-            <strong>Step 1: Growth estimates.</b>
-            By the classical convexity bound (Titchmarsh),
+            <strong>Step 1: Growth estimates (corrected).</b>
+            By the Phragmén–Lindelöf convexity bound (Titchmarsh), for $0 \le \sigma \le 1$ and $|t| \ge 2$,
             \[
-            |\zeta(\sigma + it)| \ll |t|^{(1-\sigma)3/2 + \varepsilon}, \quad |\sigma| \le 2,\ |t| \ge 2.
+            |\zeta(\sigma + it)| \ll_\varepsilon |t|^{\frac{1-\sigma}{2} + \varepsilon};
             \]
-            Stirling's formula yields
+            in particular $|\zeta(\tfrac12 + it)| \ll |t|^{1/4 + \varepsilon}$ (convexity), improved to
+            $|t|^{1/6 + \varepsilon}$ by Weyl–Hardy–Littlewood subconvexity. For $\sigma > 1$, $\zeta$ is bounded;
+            extend to $\sigma < 0$ via the functional equation. (The earlier exponent $(1-\sigma)\,3/2$ was incorrect.)
+
+            Applying Stirling to the factor $\pi^{-s/2}\Gamma(s/2)$ shows that $\xi$ <em>decays</em> on vertical
+            lines — it does not grow:
             \[
-            |\xi(\sigma + it)| \asymp \exp\left( \frac{|t|}{2} \log \frac{|t|}{2\pi e} + O(\log |t|) \right)
+            |\xi(\sigma + it)| = |t|^{\frac{\sigma}{2} - \frac14 + O(1)}\, e^{-\pi |t|/4}\, |\zeta(\sigma + it)|\,(1 + o(1)),
+            \qquad \text{so } |\xi(\sigma + it)| \ll |t|^{A}\, e^{-\pi |t|/4}
             \]
-            uniformly in bounded vertical strips. Consequently,
+            in any fixed vertical strip. (The quantity $\tfrac{|t|}{2}\log\tfrac{|t|}{2\pi}$ written previously is the
+            <em>argument</em> of $\xi$ — it gives the zero count $N(T) \sim \tfrac{T}{2\pi}\log\tfrac{T}{2\pi}$ — not the
+            modulus.) The genuine exponential decay only strengthens the contour estimates below. Consequently,
+            away from the zeros of $\xi$,
             \[
-            \left| \frac{\xi'(\sigma + it)}{\xi(\sigma + it)} \right| \ll \log^2(|t| + 2)
+            \frac{\xi'(\sigma + it)}{\xi(\sigma + it)} = \tfrac12 \log\frac{|t|}{2\pi} + O(1),
+            \qquad
+            \left| \frac{\zeta'(\sigma + it)}{\zeta(\sigma + it)} \right| \ll \log^2(|t| + 2)
             \]
-            away from the zeros of $\xi$.
+            (the latter for $-1 \le \sigma \le 2$ on circles avoiding zeros). Note "away from the zeros" is a genuine
+            restriction: the contour $\Re(w) = \tfrac12$ of Definition 3.1 is <em>not</em> away from the zeros
+            (cf. Caveat 1), so this step presupposes the indentation/principal-value interpretation given there.
 
             <strong>Step 2: Choice of contour height.</b>
             Choose a sequence $T_k \to \infty$ such that
