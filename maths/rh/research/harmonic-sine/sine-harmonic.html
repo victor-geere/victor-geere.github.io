@@ -95,47 +95,72 @@ We present a complete trigonometric-free algorithm that reconstructs \(\sin(\the
 
 <h2>4. Main Theorem and Proof</h2>
 
+<p>
+Fix \(x \in \mathbb{R}\) and set \(y = |x| \bmod 2 \in [0,2)\). Since \(\sin(\pi x) = \operatorname{sgn}(x)\sin(\pi|x|)\) and \(\sin(\pi\,\cdot\,)\) is \(2\)-periodic, it suffices to construct \(\sin(\pi y)\); and since \(\sin(\pi y) = -\sin(\pi(y-1))\) for \(y\in[1,2)\), it suffices to treat \(y\in[0,1]\).
+</p>
+
+<div class="math-block">
+<strong>Lemma (Greedy Invariant).</strong>
+Let \(y \in [0,1]\), let \(\mathrm{target} = \pi y\), and define \(\theta_0 = 0\) and, for \(n \ge 0\),
+\[
+\varepsilon_n = \frac{\pi}{n+2}, \qquad
+\delta_n = \begin{cases} 1 & \mathrm{target} - \theta_n \ge \varepsilon_n \\ 0 & \text{otherwise,} \end{cases} \qquad
+\theta_{n+1} = \theta_n + \delta_n \varepsilon_n.
+\]
+Then, writing \(r_n = \mathrm{target} - \theta_n\), we have \(0 \le r_n \le \pi/(n+1)\) for every \(n \ge 1\) (equality possible only at \(n=1\), when \(y=1\)). In particular \(r_n \to 0\), i.e. \(\theta_n \to \mathrm{target}\).
+</div>
+
+<p>
+<em>Proof of Lemma.</em> Induction on \(n\). For \(n=1\): if \(\delta_0=0\) then \(r_1 = \mathrm{target} < \varepsilon_0 = \pi/2\); if \(\delta_0=1\) then \(r_1 = \mathrm{target}-\pi/2 \le \pi - \pi/2 = \pi/2\) (using \(\mathrm{target}\le\pi\)), with equality iff \(y=1\). Either way \(r_1 \le \pi/2 = \pi/(1+1)\).
+</p>
+<p>
+Assume \(r_n \le \pi/(n+1)\) for some \(n\ge1\). If \(\delta_n=0\), then by definition of \(\delta_n\), \(r_{n+1}=r_n < \varepsilon_n = \pi/(n+2)\). If \(\delta_n=1\), then
+\[
+r_{n+1} = r_n - \varepsilon_n \le \frac{\pi}{n+1} - \frac{\pi}{n+2} = \frac{\pi}{(n+1)(n+2)} \le \frac{\pi}{n+2}
+\]
+since \(n+1\ge2\). Either way \(r_{n+1} \le \pi/(n+2)\), closing the induction. \(\blacksquare\)
+</p>
+
+<p>
+The same construction with the fixed dyadic steps \(\pi/2,\pi/4,\pi/8,\dots\) in place of \(\pi/2,\pi/3,\pi/4,\dots\) is the subroutine \(\mathrm{dyadic\_sin}\); there the tail \(\sum_{k>K}\pi/2^{k+1}\) telescopes exactly to \(\pi/2^{K}\), giving the sharper classical bisection bound \(r_K \le \pi/2^{K+1}\) (used with \(K=20\) to evaluate each \(h_n\) below).
+</p>
+
 <div class="math-block">
 <strong>Theorem (Geometric Reconstruction of Sine).</strong>
-
-Define the sequences
+With \(\theta_n, \delta_n\) as in the Lemma, define the rotation pair \((s_n,c_n)\) by
 \[
 \begin{align}
-s_0 &= 0 \\[6pt]
-\delta_n(x) &= \Theta\!\left( \pi |x| - \sum_{j=0}^{n-1} \delta_j(x) \frac{\pi}{j+2} - \frac{\pi}{n+2} \right) \in \{0,1\} \\[8pt]
-h_n &= \text{dyadic_sin}\left( \frac{1}{n+2} \right) \\[8pt]
-s_{n+1} &= s_n + \delta_n \Bigl( h_n \sqrt{1 - s_n^2} + s_n \sqrt{1 - h_n^2} \Bigr)
+s_0 &= 0, \qquad c_0 = 1, \\[4pt]
+h_n &= \mathrm{dyadic\_sin}\!\left(\tfrac{1}{n+2}\right), \qquad
+c^h_n = \sqrt{1-h_n^2} \quad \Bigl(\text{valid since } 0 < \tfrac{\pi}{n+2}\le \tfrac{\pi}{2}\Bigr), \\[4pt]
+(s_{n+1}, c_{n+1}) &= \begin{cases}
+\bigl(s_n c^h_n + c_n h_n,\ \ c_n c^h_n - s_n h_n\bigr) & \delta_n = 1 \\[2pt]
+(s_n,\ c_n) & \delta_n = 0.
+\end{cases}
 \end{align}
 \]
-where dyadic_sin is the geometric sine computed via dyadic decomposition as a subroutine.
-Then for any real \(x\),
+Then \(s_n = \sin\theta_n\) and \(c_n = \cos\theta_n\) exactly, for every \(n\). Consequently, for \(y \in [0,1]\), \(\sin(\pi y) = \lim_{n\to\infty} s_n\), and with \(y = |x| \bmod 2\),
 \[
-\boxed{\sin(\pi x) = \operatorname{sgn}(x) \lim_{n \to \infty} s_n \bigl( |x| \bmod 2 \bigr)}
+\boxed{\ \sin(\pi x) = \operatorname{sgn}(x)\cdot\begin{cases} \displaystyle\lim_{n\to\infty} s_n(y) & 0 \le y \le 1 \\[4pt] \displaystyle -\lim_{n\to\infty} s_n(y-1) & 1 < y < 2. \end{cases}\ }
 \]
-with full periodic extension via symmetry.
 </div>
 
 <h3>Proof.</h3>
 
 <p>
-The construction proceeds by induction on \(n\).
-
-Base case (\(n=0\)): \(s_0 = 0 = \sin 0\).
-
-Inductive step: Assume after \(n\) steps we have correctly constructed \(\sin \theta_n\) where
+\(s_n = \sin\theta_n\) and \(c_n = \cos\theta_n\) hold by induction. The base case \(n=0\) is immediate. If \(\delta_n = 0\) then \(\theta_{n+1}=\theta_n\) and nothing changes. If \(\delta_n = 1\), then \(\varepsilon_n = \pi/(n+2) \in (0,\pi/2]\), so \(h_n = \sin\varepsilon_n \ge 0\) and \(c^h_n = \sqrt{1-h_n^2} = \cos\varepsilon_n \ge 0\) genuinely — unlike \(\cos\theta_n\) itself, which need not be non-negative once \(\theta_n\) exceeds \(\pi/2\). Because \(c_n\) is carried forward exactly rather than recovered as \(\sqrt{1-s_n^2}\), the update
 \[
-\theta_n = \sum_{j=0}^{n-1} \delta_j \frac{\pi}{j+2}, \quad 0 \leq \pi|x| - \theta_n < \frac{\pi}{n+2}.
+s_{n+1} = s_n\cos\varepsilon_n + c_n\sin\varepsilon_n, \qquad c_{n+1} = c_n\cos\varepsilon_n - s_n\sin\varepsilon_n
 \]
-The greedy choice of \(\delta_n\) ensures the invariant is preserved.
+is exactly the sine/cosine angle-addition formula for \(\theta_n + \varepsilon_n = \theta_{n+1}\), valid regardless of which quadrant \(\theta_n\) lies in. (An earlier version of this construction instead reused \(\sqrt{1-s_n^2}\) as a stand-in for \(\cos\theta_n\); that expression equals \(|\cos\theta_n|\), which silently flips sign once \(\theta_n > \pi/2\) and sends the rotation backwards — the fix is exactly to track \(c_n\) itself.)
+</p>
 
-The update
+<p>
+Given \(s_n = \sin\theta_n\) exactly, convergence is immediate from \(|\sin a - \sin b| \le |a-b|\) and the Lemma's rate \(|\pi y - \theta_n| = r_n \le \pi/(n+1)\):
 \[
-s_{n+1} = s_n + \delta_n \bigl( h_n \cos\theta_n + s_n \sin(\pi/(n+2)) \bigr)
+|s_n - \sin(\pi y)| = |\sin\theta_n - \sin(\pi y)| \le r_n \le \frac{\pi}{n+1} \to 0.
 \]
-with \(\cos\theta_n = \sqrt{1-s_n^2}\) and \(\sin(\pi/(n+2)) = h_n\) (computed via dyadic subroutine) is the general geometric triangle-fusion rule, which equals \(\sin(\theta_n + \delta_n \cdot \pi/(n+2))\).
-
-Since the harmonic angles \( \pi/(k) \) with greedy selection approximate any interval with error < \pi/(n+2) \to 0, and continuity of sine yields the limit.
-∎
+The reflection for \(y \in (1,2)\) and the factor \(\operatorname{sgn}(x)\) recover the boxed identity from \(2\)-periodicity and oddness of \(\sin(\pi\,\cdot\,)\). \(\blacksquare\)
 </p>
 
 <hr id="sine-wave">
@@ -176,17 +201,25 @@ function dyadic_sin_base(abs_x, max_n) {
   const pi = Math.PI;
   const target = pi * abs_x;
   let theta_approx = 0;
+  // Carry the pair (s, c) = (sin, cos) of theta_approx. Reconstructing the
+  // cosine as sqrt(1 - s*s) is only valid while theta_approx <= pi/2; past
+  // that the true cosine is negative and the rotation reflects backwards.
   let s = 0;
-  let h = 1;
+  let c = 1;
+  let h = 1;  // sin(half_angle)
+  let ch = 0; // cos(half_angle)
   for (let n = 0; n < max_n; n++) {
     const half_angle = pi / Math.pow(2, n + 1);
-    const delta = (target - theta_approx >= half_angle) ? 1 : 0;
-    const cos_theta = Math.sqrt(1 - s * s);
-    const cos_half = Math.sqrt(1 - h * h);
-    const increment = (h * cos_theta + s * cos_half) - s;
-    s = s + delta * increment;
-    theta_approx += delta * half_angle;
-    h = Math.sqrt((1 - Math.sqrt(1 - h * h)) / 2);
+    if (target - theta_approx >= half_angle) {
+      const s_next = s * ch + c * h;
+      const c_next = c * ch - s * h;
+      s = s_next;
+      c = c_next;
+      theta_approx += half_angle;
+    }
+    // half-angle formulas; the positive roots apply since half_angle <= pi/2
+    h = Math.sqrt((1 - ch) / 2);
+    ch = Math.sqrt((1 + ch) / 2);
   }
   return s;
 }
@@ -195,16 +228,19 @@ function geometric_sin_base(abs_x, max_n) {
   const pi = Math.PI;
   const target = pi * abs_x;
   let theta_approx = 0;
-  let s = 0;
+  let s = 0; // sin(theta_approx)
+  let c = 1; // cos(theta_approx), carried for the same reason as above
   for (let n = 0; n < max_n; n++) {
     const half_angle = pi / (n + 2);
-    const h = dyadic_sin_base(half_angle / pi, 20);
-    const cos_theta = Math.sqrt(1 - s * s);
-    const cos_half = Math.sqrt(1 - h * h);
-    const increment = (h * cos_theta + s * cos_half) - s;
-    const delta = (target - theta_approx >= half_angle) ? 1 : 0;
-    s = s + delta * increment;
-    theta_approx += delta * half_angle;
+    if (target - theta_approx >= half_angle) {
+      const h = dyadic_sin_base(half_angle / pi, 20);
+      const ch = Math.sqrt(1 - h * h); // half_angle <= pi/2, so cos >= 0
+      const s_next = s * ch + c * h;
+      const c_next = c * ch - s * h;
+      s = s_next;
+      c = c_next;
+      theta_approx += half_angle;
+    }
   }
   return s;
 }
