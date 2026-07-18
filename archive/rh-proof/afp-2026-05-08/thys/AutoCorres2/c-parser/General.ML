@@ -1,0 +1,381 @@
+(*
+ * Copyright 2020, Data61, CSIRO (ABN 41 687 119 230)
+ * Copyright (c) 2022 Apple Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ *)
+
+val foldl = List.foldl 
+val foldr = List.foldr 
+
+fun split_while P [] = ([], [])
+  | split_while P (x:: xs) = 
+      if P x then 
+        let val (ps, xs') = split_while P xs in (x::ps, xs') end
+      else ([], (x::xs))
+
+fun buckets eq [] = []
+  | buckets eq [x] = [[x]]
+  | buckets eq (x::xs) = 
+     let val (ps, ys) = split_while (fn y => eq (x, y)) xs
+     in (x::ps) :: buckets eq ys end
+
+fun sort_group_by ord xs =
+  let
+    val sorted = sort ord xs
+  in
+    buckets (is_equal o ord) sorted
+  end
+
+fun group_by eq xs =
+  let
+     val pivots = distinct eq xs
+  in
+    map (fn pivot => filter (fn x => eq (pivot, x)) xs) pivots
+  end
+
+fun representative_for eq xs = group_by eq xs |> map hd
+
+fun safe_unsuffix sfx str = the_default str (try (unsuffix sfx) str)
+
+structure Symtab = struct
+open Symtab
+fun fold_map f t s = 
+  let
+    val elems = dest t
+    fun f' (elem as (key, _)) s = let val (res, s') = f elem s in ((key, res), s') end
+    val (elems', s') = Basics.fold_map f' elems s 
+  in (make elems', s') end
+end
+
+fun strip_comb_depth_of_term tm =
+  let 
+    fun depth (t $ u) is_head n = let val n' = if is_head then n else n + 1 
+                                  in Int.max (depth t true n', depth u false n') end
+      | depth (Abs (_, _ , t)) is_head n = depth t false (n + 1)
+      | depth _ is_head n = n + 1
+  in depth tm false 0 end
+
+fun comb_depth_of_term tm =
+  let 
+    fun depth (t $ u) n = let val n' = n + 1 
+                          in Int.max (depth t n', depth u n') end
+      | depth (Abs (_, _ , t)) n = depth t (n + 1)
+      | depth _ n = n + 1
+  in depth tm 0 end
+
+fun with_goal_depth tac = SUBGOAL (fn (t, i) => 
+  tac (strip_comb_depth_of_term t) i)
+
+fun strip_comb_depth_of_term_destructive t =
+  case t of
+    Abs (_, _, t) => 1 + strip_comb_depth_of_term_destructive t 
+  | (_$_) =>
+    let
+      val (f, args) = strip_comb t
+    in map strip_comb_depth_of_term_destructive (f:: args) 
+      |> List.foldl Int.max 0 
+      |> (fn i => i + 1) 
+    end
+ | _ => 1
+
+local
+  val t1 = @{term "f (b y) (c x)"}
+  val t2 = @{term "f x"}
+  val t3 = @{term "f (\<lambda>x. k x) y"}
+  val t4 = @{term "\<lambda>x. f x"}
+  val t5 = @{term "(\<lambda>y g. f (h (g y)))"}
+  val t6 = @{term "x"}
+
+  val tests = [t1, t2, t3, t4, t5, t6, t5$t6]
+
+
+  fun comp t = (strip_comb_depth_of_term_destructive t, 
+    strip_comb_depth_of_term t, (* should be same as before, but without generating garbage *)
+    comb_depth_of_term t, 
+    Term.size_of_term t)
+  val res = map comp tests;
+in
+  val _ = @{assert} (res = 
+     [(3, 3, 4, 5), 
+      (2, 2, 2, 2), 
+      (4, 4, 5, 5), 
+      (3, 3, 3, 3), 
+      (6, 6, 6, 6), 
+      (1, 1, 1, 1),
+      (7, 7, 7, 7)])
+end
+
+fun opt_print_unsolved_tac opt msg ctxt st = 
+  if opt ctxt andalso Thm.nprems_of st > 0 then print_tac ctxt msg st else all_tac st 
+
+val print_unsolved_tac = opt_print_unsolved_tac (K true)
+
+structure HoarePackage = Hoare
+
+structure More_Local_Theory =
+struct
+
+
+fun gen_in_theory_result transfer_data f lthy =
+  let
+    val (reinit, thy) = Named_Target.exit_global_reinitialize lthy
+  in
+    f thy ||> reinit ||> transfer_data lthy
+  end
+
+
+fun gen_in_theory transfer_data f lthy =
+  let
+    val (reinit, thy) = Named_Target.exit_global_reinitialize lthy
+  in
+    f thy |> reinit |> transfer_data lthy
+  end
+
+end
+
+
+
+structure Utils = 
+struct
+open Utils
+
+fun symmetric ctxt thm = fst (Thm.apply_attribute Calculation.symmetric thm (Context.Proof ctxt))
+
+fun define_theory_target arg lthy =
+  let
+    val _ = @{assert} (Named_Target.is_theory lthy)
+    (* Define the constant. *)
+    (* The begin_nested / end_nested block removes hypothesis 
+     * Free def_name \<equiv> Const global_const from the lthy 
+     *)
+    val ((lhs, (_, thm)), lthy) = lthy |> Local_Theory.begin_nested |> snd |>
+        Local_Theory.define arg
+    val export = Local_Theory.target_morphism lthy 
+  in
+    ((Morphism.term export lhs, Morphism.thm export thm), Local_Theory.end_nested lthy)
+  end
+
+fun split_conj thm =
+  split_conj (thm RS @{thm conjunct1}) @ split_conj (thm RS @{thm conjunct2})
+  handle THM _ => [thm]
+
+fun first_match [] t = raise Match
+  | first_match (f::fs) t = f t handle Match => first_match fs t
+
+fun add_match g f = first_match [g, f];
+ 
+fun fast_eq eq (x, y) = pointer_eq (x, y) orelse eq (x, y)
+fun fast_merge merge (x, y) = if pointer_eq (x, y) then x else merge (x, y)
+
+fun distinct_strs xs =
+ let
+   fun dist seen [] = []
+     | dist seen (x::xs) = 
+         let val seen' = Symtab.insert (K false) (x, ()) seen 
+         in
+           x :: dist seen' xs
+         end
+         handle Symtab.DUP _ => dist seen xs
+ in
+   dist Symtab.empty xs
+ end
+
+fun ord_like_list eq xs (x, y) = int_ord (find_index (curry eq x) xs, find_index (curry eq y) xs)
+fun sort_like_list eq xs = sort (ord_like_list eq xs)
+
+(*
+ * Catch-all for invalid inputs: Instead of raising MATCH, describe what
+ * the invalid input was.
+ *)
+exception InvalidInput of string;
+fun invalid_typ s (t : typ) =
+    raise InvalidInput ("Expected " ^ s ^ ", but got '" ^ Protocol_Message.clean_output (@{make_string} t) ^ "'")
+fun invalid_term s (t : term) =
+    raise InvalidInput ("Expected " ^ s ^ ", but got '" ^ Protocol_Message.clean_output (@{make_string} t) ^ "'")
+fun invalid_term' ctxt s (t : term) =
+    raise InvalidInput ("Expected " ^ s ^ ", but got '" ^ Protocol_Message.clean_output (Pretty.string_of (Syntax.pretty_term ctxt t)) ^ "'")
+fun invalid_input s t =
+    raise InvalidInput ("Expected " ^ s ^ ", but got '" ^ Protocol_Message.clean_output t ^ "'")
+
+(*
+ * Decoding and parsing Isabelle terms into ML terms.
+ *)
+
+(* Decode a list. *)
+fun decode_isa_list t =
+  HOLogic.dest_list t handle TERM _ => invalid_term "isabelle list" t
+
+(* Encode a list. *)
+fun encode_isa_list T xs = HOLogic.mk_list T xs
+
+(* Decode a chracter. *)
+fun decode_isa_char t =
+  Char.chr (HOLogic.dest_char t) handle TERM _ => invalid_term "isabelle char" t
+
+(* Encode a character. *)
+fun encode_isa_char t = HOLogic.mk_char (Char.ord t)
+
+(* Decode a string. *)
+fun decode_isa_string t =
+  decode_isa_list t
+  |> map decode_isa_char
+  |> String.implode
+
+(* Encode a string. *)
+fun encode_isa_string s =
+  String.explode s
+  |> map encode_isa_char
+  |> encode_isa_list @{typ char}
+
+(* Transform an ML list of strings into an isabelle list of strings. *)
+fun ml_str_list_to_isa s =
+  map encode_isa_string s
+  |> encode_isa_list @{typ "string"}
+
+(* Transform an isabelle list of strings into an ML list of strings. *)
+fun isa_str_list_to_ml t =
+  decode_isa_list t
+  |> map decode_isa_string
+
+(* Printing of rules with optional name links *)
+fun pretty_rule ctxt thm =
+  let
+    val prule = Thm.pretty_thm ctxt thm
+  in
+    case Properties.get (Thm.get_tags thm) Markup.nameN of
+      NONE => prule
+    | SOME name => Pretty.block [
+        Pretty.marks_str (Proof_Context.markup_extern_fact ctxt name), 
+        Pretty.str ": ", 
+        prule]
+  end
+
+val string_of_rule = Pretty.string_of oo pretty_rule
+
+fun split_path p =
+  let
+    fun split_single p = [Path.dir p, Path.base p] handle ERROR _ => [p]
+    fun split p ps = 
+      case split_single p of
+        [dir, base] => split dir (base :: ps)
+      | ps' => ps' @ ps  
+  in
+    split p []
+  end
+
+fun implode_path [] = Path.root
+  | implode_path ps = foldl1 (uncurry Path.append) ps
+
+fun make_relative p =
+  if Path.is_absolute p then
+    split_path p |> filter_out (fn p => p = Path.root) |> implode_path
+  else p
+         
+fun sanitized_path thy tmp_dir orig_path =
+  let
+    val master_dir = Resources.master_directory thy
+  in
+     Path.append tmp_dir 
+       (make_relative (Path.append (Path.expand master_dir) orig_path))
+  end
+
+
+fun dest_nat_or_number t =
+  case try HOLogic.dest_number t of
+     SOME (_, n) => n
+   | NONE => HOLogic.dest_nat t
+
+fun eta_redex t =
+  let
+    fun eta bs (Abs (_, _, b)) = eta (Bound (length bs) :: bs) b
+      | eta bs (t as (_ $ _ )) = (case strip_comb t of
+         (head, args) => if is_prefix (op =) (rev bs) (rev args)
+           then (true, list_comb (head, (rev (drop (length bs) (rev args)))))
+           else (false, t))
+      | eta _ t = (false, t)
+  in case eta [] t of
+       (true, x) => (true, x)
+     | (false, _) => (false, t)
+  end
+
+fun norm_eta (t as Abs _) =
+      (case eta_redex t of (true, t') => (true, snd (norm_eta t')) | _ => (false, t))
+  | norm_eta (t as (t1 $ t2)) =
+      let
+        val (b1, t1') = norm_eta t1
+        val (b2, t2') = norm_eta t2
+        val b = b1 orelse b2
+      in if b then (b, t1' $ t2') else (false, t) end
+  | norm_eta t = (false, t)
+
+val cterm_eq = is_equal o Thm.fast_term_ord
+
+val trivial_eq = Match_Cterm.switch [
+  @{cterm_match \<open>Trueprop (?lhs = ?rhs)\<close>} #> (fn {lhs, rhs,...} => 
+     cterm_eq (lhs, rhs)), 
+  (fn _ => false)]
+
+val trivial_meta_eq = Match_Cterm.switch [
+  @{cterm_match \<open>(?lhs \<equiv> ?rhs)\<close>} #> (fn {lhs, rhs,...} => 
+     cterm_eq (lhs, rhs)), 
+  (fn _ => false)]
+
+val trivial_eq_thm = Thm.cconcl_of #> trivial_eq
+
+val trivial_meta_eq_thm = Thm.cconcl_of #> trivial_meta_eq
+
+val _ = Theory.setup
+  (ML_Antiquotation.inline \<^binding>\<open>assert_msg\<close>
+    (Scan.succeed "(fn b => fn msg => if b then () else raise General.Fail (msg ()))"))
+
+val eq_TrueD = @{lemma  "P \<equiv> True \<Longrightarrow> P" by blast}
+val eq_FalseD = @{lemma "P \<equiv> False \<Longrightarrow> \<not> P" by blast}
+
+fun dest_bool_eq eq =
+  (try (fn eq => (eq_TrueD OF [eq])) eq |> the_list) @
+  (try (fn eq => (eq_FalseD OF [eq])) eq |> the_list)
+
+val dest_bool_eqs = maps dest_bool_eq
+
+val is_iarith = Match_Cterm.switch [
+  @{cterm_match "Trueprop ((?m::'a::linordered_nonzero_semiring) < ?n)" } #> (fn _ => true),
+  @{cterm_match "Trueprop ((?m::'a::linordered_nonzero_semiring) \<le> ?n)" } #> (fn _ => true),
+  @{cterm_match "Trueprop ((?m::'a::linordered_nonzero_semiring) = ?n)" } #> (fn _ => true),
+  @{cterm_match "Trueprop (\<not> (?m::'a::linordered_nonzero_semiring) < ?n)" } #> (fn _ => true),
+  @{cterm_match "Trueprop (\<not> (?m::'a::linordered_nonzero_semiring) \<le> ?n)" } #> (fn _ => true),
+  @{cterm_match "Trueprop (\<not> (?m::'a::linordered_nonzero_semiring) = ?n)" } #> (fn _ => true),
+  fn _ => false
+]
+
+val iariths_of_eqs = dest_bool_eqs #> filter (is_iarith o Thm.cprop_of)
+
+fun add_ariths thms ctxt = 
+  let
+    val _ = Utils.verbose_msg 5 ctxt (fn _ => ("adding ariths:\n "  ^ string_of_thms ctxt thms))
+  in
+    ctxt |> Context.proof_map (
+      fold (Named_Theorems.add_thm @{named_theorems arith}) thms)
+  end
+
+fun fold_opt f []     a = NONE
+  | fold_opt f [x]    a = f x a
+  | fold_opt f (x::xs) a = 
+      (case f x a of
+         SOME y => SOME (the_default y (fold_opt f xs y))
+       | NONE   => fold_opt f xs a)
+
+fun fold_subterms_open f t x =
+  (case f t x of
+     SOME y => SOME y
+   | NONE => (case t of 
+                Abs (_, T, t') => fold_subterms_open f t' x
+              | (_ $ _) => 
+                  let
+                    val (head, args) = strip_comb t
+                  in x |> fold_opt (fold_subterms_open f) (head::args) end
+              | _ => NONE))
+
+end
+
+
