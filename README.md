@@ -9,7 +9,9 @@
 | [archive.html](archive.html) | Maths | Archive of mathematical content |
 | [publication.html](publication.html) | Geometric dynamical phase transitions | Canonical paper: path-closures, Euler–Maclaurin remainder, spectral measures |
 | [proof.html](proof.html) | Proof of the Riemann Hypothesis | Pointer to `publication.html` |
-| [gaps.html](gaps.html) | Gap inventory | Sidecar checklist; closures are in the publication changelog |
+| [gaps.html](gaps.html) | Gap inventory | Sidecar checklist; closures are in the publication changelog; Identity L is open |
+| [todo.md](todo.md) | Strengthening list | Open work on the strip conversion; Identity L is the RH obstruction |
+| [viz.html](viz.html) | Nested spheres visualisation | Interactive Three.js fibres, Hausdorff tube, Hilbert zoom |
 
 ---
 

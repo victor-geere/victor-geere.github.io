@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nested spheres — Hausdorff sampling and Hilbert zoom</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)'], ['$', '$']],
+    displayMath: [['\\[', '\\]'], ['$$', '$$']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root {
+    --text:#e8eef5; --muted:#9aa8b8; --accent:#8ec5ff; --panel:#0b1220ee;
+    --border:#243044; --paper:#9ec5e8;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:#05070c; color:var(--text);
+    font-family:"Latin Modern Roman","Computer Modern","Times New Roman",Times,serif; }
+  canvas { display:block; }
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:4;
+    display:flex; flex-wrap:wrap; gap:1.2rem; align-items:center;
+    padding:0.7rem 1.2rem; background:linear-gradient(180deg,#05070cf0,#05070c00);
+    font-size:0.92rem;
+  }
+  nav a { color:var(--accent); text-decoration:none; font-weight:500; }
+  nav a:hover { text-decoration:underline; }
+  nav a.current { color:var(--muted); pointer-events:none; }
+  #hud {
+    position:fixed; top:3.2rem; right:0.8rem; width:min(420px, calc(100vw - 1.4rem));
+    max-height:calc(100vh - 4.2rem); overflow:auto; z-index:3;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:1rem 1.1rem 1.2rem; backdrop-filter:blur(10px);
+  }
+  h1 { font-size:1.22rem; margin:0 0 0.25rem; color:#dcecff; font-weight:700; }
+  .sub { color:var(--muted); font-style:italic; margin:0 0 0.9rem; font-size:0.95rem; }
+  h2 { font-size:1.02rem; margin:1rem 0 0.4rem; color:#bcd3ea; border-bottom:1px solid var(--border); padding-bottom:0.25rem; }
+  p, li { font-size:0.92rem; line-height:1.5; color:#d5deea; }
+  p { margin:0.45rem 0; text-align:left; }
+  a { color:var(--accent); }
+  .readout {
+    font-family:ui-monospace,monospace; font-size:0.82rem; background:#070b14;
+    border:1px solid var(--border); border-radius:6px; padding:0.55rem 0.7rem; margin:0.6rem 0;
+    color:#c7e0a6;
+  }
+  .readout div { display:flex; justify-content:space-between; gap:0.8rem; margin:0.15rem 0; }
+  .readout span.k { color:#8aa0b8; }
+  .controls { display:grid; grid-template-columns:108px 1fr 48px; gap:0.28rem 0.5rem; align-items:center; margin:0.6rem 0; }
+  .controls label { font-size:0.82rem; color:var(--muted); }
+  .controls input[type=range] { width:100%; }
+  .controls .val { font-family:ui-monospace,monospace; font-size:0.78rem; color:#cfe3ff; text-align:right; }
+  .toggles { display:flex; flex-wrap:wrap; gap:0.45rem 0.9rem; margin:0.4rem 0 0.7rem; font-size:0.84rem; }
+  .toggles label { color:#c5d4e4; display:flex; gap:0.35rem; align-items:center; cursor:pointer; }
+  .note { font-size:0.84rem; color:var(--muted); }
+  .lemma {
+    border-left:3px solid #3d7ab5; background:#0e1624; padding:0.55rem 0.75rem; margin:0.55rem 0;
+    font-size:0.86rem;
+  }
+  .warn { color:#e7c27a; }
+  #hint { position:fixed; left:1rem; bottom:0.8rem; z-index:3; color:#7d8ea3; font-size:0.82rem; }
+  @media (max-width:820px) {
+    #hud { position:relative; top:auto; right:auto; width:auto; max-height:none; margin:3.4rem 0.6rem 0; }
+    #hint { position:relative; left:auto; bottom:auto; padding:0.4rem 1rem 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a href="publication.html">Publication</a>
+  <a href="gaps.html">Gaps</a>
+  <a href="maths/nested_spheres_RH.html">Nested Spheres</a>
+  <a href="maths/continuous_cone_RH_solution.html">Continuous Cone</a>
+  <a href="viz.html" class="current">Visualisation</a>
+</nav>
+
+<div id="hud">
+  <h1>Nested spheres</h1>
+  <p class="sub">\(\operatorname{Re}\eta\), \(\operatorname{Im}\eta\), \(t=\operatorname{Im}s\)</p>
+
+  <div class="controls">
+    <label for="n">\(N\)</label>
+    <input id="n" type="range" min="3" max="16" step="1" value="6">
+    <div class="val" id="nVal">6</div>
+    <label for="polys">polygons</label>
+    <input id="polys" type="range" min="3" max="36" step="1" value="8">
+    <div class="val" id="polysVal">8</div>
+    <label for="gen">generations</label>
+    <input id="gen" type="range" min="1" max="4" step="1" value="3">
+    <div class="val" id="genVal">3</div>
+    <label for="sigma">\(\sigma=\mathrm{Re}\,s\)</label>
+    <input id="sigma" type="range" min="0.35" max="0.70" step="0.01" value="0.50">
+    <div class="val" id="sigmaVal">0.50</div>
+    <label for="t">\(t\)</label>
+    <input id="t" type="range" min="0" max="40" step="0.05" value="14.13">
+    <div class="val" id="tVal">14.13</div>
+    <label for="zoom">Hilbert zoom</label>
+    <input id="zoom" type="range" min="0" max="1" step="0.01" value="0">
+    <div class="val" id="zoomVal">0.00</div>
+    <label for="open">open lid</label>
+    <input id="open" type="range" min="0" max="1" step="0.01" value="0">
+    <div class="val" id="openVal">0.00</div>
+  </div>
+  <div class="toggles">
+    <label><input id="showSpheres" type="checkbox" checked> nested \(S_N\) shells</label>
+    <label><input id="showMesh" type="checkbox"> sphere mesh</label>
+    <label><input id="showTube" type="checkbox" checked> Hausdorff tube</label>
+    <label><input id="showPath" type="checkbox" checked> Dirichlet \(\eta\)-path</label>
+    <label><input id="showCurve" type="checkbox" checked> \(\eta(\sigma+it)\) vs \(t\)</label>
+    <label><input id="showCantor" type="checkbox" checked> term-polygons</label>
+    <label><input id="showAxes" type="checkbox" checked> Re, Im, \(t\) axes</label>
+    <label><input id="spin" type="checkbox"> rotate</label>
+  </div>
+
+  <div class="readout" id="out"></div>
+
+  <h2>Coordinates</h2>
+  <p>Publication Definition&nbsp;3.1: the polygonal path lives in \(\mathbb{C}\). The height of \(s=\sigma+it\) is the remaining axis. World coordinates are therefore</p>
+  \[
+  x=\operatorname{Re}\eta,\qquad y=t=\operatorname{Im}s,\qquad z=\operatorname{Im}\eta.
+  \]
+  <p>Ticks at \(0\), \(0.5\) and \(1\) sit on all three axes. The first term \(1^{-s}=1\) is at \(\operatorname{Re}=1\).
+  A non-trivial zero of \(\zeta\) (hence of \(\eta\) and of \(\xi\)) sends \(\eta(s)\) to the origin of \(\mathbb{C}\), so the endpoint lies on the \(t\)-axis at that height — that is what “sits at zero” means.
+  The slider \(\sigma=\operatorname{Re}s\) is the strip abscissa, not a spatial axis; the critical line is \(\sigma=\tfrac12\).
+  The nested globe is the unit-diameter fibre in this same \(\mathbb{C}\): hinged at \(0\), centre at \(\tfrac12\), far pole at \(1\), translated to the current height \(t\).</p>
+
+  <h2>What is drawn</h2>
+  <p>Each translucent globe is a three-sphere fibre, drawn as an \(S^2\subset\mathbb{R}^3\) stand-in for the Hopf fibre
+  \(\mathrm{Sp}(1)\hookrightarrow S^{11}\to\mathbb{HP}^2\) of
+  <a href="maths/nested_spheres_RH.html">nested_spheres_RH.html</a>, Definition&nbsp;2.1.
+  The <em>polygons</em> slider sets how many term-polygons are drawn. Index \(n=0,1,\dots\) is 0-based, so the \(n\)th polygon has \(n+1\) vertices
+  (Davenport–Heilbronn rotations through the \((n+1)\)-st roots of unity, including the trivial root \(1\)):
+  term \(n=0\) is \(1^{-s}=1\), a single point at \(1+0i\) with its \(\mathrm{Sp}(1)\) orbit (the unit great circle) running through it;
+  \(n=1\) is a \(2\)-gon (a line, rotation \(\pi\)) likewise carrying its orbit; \(n=2\) a triangle, and so on.
+  The sphere is a book hinged at the origin (the spine is the imaginary axis through \(0\)).
+Each equatorial disk passes through \(0\); the first term’s centre is \(1+0i\).
+At \(90^\circ\) the two covers form an L at the origin; at \(180^\circ\) they lie flat, equators on the real line, tangent at \(0\) — a figure&nbsp;8 from above.
+The globe is a ball of diameter \(1\), hinged at the origin, centre at \(0.5\). Term \(0\) (the \(1\)-gon) sits at \(1+0i\), the far pole opposite the hinge. Every later \(n\)-gon is chords of a concentric circle about that same centre, with radius \(0.5\,n^{-\sigma}\) (later terms smaller). Pages fan equally in angle between the covers. Sphere-mesh (off by default) is the wireframe; nested \(S_N\) keeps the translucent shells.
+  The nested-spheres note writes the rotations as \(2\pi k/N\) for \(k=1,\dots,N-1\) — the <em>non-trivial</em> \(N\)th roots used in the mean-zero filter.
+  Including \(k=0\) recovers the vertex at \(1\) and a complete \(N\)-gon.
+  Later terms sit on <em>smaller</em> shells. The unwrapped phase \(\lvert t\rvert\log n\) grows, but that is not the size of the term.
+  The term \(n^{-s}\) has modulus \(n^{-\sigma}\) (the step length in the polygonal path) and consecutive-phase
+  \(\Delta\arg=-t\log(1+1/n)\approx -t/n\), both decreasing in \(n\); the Davenport–Heilbronn turn is \(2\pi/n\), also decreasing.
+  The nested-spheres note scales fibre radii by \(N^{-1}\). Here
+  \(r_n=\lvert n^{-s}\rvert=n^{-\sigma}\),
+  so \(n=1\) is the point at \(1+0i\) on the unit circle, and later \(n\)-gons nest inside it. The polygon is still rotated by \(\arg(n^{-s})=-t\log n\).</p>
+
+  <h2>Dirichlet \(\eta\)-path</h2>
+  <p>The red polyline is Dirichlet eta, not zeta and not the paper’s mean-zero filter
+  \(\eta_N^{(N^2)}\). With truncation \(M=N^2\),</p>
+  \[
+  \eta_M(s)=\sum_{m=1}^{M}(-1)^{m-1}\,m^{-s}.
+  \]
+  <p>Vertex \(n\) is the partial sum through term \(n\): it starts at the first term \(1^{-s}=1+0i\)
+  (gold), odd terms are added, even terms are subtracted (the \(+-\,+-\) Dirichlet signs).
+  The identity \(\eta(s)=(1-2^{1-s})\zeta(s)\) holds wherever the series make sense, and
+  \(1-2^{1-s}\neq 0\) at the non-trivial zeros of \(\zeta\) (equivalently of \(\xi\)),
+  so those zeros are zeros of \(\eta\). The partial-sum polyline is drawn in the plane of the
+  current height \(t\), starting at \((1,t,0)\) and ending at \((\operatorname{Re}\eta_M,\,t,\,\operatorname{Im}\eta_M)\).
+  At a zero that endpoint is the origin of \(\mathbb{C}\), i.e. the point \((0,t,0)\) on the \(t\)-axis.
+  The cyan curve is the same endpoint as a function of height, \(u\mapsto\eta_M(\sigma+iu)\),
+  so it meets the \(t\)-axis at the zeros. Off a zero both miss the axis. Default \(t\approx 14.13\)
+  is the first critical-line ordinate, a convenient check, not a proof of RH.</p>
+
+  <h2>Hausdorff distance, not Hausdorff dimension</h2>
+  <p>The tweet that suggested the look interpolates <em>Hausdorff dimension</em> from a globe \(G_n\) to \(G_{n+1}\) by a Cantor contraction.
+  The paper uses a different Hausdorff quantity: the <em>Hausdorff distance</em> on the fibre between two compact sets \(A,B\),</p>
+  \[
+  d_H(A,B)=\max\Bigl\{\sup_{a\in A}\mathrm{dist}(a,B),\;\sup_{b\in B}\mathrm{dist}(b,A)\Bigr\}.
+  \]
+  <div class="lemma">
+    Nested-spheres Lemma&nbsp;3.2 / publication Lemma&nbsp;4.3.3:
+    \(d_H(\text{\(N\)-gon},\,\text{complete curve})=O(N^{-1})\)
+    uniformly in the height \(t\), because each edge subtends an angle \(O(N^{-1})\) on a fibre of radius \(O(1)\).
+    Here the \(n\)th term-polygon is the regular \((n+1)\)-gon of \((n+1)\)st roots of unity, so the same bound reads \(O(1/(n+1))\) on that shell.
+  </div>
+  <p>The cyan tube is that \(O(N^{-1})\) neighbourhood. If the polygon lies in the tube, the sampled path has not left the complete curve
+  by more than the lemma allows. For a regular \(N\)-gon inscribed in a circle of radius \(R\) the exact distance is the sagitta
+  \(R\bigl(1-\cos(\pi/N)\bigr)\), which is \(O(N^{-2})\); the paper quotes the coarser angular bound \(O(N^{-1})\).</p>
+  <p>Nested spheres themselves meet at the origin as \(N\to\infty\). That intersection is a point (Hausdorff dimension \(0\)),
+  while each fibre curve has dimension \(1\). Dimension of the limit set is not used in the theorems; distance of approximating curves is.</p>
+
+  <h2>Hilbert zoom</h2>
+  <p>Publication Lemma&nbsp;4.3.4: granularity \(N^{-1}\) is the Hilbert cell size; the tightness window
+  \(\lvert t\rvert\le N^{1/2-\varepsilon}\) is the unit interval; the canonical rescaling is the DQPT depth
+  \(D_N=N^{1/2-\varepsilon}\). The slider scales the nested family the way Hilbert polygons zoom toward a point of convergence.
+  Collapse of the zoomed endpoint to the origin is a balanced path-closure. Identity&nbsp;L is non-degeneracy of that zoom off the critical line;
+  Euler–Maclaurin still predicts extra collapses in the band \(\sigma\in(\tfrac14,\tfrac12)\).</p>
+  <p class="note">Hilbert zoom scales the nested \(S_N\) fibres about the origin of \(\mathbb{C}\) at the current \(t\).
+  The red path and the cyan height curve stay in unscaled \(\mathbb{C}\times\mathbb{R}\), so that \(0\), \(0.5\) and \(1\) do not move.</p>
+  <p class="note">First ordinate \(\gamma_1\approx 14.13\) is a convenient height, not a proof of RH.
+  <a href="publication.html#identity-l">Identity L</a> ·
+  <a href="publication.html">publication.html</a> ·
+  <a href="maths/nested_spheres_RH.html">nested spheres</a></p>
+</div>
+<div id="hint">drag to orbit · \(x=\mathrm{Re}\,\eta\) · \(y=t\) · \(z=\mathrm{Im}\,\eta\) · zeros sit on the \(t\)-axis</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const canvasWrap = document.body;
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x05070c, 1);
+canvasWrap.appendChild(renderer.domElement);
+Object.assign(renderer.domElement.style, { position:'fixed', inset:'0', zIndex:'0' });
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(48, innerWidth/innerHeight, 0.02, 4000);
+camera.position.set(3.6, 16.2, 5.2);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.target.set(0.5, 14.13, 0);
+controls.minDistance = 0.12;
+controls.maxDistance = 120;
+
+scene.add(new THREE.AmbientLight(0x6a7c96, 0.55));
+const key = new THREE.DirectionalLight(0xe8f2ff, 1.15);
+key.position.set(4, 6, 3);
+scene.add(key);
+const rim = new THREE.PointLight(0x3df0c0, 1.4, 80);
+rim.position.set(-3, 16, -2);
+scene.add(rim);
+const warm = new THREE.PointLight(0xffb347, 0.7, 80);
+warm.position.set(2, 13, 3);
+scene.add(warm);
+
+const root = new THREE.Group();
+scene.add(root);
+
+const pal = [0x7ed957, 0x4ecdc4, 0xf5a623, 0xc084fc, 0xf1c40f, 0x5dade2];
+const T_MAX = 40;
+const ZETA_ZEROS = [14.134725, 21.022040, 25.010858, 30.424876, 32.935062, 37.586178];
+
+function etaM(N) {
+  return Math.max(N * N, 800);
+}
+
+function etaEndpoint(M, sigma, t) {
+  let re = 0, im = 0;
+  for (let m = 1; m <= M; m++) {
+    const c = (m % 2 === 1) ? 1 : -1;
+    const mag = Math.pow(m, -sigma);
+    const ang = -t * Math.log(m);
+    re += c * mag * Math.cos(ang);
+    im += c * mag * Math.sin(ang);
+  }
+  return { re, im, mag: Math.hypot(re, im) };
+}
+
+function etaPartial(M, sigma, t) {
+  let re = 0, im = 0;
+  const pts = [];
+  for (let m = 1; m <= M; m++) {
+    const c = (m % 2 === 1) ? 1 : -1;
+    const mag = Math.pow(m, -sigma);
+    const ang = -t * Math.log(m);
+    re += c * mag * Math.cos(ang);
+    im += c * mag * Math.sin(ang);
+    pts.push(new THREE.Vector3(re, t + 0.03, im));
+  }
+  return { pts, re, im, mag: Math.hypot(re, im) };
+}
+
+function makeLabel(text, color = '#dcecff', scaleX = 0.55) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = color;
+  ctx.font = 'bold 36px "Times New Roman", Times, serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 8, 32);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+  spr.scale.set(scaleX, scaleX * 0.25, 1);
+  spr.center.set(0, 0.5);
+  return spr;
+}
+
+function prefactor(N, sigma, t) {
+  const mag = Math.pow(N, 1 - sigma);
+  const ang = -t * Math.log(N);
+  const re = 1 - mag * Math.cos(ang);
+  const im = -mag * Math.sin(ang);
+  return Math.hypot(re, im);
+}
+
+function hausdorffCircle(N, R) {
+  return R * (1 - Math.cos(Math.PI / N));
+}
+
+function makeCircle(R, segs, y=0) {
+  const pts = [];
+  for (let i = 0; i <= segs; i++) {
+    const a = 2 * Math.PI * i / segs;
+    pts.push(new THREE.Vector3(R * Math.cos(a), y, R * Math.sin(a)));
+  }
+  return pts;
+}
+
+function lineFrom(pts, color, width=1.5) {
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  const m = new THREE.LineBasicMaterial({ color, transparent:true, opacity:0.95 });
+  const L = new THREE.Line(g, m);
+  L.userData.width = width;
+  return L;
+}
+
+const fibreGroup = new THREE.Group();
+const pathGroup = new THREE.Group();
+const hingeRoot = new THREE.Group();
+const axesGroup = new THREE.Group();
+const curveGroup = new THREE.Group();
+const zerosGroup = new THREE.Group();
+const sliceGrid = new THREE.Group();
+root.add(fibreGroup);
+root.add(pathGroup);
+root.add(hingeRoot);
+root.add(axesGroup);
+root.add(curveGroup);
+root.add(zerosGroup);
+root.add(sliceGrid);
+const termRisers = [];
+let lastT = 14.13;
+let curveKey = '';
+
+function tickMark(origin, dir, color) {
+  const a = origin.clone().add(dir.clone().multiplyScalar(-0.06));
+  const b = origin.clone().add(dir.clone().multiplyScalar(0.06));
+  return lineFrom([a, b], color);
+}
+
+function buildAxes() {
+  clear(axesGroup);
+  const reC = 0xff6b6b, imC = 0x7ed957, tC = 0x6ec6ff;
+  axesGroup.add(lineFrom([new THREE.Vector3(-0.4, 0, 0), new THREE.Vector3(1.6, 0, 0)], reC));
+  axesGroup.add(lineFrom([new THREE.Vector3(0, 0, -1.6), new THREE.Vector3(0, 0, 1.6)], imC));
+  axesGroup.add(lineFrom([new THREE.Vector3(0, -0.4, 0), new THREE.Vector3(0, T_MAX + 1.2, 0)], tC));
+  const reLab = makeLabel('Re', '#ff8a8a', 0.7);
+  reLab.position.set(1.65, 0.05, 0);
+  axesGroup.add(reLab);
+  const imLab = makeLabel('Im', '#9ae07a', 0.7);
+  imLab.position.set(0.08, 0.05, 1.65);
+  axesGroup.add(imLab);
+  const tLab = makeLabel('t', '#9ed4ff', 0.55);
+  tLab.position.set(0.08, T_MAX + 1.3, 0);
+  axesGroup.add(tLab);
+  for (const v of [0.5, 1]) {
+    axesGroup.add(tickMark(new THREE.Vector3(v, 0, 0), new THREE.Vector3(0, 1, 0), reC));
+    axesGroup.add(tickMark(new THREE.Vector3(0, 0, v), new THREE.Vector3(0, 1, 0), imC));
+    axesGroup.add(tickMark(new THREE.Vector3(0, 0, -v), new THREE.Vector3(0, 1, 0), imC));
+    axesGroup.add(tickMark(new THREE.Vector3(0, v, 0), new THREE.Vector3(1, 0, 0), tC));
+    const rx = makeLabel(String(v), '#ffb0b0', 0.4);
+    rx.position.set(v + 0.02, -0.12, 0.02);
+    axesGroup.add(rx);
+    const iz = makeLabel(String(v), '#b6f0a0', 0.4);
+    iz.position.set(0.04, -0.12, v);
+    axesGroup.add(iz);
+    const izn = makeLabel('−' + v, '#b6f0a0', 0.4);
+    izn.position.set(0.04, -0.12, -v);
+    axesGroup.add(izn);
+    const ty = makeLabel(String(v), '#b8e0ff', 0.4);
+    ty.position.set(0.1, v, 0.02);
+    axesGroup.add(ty);
+  }
+  for (const v of [10, 20, 30, 40]) {
+    axesGroup.add(tickMark(new THREE.Vector3(0, v, 0), new THREE.Vector3(1, 0, 0), tC));
+    const ty = makeLabel(String(v), '#b8e0ff', 0.45);
+    ty.position.set(0.12, v, 0.04);
+    axesGroup.add(ty);
+  }
+  const zeroLab = makeLabel('0', '#e8eef5', 0.35);
+  zeroLab.position.set(0.06, -0.16, 0.06);
+  axesGroup.add(zeroLab);
+}
+
+function buildZeroMarkers() {
+  clear(zerosGroup);
+  ZETA_ZEROS.forEach((g, i) => {
+    const dot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.06, 14, 12),
+      new THREE.MeshBasicMaterial({ color: 0xfff6c2 })
+    );
+    dot.position.set(0, g, 0);
+    zerosGroup.add(dot);
+    const lab = makeLabel('γ' + (i + 1) + '  t=' + g.toFixed(2), '#fff6c2', 0.9);
+    lab.position.set(0.12, g, 0.08);
+    zerosGroup.add(lab);
+  });
+}
+
+function buildSliceGrid(t) {
+  clear(sliceGrid);
+  const faint = 0x3a4a60;
+  const reC = 0xff6b6b;
+  const imC = 0x7ed957;
+  const tC = 0x6ec6ff;
+  sliceGrid.add(lineFrom([new THREE.Vector3(-0.3, t, 0), new THREE.Vector3(1.55, t, 0)], reC));
+  sliceGrid.add(lineFrom([new THREE.Vector3(0, t, -1.35), new THREE.Vector3(0, t, 1.35)], imC));
+  for (const x of [0.5, 1]) {
+    sliceGrid.add(lineFrom([new THREE.Vector3(x, t, -1.2), new THREE.Vector3(x, t, 1.2)], faint));
+    sliceGrid.add(tickMark(new THREE.Vector3(x, t, 0), new THREE.Vector3(0, 0, 1), reC));
+    const lab = makeLabel(String(x), '#ffb0b0', 0.48);
+    lab.position.set(x - 0.05, t + 0.05, -0.72);
+    sliceGrid.add(lab);
+  }
+  for (const z of [-1, -0.5, 0.5, 1]) {
+    sliceGrid.add(lineFrom([new THREE.Vector3(-0.2, t, z), new THREE.Vector3(1.2, t, z)], faint));
+    sliceGrid.add(tickMark(new THREE.Vector3(0, t, z), new THREE.Vector3(1, 0, 0), imC));
+    const lab = makeLabel((z < 0 ? '−' : '') + Math.abs(z), '#b6f0a0', 0.48);
+    lab.position.set(-0.55, t + 0.05, z - 0.04);
+    sliceGrid.add(lab);
+  }
+  const reLab = makeLabel('Re', '#ff8a8a', 0.6);
+  reLab.position.set(1.58, t + 0.06, 0.04);
+  sliceGrid.add(reLab);
+  const imLab = makeLabel('Im', '#9ae07a', 0.6);
+  imLab.position.set(0.08, t + 0.06, 1.4);
+  sliceGrid.add(imLab);
+  const tLab = makeLabel('t = ' + t.toFixed(2), '#9ed4ff', 0.75);
+  tLab.position.set(0.16, t + 0.72, 0.04);
+  sliceGrid.add(tLab);
+  sliceGrid.add(tickMark(new THREE.Vector3(0, t, 0), new THREE.Vector3(1, 0, 0), tC));
+  sliceGrid.add(lineFrom([new THREE.Vector3(-0.14, t, 0), new THREE.Vector3(0.14, t, 0)], 0xe8eef5));
+  sliceGrid.add(lineFrom([new THREE.Vector3(0, t, -0.14), new THREE.Vector3(0, t, 0.14)], 0xe8eef5));
+  const origin = makeLabel('0', '#e8eef5', 0.32);
+  origin.position.set(0.08, t - 0.14, 0.08);
+  sliceGrid.add(origin);
+}
+
+function buildHeightCurve(N, sigma) {
+  const key = N + ':' + sigma.toFixed(2);
+  if (key === curveKey) return;
+  curveKey = key;
+  clear(curveGroup);
+  const M = Math.min(etaM(N), 400);
+  const pts = [];
+  const step = 0.1;
+  for (let u = 0; u <= T_MAX + 1e-9; u += step) {
+    const { re, im } = etaEndpoint(M, sigma, u);
+    pts.push(new THREE.Vector3(re, u, im));
+  }
+  curveGroup.add(lineFrom(pts, 0x4ecdc4));
+}
+
+buildAxes();
+buildZeroMarkers();
+
+function clear(g) {
+  const kids = [...g.children];
+  for (const ch of kids) {
+    ch.traverse(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        if (Array.isArray(o.material)) o.material.forEach(mm => mm.dispose());
+        else o.material.dispose();
+      }
+    });
+    g.remove(ch);
+  }
+}
+
+function hemisphereMaterial(color, opacity) {
+  return new THREE.MeshPhysicalMaterial({
+    color, transparent:true, opacity, roughness:0.25, metalness:0.08,
+    side: THREE.DoubleSide, depthWrite:false
+  });
+}
+
+function addHemisphere(parent, radius, color, upper, showMesh) {
+  const thetaStart = upper ? 0 : Math.PI / 2;
+  const geo = new THREE.SphereGeometry(radius, 48, 16, 0, Math.PI * 2, thetaStart, Math.PI / 2);
+  parent.add(new THREE.Mesh(geo, hemisphereMaterial(color, 0.12)));
+  if (showMesh) {
+    parent.add(new THREE.LineSegments(
+      new THREE.WireframeGeometry(new THREE.SphereGeometry(radius, 20, 10, 0, Math.PI * 2, thetaStart, Math.PI / 2)),
+      new THREE.LineBasicMaterial({ color, transparent:true, opacity:0.25 })
+    ));
+  }
+}
+
+function argTerm(m, t) {
+  return m <= 1 ? 0 : -t * Math.log(m);
+}
+
+function radiiFromArgs(K, t, sigma) {
+  const ms = [];
+  const args = [];
+  const radii = [];
+  const verts = [];
+  for (let n = 0; n < K; n++) {
+    const m = n + 1;
+    const v = n + 1;
+    ms.push(m);
+    verts.push(v);
+    args.push(argTerm(m, t));
+    radii.push(Math.max(0.04, Math.pow(m, -sigma)));
+  }
+  return { ms, args, radii, verts };
+}
+
+function addVertexDots(group, pts, color, size) {
+  for (const p of pts) {
+    const dot = new THREE.Mesh(
+      new THREE.SphereGeometry(size, 10, 8),
+      new THREE.MeshBasicMaterial({ color })
+    );
+    dot.position.copy(p);
+    group.add(dot);
+  }
+}
+
+function buildFibres(N, K, generations, t, sigma, showSpheres, showMesh, showTube, showCantor) {
+  clear(fibreGroup);
+  clear(hingeRoot);
+  termRisers.length = 0;
+  const { ms, args, radii, verts } = radiiFromArgs(K, t, sigma);
+  const vertexSize = 0.008;
+  const GLOBE_R = 0.5;
+
+  const bowlPage = new THREE.Group();
+  const bowlInner = new THREE.Group();
+  bowlInner.position.set(GLOBE_R, 0, 0);
+  bowlPage.add(bowlInner);
+  hingeRoot.add(bowlPage);
+  if (showSpheres) addHemisphere(bowlInner, GLOBE_R, pal[0], false, showMesh);
+
+  const lidPage = new THREE.Group();
+  const lidInner = new THREE.Group();
+  lidInner.position.set(GLOBE_R, 0, 0);
+  lidPage.add(lidInner);
+  hingeRoot.add(lidPage);
+  if (showSpheres) addHemisphere(lidInner, GLOBE_R, pal[0], true, showMesh);
+  termRisers.push({ page: lidPage, frac: 1, n: -1, isLid: true });
+  termRisers.push({ page: bowlPage, frac: 0, n: -2, isLid: false });
+
+  for (let n = 0; n < K; n++) {
+    const v = verts[n];
+    const color = pal[n % pal.length];
+    const phase = args[n];
+    const page = new THREE.Group();
+    const inner = new THREE.Group();
+    inner.position.set(GLOBE_R, 0, 0);
+    page.add(inner);
+    hingeRoot.add(page);
+    const frac = K <= 1 ? 1 : (K - 1 - n) / (K - 1);
+    termRisers.push({ page, frac, n, isLid: false });
+
+    if (showSpheres && n > 0) addHemisphere(inner, GLOBE_R, color, true, showMesh);
+
+    const pageDisk = new THREE.Mesh(
+      new THREE.CircleGeometry(GLOBE_R, 64),
+      new THREE.MeshPhysicalMaterial({
+        color, transparent:true, opacity:0.14, roughness:0.45,
+        side: THREE.DoubleSide, depthWrite:false
+      })
+    );
+    pageDisk.rotation.x = -Math.PI / 2;
+    inner.add(pageDisk);
+
+    const m = n + 1;
+    const gR = Math.max(0.02, GLOBE_R * Math.pow(m, -sigma));
+    const orbit = [];
+    for (let i = 0; i <= 160; i++) {
+      const a = 2 * Math.PI * i / 160;
+      orbit.push(new THREE.Vector3(gR * Math.cos(a), 0, gR * Math.sin(a)));
+    }
+    inner.add(lineFrom(orbit, color));
+
+    const pts = [];
+    for (let k = 0; k < v; k++) {
+      const a = phase + 2 * Math.PI * k / v;
+      pts.push(new THREE.Vector3(gR * Math.cos(a), 0.002, gR * Math.sin(a)));
+    }
+
+    if (v === 1) {
+      addVertexDots(inner, [new THREE.Vector3(gR, 0.002, 0)], 0xfff6c2, vertexSize * 1.4);
+    } else if (v === 2) {
+      inner.add(lineFrom(pts, 0xffffff));
+      addVertexDots(inner, pts, color, vertexSize);
+    } else if (showCantor) {
+      inner.add(lineFrom(pts.concat([pts[0].clone()]), 0xffffff));
+      addVertexDots(inner, pts, 0xffffff, vertexSize);
+    }
+
+    const drawTube = showTube && (n === 0 || n === Math.floor(K / 2) || n === K - 1);
+    if (drawTube && v >= 3) {
+      const gonCirc = [];
+      for (let i = 0; i <= 64; i++) {
+        const a = 2 * Math.PI * i / 64;
+        gonCirc.push(new THREE.Vector3(gR * Math.cos(a), 0.002, gR * Math.sin(a)));
+      }
+      inner.add(new THREE.Mesh(
+        new THREE.TubeGeometry(new THREE.CatmullRomCurve3(gonCirc.slice(0, -1), true), 64, Math.max(0.004, gR / Math.max(v, 8)), 8, true),
+        new THREE.MeshPhysicalMaterial({
+          color: 0x4ecdc4, transparent:true, opacity:0.12,
+          roughness:0.3, depthWrite:false, side:THREE.DoubleSide
+        })
+      ));
+    }
+  }
+
+  if (showCantor && generations > 1 && K >= 3 && termRisers.length) {
+    const n = Math.min(K - 1, 12);
+    const pageEntry = termRisers.find(tr => tr.n === n) || termRisers[termRisers.length - 1];
+    const host = pageEntry.page.children[0];
+    const R = radii[n];
+    const v = verts[n];
+    const childR = R / Math.max(v, 2);
+    const color = pal[n % pal.length];
+    for (let depth = 1; depth < generations; depth++) {
+      const rad = childR / Math.pow(Math.max(v, 2), depth - 1);
+      if (rad < 0.02) break;
+      for (let k = 0; k < v; k++) {
+        const a = args[n] + 2 * Math.PI * k / v;
+        const pos = new THREE.Vector3(R * Math.cos(a), 0, R * Math.sin(a));
+        const child = new THREE.Mesh(
+          new THREE.SphereGeometry(rad * 0.92, 14, 10),
+          new THREE.MeshPhysicalMaterial({
+            color, transparent:true, opacity:0.2, roughness:0.2, depthWrite:false
+          })
+        );
+        child.position.copy(pos);
+        host.add(child);
+      }
+    }
+  }
+
+  return { ms, args, radii, verts, globeR: GLOBE_R };
+}
+
+function buildPath(N, sigma, t, eps) {
+  clear(pathGroup);
+  const D = Math.pow(N, 0.5 - eps);
+  const M = etaM(N);
+  const { pts, re, im, mag } = etaPartial(M, sigma, t);
+  const lastStep = Math.pow(M, -sigma);
+  const nearAxis = mag <= Math.max(0.08, 3 * lastStep);
+  const nearOrdinate = ZETA_ZEROS.some(g => Math.abs(t - g) < 0.15);
+  const atZero = nearAxis && Math.abs(sigma - 0.5) < 0.02 && nearOrdinate;
+  const end = pts[pts.length - 1];
+
+  pathGroup.add(lineFrom(pts, 0xff6b6b));
+  const stride = M <= 80 ? 1 : Math.ceil(M / 80);
+  for (let i = 0; i < M; i += stride) {
+    const odd = (i % 2 === 0);
+    const isFirst = i === 0;
+    const size = isFirst ? 0.022 : 0.01;
+    const color = isFirst ? 0xfff6c2 : (odd ? 0xffc857 : 0x6ec6ff);
+    const dot = new THREE.Mesh(
+      new THREE.SphereGeometry(size, 10, 8),
+      new THREE.MeshBasicMaterial({ color })
+    );
+    dot.position.copy(pts[i]);
+    pathGroup.add(dot);
+  }
+  const endDot = new THREE.Mesh(
+    new THREE.SphereGeometry(0.045, 14, 12),
+    new THREE.MeshBasicMaterial({ color: atZero ? 0x7ed957 : 0xff5d73 })
+  );
+  endDot.position.copy(end);
+  pathGroup.add(endDot);
+
+  return { D, mag, end, atZero, M, lastStep, re, im };
+}
+
+const ui = {
+  n: document.getElementById('n'),
+  polys: document.getElementById('polys'),
+  gen: document.getElementById('gen'),
+  sigma: document.getElementById('sigma'),
+  t: document.getElementById('t'),
+  zoom: document.getElementById('zoom'),
+  open: document.getElementById('open'),
+  showSpheres: document.getElementById('showSpheres'),
+  showMesh: document.getElementById('showMesh'),
+  showTube: document.getElementById('showTube'),
+  showPath: document.getElementById('showPath'),
+  showCurve: document.getElementById('showCurve'),
+  showCantor: document.getElementById('showCantor'),
+  showAxes: document.getElementById('showAxes'),
+  spin: document.getElementById('spin'),
+};
+
+function syncLabels() {
+  document.getElementById('nVal').textContent = ui.n.value;
+  document.getElementById('polysVal').textContent = ui.polys.value;
+  document.getElementById('genVal').textContent = ui.gen.value;
+  document.getElementById('sigmaVal').textContent = Number(ui.sigma.value).toFixed(2);
+  document.getElementById('tVal').textContent = Number(ui.t.value).toFixed(2);
+  document.getElementById('zoomVal').textContent = Number(ui.zoom.value).toFixed(2);
+  document.getElementById('openVal').textContent = Number(ui.open.value).toFixed(2);
+}
+
+function followT(t) {
+  const dy = t - lastT;
+  if (Math.abs(dy) < 1e-9) return;
+  camera.position.y += dy;
+  controls.target.set(0.5, t, 0);
+  lastT = t;
+}
+
+function rebuild() {
+  const N = +ui.n.value;
+  const K = +ui.polys.value;
+  const gen = +ui.gen.value;
+  const sigma = +ui.sigma.value;
+  const t = +ui.t.value;
+  const eps = 1 / 8;
+  const fibres = buildFibres(N, K, gen, t, sigma, ui.showSpheres.checked, ui.showMesh.checked, ui.showTube.checked, ui.showCantor.checked);
+  const info = buildPath(N, sigma, t, eps);
+  buildSliceGrid(t);
+  buildHeightCurve(N, sigma);
+  hingeRoot.position.set(0, t, 0);
+  rim.position.set(-3, t + 2, -2);
+  warm.position.set(2, t - 1, 3);
+  followT(t);
+  pathGroup.visible = ui.showPath.checked;
+  curveGroup.visible = ui.showCurve.checked;
+  axesGroup.visible = ui.showAxes.checked;
+  zerosGroup.visible = ui.showAxes.checked;
+  sliceGrid.visible = ui.showAxes.checked;
+
+  const R = Math.max(...fibres.radii);
+  const vOuter = fibres.verts[fibres.verts.length - 1];
+  const dExact = hausdorffCircle(vOuter, R);
+  const dPaper = R / vOuter;
+  const m0 = fibres.ms[0];
+  const m1 = fibres.ms[fibres.ms.length - 1];
+  const arg0 = fibres.args[0];
+  const arg1 = fibres.args[fibres.args.length - 1];
+  const P = prefactor(N, sigma, t);
+  const D = info.D;
+  const eta = info.mag;
+
+  document.getElementById('out').innerHTML =
+    `<div><span class="k">s = σ + it</span><span>${sigma.toFixed(2)} + ${t.toFixed(2)} i</span></div>` +
+    `<div><span class="k">endpoint (Re, t, Im)</span><span>${info.re.toFixed(3)}, ${t.toFixed(2)}, ${info.im.toFixed(3)}</span></div>` +
+    `<div><span class="k">M (Dirichlet η)</span><span>${info.M}</span></div>` +
+    `<div><span class="k">polygons</span><span>${K} (vertices 1…${K})</span></div>` +
+    `<div><span class="k">terms m</span><span>${m0} … ${m1}</span></div>` +
+    `<div><span class="k">arg(m^{-s}) first…last</span><span>${arg0.toFixed(2)} … ${arg1.toFixed(2)}</span></div>` +
+    `<div><span class="k">r = n^{-σ} (n=1 outer … last inner)</span><span>${fibres.radii[0].toFixed(3)} … ${fibres.radii[fibres.radii.length-1].toFixed(3)}</span></div>` +
+    `<div><span class="k">d_H inscribed N-gon (sagitta)</span><span>${dExact.toExponential(2)}</span></div>` +
+    `<div><span class="k">paper bound R/N</span><span>${dPaper.toExponential(2)}</span></div>` +
+    `<div><span class="k">P_N = |1 − N^{1−s}|</span><span>${P.toExponential(2)}</span></div>` +
+    `<div><span class="k">D_N = N^{1/2−1/8}</span><span>${D.toExponential(2)}</span></div>` +
+    `<div><span class="k">|η_M(s)| Dirichlet</span><span>${eta.toExponential(2)}</span></div>` +
+    `<div><span class="k">signs</span><span>+ − + − … (${info.M} terms)</span></div>` +
+    `<div><span class="k">on t-axis (ζ/η/ξ zero)</span><span>${info.atZero ? 'yes' : 'no'}</span></div>`;
+}
+
+['n','polys','gen','sigma','t','showSpheres','showMesh','showTube','showPath','showCurve','showCantor','showAxes'].forEach(id => {
+  ui[id].addEventListener('input', () => { syncLabels(); rebuild(); });
+});
+ui.zoom.addEventListener('input', syncLabels);
+ui.open.addEventListener('input', syncLabels);
+
+syncLabels();
+rebuild();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (ui.spin.checked) root.rotation.y += 0.0024;
+  const z = +ui.zoom.value;
+  const s = Math.pow(+ui.n.value, z * Math.min(+ui.gen.value, 3));
+  fibreGroup.scale.setScalar(s);
+  hingeRoot.scale.setScalar(s);
+  const open = +ui.open.value;
+  const theta = open * Math.PI;
+  for (const tr of termRisers) {
+    tr.page.rotation.z = theta * tr.frac;
+  }
+  pathGroup.scale.setScalar(1);
+  pathGroup.rotation.set(0, 0, 0);
+  pathGroup.position.set(0, 0, 0);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
