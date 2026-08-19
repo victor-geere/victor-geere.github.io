@@ -7,6 +7,9 @@
 | [index.html](index.html) | Victor Geere | Home page |
 | [maths.html](maths.html) | Victor Geere | Mathematics portal |
 | [archive.html](archive.html) | Maths | Archive of mathematical content |
+| [publication.html](publication.html) | Geometric dynamical phase transitions | Canonical paper: path-closures, Euler–Maclaurin remainder, spectral measures |
+| [proof.html](proof.html) | Proof of the Riemann Hypothesis | Pointer to `publication.html` |
+| [gaps.html](gaps.html) | Gap inventory | Sidecar checklist; closures are in the publication changelog |
 
 ---
 
