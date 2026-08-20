@@ -7,11 +7,14 @@
 | [index.html](index.html) | Victor Geere | Home page |
 | [maths.html](maths.html) | Victor Geere | Mathematics portal |
 | [archive.html](archive.html) | Maths | Archive of mathematical content |
-| [publication.html](publication.html) | Geometric dynamical phase transitions | Canonical paper: path-closures, Euler–Maclaurin remainder, spectral measures |
+| [publication.html](publication.html) | Geometric dynamical phase transitions | Canonical paper: path-closures, slow-passage Identity L, spectral measures |
 | [proof.html](proof.html) | Proof of the Riemann Hypothesis | Pointer to `publication.html` |
-| [gaps.html](gaps.html) | Gap inventory | Sidecar checklist; closures are in the publication changelog; Identity L is open |
-| [todo.md](todo.md) | Strengthening list | Open work on the strip conversion; Identity L is the RH obstruction |
+| [gaps.html](gaps.html) | Gap inventory | Sidecar checklist; closures are in the publication changelog; Identity L is the speed bound |
+| [todo.md](todo.md) | Strengthening list | Construction checklist; conversion is the dictionary |
+| [truths.md](truths.md) | Frozen truths | Inequalities, last-chord pairing, cosine kernel; remaining equation located in the Jensen/Li jet of \(\Phi\), not solved |
 | [viz.html](viz.html) | Nested spheres visualisation | Interactive Three.js fibres, Hausdorff tube, Hilbert zoom |
+| [projection.html](projection.html) | Stereographic projection | North-pole chart of \(S^2\) onto the equatorial plane \(\mathbb{C}\) |
+| [tensor.html](tensor.html) | The prime-spectrum tensor | Pairing on \(\mathbb{R}\) that replaces RH as a question about \(\xi\); not a proof |
 
 ---
 

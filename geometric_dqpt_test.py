@@ -60,12 +60,25 @@ def half_term(N, sigma):
     return 0.5 * (N - 1) * (N ** (-2 * sigma))
 
 
+def speed_cap(N, eps=1.0 / 8.0):
+    """Slow-passage cap N^{1/2+ε}."""
+    return N ** (0.5 + eps)
+
+
+def eta_speed(N, t, sigma=0.5, h=1e-3):
+    """Symmetric finite-difference |∂_t η|."""
+    zp = coherent_sum(N, t + h, sigma=sigma)
+    zm = coherent_sum(N, t - h, sigma=sigma)
+    return float(fabs((zp - zm) / (2 * h)))
+
+
 def off_line_scan(N_values, sigmas, t, eps=1.0 / 8.0):
     """Three-scale comparison on a vertical line through height t.
 
     This is not a test of Identity L at zeros of zeta: no off-line
-    zero of zeta is used. It checks that |η| tracks P_N |ζ| away
-    from the line and the floor N^{1-2σ} on it.
+    zero of zeta is used. Identity L is a lower bound on |∂_t η|
+    at simple off-line zeros. This scan checks that |η| tracks
+    P_N |ζ| away from the line and the floor N^{1-2σ} on it.
     """
     rows = []
     zeta_t = {}
@@ -78,6 +91,8 @@ def off_line_scan(N_values, sigmas, t, eps=1.0 / 8.0):
             P = main_term_scale(N, sigma, t)
             F = floor_scale(N, sigma, t)
             D = dqpt_depth(N, eps)
+            V = speed_cap(N, eps)
+            spd = eta_speed(N, t, sigma=sigma)
             zt = abs(zeta_t[sigma])
             rows.append({
                 "N": N,
@@ -86,11 +101,14 @@ def off_line_scan(N_values, sigmas, t, eps=1.0 / 8.0):
                 "P": P,
                 "F": F,
                 "D": D,
+                "V": V,
+                "speed": spd,
                 "half": half_term(N, sigma),
                 "abs_zeta": zt,
                 "eta_over_F": mod / F if F else float("nan"),
                 "eta_over_D": mod / D if D else float("nan"),
-                "eta_over_Pzeta": mod / (P * zt) if P * zt else float("nan"),
+                "speed_over_V": spd / V if V else float("nan"),
+                "eta_over_Pzeta": mod / (P * zt) if P * zt > 1e-12 else float("nan"),
             })
     return rows
 
@@ -166,8 +184,9 @@ def main():
     print("=" * 78)
     print("Off-line three-scale scan at the first ordinate")
     print("t = 14.13472...  (a critical-line zero; not an off-line zero of zeta)")
-    print("P = |1-N^{1-s}|,  F = (1+|t|) N^{1-2σ},  D = N^{1/2-1/8}")
-    print("Identity L is not tested: zeta has no known off-line zeros.")
+    print("P = |1-N^{1-s}|,  F = (1+|t|) N^{1-2σ},  D = N^{1/2-1/8},  V = N^{1/2+1/8}")
+    print("|∂_t η| is a symmetric difference of step 10^{-3}.")
+    print("Identity L is a speed bound at off-line zeros of zeta; none are used here.")
     print("=" * 78)
     t_off = float(heights[0])
     sigmas = [0.35, 0.40, 0.50, 0.60, 0.65]
@@ -175,18 +194,21 @@ def main():
     t1 = time.time()
     rows = off_line_scan(N_off, sigmas, t_off)
     print()
-    print(f"{'N':>4}  {'sigma':>5}  {'|eta|':>10}  {'P':>10}  {'F':>10}  {'D':>10}  "
-          f"{'|eta|/F':>9}  {'|eta|/D':>9}  {'|eta|/(P|z|)':>12}")
+    print(f"{'N':>4}  {'sigma':>5}  {'|eta|':>10}  {'|∂t η|':>10}  {'V':>10}  "
+          f"{'|eta|/D':>9}  {'|∂t η|/V':>9}  {'|eta|/(P|z|)':>12}")
     print("-" * 108)
     for r in rows:
-        print(f"{r['N']:4d}  {r['sigma']:5.2f}  {r['abs_eta']:10.4e}  {r['P']:10.4e}  "
-              f"{r['F']:10.4e}  {r['D']:10.4e}  {r['eta_over_F']:9.3f}  "
-              f"{r['eta_over_D']:9.3f}  {r['eta_over_Pzeta']:12.3f}")
+        pz = r["eta_over_Pzeta"]
+        pz_s = f"{pz:12.3f}" if pz == pz else f"{'—':>12}"
+        print(f"{r['N']:4d}  {r['sigma']:5.2f}  {r['abs_eta']:10.4e}  {r['speed']:10.4e}  "
+              f"{r['V']:10.4e}  {r['eta_over_D']:9.3f}  {r['speed_over_V']:9.3f}  {pz_s}")
     print("-" * 108)
     print(f"Off-line wall time: {time.time()-t1:.1f} s")
     print()
     print("On σ=1/2, |η| should be O(F) (zeta vanishes; floor remains).")
     print("Off the line, |η| / (P |ζ|) should be near 1 (main term dominates).")
+    print("|∂_t η|/V is the slow-passage ratio; at a critical-line zero it should")
+    print("stay O(1) or smaller as N grows, up to |ζ'| / N^ε.")
     print("These are finite-N illustrations only.")
     print("A mathematical proof requires the analytic arguments in the paper.")
 

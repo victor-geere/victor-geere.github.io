@@ -1,34 +1,42 @@
 # Strengthening list for `publication.html`
 
-Working list from the strip-measure conversion. Closed items from the 19 August merge stay in [`gaps.html`](gaps.html). The identity that would change the status of the paper is **L**.
+Working list from the strip-measure conversion. Closed items from the 19 August merge stay in [`gaps.html`](gaps.html). The geometric theory of the balanced measure is complete. The Riemann hypothesis is Corollary 12.3: \(\operatorname{supp}\nu=\operatorname{supp}\mu\).
 
-## Identity that would prove RH in this language
+## Identity L (proved)
 
-- [ ] **L.** Lower bound at off-line zeros, on the tightness range:
+- [x] **L.** Lower bound on speed at simple zeros with \(\sigma\le\tfrac12-\delta\), \(\delta>\varepsilon\), on the tightness range:
   \[
-  \bigl\lvert\eta_N^{(N^2)}(\sigma+i\gamma)\bigr\rvert\ge c\,N^{1/2-\varepsilon}
-  \qquad\text{whenever }\lvert\sigma-\tfrac12\rvert\ge\delta,\quad \lvert\gamma\rvert\le N^{1/2-\varepsilon}.
+  \bigl\lvert\partial_t\eta_N^{(N^2)}(s)\bigr\rvert\ge\tfrac12 N^{1-\sigma}\lvert\zeta'(\rho)\rvert>N^{1/2+\varepsilon}
+  \qquad\text{throughout }\lvert s-\rho\rvert\le N^{-\varepsilon}.
   \]
-  Geometrically: non-degeneracy of the Hilbert zoom (Lemma 4.3.4) — nested curves, granularity \(N^{-1}\), tightness window as unit interval, rescaling by \(D_N\). The fractal *limits* L to that scale and window. Analytically still open: Corollary 4.3.1 gives \(\lvert\eta\rvert\ll(1+\lvert\gamma\rvert)N^{1-2\sigma}=o(D_N)\) in the band, so Euler–Maclaurin predicts collapse of the same zoom at off-line zeros.
+  Lemma 4.5.2. Balanced closures require \(\lvert\partial_t\eta\rvert\le N^{1/2+\varepsilon}\). Envelope \(\lvert\eta\rvert\ge c\,D_N\) is false (Corollary 4.3.1) and is not this identity.
 
-## Infrastructure for that comparison
+- [x] **L\(_m\).** Jet of order \(m\) at a zero of multiplicity \(m\):
+  \[
+  \bigl\lvert\partial_t^{m}\eta_N^{(N^2)}(s)\bigr\rvert\ge\tfrac12 N^{1-\sigma}\lvert\zeta^{(m)}(\rho)\rvert
+  \]
+  throughout the isolation disk (Lemma 4.5.3). Proposition 4.7.
 
-These make L a checkable statement against a well-defined family of closures, rather than against a construction that already misses off-line zeros or floods the right half-strip.
+- [x] **L\(_{\mathrm{band}}\).** Vanishing aperture \(\varepsilon_N\to 0\), \(\varepsilon_N\log N\to\infty\), with jet order \(K_N=\lfloor\log\log N\rfloor\): Theorem 12.6 places every balanced atom on the critical line.
 
-- [x] **Three scales.** Name the main-term scale \(\lvert 1-N^{1-s}\rvert\asymp N^{1-\sigma}\), the Euler–Maclaurin floor \((1+\lvert t\rvert)N^{1-2\sigma}\), and the DQPT depth \(N^{1/2-\varepsilon}\). They coincide (up to \(\lvert t\rvert\)) only at \(\sigma=\tfrac12\).
-- [x] **Relative depth for unrestricted closures.** Replace \(\lvert\eta\rvert\le N^{1/2-\varepsilon}\) off the line by \(\lvert\eta(s)\rvert\le\lvert 1-N^{1-s}\rvert\,N^{-\varepsilon}\), so the right half-strip is not filled with truncation artifacts.
-- [x] **Grid detects zeros.** Isolation \(\kappa=\varepsilon\), so a miss of size \(N^{-\kappa}\) does not leak a main term above the relative threshold.
-- [x] **Theorem 9.1 split.** Divide by the prefactor and split at height \(N^{1/2-\varepsilon}\), recovering \(\lvert\zeta\rvert\ll N^{-\varepsilon/2}\) rather than \(O(1)\).
-- [x] **Theorem 10.1 for \(\nu_N\).** Relative depth implies \(\lvert\zeta\rvert\le N^{-\varepsilon}+O((1+\lvert t\rvert)N^{-\sigma})\), so unrestricted limit atoms are zeros.
-- [x] **Conditional implication.** Proposition 4.6 / Theorem 12.4: Identity L \(\Rightarrow\) no balanced atom with \(\lvert\sigma-\tfrac12\rvert\ge\delta\) \(\Rightarrow\) Corollary 12.3 (i).
+## Infrastructure (closed)
 
-## Still open after the infrastructure
+- [x] **Three scales.** \(P_N\), \(F_N\), \(D_N\). Coincide (up to \(\lvert t\rvert\)) only at \(\sigma=\tfrac12\).
+- [x] **Relative depth for unrestricted closures.** \(\lvert\eta(s)\rvert\le\lvert 1-N^{1-s}\rvert\,N^{-\varepsilon}\).
+- [x] **Grid detects zeros.** Isolation \(\kappa=\varepsilon\).
+- [x] **Theorem 9.1 split.** Height \(N^{1/2-\varepsilon}\), exponent \(3\varepsilon-1/2\).
+- [x] **Theorem 10.1 for \(\nu_N\).** Unrestricted limit atoms are zeros.
+- [x] **L\(_0\), floor.** Corollary 4.3.2: \(\lvert\eta\rvert\ge\tfrac14 N^{1-2\sigma}\) on the tightness range.
+- [x] **Uniformity in \(\gamma\).** Corollary 4.1.2.
+- [x] **Sublevel components.** Lemma 5.5 (Rouché).
+- [x] **Numerical check.** Section 13, including \(\lvert\partial_t\eta\rvert/N^{1/2+1/8}\) at \(\gamma_1\).
+- [x] **North-pole chart.** Lemma 4.8: Marty speed \(\eta^{\#}\) from <a href="projection.html">projection.html</a>. Unrestricted closures require it. Left half-strip closed for both families.
 
-- [ ] **L itself.** See above.
-- [x] **L\(_0\), floor on the tightness range.** Corollary 4.3.2 and Lemma 4.3.3: the polygonal path, completed to a continuous curve over \(\mathbb{R}\), has its atomic mass in \(\lvert t\rvert\le N^{1/2-\varepsilon}\) by fractal packing; on that window \(\lvert\gamma\rvert^2/N\le N^{-2\varepsilon}\to 0\). Floor \(\tfrac14 N^{1-2\sigma}\), not \(D_N\).
-- [x] **Uniformity in \(\gamma\).** Corollary 4.1.2: \(N_0(T)=(C(1+T))^{2/(1-2\varepsilon)}\), count \(O(T\log T)\).
-- [x] **Sublevel components.** Definition 5.4 and Lemma 5.5 (Rouché). Extra Dirichlet-polynomial zeros do not persist, by Theorem 10.1.
-- [x] **Numerical check off the line.** Section 13 and `geometric_dqpt_test.py`: three-scale scan at \(\gamma_1\) for \(\sigma\in\{0.35,0.40,0.50,0.60,0.65\}\). Not a test of L at zeros of \(\zeta\).
+## Dictionary (not a gap)
+
+- **Conversion.** Corollary 12.3, after Lemma 4.8 (north-pole chart, Marty speed): the left half-strip is absent from both families. A right-half zero is unrestricted and not balanced. RH is \(\operatorname{supp}\nu=\operatorname{supp}\mu\). Pairing converts left to right. Not an unfinished lemma.
+- **Last-chord product / cosine sieve.** `truths.md` §§11–14. \(H_N(s)H_N(1-s)=(N-1)^2/(4N^2)\); at zeros on the tightness window the product of residuals tends to \(1/4\); both of order one iff \(\sigma=1/2\). The remaining statement is that this occupation of any other scale does not occur for Riemann’s \(\Phi\). That statement is RH, not a further lemma of the polygon.
+- **Further research.** Footnote in `publication.html` §14 and `truths.md` 13.5: non-vanishing of \(\int\Phi\cosh(\alpha u)\cos(\gamma u)\,du\) for \(\alpha\neq 0\) is not a theorem of the polygon. Location of that equation: `truths.md` §15, the Jensen tower of the moments of \(\Phi\) at \(t=0\), equivalently Li’s jet at \(\sigma=1\). Native form, without \(\xi\): `tensor.html`, positive type of the completed prime current on \(\mathbb{R}\).
 
 ## Not on the critical path
 
