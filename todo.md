@@ -43,3 +43,19 @@ Working list from the strip-measure conversion. Closed items from the 19 August 
 
 - Addendum B (Bourgain dual sums) is optional and does not touch the band.
 - Section 6 is interpolation only; integer theorems do not use it.
+
+## Quantum placements (Addendum F, 21 August)
+
+Survey of the physics literature against each gap, litmus-tested against Corollary C.10. Exact identifications are done; everything else is placement.
+
+- [x] **F.1.** Averaged accumulated phase factor of Wei et al. \(=-\eta_2^{(M)}\); Lemma F.1. Clock-register protocol for general \(N\), Proposition F.3.
+- [x] **F.2.** Free-energy density: generic level \(1-\sigma\), zero level \(1-2\sigma\), latent drop \(\sigma\); coincidence only at \(\sigma=\tfrac12\); \(\lvert\eta(\rho)\rvert\to\tfrac12\) on the line (Section 13 value). Proposition F.2.
+- [x] **F.5.** Connes–Consani window \([2^{-1/2},2^{1/2}]\) is the prime-free regime of the explicit formula; first prime at \(\lambda=2\). Lemma F.5.
+- [x] **F.6.** Gauss sums: the (M)-locus is a finite set inside the additive basis. Lemma F.6.
+- [x] **F.7.** Fisher zeros of \(\eta_N^{(N^2)}\), \(N\le20\): \(\sigma>1\) zeros are clock zeros of \(1-N^{1-s}\); near-line zeros within the Rouché disk of the Riemann zeros. `quantum_fisher_zeros_test.py`.
+- [ ] **F.4 (open).** A Lee–Yang property for \(\eta_N^{(N^2)}\): a ferromagnetic system whose finite partition functions are the polygon, or any reweighting confining every finite zero to a line. Passes the litmus. Known boundary: plain partial sums have zeros in \(\sigma>1\) (Montgomery) and cluster to the line without lying on it (Gonek–Ledoan); Bombieri–Hejhal show density statements cannot see a density-zero off-line set, so the property would have to be pointwise.
+- [ ] **Uniform slow passage on the window.** Needs \(\lvert\zeta'(\rho)\rvert\le N^{\varepsilon}\) for \(\lvert\gamma\rvert\le N^{1/2-\varepsilon}\); random-matrix prediction (Hughes–Keating–O'Connell) says yes. Conjectural; not used by any theorem.
+- [ ] **Past the first prime.** Extending archimedean Weil positivity beyond \(\lambda=2\) is importing (M); the paper's aperture is the same parameter. Not a polygon problem.
+- [ ] **\(\Lambda=0\).** The cosine moment of truths.md §15 at \(\alpha\neq0\) is \(\Lambda\le0\); known \(0\le\Lambda\le0.22\). The Gaussian direction has monotonicity, the \(\cosh\) direction does not.
+- Not a route: Jensen tower at fixed degree (Farmer).
+
