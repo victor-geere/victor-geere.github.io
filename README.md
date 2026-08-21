@@ -8,7 +8,7 @@
 | [maths.html](maths.html) | Victor Geere | Mathematics portal |
 | [archive.html](archive.html) | Maths | Archive of mathematical content |
 | [publication.html](publication.html) | Geometric dynamical phase transitions | Canonical paper: path-closures, slow-passage Identity L, spectral measures |
-| [proof.html](proof.html) | Proof of the Riemann Hypothesis | Pointer to `publication.html` |
+| [proof.html](proof.html) | Merged into the geometric paper | Pointer to `publication.html`; URL kept so existing links resolve |
 | [gaps.html](gaps.html) | Gap inventory | Sidecar checklist; closures are in the publication changelog; Identity L is the speed bound |
 | [todo.md](todo.md) | Strengthening list | Construction checklist; conversion is the dictionary |
 | [truths.md](truths.md) | Frozen truths | Inequalities, last-chord pairing, cosine kernel; remaining equation located in the Jensen/Li jet of \(\Phi\), not solved |
