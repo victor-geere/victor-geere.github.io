@@ -47,7 +47,7 @@ All section folders live under `categories/`; `evidence/` is at the top level.
 |---|---|---:|
 | [summary/](summary/README.md) | Riemann programme annex (local copy) | 208 |
 | [summary-rh/](summary-rh/README.md) | parity programme annex (local copy) | 68 |
-| [archive/](archive/) | working library of archived sources cited by the letter | 193 |
+| [archive/](archive/) | working library of archived sources cited by the letter | 192 |
 | [rh/](rh/README.md) | working source snapshot backing `summary-rh/` citations | 2585 |
 | [topics/](topics/README.md) | 45 reconstructed dossiers | 628 |
 | [lean/](lean/README.md) | the `FinalLetter` Lean synthesis | 9 |

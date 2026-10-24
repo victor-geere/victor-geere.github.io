@@ -13,7 +13,7 @@ read-only evidence, not a second copy of the live corpora.
 |---|---:|---:|---|---|
 | [`summary/`](summary/README.md) | 208 | 0.99 MB | `summary/` in this repository | Riemann programme annex |
 | [`summary-rh/`](summary-rh/README.md) | 68 | 0.52 MB | `summary-rh/` in this repository | parity programme annex |
-| [`archive/`](archive/) | 193 | 15 MB | `archive/` in this repository | working library of the archived sources cited by the letter |
+| [`archive/`](archive/) | 192 | 5.8 MB | `archive/` in this repository | working library of the archived sources cited by the letter |
 | [`rh/`](rh/README.md) | 2585 | 47 MB | `~/workspace/rh` | working source snapshot backing `summary-rh/` citations |
 | [`categories/`](categories/README.md) | 42 | 0.19 MB | reconstructed in this folder | the thirteen numbered sections, 00–12 |
 | [`geometric-dynamical-phase-transitions/`](geometric-dynamical-phase-transitions/README.md) | 17 | 0.52 MB | repository root | canonical paper bundle, already self-contained |
@@ -52,7 +52,9 @@ a missing file. It reports, without failing, the 22 dead references inside the
   pages) linked to files that had since moved into `archive/maths/rh/research/`
   and `archive/qefe/`. Those links were repaired, not preserved: the targets
   were copied to their canonical locations and the links re-pointed. All
-  archive links now resolve.
+  archive links now resolve. One large duplicate, the 9.6 MB
+  `talagrand_bounds_stochastic_processes.pdf`, is deliberately not vendored;
+  the repository-root `archive/ebooks/` copy remains canonical.
 - **`rh/`** is a working snapshot of `~/workspace/rh`: the files reachable
   from `summary-rh/`, at their canonical paths. Its links were repaired the
   same way as `archive/` (import the upstream target, re-point flattened
