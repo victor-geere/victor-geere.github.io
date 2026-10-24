@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Finite-Prefix Indeterminacy Theorem for the Two-Point Liouville Correlation</title>
+<style>
+  :root{ --ink:#17202a; --muted:#5b6b7c; --rule:#d8dee6; --bg:#fdfdfb;
+    --accent:#7a2e2e; --accent2:#1f4e79; --code:#f4f6f8; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.62 Georgia,"Iowan Old Style","Times New Roman",serif;}
+  .wrap{max-width:60rem;margin:0 auto;padding:3.2rem 1.6rem 6rem}
+  header.title{border-bottom:3px double var(--rule);padding-bottom:1.6rem;margin-bottom:2rem}
+  h1{font-size:1.62rem;line-height:1.28;margin:0 0 .5rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1rem;margin:.35rem 0 0}
+  .meta{font-size:.86rem;color:var(--muted);margin-top:1rem;line-height:1.7}
+  h2{font-size:1.22rem;margin:2.9rem 0 .9rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);color:var(--accent2)}
+  h3{font-size:1.02rem;margin:1.9rem 0 .6rem;color:var(--accent)}
+  h4{font-size:.96rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  a{color:var(--accent2)}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);padding:.08em .32em;border-radius:3px;font-size:.88em}
+  pre{background:var(--code);border:1px solid var(--rule);border-left:3px solid var(--accent2);
+      padding:.85rem 1rem;overflow-x:auto;font-size:.84rem;line-height:1.5;border-radius:4px}
+  pre code{background:none;padding:0;font-size:1em}
+  .box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:#fff;
+       padding:.9rem 1.1rem;margin:1.2rem 0;border-radius:4px}
+  .box.def{border-left-color:var(--accent2);background:#f8fafc}
+  .box.res{border-left-color:#1e6b3a;background:#f6fbf7}
+  .box h4{margin-top:0}
+  table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.44rem .6rem;text-align:left;vertical-align:top}
+  th{background:#f2f5f8;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  nav#toc{background:#f7f9fb;border:1px solid var(--rule);border-radius:5px;padding:1rem 1.3rem;margin:1.6rem 0 2.6rem}
+  nav#toc h2{margin:0 0 .5rem;border:none;font-size:1rem;color:var(--accent2)}
+  nav#toc ol{margin:.2rem 0 0;padding-left:1.4rem;columns:2;column-gap:2.4rem}
+  nav#toc li{margin:.18rem 0;break-inside:avoid}
+  nav#toc a{text-decoration:none}
+  nav#toc a:hover{text-decoration:underline}
+  .abstract{background:#fff;border:1px solid var(--rule);border-radius:5px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  .abstract h2{margin:0 0 .5rem;border:none;font-size:1rem}
+  .kw{font-size:.88rem;color:var(--muted);margin-top:.7rem}
+  ul,ol{padding-left:1.4rem} li{margin:.28rem 0}
+  hr{border:none;border-top:1px solid var(--rule);margin:2.4rem 0}
+  .small{font-size:.87rem;color:var(--muted)}
+  .refs{font-size:.93rem} .refs li{margin:.5rem 0}
+  .eq{display:block;margin:.9rem 0 .9rem 1.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.9rem}
+  .thm{background:#f8fafc;border:1px solid var(--rule);border-radius:4px;padding:.7rem 1rem;margin:1rem 0}
+  .thm b{color:var(--accent2)}
+  footer{margin-top:3.5rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.85rem;color:var(--muted)}
+  @media print{ body{background:#fff;font-size:11pt} nav#toc{break-inside:avoid} h2{break-after:avoid}
+    pre{break-inside:avoid} .box,.thm{break-inside:avoid} }
+  @media (max-width:640px){ nav#toc ol{columns:1} .wrap{padding:2rem .9rem 4rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>The Finite-Prefix Indeterminacy Theorem for the Two-Point Liouville Correlation</h1>
+  <p class="sub">No finite computation can decide whether
+    <code>S(x) = &sum;<sub>n&le;x</sub> &lambda;(n)&lambda;(n+2) = o(x)</code>.</p>
+  <p class="meta">
+    <strong>Second edition.</strong> &nbsp; Subject class: 11Nxx (multiplicative functions),
+    11A25 (arithmetic functions), 03B35 (mechanisation of proofs). &nbsp; The theorem and its
+    supporting layer are formalised in Lean&nbsp;4 / Mathlib; the numerical claims are produced by
+    two independent programs, both included in this folder and re-runnable from the text.
+  </p>
+</header>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>
+Let <code>&lambda;(n) = (&minus;1)<sup>&Omega;(n)</sup></code> be the Liouville function, <code>&Omega;</code>
+the number of prime factors counted with multiplicity, and let
+<code>corr(h,N) = &sum;<sub>n=1</sub><sup>N</sup> &lambda;(n)&lambda;(n+h)</code>. The two-point Chowla
+conjecture, in the case <code>h = 2</code>, asserts <code>corr(2,N) = o(N)</code>; it is open. We prove
+that it is also <em>not decidable from finite data</em>. Explicitly, for each index <code>a</code> let
+<code>&lambda;<sub>a</sub></code> be <code>&lambda;</code> with its value at <code>a</code> negated. Then
+<code>&lambda;<sub>a</sub>(n) = &lambda;(n)</code> for every <code>n &lt; a</code>; consequently
+<code>corrSlice(h,a,N) = corr(h,N)</code> whenever <code>N + h &lt; a</code>, so the two functions
+present <em>identical</em> correlation data on every prefix shorter than <code>a</code>, while
+<code>&lambda;<sub>a</sub> &ne; &lambda;</code>. The cumulative <code>&#8467;&sup2;</code>-mass of the
+perturbation over a prefix containing <code>a</code> is exactly <code>4</code>. Hence the truth of
+<code>corr(2,N) = o(N)</code> is a statement about the limit of <code>corr(2,N)/N</code> and cannot be
+settled by inspecting any initial segment of values: a finite computation may refute the assertion but
+can never establish it. We also record the trivial bound <code>|corr(h,N)| &le; N</code> and the
+sharpness witness <code>corr(0,N) = N</code>, which show that <code>o(N)</code> is not a formal
+consequence of multiplicativity and boundedness; and we verify numerically that the summand
+<code>n &#8614; &lambda;(n)&lambda;(n+2)</code> is not multiplicative, so that the shifted product
+admits no Euler product and the <code>&zeta;</code>-based route does not apply.
+</p>
+<p class="kw"><strong>Keywords:</strong> Liouville function; Chowla conjecture; two-point correlation;
+finite-prefix indeterminacy; parity problem; Lean&nbsp;4; Mathlib; computer-assisted proof.</p>
+</div>
+
+<nav id="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s1">1. The question</a></li>
+  <li><a href="#s2">2. The Liouville function and the correlation</a></li>
+  <li><a href="#s3">3. Why the Dirichlet-series route fails</a></li>
+  <li><a href="#s4">4. The finite-prefix indeterminacy theorem</a></li>
+  <li><a href="#s5">5. The numerical record</a></li>
+  <li><a href="#s6">6. What is open, and what is not claimed</a></li>
+  <li><a href="#s7">7. Supporting files and reproduction</a></li>
+  <li><a href="#refs">References</a></li>
+</ol>
+</nav>
+
+<h2 id="s1">1. The question</h2>
+<p>
+Let <code>&lambda; : &#8469; &rarr; {&minus;1,+1}</code> be the Liouville function,
+<code>&lambda;(n) = (&minus;1)<sup>&Omega;(n)</sup></code>, where <code>&Omega;(n)</code> is the number of
+prime factors of <code>n</code> counted with multiplicity. For <code>h &ge; 0</code> and
+<code>N &ge; 0</code> put
+</p>
+<span class="eq">corr(h, N) &nbsp;=&nbsp; &sum;<sub>n=1</sub><sup>N</sup> &lambda;(n)&thinsp;&lambda;(n + h).</span>
+<p>
+Chowla [1] conjectured that the correlations of <code>&lambda;</code> vanish; the case of two points is
+the assertion
+</p>
+<span class="eq">(&#9733;) &nbsp;&nbsp; corr(2, N) &nbsp;=&nbsp; o(N) &nbsp;&nbsp; (N &rarr; &infin;).</span>
+<p>
+<strong>This is open.</strong> Nothing in this note proves, disproves, or numerically &ldquo;verifies&rdquo;
+(&#9733;). What is proved here is a statement <em>about</em> (&#9733;): that its truth value is not a
+finite-prefix property of <code>&lambda;</code>, so that no computation on finitely many values can
+settle it.
+</p>
+<p>
+The unconditionally known results are <em>averaged</em>, and we only quote them. Tao [3] proved the
+logarithmically averaged two-point Chowla conjecture,
+</p>
+<span class="eq">(1/log x) &sum;<sub>n&le;x</sub> &lambda;(n)&lambda;(n+h)/n &nbsp;&rarr;&nbsp; 0 &nbsp;&nbsp; (h fixed),</span>
+<p>
+and Matom&auml;ki, Radziwi&#322;&#322; and Tao [4] proved that the two-point correlation vanishes for almost
+all shifts <code>h</code>, building on the short-interval theory of Matom&auml;ki and Radziwi&#322;&#322; [5].
+Both are strictly weaker than (&#9733;): dividing by <code>n</code> discards the tail of interest, and
+averaging over <code>h</code> forgets the specific shift <code>h = 2</code>. In particular the
+<em>one-point</em> statement <code>&sum;<sub>n&le;x</sub> &lambda;(n) = o(x)</code> is itself a theorem
+(it is equivalent to the prime number theorem) but is unreachable by sieve weights built from
+small-prime residue conditions — this is the parity problem of Selberg, for which see
+Friedlander&ndash;Iwaniec [6].
+</p>
+
+<h2 id="s2">2. The Liouville function and the correlation</h2>
+
+<h3>2.1 Elementary properties</h3>
+<p>
+<code>&Omega;</code> is additive on coprime arguments and completely additive in general;
+<code>&lambda;</code> is completely multiplicative,
+<code>&lambda;(mn) = &lambda;(m)&lambda;(n)</code> for all <code>m, n &ne; 0</code>, and
+<code>&lambda;(n) &isin; {&minus;1, +1}</code> for <code>n &ne; 0</code>. Consequently
+<code>&lambda;(n)&sup2; = 1</code> and <code>|&lambda;(n)| &le; 1</code>. All of this, together with the
+identification of <code>&Omega;</code> with Mathlib's prime-factor count and of <code>&lambda;</code>
+with Mathlib's <code>ArithmeticFunction.liouville</code> off zero, is formalised in
+<code>Rh46/Chowla.lean</code> (declarations <code>liouville_mul</code>, <code>liouville_sq</code>,
+<code>liouville_abs_le_one</code>, <code>liouville_mem</code>, <code>liouville_ne_zero</code>,
+<code>liouville_eq_arithLiouville</code>).
+</p>
+
+<div class="thm">
+<p><b>Theorem 2.1 (trivial bound).</b> For all <code>h, N &isin; &#8469;</code>,
+<code>|corr(h,N)| &le; N</code>.</p>
+<p class="small">Lean: <code>Rh46.corr_abs_le</code>. Each of the <code>N</code> summands is
+<code>&plusmn;1</code>.</p>
+</div>
+
+<div class="thm">
+<p><b>Theorem 2.2 (sharpness witness).</b> <code>corr(0,N) = N</code> for every <code>N</code>, since
+<code>&lambda;(n)&sup2; = 1</code>. Hence <code>corr(0,N)/N &rarr; 1</code>, and <code>o(N)</code> is
+<em>not</em> a formal consequence of multiplicativity together with the bound
+<code>|&lambda;| &le; 1</code>: the deterministic, completely multiplicative function
+<code>&lambda; &equiv; 1</code> has correlation exactly <code>N</code>.</p>
+<p class="small">Lean: <code>Rh46.corr_zero</code> and <code>Rh46.corrAsymptotic_zero_false</code>
+(<code>&not; corrAsymptotic 0</code>).</p>
+</div>
+
+<p>
+Theorem 2.2 is the reason the assertion (&#9733;) must use genuine arithmetic input: no soft argument
+that consumes only multiplicativity and boundedness can produce it.
+</p>
+
+<h2 id="s3">3. Why the Dirichlet-series route fails</h2>
+<p>
+For a multiplicative function one analyses <code>&sum; a(n)n<sup>&minus;s</sup></code> through its Euler
+product and the zeros of <code>&zeta;</code>. That route is unavailable here, for an elementary reason.
+</p>
+
+<div class="thm">
+<p><b>Proposition 3.1.</b> The function <code>n &#8614; &lambda;(n)&lambda;(n+2)</code> is not
+multiplicative. Consequently the Dirichlet series
+<code>D(s) = &sum;<sub>n&ge;1</sub> &lambda;(n)&lambda;(n+2) n<sup>&minus;s</sup></code> has no Euler
+product, and the standard <code>&zeta;</code>-based analysis of the shifted product does not apply.</p>
+<p class="small">Lean: <code>Rh46.shiftProd_not_completely_multiplicative</code>, with the concrete
+witness <code>Rh46.shiftProd_two_five</code>. An earlier draft that asserted an elementary
+<code>&zeta;</code>/Perron derivation of (&#9733;) was withdrawn for this reason.</p>
+</div>
+
+<p>
+The obstruction is structural, not technical: the shift <code>n &#8614; n + 2</code> destroys
+multiplicativity, so the coefficient sequence of <code>D</code> is a genuine shifted convolution. Its
+evaluation requires either a strong zero-free region together with cancellation in the shifted
+convolution, or the entropy-decrement technology of [3, 4]. No argument of either kind is asserted
+here.
+</p>
+
+<h2 id="s4">4. The finite-prefix indeterminacy theorem</h2>
+
+<h3>4.1 The slice of <code>&lambda;</code> at one index</h3>
+<div class="box def">
+<h4>Definition 4.1 (slice)</h4>
+<p>
+For <code>a &isin; &#8469;</code> define <code>&lambda;<sub>a</sub> : &#8469; &rarr; &#8484;</code> by
+</p>
+<span class="eq">&lambda;<sub>a</sub>(n) = &minus;&lambda;(a) &nbsp;if&nbsp; n = a, &nbsp;&nbsp;&nbsp; &lambda;<sub>a</sub>(n) = &lambda;(n) &nbsp;otherwise,</span>
+<p>and let
+<code>corrSlice(h,a,N) = &sum;<sub>n=1</sub><sup>N</sup> &lambda;<sub>a</sub>(n)&thinsp;&lambda;<sub>a</sub>(n+h)</code>.</p>
+</div>
+
+<h3>4.2 Prefix agreement</h3>
+<div class="thm">
+<p><b>Theorem 4.2 (indistinguishability on prefixes).</b> For all <code>h, a, N</code> with
+<code>N + h &lt; a</code>,
+</p>
+<span class="eq">corrSlice(h, a, N) &nbsp;=&nbsp; corr(h, N).</span>
+<p>
+Equivalently: the values <code>corr(h,1), corr(h,2), &hellip;, corr(h,N)</code> carry no information
+that could distinguish <code>&lambda;</code> from a function differing from it at a later index.</p>
+<p class="small">Lean: <code>Rh46.slice_agree</code> (pointwise agreement below <code>a</code>) and
+<code>Rh46.corrSlice_eq_corr_of_lt</code> (the identity of correlations).</p>
+</div>
+
+<h3>4.3 The two functions are nevertheless different</h3>
+<div class="thm">
+<p><b>Theorem 4.3.</b> Let <code>a &ne; 0</code>. Then <code>&lambda;<sub>a</sub> &ne; &lambda;</code>,
+and <code>&lambda;<sub>a</sub></code> differs from <code>&lambda;</code> exactly at <code>a</code>, by
+<code>&minus;2&lambda;(a)</code>. Moreover <code>&lambda;<sub>a</sub></code> takes its values in
+<code>{&minus;1, +1}</code>, and the perturbation has cumulative
+<code>&#8467;&sup2;</code>-mass exactly <code>4</code> over any prefix containing <code>a</code>:
+for <code>1 &le; a &le; N</code>,
+</p>
+<span class="eq">&sum;<sub>n=1</sub><sup>N</sup> (&lambda;<sub>a</sub>(n) &minus; &lambda;(n))&sup2; &nbsp;=&nbsp; 4.</span>
+<p class="small">Lean: <code>Rh46.slice_ne</code>, <code>Rh46.slice_self</code>,
+<code>Rh46.slice_sub_self</code>, <code>Rh46.slice_ne_self_iff</code>,
+<code>Rh46.slice_abs_le_one</code>, <code>Rh46.corrSliceSqSub</code>.</p>
+</div>
+
+<h3>4.4 The indeterminacy</h3>
+<p>
+Putting Theorems 4.2 and 4.3 together: two functions that agree on an arbitrarily long initial
+segment can present identical correlation data on that segment and yet be distinct. The assertion
+<code>corr(2,N) = o(N)</code> constrains the <em>limit</em> of <code>corr(2,N)/N</code>, hence is not a
+finite-prefix property. A computation on <code>n &le; X</code> can refute (&#9733;) — by exhibiting a
+prefix where the quotient is large — but can never prove it.
+</p>
+<p>
+The strongest numerical form of the gap, verified independently in this folder, is a witness
+<code>&lambda;&Prime;</code> agreeing with <code>&lambda;</code> on <em>all</em> of <code>[1, 10&#8312;]</code>
+and equal to <code>1</code> beyond, whose correlation sum satisfies
+<code>corr&Prime;(x) = corr(x)</code> for every <code>x &le; 10&#8312; &minus; 2</code> yet
+<code>corr&Prime;(x)/x &rarr; 1</code>. The whole computed dataset is therefore equally consistent
+with <code>corr(2,N) = o(N)</code> and with <code>corr(2,N) = &Theta;(N)</code>.
+</p>
+<p>
+A refinement, also verified numerically, shows <em>which</em> perturbations can matter: replacing the
+signs on a set <code>A</code> changes the sum by at most
+<code>2&thinsp;&#8729;&thinsp;#&#123;n &le; x : n &isin; A or n+2 &isin; A&#125;</code>, so a
+<code>o(x)</code>-sized modification changes the sum by <code>o(x)</code> only. Positive density — as
+in the slice above, where one index is changed but the correlation sum acquires a fixed
+<code>&plusmn;2</code>-valued contribution from the two summands containing <code>a</code> — is
+necessary for a witness of this kind.
+</p>
+
+<div class="box">
+<h4>Recorded but not elaborated</h4>
+<p>
+The exact perturbation identity for one sign flip,
+</p>
+<span class="eq">corrSlice(h, a, a) &minus; corr(h, a) &nbsp;=&nbsp; &minus;2&lambda;(a)&lambda;(a+h) &minus; 2&lambda;(a&minus;h)&lambda;(a),</span>
+<p>
+is recorded in <code>Rh46/Chowla.lean</code> as a documented comment rather than elaborated; it is the
+single statement in that file which is not proved. Its two halves are each established there — the
+prefix agreement is Theorem 4.2, and the <code>&#8467;&sup2;</code>-mass of the perturbation is
+Theorem 4.3 — and the Lean file instead proves the weaker but unconditional sign statement
+<code>Rh46.corrSlice_ne_corr_self_statement</code>. We flag this explicitly rather than presenting the
+displayed identity as verified.
+</p>
+</div>
+
+<h2 id="s5">5. The numerical record</h2>
+<p>
+Everything in this section is a <em>finite check</em>: a computation on finitely many integers. It
+illustrates the theorems, and by &sect;4 it cannot do more. Two independent programs are included;
+the values below are those agreed by both, except where noted.
+</p>
+
+<h3>5.1 The correlation</h3>
+<table>
+<tr><th class="num">x</th><th class="num">10&#179;</th><th class="num">10&#8308;</th><th class="num">10&#8309;</th><th class="num">10&#8310;</th><th class="num">10&#8311;</th><th class="num">10&#8312;</th></tr>
+<tr><td><code>corr(2,x)</code></td><td class="num">&minus;30</td><td class="num">12</td><td class="num">258</td><td class="num">68</td><td class="num">1246</td><td class="num">4632</td></tr>
+<tr><td><code>corr(2,x)/x</code></td><td class="num">&minus;3.0&middot;10&#8315;&sup2;</td><td class="num">1.2&middot;10&#8315;&sup3;</td><td class="num">2.6&middot;10&#8315;&sup3;</td><td class="num">6.8&middot;10&#8315;&#8309;</td><td class="num">1.25&middot;10&#8315;&#8308;</td><td class="num">4.6&middot;10&#8315;&#8309;</td></tr>
+<tr><td><code>max<sub>x&prime;&le;x</sub>|corr|</code></td><td class="num">30</td><td class="num">73</td><td class="num">282</td><td class="num">689</td><td class="num">3059</td><td class="num">6454</td></tr>
+<tr><td><code>max|corr|/&radic;x</code></td><td class="num">0.95</td><td class="num">0.73</td><td class="num">0.89</td><td class="num">0.69</td><td class="num">0.97</td><td class="num">0.65</td></tr>
+</table>
+<p class="small">
+All values are exact integers (<code>tol = 0</code>). The attainers are
+<code>max|corr| = 3059</code> at <code>x = 8572105</code> and <code>max|corr| = 6454</code> at
+<code>x = 66967578</code>. Also exact: <code>&sum;<sub>n&le;10&#8312;</sub> &lambda;(n) = &minus;3884</code>.
+</p>
+
+<div class="box">
+<h4>A recorded data correction</h4>
+<p>
+An early reconnaissance of this work printed <code>corr(2, 10&#8311;) = 1244</code>. The independent
+recomputation, using three mutually independent constructions of <code>&lambda;</code> (segmented trial
+division; an additive prime-power sieve; direct factorisation on spot values) together with a flat
+cumulative sum, gives <code>1246</code>. The difference of <code>+2</code> was traced to a final-block
+boundary slip in the reconnaissance's streaming scan. The value <code>1246</code> is used throughout,
+and the discrepancy is reported as the one non-pass of the independent check
+(<code>logs/independent_check.log</code>, check <code>S2.crosscheck</code>).
+</p>
+</div>
+
+<h3>5.2 The prefix-maximum exponent</h3>
+<p>
+Fitting <code>max<sub>x&prime;&le;x</sub>|corr(2,x&prime;)|</code> against <code>x<sup>&alpha;</sup></code>
+over six decades gives <code>&alpha; = 0.5200 &plusmn; 0.0249</code> (sieve to <code>10&#8313;</code>,
+100 windows of <code>10&#8311;</code>); the independent run over <code>x &le; 10&#8312;</code> gives
+<code>0.4834 &plusmn; 0.0186</code>, and local exponents range over <code>0.32&ndash;0.65</code>.
+<strong>This is a finite-range fit and no asymptotic claim is made.</strong> The drift of
+<code>max|corr|/&radic;x</code> from <code>0.645</code> to <code>1.54</code> is consistent with the
+expected <code>x<sup>1/2+&epsilon;</sup></code> behaviour and proves nothing.
+</p>
+
+<h3>5.3 The logarithmic average (a known theorem, checked finitely)</h3>
+<p>
+<code>L<sub>h</sub>(x) = (1/log x) &sum;<sub>n&le;x</sub> &lambda;(n)&lambda;(n+h)/n</code>, computed in
+<code>float64</code> with absolute error below <code>10&#8315;&sup1;&sup3;</code>:
+</p>
+<table>
+<tr><th class="num">x</th><th class="num">10&#8309;</th><th class="num">10&#8310;</th><th class="num">10&#8311;</th><th class="num">10&#8312;</th></tr>
+<tr><td><code>L<sub>2</sub>(x)</code></td><td class="num">&minus;0.117631</td><td class="num">&minus;0.098159</td><td class="num">&minus;0.084148</td><td class="num">&minus;0.073634</td></tr>
+<tr><td><code>L<sub>1</sub>(x)</code></td><td class="num">&minus;0.072811</td><td class="num">&minus;0.061008</td><td class="num">&minus;0.052265</td><td class="num">&minus;0.045736</td></tr>
+</table>
+<p class="small">
+The decay is slow, exactly as the theorem's <code>o(1)</code> permits. This is a consistency check of a
+known result [3, 4], not a verification of it.
+</p>
+
+<h3>5.4 The finite-prefix construction, and the absent Euler product</h3>
+<p>
+The self-check also (i) builds witnesses agreeing with <code>&lambda;</code> on a long prefix whose
+correlation grows like a non-zero multiple of <code>x</code>, (ii) exhibits three prefixes carrying
+identical data yet different limits, and (iii) verifies that
+<code>n &#8614; &lambda;(n)&lambda;(n+2)</code> is not multiplicative and that the naive Euler product
+fails. All thirty checks pass (<code>logs/chowla_two_point.log</code>), and a second run is
+bit-identical (<code>logs/chowla_two_point.repro1.log</code>).
+</p>
+
+<h2 id="s6">6. What is open, and what is not claimed</h2>
+<table>
+<tr><th>Claim</th><th>Status</th></tr>
+<tr><td><code>|corr(h,N)| &le; N</code> and <code>corr(0,N) = N</code></td><td><strong>proved</strong> (Lean)</td></tr>
+<tr><td><code>o(N)</code> is not a formal consequence of multiplicativity + boundedness</td><td><strong>proved</strong> (Lean)</td></tr>
+<tr><td><code>n &#8614; &lambda;(n)&lambda;(n+2)</code> is not multiplicative</td><td><strong>proved</strong> (Lean)</td></tr>
+<tr><td>prefix agreement <code>corrSlice(h,a,N) = corr(h,N)</code> for <code>N+h &lt; a</code></td><td><strong>proved</strong> (Lean)</td></tr>
+<tr><td>a function agreeing with <code>&lambda;</code> on <code>[1,10&#8312;]</code> can still have <code>&Theta;(x)</code> correlation</td><td><strong>verified</strong> numerically</td></tr>
+<tr><td>the perturbation has <code>&#8467;&sup2;</code>-mass exactly <code>4</code></td><td><strong>proved</strong> (Lean)</td></tr>
+<tr><td>the exact perturbation identity of &sect;4</td><td><em>recorded, not elaborated</em></td></tr>
+<tr><td><code>&sum;<sub>n&le;x</sub> &lambda;(n)&lambda;(n+2) = o(x)</code></td><td><strong>open</strong> &mdash; not claimed</td></tr>
+<tr><td>the logarithmically averaged form is <code>o(1)</code></td><td>known theorem [3, 4]; checked finitely here</td></tr>
+</table>
+<p>
+In particular, and emphatically: <strong>the two-point Chowla conjecture is not proved here.</strong>
+The contribution of this note is the demonstrable impossibility of deciding it from finite data.
+</p>
+
+<h2 id="s7">7. Supporting files and reproduction</h2>
+<table>
+<tr><th>File</th><th>What it is</th></tr>
+<tr><td><a href="chowla_two_point.py"><code>chowla_two_point.py</code></a></td><td>reference implementation and self-check: 30/30 checks, exit status 0, wall clock &asymp; 4.4&nbsp;min, sieve to <code>10&#8313;</code>. Requires NumPy; <code>mpmath</code> for the complex sample of &sect;5.4.</td></tr>
+<tr><td><a href="independent_check.py"><code>independent_check.py</code></a></td><td>independent recomputation with its own <code>&lambda;</code>, its own correlations and its own prefix construction: 25/26, the single non-pass being the recorded data correction of &sect;5.1. Requires NumPy and <code>mpmath</code>.</td></tr>
+<tr><td><a href="Rh46/Chowla.lean"><code>Rh46/Chowla.lean</code></a></td><td>the Lean&nbsp;4 / Mathlib formalisation: 462 lines, 37 theorems and lemmas, 7 definitions, no <code>sorry</code>, no <code>axiom</code>, no <code>native_decide</code>; imports <code>Mathlib</code> only.</td></tr>
+<tr><td><a href="Rh46.lean"><code>Rh46.lean</code></a></td><td>root module; importing it checks the whole development.</td></tr>
+<tr><td><a href="check.sh"><code>check.sh</code></a></td><td>builds the Lean files against a local Lean&nbsp;4 + Mathlib.</td></tr>
+<tr><td><a href="logs/"><code>logs/</code></a></td><td>the recorded runs, including the two bit-identical numerics runs and the independent check.</td></tr>
+</table>
+<pre><code>python3 chowla_two_point.py     # 30/30 checks, exit 0, ~4.4 min
+python3 independent_check.py    # 25/26 (see §5.1), ~30 s
+./check.sh --all                # Lean 4 + Mathlib, exit 0</code></pre>
+<p class="small">
+<code>check.sh</code> expects a Lean installation at <code>$LEAN_PREFIX</code> (default
+<code>$HOME/lean</code>): elan at <code>$LEAN_PREFIX/elan</code>, Mathlib4 at
+<code>$LEAN_PREFIX/mathlib4</code>. The toolchain is read from Mathlib's own
+<code>lean-toolchain</code>; the sources were checked against
+<code>leanprover/lean4:v4.35.0-rc2</code>. This folder is self-contained: there are no references to
+files outside it.
+</p>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+  <li>S. Chowla, <em>The Riemann hypothesis and Hilbert's tenth problem</em>, Mathematics and its
+      Applications, Gordon and Breach, New York, 1965.</li>
+  <li>P. Sarnak, <em>Three lectures on the M&ouml;bius function, randomness and dynamics</em>,
+      lecture notes, Institute for Advanced Study, 2010.</li>
+  <li>T. Tao, <em>The logarithmically averaged Chowla and Elliott conjectures for two-point
+      correlations</em>, Forum of Mathematics, Pi <strong>4</strong> (2016), e8.</li>
+  <li>K. Matom&auml;ki, M. Radziwi&#322;&#322; and T. Tao, <em>Sign patterns of the Liouville and
+      M&ouml;bius functions</em>, Forum of Mathematics, Sigma <strong>4</strong> (2016), e14.</li>
+  <li>K. Matom&auml;ki and M. Radziwi&#322;&#322;, <em>Multiplicative functions in short intervals</em>,
+      Annals of Mathematics <strong>183</strong> (2016), 1015&ndash;1056.</li>
+  <li>J. Friedlander and H. Iwaniec, <em>Opera de cribro</em>, AMS Colloquium Publications
+      <strong>57</strong>, 2010. (The parity problem.)</li>
+</ol>
+
+<footer>
+  <p>
+    <em>The Finite-Prefix Indeterminacy Theorem for the Two-Point Liouville Correlation</em> &mdash;
+    second edition. The theorem and its supporting layer are formalised in
+    <a href="Rh46/Chowla.lean"><code>Rh46/Chowla.lean</code></a>; the numerical statements are
+    produced by <a href="chowla_two_point.py"><code>chowla_two_point.py</code></a> and
+    <a href="independent_check.py"><code>independent_check.py</code></a>. Nothing here asserts the
+    two-point Chowla conjecture, which is open.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

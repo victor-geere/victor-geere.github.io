@@ -161,6 +161,67 @@ def part2():
                     print(f"    {z[0]:+.6f} {z[1]:+.6f} i{tag}")
 
 
+
+
+# ---------------------------------------------------------------- part 3
+def part3():
+    """Lemma F.8: the sigma>1 zeros of eta_N^{(N^2)} are the clock zeros
+    1 + 2 pi i k / log N of the elementary factor, displaced by o(1)."""
+    T = 60.0
+    print("Part 3. Clock zeros: nearest zero of eta_N^{(N^2)} to s_k = 1 + 2 pi i k/log N, 0 < t <= %.0f" % T)
+    print("  N   k   s_k (Im)    nearest zero (Re, Im)      |displacement|   (1+t)log t/(N log N)")
+    for N in [5, 10, 20]:
+        zs, _ = fisher_zeros(N, T, filtered=True)
+        K = int(T * np.log(N) / (2 * np.pi))
+        worst = 0.0
+        rows = []
+        for k in range(1, K + 1):
+            tk = 2 * np.pi * k / np.log(N)
+            z = min(zs, key=lambda q: abs(complex(q[0], q[1]) - complex(1, tk)))
+            d = abs(complex(z[0], z[1]) - complex(1, tk))
+            worst = max(worst, d)
+            rows.append((k, tk, z, d, (1 + tk) * np.log(tk) / (N * np.log(N))))
+        for k, tk, z, d, b in rows[:3] + rows[-2:]:
+            print(f"  {N:2d} {k:3d}  {tk:8.4f}    ({z[0]:+.4f}, {z[1]:8.4f})     {d:8.4f}        {b:8.3f}")
+        print(f"  {N:2d}  all {K} clock points: max displacement {worst:.4f}; "
+              f"clock zeros with Re s > 1: {sum(1 for r in rows if r[2][0] > 1)}")
+    print()
+
+
+# ---------------------------------------------------------------- part 4
+def part4(nzeros=1500):
+    """Lemma F.10: Landau-Gonek on the register.  sum_{0<gamma<=T} m^{-rho}
+    against -(T/2pi) Lambda(m)/m, and sum_gamma eta_N(rho) against
+    N(T) - (T/2pi) S_N, S_N = sum_{2<=m<=N^2} c_m Lambda(m)/m."""
+    print("Part 4. Landau-Gonek on the register, zeros 1..%d (mpmath.zetazero)" % nzeros)
+    gam = [float(mp.im(mp.zetazero(n))) for n in range(1, nzeros + 1)]
+    T = gam[-1]
+    print(f"  T = gamma_{nzeros} = {T:.4f},  N(T) = {nzeros}")
+
+    def Lam(m):
+        for p in range(2, m + 1):
+            if m % p == 0:
+                q = m
+                while q % p == 0:
+                    q //= p
+                return np.log(p) if q == 1 else 0.0
+        return 0.0
+
+    print("  m   Lambda(m)   Re sum m^-rho    -(T/2pi)Lambda(m)/m    Im sum m^-rho")
+    for m in range(2, 10):
+        s = sum(np.exp(-(0.5 + 1j * g) * np.log(m)) for g in gam)
+        print(f"  {m:2d}  {Lam(m):8.4f}   {s.real:12.3f}   {-(T/(2*np.pi))*Lam(m)/m:14.3f}   {s.imag:12.3f}")
+    for N in [2, 3]:
+        m, c = eta_N_coeffs(N, N * N)
+        tot = sum(sum(ci * np.exp(-(0.5 + 1j * g) * np.log(mi)) for mi, ci in zip(m, c)) for g in gam)
+        SN = sum(c[i] * Lam(int(m[i])) / m[i] for i in range(1, len(m)))
+        pred = nzeros - (T / (2 * np.pi)) * SN
+        print(f"  N={N}: sum_gamma eta_N(rho) = {tot.real:.3f} {tot.imag:+.3f}i ;  N(T) - (T/2pi) S_N = {pred:.3f}  (S_N = {SN:.4f})")
+    print()
+
+
 if __name__ == "__main__":
     part1()
     part2()
+    part3()
+    part4()

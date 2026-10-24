@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh32 — where certificates die</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh32 · where certificates die</h1>
+<p class="sub">rh31 ordered an attack on its own conjecture — &#955;<sub>min</sub>
+&#8805; c&#183;C<sub>n</sub>(&#956;) with an absolute constant — and named the
+honest failure mode in advance: find the measure that drives c to zero. The
+measure is found, and it is not exotic. Cut one arc out of any of the
+arc&#8217;s measures and the constant dies exponentially in the arc&#8217;s
+width, at the classical prolate rate; on a crystal the whole mechanism is an
+exact two-line identity. What survives is sharper than what died: the death
+curve itself is lawful, the living material never enters its reach, and the
+one anomaly rh31 left open dissolves under three controlled tests.</p>
+<p class="meta">57 named checks, 61 s · four computed figures ·
+the thirty-second in the series, after <a href="rh31.html">rh31</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> The crystal of
+&#167;&#167;2&#8211;4 is synthetic — equispaced atoms, no arithmetic input — so
+the identity, the collapse, and the crystal death curve are unconditional
+elementary linear algebra. The zeta-side measures are rh29&#8217;s and are
+conditional on RH: wrapped ordinates &#947;&#183;&#916;&#8242; mod 2&#960; with
+window weights, from the same 4,308-ordinate table (&#947; &#8804; 4800) every
+document since rh29 has used. Per rh30 &#167;10 (c), renewed by rh31 &#167;8
+(c), this document adds no new certificates — the certified set stays at nine.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · order</a>
+<a href="#s2">2 · the identity</a>
+<a href="#s3">3 · the collapse</a>
+<a href="#s4">4 · the death of the constant</a>
+<a href="#s5">5 · the safe zone</a>
+<a href="#s6">6 · the envelope anomaly</a>
+<a href="#s7">7 · conjunction</a>
+<a href="#s8">8 · what this leaves</a>
+</nav>
+
+<section id="s1">
+<h2>1 · Where this stands</h2>
+
+<p>rh31 left three successors. (a) The localisation lemma: prove
+&#955;<sub>min</sub> &#8805; c&#183;C<sub>n</sub>(&#956;) — the smallest
+eigenvalue against the Fej&#233;r-smeared density of the emptiest arc — with
+absolute c, in the bulk; rh31 measured c = 1/1.81 across 336 grid points and
+found no counterexample, and ordered the failure branch pursued as seriously
+as the proof branch: <em>&#8220;find the measure that drives c to zero, which
+would itself be a structure statement about where certificates die.&#8221;</em>
+(b) The envelope anomaly: the one family fitting at 1.81 rather than
+&#8804; 1.39 is the one whose heavy atoms are consecutive zeros — is that the
+same arithmetic as the &#916;&#8242; = 0.09 excess rh31 &#167;6 found in the
+wrapped ordinates? (c) No new certificates.</p>
+
+<p>This document executes (a) in its failure branch — deliberately, because the
+failure branch turned out to be a theorem — answers (b) with three controlled
+experiments, and keeps (c). The outcome, stated up front: <strong>the lemma
+with absolute c is false.</strong> The counterexample is any measure with a
+void — an arc empty of atoms — wider than about two kernel wavelengths. On a
+crystal the mechanism is exact: deleting the atoms in an arc subtracts a
+discrete prolate concentration operator from a multiple of the identity, and
+the constant dies as the prolate tail, measured slope 3.070 against the
+classical &#960;. The zeta ordinates with the same arc cut out die on the same
+curve. And the reason rh31 never saw it: across its entire grid, the living
+material builds no void wider than K = 1.45 kernel widths — the death
+zone starts at K &#8776; 2 and is unpopulated. The constant 1/1.81 was
+geography, not law.</p>
+</section>
+
+<section id="s2">
+<h2>2 · The identity: a void is a concentration operator</h2>
+
+<p>Take the crystal: 2M equispaced atoms on the circle, unit weights, mirror
+symmetric. Its certificate is perfect, and the reason is one line. For any
+polynomial p(z) = &#931;<sub>k&lt;n</sub> c<sub>k</sub>z<sup>k</sup> with
+n &#8804; 2M, the atom sum of |p|&#178; hits every pair frequency
+k&#8722;l with |k&#8722;l| &lt; n &#8804; 2M, and a full lattice sum of
+e<sup>i(k&#8722;l)&#952;</sup> vanishes unless 2M divides k&#8722;l — so only
+the diagonal survives:</p>
+
+<div class="cardbox">
+&#931;<sub>atoms</sub> |p(&#952;<sub>j</sub>)|&#178; = 2M&#183;&#8214;c&#8214;&#178;
+&emsp;for every p of degree &lt; n &#8804; 2M
+&emsp;&emsp;(verified on random polynomials to 2.4&#215;10&#8315;&#185;&#8309;),
+<br>
+so the moment matrix is T<sub>n</sub> = 2M&#183;I exactly — every off-diagonal
+moment E(k), 0 &lt; k &lt; 2M, is zero to machine precision (4.3&#215;10&#8315;&#185;&#178;).
+</div>
+
+<p>Now delete the atoms in an arc of width W. The moment matrix of the
+remaining measure is T<sub>n</sub> = 2M&#183;I &#8722; A, where A is the moment
+operator of the deleted atoms alone — a sum, over deleted atoms, of rank-two
+projectors built from the cosine and sine coefficient vectors
+c<sub>a</sub> = (cos k&#952;<sub>a</sub>)<sub>k&lt;n</sub>,
+s<sub>a</sub> = (sin k&#952;<sub>a</sub>)<sub>k&lt;n</sub>. Hence,
+exactly:</p>
+
+<div class="cardbox">
+&#955;<sub>min</sub>(T<sub>n</sub>) = 2M &#8722; &#955;<sub>max</sub>(A),
+&emsp;&#955;<sub>max</sub>(A) computable from the tiny Gram matrix of the
+deleted atoms&#8217; vectors.
+<br>
+Verified by two independent eigensolvers — Toeplitz inertia bisection on the
+big matrix against Jacobi on the small Gram — to 9.1&#215;10&#8315;&#185;&#179; at
+(M = 300, n = 60, K = 2), and to 5.2&#215;10&#8315;&#185;&#185; at (M = 600, n = 60, K = 8), where
+the Gram is 160 &#215; 160 and &#955;<sub>min</sub> has fallen ten orders
+below the mass.
+</div>
+
+<p>A is a familiar object: it is the <strong>discrete prolate concentration
+operator</strong> of the void — the operator whose top eigenvector is the
+degree-n polynomial most concentrated on the deleted arc. Its spectrum has the
+classical three-part shape (fig. 1, left): a plateau of eigenvalues hugging
+the mass, a plunge, and an exponential tail. At K = 4 the plateau holds
+exactly 4 eigenvalues above half the mass — Landau&#8217;s count: <em>a void
+of K kernel wavelengths steals K degrees of freedom</em> — and the top
+eigenvalue&#8217;s deficit is 5.5&#215;10&#8315;&#8309;. A polynomial can hide that much of
+its norm inside the void; what it cannot hide is the rest, and
+&#955;<sub>min</sub> is exactly the part that cannot be hidden.</p>
+</section>
+
+<section id="s3">
+<h2>3 · The collapse: one exponential, four grids</h2>
+
+<p>The identity reduces the whole question to one function: how fast does the
+top concentration eigenvalue approach the mass as the void widens? The
+classical prolate theory says the deficit 1 &#8722; l<sub>1</sub> depends on
+the void only through its <em>time-bandwidth</em> K = nW/2&#960; — the width
+in units of the kernel wavelength 2&#960;/n — and dies like
+e<sup>&#8722;&#960;K</sup>. Both statements are measured here directly.</p>
+
+<p>Four crystal grids — M = 300 and 600, n = 60 and 120, sixteen nominal
+widths each — and the deficit collapses onto one curve in K (fig. 1, right).
+The two grids that share a lattice ratio share their achieved-width ladder
+exactly, and their deficits agree to 0.6% through K = 3.1 and within
+8% out to K = 8.1 — where the deficit itself has fallen ten decades;
+the residual drift grows smoothly with K and is the finite-n correction to the
+continuum prolate limit, not scatter. Two honest quantisation notes are part
+of the measurement: the crystal can only cut voids at lattice widths, so
+every point is plotted at its <em>achieved</em> K, and at special nominal
+widths the deletion boundary lands exactly on an atom pair, shifting the
+achieved K by one lattice step — those points sit on the fitted line at their
+true K, which is how the line was fitted.</p>
+
+<div class="cardbox">
+ln(1 &#8722; l<sub>1</sub>) fitted over all four grids, K &#8712; [3, 8.6],
+44 points:
+&emsp;slope <strong>&#945; = 3.070</strong>, within 2.3% of the
+prolate exponent &#960; = 3.1416;
+&emsp;prefactor 16;
+&emsp;every point within 0.22 in ln.
+</div>
+
+<p>So the crystal&#8217;s certificate under a void is solved to measurement
+precision: &#955;<sub>min</sub>/mass = 1 &#8722; l<sub>1</sub>(K) exactly, and
+1 &#8722; l<sub>1</sub>(K) &#8776; 16&#183;e<sup>&#8722;3.070K</sup>
+on the measured range.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 464" role="img" aria-label="Left: the eigenvalue staircase of the deleted-atom Gram matrix at K = 4 — a plateau of four eigenvalues at the mass, a plunge, and an exponential tail. Right: the top eigenvalue deficit against the void time-bandwidth K for four crystal grids, collapsing onto one exponential with slope 3.07, within 2.3 percent of the prolate exponent pi.">
+<text x="370.0" y="21" class="ftitle">the void is a concentration operator</text>
+<line x1="56" y1="58.0" x2="330" y2="58.0" class="rule"/>
+<text x="330" y="52.0" class="flab end c4">the mass</text>
+<line x1="56" y1="179.0" x2="330" y2="179.0" class="grid"/>
+<text x="51" y="182.5" class="flab end">&#189;</text>
+<text x="51" y="61.5" class="flab end">1</text>
+<text x="51" y="303.5" class="flab end">0</text>
+<rect x="58.8" y="58.0" width="14" height="242.0" class="bar hm1"/>
+<text x="65.8" y="53.0" class="flab mid hm1">1</text>
+<rect x="78.4" y="58.6" width="14" height="241.4" class="bar hm1"/>
+<text x="85.4" y="53.6" class="flab mid hm1">2</text>
+<rect x="97.9" y="67.7" width="14" height="232.3" class="bar hm1"/>
+<text x="104.9" y="62.7" class="flab mid hm1">3</text>
+<rect x="117.5" y="125.1" width="14" height="174.9" class="bar hm1"/>
+<text x="124.5" y="120.1" class="flab mid hm1">4</text>
+<rect x="137.1" y="233.7" width="14" height="66.3" class="bar hm1"/>
+<rect x="156.6" y="289.7" width="14" height="10.3" class="bar hm1"/>
+<rect x="176.2" y="299.2" width="14" height="0.8" class="bar hm1"/>
+<rect x="195.8" y="300.0" width="14" height="0.8" class="bar hm1"/>
+<rect x="215.4" y="300.0" width="14" height="0.8" class="bar hm1"/>
+<rect x="234.9" y="300.0" width="14" height="0.8" class="bar hm1"/>
+<rect x="254.5" y="300.0" width="14" height="0.8" class="bar hm1"/>
+<rect x="274.1" y="300.0" width="14" height="0.8" class="bar hm1"/>
+<rect x="293.6" y="300.0" width="14" height="0.8" class="bar hm1"/>
+<rect x="313.2" y="300.0" width="14" height="0.8" class="bar hm1"/>
+<line x1="56" y1="300" x2="330" y2="300" class="axis"/>
+<line x1="56" y1="58" x2="56" y2="300" class="axis"/>
+<text x="193" y="316" class="flab mid">eigenvalues of the deleted Gram, K = 4</text>
+<text x="68" y="178" class="flab st">four eigenvalues hug the mass</text>
+<text x="68" y="195" class="flab st">&#8212; Landau&#8217;s count K &#8212; then the</text>
+<text x="68" y="212" class="flab st">plunge; the top deficit is</text>
+<text x="68" y="229" class="flab st">5.5&#215;10&#8315;&#8309;</text>
+<line x1="420" y1="276.3" x2="716" y2="276.3" class="grid"/>
+<line x1="420" y1="252.5" x2="716" y2="252.5" class="grid"/>
+<text x="415" y="256.0" class="flab end">10&#8315;&#8312;</text>
+<line x1="420" y1="228.8" x2="716" y2="228.8" class="grid"/>
+<line x1="420" y1="205.1" x2="716" y2="205.1" class="grid"/>
+<text x="415" y="208.6" class="flab end">10&#8315;&#8310;</text>
+<line x1="420" y1="181.4" x2="716" y2="181.4" class="grid"/>
+<line x1="420" y1="157.6" x2="716" y2="157.6" class="grid"/>
+<text x="415" y="161.1" class="flab end">10&#8315;&#8308;</text>
+<line x1="420" y1="133.9" x2="716" y2="133.9" class="grid"/>
+<line x1="420" y1="110.2" x2="716" y2="110.2" class="grid"/>
+<text x="415" y="113.7" class="flab end">10&#8315;&#178;</text>
+<line x1="420" y1="86.5" x2="716" y2="86.5" class="grid"/>
+<line x1="420" y1="62.7" x2="716" y2="62.7" class="grid"/>
+<text x="415" y="66.2" class="flab end">10&#8304;</text>
+<text x="420.0" y="316" class="flab mid">0</text>
+<text x="488.8" y="316" class="flab mid">2</text>
+<text x="557.7" y="316" class="flab mid">4</text>
+<text x="626.5" y="316" class="flab mid">6</text>
+<text x="695.3" y="316" class="flab mid">8</text>
+<line x1="420" y1="300" x2="716" y2="300" class="axis"/>
+<line x1="420" y1="58" x2="420" y2="300" class="axis"/>
+<path d="M461.3 72.2L712.6 300.0" class="ln4 lnd"/>
+<circle cx="437.2" cy="67.7" r="2.4" class="hm1"/>
+<circle cx="457.9" cy="78.6" r="2.4" class="hm1"/>
+<circle cx="471.6" cy="87.8" r="2.4" class="hm1"/>
+<circle cx="492.3" cy="103.8" r="2.4" class="hm1"/>
+<circle cx="506.0" cy="115.3" r="2.4" class="hm1"/>
+<circle cx="526.7" cy="133.3" r="2.4" class="hm1"/>
+<circle cx="540.5" cy="145.5" r="2.4" class="hm1"/>
+<circle cx="561.1" cy="164.0" r="2.4" class="hm1"/>
+<circle cx="574.9" cy="176.5" r="2.4" class="hm1"/>
+<circle cx="595.5" cy="195.4" r="2.4" class="hm1"/>
+<circle cx="609.3" cy="208.1" r="2.4" class="hm1"/>
+<circle cx="630.0" cy="227.2" r="2.4" class="hm1"/>
+<circle cx="650.6" cy="246.4" r="2.4" class="hm1"/>
+<circle cx="664.4" cy="259.2" r="2.4" class="hm1"/>
+<circle cx="678.1" cy="272.2" r="2.4" class="hm1"/>
+<circle cx="698.8" cy="291.6" r="2.4" class="hm1"/>
+<circle cx="440.7" cy="67.8" r="2.4" class="hm2"/>
+<circle cx="454.4" cy="74.7" r="2.4" class="hm2"/>
+<circle cx="482.0" cy="93.3" r="2.4" class="hm2"/>
+<circle cx="495.7" cy="104.3" r="2.4" class="hm2"/>
+<circle cx="509.5" cy="116.0" r="2.4" class="hm2"/>
+<circle cx="523.3" cy="128.0" r="2.4" class="hm2"/>
+<circle cx="550.8" cy="152.7" r="2.4" class="hm2"/>
+<circle cx="564.6" cy="165.2" r="2.4" class="hm2"/>
+<circle cx="578.3" cy="177.8" r="2.4" class="hm2"/>
+<circle cx="592.1" cy="190.5" r="2.4" class="hm2"/>
+<circle cx="619.6" cy="216.0" r="2.4" class="hm2"/>
+<circle cx="633.4" cy="228.8" r="2.4" class="hm2"/>
+<circle cx="647.2" cy="241.6" r="2.4" class="hm2"/>
+<circle cx="660.9" cy="254.5" r="2.4" class="hm2"/>
+<circle cx="688.5" cy="280.3" r="2.4" class="hm2"/>
+<circle cx="702.2" cy="293.3" r="2.4" class="hm2"/>
+<circle cx="438.9" cy="69.2" r="2.4" class="hm3"/>
+<circle cx="456.1" cy="78.5" r="2.4" class="hm3"/>
+<circle cx="473.3" cy="90.2" r="2.4" class="hm3"/>
+<circle cx="490.6" cy="103.7" r="2.4" class="hm3"/>
+<circle cx="507.8" cy="118.1" r="2.4" class="hm3"/>
+<circle cx="525.0" cy="133.0" r="2.4" class="hm3"/>
+<circle cx="542.2" cy="148.3" r="2.4" class="hm3"/>
+<circle cx="559.4" cy="163.7" r="2.4" class="hm3"/>
+<circle cx="576.6" cy="179.3" r="2.4" class="hm3"/>
+<circle cx="593.8" cy="195.0" r="2.4" class="hm3"/>
+<circle cx="611.0" cy="210.8" r="2.4" class="hm3"/>
+<circle cx="628.2" cy="226.6" r="2.4" class="hm3"/>
+<circle cx="645.4" cy="242.6" r="2.4" class="hm3"/>
+<circle cx="662.7" cy="258.6" r="2.4" class="hm3"/>
+<circle cx="679.9" cy="274.7" r="2.4" class="hm3"/>
+<circle cx="697.1" cy="290.9" r="2.4" class="hm3"/>
+<circle cx="437.2" cy="67.7" r="2.4" class="hm4"/>
+<circle cx="457.9" cy="78.6" r="2.4" class="hm4"/>
+<circle cx="471.6" cy="87.8" r="2.4" class="hm4"/>
+<circle cx="492.3" cy="103.8" r="2.4" class="hm4"/>
+<circle cx="506.0" cy="115.3" r="2.4" class="hm4"/>
+<circle cx="526.7" cy="133.2" r="2.4" class="hm4"/>
+<circle cx="547.3" cy="151.5" r="2.4" class="hm4"/>
+<circle cx="561.1" cy="163.9" r="2.4" class="hm4"/>
+<circle cx="574.9" cy="176.3" r="2.4" class="hm4"/>
+<circle cx="595.5" cy="195.1" r="2.4" class="hm4"/>
+<circle cx="609.3" cy="207.7" r="2.4" class="hm4"/>
+<circle cx="630.0" cy="226.6" r="2.4" class="hm4"/>
+<circle cx="643.7" cy="239.3" r="2.4" class="hm4"/>
+<circle cx="664.4" cy="258.4" r="2.4" class="hm4"/>
+<circle cx="678.1" cy="271.1" r="2.4" class="hm4"/>
+<circle cx="698.8" cy="290.3" r="2.4" class="hm4"/>
+<text x="434" y="195.6078431372549" class="flab st">1 &#8722; l<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan>(K), four grids:</text>
+<circle cx="440" cy="208.6078431372549" r="2.4" class="hm1"/>
+<text x="450" y="212.6078431372549" class="flab st hm1">M = 300, n = 60</text>
+<circle cx="440" cy="224.6078431372549" r="2.4" class="hm2"/>
+<text x="450" y="228.6078431372549" class="flab st hm2">M = 300, n = 120</text>
+<circle cx="440" cy="240.6078431372549" r="2.4" class="hm3"/>
+<text x="450" y="244.6078431372549" class="flab st hm3">M = 600, n = 60</text>
+<circle cx="440" cy="256.6078431372549" r="2.4" class="hm4"/>
+<text x="450" y="260.6078431372549" class="flab st hm4">M = 600, n = 120</text>
+<text x="602.4" y="110.2" class="flab st c4">slope 3.07</text>
+<text x="602.4" y="127.2" class="flab st c4">(&#960; = 3.14)</text>
+<text x="568" y="334" class="flab mid">K = n &#183; void width / 2&#960;</text>
+<text x="24" y="358" class="flab st">On the mirrored crystal the quadrature is exact, so the moment matrix is mass &#215; I; deleting the atoms in an arc</text>
+<text x="24" y="376" class="flab st">subtracts the frame operator A of the deleted atoms&#8217; coefficient vectors, and &#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan> = mass &#8722; &#955;max(A) EXACTLY (two</text>
+<text x="24" y="394" class="flab st">eigensolvers agree to between 9.1&#215;10&#8315;&#185;&#179; and 5.2&#215;10&#8315;&#185;&#185; on mass 1200). A is the discrete prolate concentration operator</text>
+<text x="24" y="412" class="flab st">of the void: a plateau, a plunge of width ~K, an exponential tail whose slope in the time-bandwidth K is the classical</text>
+<text x="24" y="430" class="flab st">prolate exponent &#960; to 2.3%. The visible steps in K are lattice quantisation of the achieved void width.</text>
+</svg></div>
+<figcaption>Left: the deleted-atom Gram&#8217;s spectrum at K = 4 — plateau,
+plunge, tail. Right: the deficit 1 &#8722; l<sub>1</sub> against achieved K
+for four grids, one exponential.</figcaption></figure>
+</section>
+
+<section id="s4">
+<h2>4 · The death of the constant</h2>
+
+<p>rh31&#8217;s conjecture compares &#955;<sub>min</sub> with the emptiest-arc
+ceiling C<sub>n</sub>. On the punctured crystal the ceiling is also one
+integral: centred mid-void, the Fej&#233;r translate sees only the two tails
+that leak past the void edges, and the tail integral gives</p>
+
+<div class="cardbox">
+C<sub>n</sub> &#8776; (2/&#960;&#178;)&#183;mass/K = 0.2026&#183;mass/K,
+&emsp;measured to 6.2% for all K &#8805; 2 (the residual is the
+sinc&#178; tail&#8217;s own oscillation about its mean).
+</div>
+
+<p>Divide the identity by the ceiling law and the fate of rh31&#8217;s
+constant is decided:</p>
+
+<div class="cardbox">
+c(K) = &#955;<sub>min</sub>/C<sub>n</sub> =
+(&#960;&#178;K/2)&#183;(1 &#8722; l<sub>1</sub>(K)).
+<br>
+Composed from the two independently measured quantities of &#167;3 and this
+section, this reproduces the directly measured death curve to 6.2%
+over five decades, K = 2.1 to 6.1 — and the worst point is the ceiling
+law&#8217;s own oscillation, not the tail&#8217;s.
+</div>
+
+<p>The numbers along the curve (fig. 2): c is still 0.72 at K = 1.5; it is
+0.19 at K = 2.1 — a factor 3.8 lost across 0.6 of width, the cliff —
+and 3.7&#215;10&#8315;&#8310; by K = 6.1. There is no absolute constant; there is a function of
+the void width, and it dies at the prolate rate.</p>
+
+<p>The crystal proves the mechanism; the arc&#8217;s own material confirms it
+is not a crystal artefact. Take the wrapped ordinates at mesh 0.12, depth
+n = 61 — equal weights (positions only) or the full searched-0.12 window — and
+cut the same arc out of the wrapped circle. With no cut, both sit at ratios
+0.97 and 0.93, rh31&#8217;s regime. With the cut, both death curves
+track the crystal&#8217;s within a factor 1.9 while c falls six decades
+(fig. 2). At K = 6 the searched window&#8217;s own atoms, with one arc
+removed, give c = 3.5&#215;10&#8315;&#8310;: <strong>the measure rh31 ordered found is in hand,
+and it is the arc&#8217;s own measure with one void.</strong> Certificates die
+on voids, and on nothing else that thirteen documents of window search, five
+probes of this one, or 336 grid points have produced.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 490" role="img" aria-label="The ratio lambda-min over the Fejer ceiling against void width K: crystal, zeros with equal weights, and zeros with the searched window all fall on one curve dropping six decades from K = 1.5 to K = 6, matching the composed prediction pi-squared K over 2 times the prolate tail. The living material occupies K up to 1.45 only.">
+<text x="370.0" y="21" class="ftitle">the death of the constant</text>
+<rect x="60" y="58" width="93.0" height="272" class="hm1" fill-opacity=".07"/>
+<line x1="60" y1="321.7" x2="470" y2="321.7" class="grid"/>
+<text x="55" y="325.2" class="flab end">10&#8315;&#8310;</text>
+<line x1="60" y1="280.2" x2="470" y2="280.2" class="grid"/>
+<text x="55" y="283.7" class="flab end">10&#8315;&#8309;</text>
+<line x1="60" y1="238.6" x2="470" y2="238.6" class="grid"/>
+<text x="55" y="242.1" class="flab end">10&#8315;&#8308;</text>
+<line x1="60" y1="197.1" x2="470" y2="197.1" class="grid"/>
+<text x="55" y="200.6" class="flab end">10&#8315;&#179;</text>
+<line x1="60" y1="155.6" x2="470" y2="155.6" class="grid"/>
+<text x="55" y="159.1" class="flab end">10&#8315;&#178;</text>
+<line x1="60" y1="114.1" x2="470" y2="114.1" class="grid"/>
+<text x="55" y="117.6" class="flab end">10&#8315;&#185;</text>
+<line x1="60" y1="72.5" x2="470" y2="72.5" class="grid"/>
+<text x="55" y="76.0" class="flab end">10&#8304;</text>
+<text x="60.0" y="346" class="flab mid">0</text>
+<text x="124.1" y="346" class="flab mid">1</text>
+<text x="188.1" y="346" class="flab mid">2</text>
+<text x="252.2" y="346" class="flab mid">3</text>
+<text x="316.2" y="346" class="flab mid">4</text>
+<text x="380.3" y="346" class="flab mid">5</text>
+<text x="444.4" y="346" class="flab mid">6</text>
+<line x1="60" y1="330" x2="470" y2="330" class="axis"/>
+<line x1="60" y1="58" x2="60" y2="330" class="axis"/>
+<path d="M194.5 102.2L220.2 119.2L258.6 146.6L297.0 175.5L322.7 195.3L348.3 215.4L386.7 246.0L412.3 266.7L450.8 298.0" class="ln4 lnd"/>
+<path d="M72.8 72.5L92.0 72.5L130.5 73.3L156.1 78.4L194.5 102.3L220.2 119.4L258.6 147.6L297.0 174.4L322.7 195.5L348.3 215.2L386.7 246.5L412.3 266.0L450.8 298.1" class="ln0"/>
+<circle cx="72.8" cy="72.5" r="2.6" class="hm1"/>
+<circle cx="92.0" cy="72.5" r="2.6" class="hm1"/>
+<circle cx="130.5" cy="73.3" r="2.6" class="hm1"/>
+<circle cx="156.1" cy="78.4" r="2.6" class="hm1"/>
+<circle cx="194.5" cy="102.3" r="2.6" class="hm1"/>
+<circle cx="220.2" cy="119.4" r="2.6" class="hm1"/>
+<circle cx="258.6" cy="147.6" r="2.6" class="hm1"/>
+<circle cx="297.0" cy="174.4" r="2.6" class="hm1"/>
+<circle cx="322.7" cy="195.5" r="2.6" class="hm1"/>
+<circle cx="348.3" cy="215.2" r="2.6" class="hm1"/>
+<circle cx="386.7" cy="246.5" r="2.6" class="hm1"/>
+<circle cx="412.3" cy="266.0" r="2.6" class="hm1"/>
+<circle cx="450.8" cy="298.1" r="2.6" class="hm1"/>
+<circle cx="63.3" cy="73.1" r="3.4" class="hm3" fill-opacity=".8"/>
+<circle cx="124.9" cy="74.1" r="3.4" class="hm3" fill-opacity=".8"/>
+<circle cx="189.6" cy="101.0" r="3.4" class="hm3" fill-opacity=".8"/>
+<circle cx="255.3" cy="148.0" r="3.4" class="hm3" fill-opacity=".8"/>
+<circle cx="317.4" cy="195.5" r="3.4" class="hm3" fill-opacity=".8"/>
+<circle cx="380.8" cy="244.2" r="3.4" class="hm3" fill-opacity=".8"/>
+<circle cx="446.1" cy="296.6" r="3.4" class="hm3" fill-opacity=".8"/>
+<circle cx="63.3" cy="73.8" r="3.4" class="hm4" fill-opacity=".8"/>
+<circle cx="124.9" cy="73.1" r="3.4" class="hm4" fill-opacity=".8"/>
+<circle cx="189.6" cy="100.8" r="3.4" class="hm4" fill-opacity=".8"/>
+<circle cx="255.3" cy="141.9" r="3.4" class="hm4" fill-opacity=".8"/>
+<circle cx="317.4" cy="202.7" r="3.4" class="hm4" fill-opacity=".8"/>
+<circle cx="380.8" cy="241.2" r="3.4" class="hm4" fill-opacity=".8"/>
+<circle cx="446.1" cy="299.1" r="3.4" class="hm4" fill-opacity=".8"/>
+<circle cx="76" cy="195.19083969465646" r="2.6" class="hm1"/>
+<text x="86" y="199.19083969465646" class="flab st hm1">crystal with a void (exact identity)</text>
+<circle cx="76" cy="212.19083969465646" r="3.4" class="hm3"/>
+<text x="86" y="216.19083969465646" class="flab st hm3">wrapped zeros, equal weights, cut void</text>
+<circle cx="76" cy="229.19083969465646" r="3.4" class="hm4"/>
+<text x="86" y="233.19083969465646" class="flab st hm4">wrapped zeros, searched window, cut void</text>
+<line x1="68" y1="245.19083969465646" x2="84" y2="245.19083969465646" class="ln4 lnd"/>
+<text x="86" y="250.19083969465646" class="flab st c4">composed: (&#960;&#178;K/2)(1 &#8722; l<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan>)</text>
+<text x="106.1" y="128.6" class="flab mid hm1">the material</text>
+<text x="106.1" y="143.6" class="flab mid hm1">lives here</text>
+<text x="265" y="364" class="flab mid">K = n &#183; void width / 2&#960;</text>
+<text x="20" y="194" class="flab mid" transform="rotate(-90 20 194)">c = &#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan> / C<tspan	class="sb"	dy="3">n</tspan><tspan	dy="-3"></tspan></text>
+<text x="500" y="64" class="flab st">One curve, three materials.</text>
+<text x="500" y="81" class="flab st">The crystal&#8217;s curve is the</text>
+<text x="500" y="98" class="flab st">exact identity of fig. 1;</text>
+<text x="500" y="115" class="flab st">the zeta ordinates &#8212; equal</text>
+<text x="500" y="132" class="flab st">weights or the searched</text>
+<text x="500" y="149" class="flab st">window, mesh 0.12, n = 61 &#8212;</text>
+<text x="500" y="166" class="flab st">land within a factor 1.9 of</text>
+<text x="500" y="183" class="flab st">it while c falls six</text>
+<text x="500" y="200" class="flab st">decades.</text>
+<text x="500" y="225" class="flab st c4">The cliff: c = 0.72 at K =</text>
+<text x="500" y="242" class="flab st c4">1.5, 0.19 at K = 2.1,</text>
+<text x="500" y="259" class="flab st c4">3.7&#215;10&#8315;&#8310; by K = 6.1.</text>
+<text x="500" y="284" class="flab st hm1">rh31&#8217;s grid never leaves</text>
+<text x="500" y="301" class="flab st hm1">the shaded zone (K &#8804; 1.45):</text>
+<text x="500" y="318" class="flab st hm1">its &#8220;constant&#8221; 1/1.81 was</text>
+<text x="500" y="335" class="flab st hm1">this curve, sampled at the</text>
+<text x="500" y="352" class="flab st hm1">widest emptiness the</text>
+<text x="500" y="369" class="flab st hm1">material contains.</text>
+<text x="24" y="402" class="flab st">The lemma rh31 ordered attacked &#8212; &#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan> &#8805; c &#183; C<tspan	class="sb"	dy="3">n</tspan><tspan	dy="-3"></tspan> with absolute c &#8212; is dead: cut an arc of width K kernel</text>
+<text x="24" y="420" class="flab st">wavelengths out of any of these measures and c dies exponentially, slope 3.07 per unit K, prefactor (&#960;&#178;K/2) &#183; 16.</text>
+<text x="24" y="438" class="flab st">The counterexample measure rh31 asked for is not exotic; it is the arc&#8217;s own material with one void. Certificates</text>
+<text x="24" y="456" class="flab st">die on voids, at the prolate rate.</text>
+</svg></div>
+<figcaption>The death of the constant: three materials on one curve, the
+composed prediction through them, and the shaded region where the living
+material actually lives.</figcaption></figure>
+</section>
+
+<section id="s5">
+<h2>5 · The safe zone: why rh31 never saw it</h2>
+
+<p>If the constant dies on voids, rh31&#8217;s measured 1/1.81 across 336
+points means its material has no voids. Measure that directly: for each of the
+sixteen families at each mesh, compute the emptiness profile — for every arc
+width, the minimum of &#956;(arc) relative to the uniform share — and define
+K<sub>10</sub> as the widest arc that is 10%-empty or worse, in kernel units
+at the point&#8217;s own depth. Across all 207 bulk points of
+rh31&#8217;s grid:</p>
+
+<div class="cardbox">
+max K<sub>10</sub> = <strong>1.45</strong> — the envelope&#8217;s worst
+point, whose widest thin arc runs 1.45 kernel widths at depth
+1.5% of mean density.
+<br>
+Number of bulk points with K<sub>10</sub> &#8805; 2, where the cliff begins:
+<strong>zero</strong>.
+<br>
+Number of bulk points with ratio above 1.4: <strong>one</strong> — that same
+envelope point, at 1.81, which sits between the crystal boundary&#8217;s
+1/c = 1.38 at K = 1.5 and 5.2 at K = 2.1.
+</div>
+
+<p>That is the resolution of rh31&#8217;s constant: the material&#8217;s
+widest emptiness reaches K &#8776; 1.45, the death curve at that width allows
+ratios up to a factor of a few, and the grid maximum 1.81 is exactly such a
+value. Beyond K = 2 the certificates would collapse outright — and no window
+built from zeta ordinates on this grid ever gets there, because the wrapped
+ordinates equidistribute (rh31 &#167;6: they ride the Poisson band at every
+mesh tried). <strong>The certificate floor is an equidistribution
+statement.</strong></p>
+
+<p>Inside the safe zone, honesty requires the negative result too. Against
+ln(C<sub>n</sub>/&#955;<sub>min</sub>) over the 207 bulk points, the
+width statistic correlates at +0.70, the depth of the emptiest
+kernel-width arc at &#8722;0.71, the smeared floor itself at &#8722;0.71, and
+rh30&#8217;s n/N<sub>eff</sub> at +0.60 — no single coordinate tried
+reaches 0.72 (fig. 3). The sub-1.4 fluctuations are genuinely multi-factor:
+the Slepian operator sees the whole mass profile around the thin arc, not two
+summary numbers. What is clean is the boundary of the zone, not the texture
+inside it.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 476" role="img" aria-label="Scatter of the ceiling-to-lambda ratio against the widest 10-percent-empty arc K10 for all 207 bulk grid points: everything sits at K10 below 1.5 with ratio below 1.4 except the envelope point at 1.81; the crystal death boundary rises through the right edge. Side text gives the correlation table.">
+<text x="370.0" y="21" class="ftitle">the safe zone</text>
+<line x1="60" y1="313.0" x2="470" y2="313.0" class="grid"/>
+<text x="55" y="316.5" class="flab end">1</text>
+<line x1="60" y1="264.4" x2="470" y2="264.4" class="grid"/>
+<text x="55" y="267.9" class="flab end">1.2</text>
+<line x1="60" y1="215.9" x2="470" y2="215.9" class="grid"/>
+<text x="55" y="219.4" class="flab end">1.4</text>
+<line x1="60" y1="167.3" x2="470" y2="167.3" class="grid"/>
+<text x="55" y="170.8" class="flab end">1.6</text>
+<line x1="60" y1="118.7" x2="470" y2="118.7" class="grid"/>
+<text x="55" y="122.2" class="flab end">1.8</text>
+<line x1="60" y1="70.1" x2="470" y2="70.1" class="grid"/>
+<text x="55" y="73.6" class="flab end">2</text>
+<text x="60.0" y="346" class="flab mid">0</text>
+<text x="149.1" y="346" class="flab mid">0.5</text>
+<text x="238.3" y="346" class="flab mid">1</text>
+<text x="327.4" y="346" class="flab mid">1.5</text>
+<text x="416.5" y="346" class="flab mid">2</text>
+<line x1="60" y1="330" x2="470" y2="330" class="axis"/>
+<line x1="60" y1="58" x2="60" y2="330" class="axis"/>
+<path d="M95.7 313.0L149.1 312.9L256.1 302.2L327.4 219.8" class="ln4 lnd"/>
+<text x="348.8" y="186.7" class="flab st c4">the crystal</text>
+<text x="348.8" y="201.7" class="flab st c4">death boundary</text>
+<text x="348.8" y="216.7" class="flab st c4">1/c(K), off scale</text>
+<text x="348.8" y="231.7" class="flab st c4">(5.2) by K = 2.1</text>
+<circle cx="106.3" cy="311.2" r="2.4" class="hm1"/>
+<circle cx="92.1" cy="294.7" r="2.4" class="hm1"/>
+<circle cx="124.2" cy="219.3" r="2.4" class="hm1"/>
+<circle cx="74.3" cy="308.0" r="2.4" class="hm1"/>
+<circle cx="88.5" cy="303.0" r="2.4" class="hm1"/>
+<circle cx="117.0" cy="293.8" r="2.4" class="hm1"/>
+<circle cx="74.3" cy="294.1" r="2.4" class="hm1"/>
+<circle cx="88.5" cy="288.6" r="2.4" class="hm1"/>
+<circle cx="117.0" cy="291.8" r="2.4" class="hm1"/>
+<circle cx="74.3" cy="307.3" r="2.4" class="hm1"/>
+<circle cx="88.5" cy="286.2" r="2.4" class="hm1"/>
+<circle cx="117.0" cy="270.3" r="2.4" class="hm1"/>
+<circle cx="65.0" cy="311.6" r="2.4" class="hm1"/>
+<circle cx="70.0" cy="311.9" r="2.4" class="hm1"/>
+<circle cx="80.0" cy="286.8" r="2.4" class="hm1"/>
+<circle cx="98.7" cy="298.0" r="2.4" class="hm1"/>
+<circle cx="136.1" cy="286.8" r="2.4" class="hm1"/>
+<circle cx="65.0" cy="312.5" r="2.4" class="hm1"/>
+<circle cx="70.0" cy="312.3" r="2.4" class="hm1"/>
+<circle cx="80.0" cy="311.5" r="2.4" class="hm1"/>
+<circle cx="98.7" cy="290.8" r="2.4" class="hm1"/>
+<circle cx="136.1" cy="295.6" r="2.4" class="hm1"/>
+<circle cx="65.0" cy="311.5" r="2.4" class="hm1"/>
+<circle cx="70.0" cy="311.7" r="2.4" class="hm1"/>
+<circle cx="80.0" cy="311.1" r="2.4" class="hm1"/>
+<circle cx="98.7" cy="303.3" r="2.4" class="hm1"/>
+<circle cx="136.1" cy="299.8" r="2.4" class="hm1"/>
+<circle cx="65.0" cy="311.7" r="2.4" class="hm1"/>
+<circle cx="70.0" cy="312.5" r="2.4" class="hm1"/>
+<circle cx="80.0" cy="311.3" r="2.4" class="hm1"/>
+<circle cx="98.7" cy="307.0" r="2.4" class="hm1"/>
+<circle cx="136.1" cy="309.4" r="2.4" class="hm1"/>
+<circle cx="211.0" cy="287.2" r="2.4" class="hm1"/>
+<circle cx="62.9" cy="313.0" r="2.4" class="hm1"/>
+<circle cx="65.7" cy="311.9" r="2.4" class="hm1"/>
+<circle cx="71.4" cy="312.3" r="2.4" class="hm1"/>
+<circle cx="82.1" cy="311.6" r="2.4" class="hm1"/>
+<circle cx="103.5" cy="302.0" r="2.4" class="hm1"/>
+<circle cx="146.3" cy="295.5" r="2.4" class="hm1"/>
+<circle cx="62.9" cy="312.6" r="2.4" class="hm1"/>
+<circle cx="65.7" cy="312.5" r="2.4" class="hm1"/>
+<circle cx="71.4" cy="312.5" r="2.4" class="hm1"/>
+<circle cx="82.1" cy="311.1" r="2.4" class="hm1"/>
+<circle cx="103.5" cy="303.2" r="2.4" class="hm1"/>
+<circle cx="146.3" cy="299.6" r="2.4" class="hm1"/>
+<circle cx="61.4" cy="311.4" r="2.4" class="hm1"/>
+<circle cx="62.9" cy="312.4" r="2.4" class="hm1"/>
+<circle cx="65.7" cy="310.8" r="2.4" class="hm1"/>
+<circle cx="71.1" cy="311.0" r="2.4" class="hm1"/>
+<circle cx="81.7" cy="302.5" r="2.4" class="hm1"/>
+<circle cx="103.1" cy="292.8" r="2.4" class="hm1"/>
+<circle cx="145.9" cy="285.6" r="2.4" class="hm1"/>
+<circle cx="61.4" cy="312.9" r="2.4" class="hm1"/>
+<circle cx="62.9" cy="311.5" r="2.4" class="hm1"/>
+<circle cx="65.7" cy="312.2" r="2.4" class="hm1"/>
+<circle cx="71.1" cy="310.9" r="2.4" class="hm1"/>
+<circle cx="81.7" cy="300.7" r="2.4" class="hm1"/>
+<circle cx="103.1" cy="304.4" r="2.4" class="hm1"/>
+<circle cx="145.9" cy="293.2" r="2.4" class="hm1"/>
+<circle cx="61.4" cy="312.9" r="2.4" class="hm1"/>
+<circle cx="62.9" cy="312.7" r="2.4" class="hm1"/>
+<circle cx="65.7" cy="312.0" r="2.4" class="hm1"/>
+<circle cx="71.1" cy="311.8" r="2.4" class="hm1"/>
+<circle cx="81.7" cy="307.7" r="2.4" class="hm1"/>
+<circle cx="103.1" cy="303.2" r="2.4" class="hm1"/>
+<circle cx="145.9" cy="296.5" r="2.4" class="hm1"/>
+<circle cx="68.6" cy="312.5" r="3.4" class="hm4"/>
+<circle cx="77.1" cy="311.7" r="3.4" class="hm4"/>
+<circle cx="94.2" cy="289.7" r="3.4" class="hm4"/>
+<circle cx="126.3" cy="296.2" r="3.4" class="hm4"/>
+<circle cx="190.5" cy="274.7" r="3.4" class="hm4"/>
+<circle cx="318.8" cy="239.0" r="3.4" class="hm4"/>
+<circle cx="68.6" cy="312.7" r="3.4" class="hm4"/>
+<circle cx="77.1" cy="312.1" r="3.4" class="hm4"/>
+<circle cx="94.2" cy="310.3" r="3.4" class="hm4"/>
+<circle cx="126.3" cy="290.5" r="3.4" class="hm4"/>
+<circle cx="190.5" cy="290.2" r="3.4" class="hm4"/>
+<circle cx="318.8" cy="117.5" r="3.4" class="hm4"/>
+<circle cx="65.0" cy="312.6" r="3.4" class="hm4"/>
+<circle cx="70.0" cy="311.8" r="3.4" class="hm4"/>
+<circle cx="80.0" cy="311.0" r="3.4" class="hm4"/>
+<circle cx="98.7" cy="311.8" r="3.4" class="hm4"/>
+<circle cx="136.1" cy="276.0" r="3.4" class="hm4"/>
+<circle cx="211.0" cy="256.7" r="3.4" class="hm4"/>
+<circle cx="74.3" cy="312.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="88.5" cy="309.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="117.0" cy="296.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="170.5" cy="288.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="300.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="293.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="301.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="268.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="296.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="283.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="279.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="295.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="312.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="312.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="280.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="307.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="190.5" cy="284.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="304.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="302.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="303.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="299.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="190.5" cy="278.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="65.0" cy="279.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="70.0" cy="296.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="80.0" cy="282.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="98.7" cy="294.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="136.1" cy="286.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="312.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="304.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="302.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="297.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="306.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="304.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="307.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="285.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="311.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="299.9" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="297.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="300.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="74.3" cy="308.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="88.5" cy="309.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="117.0" cy="284.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="170.5" cy="282.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="74.3" cy="312.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="88.5" cy="304.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="117.0" cy="302.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="170.5" cy="294.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="310.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="304.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="304.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="303.9" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="312.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="299.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="292.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="74.3" cy="307.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="88.5" cy="303.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="117.0" cy="300.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="288.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="299.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="292.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="74.3" cy="310.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="88.5" cy="307.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="117.0" cy="299.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="74.3" cy="282.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="88.5" cy="259.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="117.0" cy="273.9" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="81.4" cy="304.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="102.8" cy="273.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="145.6" cy="233.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="65.0" cy="311.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="70.0" cy="311.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="80.0" cy="295.9" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="98.7" cy="299.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="136.1" cy="289.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="65.0" cy="313.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="70.0" cy="310.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="80.0" cy="311.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="98.7" cy="286.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="136.1" cy="302.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="65.0" cy="309.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="70.0" cy="308.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="80.0" cy="310.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="98.7" cy="304.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="136.1" cy="301.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="313.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="309.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="296.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="297.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="311.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="310.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="307.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="301.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="308.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="293.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="281.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="290.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="312.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="311.5" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="283.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="289.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="74.3" cy="311.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="88.5" cy="311.1" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="117.0" cy="307.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="170.5" cy="286.9" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="297.0" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="280.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="284.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="287.9" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="312.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="310.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="294.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="298.8" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="190.5" cy="251.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="310.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="310.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="312.3" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="304.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="190.5" cy="262.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="68.6" cy="302.9" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="77.1" cy="287.6" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="94.2" cy="281.4" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="126.3" cy="293.7" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="190.5" cy="293.2" r="2.6" class="hm3" fill-opacity="0.5"/>
+<circle cx="318.8" cy="117.5" r="7" class="mk"/>
+<text x="306.8" y="121.5" class="flab end hm4">the envelope, 1.81</text>
+<circle cx="76" cy="66" r="2.4" class="hm1"/>
+<text x="86" y="70" class="flab st hm1">searched windows</text>
+<circle cx="76" cy="83" r="3.4" class="hm4"/>
+<text x="86" y="87" class="flab st hm4">envelope</text>
+<circle cx="76" cy="100" r="2.6" class="hm3" fill-opacity=".5"/>
+<text x="86" y="104" class="flab st hm3">random, interpolated</text>
+<text x="265" y="364" class="flab mid">K<tspan	class="sb"	dy="3">10</tspan><tspan	dy="-3"></tspan> = widest 10%-empty arc, kernel units</text>
+<text x="20" y="194" class="flab mid" transform="rotate(-90 20 194)">C<tspan	class="sb"	dy="3">n</tspan><tspan	dy="-3"></tspan> / &#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan></text>
+<text x="500" y="64" class="flab st">corr(ln ratio, &#183;), 207 points:</text>
+<text x="500" y="85" class="flab st">widest 10%-empty arc</text>
+<text x="692" y="85" class="flab end">+0.70</text>
+<text x="500" y="102" class="flab st">widest 25%-empty arc</text>
+<text x="692" y="102" class="flab end">+0.65</text>
+<text x="500" y="119" class="flab st">depth at kernel width</text>
+<text x="692" y="119" class="flab end">-0.71</text>
+<text x="500" y="136" class="flab st">smeared floor C<tspan	class="sb"	dy="3">n</tspan><tspan	dy="-3"></tspan>/E(0)</text>
+<text x="692" y="136" class="flab end">-0.71</text>
+<text x="500" y="153" class="flab st">n/N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> (rh30)</text>
+<text x="692" y="153" class="flab end">+0.60</text>
+<text x="500" y="180" class="flab st">No coordinate reaches 0.72:</text>
+<text x="500" y="197" class="flab st">inside the safe zone the</text>
+<text x="500" y="214" class="flab st">ratio is genuinely</text>
+<text x="500" y="231" class="flab st">multi-factor. What IS</text>
+<text x="500" y="248" class="flab st">clean: no bulk point has</text>
+<text x="500" y="265" class="flab st">K<tspan	class="sb"	dy="3">10</tspan><tspan	dy="-3"></tspan> &#8805; 2, and the one</text>
+<text x="500" y="282" class="flab st">point past 1.4 owns the</text>
+<text x="500" y="299" class="flab st">widest, deepest near-void</text>
+<text x="500" y="316" class="flab st">on the grid.</text>
+<text x="24" y="388" class="flab st">Where the death law leaves rh31&#8217;s grid: the living material builds no voids. The widest arc that is even 10%-empty</text>
+<text x="24" y="406" class="flab st">spans K = 1.45 kernel widths &#8212; the envelope&#8217;s worst point, at depth 1.5% &#8212; and the cliff begins at K &#8776; 2. The measured</text>
+<text x="24" y="424" class="flab st">maximum 1.81 sits between the crystal boundary&#8217;s 1.38 at K = 1.5 and 5.2 at K = 2.1: rh31&#8217;s constant was geography,</text>
+<text x="24" y="442" class="flab st">not law.</text>
+</svg></div>
+<figcaption>All 207 bulk points against their widest 10%-empty arc: nothing
+past K = 1.45, one point past ratio 1.4, and the crystal death boundary rising
+through the right edge.</figcaption></figure>
+</section>
+
+<section id="s6">
+<h2>6 · The envelope anomaly, resolved</h2>
+
+<p>rh31 &#167;8 (b) asked a deliberately cheap, sharp question. The envelope —
+the window with no polynomial factor, whose heavy atoms are the first hundred
+consecutive zeros — fits the emptiest-arc law at 1.81 where every other family
+stays under 1.39; and consecutive wrapped ordinates carry the one long-range
+structure rh31 &#167;6 detected, the 10% excess over the Poisson band at
+&#916;&#8242; = 0.09. Same arithmetic? Three experiments, all at the
+envelope&#8217;s worst point (mesh 0.12, n = 121, x = n/N<sub>eff</sub> =
+0.92):</p>
+
+<div class="cardbox">
+<strong>Shuffle.</strong> Permute the same weight multiset across the same
+atoms — six draws: median 1.62, and two of the six
+<em>exceed</em> the original 1.81. The consecutive-ordinate assignment is not
+required.
+<br>
+<strong>Poisson.</strong> Same weights on synthetic uniform positions — six
+draws: median 1.64, one draw at 3.59 — twice the anomaly, from
+pure noise. 1.81 was never a structural ceiling.
+<br>
+<strong>The arithmetic mesh.</strong> At &#916;&#8242; = 0.09 itself the
+envelope&#8217;s ratio <em>falls</em> to 1.49 (searched-0.12 control at
+the same mesh and depth: 1.06). The anomaly does not live where the
+arithmetic excess lives.
+</div>
+
+<p>Answer: no — different phenomena. What makes the envelope special is its
+weight profile: a few heavy atoms over a light sea (N<sub>eff</sub> =
+131 across 4,308 ordinates), which is precisely the profile that
+builds a wide, shallow near-void — the grid&#8217;s widest and deepest
+(&#167;5) — at the bulk edge. Analysis, not arithmetic. The one place
+arithmetic was on offer, the mesh that over-orders the wrapped ordinates, it
+made the certificate <em>better</em>, not worse — as equidistribution-priced
+certificates should.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 480" role="img" aria-label="Bars: the envelope original ratio 1.81; six weight-shuffle draws with median 1.62, two exceeding the original; six Poisson-position draws with median 1.64, one reaching 3.59; the envelope at mesh 0.09 falling to 1.49; the searched control at 1.06. The anomaly is the weight profile, not consecutive-zero arithmetic.">
+<text x="370.0" y="21" class="ftitle">the envelope anatomy</text>
+<line x1="60" y1="237.4" x2="716" y2="237.4" class="grid"/>
+<text x="55" y="240.9" class="flab end">1</text>
+<line x1="60" y1="174.7" x2="716" y2="174.7" class="grid"/>
+<text x="55" y="178.2" class="flab end">2</text>
+<line x1="60" y1="112.1" x2="716" y2="112.1" class="grid"/>
+<text x="55" y="115.6" class="flab end">3</text>
+<line x1="60" y1="186.9" x2="716" y2="186.9" class="rule"/>
+<text x="716" y="164.9" class="flab end c4">the original, 1.81</text>
+<rect x="66.1" y="186.9" width="31.5" height="113.1" class="bar hm4"/>
+<text x="81.9" y="181.9" class="flab mid hm4">1.81</text>
+<text x="81.9" y="315" class="flab mid">orig</text>
+<rect x="109.9" y="215.4" width="31.5" height="84.6" class="bar hm1"/>
+<text x="125.6" y="210.4" class="flab mid hm1">1.35</text>
+<text x="125.6" y="315" class="flab mid">s1</text>
+<rect x="153.6" y="219.7" width="31.5" height="80.3" class="bar hm1"/>
+<text x="169.3" y="214.7" class="flab mid hm1">1.28</text>
+<text x="169.3" y="315" class="flab mid">s2</text>
+<rect x="197.3" y="180.0" width="31.5" height="120.0" class="bar hm1"/>
+<text x="213.1" y="206.0" class="flab mid">1.92</text>
+<text x="213.1" y="315" class="flab mid">s3</text>
+<rect x="241.1" y="198.3" width="31.5" height="101.7" class="bar hm1"/>
+<text x="256.8" y="224.3" class="flab mid">1.62</text>
+<text x="256.8" y="315" class="flab mid">s4</text>
+<rect x="284.8" y="176.1" width="31.5" height="123.9" class="bar hm1"/>
+<text x="300.5" y="202.1" class="flab mid">1.98</text>
+<text x="300.5" y="315" class="flab mid">s5</text>
+<rect x="328.5" y="204.1" width="31.5" height="95.9" class="bar hm1"/>
+<text x="344.3" y="199.1" class="flab mid hm1">1.53</text>
+<text x="344.3" y="315" class="flab mid">s6</text>
+<rect x="372.3" y="210.9" width="31.5" height="89.1" class="bar hm3"/>
+<text x="388.0" y="205.9" class="flab mid hm3">1.42</text>
+<text x="388.0" y="315" class="flab mid">p1</text>
+<rect x="416.0" y="206.5" width="31.5" height="93.5" class="bar hm3"/>
+<text x="431.7" y="201.5" class="flab mid hm3">1.49</text>
+<text x="431.7" y="315" class="flab mid">p2</text>
+<rect x="459.7" y="211.9" width="31.5" height="88.1" class="bar hm3"/>
+<text x="475.5" y="206.9" class="flab mid hm3">1.41</text>
+<text x="475.5" y="315" class="flab mid">p3</text>
+<rect x="503.5" y="75.1" width="31.5" height="224.9" class="bar hm3"/>
+<text x="519.2" y="70.1" class="flab mid hm3">3.59</text>
+<text x="519.2" y="315" class="flab mid">p4</text>
+<rect x="547.2" y="174.6" width="31.5" height="125.4" class="bar hm3"/>
+<text x="562.9" y="200.6" class="flab mid">2.00</text>
+<text x="562.9" y="315" class="flab mid">p5</text>
+<rect x="590.9" y="197.5" width="31.5" height="102.5" class="bar hm3"/>
+<text x="606.7" y="223.5" class="flab mid">1.64</text>
+<text x="606.7" y="315" class="flab mid">p6</text>
+<rect x="634.7" y="206.8" width="31.5" height="93.2" class="bar hm2"/>
+<text x="650.4" y="201.8" class="flab mid hm2">1.49</text>
+<text x="650.4" y="315" class="flab mid">0.09</text>
+<rect x="678.4" y="233.3" width="31.5" height="66.7" class="bar hmo"/>
+<text x="694.1" y="228.3" class="flab mid hmo">1.06</text>
+<text x="694.1" y="315" class="flab mid">ctrl</text>
+<line x1="60" y1="300" x2="716" y2="300" class="axis"/>
+<line x1="60" y1="62" x2="60" y2="300" class="axis"/>
+<text x="388" y="333" class="flab mid">original &#183; six weight shuffles &#183; six Poisson position draws &#183; envelope at &#916;&#8242; = 0.09 &#183; searched control at 0.09</text>
+<text x="20" y="181" class="flab mid" transform="rotate(-90 20 181)">C<tspan	class="sb"	dy="3">n</tspan><tspan	dy="-3"></tspan> / &#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan></text>
+<text x="24" y="356" class="flab st">rh31 &#167;8 (b) asked one sharp question: are the envelope&#8217;s 1.81 and the &#916;&#8242; = 0.09 excess the same arithmetic? No.</text>
+<text x="24" y="374" class="flab st">Permuting the same weights over the same atoms reproduces the anomaly (median 1.62, two of six draws above the</text>
+<text x="24" y="392" class="flab st">original); pure-noise Poisson positions reproduce it (median 1.64, one draw at 3.59, twice the anomaly); and AT the</text>
+<text x="24" y="410" class="flab st">arithmetic mesh 0.09 the ratio falls to 1.49 while the searched control reads 1.06. What makes the envelope special is</text>
+<text x="24" y="428" class="flab st">its weight profile &#8212; a few heavy atoms over a light sea, which is what builds the grid&#8217;s one wide near-void at the</text>
+<text x="24" y="446" class="flab st">bulk edge (x = 0.92). Analysis, not arithmetic.</text>
+</svg></div>
+<figcaption>The envelope anatomy: original, six shuffles, six Poisson draws,
+the arithmetic mesh, and the searched control.</figcaption></figure>
+</section>
+
+<section id="s7">
+<h2>7 · The conjunction</h2>
+
+<p>Nine certified points, unchanged by design — the machinery has now idled
+through three documents, per the standing order. What this document does to
+the conjunction-shaped statement is surgery, not growth.</p>
+
+<p><strong>What died.</strong> &#8220;&#955;<sub>min</sub> &#8805;
+c&#183;C<sub>n</sub>(&#956;) with absolute c, in the bulk&#8221; is refuted by
+construction, on the arc&#8217;s own material, with the counterexample
+demanded in advance by rh31 &#167;8 (a). The failure is not a pathology; it is
+the prolate uncertainty principle doing exactly what it must.</p>
+
+<p><strong>What replaced it.</strong> The repaired conjecture is
+two-parameter: for a mirrored atomic measure whose widest thin arc spans K
+kernel wavelengths at resolution n,</p>
+
+<div class="cardbox">
+&#955;<sub>min</sub> &#8805; C<sub>n</sub>&#183;c(K),
+&emsp;c(K) = (&#960;&#178;K/2)(1 &#8722; l<sub>1</sub>(K)) —
+<br>
+exact on the crystal by the identity of &#167;2; obeyed by every constructed
+void on zeta material within a factor 1.9 (&#167;4); and vacuously safe
+on rh31&#8217;s whole grid, where K never exceeds 1.45 and c(1.45)
+is still order one. For zeta windows the hypothesis &#8220;K stays
+small&#8221; is not an assumption to add — it is what rh31 &#167;6 measured:
+wrapped ordinates equidistribute, so the material cannot build the void that
+kills it.
+</div>
+
+<p><strong>What a proof now needs.</strong> Two steps, one of which is done.
+The <em>concentration step</em> — the void&#8217;s operator eats at most
+1 &#8722; c(K) of the mass — is the classical prolate theory, measured here to
+6.2%; on the crystal it is exact. The <em>quadrature step</em> — the
+atoms dominate a smoothed density on degree-n forms, so that the crystal
+computation transfers — is exact on the crystal (&#167;2, one line) and is the
+single remaining analytic gap for real configurations: a one-sided
+Marcinkiewicz&#8211;Zygmund statement for Poisson-band point sets, loss
+bounded by a function of the gap statistic alone. That is a smaller, sharper
+target than anything the arc has previously called the missing lemma; and it
+is a statement about the <em>spacings of the zeros</em>, which is where the
+arithmetic was always going to have to enter.</p>
+
+<p><strong>Where the conjunction stands, plainly.</strong> Still about forms,
+not about &#950; — a proof of the repaired conjecture would convert every
+emptiest-arc number into a floor for every window at once, which is the
+family-level statement rh30 asked for, but it bounds no zero and moves no
+zero-free region. What has changed is that the arc now knows, with a measured
+law and an exact identity behind it, <em>what a certificate is made of</em>:
+equidistribution of the wrapped ordinates at every scale down to one kernel
+width. The programme&#8217;s own diagnosis from rh30 — that as a counterexample
+search it is outclassed — stands; the surviving value is that the objects it
+certifies are now understood to two-parameter precision.</p>
+</section>
+
+<section id="s8">
+<h2>8 · What this document leaves</h2>
+
+<dl class="dict">
+<dt>(a) the quadrature lemma</dt>
+<dd>The one analytic step left in the repaired conjecture: for mirrored atomic
+measures whose emptiness profile stays above depth q at all widths beyond K
+kernel units, prove the atom sum dominates a smoothed density on degree-n
+forms with loss a function of (q, K) alone. On the crystal the loss is 1,
+exactly (&#167;2); the concentration step is classical. The objects are
+Marcinkiewicz&#8211;Zygmund inequalities with gaps and Nazarov&#8211;Tur&#225;n
+lower bounds; the honest failure branch is a real-ordinate configuration where
+domination fails at bounded (q, K) — which the death curve says would itself
+be a new kind of structure.</dd>
+<dt>(b) the texture inside the safe zone</dt>
+<dd>Below K = 1.5 no single coordinate organises the ratio&#8217;s [1, 1.4]
+fluctuations (best correlation +0.70 of the five tried, &#167;5). Either
+find the two-parameter law — width &#215; depth with the filler geometry
+priced — or show by construction that no low-dimensional statistic can: build
+two measures with identical (K, depth) profiles and measurably different
+ratios. The second outcome is cheaper and would close the question
+honestly.</dd>
+<dt>(c) the certified set stays closed</dt>
+<dd>Standing order, renewed a third time. The machinery idles until (a)
+produces the lemma — at which point every emptiest-arc number on every window
+becomes a certified floor wholesale, priced by c(K) — or until someone
+exhibits the failing configuration, at which point the arc will know that
+even equidistribution is not enough. Both outcomes retire the window search
+permanently.</dd>
+</dl>
+
+<p class="foot">57 named checks in 61 s. Four computed SVG
+figures, light and dark verified. Anchors and CSS classes audited against
+rh4&#8211;rh31. No new certificates. Previous: <a href="rh31.html">rh31 · the
+emptiest arc</a>.</p>
+</section>
+
+
+</div>
+</body>
+</html>

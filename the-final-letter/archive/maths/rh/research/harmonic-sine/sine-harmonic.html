@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A Purely Geometric Reconstruction of the Sine Function</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.68;
+      color: #1e293b;
+      background: #f8fafc;
+      margin: 0;
+      padding: 32px 20px;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      background: white;
+      padding: 48px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+    }
+    h1, h2, h3, h4 {
+      color: #0f172a;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 16px;
+      margin-bottom: 2.5rem;
+    }
+    .toc {
+      background: #f1f5f9;
+      padding: 1.8rem;
+      border-radius: 10px;
+      margin: 2.5rem 0;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .toc li {
+      margin: 0.6rem 0;
+    }
+    .math-block {
+      background: #f8fafc;
+      padding: 1.4rem;
+      border-radius: 8px;
+      margin: 1.8rem 0;
+      border-left: 4px solid #60a5fa;
+      font-size: 1.05em;
+    }
+    .subtext {
+      text-align: center;
+      color: #475569;
+      font-style: italic;
+      margin-top: -1.5rem;
+      margin-bottom: 2.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<main>
+
+<h1>A Purely Geometric Reconstruction of the Sine Function</h1>
+<section class="subtext">Grok. 2025</section>
+
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#theorem">4. Main Theorem and Proof</a></li>
+    <li><a href="#sine-wave">5. Full 360° Sine Wave Generated from Pythagoras</a></li>
+    <li><a href="#references">References</a></li>
+    <li><a href="#history">History</a></li>
+  </ul>
+</div>
+
+<hr id="abstract">
+
+<h2>Abstract</h2>
+
+<p>
+We present a complete trigonometric-free algorithm that reconstructs \(\sin(\theta)\) for any angle using only the Pythagorean theorem, unit circle geometry, and greedy selection of harmonic fractions of 90° (using 1/n steps). The method converges to the true sine function, albeit more slowly than dyadic versions. We prove correctness, derive the exact limit formula, and include a live Plotly graph showing the algorithm generating a sine wave over a full 360° using nothing but square roots and addition.
+</p>
+
+<hr id="theorem">
+
+<h2>4. Main Theorem and Proof</h2>
+
+<p>
+Fix \(x \in \mathbb{R}\) and set \(y = |x| \bmod 2 \in [0,2)\). Since \(\sin(\pi x) = \operatorname{sgn}(x)\sin(\pi|x|)\) and \(\sin(\pi\,\cdot\,)\) is \(2\)-periodic, it suffices to construct \(\sin(\pi y)\); and since \(\sin(\pi y) = -\sin(\pi(y-1))\) for \(y\in[1,2)\), it suffices to treat \(y\in[0,1]\).
+</p>
+
+<div class="math-block">
+<strong>Lemma (Greedy Invariant).</strong>
+Let \(y \in [0,1]\), let \(\mathrm{target} = \pi y\), and define \(\theta_0 = 0\) and, for \(n \ge 0\),
+\[
+\varepsilon_n = \frac{\pi}{n+2}, \qquad
+\delta_n = \begin{cases} 1 & \mathrm{target} - \theta_n \ge \varepsilon_n \\ 0 & \text{otherwise,} \end{cases} \qquad
+\theta_{n+1} = \theta_n + \delta_n \varepsilon_n.
+\]
+Then, writing \(r_n = \mathrm{target} - \theta_n\), we have \(0 \le r_n \le \pi/(n+1)\) for every \(n \ge 1\) (equality possible only at \(n=1\), when \(y=1\)). In particular \(r_n \to 0\), i.e. \(\theta_n \to \mathrm{target}\).
+</div>
+
+<p>
+<em>Proof of Lemma.</em> Induction on \(n\). For \(n=1\): if \(\delta_0=0\) then \(r_1 = \mathrm{target} < \varepsilon_0 = \pi/2\); if \(\delta_0=1\) then \(r_1 = \mathrm{target}-\pi/2 \le \pi - \pi/2 = \pi/2\) (using \(\mathrm{target}\le\pi\)), with equality iff \(y=1\). Either way \(r_1 \le \pi/2 = \pi/(1+1)\).
+</p>
+<p>
+Assume \(r_n \le \pi/(n+1)\) for some \(n\ge1\). If \(\delta_n=0\), then by definition of \(\delta_n\), \(r_{n+1}=r_n < \varepsilon_n = \pi/(n+2)\). If \(\delta_n=1\), then
+\[
+r_{n+1} = r_n - \varepsilon_n \le \frac{\pi}{n+1} - \frac{\pi}{n+2} = \frac{\pi}{(n+1)(n+2)} \le \frac{\pi}{n+2}
+\]
+since \(n+1\ge2\). Either way \(r_{n+1} \le \pi/(n+2)\), closing the induction. \(\blacksquare\)
+</p>
+
+<p>
+The same construction with the fixed dyadic steps \(\pi/2,\pi/4,\pi/8,\dots\) in place of \(\pi/2,\pi/3,\pi/4,\dots\) is the subroutine \(\mathrm{dyadic\_sin}\); there the tail \(\sum_{k>K}\pi/2^{k+1}\) telescopes exactly to \(\pi/2^{K}\), giving the sharper classical bisection bound \(r_K \le \pi/2^{K+1}\) (used with \(K=20\) to evaluate each \(h_n\) below).
+</p>
+
+<div class="math-block">
+<strong>Theorem (Geometric Reconstruction of Sine).</strong>
+With \(\theta_n, \delta_n\) as in the Lemma, define the rotation pair \((s_n,c_n)\) by
+\[
+\begin{align}
+s_0 &= 0, \qquad c_0 = 1, \\[4pt]
+h_n &= \mathrm{dyadic\_sin}\!\left(\tfrac{1}{n+2}\right), \qquad
+c^h_n = \sqrt{1-h_n^2} \quad \Bigl(\text{valid since } 0 < \tfrac{\pi}{n+2}\le \tfrac{\pi}{2}\Bigr), \\[4pt]
+(s_{n+1}, c_{n+1}) &= \begin{cases}
+\bigl(s_n c^h_n + c_n h_n,\ \ c_n c^h_n - s_n h_n\bigr) & \delta_n = 1 \\[2pt]
+(s_n,\ c_n) & \delta_n = 0.
+\end{cases}
+\end{align}
+\]
+Then \(s_n = \sin\theta_n\) and \(c_n = \cos\theta_n\) exactly, for every \(n\). Consequently, for \(y \in [0,1]\), \(\sin(\pi y) = \lim_{n\to\infty} s_n\), and with \(y = |x| \bmod 2\),
+\[
+\boxed{\ \sin(\pi x) = \operatorname{sgn}(x)\cdot\begin{cases} \displaystyle\lim_{n\to\infty} s_n(y) & 0 \le y \le 1 \\[4pt] \displaystyle -\lim_{n\to\infty} s_n(y-1) & 1 < y < 2. \end{cases}\ }
+\]
+</div>
+
+<h3>Proof.</h3>
+
+<p>
+\(s_n = \sin\theta_n\) and \(c_n = \cos\theta_n\) hold by induction. The base case \(n=0\) is immediate. If \(\delta_n = 0\) then \(\theta_{n+1}=\theta_n\) and nothing changes. If \(\delta_n = 1\), then \(\varepsilon_n = \pi/(n+2) \in (0,\pi/2]\), so \(h_n = \sin\varepsilon_n \ge 0\) and \(c^h_n = \sqrt{1-h_n^2} = \cos\varepsilon_n \ge 0\) genuinely — unlike \(\cos\theta_n\) itself, which need not be non-negative once \(\theta_n\) exceeds \(\pi/2\). Because \(c_n\) is carried forward exactly rather than recovered as \(\sqrt{1-s_n^2}\), the update
+\[
+s_{n+1} = s_n\cos\varepsilon_n + c_n\sin\varepsilon_n, \qquad c_{n+1} = c_n\cos\varepsilon_n - s_n\sin\varepsilon_n
+\]
+is exactly the sine/cosine angle-addition formula for \(\theta_n + \varepsilon_n = \theta_{n+1}\), valid regardless of which quadrant \(\theta_n\) lies in. (An earlier version of this construction instead reused \(\sqrt{1-s_n^2}\) as a stand-in for \(\cos\theta_n\); that expression equals \(|\cos\theta_n|\), which silently flips sign once \(\theta_n > \pi/2\) and sends the rotation backwards — the fix is exactly to track \(c_n\) itself.)
+</p>
+
+<p>
+Given \(s_n = \sin\theta_n\) exactly, convergence is immediate from \(|\sin a - \sin b| \le |a-b|\) and the Lemma's rate \(|\pi y - \theta_n| = r_n \le \pi/(n+1)\):
+\[
+|s_n - \sin(\pi y)| = |\sin\theta_n - \sin(\pi y)| \le r_n \le \frac{\pi}{n+1} \to 0.
+\]
+The reflection for \(y \in (1,2)\) and the factor \(\operatorname{sgn}(x)\) recover the boxed identity from \(2\)-periodicity and oddness of \(\sin(\pi\,\cdot\,)\). \(\blacksquare\)
+</p>
+
+<hr id="sine-wave">
+
+<h2>5. Full 360° Sine Wave Generated From Pythagoras</h2>
+
+<h3>Math.sin</h3>
+<div id="math-sin-plot" style="width:100%; height:400px;"></div>
+
+<h3>Reconstruction Of Sine Using Greedy Selection Of Harmonic Fractions</h3>
+<div id="geom-sin-plot" style="width:100%; height:400px;"></div>
+
+<hr id="references">
+
+<h2>References</h2>
+
+<ul>
+  <li>Euclid, Elements, Book I, Proposition 47</li>
+  <li>Archimedes, Measurement of a Circle</li>
+  <li>Vieta, F. (1593), Variorum de rebus mathematicis responsorum</li>
+  <li>Volder, J. E. (1959), The CORDIC Computing Technique</li>
+</ul>
+
+<hr id="history">
+
+<h2>History</h2>
+
+<p>
+This construction was first published by Victor Geere in 2020.
+
+Original javascript implementation: <a href="https://victorgeere.co.za/sine/index.html">https://victorgeere.co.za/sine/index.html</a>
+</p>
+
+</main>
+
+<script>
+function dyadic_sin_base(abs_x, max_n) {
+  const pi = Math.PI;
+  const target = pi * abs_x;
+  let theta_approx = 0;
+  // Carry the pair (s, c) = (sin, cos) of theta_approx. Reconstructing the
+  // cosine as sqrt(1 - s*s) is only valid while theta_approx <= pi/2; past
+  // that the true cosine is negative and the rotation reflects backwards.
+  let s = 0;
+  let c = 1;
+  let h = 1;  // sin(half_angle)
+  let ch = 0; // cos(half_angle)
+  for (let n = 0; n < max_n; n++) {
+    const half_angle = pi / Math.pow(2, n + 1);
+    if (target - theta_approx >= half_angle) {
+      const s_next = s * ch + c * h;
+      const c_next = c * ch - s * h;
+      s = s_next;
+      c = c_next;
+      theta_approx += half_angle;
+    }
+    // half-angle formulas; the positive roots apply since half_angle <= pi/2
+    h = Math.sqrt((1 - ch) / 2);
+    ch = Math.sqrt((1 + ch) / 2);
+  }
+  return s;
+}
+
+function geometric_sin_base(abs_x, max_n) {
+  const pi = Math.PI;
+  const target = pi * abs_x;
+  let theta_approx = 0;
+  let s = 0; // sin(theta_approx)
+  let c = 1; // cos(theta_approx), carried for the same reason as above
+  for (let n = 0; n < max_n; n++) {
+    const half_angle = pi / (n + 2);
+    if (target - theta_approx >= half_angle) {
+      const h = dyadic_sin_base(half_angle / pi, 20);
+      const ch = Math.sqrt(1 - h * h); // half_angle <= pi/2, so cos >= 0
+      const s_next = s * ch + c * h;
+      const c_next = c * ch - s * h;
+      s = s_next;
+      c = c_next;
+      theta_approx += half_angle;
+    }
+  }
+  return s;
+}
+
+function geometric_sin(x, max_n = 100) {
+  let sign = Math.sign(x);
+  let abs_x = Math.abs(x) % 2;
+  if (abs_x > 1) {
+    return sign * -geometric_sin_base(abs_x - 1, max_n);
+  } else {
+    return sign * geometric_sin_base(abs_x, max_n);
+  }
+}
+
+var xValues = [];
+var yGeom = [];
+var yMath = [];
+
+var numPoints = 2000;
+for (let i = 0; i <= numPoints; i++) {
+  let val = (i / numPoints) * 4 - 2; // from -2 to 2
+  xValues.push(val);
+  yGeom.push(geometric_sin(val, 200));
+  yMath.push(Math.sin(Math.PI * val));
+}
+
+var traceMath = {
+  x: xValues,
+  y: yMath,
+  type: 'scatter',
+  mode: 'lines',
+  name: 'Math.sin(πx)',
+  line: { color: '#3b82f6', width: 2 }
+};
+
+var traceGeom = {
+  x: xValues,
+  y: yGeom,
+  type: 'scatter',
+  mode: 'lines',
+  name: 'Geometric Sin(πx)',
+  line: { color: '#ef4444', width: 2 }
+};
+
+var layoutMath = {
+  title: 'Math.sin(πx)',
+  xaxis: { title: 'x' },
+  yaxis: { title: 'sin(πx)', range: [-1.1, 1.1] },
+  margin: { t: 40, b: 40 }
+};
+
+var layoutGeom = {
+  title: 'Geometric Sine Reconstruction',
+  xaxis: { title: 'x' },
+  yaxis: { title: 'sin(πx)', range: [-1.1, 1.1] },
+  margin: { t: 40, b: 40 }
+};
+
+Plotly.newPlot('math-sin-plot', [traceMath], layoutMath);
+Plotly.newPlot('geom-sin-plot', [traceGeom], layoutGeom);
+</script>
+
+</body>
+</html>

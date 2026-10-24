@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geometric &amp; Harmonic Decomposition Lab</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2330; --line:#2b3444;
+    --ink:#e6edf3; --dim:#9aa7b8; --acc:#58a6ff; --acc2:#7ee787;
+    --warn:#f0b72f; --bad:#ff7b72; --pur:#d2a8ff;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1120px;margin:0 auto;padding:26px 18px 80px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:.2px}
+  h2{font-size:19px;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin:16px 0 8px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
+  p{margin:8px 0}
+  .sub{color:var(--dim);margin:0 0 18px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 16px 18px;margin:14px 0}
+  .panel.alt{background:var(--panel2)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .row{display:flex;align-items:center;gap:10px;margin:7px 0;flex-wrap:wrap}
+  label{color:var(--dim);min-width:64px;font-size:13px}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;
+    background:linear-gradient(90deg,var(--acc),var(--pur));outline:none;flex:1;min-width:110px;max-width:260px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:2px solid var(--acc);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid var(--acc);cursor:pointer}
+  input[type=number]{background:#0b1017;color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:4px 7px;width:74px;font-family:var(--mono)}
+  .val{font-family:var(--mono);color:var(--acc2);min-width:44px;text-align:right}
+  .mono{font-family:var(--mono)}
+  table{border-collapse:collapse;width:100%;margin:8px 0;font-family:var(--mono);font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+  th{background:#111722;color:var(--dim);font-weight:600}
+  td.num{text-align:right}
+  .chip{display:inline-block;background:#111722;border:1px solid var(--line);border-radius:8px;
+        padding:2px 8px;margin:2px 4px 2px 0;font-family:var(--mono);font-size:13px}
+  .chip.big{border-color:var(--acc);color:#cfe4ff}
+  .chip.res{border-color:var(--acc2);color:#bff5c8}
+  .ok{color:var(--acc2)} .bad{color:var(--bad)} .warn{color:var(--warn)} .pur{color:var(--pur)}
+  .note{background:#0f1620;border-left:3px solid var(--acc);border-radius:8px;padding:10px 12px;color:var(--dim);font-size:13.5px;margin:10px 0}
+  .note b{color:var(--ink)}
+  .kpi{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 2px}
+  .kpi div{background:#111722;border:1px solid var(--line);border-radius:9px;padding:7px 12px}
+  .kpi .k{color:var(--dim);font-size:12px} .kpi .v{font-family:var(--mono);font-size:16px;color:var(--acc2)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+  .tab{cursor:pointer;background:#111722;border:1px solid var(--line);color:var(--dim);
+       border-radius:9px;padding:7px 13px;font-size:14px}
+  .tab.on{background:#1d2938;border-color:var(--acc);color:var(--ink)}
+  .sec{display:none} .sec.on{display:block}
+  details{background:#0f1620;border:1px solid var(--line);border-radius:9px;padding:8px 12px;margin:10px 0}
+  summary{cursor:pointer;color:var(--acc)}
+  .bar{height:9px;border-radius:5px;background:#22303f;overflow:hidden;min-width:120px;flex:1;max-width:320px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--pur))}
+  small{color:var(--dim)}
+  .scroll{max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:8px;background:#0b1017}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Geometric &amp; Harmonic Decomposition Lab</h1>
+  <p class="sub">Set A and set B → geometric (binary) carries, harmonic (Egyptian) carries, and real-number harmonic expansions. Exact rational arithmetic; all three panels are slider-driven.</p>
+
+  <details open>
+    <summary>How to read this lab (interpretation, stated up front)</summary>
+    <div class="note">
+      <p><b>1 · Geometric.</b> Each integer <span class="mono">a</span> is written as
+      <span class="mono">a · Σ<sub>n≥1</sub> 1/2<sup>n</sup></span>. Grouping by denominator gives
+      <b>S copies of every 1/2<sup>n</sup></b> where <span class="mono">S = ΣA + ΣB</span> (or per set).
+      Since <span class="mono">Σ<sub>n≥2</sub> 1/2<sup>n</sup> = 1/2</span>, the whole tail of smaller
+      fractions merges into <b>S extra halves</b>, leaving <b>2S copies of 1/2</b> — the largest fraction
+      allowed when <span class="mono">1/1</span> is excluded. (Allow <span class="mono">1/1</span> and the
+      canonical form collapses to <span class="mono">S</span> copies of <span class="mono">1/1</span>.)</p>
+      <p><b>2 · Harmonic.</b> Each integer is expanded by the <b>greedy Egyptian (harmonic) algorithm</b> with
+      <i>distinct</i> denominators <span class="mono">≥ 2</span>: repeatedly subtract the largest unit fraction
+      that fits. The expansions from <i>all</i> elements are pooled, grouped by denominator, then
+      <b>merged</b>: sub-multisets that sum to a unit fraction are replaced by it, always preferring the
+      <i>largest</i> fraction (smallest denominator). Denominators grow fast (Sylvester-like), so the term cap
+      matters; the exact remainder is shown.</p>
+      <p><b>3 · Real numbers.</b> Same greedy harmonic expansion, applied to real values, with
+      <i>no duplicates within a number</i>. Because merging two terms would create a duplicate, no merging is
+      performed per number. Rational inputs terminate exactly; the term slider shows the partial construction
+      and the remainder.</p>
+    </div>
+  </details>
+
+  <div class="tabs">
+    <div class="tab on" data-t="s1">1 · Geometric (binary)</div>
+    <div class="tab" data-t="s2">2 · Harmonic (Egyptian carries)</div>
+    <div class="tab" data-t="s3">3 · Harmonic on ℝ</div>
+  </div>
+
+  <!-- ============================== PART 1 ============================== -->
+  <section id="s1" class="sec on">
+    <h2>1 · Geometric series: sets → binary columns → merges</h2>
+    <div class="panel">
+      <div class="grid">
+        <div>
+          <h3>Set A</h3>
+          <div class="row"><label>size</label><input type="range" id="sizeA" min="0" max="5" value="3"><span class="val" id="sizeAv">3</span></div>
+          <div id="valsA"></div>
+        </div>
+        <div>
+          <h3>Set B</h3>
+          <div class="row"><label>size</label><input type="range" id="sizeB" min="0" max="5" value="0"><span class="val" id="sizeBv">0</span></div>
+          <div id="valsB"></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label>levels</label><input type="range" id="levels" min="1" max="8" value="6"><span class="val" id="levelsv">6</span>
+        <label style="min-width:auto"><input type="checkbox" id="allow1"> allow 1/1</label>
+      </div>
+    </div>
+    <div class="panel alt" id="out1"></div>
+  </section>
+
+  <!-- ============================== PART 2 ============================== -->
+  <section id="s2" class="sec">
+    <h2>2 · Harmonic series: greedy Egyptian expansion → pooled → merged</h2>
+    <div class="panel">
+      <div class="grid">
+        <div>
+          <h3>Set A</h3>
+          <div class="row"><label>size</label><input type="range" id="sizeA2" min="0" max="4" value="3"><span class="val" id="sizeA2v">3</span></div>
+          <div id="valsA2"></div>
+        </div>
+        <div>
+          <h3>Set B</h3>
+          <div class="row"><label>size</label><input type="range" id="sizeB2" min="0" max="4" value="0"><span class="val" id="sizeB2v">0</span></div>
+          <div id="valsB2"></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label>term cap</label><input type="range" id="cap" min="2" max="16" value="6"><span class="val" id="capv">6</span>
+        <label>merge width</label><input type="range" id="mw" min="2" max="4" value="3"><span class="val" id="mwv">3</span>
+        <label style="min-width:auto"><input type="checkbox" id="domerge" checked> merge</label>
+      </div>
+    </div>
+    <div class="panel alt" id="out2"></div>
+  </section>
+
+  <!-- ============================== PART 3 ============================== -->
+  <section id="s3" class="sec">
+    <h2>3 · Harmonic decomposition of real numbers (distinct denominators)</h2>
+    <div class="panel">
+      <h3>Single real number</h3>
+      <div class="row"><label>x</label><input type="range" id="rx" min="1" max="600" value="271"><span class="val" id="rxv">2.71</span></div>
+      <div class="row"><label>terms</label><input type="range" id="rt" min="1" max="20" value="8"><span class="val" id="rtv">8</span></div>
+      <div class="row"><label style="min-width:auto"><input type="checkbox" id="rsq" checked> also compare π, e, φ, √2</label></div>
+      <h3 style="margin-top:14px">A small set of reals</h3>
+      <div class="row"><label>a₁</label><input type="range" id="ra" min="1" max="600" value="150"><span class="val" id="rav">1.50</span></div>
+      <div class="row"><label>a₂</label><input type="range" id="rb" min="1" max="600" value="333"><span class="val" id="rbv">3.33</span></div>
+      <div class="row"><label>a₃</label><input type="range" id="rc" min="1" max="600" value="625"><span class="val" id="rcv">6.25</span></div>
+    </div>
+    <div class="panel alt" id="out3"></div>
+  </section>
+
+  <p style="color:var(--dim);font-size:13px;margin-top:26px">
+    Exact rational arithmetic (BigInt). All expansions are computed live from the sliders.
+    Interpretation choices are documented in the panel above.
+  </p>
+</div>
+
+<script>
+"use strict";
+/* ------------------------------------------------------------ exact rationals */
+function gcd(a,b){a=a<0n?-a:a;b=b<0n?-b:b;while(b){const t=a%b;a=b;b=t;}return a;}
+const bi=(x)=>BigInt(x);
+class Rat{
+  constructor(n,d=1n){ if(d===0n) throw new Error("zero denominator");
+    if(d<0n){n=-n;d=-d;} const g=gcd(n<0n?-n:n,d)||1n; this.n=n/g; this.d=d/g; }
+  static of(k){return new Rat(bi(k));}
+  add(o){return new Rat(this.n*o.d+o.n*this.d,this.d*o.d);}
+  sub(o){return new Rat(this.n*o.d-o.n*this.d,this.d*o.d);}
+  isZero(){return this.n===0n;}
+  sign(){return this.n>0n?1:(this.n<0n?-1:0);}
+  cmp(o){const l=this.n*o.d,r=o.n*this.d;return l<r?-1:(l>r?1:0);}
+  toNumber(){return Number(this.n)/Number(this.d);}
+  str(){return this.d===1n?String(this.n):`${this.n}/${this.d}`;}
+}
+const ZERO=new Rat(0n);
+const addAll=(a)=>a.reduce((s,x)=>s.add(x),ZERO);
+
+/* ------------------------------------------------------------ algorithms */
+/* greedy Egyptian: DISTINCT denominators, strictly increasing from startN */
+function egyptian(x,startN,maxTerms){
+  const terms=[]; let rem=x, n=bi(startN), guard=0;
+  while(rem.n>0n && terms.length<maxTerms && guard++<4000){
+    let d=(rem.d+rem.n-1n)/rem.n;              // smallest d with 1/d <= rem
+    if(d<n) d=n;
+    terms.push(d); rem=rem.sub(new Rat(1n,d)); n=d+1n;
+  }
+  return {terms,rem};
+}
+/* bounded subset search: indices summing exactly to `target` (size 2..maxSize) */
+function findSubset(dens,target,maxSize){
+  const n=dens.length;
+  function dfs(start,remaining,chosen){
+    if(chosen.length>=2 && remaining.isZero()) return chosen.slice();
+    if(chosen.length>=maxSize) return null;
+    for(let i=start;i<n;i++){
+      const f=new Rat(1n,bi(dens[i]));
+      if(f.cmp(remaining)>0) continue;
+      const got=dfs(i+1,remaining.sub(f),chosen.concat([i]));
+      if(got) return got;
+    }
+    return null;
+  }
+  return dfs(0,target,[]);
+}
+/* repeatedly replace sub-multisets summing to a unit fraction; largest fraction first */
+const dsort=(a,b)=>(a<b?-1:(a>b?1:0));
+function mergeAll(dens,maxSize,maxIter=400){
+  let d=dens.map(x=>BigInt(x)).sort(dsort); const log=[]; let changed=true,it=0;
+  while(changed && it<maxIter){
+    changed=false; it++;
+    let top=d.reduce((m,x)=>x>m?x:m,2n); if(top>200n) top=200n;
+    for(let target=2n;target<=top;target++){
+      const sub=findSubset(d,new Rat(1n,target),maxSize);
+      if(sub){
+        const removed=sub.map(i=>d[i]);
+        d=d.filter((_,i)=>!sub.includes(i)); d.push(target); d.sort(dsort);
+        log.push({removed,added:target}); changed=true; break;
+      }
+    }
+  }
+  return {dens:d,log};
+}
+const group=(dens)=>{const m=new Map();for(const x of dens)m.set(x,(m.get(x)||0)+1);
+  return [...m.entries()].sort((a,b)=>dsort(a[0],b[0]));};
+const sumDens=(dens)=>dens.reduce((s,x)=>s.add(new Rat(1n,bi(x))),ZERO);
+
+/* ------------------------------------------------------------ helpers */
+const el=(id)=>document.getElementById(id);
+const F=(d)=>`1/${d}`;
+function chips(entries,cls){
+  return entries.map(([d,c])=>`<span class="chip ${cls||''}">${c}× ${F(d)}</span>`).join("");
+}
+
+/* ------------------------------------------------------------ state */
+const state={
+  valsA:[1,4,6,1,1],  valsB:[1,1,1,1,1],
+  valsA2:[1,1,1,1,1], valsB2:[1,1,1,1,1],
+  sizeA:3, sizeB:0, sizeA2:3, sizeB2:0,
+  levels:6, allow1:false, cap:6, mergeWidth:3, doMerge:true,
+  rx:271, rt:8, rsq:true, ra:150, rb:333, rc:625
+};
+const setOf=(vals,size)=>vals.slice(0,size);
+
+/* ------------------------------------------------------------ slider rows */
+function makeValueRows(hostId,valsKey,onchange){
+  const host=el(hostId); host.innerHTML="";
+  for(let i=0;i<5;i++){
+    const row=document.createElement("div"); row.className="row";
+    const lab=document.createElement("label"); lab.textContent="a"+(i+1);
+    const r=document.createElement("input"); r.type="range"; r.min="1"; r.max="24";
+    r.value=String(state[valsKey][i]);
+    const v=document.createElement("span"); v.className="val"; v.textContent=String(state[valsKey][i]);
+    r.addEventListener("input",()=>{ v.textContent=r.value; state[valsKey][i]=Number(r.value); onchange(); });
+    row.append(lab,r,v); host.appendChild(row);
+  }
+}
+function updateVisibility(){
+  [["valsA","sizeA"],["valsB","sizeB"],["valsA2","sizeA2"],["valsB2","sizeB2"]].forEach(([h,s])=>{
+    const n=state[s], host=el(h);
+    [...host.children].forEach((row,i)=>{
+      const on=i<n; row.style.opacity=on?"1":".25"; row.style.pointerEvents=on?"auto":"none";
+    });
+  });
+}
+function labels(){
+  el("sizeAv").textContent=state.sizeA;   el("sizeBv").textContent=state.sizeB;
+  el("sizeA2v").textContent=state.sizeA2; el("sizeB2v").textContent=state.sizeB2;
+  el("levelsv").textContent=state.levels; el("capv").textContent=state.cap;
+  el("mwv").textContent=state.mergeWidth; el("rtv").textContent=state.rt;
+  el("rxv").textContent=(state.rx/100).toFixed(2);
+  el("rav").textContent=(state.ra/100).toFixed(2); el("rbv").textContent=(state.rb/100).toFixed(2);
+  el("rcv").textContent=(state.rc/100).toFixed(2);
+}
+function renderAll(){ labels(); updateVisibility(); render1(); render2(); render3(); }
+
+/* ============================================================ PART 1 */
+function render1(){
+  const A=setOf(state.valsA,state.sizeA), B=setOf(state.valsB,state.sizeB);
+  const sumA=A.reduce((a,b)=>a+b,0), sumB=B.reduce((a,b)=>a+b,0), S=sumA+sumB;
+  const K=state.levels;
+  const rows=[];
+  for(let k=1;k<=K;k++) rows.push(k);
+  const tail=S/2, halves=2*S, ones=S;
+  el("out1").innerHTML=`
+    <div class="kpi">
+      <div><div class="k">ΣA</div><div class="v">${sumA}</div></div>
+      <div><div class="k">ΣB</div><div class="v">${sumB}</div></div>
+      <div><div class="k">S = ΣA+ΣB</div><div class="v">${S}</div></div>
+      <div><div class="k">copies per level</div><div class="v">${S}</div></div>
+    </div>
+    <h3>Step 1 — expand, group by denominator</h3>
+    <p>Each integer <span class="mono">a</span> gives <span class="mono">a</span> copies of
+       <span class="mono">1/2<sup>n</sup></span> for every <span class="mono">n ≥ 1</span>.
+       Pooling <span class="mono">A∪B</span> leaves <b>${S}</b> copies at <i>every</i> level:</p>
+    <table><thead><tr><th>level n</th><th>fraction</th><th class="num">copies</th><th class="num">mass</th></tr></thead>
+      <tbody>${rows.map(k=>`<tr><td>${k}</td><td>${F(2**k)}</td><td class="num">${S}</td><td class="num">${(S/Math.pow(2,k)).toFixed(6)}</td></tr>`).join("")}
+      <tr><td>⋮</td><td>⋮</td><td class="num">${S}</td><td class="num">…</td></tr></tbody></table>
+    <h3>Step 2 — merge the smaller fractions into the largest possible</h3>
+    <p><span class="mono">Σ<sub>n≥2</sub> 1/2<sup>n</sup> = 1/2</span>, so the whole tail
+       (levels 2,3,4,…) is worth <span class="mono">${S} · 1/2 = ${tail}</span> — that is
+       <b>${S} more copies of 1/2</b>. Added to the ${S} halves already at level 1:</p>
+    <p>${state.allow1
+      ? `<span class="chip res">${ones}× 1/1</span> <span class="chip">total = ${ones}·1 = ${S}</span>
+         <small>two halves make a whole, and 1/1 is allowed, so the canonical form is ${ones} wholes.</small>`
+      : `<span class="chip res">${halves}× 1/2</span> <span class="chip">total = ${halves}·½ = ${S}</span>
+         <small>1/1 is excluded, so halves are the largest possible fraction.</small>`}</p>
+    <div class="note">Check — total <span class="mono">${S}</span> ✓ &nbsp; level-1 mass
+      <span class="mono">${S/2}</span> &nbsp; tail mass <span class="mono">${tail}</span> &nbsp; merged halves
+      <span class="mono">${halves}</span>.</div>`;
+}
+
+/* ============================================================ PART 2 */
+function render2(){
+  const A=setOf(state.valsA2,state.sizeA2), B=setOf(state.valsB2,state.sizeB2);
+  const all=[...A,...B];
+  if(all.length===0){ el("out2").innerHTML=`<p class="warn">Choose at least one integer.</p>`; return; }
+  const cap=state.cap;
+  const perElem=all.map(a=>({a,...egyptian(Rat.of(a),2,cap)}));
+  const pooled=[]; perElem.forEach(p=>pooled.push(...p.terms));
+  const before=group(pooled);
+  const target=addAll(all.map(a=>Rat.of(a)));
+  const sumBefore=sumDens(pooled);
+  const remTotal=perElem.reduce((s,p)=>s.add(p.rem),ZERO);
+  let after=before, mlog=null, mergedDens=pooled;
+  if(state.doMerge){ const m=mergeAll(pooled,state.mergeWidth); mlog=m.log; mergedDens=m.dens; after=group(m.dens); }
+  const sumAfter=sumDens(mergedDens);
+  const bigFrac=mergedDens.length?mergedDens.reduce((m,x)=>x<m?x:m):null;
+  const bigCount=bigFrac===null?0:mergedDens.filter(d=>d===bigFrac).length;
+
+  const decompRows=perElem.map(p=>{
+    const ps=addAll(p.terms.map(d=>new Rat(1n,bi(d))));
+    return `<tr><td class="num">${p.a}</td>
+      <td>${p.terms.map(F).join(" + ")||"—"}</td>
+      <td class="mono">${ps.str()}</td>
+      <td class="mono">${p.rem.isZero()?'<span class="ok">exact</span>':p.rem.str()}</td></tr>`;
+  }).join("");
+
+  el("out2").innerHTML=`
+    <div class="kpi">
+      <div><div class="k">Σ A∪B</div><div class="v">${target.str()}</div></div>
+      <div><div class="k">terms pooled</div><div class="v">${pooled.length}</div></div>
+      <div><div class="k">sum pooled</div><div class="v">${sumBefore.str()}${remTotal.isZero()?'':' + '+remTotal.str()}</div></div>
+      <div><div class="k">after merge</div><div class="v">${sumAfter.str()}</div></div>
+    </div>
+    <h3>Step 1 — greedy Egyptian expansion of each integer</h3>
+    <p>Distinct denominators <span class="mono">≥ 2</span>, largest unit fraction that fits first; term cap ${cap}.</p>
+    <div class="scroll"><table><thead><tr><th>integer</th><th>expansion</th><th>partial sum</th><th>remainder</th></tr></thead>
+      <tbody>${decompRows}</tbody></table></div>
+    ${remTotal.isZero()?"":`<p class="warn">Remainder ${remTotal.str()} left over — raise the term cap for exactness
+      (excluding 1/1, the greedy expansion of an integer has Sylvester-like denominators that grow extremely fast).</p>`}
+    <div class="note">Tip: a set of <b>1</b>s is the cleanest demo — each <span class="mono">1 = 1/2 + 1/3 + 1/6</span>,
+      so three 1s pool to three of each and merge to <b>six 1/2's = 3</b>.</div>
+    <h3>Step 2 — pool and group by denominator</h3>
+    <div>${chips(before)||"—"}</div>
+    <h3>Step 3 — merge smaller fractions into whole larger ones</h3>
+    ${state.doMerge?`
+      <p>${(mlog&&mlog.length)?mlog.map(m=>`<span class="chip pur">${m.removed.map(F).join(" + ")} → ${F(m.added)}</span>`).join(""):"<span class='warn'>no merges found</span>"}</p>
+      <div>${chips(after,"res")||"—"}</div>
+      <div class="note">Largest fraction present <b>${bigFrac?F(bigFrac):"—"}</b>; whole copies of it:
+        <b>${bigCount}</b>. Merging preserves the total: <span class="mono">${sumAfter.str()}</span>.</div>`
+    :`<p class="warn">merging disabled</p>`}`;
+}
+
+/* ============================================================ PART 3 */
+function xFromSlider(v){ return new Rat(bi(v),100n); }
+function render3(){
+  const x=xFromSlider(state.rx), T=state.rt;
+  const e=egyptian(x,2,T);
+  let s=ZERO; const partial=[];
+  e.terms.forEach((d,i)=>{ s=s.add(new Rat(1n,bi(d))); partial.push({d,i,sum:s}); });
+  const rows=partial.map(p=>`<tr><td class="num">${p.i+1}</td>
+      <td>${F(p.d)} = ${(1/Number(p.d)).toFixed(8)}</td>
+      <td class="mono">${p.sum.str()} = ${p.sum.toNumber().toFixed(9)}</td>
+      <td class="mono">${x.sub(p.sum).str()}</td></tr>`).join("");
+
+  const consts=state.rsq?[["π",Math.PI],["e",Math.E],["φ",(1+Math.sqrt(5))/2],["√2",Math.SQRT2]]
+    .map(([nm,val])=>{
+      const r=new Rat(bi(Math.round(val*1e7)),10000000n);
+      const ee=egyptian(r,2,T);
+      const shown=ee.terms.slice(0,Math.min(ee.terms.length,6));
+      const ss=addAll(shown.map(d=>new Rat(1n,bi(d))));
+      return `<div class="row"><label style="min-width:40px">${nm}</label>
+        <span class="mono" style="flex:1">${shown.map(F).join(" + ")}${ee.terms.length>shown.length?" + …":""}</span>
+        <span class="mono" style="color:var(--dim)">≈ ${ss.toNumber().toFixed(6)}</span></div>`;
+    }).join(""):"";
+
+  const setR=[["a₁",state.ra],["a₂",state.rb],["a₃",state.rc]].map(([nm,v])=>{
+    const r=xFromSlider(v); const ee=egyptian(r,2,T);
+    const ss=addAll(ee.terms.map(d=>new Rat(1n,bi(d))));
+    return `<tr><td>${nm} = ${r.str()}</td><td>${ee.terms.map(F).join(" + ")||"—"}</td>
+      <td class="mono">${ss.str()} = ${ss.toNumber().toFixed(9)}</td>
+      <td class="mono">${ee.rem.isZero()?'<span class="ok">exact</span>':ee.rem.str()}</td></tr>`;
+  }).join("");
+
+  el("out3").innerHTML=`
+    <h3>Single real x = ${x.str()} = ${x.toNumber()}</h3>
+    <div class="kpi">
+      <div><div class="k">terms shown</div><div class="v">${e.terms.length}/${T}</div></div>
+      <div><div class="k">partial sum</div><div class="v">${s.str()} = ${s.toNumber().toFixed(9)}</div></div>
+      <div><div class="k">remainder</div><div class="v ${e.rem.isZero()?'':'warn'}">${e.rem.isZero()?"0 (exact)":e.rem.str()}</div></div>
+    </div>
+    <table><thead><tr><th class="num">#</th><th>term</th><th>partial sum</th><th>remaining</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="4">—</td></tr>'}</tbody></table>
+    <div class="note">Denominators are strictly increasing, so <b>no duplicate occurs within a number</b>.
+      Merging would need two equal denominators, so it is not done here — exactly the distinction from panel 2.</div>
+    <h3>Set of reals</h3>
+    <table><thead><tr><th>value</th><th>greedy harmonic expansion</th><th>sum</th><th>remainder</th></tr></thead>
+      <tbody>${setR}</tbody></table>
+    ${state.rsq?`<h3>Constants (7-decimal rationals, same algorithm)</h3>${consts}`:""}`;
+}
+
+/* ============================================================ init */
+function init(){
+  makeValueRows("valsA","valsA",renderAll);
+  makeValueRows("valsB","valsB",renderAll);
+  makeValueRows("valsA2","valsA2",renderAll);
+  makeValueRows("valsB2","valsB2",renderAll);
+
+  el("sizeA").value=state.sizeA; el("sizeB").value=state.sizeB;
+  el("sizeA2").value=state.sizeA2; el("sizeB2").value=state.sizeB2;
+
+  const wireSize=(id,key)=>{ el(id).addEventListener("input",()=>{ state[key]=Number(el(id).value); renderAll(); }); };
+  wireSize("sizeA","sizeA"); wireSize("sizeB","sizeB");
+  wireSize("sizeA2","sizeA2"); wireSize("sizeB2","sizeB2");
+
+  el("levels").addEventListener("input",()=>{ state.levels=Number(el("levels").value); renderAll(); });
+  el("allow1").addEventListener("change",()=>{ state.allow1=el("allow1").checked; renderAll(); });
+  el("cap").addEventListener("input",()=>{ state.cap=Number(el("cap").value); renderAll(); });
+  el("mw").addEventListener("input",()=>{ state.mergeWidth=Number(el("mw").value); renderAll(); });
+  el("domerge").addEventListener("change",()=>{ state.doMerge=el("domerge").checked; renderAll(); });
+  el("rx").addEventListener("input",()=>{ state.rx=Number(el("rx").value); renderAll(); });
+  el("rt").addEventListener("input",()=>{ state.rt=Number(el("rt").value); renderAll(); });
+  el("rsq").addEventListener("change",()=>{ state.rsq=el("rsq").checked; renderAll(); });
+  el("ra").addEventListener("input",()=>{ state.ra=Number(el("ra").value); renderAll(); });
+  el("rb").addEventListener("input",()=>{ state.rb=Number(el("rb").value); renderAll(); });
+  el("rc").addEventListener("input",()=>{ state.rc=Number(el("rc").value); renderAll(); });
+
+  const showTab=(id)=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on", x.dataset.t===id));
+    document.querySelectorAll(".sec").forEach(x=>x.classList.toggle("on", x.id===id));
+  };
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{ showTab(t.dataset.t); location.hash=t.dataset.t; }));
+  const h=(location.hash||"").replace("#","");
+  if(["s1","s2","s3"].includes(h)) showTab(h);
+
+  renderAll();
+}
+window.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

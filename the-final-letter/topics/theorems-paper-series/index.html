@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theorems / paper series — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:1000px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.5rem;font-size:1.08rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.9em}
+pre{background:#f3f5f7;border:1px solid #e0e5eb;padding:.8rem 1rem;overflow-x:auto;border-radius:6px}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.88rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+.warn{border-left:4px solid #b45309;background:#fff7ed;padding:.7rem 1rem;border-radius:0 6px 6px 0}
+.tag{display:inline-block;font-size:.78rem;padding:.05rem .4rem;border-radius:3px;background:#fee2e2;color:#991b1b}
+</style></head><body>
+
+<h1>Theorems / paper series</h1>
+<p class="sub">A reconstructed finite formal core, exact computations, refuted source lemmas, and an archived Riemann-hypothesis claim</p>
+
+<div class="top"><p><strong>Status.</strong> Archived claim, reconstructed finite core + exact computation layer. The paper series claims a proof of the Riemann hypothesis; <strong>that claim is not accepted here.</strong> The finite greedy identities are reconstructed and proved, and several source theorems are shown to be false by exact counterexample.</p>
+<p class="meta"><strong>Source:</strong> <a href="../../archive/maths/theorems/paper.md"><code>archive/maths/theorems/paper.md</code></a> (731 lines). The folder also contains <code>paper1.md</code>–<code>paper4.md</code>, <a href="../../archive/maths/theorems/miniproof.md"><code>miniproof.md</code></a> and <code>miniproof_parser.py</code>; only <code>paper.md</code> is reconstructed here.<br>
+<strong>Inventory:</strong> <a href="../../scraps.html">Scraps</a> item 32 · <a href="../README.md">Topic index</a><br>
+<strong>Overlaps:</strong> <a href="../gdst/README.md">item 9, GDST</a> · <a href="../gdst-twin-series/README.md">item 24, GDST twin series</a> · <a href="../ghd-correlation-kernel/README.md">item 25, GHD correlation kernel</a>. This folder does not re-audit those sources; where their formal cores already exist, they are cross-referenced rather than duplicated.</p></div>
+
+<h2>What the source is</h2>
+<p><code>paper.md</code> is a self-contained GDST paper. Its abstract and §3 claim a proof of the Riemann hypothesis in three stages: a greedy harmonic expansion of <code>θ/π</code>; a transfer operator <code>L_s</code> on <code>H²(𝔻)</code> with a Fredholm determinant identity <code>det(I − L_s) = ζ(s)/ζ(2s)·e^{P(s)}</code>; and a family of Jacobi matrices <code>J_σ</code> whose spectra are <code>σ</code>-independent, making <code>J_{1/2}</code> self-adjoint and forcing every non-trivial zero onto <code>Re s = 1/2</code>.</p>
+<p>The paper is candid about its own gaps: §5 lists twelve analytic inputs — trace-class property, similarity to the Mayer operator, the telescoping trace sum, the determinant identity, the kernel closed form, the Jacobi spectral theory, the Hausdorff moment problem and <code>σ</code>-independence — as tasks “marked as axioms or <code>sorry</code> in the Isabelle formalisation”. Those are the load-bearing steps, so the global RH claim is an <strong>archived claim</strong>, not a theorem.</p>
+<p>There are also elementary errors in §1 that the archived status had not caught. Two of them are fatal to the paper’s later sections, and this folder records them as errata with exact counterexamples rather than silently repairing them. The salvageable mathematical content is the finite greedy recursion and the finite selected/rejected split of §2.1; that is what is formalised below.</p>
+
+<h2>Reconstructed objects</h2>
+<p>Normalise the target to <code>x = θ/π ∈ [0, 1]</code>. The harmonic fractions are <code>α_n = 1/(n+2)</code>. The greedy pass over indices <code>0, …, N−1</code> is the recursion</p>
+<pre><code>r_0 = x,      δ_n = 1 iff α_n ≤ r_n,      r_{n+1} = r_n − δ_n α_n.</code></pre>
+<table>
+<thead><tr><th>Object</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Harmonic fraction</td><td><code>α n = 1/(n+2)</code></td></tr>
+<tr><td>Greedy remainder</td><td><code>run x N = r_N</code>, after processing <code>0, …, N−1</code></td></tr>
+<tr><td>Selection word</td><td><code>δ n = 1</code> iff <code>α n ≤ run x n</code></td></tr>
+<tr><td>Selected prefix</td><td><code>E_N(w) = Σ_{k&lt;N, δ_k=1} w k</code></td></tr>
+<tr><td>Rejected prefix</td><td><code>Ω_N(w) = Σ_{k&lt;N, δ_k=0} w k</code></td></tr>
+<tr><td>Full prefix</td><td><code>H_N(w) = Σ_{k&lt;N} w k</code></td></tr>
+<tr><td>GDST weight</td><td><code>w k = (k+2)^(−s)</code> on <code>Re s &gt; 0</code></td></tr>
+</tbody>
+</table>
+<p>The exact finite core is:</p>
+<ol>
+<li><strong>greedy invariant</strong> <code>r_N = x − E_N(α)</code>, i.e. <code>x = E_N(α) + r_N</code> (the source’s equation (1.1));</li>
+<li><strong>selected/rejected split</strong> <code>E_N(w) + Ω_N(w) = H_N(w)</code> for every weight <code>w</code> (the finite form of <code>ζ(s) − 1 = E(θ,s) + Ω(θ,s)</code>).</li>
+</ol>
+<p>Both are proved in Lean for arbitrary <code>N</code>; neither needs the infinite series. The source’s digit monotonicity is <em>not</em> available, because it is false.</p>
+
+<h2>Theorem ledger</h2>
+<p>Every row marked <strong>Theorem</strong> is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every row marked <strong>Computation</strong> is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>The harmonic fraction is positive: <code>0 &lt; α n</code>.</td><td><code>GDST.alpha_pos</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>The harmonic fractions strictly decrease: <code>StrictAnti α</code>.</td><td><code>GDST.alpha_strictAnti</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>Every remainder is at most the target: <code>run x N ≤ x</code>.</td><td><code>GDST.run_le_self</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>Non-negative targets have non-negative remainders: <code>0 ≤ x → 0 ≤ run x N</code>.</td><td><code>GDST.run_nonneg</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>Finite greedy invariant: <code>run x N = x − E_N(α)</code>.</td><td><code>GDST.run_eq_sub_selected</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>Finite selected/rejected split: <code>E_N(w) + Ω_N(w) = H_N(w)</code>.</td><td><code>GDST.selected_add_rejected</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>The source’s <code>θ = π</code> example: <code>run 1 5 = 0</code> and <code>E_5(α) = 1 = 1/2 + 1/3 + 1/6</code>.</td><td><code>GDST.gdst_pi_example</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>The invariant residual <code>r_N − (x − E_N(α))</code> is exactly zero on a rational grid and <code>N ∈ {0,1,2,5,13,40}</code>.</td><td><code>test_greedy_invariant_is_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td><code>E_N + Ω_N − H_N = 0</code> for symbolic <code>s</code> in <code>w k = (k+2)^(−s)</code>, a rational grid, and <code>N ∈ {0,1,2,6,12}</code>.</td><td><code>test_selected_plus_rejected_equals_total</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td><code>θ = π</code> selects exactly <code>{0, 1, 4}</code> and terminates: <code>1 = 1/2 + 1/3 + 1/6</code>.</td><td><code>test_pi_example_terminates_at_indices_0_1_4</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td><code>0 ≤ r_N ≤ x</code>, and the repaired bound <code>r_N ≤ 1/(N+1)</code>; the source’s strict <code>r_0 &lt; 1/2</code> fails at <code>x = 1</code>.</td><td><code>test_remainders_are_nonnegative_and_below_next_fraction</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>Edge cases: <code>x = 0</code> rejects everything; <code>x = 1/2</code> selects exactly index <code>0</code>; <code>499/1000</code> rejects index <code>0</code>; negative indices and non-rational targets are rejected.</td><td><code>test_alpha_values_and_invalid_indices</code>, <code>test_zero_and_threshold_targets_are_edge_cases</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>The arithmetic step of the source’s Theorem 1.6: <code>(m+1)(m+2) − 1 ≥ m(m−1)</code> for <code>2 ≤ m &lt; 200</code>.</td><td><code>test_source_growth_arithmetic_step</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td><strong>Refutation:</strong> digit monotonicity (source Theorem 1.7) fails at <code>n = 1</code>: <code>999/2000 &lt; 1/2</code>, but <code>δ_1(999/2000) = 1</code> and <code>δ_1(1/2) = 0</code>.</td><td><code>test_digit_monotonicity_theorem_is_false</code></td></tr>
+</tbody>
+</table>
+
+<h2>Source claims and errata</h2>
+<p>These are assertions of the archived paper, recorded with their status. None is a theorem of this reconstruction.</p>
+<table>
+<thead><tr><th>#</th><th>Claim (source label)</th><th>Archived status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>S1</td><td>Greedy harmonic expansion <code>x = Σ δ_n/(n+2)</code> (Thm 1.5)</td><td>Source theorem, proof sketch</td><td>The finite invariant T5 is proved; the limit <code>r_N → 0</code> is not formalised.</td></tr>
+<tr><td>S2</td><td>Super-exponential sparsity <code>n_{k+1} ≥ n_k(n_k−1)</code> (Thm 1.6)</td><td>Archived claim</td><td>The proof’s key strict inequality is invalid (E5). Only its arithmetic tail is tested (C6). Not adopted.</td></tr>
+<tr><td>S3</td><td>Digit monotonicity (Thm 1.7)</td><td><span class="tag">Refuted here</span></td><td>Exact counterexample C7. The greedy word is not monotone in the target.</td></tr>
+<tr><td>S4</td><td>Threshold representation <code>δ_n(θ) = 1[θ ≥ θ_n*]</code> (Thm 1.9)</td><td><span class="tag">Refuted as stated</span></td><td>Depends on S3. For <code>n = 1</code> the infimum is <code>1/3</code>, yet <code>δ_1(1/2) = 0</code> although <code>1/2 ≥ 1/3</code> (E3).</td></tr>
+<tr><td>S5</td><td>Closed-form correlation kernel (Thm 1.14)</td><td>Archived claim, internally inconsistent</td><td>At <code>n = 0</code> the stated diagonal <code>(π/12)(1 − 3/(n+2))</code> equals <code>−π/24 &lt; 0</code>, impossible for a Gram-matrix diagonal; it also disagrees with the diagonal kernel of item 11, <code>(t³ + (π−t)³)/(3π²) = π/12</code> at <code>t = π/2</code> (E4).</td></tr>
+<tr><td>S6</td><td><code>L_s</code> is trace-class on <code>H²(𝔻)</code> for <code>Re s &gt; 1/2</code> (Thm 2.4)</td><td>Source claim</td><td>Rests on a Mayer–Efrat citation and an unproved similarity; appendix tasks 1.1–1.3, 2.1–2.2. Not formalised.</td></tr>
+<tr><td>S7</td><td>Meromorphic continuation of <code>E(θ,s)</code> with poles at the non-trivial zeros (Thm 2.5)</td><td>Source claim</td><td>Depends on S6, S8 and the resolvent identity (2.2), which is asserted without proof.</td></tr>
+<tr><td>S8</td><td>Fredholm determinant identity (Thm 2.7)</td><td>Source claim</td><td>Appendix task 4.1 lists it as unproved; the perturbation formula in Step 2 is misquoted.</td></tr>
+<tr><td>S9</td><td>Telescoping trace sum (Thm 2.8)</td><td>Source claim</td><td>Appendix task 3.1; the periodic-orbit computation and the “Markov-hole” correction are not carried out.</td></tr>
+<tr><td>S10</td><td><code>σ</code>-independence of the Jacobi spectra (Thm 3.3)</td><td>Source claim</td><td>The moment comparison does not establish equality of supports; the Stieltjes-transform sentence is not an argument.</td></tr>
+<tr><td>S11</td><td><strong>Riemann hypothesis</strong> (Thm 3.4)</td><td><span class="tag">Archived claim</span></td><td>Not proved in the source: the appendix inputs are open, §1 contains refuted lemmas, and §3.3 Step 4 is a non sequitur (E6). This folder does <strong>not</strong> claim RH, GRH, twin primes, Chowla, Sarnak, or Elliott.</td></tr>
+</tbody>
+</table>
+
+<h3>Errata with exact evidence</h3>
+<ul>
+<li><strong>E1 — Lemma 1.3 is false as stated.</strong> It claims <code>r_n &lt; 1/(n+2)</code> for all <code>n ≥ 0</code>. At <code>x = 1</code>, <code>r_0 = 1/2</code>, not <code>&lt; 1/2</code>. The correct sharp statement after <code>N</code> processed indices is <code>r_N ≤ 1/(N+1)</code>, with equality only at <code>N = 1, x = 1</code>; C4 tests the repaired bound.</li>
+<li><strong>E2 — Theorem 1.7 (digit monotonicity) is false.</strong> <code>999/2000 &lt; 1/2</code>, but <code>δ_1(999/2000) = 1</code> while <code>δ_1(1/2) = 0</code>: at <code>1/2</code> the first fraction is taken, leaving remainder <code>0</code>; just below <code>1/2</code> the first fraction is skipped, so the second one fits. C7 checks this exactly.</li>
+<li><strong>E3 — Theorem 1.9(2) is false.</strong> <code>δ_1(x) = 1</code> exactly on <code>[1/3, 1/2)</code>, so <code>θ_1* = 1/3</code>; but <code>δ_1(1/2) = 0</code>, contradicting the claimed up-set <code>{θ : δ_1(θ) = 1} = [θ_1*, π]</code>.</li>
+<li><strong>E4 — Theorem 1.14 is inconsistent.</strong> The stated diagonal formula is negative at <code>n = 0</code> and disagrees with the direct threshold integral. The “proof sketch” defers the computation to a companion paper.</li>
+<li><strong>E5 — Theorem 1.6’s proof has an invalid step.</strong> It writes <code>r_m &lt; r_{m−1} − 1/(m+2)</code> although the algorithm gives equality, and the claimed lower bound on <code>m'</code> does not follow. The super-exponential claim is left open here, not refuted.</li>
+<li><strong>E6 — §3.3 Step 4 is a non sequitur.</strong> From <code>ρ − 1/2 ∈ spec(J_{1/2}) ⊂ ℝ</code> the paper concludes <code>Im ρ = 0</code> <em>or</em> <code>Re ρ = 1/2</code>. An element of <code>ℝ</code> has zero imaginary part, so the argument yields <code>Im ρ = 0</code> (impossible for a non-trivial zero only if one already knows the zeros are non-real), not <code>Re ρ = 1/2</code>.</li>
+</ul>
+
+<h2>Open items and conjectures</h2>
+<table>
+<thead><tr><th>#</th><th>Open item</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td>Is the selected-index sequence super-exponentially sparse? The source’s proof is defective (E5); a correct proof or counterexample is needed.</td><td>Open</td></tr>
+<tr><td>O2</td><td>Describe the digit sets <code>{x ∈ [0,1] : δ_n(x) = 1}</code>. They are not up-sets (C7/E3); are they finite unions of intervals, and what is their measure?</td><td>Open</td></tr>
+<tr><td>O3</td><td>Prove convergence of <code>E(θ,s)</code> and <code>Ω(θ,s)</code> and the infinite identity <code>E + Ω = ζ(s) − 1</code> on a half-plane. The finite split T6 is proved; the limit is not.</td><td>Open (cf. item 24)</td></tr>
+<tr><td>O4</td><td>Compute the correct correlation kernel for non-monotone greedy digits and decide its positivity/spectral properties.</td><td>Open (cf. items 11, 25)</td></tr>
+<tr><td>O5</td><td>Construct the transfer operator, prove the similarity and the Fredholm determinant identity.</td><td>Open</td></tr>
+<tr><td>O6</td><td>Decide whether any self-adjoint operator constructed from the GDST has spectrum encoding the non-trivial zeros.</td><td>Open (Hilbert–Pólya)</td></tr>
+<tr><td>O7</td><td>The Riemann hypothesis itself.</td><td>Open — the source’s claimed proof is archived, not accepted.</td></tr>
+</tbody>
+</table>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> is an exact sympy layer with no numerical tolerances. It implements <code>alpha</code>, <code>alpha_angle</code>, <code>run</code>, <code>digits</code>, <code>selected_sum</code>, <code>rejected_sum</code>, <code>total_sum</code>, <code>invariant_residual</code>, <code>complement_residual</code>, <code>dirichlet_weight</code>, <code>pi_example</code>, <code>remainder_bound_holds</code>, <code>next_index_lower_bound</code>, <code>projected_next_index_ge_quadratic</code>, and <code>monotonicity_counterexample</code>.</p>
+<pre><code>cd the-final-letter/topics/theorems-paper-series
+python3 -m pytest -q tests</code></pre>
+<p>Current result: <strong>8 passed</strong> in about 2 seconds. The tests use exact rational arithmetic throughout; the only <code>ValueError</code> cases are the explicitly tested invalid inputs.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib and works in namespace <code>GDST</code>. It defines <code>alpha</code>, <code>run</code>, <code>selectedWeight</code>, <code>rejectedWeight</code> and <code>totalWeight</code> over <code>ℚ</code>, and proves T1–T7. The file contains no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/theorems-paper-series
+./lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK   Topic.lean</code>. See <a href="lean/README.md"><code>lean/README.md</code></a> for what is and is not formalised.</p>
+
+<h2>Open items and known gaps</h2>
+<ol>
+<li><strong>No global claim is formalised.</strong> The transfer operator, its trace-class property, the Fredholm determinant, the Jacobi matrices, the moment problem and the RH conclusion are all far beyond this finite core. The appendix’s twelve tasks remain open.</li>
+<li><strong>The source is not merely incomplete; parts are wrong.</strong> C7 and E1–E6 are exact, checkable failures, not gaps in the reconstruction. Any future use of the paper’s §1.2–§1.3 must replace the monotonicity and threshold lemmas.</li>
+<li><strong>The finite split is word-level, not greedy-specific.</strong> T6 holds for every binary selection word; the greedy recursion enters T3–T5 and C1–C7. This mirrors, but does not duplicate, the twin-series folder (item 24), which keeps the arbitrary-word complement as its core.</li>
+<li><strong>The companion papers are unaudited.</strong> <code>paper1.md</code>–<code>paper4.md</code> and the MiniProof parser are recorded as provenance only; no claim from them is adopted.</li>
+<li><strong>Consequence for the inventory.</strong> Item 32 is an archived claim. The readable salvage is the finite greedy layer; the RH programme is not advanced by this folder.</li>
+</ol>
+
+<h2>Provenance</h2>
+<ul>
+<li>Source: <a href="../../archive/maths/theorems/paper.md"><code>paper.md</code></a>; companion fragments <a href="../../archive/maths/theorems/paper1.md"><code>paper1.md</code></a>, <a href="../../archive/maths/theorems/paper2.md"><code>paper2.md</code></a>, <a href="../../archive/maths/theorems/paper3.md"><code>paper3.md</code></a>, <a href="../../archive/maths/theorems/paper4.md"><code>paper4.md</code></a>; <a href="../../archive/maths/theorems/miniproof.md"><code>miniproof.md</code></a> and <a href="../../archive/maths/theorems/miniproof_parser.py"><code>miniproof_parser.py</code></a>.</li>
+<li><a href="../../scraps.html">Scraps inventory</a> item 32; related items 9, 24 and 25.</li>
+<li><a href="../README.md">Topic index</a> · <a href="../../index.html">The Final Letter</a>.</li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh38 — the lift</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+/* the shared sheet gives .toc `columns: 2`, and the links are inline, so a
+   nine-item list flows as one text run down column 1 and into column 2 and
+   reads out of order.  One block per link fixes it: the columns then balance
+   items, 5 and 4, in document order. */
+nav.toc a { display: block; break-inside: avoid; }
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh38 · the lift</h1>
+<p class="sub">rh3 &#167;6 has been rewritten, and it answers better than this
+arc did a question the arc thought it had settled. The bare angle is unchanged,
+opposed sign and all &#8212; what is new is that it is no longer read as a
+winding. A gear turns one way; the winding is a <em>lift</em> of the station,
+gauged once for the whole thread by a uniform carry. Two things follow. The arc
+has been drawing the mirror image of rh3&#8217;s thread, exactly and
+harmlessly. And a claim this arc has published three times &#8212; that
+carry-proof monotonicity <em>excludes</em> the opposed sign &#8212; is
+wrong.</p>
+<p class="meta">71 named checks, 1 s · four computed
+figures · the thirty-eighth in the series, after <a href="rh37.html">rh37</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> &#167;&#167;2&#8211;5 are
+arithmetic on the construction and on rh3&#8217;s own printed numbers: no zero
+table, nothing conditional. &#167;6 uses &#947;<sub>1</sub> and the
+&#951;&#8211;&#950; identity and is likewise unconditional. Only &#167;7 leans
+on rh29&#8217;s table (22,491 ordinates) and on rh36&#8217;s fitted knee, and is
+conditional in the same way every document since rh29 has been. Nothing is
+certified. The certified set stays at nine, as it has since rh30 &#167;10 (c),
+renewed by rh31 through rh37 and again here.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · where this stands</a>
+<a href="#s2">2 · the lift</a>
+<a href="#s3">3 · why uniform</a>
+<a href="#s4">4 · the mirror</a>
+<a href="#s5">5 · what it costs</a>
+<a href="#s6">6 · the chain closes</a>
+<a href="#s7">7 · the pitch</a>
+<a href="#s8">8 · conjunction</a>
+<a href="#s9">9 · what this leaves</a>
+</nav>
+
+<h2 id="s1">1 · Where this stands</h2>
+
+<p>The construction has one geometric object and every mesh the arc has used is
+a sampling choice laid on top of it. Two documents ago that object acquired two
+constraints: the a-helix has completed, where it passes through a gear, the
+same number of rotations about the cone as that gear has; and the count must be
+cumulative in a way no small increment can break. <a href="rh37.html">rh37</a>
+&#167;2 encoded both and drew a conclusion from them &#8212; that rh3
+&#167;6&#8217;s opposed sign is thereby <em>excluded</em>.</p>
+
+<p>It is not. rh3 &#167;6 now keeps the opposed sign and satisfies both
+constraints, by a device the arc did not consider: it distinguishes the
+<strong>station</strong> from the <strong>winding</strong>. Equation (8),</p>
+
+<div class="eq"><span class="tag">(8)</span>
+&#977;<sub><i>n</i></sub> = (<i>n</i> &#8722; 1)&#960; &#8722; <i>t</i> log
+<i>n</i>,
+</div>
+
+<p>says where the a-vertex of gear <i>n</i> sits. It is a position on a clock,
+defined mod 2&#960;, and the clock &#8212; rh3 &#167;2&#8217;s twelve digits
+&#8212; has no winding memory. Reading (8) literally as a signed winding is what
+produces the reversal at <i>x</i>* = <i>t</i>/&#960;, and rh3 now declines to:
+<em>&#8220;A gear turns one way.&#8221;</em> What the clock leaves free is the
+whole-turn part of each step, and fixing that freedom is a gauge choice. Fix it
+uniformly and the thread never backs off, at any torsion, with the sign left
+exactly where it was.</p>
+
+<p>So this document does four things. It installs rh3&#8217;s lift in the
+instrument and checks it against rh3&#8217;s own printed numbers
+(&#167;2&#8211;3). It states the correction (&#167;4). It proves the whole
+question is invisible to every eigenvalue the arc has computed (&#167;5). And
+it records one thing worth keeping: the carry per level is the same number as
+the one-sided length of the approximate functional equation, whose square root
+is rh36&#8217;s collapse knee (&#167;7).</p>
+
+<h2 id="s2">2 · The lift</h2>
+
+<p>rh3 &#167;6&#8217;s three new equations. The carry is the smallest whole
+number of extra turns per level that keeps the rate from ever going
+negative,</p>
+
+<div class="eq"><span class="tag">(10)</span>
+&#977;&#771;(<i>x</i>) = (<i>x</i> &#8722; 1)&#8201;<i>p</i> &#8722; <i>t</i> log
+<i>x</i>,&#8195;<i>p</i> = &#960; + <i>c</i>&#964;,&#8195;<i>c</i> =
+&#8968;(<i>t</i> &#8722; &#960;)/&#964;&#8969;<sub>+</sub>,
+</div>
+
+<p>its rate is</p>
+
+<div class="eq"><span class="tag">(11)</span>
+&#977;&#771;&#8242;(<i>x</i>) = <i>p</i> &#8722; <i>t</i>/<i>x</i>,
+</div>
+
+<p>strictly increasing in <i>x</i> and &#8805; 0 everywhere by the choice of
+<i>c</i>, and the running total is</p>
+
+<div class="eq"><span class="tag">(12)</span>
+&#948;<sub><i>n</i></sub> = &#977;&#771;(<i>n</i>)/&#964;&#8195;turns,&#8195;&#964;
+= 2&#960;.
+</div>
+
+<p>A nut on a bolt: one level deeper advances it by one pitch and turns it by
+whatever that pitch demands, and it cannot arrive at the next level having
+decided, halfway, to unscrew.</p>
+
+<p>Everything rh3 prints reproduces. At <i>t</i> = &#947;<sub>1</sub> the carry
+is <strong>2</strong> whole turns per level and the pitch is exactly 5&#960;,
+so <i>p</i>/&#964; = <strong>2.5</strong>. The ledger under the first ten gears
+reads 0, 0.94, 2.53, 4.38, 6.38, 8.47, 10.62, 12.82, 15.06, 17.32 &#964;
+&#8212; all ten to two decimals, with &#948;<sub>2</sub> = 0.9407 and
+&#948;<sub>10</sub> = 17.320078 in full. Its increments are 0.94, 1.59, 1.85,
+2.00, 2.09, 2.15, 2.20, 2.24, 2.26: rising monotonically towards the pitch and
+never reaching it, still 0.05555 turns short forty levels down. At the turning
+ring <i>x</i>* = <i>t</i>/&#960; = 4.499223 the rate is
+<strong>exactly</strong> the carry, 2.000000 turns per level.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 426" role="img" aria-label="Left: cumulative turns against depth at the first zero, for rh3's lift, the mirror, and the bare angle. Right: turns per level for the same three; the bare rate passes through zero at the turning ring while both lifts stay positive.">
+<text x="370.0" y="21" class="ftitle">three ways to count one thread, at <tspan class="c1">t</tspan> = &#947;<tspan class="sb" dy="3">1</tspan><tspan dy="-3"></tspan></text>
+<line x1="74" y1="42" x2="96" y2="42" class="ln1"/>
+<text x="102" y="46" class="flab st">rh3's lift (10)</text>
+<line x1="274" y1="42" x2="296" y2="42" class="ln0"/>
+<text x="302" y="46" class="flab st">the mirror</text>
+<line x1="474" y1="42" x2="496" y2="42" class="ln2"/>
+<text x="502" y="46" class="flab st">the bare angle (8)</text>
+<line x1="66" y1="68" x2="66" y2="262" class="axis"/>
+<line x1="66" y1="235.0" x2="348" y2="235.0" class="axis"/>
+<text x="59" y="238.5" class="flab end">0</text>
+<line x1="66" y1="185.9" x2="348" y2="185.9" class="grid"/>
+<text x="59" y="189.4" class="flab end">4</text>
+<line x1="66" y1="136.8" x2="348" y2="136.8" class="grid"/>
+<text x="59" y="140.3" class="flab end">8</text>
+<line x1="66" y1="87.6" x2="348" y2="87.6" class="grid"/>
+<text x="59" y="91.1" class="flab end">12</text>
+<text x="66.0" y="279" class="flab mid">1</text>
+<text x="146.6" y="279" class="flab mid">3</text>
+<text x="227.1" y="279" class="flab mid">5</text>
+<text x="307.7" y="279" class="flab mid">7</text>
+<text x="207.0" y="299" class="flab mid">gear</text>
+<text x="59" y="56" class="flab end">turns</text>
+<path d="M66.0 235.0L71.0 234.4L76.1 233.5L81.1 232.3L86.1 230.8L91.2 229.2L96.2 227.4L101.2 225.5L106.3 223.4L111.3 221.3L116.4 219.0L121.4 216.7L126.4 214.3L131.5 211.8L136.5 209.2L141.5 206.6L146.6 203.9L151.6 201.2L156.6 198.5L161.7 195.7L166.7 192.9L171.8 190.0L176.8 187.1L181.8 184.2L186.9 181.2L191.9 178.2L196.9 175.2L202.0 172.2L207.0 169.1L212.0 166.0L217.1 162.9L222.1 159.8L227.1 156.7L232.2 153.5L237.2 150.3L242.2 147.1L247.3 143.9L252.3 140.7L257.4 137.5L262.4 134.3L267.4 131.0L272.5 127.7L277.5 124.5L282.5 121.2L287.6 117.9L292.6 114.5L297.6 111.2L302.7 107.9L307.7 104.6L312.8 101.2L317.8 97.9L322.8 94.5L327.9 91.1L332.9 87.7L337.9 84.3L343.0 81.0L348.0 77.6" class="ln1"/>
+<path d="M66.0 235.0L71.0 231.0L76.1 227.3L81.1 223.9L86.1 220.7L91.2 217.7L96.2 214.9L101.2 212.3L106.3 209.7L111.3 207.3L116.4 204.9L121.4 202.7L126.4 200.5L131.5 198.4L136.5 196.3L141.5 194.3L146.6 192.4L151.6 190.5L156.6 188.6L161.7 186.8L166.7 185.0L171.8 183.3L176.8 181.6L181.8 179.9L186.9 178.3L191.9 176.7L196.9 175.1L202.0 173.5L207.0 172.0L212.0 170.4L217.1 168.9L222.1 167.4L227.1 166.0L232.2 164.5L237.2 163.1L242.2 161.7L247.3 160.3L252.3 158.9L257.4 157.5L262.4 156.1L267.4 154.8L272.5 153.5L277.5 152.1L282.5 150.8L287.6 149.5L292.6 148.2L297.6 146.9L302.7 145.7L307.7 144.4L312.8 143.1L317.8 141.9L322.8 140.7L327.9 139.4L332.9 138.2L337.9 137.0L343.0 135.8L348.0 134.6" class="ln0"/>
+<path d="M66.0 235.0L71.0 237.5L76.1 239.6L81.1 241.5L86.1 243.1L91.2 244.6L96.2 245.8L101.2 247.0L106.3 248.0L111.3 248.9L116.4 249.7L121.4 250.4L126.4 251.1L131.5 251.7L136.5 252.2L141.5 252.6L146.6 253.1L151.6 253.4L156.6 253.7L161.7 254.0L166.7 254.2L171.8 254.4L176.8 254.6L181.8 254.8L186.9 254.9L191.9 254.9L196.9 255.0L202.0 255.0L207.0 255.0L212.0 255.0L217.1 255.0L222.1 255.0L227.1 254.9L232.2 254.8L237.2 254.7L242.2 254.6L247.3 254.4L252.3 254.3L257.4 254.1L262.4 254.0L267.4 253.8L272.5 253.6L277.5 253.4L282.5 253.2L287.6 252.9L292.6 252.7L297.6 252.4L302.7 252.2L307.7 251.9L312.8 251.6L317.8 251.3L322.8 251.0L327.9 250.7L332.9 250.4L337.9 250.1L343.0 249.8L348.0 249.5" class="ln2"/>
+<circle cx="66.0" cy="235.0" r="2.6" class="hm3"/>
+<circle cx="106.3" cy="223.4" r="2.6" class="hm3"/>
+<circle cx="146.6" cy="203.9" r="2.6" class="hm3"/>
+<circle cx="186.9" cy="181.2" r="2.6" class="hm3"/>
+<circle cx="227.1" cy="156.7" r="2.6" class="hm3"/>
+<circle cx="267.4" cy="131.0" r="2.6" class="hm3"/>
+<circle cx="307.7" cy="104.6" r="2.6" class="hm3"/>
+<circle cx="348.0" cy="77.6" r="2.6" class="hm3"/>
+<text x="72.0" y="74.8" class="flab st">at gear 8, in turns:</text>
+<text x="82.0" y="90.8" class="flab st hm3">&#948; = 12.82</text>
+<text x="82.0" y="106.8" class="flab st hm1">8.18</text>
+<text x="82.0" y="122.8" class="flab st hm2">&#8722;1.18</text>
+<line x1="424" y1="68" x2="424" y2="262" class="axis"/>
+<line x1="424" y1="262.0" x2="706" y2="262.0" class="grid"/>
+<text x="417" y="265.5" class="flab end">-2</text>
+<line x1="424" y1="223.2" x2="706" y2="223.2" class="grid"/>
+<text x="417" y="226.7" class="flab end">-1</text>
+<line x1="424" y1="184.4" x2="706" y2="184.4" class="axis"/>
+<text x="417" y="187.9" class="flab end">0</text>
+<line x1="424" y1="145.6" x2="706" y2="145.6" class="grid"/>
+<text x="417" y="149.1" class="flab end">1</text>
+<line x1="424" y1="106.8" x2="706" y2="106.8" class="grid"/>
+<text x="417" y="110.3" class="flab end">2</text>
+<line x1="424" y1="68.0" x2="706" y2="68.0" class="grid"/>
+<text x="417" y="71.5" class="flab end">3</text>
+<text x="424.0" y="279" class="flab mid">1</text>
+<text x="504.6" y="279" class="flab mid">3</text>
+<text x="585.1" y="279" class="flab mid">5</text>
+<text x="665.7" y="279" class="flab mid">7</text>
+<text x="565.0" y="299" class="flab mid">gear</text>
+<text x="424" y="56" class="flab st">turns per level</text>
+<line x1="565.0" y1="74" x2="565.0" y2="262" class="hl"/>
+<text x="570.0" y="86" class="flab st">x* = t/&#960;</text>
+<path d="M424.0 174.7L429.0 165.0L434.1 157.2L439.1 150.9L444.1 145.6L449.2 141.1L454.2 137.3L459.2 134.0L464.3 131.0L469.3 128.5L474.4 126.2L479.4 124.2L484.4 122.3L489.5 120.7L494.5 119.1L499.5 117.8L504.6 116.5L509.6 115.3L514.6 114.3L519.7 113.3L524.7 112.3L529.8 111.5L534.8 110.7L539.8 109.9L544.9 109.2L549.9 108.6L554.9 107.9L560.0 107.4L565.0 106.8L570.0 106.3L575.1 105.8L580.1 105.3L585.1 104.9L590.2 104.4L595.2 104.0L600.2 103.6L605.3 103.3L610.3 102.9L615.4 102.6L620.4 102.3L625.4 101.9L630.5 101.7L635.5 101.4L640.5 101.1L645.6 100.8L650.6 100.6L655.6 100.3L660.7 100.1L665.7 99.9L670.8 99.7L675.8 99.4L680.8 99.2L685.9 99.0L690.9 98.8L695.9 98.7L701.0 98.5L706.0 98.3" class="ln1"/>
+<path d="M424.0 77.7L429.0 87.4L434.1 95.2L439.1 101.5L444.1 106.8L449.2 111.3L454.2 115.1L459.2 118.4L464.3 121.4L469.3 123.9L474.4 126.2L479.4 128.2L484.4 130.1L489.5 131.7L494.5 133.3L499.5 134.6L504.6 135.9L509.6 137.1L514.6 138.1L519.7 139.1L524.7 140.1L529.8 140.9L534.8 141.7L539.8 142.5L544.9 143.2L549.9 143.8L554.9 144.5L560.0 145.0L565.0 145.6L570.0 146.1L575.1 146.6L580.1 147.1L585.1 147.5L590.2 148.0L595.2 148.4L600.2 148.8L605.3 149.1L610.3 149.5L615.4 149.8L620.4 150.1L625.4 150.5L630.5 150.7L635.5 151.0L640.5 151.3L645.6 151.6L650.6 151.8L655.6 152.1L660.7 152.3L665.7 152.5L670.8 152.7L675.8 153.0L680.8 153.2L685.9 153.4L690.9 153.6L695.9 153.7L701.0 153.9L706.0 154.1" class="ln0"/>
+<path d="M424.0 252.3L429.0 242.6L434.1 234.8L439.1 228.5L444.1 223.2L449.2 218.7L454.2 214.9L459.2 211.6L464.3 208.6L469.3 206.1L474.4 203.8L479.4 201.8L484.4 199.9L489.5 198.3L494.5 196.7L499.5 195.4L504.6 194.1L509.6 192.9L514.6 191.9L519.7 190.9L524.7 189.9L529.8 189.1L534.8 188.3L539.8 187.5L544.9 186.8L549.9 186.2L554.9 185.5L560.0 185.0L565.0 184.4L570.0 183.9L575.1 183.4L580.1 182.9L585.1 182.5L590.2 182.0L595.2 181.6L600.2 181.2L605.3 180.9L610.3 180.5L615.4 180.2L620.4 179.9L625.4 179.5L630.5 179.3L635.5 179.0L640.5 178.7L645.6 178.4L650.6 178.2L655.6 177.9L660.7 177.7L665.7 177.5L670.8 177.3L675.8 177.0L680.8 176.8L685.9 176.6L690.9 176.4L695.9 176.3L701.0 176.1L706.0 175.9" class="ln2"/>
+<circle cx="565.0" cy="106.8" r="3.4" class="mk"/>
+<text x="574.0" y="125.4" class="flab st">exactly c = 2 there</text>
+<text x="66" y="324" class="flab st">Left, the running total in turns. rh3's lift climbs by the uniform pitch p/&#964; = 2.5 turns per level, less the</text>
+<text x="66" y="342" class="flab st">brake t/x; the mirror climbs by half a turn plus the torsion; the bare angle (8), read as a winding, falls to</text>
+<text x="66" y="360" class="flab st">&#8722;1.63 turns by the fifth gear and only then turns round. Right, the same three as rates. Both lifts stay above</text>
+<text x="66" y="378" class="flab st">zero everywhere. The bare rate crosses zero at the turning ring x* = t/&#960; = 4.4992 &#8212; and that is exactly where</text>
+<text x="66" y="396" class="flab st">rh3's lift is turning at the carry rate, 2.000 turns per level, neither more nor less.</text>
+</svg></div>
+<figcaption>Left: the running total, for rh3&#8217;s lift, for the mirror of
+&#167;4, and for the bare angle (8) read as a winding &#8212; which falls to
+&#8722;1.63 turns before it turns round. Right: the same three as rates. Both
+lifts stay above zero; the bare rate crosses it at the turning ring, which is
+exactly where the lift is turning at the carry rate.</figcaption>
+</figure>
+
+<p>Three properties make it a lift rather than a different thread. It hits
+every station (8) fixes: &#977;&#771; and &#977; agree mod &#964; to
+<strong>7.3&#215;10<sup>&#8722;12</sup></strong> turns over eight torsions and
+two hundred levels, which is the roundoff of differencing angles of size
+10<sup>5</sup>. Its rate is non-negative over eight thousand depths at each of
+those torsions, and strictly increasing in depth. And <i>c</i> is the smallest
+carry that does it &#8212; at <i>c</i> &#8722; 1 the rate at <i>x</i> = 1 is
+negative at every torsion tested.</p>
+
+<p>The normalisation the arc wanted is now read off the source rather than
+imposed on it. &#948;<sub>1</sub> = 0 at every torsion, exactly: gear 1 is depth
+0, radius 1 for every &#963;, rate log 1 = 0, winding 0 &#8212; the
+construction&#8217;s one fixed point. And rh3 (20) makes the matched-winding
+constraint literal. A <em>spine</em> is not a lab meridian but a digit carried
+by the turning frame, at angle &#977;&#771;(<i>x</i>) +
+<i>k</i>&#960;/6, so spine <i>k</i> meets its own digit on every gear having
+completed exactly &#948; turns. The a-helix and the gear it passes through carry
+one count because the spine <em>is</em> the thread: spine 0 and
+&#977;&#771; agree to the last bit.</p>
+
+<h2 id="s3">3 · Why uniform</h2>
+
+<p>Monotone is not enough, and this is the part of rh3&#8217;s argument the arc
+had not reached. <a href="rh6.html">rh6</a> (2) books the minimum forward turn
+on each segment separately. That is also a lift, and it is also monotone
+&#8212; every segment turn lies in [0, 1) by construction, checked across
+torsions and sixty levels. But at <i>t</i> = &#947;<sub>1</sub> the five
+segments then demand 0.94, 0.59, 0.85, 1.00, 0.09 turns, and the collapse of
+<strong>0.908</strong> between the fourth and the fifth is not geometry. It is
+the residual left over on a segment that no longer needs a carry.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 400" role="img" aria-label="Left: the per-segment minimal lift, whose five demands collapse from 1.00 to 0.09 turns. Right: the uniform pitch, whose increments rise monotonically towards 2.5 turns per level.">
+<text x="370.0" y="21" class="ftitle">a residual is not a pitch</text>
+<line x1="66" y1="62" x2="66" y2="236" class="axis"/>
+<line x1="66" y1="236" x2="348" y2="236" class="axis"/>
+<line x1="66" y1="202.8" x2="348" y2="202.8" class="grid"/>
+<text x="59" y="206.3" class="flab end">0.5</text>
+<line x1="66" y1="169.6" x2="348" y2="169.6" class="grid"/>
+<text x="59" y="173.1" class="flab end">1.0</text>
+<line x1="66" y1="136.4" x2="348" y2="136.4" class="grid"/>
+<text x="59" y="139.9" class="flab end">1.5</text>
+<line x1="66" y1="103.2" x2="348" y2="103.2" class="grid"/>
+<text x="59" y="106.7" class="flab end">2.0</text>
+<line x1="66" y1="70.0" x2="348" y2="70.0" class="grid"/>
+<text x="59" y="73.5" class="flab end">2.5</text>
+<rect x="76.7" y="173.5" width="35.0" height="62.5" class="bar hm2"/>
+<text x="94.2" y="167.5" class="flab mid">0.94</text>
+<text x="94.2" y="253" class="flab mid">1</text>
+<rect x="133.1" y="197.0" width="35.0" height="39.0" class="bar hm2"/>
+<text x="150.6" y="191.0" class="flab mid">0.59</text>
+<text x="150.6" y="253" class="flab mid">2</text>
+<rect x="189.5" y="179.4" width="35.0" height="56.6" class="bar hm2"/>
+<text x="207.0" y="173.4" class="flab mid">0.85</text>
+<text x="207.0" y="253" class="flab mid">3</text>
+<rect x="245.9" y="169.7" width="35.0" height="66.3" class="bar hm2"/>
+<text x="263.4" y="163.7" class="flab mid">1.00</text>
+<text x="263.4" y="253" class="flab mid">4</text>
+<rect x="302.3" y="230.0" width="35.0" height="6.0" class="bar hm2"/>
+<text x="319.8" y="224.0" class="flab mid">0.09</text>
+<text x="319.8" y="253" class="flab mid">5</text>
+<text x="207.0" y="273" class="flab mid">segment</text>
+<line x1="424" y1="62" x2="424" y2="236" class="axis"/>
+<line x1="424" y1="236" x2="706" y2="236" class="axis"/>
+<line x1="424" y1="202.8" x2="706" y2="202.8" class="grid"/>
+<text x="417" y="206.3" class="flab end">0.5</text>
+<line x1="424" y1="169.6" x2="706" y2="169.6" class="grid"/>
+<text x="417" y="173.1" class="flab end">1.0</text>
+<line x1="424" y1="136.4" x2="706" y2="136.4" class="grid"/>
+<text x="417" y="139.9" class="flab end">1.5</text>
+<line x1="424" y1="103.2" x2="706" y2="103.2" class="grid"/>
+<text x="417" y="106.7" class="flab end">2.0</text>
+<line x1="424" y1="70.0" x2="706" y2="70.0" class="grid"/>
+<text x="417" y="73.5" class="flab end">2.5</text>
+<rect x="434.7" y="173.5" width="35.0" height="62.5" class="bar hm3"/>
+<text x="452.2" y="167.5" class="flab mid">0.94</text>
+<text x="452.2" y="253" class="flab mid">1</text>
+<rect x="491.1" y="130.5" width="35.0" height="105.5" class="bar hm3"/>
+<text x="508.6" y="124.5" class="flab mid">1.59</text>
+<text x="508.6" y="253" class="flab mid">2</text>
+<rect x="547.5" y="112.9" width="35.0" height="123.1" class="bar hm3"/>
+<text x="565.0" y="106.9" class="flab mid">1.85</text>
+<text x="565.0" y="253" class="flab mid">3</text>
+<rect x="603.9" y="103.3" width="35.0" height="132.7" class="bar hm3"/>
+<text x="621.4" y="97.3" class="flab mid">2.00</text>
+<text x="621.4" y="253" class="flab mid">4</text>
+<rect x="660.3" y="97.2" width="35.0" height="138.8" class="bar hm3"/>
+<text x="677.8" y="91.2" class="flab mid">2.09</text>
+<text x="677.8" y="253" class="flab mid">5</text>
+<line x1="424" y1="70.0" x2="706" y2="70.0" class="rule"/>
+<text x="565.0" y="273" class="flab mid">level</text>
+<text x="59" y="50" class="flab end">turns</text>
+<text x="706" y="63.0" class="flab end">pitch p/&#964; = 2.5</text>
+<text x="207" y="50" class="flab mid hm2">rh6 (2), per segment</text>
+<text x="565" y="50" class="flab mid hm3">rh3 (10), uniform</text>
+<path d="M263.4 161.6L263.4 149.7L319.8 149.7L319.8 220.1" class="lnm lnd"/>
+<text x="291.6" y="141.7" class="flab mid">&#8722;0.908</text>
+<text x="66" y="298" class="flab st">Both lifts are monotone; only one has a rate. Left, rh6 (2) books the smallest forward turn on each segment</text>
+<text x="66" y="316" class="flab st">separately. The demands are 0.94, 0.59, 0.85, 1.00, 0.09 turns &#8212; and that 1.00 to 0.09 collapse is not geometry,</text>
+<text x="66" y="334" class="flab st">it is the residual left over on the first segment that no longer needs a carry. Right, one carry for the whole</text>
+<text x="66" y="352" class="flab st">thread: the increments rise monotonically towards the pitch and never fall. A bolt has no residual to leave</text>
+<text x="66" y="370" class="flab st">over, which is the whole reason the gauge is fixed once.</text>
+</svg></div>
+<figcaption>The two lifts as increments. Left, one carry decided per segment:
+monotone, and with a rate that falls off a cliff. Right, one carry decided for
+the whole thread: every step larger than the last, rising to the
+pitch.</figcaption>
+</figure>
+
+<p>A bolt has no such feature, so the carry is made uniform &#8212; the same
+whole number at every level &#8212; and then there is no residual to leave
+over. Under (10) every increment is strictly larger than the one before it, at
+every level checked. That is the sharpening constraint (ii) needed and did not
+have: <strong>it is not enough that the count rise; its rate must not
+jump.</strong> Any lift whose rate jumps is excluded, monotone or not, and the
+per-segment minimum is the concrete example.</p>
+
+<h2 id="s4">4 · The mirror, and a correction</h2>
+
+<p>rh35_helix fixed the sign the other way, writing &#977;(<i>n</i>, <i>t</i>)
+= (<i>n</i> &#8722; 1)&#960; + <i>t</i> log <i>n</i> and reporting that every
+increment is then positive. That is true, and it is worth being exact about
+what it is. Since &#8722;(<i>n</i> &#8722; 1)&#960; &#8801; (<i>n</i> &#8722;
+1)&#960; mod 2&#960;, flipping the torsion&#8217;s sign negates the whole
+angle:</p>
+
+<div class="eq">
+&#977;<sub>mirror</sub>(<i>n</i>, <i>t</i>) &#8801; &#8722;&#977;<sub>rh3</sub>(<i>n</i>,
+<i>t</i>)&#8195;(mod 2&#960;),
+</div>
+
+<p>measured to <strong>5.7&#215;10<sup>&#8722;14</sup></strong> turns over
+three torsions and three hundred levels. The arc has been drawing rh3&#8217;s
+thread <em>reflected through the a&#8211;A diameter</em>. Its chain sums
+(&#8722;1)<sup><i>n</i>&#8722;1</sup><i>n</i><sup>&#8722;&#963;+<i>it</i></sup>
+= &#951;(<i>s&#772;</i>) where rh3&#8217;s sums &#951;(<i>s</i>); the two
+partial sums are conjugate at every level, so their moduli agree to
+2&#215;10<sup>&#8722;14</sup> and the zero set is identical. That is why no
+computed value in <a href="rh31.html">rh31</a> through rh37 ever moved, and
+&#167;5 turns the observation into a proof.</p>
+
+<p><strong>The correction.</strong> rh34 &#167;2, rh35 &#167;2 and rh37 &#167;2
+all say that carry-proof monotonicity excludes rh3 &#167;6&#8217;s opposed
+sign. It does not, and the error is worth naming precisely rather than
+softening. What has no floor is the <em>bare increment</em> &#960; &#8722;
+<i>t</i> log(1 + 1/<i>n</i>): it crosses zero at <i>t</i> = &#960;/log 2 =
+4.5324, reaches &#8722;6.6559 radians at the first level at
+&#947;<sub>1</sub>, and is negative at all of the first twenty levels by
+&#947; = 331. Every one of those measurements stands. What does not stand is
+the inference. They are facts about (8) <em>read as a winding</em>, and (8) is
+not a winding &#8212; so they disqualify the reading, not the sign. rh37 took a
+correct measurement and attached it to the wrong object.</p>
+
+<p>The half-turn floor goes the same way. It is a property of the mirror, not a
+requirement of the construction. The mirror&#8217;s discrete step is
+&#8805; <strong>&#189;</strong> exactly, uniformly in <i>n</i> and <i>t</i>,
+with equality only as <i>t</i> &#8594; 0. rh3&#8217;s lift is weaker and still
+sufficient: its continuous rate is <em>exactly zero</em> at <i>x</i> = 1
+whenever <i>t</i> = &#960; + <i>c</i>&#964;, and its discrete step floor is
+(&#189; + <i>c</i>)(1 &#8722; log 2), whose global minimum over the torsion is
+<strong>0.1534</strong> turns at <i>t</i> = &#960;. Both are floors and both
+are independent of where in the turn the thread happens to sit, which is the
+property that makes a count carry-proof. Only one of them is half a turn.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 428" role="img" aria-label="The discrete step floor against torsion: rh3's lift falls within each carry branch and jumps at each new carry, dipping to 0.153 turns at t = pi, while the mirror holds a flat half turn.">
+<text x="370.0" y="21" class="ftitle">the floors are not the same floor</text>
+<line x1="66" y1="60" x2="66" y2="250" class="axis"/>
+<line x1="66" y1="250" x2="700" y2="250" class="axis"/>
+<line x1="66" y1="216.7" x2="700" y2="216.7" class="grid"/>
+<text x="59" y="220.2" class="flab end">0.5</text>
+<line x1="66" y1="183.3" x2="700" y2="183.3" class="grid"/>
+<text x="59" y="186.8" class="flab end">1.0</text>
+<line x1="66" y1="150.0" x2="700" y2="150.0" class="grid"/>
+<text x="59" y="153.5" class="flab end">1.5</text>
+<line x1="66" y1="116.7" x2="700" y2="116.7" class="grid"/>
+<text x="59" y="120.2" class="flab end">2.0</text>
+<line x1="66" y1="83.3" x2="700" y2="83.3" class="grid"/>
+<text x="59" y="86.8" class="flab end">2.5</text>
+<text x="66.0" y="267" class="flab mid">0</text>
+<text x="156.6" y="267" class="flab mid">5</text>
+<text x="247.1" y="267" class="flab mid">10</text>
+<text x="337.7" y="267" class="flab mid">15</text>
+<text x="428.3" y="267" class="flab mid">20</text>
+<text x="518.9" y="267" class="flab mid">25</text>
+<text x="609.4" y="267" class="flab mid">30</text>
+<text x="700.0" y="267" class="flab mid">35</text>
+<text x="383.0" y="287" class="flab mid">torsion t</text>
+<text x="66" y="48" class="flab st">floor, in turns per level</text>
+<path d="M66.0 216.7L66.5 216.9L66.9 217.0L67.4 217.2L67.8 217.4L68.3 217.6L68.7 217.8L69.2 218.0L69.6 218.1L70.1 218.3L70.5 218.5L71.0 218.7L71.4 218.9L71.9 219.1L72.3 219.2L72.8 219.4L73.2 219.6L73.7 219.8L74.2 220.0L74.6 220.2L75.1 220.3L75.5 220.5L76.0 220.7L76.4 220.9L76.9 221.1L77.3 221.3L77.8 221.4L78.2 221.6L78.7 221.8L79.1 222.0L79.6 222.2L80.0 222.4L80.5 222.6L80.9 222.7L81.4 222.9L81.8 223.1L82.3 223.3L82.8 223.5L83.2 223.7L83.7 223.8L84.1 224.0L84.6 224.2L85.0 224.4L85.5 224.6L85.9 224.8L86.4 224.9L86.8 225.1L87.3 225.3L87.7 225.5L88.2 225.7L88.6 225.9L89.1 226.0L89.5 226.2L90.0 226.4L90.5 226.6L90.9 226.8L91.4 227.0L91.8 227.1L92.3 227.3L92.7 227.5L93.2 227.7L93.6 227.9L94.1 228.1L94.5 228.3L95.0 228.4L95.4 228.6L95.9 228.8L96.3 229.0L96.8 229.2L97.2 229.4L97.7 229.5L98.2 229.7L98.6 229.9L99.1 230.1L99.5 230.3L100.0 230.5L100.4 230.6L100.9 230.8L101.3 231.0L101.8 231.2L102.2 231.4L102.7 231.6L103.1 231.7L103.6 231.9L104.0 232.1L104.5 232.3L104.9 232.5L105.4 232.7L105.9 232.8L106.3 233.0L106.8 233.2L107.2 233.4L107.7 233.6L108.1 233.8L108.6 233.9L109.0 234.1L109.5 234.3L109.9 234.5L110.4 234.7L110.8 234.9L111.3 235.1L111.7 235.2L112.2 235.4L112.6 235.6L113.1 235.8L113.5 236.0L114.0 236.2L114.5 236.3L114.9 236.5L115.4 236.7L115.8 236.9L116.3 237.1L116.7 237.3L117.2 237.4L117.6 237.6L118.1 237.8L118.5 238.0L119.0 238.2L119.4 238.4L119.9 238.5L120.3 238.7L120.8 238.9L121.2 239.1L121.7 239.3L122.2 239.5L122.6 239.6" class="ln1"/>
+<path d="M123.1 173.2L123.5 173.4L124.0 173.5L124.4 173.7L124.9 173.9L125.3 174.1L125.8 174.3L126.2 174.5L126.7 174.6L127.1 174.8L127.6 175.0L128.0 175.2L128.5 175.4L128.9 175.6L129.4 175.7L129.9 175.9L130.3 176.1L130.8 176.3L131.2 176.5L131.7 176.7L132.1 176.8L132.6 177.0L133.0 177.2L133.5 177.4L133.9 177.6L134.4 177.8L134.8 177.9L135.3 178.1L135.7 178.3L136.2 178.5L136.6 178.7L137.1 178.9L137.6 179.1L138.0 179.2L138.5 179.4L138.9 179.6L139.4 179.8L139.8 180.0L140.3 180.2L140.7 180.3L141.2 180.5L141.6 180.7L142.1 180.9L142.5 181.1L143.0 181.3L143.4 181.4L143.9 181.6L144.3 181.8L144.8 182.0L145.2 182.2L145.7 182.4L146.2 182.5L146.6 182.7L147.1 182.9L147.5 183.1L148.0 183.3L148.4 183.5L148.9 183.6L149.3 183.8L149.8 184.0L150.2 184.2L150.7 184.4L151.1 184.6L151.6 184.8L152.0 184.9L152.5 185.1L152.9 185.3L153.4 185.5L153.9 185.7L154.3 185.9L154.8 186.0L155.2 186.2L155.7 186.4L156.1 186.6L156.6 186.8L157.0 187.0L157.5 187.1L157.9 187.3L158.4 187.5L158.8 187.7L159.3 187.9L159.7 188.1L160.2 188.2L160.6 188.4L161.1 188.6L161.6 188.8L162.0 189.0L162.5 189.2L162.9 189.3L163.4 189.5L163.8 189.7L164.3 189.9L164.7 190.1L165.2 190.3L165.6 190.4L166.1 190.6L166.5 190.8L167.0 191.0L167.4 191.2L167.9 191.4L168.3 191.6L168.8 191.7L169.3 191.9L169.7 192.1L170.2 192.3L170.6 192.5L171.1 192.7L171.5 192.8L172.0 193.0L172.4 193.2L172.9 193.4L173.3 193.6L173.8 193.8L174.2 193.9L174.7 194.1L175.1 194.3L175.6 194.5L176.0 194.7L176.5 194.9L176.9 195.0L177.4 195.2L177.9 195.4L178.3 195.6L178.8 195.8L179.2 196.0L179.7 196.1L180.1 196.3L180.6 196.5L181.0 196.7L181.5 196.9L181.9 197.1L182.4 197.3L182.8 197.4L183.3 197.6L183.7 197.8L184.2 198.0L184.6 198.2L185.1 198.4L185.6 198.5L186.0 198.7L186.5 198.9L186.9 199.1L187.4 199.3L187.8 199.5L188.3 199.6L188.7 199.8L189.2 200.0L189.6 200.2L190.1 200.4L190.5 200.6L191.0 200.7L191.4 200.9L191.9 201.1L192.3 201.3L192.8 201.5L193.3 201.7L193.7 201.8L194.2 202.0L194.6 202.2L195.1 202.4L195.5 202.6L196.0 202.8L196.4 203.0L196.9 203.1L197.3 203.3L197.8 203.5L198.2 203.7L198.7 203.9L199.1 204.1L199.6 204.2L200.0 204.4L200.5 204.6L201.0 204.8L201.4 205.0L201.9 205.2L202.3 205.3L202.8 205.5L203.2 205.7L203.7 205.9L204.1 206.1L204.6 206.3L205.0 206.4L205.5 206.6L205.9 206.8L206.4 207.0L206.8 207.2L207.3 207.4L207.7 207.5L208.2 207.7L208.7 207.9L209.1 208.1L209.6 208.3L210.0 208.5L210.5 208.7L210.9 208.8L211.4 209.0L211.8 209.2L212.3 209.4L212.7 209.6L213.2 209.8L213.6 209.9L214.1 210.1L214.5 210.3L215.0 210.5L215.4 210.7L215.9 210.9L216.3 211.0L216.8 211.2L217.3 211.4L217.7 211.6L218.2 211.8L218.6 212.0L219.1 212.1L219.5 212.3L220.0 212.5L220.4 212.7L220.9 212.9L221.3 213.1L221.8 213.2L222.2 213.4L222.7 213.6L223.1 213.8L223.6 214.0L224.0 214.2L224.5 214.4L225.0 214.5L225.4 214.7L225.9 214.9L226.3 215.1L226.8 215.3L227.2 215.5L227.7 215.6L228.1 215.8L228.6 216.0L229.0 216.2L229.5 216.4L229.9 216.6L230.4 216.7L230.8 216.9L231.3 217.1L231.7 217.3L232.2 217.5L232.7 217.7L233.1 217.8L233.6 218.0L234.0 218.2L234.5 218.4L234.9 218.6L235.4 218.8L235.8 218.9L236.3 219.1" class="ln1"/>
+<path d="M236.7 152.6L237.2 152.8L237.6 153.0L238.1 153.2L238.5 153.4L239.0 153.6L239.4 153.8L239.9 153.9L240.4 154.1L240.8 154.3L241.3 154.5L241.7 154.7L242.2 154.9L242.6 155.0L243.1 155.2L243.5 155.4L244.0 155.6L244.4 155.8L244.9 156.0L245.3 156.1L245.8 156.3L246.2 156.5L246.7 156.7L247.1 156.9L247.6 157.1L248.0 157.2L248.5 157.4L249.0 157.6L249.4 157.8L249.9 158.0L250.3 158.2L250.8 158.3L251.2 158.5L251.7 158.7L252.1 158.9L252.6 159.1L253.0 159.3L253.5 159.5L253.9 159.6L254.4 159.8L254.8 160.0L255.3 160.2L255.7 160.4L256.2 160.6L256.7 160.7L257.1 160.9L257.6 161.1L258.0 161.3L258.5 161.5L258.9 161.7L259.4 161.8L259.8 162.0L260.3 162.2L260.7 162.4L261.2 162.6L261.6 162.8L262.1 162.9L262.5 163.1L263.0 163.3L263.4 163.5L263.9 163.7L264.4 163.9L264.8 164.0L265.3 164.2L265.7 164.4L266.2 164.6L266.6 164.8L267.1 165.0L267.5 165.2L268.0 165.3L268.4 165.5L268.9 165.7L269.3 165.9L269.8 166.1L270.2 166.3L270.7 166.4L271.1 166.6L271.6 166.8L272.1 167.0L272.5 167.2L273.0 167.4L273.4 167.5L273.9 167.7L274.3 167.9L274.8 168.1L275.2 168.3L275.7 168.5L276.1 168.6L276.6 168.8L277.0 169.0L277.5 169.2L277.9 169.4L278.4 169.6L278.8 169.7L279.3 169.9L279.7 170.1L280.2 170.3L280.7 170.5L281.1 170.7L281.6 170.9L282.0 171.0L282.5 171.2L282.9 171.4L283.4 171.6L283.8 171.8L284.3 172.0L284.7 172.1L285.2 172.3L285.6 172.5L286.1 172.7L286.5 172.9L287.0 173.1L287.4 173.2L287.9 173.4L288.4 173.6L288.8 173.8L289.3 174.0L289.7 174.2L290.2 174.3L290.6 174.5L291.1 174.7L291.5 174.9L292.0 175.1L292.4 175.3L292.9 175.4L293.3 175.6L293.8 175.8L294.2 176.0L294.7 176.2L295.1 176.4L295.6 176.6L296.1 176.7L296.5 176.9L297.0 177.1L297.4 177.3L297.9 177.5L298.3 177.7L298.8 177.8L299.2 178.0L299.7 178.2L300.1 178.4L300.6 178.6L301.0 178.8L301.5 178.9L301.9 179.1L302.4 179.3L302.8 179.5L303.3 179.7L303.8 179.9L304.2 180.0L304.7 180.2L305.1 180.4L305.6 180.6L306.0 180.8L306.5 181.0L306.9 181.1L307.4 181.3L307.8 181.5L308.3 181.7L308.7 181.9L309.2 182.1L309.6 182.3L310.1 182.4L310.5 182.6L311.0 182.8L311.4 183.0L311.9 183.2L312.4 183.4L312.8 183.5L313.3 183.7L313.7 183.9L314.2 184.1L314.6 184.3L315.1 184.5L315.5 184.6L316.0 184.8L316.4 185.0L316.9 185.2L317.3 185.4L317.8 185.6L318.2 185.7L318.7 185.9L319.1 186.1L319.6 186.3L320.1 186.5L320.5 186.7L321.0 186.8L321.4 187.0L321.9 187.2L322.3 187.4L322.8 187.6L323.2 187.8L323.7 188.0L324.1 188.1L324.6 188.3L325.0 188.5L325.5 188.7L325.9 188.9L326.4 189.1L326.8 189.2L327.3 189.4L327.8 189.6L328.2 189.8L328.7 190.0L329.1 190.2L329.6 190.3L330.0 190.5L330.5 190.7L330.9 190.9L331.4 191.1L331.8 191.3L332.3 191.4L332.7 191.6L333.2 191.8L333.6 192.0L334.1 192.2L334.5 192.4L335.0 192.5L335.4 192.7L335.9 192.9L336.4 193.1L336.8 193.3L337.3 193.5L337.7 193.7L338.2 193.8L338.6 194.0L339.1 194.2L339.5 194.4L340.0 194.6L340.4 194.8L340.9 194.9L341.3 195.1L341.8 195.3L342.2 195.5L342.7 195.7L343.1 195.9L343.6 196.0L344.1 196.2L344.5 196.4L345.0 196.6L345.4 196.8L345.9 197.0L346.3 197.1L346.8 197.3L347.2 197.5L347.7 197.7L348.1 197.9L348.6 198.1L349.0 198.2L349.5 198.4L349.9 198.6L350.4 198.8" class="ln1"/>
+<path d="M350.8 132.3L351.3 132.5L351.8 132.7L352.2 132.9L352.7 133.1L353.1 133.2L353.6 133.4L354.0 133.6L354.5 133.8L354.9 134.0L355.4 134.2L355.8 134.3L356.3 134.5L356.7 134.7L357.2 134.9L357.6 135.1L358.1 135.3L358.5 135.4L359.0 135.6L359.5 135.8L359.9 136.0L360.4 136.2L360.8 136.4L361.3 136.5L361.7 136.7L362.2 136.9L362.6 137.1L363.1 137.3L363.5 137.5L364.0 137.6L364.4 137.8L364.9 138.0L365.3 138.2L365.8 138.4L366.2 138.6L366.7 138.8L367.1 138.9L367.6 139.1L368.1 139.3L368.5 139.5L369.0 139.7L369.4 139.9L369.9 140.0L370.3 140.2L370.8 140.4L371.2 140.6L371.7 140.8L372.1 141.0L372.6 141.1L373.0 141.3L373.5 141.5L373.9 141.7L374.4 141.9L374.8 142.1L375.3 142.2L375.8 142.4L376.2 142.6L376.7 142.8L377.1 143.0L377.6 143.2L378.0 143.3L378.5 143.5L378.9 143.7L379.4 143.9L379.8 144.1L380.3 144.3L380.7 144.5L381.2 144.6L381.6 144.8L382.1 145.0L382.5 145.2L383.0 145.4L383.5 145.6L383.9 145.7L384.4 145.9L384.8 146.1L385.3 146.3L385.7 146.5L386.2 146.7L386.6 146.8L387.1 147.0L387.5 147.2L388.0 147.4L388.4 147.6L388.9 147.8L389.3 147.9L389.8 148.1L390.2 148.3L390.7 148.5L391.2 148.7L391.6 148.9L392.1 149.0L392.5 149.2L393.0 149.4L393.4 149.6L393.9 149.8L394.3 150.0L394.8 150.2L395.2 150.3L395.7 150.5L396.1 150.7L396.6 150.9L397.0 151.1L397.5 151.3L397.9 151.4L398.4 151.6L398.9 151.8L399.3 152.0L399.8 152.2L400.2 152.4L400.7 152.5L401.1 152.7L401.6 152.9L402.0 153.1L402.5 153.3L402.9 153.5L403.4 153.6L403.8 153.8L404.3 154.0L404.7 154.2L405.2 154.4L405.6 154.6L406.1 154.7L406.5 154.9L407.0 155.1L407.5 155.3L407.9 155.5L408.4 155.7L408.8 155.9L409.3 156.0L409.7 156.2L410.2 156.4L410.6 156.6L411.1 156.8L411.5 157.0L412.0 157.1L412.4 157.3L412.9 157.5L413.3 157.7L413.8 157.9L414.2 158.1L414.7 158.2L415.2 158.4L415.6 158.6L416.1 158.8L416.5 159.0L417.0 159.2L417.4 159.3L417.9 159.5L418.3 159.7L418.8 159.9L419.2 160.1L419.7 160.3L420.1 160.4L420.6 160.6L421.0 160.8L421.5 161.0L421.9 161.2L422.4 161.4L422.9 161.6L423.3 161.7L423.8 161.9L424.2 162.1L424.7 162.3L425.1 162.5L425.6 162.7L426.0 162.8L426.5 163.0L426.9 163.2L427.4 163.4L427.8 163.6L428.3 163.8L428.7 163.9L429.2 164.1L429.6 164.3L430.1 164.5L430.5 164.7L431.0 164.9L431.5 165.0L431.9 165.2L432.4 165.4L432.8 165.6L433.3 165.8L433.7 166.0L434.2 166.1L434.6 166.3L435.1 166.5L435.5 166.7L436.0 166.9L436.4 167.1L436.9 167.3L437.3 167.4L437.8 167.6L438.2 167.8L438.7 168.0L439.2 168.2L439.6 168.4L440.1 168.5L440.5 168.7L441.0 168.9L441.4 169.1L441.9 169.3L442.3 169.5L442.8 169.6L443.2 169.8L443.7 170.0L444.1 170.2L444.6 170.4L445.0 170.6L445.5 170.7L445.9 170.9L446.4 171.1L446.9 171.3L447.3 171.5L447.8 171.7L448.2 171.8L448.7 172.0L449.1 172.2L449.6 172.4L450.0 172.6L450.5 172.8L450.9 173.0L451.4 173.1L451.8 173.3L452.3 173.5L452.7 173.7L453.2 173.9L453.6 174.1L454.1 174.2L454.6 174.4L455.0 174.6L455.5 174.8L455.9 175.0L456.4 175.2L456.8 175.3L457.3 175.5L457.7 175.7L458.2 175.9L458.6 176.1L459.1 176.3L459.5 176.4L460.0 176.6L460.4 176.8L460.9 177.0L461.3 177.2L461.8 177.4L462.2 177.5L462.7 177.7L463.2 177.9L463.6 178.1L464.1 178.3" class="ln1"/>
+<path d="M464.5 111.8L465.0 112.0L465.4 112.2L465.9 112.4L466.3 112.5L466.8 112.7L467.2 112.9L467.7 113.1L468.1 113.3L468.6 113.5L469.0 113.6L469.5 113.8L469.9 114.0L470.4 114.2L470.9 114.4L471.3 114.6L471.8 114.7L472.2 114.9L472.7 115.1L473.1 115.3L473.6 115.5L474.0 115.7L474.5 115.8L474.9 116.0L475.4 116.2L475.8 116.4L476.3 116.6L476.7 116.8L477.2 116.9L477.6 117.1L478.1 117.3L478.6 117.5L479.0 117.7L479.5 117.9L479.9 118.1L480.4 118.2L480.8 118.4L481.3 118.6L481.7 118.8L482.2 119.0L482.6 119.2L483.1 119.3L483.5 119.5L484.0 119.7L484.4 119.9L484.9 120.1L485.3 120.3L485.8 120.4L486.3 120.6L486.7 120.8L487.2 121.0L487.6 121.2L488.1 121.4L488.5 121.5L489.0 121.7L489.4 121.9L489.9 122.1L490.3 122.3L490.8 122.5L491.2 122.6L491.7 122.8L492.1 123.0L492.6 123.2L493.0 123.4L493.5 123.6L494.0 123.8L494.4 123.9L494.9 124.1L495.3 124.3L495.8 124.5L496.2 124.7L496.7 124.9L497.1 125.0L497.6 125.2L498.0 125.4L498.5 125.6L498.9 125.8L499.4 126.0L499.8 126.1L500.3 126.3L500.7 126.5L501.2 126.7L501.6 126.9L502.1 127.1L502.6 127.2L503.0 127.4L503.5 127.6L503.9 127.8L504.4 128.0L504.8 128.2L505.3 128.3L505.7 128.5L506.2 128.7L506.6 128.9L507.1 129.1L507.5 129.3L508.0 129.5L508.4 129.6L508.9 129.8L509.3 130.0L509.8 130.2L510.3 130.4L510.7 130.6L511.2 130.7L511.6 130.9L512.1 131.1L512.5 131.3L513.0 131.5L513.4 131.7L513.9 131.8L514.3 132.0L514.8 132.2L515.2 132.4L515.7 132.6L516.1 132.8L516.6 132.9L517.0 133.1L517.5 133.3L518.0 133.5L518.4 133.7L518.9 133.9L519.3 134.0L519.8 134.2L520.2 134.4L520.7 134.6L521.1 134.8L521.6 135.0L522.0 135.2L522.5 135.3L522.9 135.5L523.4 135.7L523.8 135.9L524.3 136.1L524.7 136.3L525.2 136.4L525.6 136.6L526.1 136.8L526.6 137.0L527.0 137.2L527.5 137.4L527.9 137.5L528.4 137.7L528.8 137.9L529.3 138.1L529.7 138.3L530.2 138.5L530.6 138.6L531.1 138.8L531.5 139.0L532.0 139.2L532.4 139.4L532.9 139.6L533.3 139.7L533.8 139.9L534.3 140.1L534.7 140.3L535.2 140.5L535.6 140.7L536.1 140.8L536.5 141.0L537.0 141.2L537.4 141.4L537.9 141.6L538.3 141.8L538.8 142.0L539.2 142.1L539.7 142.3L540.1 142.5L540.6 142.7L541.0 142.9L541.5 143.1L542.0 143.2L542.4 143.4L542.9 143.6L543.3 143.8L543.8 144.0L544.2 144.2L544.7 144.3L545.1 144.5L545.6 144.7L546.0 144.9L546.5 145.1L546.9 145.3L547.4 145.4L547.8 145.6L548.3 145.8L548.7 146.0L549.2 146.2L549.7 146.4L550.1 146.5L550.6 146.7L551.0 146.9L551.5 147.1L551.9 147.3L552.4 147.5L552.8 147.7L553.3 147.8L553.7 148.0L554.2 148.2L554.6 148.4L555.1 148.6L555.5 148.8L556.0 148.9L556.4 149.1L556.9 149.3L557.4 149.5L557.8 149.7L558.3 149.9L558.7 150.0L559.2 150.2L559.6 150.4L560.1 150.6L560.5 150.8L561.0 151.0L561.4 151.1L561.9 151.3L562.3 151.5L562.8 151.7L563.2 151.9L563.7 152.1L564.1 152.2L564.6 152.4L565.0 152.6L565.5 152.8L566.0 153.0L566.4 153.2L566.9 153.4L567.3 153.5L567.8 153.7L568.2 153.9L568.7 154.1L569.1 154.3L569.6 154.5L570.0 154.6L570.5 154.8L570.9 155.0L571.4 155.2L571.8 155.4L572.3 155.6L572.7 155.7L573.2 155.9L573.7 156.1L574.1 156.3L574.6 156.5L575.0 156.7L575.5 156.8L575.9 157.0L576.4 157.2L576.8 157.4L577.3 157.6L577.7 157.8" class="ln1"/>
+<path d="M578.2 91.3L578.6 91.5L579.1 91.7L579.5 91.8L580.0 92.0L580.4 92.2L580.9 92.4L581.4 92.6L581.8 92.8L582.3 92.9L582.7 93.1L583.2 93.3L583.6 93.5L584.1 93.7L584.5 93.9L585.0 94.0L585.4 94.2L585.9 94.4L586.3 94.6L586.8 94.8L587.2 95.0L587.7 95.1L588.1 95.3L588.6 95.5L589.0 95.7L589.5 95.9L590.0 96.1L590.4 96.2L590.9 96.4L591.3 96.6L591.8 96.8L592.2 97.0L592.7 97.2L593.1 97.3L593.6 97.5L594.0 97.7L594.5 97.9L594.9 98.1L595.4 98.3L595.8 98.5L596.3 98.6L596.7 98.8L597.2 99.0L597.7 99.2L598.1 99.4L598.6 99.6L599.0 99.7L599.5 99.9L599.9 100.1L600.4 100.3L600.8 100.5L601.3 100.7L601.7 100.8L602.2 101.0L602.6 101.2L603.1 101.4L603.5 101.6L604.0 101.8L604.4 101.9L604.9 102.1L605.4 102.3L605.8 102.5L606.3 102.7L606.7 102.9L607.2 103.0L607.6 103.2L608.1 103.4L608.5 103.6L609.0 103.8L609.4 104.0L609.9 104.2L610.3 104.3L610.8 104.5L611.2 104.7L611.7 104.9L612.1 105.1L612.6 105.3L613.1 105.4L613.5 105.6L614.0 105.8L614.4 106.0L614.9 106.2L615.3 106.4L615.8 106.5L616.2 106.7L616.7 106.9L617.1 107.1L617.6 107.3L618.0 107.5L618.5 107.6L618.9 107.8L619.4 108.0L619.8 108.2L620.3 108.4L620.8 108.6L621.2 108.7L621.7 108.9L622.1 109.1L622.6 109.3L623.0 109.5L623.5 109.7L623.9 109.9L624.4 110.0L624.8 110.2L625.3 110.4L625.7 110.6L626.2 110.8L626.6 111.0L627.1 111.1L627.5 111.3L628.0 111.5L628.4 111.7L628.9 111.9L629.4 112.1L629.8 112.2L630.3 112.4L630.7 112.6L631.2 112.8L631.6 113.0L632.1 113.2L632.5 113.3L633.0 113.5L633.4 113.7L633.9 113.9L634.3 114.1L634.8 114.3L635.2 114.4L635.7 114.6L636.1 114.8L636.6 115.0L637.1 115.2L637.5 115.4L638.0 115.6L638.4 115.7L638.9 115.9L639.3 116.1L639.8 116.3L640.2 116.5L640.7 116.7L641.1 116.8L641.6 117.0L642.0 117.2L642.5 117.4L642.9 117.6L643.4 117.8L643.8 117.9L644.3 118.1L644.8 118.3L645.2 118.5L645.7 118.7L646.1 118.9L646.6 119.0L647.0 119.2L647.5 119.4L647.9 119.6L648.4 119.8L648.8 120.0L649.3 120.1L649.7 120.3L650.2 120.5L650.6 120.7L651.1 120.9L651.5 121.1L652.0 121.3L652.5 121.4L652.9 121.6L653.4 121.8L653.8 122.0L654.3 122.2L654.7 122.4L655.2 122.5L655.6 122.7L656.1 122.9L656.5 123.1L657.0 123.3L657.4 123.5L657.9 123.6L658.3 123.8L658.8 124.0L659.2 124.2L659.7 124.4L660.1 124.6L660.6 124.7L661.1 124.9L661.5 125.1L662.0 125.3L662.4 125.5L662.9 125.7L663.3 125.8L663.8 126.0L664.2 126.2L664.7 126.4L665.1 126.6L665.6 126.8L666.0 127.0L666.5 127.1L666.9 127.3L667.4 127.5L667.8 127.7L668.3 127.9L668.8 128.1L669.2 128.2L669.7 128.4L670.1 128.6L670.6 128.8L671.0 129.0L671.5 129.2L671.9 129.3L672.4 129.5L672.8 129.7L673.3 129.9L673.7 130.1L674.2 130.3L674.6 130.4L675.1 130.6L675.5 130.8L676.0 131.0L676.5 131.2L676.9 131.4L677.4 131.5L677.8 131.7L678.3 131.9L678.7 132.1L679.2 132.3L679.6 132.5L680.1 132.7L680.5 132.8L681.0 133.0L681.4 133.2L681.9 133.4L682.3 133.6L682.8 133.8L683.2 133.9L683.7 134.1L684.1 134.3L684.6 134.5L685.1 134.7L685.5 134.9L686.0 135.0L686.4 135.2L686.9 135.4L687.3 135.6L687.8 135.8L688.2 136.0L688.7 136.1L689.1 136.3L689.6 136.5L690.0 136.7L690.5 136.9L690.9 137.1L691.4 137.2L691.8 137.4" class="ln1"/>
+<line x1="66" y1="216.7" x2="700" y2="216.7" class="ln0 lnd"/>
+<circle cx="122.9" cy="239.8" r="3.2" class="mk"/>
+<circle cx="236.7" cy="219.3" r="3.2" class="mk"/>
+<circle cx="350.5" cy="198.9" r="3.2" class="mk"/>
+<circle cx="464.4" cy="178.4" r="3.2" class="mk"/>
+<circle cx="578.2" cy="157.9" r="3.2" class="mk"/>
+<circle cx="692.0" cy="137.5" r="3.2" class="mk"/>
+<text x="129.9" y="231.8" class="flab st">0.1534 at t = &#960;</text>
+<text x="491.7" y="210.0" class="flab st hm1">the mirror: flat &#189;</text>
+<text x="558.7" y="88.7" class="flab st hm3">rh3's lift</text>
+<line x1="322.0" y1="230.0" x2="322.0" y2="250" class="stem"/>
+<line x1="446.8" y1="230.0" x2="446.8" y2="250" class="stem"/>
+<line x1="519.1" y1="230.0" x2="519.1" y2="250" class="stem"/>
+<line x1="617.1" y1="230.0" x2="617.1" y2="250" class="stem"/>
+<line x1="662.6" y1="230.0" x2="662.6" y2="250" class="stem"/>
+<text x="328.0" y="235.3" class="flab st">&#947;<tspan class="sb" dy="3">1</tspan><tspan dy="-3"></tspan>&#8230;&#947;<tspan class="sb" dy="3">5</tspan><tspan dy="-3"></tspan></text>
+<text x="66" y="308" class="flab st">The smallest turn either convention makes in stepping one gear deeper, as the torsion runs from 0 to 35. The</text>
+<text x="66" y="326" class="flab st">mirror holds a flat half turn, uniformly in n and t, with equality only as t &#8594; 0. rh3's lift does not: inside</text>
+<text x="66" y="344" class="flab st">each carry branch the brake eats into the pitch, and the floor falls to (&#189; + c)(1 &#8722; log 2) just before the next</text>
+<text x="66" y="362" class="flab st">carry is taken &#8212; 0.1534 turns at t = &#960;, its global minimum. Both are floors, and both are independent of where</text>
+<text x="66" y="380" class="flab st">in the turn the thread sits, which is what makes them carry-proof; only one of them is half a turn, and it is</text>
+<text x="66" y="398" class="flab st">the mirror's.</text>
+</svg></div>
+<figcaption>The smallest step either convention makes, against torsion. The
+mirror holds a flat half turn; rh3&#8217;s lift falls within each carry branch
+and jumps at each new carry, dipping to 0.1534 turns at <i>t</i> =
+&#960;.</figcaption>
+</figure>
+
+<h2 id="s5">5 · What the convention costs</h2>
+
+<p>Nothing, and it is worth proving rather than repeating, because the arc has
+now spent parts of four documents on a choice that cannot affect a single
+number it has computed.</p>
+
+<p>Build the Gram matrix straight off the a-vertex phases, with no
+intermediary. The entry for gears <i>i</i> and <i>j</i> is the weighted mean of
+the cosine of their phase difference over the zeros, and that difference is
+(<i>i</i> &#8722; <i>j</i>)&#960; &#8723; &#947;(log <i>i</i> &#8722; log
+<i>j</i>) &#8212; the two conventions differing only in the sign of the second
+term. Cosine is even, so:</p>
+
+<div class="eq">
+<i>G</i><sub><i>ij</i></sub> =
+(&#8722;1)<sup><i>i</i>&#8722;<i>j</i></sup>&#8201;E(log <i>i</i> &#8722; log
+<i>j</i>),
+</div>
+
+<p>the same matrix either way. Measured on rh33&#8217;s window at &#916; =
+0.12 over a sixteen-gear ladder, the two Grams differ by
+<strong>1.1&#215;10<sup>&#8722;15</sup></strong> &#8212; float noise, not
+structure &#8212; and the identity above holds to 9.1&#215;10<sup>&#8722;12</sup>.
+The half-turns survive only as the diagonal similarity diag((&#8722;1)<sup><i>i</i></sup>),
+so they do not touch the spectrum either: &#955;<sub>min</sub> with them and
+without them agree to 5.8&#215;10<sup>&#8722;13</sup>, and at four, eight,
+twelve and sixteen gears the two conventions give the same
+&#955;<sub>min</sub> to 2&#215;10<sup>&#8722;16</sup>. Cholesky inertia
+bisection and cyclic Jacobi agree with each other to
+2.1&#215;10<sup>&#8722;13</sup>, as they have throughout.</p>
+
+<p>So the torsion&#8217;s sign is a complex conjugation and the half-turns are
+a similarity, and neither is visible to an eigenvalue. The whole convention
+question is a question about <em>drawing</em>. It deserved settling, and it
+deserves no more than that.</p>
+
+<h2 id="s6">6 · The chain still closes</h2>
+
+<p>Checked on the way past, because a construction whose train did not converge
+would make everything above beside the point. It converges.</p>
+
+<p>The terms are <i>n</i><sup>&#8722;&#963;</sup> and go to zero for every
+&#963; &gt; 0 &#8212; 10<sup>&#8722;4</sup> at the hundred-millionth gear, with
+nothing about a zero involved. The alternating partial sums close on 0 at
+<i>s</i> = &#189; + <i>i</i>&#947;<sub>1</sub>: |P<sub>400</sub>| =
+<strong>0.024988</strong>, which is the 0.0250 rh3&#8217;s Figure 3 caption
+prints, still falling at 4000, and |&#951;(&#189; +
+<i>i</i>&#947;<sub>1</sub>)| = 2.3&#215;10<sup>&#8722;15</sup> by
+Borwein at thirty-two terms. The prefactor |1 &#8722;
+2<sup>1&#8722;<i>s</i></sup>| = 2.3737 is finite and non-zero, so a zero of
+&#950; is a zero of &#951; and the construction sees it.</p>
+
+<p>One readout deserves a note because it reads alarming out of context. With
+the half-turns <em>off</em>, Figure 2 reports <em>&#8220;grows like
+&#8730;N; it does not converge for &#963; &#8804; 1&#8221;</em>. That is the
+un-alternated &#950; train, exactly as rh3 &#167;9 describes it, and the claim
+is correct: the partial sums reach <strong>7.0705</strong> at
+<i>N</i> = 10<sup>4</sup> against the predicted
+&#8730;<i>N</i>/|1 &#8722; <i>s</i>| = 7.0704, and multiply by 1.99996 when
+<i>N</i> quadruples. It is what the half-turns buy, stated as a divergence.
+With them on &#8212; the default &#8212; the chain closes.</p>
+
+<h2 id="s7">7 · The pitch and the functional equation</h2>
+
+<p>One consequence of (10) touches live work. The carry is a function of the
+torsion alone, and at a zero it is</p>
+
+<div class="eq">
+<i>c</i>(&#947;) = &#8968;&#947;/2&#960; &#8722; &#189;&#8969;,
+</div>
+
+<p>exactly, for every one of rh29&#8217;s 22,491 cached ordinates: <i>c</i>
+&#8722; &#947;/2&#960; never leaves (&#8722;&#189;, &#189;] and averages
+0.00017 turns. So the number of whole turns the thread makes per level at a
+zero <em>is</em> &#947;/2&#960; &#8212; the one-sided length of the approximate
+functional equation. It is 2, 8, 38 and 226 at &#947;<sub>1</sub>,
+&#947;<sub>10</sub>, &#947;<sub>100</sub> and &#947;<sub>1000</sub>.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 426" role="img" aria-label="Left: the carry per level against gamma over two pi for the first twenty-four zeros, a staircase on the diagonal. Right: rh36's fitted collapse knee divided by the square root of the carry, at four heights.">
+<text x="370.0" y="21" class="ftitle">the pitch counts turns at the rate the functional equation counts terms</text>
+<line x1="66" y1="62" x2="66" y2="246" class="axis"/>
+<line x1="66" y1="246" x2="348" y2="246" class="axis"/>
+<text x="59" y="249.5" class="flab end">0</text>
+<text x="66.0" y="263" class="flab mid">0</text>
+<text x="59" y="188.2" class="flab end">5</text>
+<text x="160.0" y="263" class="flab mid">5</text>
+<text x="59" y="126.8" class="flab end">10</text>
+<text x="254.0" y="263" class="flab mid">10</text>
+<text x="59" y="65.5" class="flab end">15</text>
+<text x="348.0" y="263" class="flab mid">15</text>
+<line x1="66.0" y1="246.0" x2="348.0" y2="62.0" class="lnm lnd"/>
+<circle cx="108.3" cy="221.5" r="2.8" class="hm3"/>
+<circle cx="128.9" cy="209.2" r="2.8" class="hm3"/>
+<circle cx="140.8" cy="196.9" r="2.8" class="hm3"/>
+<circle cx="157.0" cy="184.7" r="2.8" class="hm3"/>
+<circle cx="164.5" cy="184.7" r="2.8" class="hm3"/>
+<circle cx="178.5" cy="172.4" r="2.8" class="hm3"/>
+<circle cx="188.4" cy="160.1" r="2.8" class="hm3"/>
+<circle cx="195.6" cy="160.1" r="2.8" class="hm3"/>
+<circle cx="209.6" cy="147.9" r="2.8" class="hm3"/>
+<circle cx="214.9" cy="147.9" r="2.8" class="hm3"/>
+<circle cx="224.5" cy="147.9" r="2.8" class="hm3"/>
+<circle cx="234.9" cy="135.6" r="2.8" class="hm3"/>
+<circle cx="243.6" cy="135.6" r="2.8" class="hm3"/>
+<circle cx="248.0" cy="123.3" r="2.8" class="hm3"/>
+<circle cx="260.8" cy="123.3" r="2.8" class="hm3"/>
+<circle cx="266.7" cy="111.1" r="2.8" class="hm3"/>
+<circle cx="274.1" cy="111.1" r="2.8" class="hm3"/>
+<circle cx="281.6" cy="111.1" r="2.8" class="hm3"/>
+<circle cx="292.5" cy="98.8" r="2.8" class="hm3"/>
+<circle cx="296.8" cy="98.8" r="2.8" class="hm3"/>
+<circle cx="303.4" cy="86.5" r="2.8" class="hm3"/>
+<circle cx="314.1" cy="86.5" r="2.8" class="hm3"/>
+<circle cx="319.5" cy="86.5" r="2.8" class="hm3"/>
+<circle cx="327.6" cy="74.3" r="2.8" class="hm3"/>
+<text x="207.0" y="283" class="flab mid">&#947;/2&#960;</text>
+<text x="66" y="50" class="flab st">carry c, in whole turns per level</text>
+<text x="239.0" y="189.6" class="flab st">c = &#8968;&#947;/2&#960; &#8722; &#189;&#8969;</text>
+<line x1="424" y1="62" x2="424" y2="246" class="axis"/>
+<line x1="424" y1="246" x2="706" y2="246" class="axis"/>
+<line x1="424" y1="231.8" x2="706" y2="231.8" class="grid"/>
+<text x="417" y="235.3" class="flab end">2.2</text>
+<line x1="424" y1="175.2" x2="706" y2="175.2" class="grid"/>
+<text x="417" y="178.7" class="flab end">2.4</text>
+<line x1="424" y1="118.6" x2="706" y2="118.6" class="grid"/>
+<text x="417" y="122.1" class="flab end">2.6</text>
+<line x1="424" y1="62.0" x2="706" y2="62.0" class="grid"/>
+<text x="417" y="65.5" class="flab end">2.8</text>
+<line x1="459.2" y1="246" x2="459.2" y2="170.8" class="stem"/>
+<circle cx="459.2" cy="170.8" r="4" class="hm3"/>
+<text x="459.2" y="160.8" class="flab mid">2.42</text>
+<text x="459.2" y="263" class="flab mid">c = 2</text>
+<text x="459.2" y="279" class="flab mid sb">&#947; = 14</text>
+<line x1="529.8" y1="246" x2="529.8" y2="187.5" class="stem"/>
+<circle cx="529.8" cy="187.5" r="4" class="hm3"/>
+<text x="529.8" y="177.5" class="flab mid">2.36</text>
+<text x="529.8" y="263" class="flab mid">c = 8</text>
+<text x="529.8" y="279" class="flab mid sb">&#947; = 50</text>
+<line x1="600.2" y1="246" x2="600.2" y2="154.4" class="stem"/>
+<circle cx="600.2" cy="154.4" r="4" class="hm3"/>
+<text x="600.2" y="144.4" class="flab mid">2.47</text>
+<text x="600.2" y="263" class="flab mid">c = 38</text>
+<text x="600.2" y="279" class="flab mid sb">&#947; = 237</text>
+<line x1="670.8" y1="246" x2="670.8" y2="111.0" class="stem"/>
+<circle cx="670.8" cy="111.0" r="4" class="hm3"/>
+<text x="670.8" y="101.0" class="flab mid">2.63</text>
+<text x="670.8" y="263" class="flab mid">c = 226</text>
+<text x="670.8" y="279" class="flab mid sb">&#947; = 1419</text>
+<text x="565.0" y="301" class="flab mid">four heights, c from 2 to 226</text>
+<text x="417" y="50" class="flab end">rh36 knee &#247; &#8730;c</text>
+<text x="66" y="324" class="flab st">Left, the carry against the one-sided length of the approximate functional equation. They are the same number: c</text>
+<text x="66" y="342" class="flab st">= &#8968;&#947;/2&#960; &#8722; &#189;&#8969; exactly, so c &#8722; &#947;/2&#960; never leaves (&#8722;&#189;, &#189;] and averages 0.00017 turns over the 22491 cached zeros.</text>
+<text x="66" y="360" class="flab st">Right, rh36's fitted collapse knee 2.221(&#947;/2&#960;)^0.531 divided by &#8730;c: it sits at 2.42 &#177; 0.11 while c runs from 2</text>
+<text x="66" y="378" class="flab st">to 226. So the length at which the floor collapses is the square root of the number of turns the thread makes</text>
+<text x="66" y="396" class="flab st">per level, and rh36's exponent 0.531 is a clean half plus 0.031.</text>
+</svg></div>
+<figcaption>Left: the carry against &#947;/2&#960; for the first
+twenty-four zeros &#8212; a staircase on the diagonal. Right: rh36&#8217;s
+fitted collapse knee divided by &#8730;<i>c</i>, at four heights spanning a
+hundredfold range of the carry.</figcaption>
+</figure>
+
+<p>That is the quantity <a href="rh36.html">rh36</a> refuted as the collapse
+law, its constant moving by 2.54&#215; across four windows. What rh36 confirmed
+instead was knee = 2.221(&#947;/2&#960;)<sup>0.531</sup>, the
+<em>balanced</em> length. Divide it by &#8730;<i>c</i> and it sits at 2.42,
+2.36, 2.47, 2.63 as <i>c</i> runs from 2 to 226 &#8212; a spread of 1.11 over
+a hundredfold range, the drift being rh36&#8217;s exponent 0.531 against a
+clean half.</p>
+
+<p>Stated geometrically: <strong>the floor collapses at the square root of the
+number of turns the thread makes per level.</strong> Whether that is more than
+a restatement is not settled here &#8212; &#947;/2&#960; is the natural
+frequency scale of anything band-limited at height &#947;, and both quantities
+inherit it. It is recorded because it is the first time the collapse length has
+had a reading in the construction&#8217;s own coordinates rather than in the
+lattice&#8217;s, and because &#167;9 (a) is going to need one.</p>
+
+<h2 id="s8">8 · Where this leaves the conjunction</h2>
+
+<p>Unmoved, and this document does not pretend otherwise. It corrects a claim
+about a drawing convention, installs a better one, and proves that the whole
+question was invisible to every eigenvalue the arc has computed. None of that
+is a step towards RH and none of it was meant to be.</p>
+
+<p>What it does buy is smaller and real. The instrument now speaks the source
+document&#8217;s language rather than a mirror of it, so a future measurement
+stated in helix coordinates can be checked against rh3 directly. Constraint
+(ii) has its correct form &#8212; a floor on the rate of a uniform lift, not on
+the increment of a bare angle &#8212; which is a condition a future sign or
+parameter choice can actually be tested against. And &#167;7 gives the collapse
+length its first reading in the construction&#8217;s own coordinates. The
+certified set stays at nine, renewed once more.</p>
+
+<p>The honest summary is that the arc spent parts of four documents on a
+question that &#167;5 shows could never have mattered numerically, and got the
+answer wrong on the way. The value of that is entirely in &#167;3: rate
+continuity is a real constraint, it is the one that picks the uniform carry out
+of the monotone lifts, and it came from the source document rather than from
+here.</p>
+
+<h2 id="s9">9 · What this document leaves</h2>
+
+<dl class="dict">
+<dt>(a) rh30 &#167;10 (a), and now with nothing in front of it.</dt>
+<dd>Prove the collapse. It has been open eight documents. rh37 closed (b) and
+this one is a correction, so (a) is the only direction left and the next
+document goes at it: name the eigenvector that carries &#955;<sub>min</sub> on
+the arc&#8217;s own lattice, as rh36 did on the integer ladder, and see whether
+<i>n</i>/N<sub>eff</sub> has a vector reading. &#167;7 hands it one thing to
+try &#8212; the knee as &#8730;<i>c</i>, in helix coordinates.</dd>
+
+<dt>(b) The instrument carries both threads.</dt>
+<dd>rh35_helix now has <code>carry</code>, <code>pitch</code>,
+<code>lift</code>, <code>lift_rate</code>, <code>ledger</code> and
+<code>spine</code> implementing rh3 (10)&#8211;(12) and (20), with
+<code>bare</code> and <code>bare_increment</code> kept so the excluded
+<em>reading</em> can be demonstrated, and <code>theta</code>/<code>winding</code>
+kept and documented as the reflection. Every pre-rh38 name still resolves.</dd>
+
+<dt>(c) A rule the arc should keep.</dt>
+<dd>A measurement is not an inference. rh37&#8217;s numbers were right and its
+conclusion was wrong, and what separated them was a question never asked
+&#8212; whether the object being measured was the object the claim was about.
+The bare increment really does go negative; (8) really is not a winding.</dd>
+
+<dt>(d) The certified set stays closed.</dt>
+<dd>Nine, unchanged, renewed once more.</dd>
+</dl>
+
+<p class="foot">Sibling documents: <a href="rh3.html">rh3</a> ·
+<a href="rh6.html">rh6</a> · <a href="rh34.html">rh34</a> ·
+<a href="rh35.html">rh35</a> · <a href="rh36.html">rh36</a> ·
+<a href="rh37.html">rh37</a></p>
+
+
+</div>
+</body>
+</html>

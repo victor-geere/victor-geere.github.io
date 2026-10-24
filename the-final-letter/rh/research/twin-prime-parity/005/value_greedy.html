@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>005 — plain greedy harmonic sums: the binary selection</title>
+<style>
+  :root { --ink:#111; --mut:#666; --line:#ddd; --bg:#fff; --acc:#0b4ea2; --orange:#b95f1e; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.45 -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  header { padding:16px 22px 10px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 6px; font-size:19px; font-weight:600; }
+  .sub { color:var(--mut); font-size:12.5px; }
+  code { font-family:"SF Mono", Menlo, Consolas, monospace; font-size:12.5px; }
+  .wrap { display:flex; gap:18px; padding:16px 22px 40px; align-items:flex-start; flex-wrap:wrap; }
+  .panel { border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+  .col1 { width:320px; }
+  .col3 { width:380px; }
+  .col2 { flex:1 1 640px; min-width:320px; }
+  label.sl { display:block; margin:12px 0 2px; font-size:12px; color:var(--mut);
+             text-transform:uppercase; letter-spacing:.6px; }
+  input[type=range] { width:100%; }
+  .num { display:flex; justify-content:space-between; align-items:baseline;
+         font-variant-numeric:tabular-nums; }
+  .num b { font-size:16px; }
+  .btns { display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; }
+  button { font:inherit; font-size:12px; padding:4px 8px; border:1px solid var(--line);
+           background:#fafafa; border-radius:6px; cursor:pointer; }
+  button:hover { background:#f0f0f0; }
+  button.on { background:var(--acc); color:#fff; border-color:var(--acc); }
+  table.stats { border-collapse:collapse; width:100%; margin-top:6px;
+                font-variant-numeric:tabular-nums; }
+  table.stats td { padding:2px 0; border-bottom:1px solid #f2f2f2; font-size:12px; }
+  table.stats td:last-child { text-align:right; font-family:"SF Mono", Menlo, monospace; }
+  .hint { color:var(--mut); font-size:11.5px; margin-top:10px; }
+  .cap { font-size:12.5px; color:#333; margin:6px 0 4px; }
+  canvas { display:block; max-width:100%; }
+  #tip { position:fixed; pointer-events:none; background:#111; color:#fff;
+         font:11px/1.3 Menlo, monospace; padding:3px 6px; border-radius:4px; display:none; z-index:9; }
+  .lg { font-size:11.5px; color:var(--mut); }
+  .sw { display:inline-block; width:11px; height:11px; border:1px solid #ccc; vertical-align:-1px; margin-right:4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Plain greedy harmonic sums of the values: the binary selection of the <span style="color:var(--acc)">Im</span> and <span style="color:var(--orange)">Re</span> series</h1>
+  <div class="sub">
+    <code>η(s) = Σ (−1)<sup>n−1</sup> n<sup>−s</sup></code>, &nbsp;
+    <code>sin(φ<sub>n</sub>) = sgn<sub>n</sub> Σ<sub>k∈B<sub>n</sub></sub> 1/(k+2)</code>, &nbsp;
+    <code>cos(φ<sub>n</sub>) = tgn<sub>n</sub> Σ<sub>k∈C<sub>n</sub></sub> 1/(k+2)</code> &nbsp;— each value is
+    added up by its own greedy Egyptian (harmonic) sum; <b>no compound-angle identity</b> is used, and the
+    sine and cosine words <code>B<sub>n</sub></code>, <code>C<sub>n</sub></code> are independent. A black
+    cell is <code>1</code>, white is <code>0</code>.
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="panel col1">
+    <label class="sl" for="t">Im input &nbsp; t</label>
+    <div class="num"><b id="tv">14.13472514</b><span class="hint" id="tnote"></span></div>
+    <input type="range" id="t" min="0.0001" max="50" step="0.000001" value="14.13472514">
+    <div class="btns" id="zerobtns"></div>
+
+    <label class="sl" for="s">Re input &nbsp; σ</label>
+    <div class="num"><b id="sv">0.500</b></div>
+    <input type="range" id="s" min="0.05" max="1.5" step="0.005" value="0.5">
+
+    <label class="sl" for="n">terms drawn &nbsp; N</label>
+    <div class="num"><b id="nv">100</b></div>
+    <input type="range" id="n" min="20" max="300" step="10" value="100">
+
+    <table class="stats" id="stats"></table>
+
+    <div class="btns">
+      <button id="dlim">download Im word tsv</button>
+      <button id="dlre">download Re word tsv</button>
+    </div>
+    <div class="hint">
+      The words <code>B<sub>n</sub></code>, <code>C<sub>n</sub></code> are functions of the phase
+      <code>φ<sub>n</sub> = t log n</code> alone, so <b>σ does not change the selection</b> — it only
+      rescales the amplitude <code>n<sup>−σ</sup></code>. The value error is exactly the greedy
+      residual, bounded by <code>1/(K+2)</code>.
+    </div>
+  </div>
+
+  <div class="panel col2">
+    <div class="cap"><span class="sw" style="background:#143c8c"></span>Im / sine word <code>B<sub>n</sub></code>
+      &nbsp;&nbsp;<span id="dimB"></span></div>
+    <canvas id="cvB"></canvas>
+    <div class="cap" style="margin-top:14px"><span class="sw" style="background:#b95f1e"></span>Re / cosine word <code>C<sub>n</sub></code>
+      &nbsp;&nbsp;<span id="dimC"></span></div>
+    <canvas id="cvC"></canvas>
+  </div>
+
+  <div class="panel col3">
+    <div class="cap">Leading denominator <code>d₁ = ⌈1/|value|⌉</code>: empirical vs the arcsine law</div>
+    <canvas id="cvLead"></canvas>
+    <div class="lg" id="leadlg"></div>
+
+    <div class="cap" style="margin-top:16px">Support size (binary weight of the word)</div>
+    <canvas id="cvSize"></canvas>
+
+    <div class="cap" style="margin-top:16px">Selection frequency of the leading fractions</div>
+    <canvas id="cvFreq"></canvas>
+
+    <div class="cap" style="margin-top:16px">Overlap of the two words of the same term</div>
+    <canvas id="cvJac"></canvas>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script>
+/* ---BEGIN CORE--- */
+/* core numerics: no DOM, identical in spirit to 004 but fed the VALUE, not the angle */
+var TWO_PI = 2 * Math.PI;
+var GAMMA1 = 14.134725141734693790457251983562470270784257115699;
+var GAMMAS = [14.134725141734693, 21.022039638771555, 25.010857580145688,
+              30.424876125859513, 32.935061587739190, 37.586178158825671,
+              40.918719012147495, 43.327073280914999, 48.005150881167160,
+              49.773832477672302];
+
+// Greedy Egyptian support of x in [0,1] on 1/(k+2), k < Kmax. Same jump form as 004,
+// but x is now |sin(phi)| or |cos(phi)| -- the numeric VALUE -- not theta/pi.
+function greedySupport(x, Kmax) {
+  var r = x, k = 0, A = [];
+  if (r <= 0) return A;
+  while (k < Kmax) {
+    if (r < 1.0 / (Kmax + 2)) break;
+    var kk = Math.ceil(1.0 / r) - 2;
+    if (kk < k) kk = k;
+    if (kk >= Kmax) break;
+    var a = 1.0 / (kk + 2);
+    if (r >= a - 1e-15) { A.push(kk); r -= a; k = kk + 1; }
+    else { k = kk + 1; }
+  }
+  return A;
+}
+
+// The two independent words per term: B from |sin phi|, C from |cos phi|.
+function valueWords(t, nTerms, Kmax) {
+  var B = [], C = [], sgn = [], tgn = [], sv = [], cv = [], rs = [], rc = [];
+  for (var n = 1; n <= nTerms; n++) {
+    var phi = (t * Math.log(n)) % TWO_PI; if (phi < 0) phi += TWO_PI;
+    var s = Math.sin(phi), c = Math.cos(phi);
+    sv.push(s); cv.push(c);
+    sgn.push(s >= 0 ? 1 : -1); tgn.push(c >= 0 ? 1 : -1);
+    var a1 = greedySupport(Math.abs(s), Kmax);
+    var r1 = Math.abs(s) - a1.reduce(function (p, k) { return p + 1 / (k + 2); }, 0);
+    B.push(a1); rs.push(Math.abs(r1));
+    var a2 = greedySupport(Math.abs(c), Kmax);
+    var r2 = Math.abs(c) - a2.reduce(function (p, k) { return p + 1 / (k + 2); }, 0);
+    C.push(a2); rc.push(Math.abs(r2));
+  }
+  return { B: B, C: C, sgn: sgn, tgn: tgn, sv: sv, cv: cv, rs: rs, rc: rc };
+}
+
+function unionOf(A) {
+  var seen = {}, out = [];
+  for (var i = 0; i < A.length; i++)
+    for (var j = 0; j < A[i].length; j++) { var k = A[i][j]; if (!seen[k]) { seen[k] = 1; out.push(k); } }
+  out.sort(function (a, b) { return a - b; });
+  return out;
+}
+function frequencies(A) {
+  var f = {};
+  for (var i = 0; i < A.length; i++)
+    for (var j = 0; j < A[i].length; j++) f[A[i][j]] = (f[A[i][j]] || 0) + 1;
+  return f;
+}
+
+// The plain (linear) reconstruction of the two series from the words.
+function seriesFromWords(sigma, W) {
+  var Im = 0, Re = 0, N = W.B.length;
+  for (var i = 0; i < N; i++) {
+    var n = i + 1, w = Math.pow(n, -sigma) * (n % 2 ? 1 : -1);
+    var sb = 0, i2; for (i2 = 0; i2 < W.B[i].length; i2++) sb += 1 / (W.B[i][i2] + 2);
+    var scc = 0; for (i2 = 0; i2 < W.C[i].length; i2++) scc += 1 / (W.C[i][i2] + 2);
+    Im -= w * W.sgn[i] * sb;
+    Re += w * W.tgn[i] * scc;
+  }
+  return [Re, Im];
+}
+function seriesDirect(sigma, W) {
+  var Im = 0, Re = 0, N = W.sv.length;
+  for (var i = 0; i < N; i++) {
+    var n = i + 1, w = Math.pow(n, -sigma) * (n % 2 ? 1 : -1);
+    Im -= w * W.sv[i]; Re += w * W.cv[i];
+  }
+  return [Re, Im];
+}
+
+// P(first selected denominator = d) for |sin phi| or |cos phi|, phi equidistributed:
+// the arcsine law P(|sin| <= y) = (2/pi) asin(y), and d1 = ceil(1/|value|).
+function arcsineLeading(d) {
+  if (d < 2) return 0;
+  var hi = (d === 2) ? Math.PI / 2 : Math.asin(1 / (d - 1));
+  return (2 / Math.PI) * (hi - Math.asin(1 / d));
+}
+/* ---END CORE--- */
+
+// ------------------------------------------------------------------ UI
+var KMAX = 1000000;
+var state = { t: GAMMA1, sigma: 0.5, n: 100, W: null };
+
+function fit(cv, w, h) { cv.width = w; cv.height = h; cv.style.width = w + 'px'; cv.style.height = h + 'px'; }
+
+function drawWord(cv, words, union, colour, nRows) {
+  var cols = union.length;
+  var cw = Math.max(2, Math.min(6, Math.floor(880 / Math.max(cols, 1))));
+  var ch = Math.max(2, Math.min(8, Math.floor(620 / nRows)));
+  var L = 44, T = 22, R = 10, Bm = 26;
+  fit(cv, L + cols * cw + R, T + nRows * ch + Bm);
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = '#e4e4e4'; ctx.lineWidth = 1;
+  var j, i;
+  for (j = 0; j <= cols; j++) { var x = L + j * cw + 0.5; ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, T + nRows * ch); ctx.stroke(); }
+  for (i = 0; i <= nRows; i++) { var y = T + i * ch + 0.5; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + cols * cw, y); ctx.stroke(); }
+  var idx = {}; for (j = 0; j < cols; j++) idx[union[j]] = j;
+  ctx.fillStyle = colour;
+  for (i = 0; i < nRows; i++) {
+    var w = words[i];
+    for (j = 0; j < w.length; j++) {
+      var jj = idx[w[j]];
+      ctx.fillRect(L + jj * cw, T + i * ch, cw, ch);
+    }
+  }
+  ctx.font = '10px Menlo, monospace'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#555';
+  ctx.textAlign = 'right';
+  for (i = 0; i < nRows; i++) if (i === 0 || (i + 1) % 10 === 0) ctx.fillText(String(i + 1), L - 5, T + i * ch + ch / 2);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#666';
+  var step = Math.max(1, Math.round(cols / 12));
+  for (j = 0; j < cols; j += step) ctx.fillText(String(union[j] + 2), L + j * cw + cw / 2, T - 10);
+  ctx.fillText('fraction 1/(k+2)', L + cols * cw / 2, T + nRows * ch + 15);
+  cv._geo = { L: L, T: T, cw: cw, ch: ch, idx: idx, union: union, nRows: nRows, words: words, colour: colour };
+}
+
+// generic bar chart helper
+function bars(cv, W, H, series, labels, colours, ymax, ylab) {
+  fit(cv, W, H);
+  var ctx = cv.getContext('2d'), L = 40, T = 16, R = 10, Bm = 26;
+  var pw = W - L - R, ph = H - T - Bm;
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#eee'; ctx.lineWidth = 1;
+  for (var g = 0; g <= 4; g++) { var y = T + ph * g / 4; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + pw, y); ctx.stroke(); }
+  var n = labels.length, bw = pw / n;
+  for (var i = 0; i < n; i++) for (var s = 0; s < series.length; s++) {
+    var v = series[s][i], h = ymax > 0 ? v / ymax * ph : 0;
+    var x0 = L + i * bw + 2 + s * (bw - 4) / series.length;
+    var bwid = (bw - 4) / series.length - 1;
+    ctx.fillStyle = colours[s];
+    ctx.fillRect(x0, T + ph - h, Math.max(1, bwid), h);
+  }
+  ctx.font = '10px Menlo, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#666';
+  for (i = 0; i < n; i++) if (labels[i] !== '') ctx.fillText(labels[i], L + (i + 0.5) * bw, T + ph + 12);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#888';
+  ctx.fillText(ylab, L + 2, T + 10);
+  return { L: L, T: T, pw: pw, ph: ph, bw: bw };
+}
+
+function drawLeadLine(cv, W, H, ds, empB, empC, pred, nTotal) {
+  fit(cv, W, H);
+  var ctx = cv.getContext('2d'), L = 40, T = 14, R = 10, Bm = 26;
+  var pw = W - L - R, ph = H - T - Bm;
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#eee';
+  for (var g = 0; g <= 4; g++) { var y = T + ph * g / 4; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + pw, y); ctx.stroke(); }
+  var mx = Math.max(1, Math.max.apply(null, empB.concat(empC)));
+  var bw = pw / ds.length;
+  var i;
+  for (i = 0; i < ds.length; i++) {
+    var hb = empB[i] / mx * ph, hc = empC[i] / mx * ph;
+    ctx.fillStyle = '#143c8c'; ctx.fillRect(L + i * bw + 3, T + ph - hb, bw * 0.40, hb);
+    ctx.fillStyle = '#b95f1e'; ctx.fillRect(L + i * bw + 3 + bw * 0.44, T + ph - hc, bw * 0.40, hc);
+  }
+  ctx.strokeStyle = '#14825a'; ctx.lineWidth = 2; ctx.beginPath();
+  for (i = 0; i < ds.length; i++) {
+    var y2 = T + ph - pred[i] / mx * ph, x2 = L + (i + 0.5) * bw;
+    if (i === 0) ctx.moveTo(x2, y2); else ctx.lineTo(x2, y2);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#14825a';
+  for (i = 0; i < ds.length; i++) { var x3 = L + (i + 0.5) * bw, y3 = T + ph - pred[i] / mx * ph; ctx.beginPath(); ctx.arc(x3, y3, 3, 0, 7); ctx.fill(); }
+  ctx.font = '10px Menlo, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#666';
+  for (i = 0; i < ds.length; i++) ctx.fillText(String(ds[i]), L + (i + 0.5) * bw, T + ph + 12);
+}
+
+function refresh(rebuild) {
+  if (rebuild) state.W = valueWords(state.t, state.n, KMAX);
+  var W = state.W, N = state.n;
+  var uB = unionOf(W.B), uC = unionOf(W.C);
+  var fB = frequencies(W.B), fC = frequencies(W.C);
+
+  drawWord(document.getElementById('cvB'), W.B, uB, '#143c8c', N);
+  drawWord(document.getElementById('cvC'), W.C, uC, '#b95f1e', N);
+  document.getElementById('dimB').textContent = uB.length + ' columns, mean |B| = ' +
+    (W.B.reduce(function (a, x) { return a + x.length; }, 0) / N).toFixed(2);
+  document.getElementById('dimC').textContent = uC.length + ' columns, mean |C| = ' +
+    (W.C.reduce(function (a, x) { return a + x.length; }, 0) / N).toFixed(2);
+
+  // leading denominator chart
+  var ds = []; for (var d = 2; d <= 12; d++) ds.push(d);
+  var empB = ds.map(function (d) { return W.B.filter(function (a) { return a.length && a[0] + 2 === d; }).length; });
+  var empC = ds.map(function (d) { return W.C.filter(function (a) { return a.length && a[0] + 2 === d; }).length; });
+  var pred = ds.map(function (d) { return arcsineLeading(d) * N; });
+  drawLeadLine(document.getElementById('cvLead'), 356, 170, ds, empB, empC, pred, N);
+  document.getElementById('leadlg').innerHTML =
+    '<span class="sw" style="background:#143c8c"></span>sin-value &nbsp;' +
+    '<span class="sw" style="background:#b95f1e"></span>cos-value &nbsp;' +
+    '<span class="sw" style="background:#14825a"></span>arcsine law';
+
+  // support-size histogram
+  var maxs = 0; W.B.concat(W.C).forEach(function (a) { if (a.length > maxs) maxs = a.length; });
+  if (maxs < 3) maxs = 3;
+  var lab = [], sb = [], sc = [];
+  for (var s = 1; s <= maxs; s++) {
+    lab.push(String(s));
+    sb.push(W.B.filter(function (a) { return a.length === s; }).length);
+    sc.push(W.C.filter(function (a) { return a.length === s; }).length);
+  }
+  bars(document.getElementById('cvSize'), 356, 150, [sb, sc], lab, ['#143c8c', '#b95f1e'],
+       Math.max(1, Math.max.apply(null, sb.concat(sc))), 'count of terms');
+
+  // frequency of leading fractions
+  var ks = Object.keys(fB).concat(Object.keys(fC)).map(Number);
+  var uk = Array.from(new Set(ks)).sort(function (a, b) { return (fB[b] || 0) + (fC[b] || 0) - ((fB[a] || 0) + (fC[a] || 0)); }).slice(0, 12);
+  var fb = uk.map(function (k) { return fB[k] || 0; }), fc = uk.map(function (k) { return fC[k] || 0; });
+  bars(document.getElementById('cvFreq'), 356, 150, [fb, fc],
+       uk.map(function (k) { return '1/' + (k + 2); }), ['#143c8c', '#b95f1e'],
+       Math.max(1, Math.max.apply(null, fb.concat(fc))), 'count of terms');
+
+  // Jaccard overlap histogram
+  var jac = W.B.map(function (a, i) {
+    var A = new Set(a), Bs = new Set(W.C[i]);
+    var inter = 0; A.forEach(function (k) { if (Bs.has(k)) inter++; });
+    var uni = A.size + Bs.size - inter;
+    return uni ? inter / uni : 0;
+  });
+  var bins = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  jac.forEach(function (v) { bins[Math.min(9, Math.floor(v * 10))]++; });
+  bars(document.getElementById('cvJac'), 356, 150, [bins],
+       ['0', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9'], ['#7a288a'],
+       Math.max(1, Math.max.apply(null, bins)), 'count of terms');
+
+  // stats
+  var sv = seriesFromWords(state.sigma, W), dv = seriesDirect(state.sigma, W);
+  var meanJ = jac.reduce(function (a, b) { return a + b; }, 0) / N;
+  var disj = jac.filter(function (v) { return v === 0; }).length / N;
+  var p2B = W.B.filter(function (a) { return a.indexOf(0) >= 0; }).length / N;
+  var p2C = W.C.filter(function (a) { return a.indexOf(0) >= 0; }).length / N;
+  var maxrs = Math.max.apply(null, W.rs), maxrc = Math.max.apply(null, W.rc);
+  var rows = [
+    ['s = σ + it', state.sigma.toFixed(3) + ' + ' + state.t.toFixed(6) + 'i'],
+    ['Im η  direct / value', dv[1].toFixed(8) + ' / ' + sv[1].toFixed(8)],
+    ['Re η  direct / value', dv[0].toFixed(8) + ' / ' + sv[0].toFixed(8)],
+    ['|Δ Im| / |Δ Re|', Math.abs(dv[1] - sv[1]).toExponential(2) + ' / ' + Math.abs(dv[0] - sv[0]).toExponential(2)],
+    ['max residual sin / cos', maxrs.toExponential(2) + ' / ' + maxrc.toExponential(2)],
+    ['P(1/2 in B) / in C', p2B.toFixed(3) + ' / ' + p2C.toFixed(3) + '  (→2/3)'],
+    ['mean Jaccard(B,C)', meanJ.toFixed(3)],
+    ['disjoint B,C', (100 * disj).toFixed(1) + '%'],
+    ['Im columns / Re columns', uB.length + ' / ' + uC.length]
+  ];
+  document.getElementById('stats').innerHTML = rows.map(function (r) {
+    return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+  }).join('');
+}
+
+// tooltips
+function hover(cv) {
+  cv.addEventListener('mousemove', function (ev) {
+    var g = cv._geo, tip = document.getElementById('tip');
+    if (!g) return;
+    var r = cv.getBoundingClientRect();
+    var j = Math.floor((ev.clientX - r.left - g.L) / g.cw);
+    var i = Math.floor((ev.clientY - r.top - g.T) / g.ch);
+    if (i >= 0 && i < g.nRows && j >= 0 && j < g.union.length) {
+      var k = g.union[j], inw = g.words[i].indexOf(k) >= 0;
+      tip.textContent = 'n=' + (i + 1) + '  ' + (k + 2) + 'th fraction 1/' + (k + 2) + '  δ=' + (inw ? 1 : 0);
+      tip.style.display = 'block';
+      tip.style.left = (ev.clientX + 12) + 'px'; tip.style.top = (ev.clientY + 12) + 'px';
+    } else tip.style.display = 'none';
+  });
+  cv.addEventListener('mouseleave', function () { document.getElementById('tip').style.display = 'none'; });
+}
+hover(document.getElementById('cvB')); hover(document.getElementById('cvC'));
+
+function setT(t) {
+  state.t = Math.min(50, Math.max(0.0001, t));
+  document.getElementById('t').value = state.t;
+  document.getElementById('tv').textContent = state.t.toFixed(8);
+  var nz = GAMMAS.reduce(function (a, g) { return Math.abs(g - state.t) < Math.abs(a - state.t) ? g : a; }, GAMMAS[0]);
+  document.getElementById('tnote').textContent = Math.abs(nz - state.t) < 1e-4 ? ' ← zero γ' : '';
+  refresh(true);
+}
+function saveTsv(tag, U, words) {
+  var lines = ['n\t' + U.map(function (k) { return '1/' + (k + 2); }).join('\t')];
+  for (var i = 0; i < words.length; i++) {
+    var S = {}; words[i].forEach(function (k) { S[k] = 1; });
+    lines.push((i + 1) + '\t' + U.map(function (k) { return S[k] ? '1' : '0'; }).join('\t'));
+  }
+  var blob = new Blob([lines.join('\n') + '\n'], { type: 'text/tab-separated-values' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'value_greedy_' + tag + '_t' + state.t.toFixed(6) + '.tsv';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+(function () {
+  var bt = document.getElementById('zerobtns');
+  GAMMAS.forEach(function (g, i) {
+    var b = document.createElement('button');
+    b.textContent = 'γ' + (i + 1); b.title = 't = ' + g;
+    b.onclick = function () { setT(g); };
+    bt.appendChild(b);
+  });
+})();
+
+document.getElementById('t').oninput = function () { setT(parseFloat(this.value)); };
+document.getElementById('s').oninput = function () {
+  state.sigma = parseFloat(this.value);
+  document.getElementById('sv').textContent = state.sigma.toFixed(3);
+  refresh(false);
+};
+document.getElementById('n').oninput = function () {
+  state.n = parseInt(this.value, 10);
+  document.getElementById('nv').textContent = state.n;
+  refresh(true);
+};
+document.getElementById('dlim').onclick = function () { saveTsv('im', unionOf(state.W.B), state.W.B); };
+document.getElementById('dlre').onclick = function () { saveTsv('re', unionOf(state.W.C), state.W.C); };
+
+setT(GAMMA1);
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proof-99 / Global Harmonic Framework — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.warn{background:#fff8e6;border:1px solid #ecd9a0;padding:.8rem 1.1rem;border-radius:8px;margin:1rem 0}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+.k-theorem{color:#0b6b3a;font-weight:600}
+.k-comp{color:#1a5fb4;font-weight:600}
+.k-source{color:#8a5a00;font-weight:600}
+.k-open{color:#a11;font-weight:600}
+</style></head><body>
+
+<h1>Proof-99 / Global Harmonic Framework</h1>
+<p class="sub">A reconstructed research programme: finite formal core, exact computation, archived claims</p>
+
+<div class="top"><p><strong>Status: archived claim.</strong> The source claims a proof of the Riemann Hypothesis. This folder does not treat that claim as proved. It formalises the finite coefficient and determinant bookkeeping that the source actually defines, and records the global argument as an archived source claim. The full dossier is in <a href="README.md">README.md</a>.</p></div>
+
+<div class="warn"><strong>Honesty note.</strong> The source’s claimed proof of RH, the Mayer–Ruelle similarity theorem, the determinant identity involving ζ, the Birman–Krein step, and the conclusion N₀(T) = N(T) are <em>not</em> theorems of this reconstruction. They appear below as <span class="k-source">Source claim</span> or <span class="k-open">Open</span>. In addition, the source’s claim that its kernel K is symmetric is false for the K it defines; an exact computation of the asymmetry defect is included.</div>
+
+<h2>Provenance and status</h2>
+<p><strong>Source:</strong> <a href="../../archive/maths/proof-99/paper.md"><code>archive/maths/proof-99/paper.md</code></a> (901 lines), a Version 2.0 synthesis attributed to the “GHF Consortium” (May 2026), itself synthesising <code>proof-99.html</code>, <code>proof-99-plain.html</code>, <code>proof-99-ghf.html</code>, <code>proof-99-hardy.html</code>, <code>proof-99-mono.html</code>, <code>proof-99-addn.html</code>, and <code>proof-99-app-1.html</code>. The DOI-like string <code>10.5281/zenodo.1234567</code> has the shape of a placeholder; no independent record is consulted here. The paper closes by stating that RH has not been accepted as proved and that the argument awaits independent verification of the similarity construction. Inventory note: overlaps items 14 and 26.</p>
+
+<h2>What the source constructs</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>First coefficient sequence</td><td><code>a n = 1 / sqrt(n(n+1))</code>, <code>n ≥ 1</code></td></tr>
+<tr><td>Second coefficient sequence</td><td><code>b n = 1 / (n+1)</code>, <code>n ≥ 1</code></td></tr>
+<tr><td>GHD correlation kernel</td><td><code>K = I + |a⟩⟨b|</code>, i.e. <code>K u = u + a · Σ bₘ uₘ</code></td></tr>
+<tr><td>Diagonal weighting</td><td><code>D(s) = diag((n+2)^(−(s+1/2)))</code></td></tr>
+<tr><td>Weighted Gram operator</td><td><code>M(s) = D(s) K D(s)</code></td></tr>
+<tr><td>Critical-line family</td><td><code>M_t = M(1/2 + it)</code></td></tr>
+<tr><td>Similarity target</td><td><code>𝓛_s f(x) = Σ_{n≥1} (x+n)^(−2s) f(1/(x+n))</code></td></tr>
+<tr><td>Claimed determinant</td><td><code>det(I − M(s)) = ζ(s)/ζ(2s) · e^{P(s)}</code></td></tr>
+<tr><td>Mismatch function</td><td><code>A_J(t) = −d/dt arg F_reg(t)</code></td></tr>
+<tr><td>Counting functions</td><td><code>N₀(T)</code> critical-line zeros; <code>N(T)</code> all non-trivial zeros</td></tr>
+</tbody>
+</table>
+<p>The source’s chain is: define K and M(s); prove M(s) trace-class; claim unitary equivalence to 𝓛_s; invoke the classical determinant formula; restrict to the critical line; identify the spectral shift with A_J; compute ∫A_J two ways; conclude N₀(T) = N(T); infer RH. Only the first, finite step is reconstructed here.</p>
+
+<h2>Theorem ledger</h2>
+<p>Every <span class="k-theorem">Theorem</span> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every <span class="k-comp">Computation</span> row is checked in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td class="k-theorem">Theorem</td><td><code>0 &lt; a n</code> for <code>n ≥ 1</code></td><td><code>GHF.a_pos</code></td></tr>
+<tr><td>T2</td><td class="k-theorem">Theorem</td><td><code>0 &lt; b n</code> for every <code>n</code></td><td><code>GHF.b_pos</code></td></tr>
+<tr><td>T3</td><td class="k-theorem">Theorem</td><td><code>b n &lt; a n</code> for <code>n ≥ 1</code>; the sequences are distinct</td><td><code>GHF.b_lt_a</code></td></tr>
+<tr><td>T4</td><td class="k-theorem">Theorem</td><td><code>Σ_{k=1}^{N} 1/(k(k+1)) = N/(N+1)</code>; finite form of <code>Σ |a n|² = 1</code></td><td><code>GHF.telescoping</code></td></tr>
+<tr><td>T5</td><td class="k-theorem">Theorem</td><td>that sum tends to <code>1</code>; <code>Σ |a n|² = 1</code></td><td><code>GHF.telescoping_tendsto</code></td></tr>
+<tr><td>T6</td><td class="k-theorem">Theorem</td><td>finite rank-one determinant lemma <code>det(I + |a⟩⟨b|) = 1 + Σ bᵢaᵢ</code></td><td><code>GHF.det_rank_one</code></td></tr>
+<tr><td>T7</td><td class="k-theorem">Theorem</td><td><code>D = diag(d)</code>, all <code>dᵢ &gt; 0</code> ⇒ <code>det(D·D) = Π dᵢ² &gt; 0</code></td><td><code>GHF.det_diagonal_sq_pos</code></td></tr>
+<tr><td>C1</td><td class="k-comp">Computation</td><td><code>Σ_{n=1}^{N} aₙ² = N/(N+1)</code> exactly for <code>N ≤ 40</code></td><td><code>test_telescoping_partial_sum_exact</code></td></tr>
+<tr><td>C2</td><td class="k-comp">Computation</td><td><code>Σ_{n=1}^{N} bₙ² = H_{N+1}^{(2)} − 1</code> exactly for <code>N ≤ 10</code></td><td><code>test_b_squared_partial_matches_harmonic</code></td></tr>
+<tr><td>C3</td><td class="k-comp">Computation</td><td><code>det(I + |a⟩⟨b|) = 1 + ⟨b,a⟩</code> exactly for <code>N = 1,2,3</code></td><td><code>test_rank_one_determinant_matches_lemma</code></td></tr>
+<tr><td>C4</td><td class="k-comp">Computation</td><td><code>det(D K D) = Π dₙ² · (1 + Σ aₙbₙ)</code> exactly for <code>s = 1/2</code> and <code>s = 1</code></td><td><code>test_weighted_gram_determinant_critical_line</code></td></tr>
+<tr><td>C5</td><td class="k-comp">Computation</td><td><code>|(n+2)^(−(1+it))| = 1/(n+2)</code> to <code>10⁻³⁰</code></td><td><code>test_critical_line_modulus</code></td></tr>
+<tr><td>C6</td><td class="k-comp">Computation</td><td>canonical kernel asymmetry defect <code>= a₁b₂ − a₂b₁ &gt; 0</code> (source erratum)</td><td><code>test_canonical_kernel_is_not_symmetric</code></td></tr>
+</tbody>
+</table>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td><strong>RH</strong>: every non-trivial zero has <code>Re(ρ) = 1/2</code></td><td class="k-source">Archived claim</td><td>The paper itself says RH is not accepted as proved. Not formalised and not asserted. The conclusion rests on the unconditional equality <code>N₀(T) = N(T)</code>.</td></tr>
+<tr><td>Trace-class property of <code>M(s)</code> for <code>Re(s) &gt; 1/2</code></td><td class="k-source">“Proved in full”, §4.5</td><td>Elementary estimate; infinite-dimensional trace class is outside this finite core.</td></tr>
+<tr><td>Mayer–Ruelle similarity <code>U M(s) U* = 𝓛_s</code></td><td class="k-source">Claimed, §6</td><td><strong>Not established.</strong> The source concedes the appendix reaches the form only “up to a diagonal trace-class correction”; the cited Technical Report is not in the repository.</td></tr>
+<tr><td><code>det(I − 𝓛_s) = ζ(s)/ζ(2s) e^{Q(s)}</code></td><td class="k-source">External classical result</td><td>Cited (Mayer 1991, Pollicott 1993, Rugh 1996); not formalised.</td></tr>
+<tr><td><code>M̃_t = D̃ K D̃</code> is self-adjoint because K is symmetric</td><td class="k-source">Source claim, §§8.2–8.3</td><td><strong>False for the K actually defined.</strong> <code>K₁₂ − K₂₁ = a₁b₂ − a₂b₁ ≠ 0</code> (C6). The symmetric kernel displayed in §6.3 is not the operator of Definition 2.1.</td></tr>
+<tr><td><code>M_t* = J M_t J</code> (J-self-adjointness)</td><td class="k-source">Source claim, §8.2</td><td>Follows from the diagonal form of D; it does not repair the kernel’s non-symmetry.</td></tr>
+<tr><td>Birman–Krein identification <code>A_J(t) = ξ(t)</code></td><td class="k-source">Source claim, Lemma 5.2</td><td>Conditional on similarity and self-adjointness; not formalised.</td></tr>
+<tr><td>Local expansion <code>A_J(t) = −m/(t−γ) + H(t)</code></td><td class="k-source">“Proved in full”, §11.1</td><td>Plausible contour calculation, but depends on the unproved determinant identity and regularisation.</td></tr>
+<tr><td><code>∫₀ᵀ A_J = πN₀(T) + O(log T) = πN(T) + O(log T)</code></td><td class="k-source">Lemmas 7.1–7.2, sketches</td><td>The O(log T) bookkeeping in §13 is a sketch; the two forms are not independent estimates in the form stated.</td></tr>
+<tr><td><code>N₀(T) = N(T)</code> from an integer plus an O(log T) bound</td><td class="k-source">Theorem 7.3</td><td>The argument compares a T-dependent bound with a fixed integer difference; as written it does not yield equality for every T.</td></tr>
+<tr><td>Hardy Z reformulation</td><td class="k-source">Reformulation only (§15.3)</td><td>Not formalised.</td></tr>
+<tr><td>Hilbert–Pólya eigenvalue identification</td><td class="k-source">Explicitly not established (§17.3)</td><td>Open.</td></tr>
+</tbody>
+</table>
+
+<h2>Open items</h2>
+<ol>
+<li><strong>Is there a genuinely symmetric finite kernel?</strong> The natural repair is <code>K_sym = I + ½(|a⟩⟨b| + |b⟩⟨a|)</code>; no source document analyses it.</li>
+<li><strong>Does the similarity theorem hold?</strong> No complete proof exists in the repository.</li>
+<li><strong>Can <code>N₀(T) = N(T)</code> be derived from the stated asymptotics?</strong> A uniform error term is needed; an integer difference plus a growing O(log T) bound is insufficient as stated.</li>
+<li><strong>What is the precise relation between the GHF kernel and the Mayer–Ruelle operator?</strong> Even granting the determinant identity, the spectra are not identified.</li>
+<li><strong>Hilbert–Pólya.</strong> The source itself lists the eigenvalue identification as unproved.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> implements <code>a</code>, <code>b</code>, <code>a_squared</code>, <code>b_squared</code>, <code>telescoping_partial</code>, <code>b_squared_partial</code>, <code>rank_one_kernel</code>, <code>rank_one_det</code>, <code>rank_one_det_formula</code>, <code>weighted_diagonal</code>, <code>weighted_gram</code>, <code>weighted_gram_det</code>, <code>weighted_gram_det_formula</code>, <code>critical_line_modulus</code>, and <code>symmetry_defect</code>.</p>
+<p>The weighted determinant identity used is <code>det(D K D) = (Πₙ dₙ²)(1 + Σₙ aₙbₙ)</code> with <code>dₙ = (n+2)^(−(s+1/2))</code>: the finite matrix determinant lemma applied to <code>M(s) = D² + (Da)(bᵀD)</code>. The correction is independent of <code>s</code> because the weights cancel in <code>bᵀD⁻²Da</code>.</p>
+<pre><code>python3 -m pytest the-final-letter/topics/proof-99-global-harmonic-framework/tests -q</code></pre>
+<p>Recorded result: <strong>7 passed</strong> (well under the 20 s budget). The suite includes edge cases (<code>N = 0</code>, invalid indices) and a test recording the non-symmetry erratum.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens namespace <code>GHF</code>, defines <code>a</code> and <code>b</code>, and proves T1–T7. Limits of the formalisation are set out in <a href="lean/README.md"><code>lean/README.md</code></a>.</p>
+<pre><code>the-final-letter/topics/proof-99-global-harmonic-framework/lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK Topic.lean</code>. Nothing here formalises ζ, the transfer operator, the Fredholm determinant, or any step of the claimed RH proof.</p>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../archive/maths/proof-99/paper.md">Source paper: <code>archive/maths/proof-99/paper.md</code></a></li>
+<li>Related archived files: <code>proof-99.html</code>, <code>proof-99-plain.html</code>, <code>proof-99-ghf.html</code>, <code>proof-99-hardy.html</code>, <code>proof-99-mono.html</code>, <code>proof-99-addn.html</code>, <code>proof-99-app-1.html</code></li>
+<li><a href="../../scraps.html">Scraps inventory</a> · item 29</li>
+<li><a href="../README.md">Topic index</a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

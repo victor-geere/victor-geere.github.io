@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh16 — what the structure still had in it</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.fam-b { stroke: var(--chart-1); stroke-width: 1.7; stroke-dasharray: 6 3; fill: none; stroke-linejoin: round; }
+.fam-h { stroke: var(--chart-2); stroke-width: 1.7; stroke-dasharray: 2 3; fill: none; stroke-linejoin: round; }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.bar2 { fill: var(--chart-2); fill-opacity: .34; stroke: var(--chart-2); stroke-width: .7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>What the structure still had in it</h1>
+  <p class="sub">Ordered: before archiving the construction, mine it — not for more certificates of the same kind, but for new uses of the same machinery. Three digs. The first turns Verblunsky's theorem into a procedure and gets the Riemann zeros out of the primes to four decimal places, a thousand times finer than the slice that produced them. The second prices a disproof. The third settles, by building point processes with no arithmetic in them at all, which of this arc's readings were ever about ζ.</p>
+  <p class="meta">docs/rh16 · concludes <a href="rh4.html">rh4</a>–<a href="rh15.html">rh15</a> · figures computed, not sketched · 2026-08-01</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <a href="rh15.html">rh15</a> left one kernel E(v) — built from primes and the Γ-factor, no zero consulted — and one recursion, σ<sub>k</sub>² = σ<sub>k−1</sub>²(1 − ρ<sub>k</sub>²), with RH ⟺ the Schur sequence never leaving the open unit disc. This document asks what else that machinery can be made to do. <b>The inverse map</b> (§2): Verblunsky says the sequence determines the measure; made constructive, the prediction filter's maximum-entropy spectrum S(θ) = σ<sub>n</sub>²/|A(e<sup>iθ</sup>)|² has <i>peaks at the Riemann zeros</i>. Every one of the 30 ordinates below the band edge is recovered, to a <b>median 4.9×10⁻⁴</b> — against the slice's own Fourier resolution cell π/a = 0.526, a superresolution of <b>1081×</b>. Which peaks are real is decided by a rule that consults no zero — a line must survive a change of filter order <i>and</i> a change of mesh — and it returns exactly <b>30 lines, all 30 of them ordinates</b> (precision 1.000, recall 1.000), against the 30.65 that Riemann–von Mangoldt predicts from θ(T) alone. The same filter, fitted on v ≤ 6 and free-run into ground it has never seen, reproduces the kernel out to v = 12 to 16% of its own amplitude. <b>The price of a disproof</b> (§3): displace one ordinate off the real axis by δ and ask how deep the recursion must be read before |ρ<sub>k</sub>| ≥ 1. The cheap guess — caught when the growing part reaches the kernel's ceiling, so δv* is constant — <b>overshoots by more than fiftyfold</b>; the recursion is far sharper than the boundedness bound. What is measured is v* = K(γ)δ<sup>−β</sup> with β itself <i>growing</i> with height (0.15, 0.35, 0.61), and, operationally, a detection threshold at this arc's own horizon: δ ≥ <b>0.0003</b> is visible at γ₁, but by γ₁₀₀ nothing under <b>0.092</b> is. <b>Instrument and arithmetic</b> (§4): replace ζ's ordinates by Poisson, GUE-like and perfectly rigid point processes of the same density. rh15's parameter-free notch law fits them all — scatter 11.1× across four processes against 11.6× for ζ alone across rh15's own slices, so <i>the law cannot tell which process it is looking at</i>. The Schur margin can: 0.6231 (ζ), 0.6166 (GUE), 0.5914 (rigid), 0.5229 (Poisson) — a spread 2×10⁶ times the margin's own error bar, with ζ <b>16× nearer GUE than Poisson</b>. §5 is the archive ledger, rh4→rh16, with one line and one status per document; §6 names the three moves a successor should make first, including the two things rh15 could not explain.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">The recursion prints the zeros</a></li>
+  <li><a href="#s3">What a disproof would cost</a></li>
+  <li><a href="#s4">Which readings were ever about ζ</a></li>
+  <li><a href="#s5">The archive ledger</a></li>
+  <li><a href="#s6">The three moves a successor should make first</a></li>
+  <li><a href="#s7">Dictionary additions</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>Fifteen documents built a geometric object and then dissolved it into two things: a function and a recursion. That is the right end state for a construction — but a construction that has been reduced to its working parts should be run once more, hard, before it is put away. The order for this document was to mine it: to find what the machinery can still <i>do</i> that has not been asked of it.</p>
+<p>Three questions, chosen because each has a decisive answer and none is a restatement of the last. <b>(i)</b> Verblunsky's theorem says the Schur sequence is a complete invariant of the measure — the zeros are <i>in</i> the coefficients that the primes produce. Can they be got out? <b>(ii)</b> The criterion is a test; every test has a sensitivity. What size of violation, at what height, would this machine actually catch, and what would catching it cost? <b>(iii)</b> rh15 claimed that the bottom eigenvalue of a slice is the sampling grid rather than ζ. That claim can be settled outright by running the same readings on processes that contain no arithmetic at all.</p>
+</section>
+
+<p class="kicker">Part I · The inverse map</p>
+
+<section class="prose" id="s2">
+<h2>2 · The recursion prints the zeros</h2>
+<p>The Levinson recursion produces, along with the reflection coefficients, a prediction filter A(z) = 1 + ∑a<sub>i</sub>z<sup>i</sup> — the polynomial that best annihilates the kernel. Its reciprocal is the maximum-entropy (Burg) spectral estimate,</p>
+<div class="eq"><span class="tag">(1)</span>
+S(θ) =
+<span class="fr"><span class="nu">σ<sub><i>n</i></sub>²</span><span class="de">|A(e<sup><i>i</i>θ</sup>)|²</span></span>,
+&nbsp;&nbsp; θ = <i>r</i>Δ,
+</div>
+<p>and its poles are the frequencies the filter has locked onto. Since the kernel's frequencies <i>are</i> the zero ordinates, the poles should be the zeros. They are — and not approximately.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 480" role="img" aria-label="The maximum-entropy spectrum of the prime-built kernel, drawn on a logarithmic scale across frequencies two to one hundred and four. Thirty tall spikes stand exactly on the thirty Riemann ordinates in the band, which are marked as vertical lines. A zoom panel on the first ordinate shows the recovered peak lying within five ten-thousandths of it, against the slice Fourier resolution cell of zero point five two six drawn to the same scale, about a thousand times wider.">
+<text x="360.0" y="22" class="ftitle">the recursion prints the zeros: primes in, one O(n&#178;) recursion, ordinates out</text>
+<line x1="97.3" y1="66" x2="97.3" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="143.6" y1="66" x2="143.6" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="170.4" y1="66" x2="170.4" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="206.9" y1="66" x2="206.9" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="223.8" y1="66" x2="223.8" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="255.1" y1="66" x2="255.1" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="277.5" y1="66" x2="277.5" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="293.7" y1="66" x2="293.7" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="325.2" y1="66" x2="325.2" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="337.1" y1="66" x2="337.1" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="358.6" y1="66" x2="358.6" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="381.9" y1="66" x2="381.9" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="401.5" y1="66" x2="401.5" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="411.5" y1="66" x2="411.5" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="440.3" y1="66" x2="440.3" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="453.5" y1="66" x2="453.5" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="470.1" y1="66" x2="470.1" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="487.0" y1="66" x2="487.0" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="511.5" y1="66" x2="511.5" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="521.2" y1="66" x2="521.2" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="536.0" y1="66" x2="536.0" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="560.0" y1="66" x2="560.0" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="572.3" y1="66" x2="572.3" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="590.4" y1="66" x2="590.4" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="599.7" y1="66" x2="599.7" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="624.5" y1="66" x2="624.5" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="639.0" y1="66" x2="639.0" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="647.2" y1="66" x2="647.2" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="667.1" y1="66" x2="667.1" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="683.8" y1="66" x2="683.8" y2="254" class="comb2" stroke-opacity="0.42"/>
+<line x1="57.1" y1="254" x2="57.1" y2="217.1" class="comb" stroke-opacity="0.32"/>
+<line x1="64.1" y1="254" x2="64.1" y2="248.6" class="comb" stroke-opacity="0.32"/>
+<line x1="67.0" y1="254" x2="67.0" y2="213.5" class="comb" stroke-opacity="0.32"/>
+<line x1="69.9" y1="254" x2="69.9" y2="253.4" class="comb" stroke-opacity="0.32"/>
+<line x1="78.7" y1="254" x2="78.7" y2="204.9" class="comb" stroke-opacity="0.32"/>
+<line x1="82.9" y1="254" x2="82.9" y2="207.5" class="comb" stroke-opacity="0.32"/>
+<line x1="86.7" y1="254" x2="86.7" y2="190.8" class="comb" stroke-opacity="0.32"/>
+<line x1="91.8" y1="254" x2="91.8" y2="237.7" class="comb" stroke-opacity="0.32"/>
+<line x1="97.3" y1="254" x2="97.3" y2="134.3" class="stem" />
+<line x1="100.4" y1="254" x2="100.4" y2="203.4" class="comb" stroke-opacity="0.32"/>
+<line x1="106.8" y1="254" x2="106.8" y2="205.1" class="comb" stroke-opacity="0.32"/>
+<line x1="112.2" y1="254" x2="112.2" y2="182.5" class="comb" stroke-opacity="0.32"/>
+<line x1="116.2" y1="254" x2="116.2" y2="232.7" class="comb" stroke-opacity="0.32"/>
+<line x1="119.3" y1="254" x2="119.3" y2="181.7" class="comb" stroke-opacity="0.32"/>
+<line x1="123.2" y1="254" x2="123.2" y2="186.1" class="comb" stroke-opacity="0.32"/>
+<line x1="128.8" y1="254" x2="128.8" y2="211.9" class="comb" stroke-opacity="0.32"/>
+<line x1="136.7" y1="254" x2="136.7" y2="189.6" class="comb" stroke-opacity="0.32"/>
+<line x1="143.6" y1="254" x2="143.6" y2="100.7" class="stem" />
+<line x1="148.9" y1="254" x2="148.9" y2="186.2" class="comb" stroke-opacity="0.32"/>
+<line x1="151.6" y1="254" x2="151.6" y2="181.7" class="comb" stroke-opacity="0.32"/>
+<line x1="154.0" y1="254" x2="154.0" y2="191.6" class="comb" stroke-opacity="0.32"/>
+<line x1="158.9" y1="254" x2="158.9" y2="221.3" class="comb" stroke-opacity="0.32"/>
+<line x1="162.6" y1="254" x2="162.6" y2="179.4" class="comb" stroke-opacity="0.32"/>
+<line x1="167.1" y1="254" x2="167.1" y2="187.5" class="comb" stroke-opacity="0.32"/>
+<line x1="170.4" y1="254" x2="170.4" y2="119.0" class="stem" />
+<line x1="174.1" y1="254" x2="174.1" y2="209.9" class="comb" stroke-opacity="0.32"/>
+<line x1="181.4" y1="254" x2="181.4" y2="214.9" class="comb" stroke-opacity="0.32"/>
+<line x1="185.3" y1="254" x2="185.3" y2="172.7" class="comb" stroke-opacity="0.32"/>
+<line x1="192.7" y1="254" x2="192.7" y2="184.1" class="comb" stroke-opacity="0.32"/>
+<line x1="200.8" y1="254" x2="200.8" y2="150.1" class="comb" stroke-opacity="0.32"/>
+<line x1="204.7" y1="254" x2="204.7" y2="178.6" class="comb" stroke-opacity="0.32"/>
+<line x1="206.9" y1="254" x2="206.9" y2="123.6" class="stem" />
+<line x1="211.2" y1="254" x2="211.2" y2="151.8" class="comb" stroke-opacity="0.32"/>
+<line x1="214.9" y1="254" x2="214.9" y2="166.8" class="comb" stroke-opacity="0.32"/>
+<line x1="220.7" y1="254" x2="220.7" y2="211.9" class="comb" stroke-opacity="0.32"/>
+<line x1="223.8" y1="254" x2="223.8" y2="112.2" class="stem" />
+<line x1="226.6" y1="254" x2="226.6" y2="184.0" class="comb" stroke-opacity="0.32"/>
+<line x1="230.8" y1="254" x2="230.8" y2="204.4" class="comb" stroke-opacity="0.32"/>
+<line x1="235.5" y1="254" x2="235.5" y2="146.1" class="comb" stroke-opacity="0.32"/>
+<line x1="239.9" y1="254" x2="239.9" y2="202.0" class="comb" stroke-opacity="0.32"/>
+<line x1="244.6" y1="254" x2="244.6" y2="146.0" class="comb" stroke-opacity="0.32"/>
+<line x1="249.6" y1="254" x2="249.6" y2="215.1" class="comb" stroke-opacity="0.32"/>
+<line x1="255.1" y1="254" x2="255.1" y2="72.0" class="stem" />
+<line x1="262.1" y1="254" x2="262.1" y2="178.4" class="comb" stroke-opacity="0.32"/>
+<line x1="263.6" y1="254" x2="263.6" y2="192.5" class="comb" stroke-opacity="0.32"/>
+<line x1="268.1" y1="254" x2="268.1" y2="147.9" class="comb" stroke-opacity="0.32"/>
+<line x1="273.6" y1="254" x2="273.6" y2="159.7" class="comb" stroke-opacity="0.32"/>
+<line x1="277.5" y1="254" x2="277.5" y2="113.4" class="stem" />
+<line x1="281.9" y1="254" x2="281.9" y2="164.8" class="comb" stroke-opacity="0.32"/>
+<line x1="286.5" y1="254" x2="286.5" y2="143.8" class="comb" stroke-opacity="0.32"/>
+<line x1="288.9" y1="254" x2="288.9" y2="202.3" class="comb" stroke-opacity="0.32"/>
+<line x1="293.7" y1="254" x2="293.7" y2="101.9" class="stem" />
+<line x1="297.5" y1="254" x2="297.5" y2="148.1" class="comb" stroke-opacity="0.32"/>
+<line x1="305.4" y1="254" x2="305.4" y2="187.1" class="comb" stroke-opacity="0.32"/>
+<line x1="310.7" y1="254" x2="310.7" y2="156.8" class="comb" stroke-opacity="0.32"/>
+<line x1="314.4" y1="254" x2="314.4" y2="132.5" class="comb" stroke-opacity="0.32"/>
+<line x1="318.0" y1="254" x2="318.0" y2="158.4" class="comb" stroke-opacity="0.32"/>
+<line x1="325.2" y1="254" x2="325.2" y2="93.7" class="stem" />
+<line x1="326.8" y1="254" x2="326.8" y2="159.6" class="comb" stroke-opacity="0.32"/>
+<line x1="332.8" y1="254" x2="332.8" y2="169.2" class="comb" stroke-opacity="0.32"/>
+<line x1="337.1" y1="254" x2="337.1" y2="76.7" class="stem" />
+<line x1="342.5" y1="254" x2="342.5" y2="148.8" class="comb" stroke-opacity="0.32"/>
+<line x1="347.7" y1="254" x2="347.7" y2="169.5" class="comb" stroke-opacity="0.32"/>
+<line x1="351.0" y1="254" x2="351.0" y2="131.2" class="comb" stroke-opacity="0.32"/>
+<line x1="358.6" y1="254" x2="358.6" y2="82.3" class="stem" />
+<line x1="361.0" y1="254" x2="361.0" y2="136.6" class="comb" stroke-opacity="0.32"/>
+<line x1="366.4" y1="254" x2="366.4" y2="150.3" class="comb" stroke-opacity="0.32"/>
+<line x1="371.0" y1="254" x2="371.0" y2="191.7" class="comb" stroke-opacity="0.32"/>
+<line x1="375.7" y1="254" x2="375.7" y2="187.2" class="comb" stroke-opacity="0.32"/>
+<line x1="380.2" y1="254" x2="380.2" y2="175.6" class="comb" stroke-opacity="0.32"/>
+<line x1="381.9" y1="254" x2="381.9" y2="74.3" class="stem" />
+<line x1="387.0" y1="254" x2="387.0" y2="164.1" class="comb" stroke-opacity="0.32"/>
+<line x1="390.5" y1="254" x2="390.5" y2="179.1" class="comb" stroke-opacity="0.32"/>
+<line x1="395.8" y1="254" x2="395.8" y2="123.2" class="comb" stroke-opacity="0.32"/>
+<line x1="401.5" y1="254" x2="401.5" y2="74.0" class="stem" />
+<line x1="409.3" y1="254" x2="409.3" y2="168.1" class="comb" stroke-opacity="0.32"/>
+<line x1="411.5" y1="254" x2="411.5" y2="72.3" class="stem" />
+<line x1="417.4" y1="254" x2="417.4" y2="178.9" class="comb" stroke-opacity="0.32"/>
+<line x1="419.4" y1="254" x2="419.4" y2="119.7" class="comb" stroke-opacity="0.32"/>
+<line x1="425.2" y1="254" x2="425.2" y2="167.4" class="comb" stroke-opacity="0.32"/>
+<line x1="429.0" y1="254" x2="429.0" y2="120.5" class="comb" stroke-opacity="0.32"/>
+<line x1="432.9" y1="254" x2="432.9" y2="152.5" class="comb" stroke-opacity="0.32"/>
+<line x1="440.2" y1="254" x2="440.2" y2="90.7" class="stem" />
+<line x1="448.3" y1="254" x2="448.3" y2="136.1" class="comb" stroke-opacity="0.32"/>
+<line x1="453.5" y1="254" x2="453.5" y2="96.3" class="stem" />
+<line x1="457.6" y1="254" x2="457.6" y2="189.5" class="comb" stroke-opacity="0.32"/>
+<line x1="461.8" y1="254" x2="461.8" y2="117.1" class="comb" stroke-opacity="0.32"/>
+<line x1="465.0" y1="254" x2="465.0" y2="157.3" class="comb" stroke-opacity="0.32"/>
+<line x1="470.1" y1="254" x2="470.1" y2="84.3" class="stem" />
+<line x1="471.2" y1="254" x2="471.2" y2="125.6" class="comb" stroke-opacity="0.32"/>
+<line x1="478.1" y1="254" x2="478.1" y2="188.2" class="comb" stroke-opacity="0.32"/>
+<line x1="482.1" y1="254" x2="482.1" y2="120.2" class="comb" stroke-opacity="0.32"/>
+<line x1="487.0" y1="254" x2="487.0" y2="97.7" class="stem" />
+<line x1="489.7" y1="254" x2="489.7" y2="175.9" class="comb" stroke-opacity="0.32"/>
+<line x1="493.4" y1="254" x2="493.4" y2="162.3" class="comb" stroke-opacity="0.32"/>
+<line x1="498.5" y1="254" x2="498.5" y2="166.6" class="comb" stroke-opacity="0.32"/>
+<line x1="501.4" y1="254" x2="501.4" y2="183.6" class="comb" stroke-opacity="0.32"/>
+<line x1="504.6" y1="254" x2="504.6" y2="121.4" class="comb" stroke-opacity="0.32"/>
+<line x1="511.5" y1="254" x2="511.5" y2="98.6" class="stem" />
+<line x1="513.1" y1="254" x2="513.1" y2="133.6" class="comb" stroke-opacity="0.32"/>
+<line x1="521.2" y1="254" x2="521.2" y2="91.0" class="stem" />
+<line x1="525.6" y1="254" x2="525.6" y2="177.4" class="comb" stroke-opacity="0.32"/>
+<line x1="529.4" y1="254" x2="529.4" y2="116.8" class="comb" stroke-opacity="0.32"/>
+<line x1="536.0" y1="254" x2="536.0" y2="94.5" class="stem" />
+<line x1="539.5" y1="254" x2="539.5" y2="122.4" class="comb" stroke-opacity="0.32"/>
+<line x1="543.6" y1="254" x2="543.6" y2="173.6" class="comb" stroke-opacity="0.32"/>
+<line x1="549.3" y1="254" x2="549.3" y2="186.4" class="comb" stroke-opacity="0.32"/>
+<line x1="553.4" y1="254" x2="553.4" y2="107.3" class="comb" stroke-opacity="0.32"/>
+<line x1="556.6" y1="254" x2="556.6" y2="164.8" class="comb" stroke-opacity="0.32"/>
+<line x1="560.0" y1="254" x2="560.0" y2="84.3" class="stem" />
+<line x1="563.6" y1="254" x2="563.6" y2="187.4" class="comb" stroke-opacity="0.32"/>
+<line x1="568.1" y1="254" x2="568.1" y2="156.1" class="comb" stroke-opacity="0.32"/>
+<line x1="572.3" y1="254" x2="572.3" y2="98.0" class="stem" />
+<line x1="575.3" y1="254" x2="575.3" y2="113.7" class="comb" stroke-opacity="0.32"/>
+<line x1="578.0" y1="254" x2="578.0" y2="170.9" class="comb" stroke-opacity="0.32"/>
+<line x1="582.1" y1="254" x2="582.1" y2="167.8" class="comb" stroke-opacity="0.32"/>
+<line x1="584.1" y1="254" x2="584.1" y2="104.6" class="comb" stroke-opacity="0.32"/>
+<line x1="590.4" y1="254" x2="590.4" y2="107.5" class="stem" />
+<line x1="594.7" y1="254" x2="594.7" y2="106.3" class="comb" stroke-opacity="0.32"/>
+<line x1="599.7" y1="254" x2="599.7" y2="92.0" class="stem" />
+<line x1="606.7" y1="254" x2="606.7" y2="161.8" class="comb" stroke-opacity="0.32"/>
+<line x1="610.9" y1="254" x2="610.9" y2="168.6" class="comb" stroke-opacity="0.32"/>
+<line x1="612.1" y1="254" x2="612.1" y2="107.7" class="comb" stroke-opacity="0.32"/>
+<line x1="617.2" y1="254" x2="617.2" y2="151.5" class="comb" stroke-opacity="0.32"/>
+<line x1="622.7" y1="254" x2="622.7" y2="160.7" class="comb" stroke-opacity="0.32"/>
+<line x1="624.5" y1="254" x2="624.5" y2="92.1" class="stem" />
+<line x1="629.3" y1="254" x2="629.3" y2="97.9" class="comb" stroke-opacity="0.32"/>
+<line x1="634.3" y1="254" x2="634.3" y2="166.1" class="comb" stroke-opacity="0.32"/>
+<line x1="639.0" y1="254" x2="639.0" y2="96.1" class="stem" />
+<line x1="642.2" y1="254" x2="642.2" y2="109.9" class="comb" stroke-opacity="0.32"/>
+<line x1="647.2" y1="254" x2="647.2" y2="107.1" class="stem" />
+<line x1="652.5" y1="254" x2="652.5" y2="166.2" class="comb" stroke-opacity="0.32"/>
+<line x1="658.6" y1="254" x2="658.6" y2="113.3" class="comb" stroke-opacity="0.32"/>
+<line x1="664.3" y1="254" x2="664.3" y2="101.4" class="comb" stroke-opacity="0.32"/>
+<line x1="667.1" y1="254" x2="667.1" y2="97.0" class="stem" />
+<line x1="670.9" y1="254" x2="670.9" y2="195.8" class="comb" stroke-opacity="0.32"/>
+<line x1="675.2" y1="254" x2="675.2" y2="160.8" class="comb" stroke-opacity="0.32"/>
+<line x1="679.4" y1="254" x2="679.4" y2="161.2" class="comb" stroke-opacity="0.32"/>
+<line x1="683.8" y1="254" x2="683.8" y2="96.8" class="stem" />
+<line x1="686.2" y1="254" x2="686.2" y2="170.6" class="comb" stroke-opacity="0.32"/>
+<line x1="690.3" y1="254" x2="690.3" y2="102.5" class="comb" stroke-opacity="0.32"/>
+<line x1="695.3" y1="254" x2="695.3" y2="164.4" class="comb" stroke-opacity="0.32"/>
+<line x1="56" y1="254" x2="700" y2="254" class="axis"/>
+<text x="136.7" y="270" class="flab">20</text>
+<text x="271.3" y="270" class="flab">40</text>
+<text x="405.9" y="270" class="flab">60</text>
+<text x="540.4" y="270" class="flab">80</text>
+<text x="675.0" y="270" class="flab">100</text>
+<text x="700" y="286" class="flab end">frequency r &#8212; mesh &#916; = 0.03, n = 399, band to 103.7</text>
+<text x="56" y="46" class="flab st c2">&#8942; the 30 ordinates</text>
+<text x="174" y="46" class="flab st c1">&#9474; the 30 lines the rule keeps</text>
+<text x="700" y="46" class="flab end">&#9474; the spectrum&#8217;s 119 ripples (faint)</text>
+<text x="360.0" y="316" class="ftitle" font-size="12">zoom on &#947;&#8321; = 14.134725, in a strip 0.005 wide</text>
+<line x1="130" y1="382" x2="630" y2="382" class="axis"/>
+<line x1="180.0" y1="382" x2="180.0" y2="386" class="axis"/>
+<text x="180.0" y="399" class="flab">-0.002</text>
+<line x1="280.0" y1="382" x2="280.0" y2="386" class="axis"/>
+<text x="280.0" y="399" class="flab">-0.001</text>
+<line x1="380.0" y1="382" x2="380.0" y2="386" class="axis"/>
+<text x="380.0" y="399" class="flab">+0.000</text>
+<line x1="480.0" y1="382" x2="480.0" y2="386" class="axis"/>
+<text x="480.0" y="399" class="flab">+0.001</text>
+<line x1="580.0" y1="382" x2="580.0" y2="386" class="axis"/>
+<text x="580.0" y="399" class="flab">+0.002</text>
+<line x1="380.0" y1="344" x2="380.0" y2="382" class="comb2"/>
+<line x1="323.3" y1="344" x2="323.3" y2="382" class="stem"/>
+<text x="316.3" y="350" class="flab end c1">the line the primes gave &#9474;</text>
+<text x="387.0" y="372" class="flab st c2">&#9474; the ordinate &#947;&#8321;</text>
+<text x="360.0" y="422" class="flab">offset 5.7&#215;10&#8315;&#8308; here; median over the band 4.87&#215;10&#8315;&#8308;; worst 2.8&#215;10&#8315;&#179;</text>
+<text x="360.0" y="442" class="flab c1">the slice&#8217;s own Fourier cell is &#960;/a = 0.526 &#8212; 105&#215; wider than this entire strip</text>
+<text x="360.0" y="460" class="flab c1">superresolution 1081&#215;, and all 30 ordinates found</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — primes in, ordinates out.</b> <i>Above:</i> the maximum-entropy spectrum of the kernel at mesh Δ = 0.03 (399 nodes, built from 18120 prime powers and the Γ-factor, no zero consulted), on a log scale across the band r &lt; 103.7. Amber verticals are the 30 true ordinates; purple spikes are the lines the selection rule keeps; the faint remainder are the spectrum's ripples. Every ordinate carries a line. <i>Below:</i> a zoom on γ₁ = 14.134725, in a strip 0.005 wide — the recovered line sits <b>5.7×10⁻⁴</b> from it, and the median over the whole band is 4.9×10⁻⁴. The slice's own Fourier resolution cell, π/a = 0.526, is a hundred times wider than the entire strip drawn.</figcaption>
+</figure>
+<p>Two things have to be said carefully, because the striking number invites overclaiming.</p>
+<p><b>Locating is not detecting.</b> The spectrum has 149 local maxima in that band and only 30 are ordinates; the rest are ripples of the estimate. A rule is needed, and it must not consult the answer. Two zero-blind signals work, and neither works alone: a true line is a pole of the filter, so it <i>sits still when the estimator is disturbed</i>, whereas a ripple is an artefact of one particular fit. So disturb it two independent ways — change the filter order (five orders, majority vote), and change the mesh entirely (the Δ = 0.015 recursion is a different kernel row, a different recursion and a different band). Nothing but a real line survives both. The rule keeps <b>30 lines, of which 30 are ordinates</b>: precision 1.000, recall 1.000. And the count is independently predicted: Riemann–von Mangoldt gives N(103.7) = θ(T)/π + 1 = <b>30.65</b>, which also consults no zero. The primes say how many lines to expect and where each one is.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 442" role="img" aria-label="Left: the location error of each recovered ordinate plotted against its height for two meshes, on a logarithmic axis, sitting near ten to the minus four while the slice Fourier cell drawn above them is zero point five two six. Right: the selection rule, which consults no zero, keeps thirty lines of which thirty are ordinates, against ranking by peak height which gets twenty four of thirty.">
+<text x="360.0" y="22" class="ftitle">how close, and how the lines were told from the ripples</text>
+<text x="205.0" y="46" class="ftitle" font-size="12">location error per ordinate</text>
+<circle cx="77.8" cy="225.9" r="2.5" class="digit main"/>
+<circle cx="87.4" cy="274.7" r="2.5" class="digit main"/>
+<circle cx="93.0" cy="228.2" r="2.5" class="digit main"/>
+<circle cx="100.6" cy="228.7" r="2.5" class="digit main"/>
+<circle cx="104.1" cy="226.8" r="2.5" class="digit main"/>
+<circle cx="110.6" cy="247.4" r="2.5" class="digit main"/>
+<circle cx="115.3" cy="226.1" r="2.5" class="digit main"/>
+<circle cx="118.7" cy="249.3" r="2.5" class="digit main"/>
+<circle cx="125.2" cy="231.1" r="2.5" class="digit main"/>
+<circle cx="127.7" cy="248.4" r="2.5" class="digit main"/>
+<circle cx="132.2" cy="237.5" r="2.5" class="digit main"/>
+<circle cx="137.0" cy="240.9" r="2.5" class="digit main"/>
+<circle cx="141.1" cy="216.4" r="2.5" class="digit main"/>
+<circle cx="143.2" cy="243.2" r="2.5" class="digit main"/>
+<circle cx="149.2" cy="228.8" r="2.5" class="digit main"/>
+<circle cx="151.9" cy="249.5" r="2.5" class="digit main"/>
+<circle cx="155.4" cy="233.8" r="2.5" class="digit main"/>
+<circle cx="158.9" cy="220.4" r="2.5" class="digit main"/>
+<circle cx="164.0" cy="210.2" r="2.5" class="digit main"/>
+<circle cx="166.0" cy="215.7" r="2.5" class="digit main"/>
+<circle cx="169.1" cy="243.1" r="2.5" class="digit main"/>
+<circle cx="174.1" cy="233.6" r="2.5" class="digit main"/>
+<circle cx="176.6" cy="243.4" r="2.5" class="digit main"/>
+<circle cx="180.4" cy="226.9" r="2.5" class="digit main"/>
+<circle cx="182.3" cy="218.3" r="2.5" class="digit main"/>
+<circle cx="187.5" cy="250.8" r="2.5" class="digit main"/>
+<circle cx="190.5" cy="226.9" r="2.5" class="digit main"/>
+<circle cx="192.2" cy="196.7" r="2.5" class="digit main"/>
+<circle cx="196.4" cy="226.3" r="2.5" class="digit main"/>
+<circle cx="199.8" cy="203.0" r="2.5" class="digit main"/>
+<circle cx="77.8" cy="225.9" r="2.5" class="zero"/>
+<circle cx="87.4" cy="274.7" r="2.5" class="zero"/>
+<circle cx="93.0" cy="228.1" r="2.5" class="zero"/>
+<circle cx="100.6" cy="228.7" r="2.5" class="zero"/>
+<circle cx="104.1" cy="234.7" r="2.5" class="zero"/>
+<circle cx="110.6" cy="247.3" r="2.5" class="zero"/>
+<circle cx="115.3" cy="225.9" r="2.5" class="zero"/>
+<circle cx="118.7" cy="234.8" r="2.5" class="zero"/>
+<circle cx="125.2" cy="227.8" r="2.5" class="zero"/>
+<circle cx="127.7" cy="248.4" r="2.5" class="zero"/>
+<circle cx="132.2" cy="236.9" r="2.5" class="zero"/>
+<circle cx="137.0" cy="241.4" r="2.5" class="zero"/>
+<circle cx="141.1" cy="245.1" r="2.5" class="zero"/>
+<circle cx="143.2" cy="243.3" r="2.5" class="zero"/>
+<circle cx="149.2" cy="228.0" r="2.5" class="zero"/>
+<circle cx="151.9" cy="246.7" r="2.5" class="zero"/>
+<circle cx="155.4" cy="233.0" r="2.5" class="zero"/>
+<circle cx="158.9" cy="227.1" r="2.5" class="zero"/>
+<circle cx="164.0" cy="226.1" r="2.5" class="zero"/>
+<circle cx="166.0" cy="230.1" r="2.5" class="zero"/>
+<circle cx="169.1" cy="227.1" r="2.5" class="zero"/>
+<circle cx="174.1" cy="233.8" r="2.5" class="zero"/>
+<circle cx="176.6" cy="236.7" r="2.5" class="zero"/>
+<circle cx="180.4" cy="228.8" r="2.5" class="zero"/>
+<circle cx="182.3" cy="230.6" r="2.5" class="zero"/>
+<circle cx="187.5" cy="257.6" r="2.5" class="zero"/>
+<circle cx="190.5" cy="224.4" r="2.5" class="zero"/>
+<circle cx="192.2" cy="227.8" r="2.5" class="zero"/>
+<circle cx="196.4" cy="242.5" r="2.5" class="zero"/>
+<circle cx="199.8" cy="259.6" r="2.5" class="zero"/>
+<circle cx="203.2" cy="232.2" r="2.5" class="zero"/>
+<circle cx="205.6" cy="225.8" r="2.5" class="zero"/>
+<circle cx="208.0" cy="228.8" r="2.5" class="zero"/>
+<circle cx="213.4" cy="237.1" r="2.5" class="zero"/>
+<circle cx="214.6" cy="215.3" r="2.5" class="zero"/>
+<circle cx="218.0" cy="242.8" r="2.5" class="zero"/>
+<circle cx="220.7" cy="222.4" r="2.5" class="zero"/>
+<circle cx="224.3" cy="223.7" r="2.5" class="zero"/>
+<circle cx="227.9" cy="253.7" r="2.5" class="zero"/>
+<circle cx="230.1" cy="226.9" r="2.5" class="zero"/>
+<circle cx="232.0" cy="225.6" r="2.5" class="zero"/>
+<circle cx="236.5" cy="229.2" r="2.5" class="zero"/>
+<circle cx="239.4" cy="223.2" r="2.5" class="zero"/>
+<circle cx="241.5" cy="190.3" r="2.5" class="zero"/>
+<circle cx="244.9" cy="242.1" r="2.5" class="zero"/>
+<circle cx="246.7" cy="262.2" r="2.5" class="zero"/>
+<circle cx="251.4" cy="271.3" r="2.5" class="zero"/>
+<circle cx="253.6" cy="197.1" r="2.5" class="zero"/>
+<circle cx="255.6" cy="232.4" r="2.5" class="zero"/>
+<circle cx="258.4" cy="213.2" r="2.5" class="zero"/>
+<circle cx="262.4" cy="219.5" r="2.5" class="zero"/>
+<circle cx="264.4" cy="194.4" r="2.5" class="zero"/>
+<circle cx="268.1" cy="231.0" r="2.5" class="zero"/>
+<circle cx="269.3" cy="197.2" r="2.5" class="zero"/>
+<circle cx="272.2" cy="218.7" r="2.5" class="zero"/>
+<circle cx="276.6" cy="222.6" r="2.5" class="zero"/>
+<circle cx="278.6" cy="233.2" r="2.5" class="zero"/>
+<circle cx="280.4" cy="209.0" r="2.5" class="zero"/>
+<circle cx="283.7" cy="217.6" r="2.5" class="zero"/>
+<circle cx="286.2" cy="216.9" r="2.5" class="zero"/>
+<circle cx="289.8" cy="213.7" r="2.5" class="zero"/>
+<circle cx="292.1" cy="239.6" r="2.5" class="zero"/>
+<circle cx="294.7" cy="260.4" r="2.5" class="zero"/>
+<circle cx="295.9" cy="264.9" r="2.5" class="zero"/>
+<circle cx="300.8" cy="300.0" r="2.5" class="zero"/>
+<circle cx="302.7" cy="175.2" r="2.5" class="zero"/>
+<circle cx="305.0" cy="225.7" r="2.5" class="zero"/>
+<circle cx="307.7" cy="243.1" r="2.5" class="zero"/>
+<circle cx="309.9" cy="234.8" r="2.5" class="zero"/>
+<circle cx="313.1" cy="184.8" r="2.5" class="zero"/>
+<circle cx="316.8" cy="198.8" r="2.5" class="zero"/>
+<circle cx="317.8" cy="198.8" r="2.5" class="zero"/>
+<circle cx="320.1" cy="206.8" r="2.5" class="zero"/>
+<circle cx="323.2" cy="156.5" r="2.5" class="zero"/>
+<circle cx="326.8" cy="223.2" r="2.5" class="zero"/>
+<circle cx="328.3" cy="273.2" r="2.5" class="zero"/>
+<circle cx="331.4" cy="210.6" r="2.5" class="zero"/>
+<circle cx="333.6" cy="201.0" r="2.5" class="zero"/>
+<circle cx="335.2" cy="159.2" r="2.5" class="zero"/>
+<circle cx="339.8" cy="211.8" r="2.5" class="zero"/>
+<circle cx="341.5" cy="182.9" r="2.5" class="zero"/>
+<circle cx="343.9" cy="205.1" r="2.5" class="zero"/>
+<circle cx="345.6" cy="221.7" r="2.5" class="zero"/>
+<circle cx="349.1" cy="240.3" r="2.5" class="zero"/>
+<line x1="58" y1="100.5" x2="352" y2="100.5" class="target"/>
+<text x="352" y="94.5" class="flab end c2">Fourier cell &#960;/a = 0.526</text>
+<line x1="58" y1="228.7" x2="352" y2="228.7" class="pred"/>
+<text x="62" y="222.7" class="flab st c1">median 4.9&#215;10&#8315;&#8308;</text>
+<text x="52" y="261.7" class="flab end">10&#8315;&#8308;</text>
+<text x="52" y="177.2" class="flab end">10&#8315;&#178;</text>
+<text x="52" y="92.7" class="flab end">10&#8304;</text>
+<text x="128.0" y="316" class="flab">50</text>
+<text x="198.0" y="316" class="flab">100</text>
+<text x="268.0" y="316" class="flab">150</text>
+<text x="338.0" y="316" class="flab">200</text>
+<line x1="58" y1="300" x2="352" y2="300" class="axis"/>
+<line x1="58" y1="300" x2="58" y2="70" class="axis"/>
+<text x="352" y="332" class="flab end">ordinate &#947;</text>
+<text x="205.0" y="356" class="flab"><tspan class="c1">&#9679;</tspan> &#916; = 0.03 (30 of 30 found) &#183; <tspan class="c2">&#9679;</tspan> &#916; = 0.015 (82 of 84)</text>
+<text x="205.0" y="376" class="flab">the two loosest, at 91% and 95% of the band edge,</text>
+<text x="205.0" y="392" class="flab">still land within 0.025 &#8212; the aliased tail crowds there</text>
+<text x="558.0" y="46" class="ftitle" font-size="12">which peaks are real?</text>
+<text x="424" y="100" class="flab st">of the 149 peaks in the band:</text>
+<text x="424" y="126" class="flab st">the rule (order vote + other mesh)</text>
+<rect x="424" y="131" width="200.0" height="12" class="bar"/>
+<text x="632" y="140" class="flab st">30/30</text>
+<text x="424" y="178" class="flab st">ranking by peak height</text>
+<rect x="424" y="183" width="160.0" height="12" class="bar"/>
+<rect x="584.0" y="183" width="40.0" height="12" class="bar2"/>
+<text x="632" y="192" class="flab st">24/30</text>
+<text x="424" y="220" class="flab st">ranking by sharpness: 20% of ripples are</text>
+<text x="424" y="236" class="flab st">as sharp as the sharpest true line &#8212; no cut works</text>
+<text x="424" y="264" class="flab st c1">the rule keeps 30 lines; Riemann&#8211;von Mangoldt</text>
+<text x="424" y="280" class="flab st c1">predicts 30.65, and it consults no zero either</text>
+<text x="424" y="304" class="flab st">precision 1.000 &#183; recall 1.000</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — how close, and how the lines were told from the ripples.</b> <i>Left:</i> the location error of every recovered ordinate against its height, at both meshes; the amber line is the Fourier cell π/a = 0.526 that the slice is nominally limited to, the dashed line the measured median 4.9×10⁻⁴. At Δ = 0.03 all 30 ordinates in the band are found; at Δ = 0.015, 82 of 84 land inside 0.01 — the other two, at γ = 189.4 and 198.0, are found at 0.025 and 0.021, and both sit above 90% of the band edge where the aliased tail crowds the spectrum. <i>Right:</i> the selection rule against two plausible alternatives that fail. Ranking peaks by height gets 24 of 30 — the tallest peaks are not the truest ones. Ranking by sharpness fails too: 20% of ripples are as narrow as the sharpest genuine line and 80% of genuine lines are broader than the narrowest ripple, so no single cut separates them. What works is not a property of a peak at all, but its <i>persistence</i> under two independent disturbances of the estimator.</figcaption>
+</figure>
+<p><b>And this is a reconstruction, not a proof.</b> The recursion recovers the ordinates of the measure whose Fourier transform E is — which is what Verblunsky's theorem promises, and it presupposes that E <i>is</i> the transform of a positive measure on the line. That the recovered ordinates are real is a consequence of the computation, not an independent verification of RH. What is genuinely new is the <i>constructive</i> content: the map from primes to zeros, which the explicit formula asserts abstractly, has been run in one direction, numerically, to four decimal places, by an O(n²) recursion on 399 numbers.</p>
+<p>One further test, because a spectral estimate can flatter itself. Fit the filter on the kernel over v ≤ 6 only, then <i>free-run</i> it — feed its own output back in — across 398 steps into ground it has never seen. Against the computed kernel on 6 &lt; v ≤ 12 the free-run reproduces it to <b>16%</b> of the kernel's own rms, and one-step prediction there is exact to 1.7%. The filter is not fitting; it has the frequencies.</p>
+</section>
+
+<p class="kicker">Part II · The price, and the provenance</p>
+
+<section class="prose" id="s3">
+<h2>3 · What a disproof would cost</h2>
+<p>Every criterion is also a detector, and this arc has never asked what its detector's sensitivity is. Take the kernel and move one ordinate off the real axis by δ — the Weil-form image of a zero leaving the critical line — keeping the count:</p>
+<div class="eq"><span class="tag">(2)</span>
+E<sub>δ</sub>(v) = E(v) − 2B(γ)²cos(γv) + 2 Re[B(γ+<i>i</i>δ)² cos((γ+<i>i</i>δ)v)]
+</div>
+<p>which is even in δ, reduces to E at δ = 0, and carries a part growing like e<sup>δv</sup>. Since a positive-definite function is bounded by its value at 0, E<sub>δ</sub> must eventually fail; the question is when. Run the recursion and record k*, the first index with |ρ<sub>k</sub>| ≥ 1.</p>
+<p>The obvious estimate is wrong, and instructively so. If detection waited until the growing part reached the kernel's own ceiling E(0), then δv* would be constant at log(E(0)/2B(γ)²) ≈ 4, so δ = 0.01 would need horizon v ≈ 400. The measured horizon at γ₁₀ is <b>6.25</b>. The recursion is more than fifty times sharper than the boundedness bound — it does not wait for the perturbation to become large, only for it to become <i>inconsistent</i>, and inconsistency is visible against the prediction error σ<sub>k</sub>², which rh15 measured falling like 1/v².</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 442" role="img" aria-label="Left: the horizon at which the recursion catches an ordinate displaced by delta, plotted against delta on log log axes for three heights; the three lines have different slopes, so the exponent is not universal but grows with height. Right: the detection threshold at this document horizon of twelve, rising from three ten-thousandths at the first ordinate to nine hundredths by the hundredth.">
+<text x="360.0" y="22" class="ftitle">what a disproof would cost: how deep the recursion must be read</text>
+<text x="202.0" y="46" class="ftitle" font-size="12">horizon v* needed, vs the displacement &#948;</text>
+<line x1="62" y1="97.1" x2="342" y2="97.1" class="target"/>
+<text x="342" y="91.1" class="flab end c2">horizon v = 12 (sieve to e&#185;&#178;)</text>
+<path d="M311.8 270.2L260.1 266.9L208.5 261.8L140.2 249.2L88.6 241.4" class="helix thin"/>
+<circle cx="311.8" cy="270.2" r="2.8" class="digit"/>
+<circle cx="260.1" cy="266.9" r="2.8" class="digit"/>
+<circle cx="208.5" cy="261.8" r="2.8" class="digit"/>
+<circle cx="140.2" cy="249.2" r="2.8" class="digit"/>
+<circle cx="88.6" cy="241.4" r="2.8" class="digit"/>
+<text x="303.8" y="274.2" class="flab end">&#947;1</text>
+<text x="95.6" y="245.4" class="flab st">&#946;=0.15</text>
+<path d="M311.8 209.1L260.1 203.1L208.5 191.2L140.2 164.2L88.6 140.4" class="helix2"/>
+<circle cx="311.8" cy="209.1" r="2.8" class="digit"/>
+<circle cx="260.1" cy="203.1" r="2.8" class="digit"/>
+<circle cx="208.5" cy="191.2" r="2.8" class="digit"/>
+<circle cx="140.2" cy="164.2" r="2.8" class="digit"/>
+<circle cx="88.6" cy="140.4" r="2.8" class="digit"/>
+<text x="303.8" y="213.1" class="flab end">&#947;10</text>
+<text x="95.6" y="144.4" class="flab st">&#946;=0.35</text>
+<path d="M311.8 169.0L260.1 138.5L208.5 112.5" class="fam-b"/>
+<circle cx="311.8" cy="169.0" r="2.8" class="digit"/>
+<circle cx="260.1" cy="138.5" r="2.8" class="digit"/>
+<circle cx="208.5" cy="112.5" r="2.8" class="digit"/>
+<text x="303.8" y="173.0" class="flab end">&#947;50</text>
+<text x="215.5" y="116.5" class="flab st">&#946;=0.61</text>
+<text x="88.6" y="312" class="flab">0.01</text>
+<text x="170.4" y="312" class="flab">0.03</text>
+<text x="260.1" y="312" class="flab">0.1</text>
+<text x="56" y="266.1" class="flab end">1</text>
+<text x="56" y="193.1" class="flab end">3</text>
+<text x="56" y="113.2" class="flab end">10</text>
+<line x1="62" y1="296" x2="342" y2="296" class="axis"/>
+<line x1="62" y1="296" x2="62" y2="72" class="axis"/>
+<text x="342" y="328" class="flab end">displacement &#948;</text>
+<text x="28" y="64" class="flab st">horizon v*</text>
+<text x="202.0" y="352" class="flab">v* = K&#948;<tspan font-size="9">&#8722;&#946;</tspan> &#8212; but &#946; is not universal:</text>
+<text x="202.0" y="368" class="flab">it grows with height (0.15, 0.35, 0.61)</text>
+<text x="202.0" y="388" class="flab c1">the cheap guess (&#948;v* constant) overshoots by 50&#215;+</text>
+<text x="558.0" y="46" class="ftitle" font-size="12">what is visible at horizon 12</text>
+<path d="M430.5 275.3L450.5 243.3L468.4 214.2L497.5 171.5L567.7 134.5L667.0 107.3" class="helix thin"/>
+<circle cx="430.5" cy="275.3" r="3.2" class="digit main"/>
+<circle cx="450.5" cy="243.3" r="3.2" class="digit main"/>
+<circle cx="468.4" cy="214.2" r="3.2" class="digit main"/>
+<circle cx="497.5" cy="171.5" r="3.2" class="digit main"/>
+<circle cx="567.7" cy="134.5" r="3.2" class="digit main"/>
+<circle cx="667.0" cy="107.3" r="3.2" class="digit main"/>
+<text x="436.5" y="289.3" class="flab st">0.0003</text>
+<text x="663.0" y="99.3" class="flab end">0.092</text>
+<line x1="424" y1="240.3" x2="692" y2="240.3" class="grid"/>
+<text x="418" y="244.3" class="flab end">10&#8315;&#179;</text>
+<line x1="424" y1="172.6" x2="692" y2="172.6" class="grid"/>
+<text x="418" y="176.6" class="flab end">10&#8315;&#178;</text>
+<line x1="424" y1="104.9" x2="692" y2="104.9" class="grid"/>
+<text x="418" y="108.9" class="flab end">10&#8315;&#185;</text>
+<text x="468.7" y="312" class="flab">50</text>
+<text x="521.8" y="312" class="flab">100</text>
+<text x="575.0" y="312" class="flab">150</text>
+<text x="628.2" y="312" class="flab">200</text>
+<text x="681.4" y="312" class="flab">250</text>
+<line x1="424" y1="296" x2="692" y2="296" class="axis"/>
+<text x="692" y="328" class="flab end">height &#947;</text>
+<text x="398" y="64" class="flab st">&#948;<tspan font-size="9">min</tspan></text>
+<text x="558.0" y="352" class="flab c1">below the curve a violation is invisible</text>
+<text x="558.0" y="368" class="flab c1">to this sieve; above it, the recursion fires</text>
+<text x="558.0" y="388" class="flab">buying one more unit of horizon costs</text>
+<text x="558.0" y="404" class="flab">e times the sieve &#8212; that is the price</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — the sensitivity of the criterion.</b> <i>Left:</i> the horizon v* at which the recursion first reports |ρ| ≥ 1, against the displacement δ, at three heights; the amber line is this document's own horizon v = 12 (a sieve to e¹² = 162754 gears). The three fitted slopes are 0.15, 0.35 and 0.61 — so v* = K(γ)δ<sup>−β</sup> holds locally but <b>β is not universal</b>: the higher the violated ordinate, the more expensive each further factor of precision becomes. At γ₅₀ a displacement of 0.02 is already beyond reach. <i>Right:</i> the operational form — the smallest displacement visible at horizon 12, as a function of height. It rises from 3×10⁻⁴ at γ₁ to 0.092 by γ₁₀₀, a factor of 300 over a hundred ordinates.</figcaption>
+</figure>
+<p>The cost statement follows from what the kernel needs. Reaching horizon v requires the gear comb out to log n = v, i.e. a sieve to e<sup>v</sup>: <b>every additional unit of horizon multiplies the arithmetic by e</b>. So the detector this arc built, at the sieve it can afford, rules out displacements above 3×10⁻⁴ at the first ordinate and nothing below 0.09 by the hundredth — and pushing the threshold down at high γ is exponentially, not polynomially, expensive. That is a modest claim, but it is the first honest one of its kind here: a criterion is only as good as its sensitivity curve, and this is the curve.</p>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · Which readings were ever about ζ</h2>
+<p>rh15 argued that the bottom eigenvalue of a slice measures the sampling grid — the hat transform's null at r = 2π/Δ — and not the arithmetic. The argument was internal: an energy decomposition and a parameter-free law. It can be settled from outside. Build point processes with the <i>same mean density</i> (1/2π)log(r/2π) as the zeros and no arithmetic whatever — Poisson (exponential gaps), GUE-like (Wigner-surmise gaps), and perfectly rigid (equal gaps), all generated by unfolding through θ(r)/π with a fixed seed — and run the identical readings on each.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 442" role="img" aria-label="Left: the bottom eigenvalue against the parameter-free notch law for zeta and for three synthetic point processes with the same density but no arithmetic; all eight points scatter about the diagonal by the same factor that zeta alone scatters, so the law cannot tell them apart. Right: the Schur margin as bars, where zeta and the GUE-like process sit together at zero point six two and zero point six two, the rigid process at zero point five nine and Poisson far below at zero point five two.">
+<text x="360.0" y="22" class="ftitle">what is instrument and what is arithmetic, settled by processes with no arithmetic</text>
+<text x="201.0" y="46" class="ftitle" font-size="12">the notch law, on four processes</text>
+<line x1="252.9" y1="78" x2="252.9" y2="296" class="pred"/>
+<text x="252.9" y="70" class="flab c2">law = measurement</text>
+<text x="58" y="108" class="flab end">&#950;</text>
+<circle cx="289.5" cy="104.0" r="3.4" class="digit main"/>
+<text x="296.5" y="108.0" class="flab st">1.59</text>
+<circle cx="196.6" cy="119.0" r="3.4" class="digit main"/>
+<text x="203.6" y="123.0" class="flab st">0.49</text>
+<text x="58" y="152" class="flab end">GUE-like</text>
+<circle cx="124.8" cy="148.0" r="3.4" class="zero"/>
+<text x="131.8" y="152.0" class="flab st">0.20</text>
+<circle cx="236.1" cy="163.0" r="3.4" class="zero"/>
+<text x="243.1" y="167.0" class="flab st">0.81</text>
+<text x="58" y="196" class="flab end">Poisson</text>
+<circle cx="185.6" cy="192.0" r="3.4" class="digit"/>
+<text x="192.6" y="196.0" class="flab st">0.43</text>
+<circle cx="228.4" cy="207.0" r="3.4" class="digit"/>
+<text x="235.4" y="211.0" class="flab st">0.73</text>
+<text x="58" y="240" class="flab end">rigid</text>
+<circle cx="223.4" cy="236.0" r="3.4" class="digit alt"/>
+<text x="230.4" y="240.0" class="flab st">0.69</text>
+<circle cx="99.0" cy="251.0" r="3.4" class="digit alt"/>
+<text x="106.0" y="255.0" class="flab st">0.14</text>
+<text x="70.4" y="312" class="flab">0.1</text>
+<text x="157.5" y="312" class="flab">0.3</text>
+<text x="252.9" y="312" class="flab">1</text>
+<text x="340.0" y="312" class="flab">3</text>
+<line x1="62" y1="296" x2="340" y2="296" class="axis"/>
+<text x="340" y="328" class="flab end">measured &#955;<tspan font-size="9">min</tspan> / predicted</text>
+<text x="201.0" y="352" class="flab c1">scatter 11.1&#215; across all four processes,</text>
+<text x="201.0" y="368" class="flab c1">against 11.6&#215; for &#950; alone in rh15</text>
+<text x="201.0" y="388" class="flab">the law does not know which process</text>
+<text x="201.0" y="404" class="flab">it is looking at: it is the grid, not &#950;</text>
+<text x="555.0" y="46" class="ftitle" font-size="12">the Schur margin, on the same four</text>
+<rect x="444.0" y="104.4" width="44" height="191.6" class="bar"/>
+<text x="466.0" y="98.4" class="flab">0.6231</text>
+<text x="466.0" y="312" class="flab">&#950;</text>
+<rect x="502.0" y="114.4" width="44" height="181.6" class="bar"/>
+<text x="524.0" y="108.4" class="flab">0.6166</text>
+<text x="524.0" y="312" class="flab">GUE-like</text>
+<rect x="560.0" y="260.4" width="44" height="35.6" class="bar2"/>
+<text x="582.0" y="254.4" class="flab">0.5229</text>
+<text x="582.0" y="312" class="flab">Poisson</text>
+<rect x="618.0" y="153.7" width="44" height="142.3" class="bar2"/>
+<text x="640.0" y="147.7" class="flab">0.5914</text>
+<text x="640.0" y="312" class="flab">rigid</text>
+<line x1="420" y1="264.9" x2="690" y2="264.9" class="grid"/>
+<text x="414" y="268.9" class="flab end">0.52</text>
+<line x1="420" y1="202.6" x2="690" y2="202.6" class="grid"/>
+<text x="414" y="206.6" class="flab end">0.56</text>
+<line x1="420" y1="140.3" x2="690" y2="140.3" class="grid"/>
+<text x="414" y="144.3" class="flab end">0.60</text>
+<line x1="420" y1="78.0" x2="690" y2="78.0" class="grid"/>
+<text x="414" y="82.0" class="flab end">0.64</text>
+<line x1="420" y1="296" x2="690" y2="296" class="axis"/>
+<text x="555.0" y="334" class="flab">1 &#8722; max|&#961;| at &#916; = 0.03, depth 399</text>
+<text x="555.0" y="356" class="flab c1">&#950; is 0.0064 from GUE and 0.1002 from</text>
+<text x="555.0" y="372" class="flab c1">Poisson &#8212; 16&#215; nearer the one</text>
+<text x="555.0" y="392" class="flab">the spread is 2e+06 times the margin&#8217;s</text>
+<text x="555.0" y="408" class="flab">own quadrature error bar</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 — the same two readings on four processes.</b> <i>Left:</i> measured λ<sub>min</sub> divided by rh15's parameter-free notch law, at two meshes, for ζ and for three synthetic processes. The scatter across all four is <b>11.1×</b>; ζ alone scattered <b>11.6×</b> across rh15's own ten slices. The law fits a Poisson process exactly as well as it fits the Riemann zeros — it does not know which process it is looking at, because it was never looking at the process. <i>Right:</i> the Schur margin 1 − max|ρ<sub>k</sub>| on the same four. Here they separate: ζ 0.6231, GUE-like 0.6166, rigid 0.5914, Poisson 0.5229 — a spread of 0.100 against a quadrature error bar of 5×10⁻⁸, i.e. two million times larger than the noise. This reading <i>is</i> about the process.</figcaption>
+</figure>
+<p>That closes rh15's argument from the other side. The eigenvalue was the instrument; the Schur margin is the measurement. And the measurement says something familiar in an unfamiliar coordinate: ζ's margin sits <b>0.0064 from the GUE-like process and 0.100 from Poisson</b> — sixteen times nearer the one than the other, and nearer GUE than the rigid lattice too (0.0316). Montgomery's pair correlation and Odlyzko's statistics are visible here as a single scalar read off a prime-built recursion. This is a weak test of universality, not a new one — one number, one realisation of each surrogate, no error bars on the surrogates themselves — but it is the right sign, and it is the cheapest form the statement has taken in this arc.</p>
+<p>One more thing survives the change of process, and it is worth flagging as an open item rather than a result: rh15's horizon law σ<sub>k</sub>²v² ≈ 3.9×10⁻³ holds for all four processes to within 20% (ζ 4.24×10⁻³, Poisson 3.99, GUE 3.54, rigid 3.52). So that constant, too, is mostly a property of the <i>density</i>, not of the arithmetic — which narrows what an explanation of it would have to explain.</p>
+</section>
+
+<p class="kicker">Part III · The archive</p>
+
+<section id="s5">
+<h2 class="prose" style="max-width:46rem">5 · The archive ledger</h2>
+<p class="prose" style="max-width:46rem">One line per document, with its headline number and what kind of claim it is. <b>Computed</b> means verified numerically here to a stated error bar; <b>proven</b> means a proof or a standard theorem is cited in place; <b>superseded</b> means a later document changed what the number means. A reader starting at rh4 should read this table first.</p>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Document</th><th>What it established</th><th>Status</th></tr>
+<tr><td><a href="rh4.html">rh4</a></td><td>the nested-circle construction and its dictionary; ζ and η on the critical line</td><td>computed</td></tr>
+<tr><td><a href="rh5.html">rh5</a></td><td>six answers: the b-helix, the finite-difference integrals, Robin's criterion, the resonances</td><td>computed</td></tr>
+<tr><td><a href="rh6.html">rh6</a></td><td>the cone and its two rulings; where the construction's geometry actually lives</td><td>computed</td></tr>
+<tr><td><a href="rh7.html">rh7</a></td><td>the sine sieve in the 2π base; primes as incommensurable tick-trains</td><td>computed</td></tr>
+<tr><td><a href="rh8.html">rh8</a></td><td>{log n} vs ℤ incommensurable — the thread never repeats, so one thread carries everything</td><td>proven</td></tr>
+<tr><td><a href="rh9.html">rh9</a></td><td>the function-field model: what a proof looks like where one exists (Weil, F<sub>q</sub>)</td><td>cited</td></tr>
+<tr><td><a href="rh10.html">rh10</a></td><td>the four classical criteria assembled and computed on one footing; the explicit formula as the arc's equation</td><td>computed</td></tr>
+<tr><td><a href="rh11.html">rh11</a></td><td>the Weil cone's trade-off law; detection thresholds β*; the Lehmer hunt; the F₁ grammar</td><td>computed</td></tr>
+<tr><td><a href="rh12.html">rh12</a></td><td>the optimal window by one linear solve, D*(1.5) = 5.0×10⁻⁶; 60k zeros at t = 10⁶ meeting a pre-registered GUE forecast; N(q) = 1 + 1/(u²−1) + gear atoms</td><td>computed</td></tr>
+<tr><td><a href="rh13.html">rh13</a></td><td>the first full Weil Gram matrix from the arithmetic side, signature (25,0,0); the Castelnuovo defect ledger</td><td>computed</td></tr>
+<tr><td><a href="rh14.html">rh14</a></td><td>the merge: one kernel E(v), two theories agreeing to 1.6×10⁻⁵; every prior matrix refolded out of it; 446 positive eigenvalues; modes locking onto ordinates at 0.095</td><td>computed</td></tr>
+<tr><td><i>rh14 §4's λ<sub>min</sub> ladder</i></td><td><i>read there as the arithmetic margin thinning — it is the mesh's own null, and no such reading should be taken from it</i></td><td><b>superseded by rh15 §3</b></td></tr>
+<tr><td><a href="rh15.html">rh15</a></td><td>kernel to v = 12, two theories to 8.7×10⁻⁹; the parameter-free notch law (clamped rod κ₁); RH ⟺ |ρ<sub>k</sub>(Δ)| &lt; 1 ∀k,Δ; margins 0.403/0.623/0.698 widening as the mesh refines</td><td>computed + proven (Schur/Verblunsky) + cited (Weil)</td></tr>
+<tr><td><i>rh12/rh15's D* frontier</i></td><td><i>arithmetic, but unconverged at every mesh reachable: quote it only with the mesh it was computed at</i></td><td><b>qualified by rh15 §4</b></td></tr>
+<tr><td>rh16 §2</td><td>the inverse map made constructive: 30/30 ordinates from the primes, median 4.9×10⁻⁴, 1081× the Fourier cell, count matching Riemann–von Mangoldt</td><td>computed</td></tr>
+<tr><td>rh16 §3</td><td>the detector's sensitivity: δ<sub>min</sub> = 3×10⁻⁴ at γ₁ rising to 0.092 at γ₁₀₀, at a sieve of e¹²; each unit of horizon costs a factor e</td><td>computed</td></tr>
+<tr><td>rh16 §4</td><td>the notch law fits arithmetic-free processes as well as ζ; the Schur margin separates them, with ζ 16× nearer GUE than Poisson</td><td>computed</td></tr>
+</table>
+</div>
+<p class="prose" style="max-width:46rem">The one-sentence version of the whole arc: <b>a geometric construction was reduced to a single computed function of a single real variable, and the hypothesis to the question of whether one sequence of numbers, generated from the primes by a two-line recursion, ever leaves the unit disc.</b> Nothing in sixteen documents bears on whether it does.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The three moves a successor should make first</h2>
+<p><b>(i) Make the certificates unconditional.</b> Everything here is a floating-point statement with a measured error bar (rh15 §6: the kernel moves 1.6×10⁻⁹ absolute between independent quadratures; the Schur margins move ≤ 2.8×10⁻⁶). Redo the same quadrature in interval arithmetic and every computed certificate becomes a theorem about the kernel — a finite amount of engineering and no new mathematics. This is first because it is the only item on the list that is certain to succeed.</p>
+<p><b>(ii) Ask what the ρ<sub>k</sub> <i>are</i>.</b> The Schur coefficients of the Weil kernel are a well-defined arithmetic sequence — computable from Λ(n) and ψ by a finite recursion, complete invariants of the zero measure, O(1) in size, and, as far as this arc knows, never previously written down. Does max|ρ| have a closed form? Do the ρ<sub>k</sub> carry the primes visibly, as E does in its dips at log n? Is the margin 1 − max|ρ| bounded below as Δ → 0 — and if so, by what? A positive answer to the last question would be a genuinely new form of the hypothesis; a negative one would kill the reading. Either is worth more than another certificate.</p>
+<p><b>(iii) Explain the two things this arc measured and could not derive.</b> First: σ<sub>k</sub>²v² ≈ 3.9×10⁻³, stable across three meshes (rh15) and across four point processes (§4 above), so it is a property of the density and the sampling — but its value is unexplained. Second: D*(a, Δ) falls by a decade per mesh halving with no limit in sight, and the natural Nyquist/Levinson-density prediction for where it should settle was tested to Δ = 0.00375 and <b>failed</b> (rh15 §4). One of these is probably a short calculation by someone who knows the Szegő theory properly; the other may not be.</p>
+<p>What a successor should <i>not</i> do is cut more slices. That was the arc's instinct for three documents and rh15 showed where it leads: the observable everyone was watching was the instrument. The machinery is cheap now — a certificate costs one more term of one sequence — so the scarce resource is no longer computation. It is knowing which number means something.</p>
+</section>
+
+<section id="s7">
+<h2 class="prose" style="max-width:46rem">7 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic number theory</th></tr>
+<tr><td>reading the recursion backwards</td><td>Verblunsky: the Schur sequence is a complete invariant of the measure</td></tr>
+<tr><td>the filter's poles</td><td>maximum-entropy spectrum S = σ<sub>n</sub>²/|A(e<sup>iθ</sup>)|²; its peaks are the ordinates</td></tr>
+<tr><td>a thousand times finer than the slice</td><td>median offset 4.9×10⁻⁴ against the Fourier cell π/a = 0.526</td></tr>
+<tr><td>a line is what survives being disturbed</td><td>peak selection by order-vote + mesh change: 30 kept, 30 true, count = θ(T)/π + 1</td></tr>
+<tr><td>the filter run past where it was fitted</td><td>free-run from v = 6 reproduces the kernel to v = 12 within 16%</td></tr>
+<tr><td>the detector's sensitivity curve</td><td>δ<sub>min</sub>(γ) at horizon 12: 3×10⁻⁴ at γ₁, 0.092 at γ₁₀₀</td></tr>
+<tr><td>the price of one more unit of reach</td><td>horizon v needs a sieve to e<sup>v</sup> — a factor e per unit</td></tr>
+<tr><td>processes with no arithmetic in them</td><td>Poisson / GUE-like / rigid at the same density (1/2π)log(r/2π)</td></tr>
+<tr><td>the reading that cannot tell them apart</td><td>the notch law: 11.1× scatter over four processes, 11.6× over ζ's own slices</td></tr>
+<tr><td>the reading that can</td><td>the Schur margin: ζ 0.6231, GUE 0.6166, rigid 0.5914, Poisson 0.5229</td></tr>
+<tr><td>where ζ sits</td><td>16× nearer GUE than Poisson — Montgomery/Odlyzko as one scalar</td></tr>
+<tr><td>what is left of the question</td><td>does one prime-built sequence ever leave the unit disc?</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<p class="meta" style="margin-bottom:.6rem">Additions to the rh4–rh15 lists, which remain in force.</p>
+<ol>
+<li>J. P. Burg, <i>Maximum entropy spectral analysis</i>, 37th Ann. Int. Meeting, Soc. Explor. Geophys. (1967) — the estimate (1) and its superresolution.</li>
+<li>S. Haykin, S. Kesler, <i>Prediction-error filtering and maximum-entropy spectral estimation</i>, in Nonlinear Methods of Spectral Analysis, Springer (1979) — poles, ripples, and why order stability is the right discriminator.</li>
+<li>H. L. Montgomery, <i>The pair correlation of zeros of the zeta function</i>, Proc. Symp. Pure Math. 24 (1973) — the universality §4 measures.</li>
+<li>A. M. Odlyzko, <i>On the distribution of spacings between zeros of the zeta function</i>, Math. Comp. 48 (1987) — the GUE comparison, done properly.</li>
+<li>M. L. Mehta, <i>Random Matrices</i>, 3rd ed., Elsevier (2004) — the Wigner surmise used to generate the GUE-like surrogate.</li>
+<li>B. Simon, <i>Orthogonal Polynomials on the Unit Circle</i>, AMS (2005) — cited in rh15; the source for the inverse-map claim made constructive in §2.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page was computed for this document and cross-checked against 25 named checks plus the inline assertion suite. The ordinates: rh11's table reloaded and extended to height 5000 by Riemann–Siegel, 4520 found against Riemann–von Mangoldt's 4520.33. The inverse map: maximum-entropy spectra of rh15's stored kernel rows at Δ = 0.03 (399 nodes, band to 103.7) and Δ = 0.015 (799 nodes, band to 208.4), peaks located by scan at step 0.002 with parabolic refinement, every ordinate in the band carrying a peak (30/30 and 82/84 within 0.01), median location error 4.87×10⁻⁴ and 5.10×10⁻⁴ against Fourier cells 0.5262 and 0.5249; the selection rule requiring agreement of at least 3 of the 5 filter orders {399, 370, 340, 310, 280} to within 0.005 <i>and</i> agreement with the independent Δ = 0.015 recursion, keeping 30 lines of which 30 are ordinates against Riemann–von Mangoldt's 30.65; the two rules that fail — ranking by height (24/30) and by pole radius (20% of ripples as sharp as the sharpest true line, 80% of true lines broader than the narrowest ripple); and the filter fitted on v ≤ 6 predicting 6 &lt; v ≤ 12 with one-step rms 1.7% and free-run rms 16.2% of the kernel's own rms there. The sensitivity: the unperturbed row positive to full depth 799; displacements δ ∈ {0.2, 0.1, 0.05, 0.02, 0.01} applied at γ₁, γ₁₀, γ₅₀ with k* monotone in δ throughout; the boundedness estimate overshooting the measured horizon by more than 50×; fitted exponents 0.15, 0.35, 0.61 increasing with height; and detection thresholds at horizon 12 by bisection — 0.0003, 0.0009, 0.0024, 0.0104, 0.0365, 0.0921 at γ₁, γ₅, γ₁₀, γ₂₀, γ₅₀, γ₁₀₀, monotone. The surrogates: Poisson, Wigner-surmise and rigid point processes unfolded through θ(r)/π from a fixed-seed generator, each matching ζ's count to 1%; the notch-law scatter 11.1× across the four processes against 11.6× for ζ alone across rh15's ten slices; Schur margins 0.6231, 0.6166, 0.5914, 0.5229 with ζ's truncated-kernel value matching rh15's full-kernel 0.62306 to 2×10⁻⁵, a spread 2×10⁶ times the margin's own quadrature error bar, and ζ nearer GUE than Poisson. Companion texts: <a href="rh4.html">rh4</a> · <a href="rh5.html">rh5</a> · <a href="rh6.html">rh6</a> · <a href="rh7.html">rh7</a> · <a href="rh8.html">rh8</a> · <a href="rh9.html">rh9</a> · <a href="rh10.html">rh10</a> · <a href="rh11.html">rh11</a> · <a href="rh12.html">rh12</a> · <a href="rh13.html">rh13</a> · <a href="rh14.html">rh14</a> · <a href="rh15.html">rh15</a>.
+</div>
+
+
+</div>
+</body>
+</html>

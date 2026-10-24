@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eta selectors — greedy-harmonic boolean matrix</title>
+<style>
+  :root { --ink:#111; --mut:#666; --line:#ddd; --bg:#fff; --acc:#0b4ea2; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.45 -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  header { padding:18px 22px 10px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 6px; font-size:19px; font-weight:600; letter-spacing:.2px; }
+  .sub { color:var(--mut); font-size:12.5px; }
+  code { font-family:"SF Mono", Menlo, Consolas, monospace; font-size:12.5px; }
+  .wrap { display:flex; gap:22px; padding:18px 22px 40px; align-items:flex-start;
+          flex-wrap:wrap; }
+  .panel { border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+  .controls { width:330px; }
+  .gridpanel { flex:1 1 720px; min-width:320px; overflow:auto; }
+  label.sl { display:block; margin:14px 0 2px; font-size:12px; color:var(--mut);
+             text-transform:uppercase; letter-spacing:.6px; }
+  input[type=range] { width:100%; }
+  .num { display:flex; justify-content:space-between; align-items:baseline;
+         font-variant-numeric:tabular-nums; }
+  .num b { font-size:16px; font-weight:600; }
+  .btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  button { font:inherit; font-size:12px; padding:4px 9px; border:1px solid var(--line);
+           background:#fafafa; border-radius:6px; cursor:pointer; }
+  button:hover { background:#f0f0f0; }
+  button.on { background:var(--acc); color:#fff; border-color:var(--acc); }
+  table.stats { border-collapse:collapse; width:100%; margin-top:6px;
+                font-variant-numeric:tabular-nums; }
+  table.stats td { padding:3px 0; border-bottom:1px solid #f0f0f0; font-size:12.5px; }
+  table.stats td:last-child { text-align:right; font-family:"SF Mono", Menlo, monospace; }
+  .hint { color:var(--mut); font-size:11.5px; margin-top:12px; }
+  #tip { position:fixed; pointer-events:none; background:#111; color:#fff;
+         font:11px/1.3 Menlo, monospace; padding:3px 6px; border-radius:4px;
+         display:none; z-index:9; }
+  .zerobar { position:relative; height:16px; margin-top:2px; }
+  .zerobar i { position:absolute; top:0; width:1px; height:8px; background:#bbb; }
+  .zerobar i.major { height:12px; background:#888; }
+  .legend { display:flex; gap:16px; align-items:center; margin:8px 0 12px;
+            font-size:12px; color:var(--mut); }
+  .sw { display:inline-block; width:12px; height:12px; border:1px solid #ccc;
+        vertical-align:-2px; margin-right:5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>The Dirichlet eta function at <code>s = σ + it</code>: Im-term greedy-sine selectors</h1>
+  <div class="sub">
+    <code>η(s) = Σ (−1)<sup>n−1</sup> n<sup>−s</sup></code> &nbsp;·&nbsp;
+    <code>Im η = −Σ (−1)<sup>n−1</sup> n<sup>−σ</sup> sin(t log n)</code> &nbsp;·&nbsp;
+    <code>sin(t log n) = ε<sub>n</sub> sin(π Σ<sub>k∈A<sub>n</sub></sub> 1/(k+2))</code>.
+    A black square is <code>1</code> (the greedy sine <code>1/(k+2)</code> is included in that
+    term), white is <code>0</code>. Built by the same greedy rule as
+    <code>eta_selectors.tsv</code>; at <code>t = γ₁ = 14.134725…, σ = ½</code> it reproduces that file.
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="panel controls">
+    <label class="sl" for="t">Im input &nbsp; t</label>
+    <div class="num"><b id="tv">14.13472514</b><span id="tnote" class="hint"></span></div>
+    <input type="range" id="t" min="0" max="50" step="0.000001" value="14.13472514">
+    <div class="zerobar" id="zerobar"></div>
+    <div class="btns" id="zerobtns"></div>
+
+    <label class="sl" for="s">Re input &nbsp; σ</label>
+    <div class="num"><b id="sv">0.500</b><span class="hint" id="snote"></span></div>
+    <input type="range" id="s" min="0.05" max="1.5" step="0.005" value="0.5">
+    <div class="btns">
+      <button data-s="0.5" class="on">σ = ½ (critical line)</button>
+      <button data-s="1">σ = 1 (abscissa)</button>
+      <button data-s="1.5">σ = 1.5 (ζ converges)</button>
+    </div>
+
+    <label class="sl">column order</label>
+    <div class="btns">
+      <button id="ordk" class="on">by k (as the tsv)</button>
+      <button id="ordf">by frequency</button>
+    </div>
+
+    <table class="stats" id="stats"></table>
+    <div class="btns">
+      <button id="find">locate zeros near t</button>
+      <button id="dump">download grid as tsv</button>
+    </div>
+    <div class="hint" id="findout"></div>
+    <div class="hint">
+      The greedy word <code>(δ<sub>k</sub>)</code> is a function of the phase
+      <code>t log n</code> alone, so <b>σ does not change the squares</b> — it only sets the
+      amplitude <code>n<sup>−σ</sup></code>. The selectors are index/phase data; the vanishing
+      needs the weighted sum. Zeros here are found by bisection on <code>η</code>
+      (Euler-transformed), not from the selectors.
+    </div>
+  </div>
+
+  <div class="panel gridpanel">
+    <div class="legend">
+      <span><span class="sw" style="background:#111"></span>1 — included</span>
+      <span><span class="sw" style="background:#fff"></span>0 — excluded</span>
+      <span id="dims"></span>
+    </div>
+    <canvas id="cv"></canvas>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script>
+/* ---BEGIN CORE--- */
+/* core numerics: no DOM, so it can be lint-tested in node */
+var TWO_PI = 2 * Math.PI;
+var GAMMA1 = 14.134725141734693790457251983562470270784257115699;
+
+// Greedy (Sylvester) support of x on 1/(k+2), k < Kmax. Jump form: O(#takes).
+function greedySupport(x, Kmax) {
+  var r = x, k = 0, A = [];
+  if (r <= 0) return A;
+  while (k < Kmax) {
+    if (r < 1.0 / (Kmax + 2)) break;
+    var kk = Math.ceil(1.0 / r) - 2;
+    if (kk < k) kk = k;
+    if (kk >= Kmax) break;
+    var a = 1.0 / (kk + 2);
+    if (r >= a - 1e-15) { A.push(kk); r -= a; k = kk + 1; }
+    else { k = kk + 1; }
+  }
+  return A;
+}
+
+// phi_n = t log n reduced to theta in [0,pi] with a sign eps.
+function reducePhase(n, t) {
+  var phi = (t * Math.log(n)) % TWO_PI;
+  if (phi < 0) phi += TWO_PI;
+  var eps = phi <= Math.PI ? 1 : -1;
+  var theta = phi <= Math.PI ? phi : TWO_PI - phi;
+  return { phi: phi, eps: eps, theta: theta, x: theta / Math.PI };
+}
+
+// Supports A_n and their fraction sums for n = 1..nTerms.
+function supportsFor(t, nTerms, Kmax) {
+  var A = [], fracsum = [], eps = [], phi = [], x = [];
+  for (var n = 1; n <= nTerms; n++) {
+    var p = reducePhase(n, t);
+    var s = greedySupport(p.x, Kmax);
+    var fs = 0; for (var i = 0; i < s.length; i++) fs += 1.0 / (s[i] + 2);
+    A.push(s); fracsum.push(fs); eps.push(p.eps); phi.push(p.phi); x.push(p.x);
+  }
+  return { A: A, fracsum: fracsum, eps: eps, phi: phi, x: x };
+}
+
+// Union of supports, in increasing k.
+function unionOf(A) {
+  var seen = {}, out = [];
+  for (var i = 0; i < A.length; i++)
+    for (var j = 0; j < A[i].length; j++) {
+      var k = A[i][j]; if (!seen[k]) { seen[k] = 1; out.push(k); }
+    }
+  out.sort(function (a, b) { return a - b; });
+  return out;
+}
+
+function frequencies(A) {
+  var f = {};
+  for (var i = 0; i < A.length; i++)
+    for (var j = 0; j < A[i].length; j++) f[A[i][j]] = (f[A[i][j]] || 0) + 1;
+  return f;
+}
+
+// eta by the Euler transform: sum_{n>=0}(-1)^n a_n = sum_k D^k a_0 / 2^{k+1}.
+function etaEuler(sigma, t, N) {
+  var re = new Float64Array(N + 1), im = new Float64Array(N + 1), n;
+  for (n = 0; n <= N; n++) {
+    var m = n + 1, r = Math.pow(m, -sigma), ph = t * Math.log(m);
+    re[n] = r * Math.cos(ph); im[n] = -r * Math.sin(ph);
+  }
+  var tr = 0, ti = 0, len = N + 1, k, i;
+  for (k = 0; k < N; k++) {
+    var w = Math.pow(2, -(k + 1));
+    tr += re[0] * w; ti += im[0] * w;
+    for (i = 0; i < len - 1; i++) { re[i] = re[i] - re[i + 1]; im[i] = im[i] - im[i + 1]; }
+    len--;
+  }
+  return [tr, ti];
+}
+
+// Cosine / sine series partial sums (the Re and Im series of eta).
+function etaPartial(sigma, t, M) {
+  var Re = 0, Im = 0;
+  for (var n = 1; n <= M; n++) {
+    var w = Math.pow(n, -sigma) * (n % 2 ? 1 : -1);   // (-1)^{n-1}
+    var ph = t * Math.log(n);
+    Re += w * Math.cos(ph); Im -= w * Math.sin(ph);
+  }
+  return [Re, Im];
+}
+
+// Greedy reconstruction of the Im series: -sum (-1)^{n-1} n^-sigma eps sin(pi fracsum).
+function imGreedy(sigma, S) {
+  var Im = 0, nmax = S.A.length;
+  for (var i = 0; i < nmax; i++) {
+    var n = i + 1, w = Math.pow(n, -sigma) * (n % 2 ? 1 : -1);
+    Im -= w * S.eps[i] * Math.sin(Math.PI * S.fracsum[i]);
+  }
+  return Im;
+}
+
+var GAMMAS = [14.134725141734693, 21.022039638771555, 25.010857580145688,
+              30.424876125859513, 32.935061587739190, 37.586178158825671,
+              40.918719012147495, 43.327073280914999, 48.005150881167160,
+              49.773832477672302];
+/* ---END CORE--- */
+
+// ------------------------------------------------------------------ UI
+var NTERMS = 100, KMAX = 1000000, EULER_N = 128, EULER_SCAN_N = 96;
+var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+var cw = 6, ch = 6, L = 46, T = 26, R = 12, B = 34;
+var state = { t: GAMMA1, sigma: 0.5, order: 'k', cols: [], set: [], cells: [] };
+
+function buildCols(S) {
+  var A = S.A, union = unionOf(A), f = frequencies(A);
+  var order = union.slice();
+  if (state.order === 'f') {
+    order.sort(function (a, b) { return (f[b] - f[a]) || (a - b); });
+  }
+  state.cols = order;
+  state.freq = f;
+  var set = {};
+  for (var i = 0; i < order.length; i++) set[order[i]] = i;
+  state.set = set;
+  state.cells = A.map(function (a) {
+    var row = new Uint8Array(order.length);
+    for (var j = 0; j < a.length; j++) row[set[a[j]]] = 1;
+    return row;
+  });
+  return union;
+}
+
+function draw() {
+  var cols = state.cols.length;
+  cw = cols > 160 ? 5 : (cols > 90 ? 6 : 8);
+  var W = L + cols * cw + R, H = T + NTERMS * ch + B;
+  cv.width = W; cv.height = H;
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  ctx.font = '10px Menlo, monospace'; ctx.textBaseline = 'middle';
+
+  // white lattice so 0-squares read as squares
+  ctx.strokeStyle = '#e2e2e2'; ctx.lineWidth = 1;
+  for (var j = 0; j <= cols; j++) {
+    var x = L + j * cw + 0.5;
+    ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, T + NTERMS * ch); ctx.stroke();
+  }
+  for (var i = 0; i <= NTERMS; i++) {
+    var y = T + i * ch + 0.5;
+    ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + cols * cw, y); ctx.stroke();
+  }
+  // black 1-squares
+  ctx.fillStyle = '#111';
+  for (i = 0; i < NTERMS; i++) {
+    var row = state.cells[i];
+    for (j = 0; j < cols; j++)
+      if (row[j]) ctx.fillRect(L + j * cw, T + i * ch, cw, ch);
+  }
+  // row labels
+  ctx.fillStyle = '#555'; ctx.textAlign = 'right';
+  for (i = 0; i < NTERMS; i++)
+    if ((i + 1) === 1 || (i + 1) % 10 === 0)
+      ctx.fillText(String(i + 1), L - 6, T + i * ch + ch / 2);
+  // column labels (denominator of 1/d)
+  ctx.textAlign = 'center'; ctx.fillStyle = '#666';
+  var step = cols > 120 ? 12 : (cols > 60 ? 6 : 3);
+  for (j = 0; j < cols; j += step)
+    ctx.fillText(String(state.cols[j] + 2), L + j * cw + cw / 2, T - 11);
+  ctx.save(); ctx.translate(13, T + NTERMS * ch / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#444';
+  ctx.font = '11px Menlo, monospace'; ctx.fillText('term  n', 0, 0); ctx.restore();
+  ctx.fillText('fraction  1/d', L + cols * cw / 2, T + NTERMS * ch + 18);
+  document.getElementById('dims').textContent =
+    NTERMS + ' terms × ' + cols + ' components';
+}
+
+function refresh(rebuild) {
+  var S = supportsFor(state.t, NTERMS, KMAX);
+  if (rebuild) { buildCols(S); draw(); }
+  var f = state.freq || frequencies(S.A);
+  var union = unionOf(S.A);
+  var shared = union.filter(function (k) { return f[k] > 1; }).length;
+  var priv = union.length - shared;
+  var e = etaEuler(state.sigma, state.t, EULER_N);
+  var p100 = etaPartial(state.sigma, state.t, NTERMS);
+  var p2000 = etaPartial(state.sigma, state.t, 2000);
+  var img = imGreedy(state.sigma, S);
+  var dmax = 0;
+  for (var i = 0; i < NTERMS; i++) {
+    var d = Math.abs(S.eps[i] * Math.sin(Math.PI * S.fracsum[i]) - Math.sin(S.phi[i]));
+    if (d > dmax) dmax = d;
+  }
+  var nz = GAMMAS.reduce(function (a, g) {
+    return Math.abs(g - state.t) < Math.abs(a - state.t) ? g : a; }, GAMMAS[0]);
+  var rows = [
+    ['s = σ + it', state.sigma.toFixed(3) + ' + ' + state.t.toFixed(6) + 'i'],
+    ['|η(s)| (Euler, exact)', Math.abs(Math.hypot(e[0], e[1])).toExponential(3)],
+    ['Re η / Im η (Euler)', e[0].toExponential(3) + ' / ' + e[1].toExponential(3)],
+    ['Re η₁₀₀ / Im η₁₀₀', p100[0].toFixed(6) + ' / ' + p100[1].toFixed(6)],
+    ['|η₂₀₀₀| (plain series)', Math.hypot(p2000[0], p2000[1]).toExponential(3)],
+    ['Im η₁₀₀ (greedy)', img.toFixed(6)],
+    ['greedy − direct (Im₁₀₀)', (img - p100[1]).toExponential(2)],
+    ['max |Δsin| over n ≤ 100', dmax.toExponential(2)],
+    ['components / shared / private', union.length + ' / ' + shared + ' / ' + priv],
+    ['mean |Aₙ|', (S.A.reduce(function (a, x) { return a + x.length; }, 0) / NTERMS).toFixed(3)],
+    ['nearest known γ', nz.toFixed(6) + '  (Δ = ' + Math.abs(nz - state.t).toExponential(2) + ')']
+  ];
+  document.getElementById('stats').innerHTML = rows.map(function (r) {
+    return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+  }).join('');
+}
+
+function setT(t) {
+  state.t = Math.min(50, Math.max(0, t));
+  document.getElementById('t').value = state.t;
+  document.getElementById('tv').textContent = state.t.toFixed(8);
+  var nz = GAMMAS.reduce(function (a, g) {
+    return Math.abs(g - state.t) < Math.abs(a - state.t) ? g : a; }, GAMMAS[0]);
+  var d = Math.abs(nz - state.t);
+  document.getElementById('tnote').textContent = d < 1e-4 ? ' ← zero γ' : '';
+  refresh(true);
+}
+function setS(s) {
+  state.sigma = s;
+  document.getElementById('s').value = s;
+  document.getElementById('sv').textContent = s.toFixed(3);
+  refresh(false);
+}
+
+// zero marker bar + buttons
+(function () {
+  var bar = document.getElementById('zerobar'), bt = document.getElementById('zerobtns');
+  GAMMAS.forEach(function (g, i) {
+    var el = document.createElement('i');
+    el.className = 'major';
+    el.style.left = (g / 50 * 100) + '%';
+    bar.appendChild(el);
+    var b = document.createElement('button');
+    b.textContent = 'γ' + (i + 1);
+    b.title = 't = ' + g;
+    b.onclick = function () { setT(g); };
+    bt.appendChild(b);
+  });
+})();
+
+// locate zeros of eta in [t-3, t+3]. At a simple zero of eta one of Re/Im may touch
+// zero without crossing (e.g. gamma_4), so we scan BOTH components and keep roots
+// where |eta| is small.
+document.getElementById('find').onclick = function () {
+  var t0 = Math.max(0, state.t - 3), t1 = Math.min(50, state.t + 3), K = 1000;
+  var roots = [], realOnly = 0, which, i, j;
+  for (which = 0; which < 2; which++) {
+    var prev = null, cand = [];
+    for (i = 0; i <= K; i++) {
+      var tt = t0 + (t1 - t0) * i / K;
+      var v = etaEuler(0.5, tt, EULER_SCAN_N)[which];
+      if (prev && prev.v * v < 0) cand.push([prev.t, tt, prev.v]);
+      prev = { t: tt, v: v };
+    }
+    for (j = 0; j < cand.length; j++) {
+      var a = cand[j][0], b = cand[j][1], fa = cand[j][2], m, e;
+      for (var it = 0; it < 60; it++) {
+        m = (a + b) / 2; e = etaEuler(0.5, m, EULER_SCAN_N)[which];
+        if (fa * e <= 0) b = m; else { a = m; fa = e; }
+      }
+      var r = (a + b) / 2, E = etaEuler(0.5, r, EULER_SCAN_N);
+      if (Math.hypot(E[0], E[1]) < 1e-6) roots.push(r); else realOnly++;
+    }
+  }
+  var out = [];
+  roots.sort(function (x, y) { return x - y; }).forEach(function (r) {
+    if (!out.some(function (q) { return Math.abs(q - r) < 1e-3; })) out.push(r);
+  });
+  document.getElementById('findout').textContent = (out.length
+    ? 'η = 0 at t ≈ ' + out.map(function (r) { return r.toFixed(6); }).join(', ')
+    : 'no zero of η in [' + t0.toFixed(2) + ', ' + t1.toFixed(2) + ']')
+    + (realOnly ? '  (' + realOnly + ' crossings of Re η = 0 or Im η = 0 with |η| ≈ 1, discarded)'
+                : '')
+    + '  — found by bisection on η itself; the selector grid carries no amplitude, so it cannot locate zeros.';
+};
+
+// download the current grid as a tsv
+document.getElementById('dump').onclick = function () {
+  var lines = ['n\t' + state.cols.map(function (k) { return '1/' + (k + 2); }).join('\t')];
+  for (var i = 0; i < NTERMS; i++) {
+    var r = [String(i + 1)];
+    for (var j = 0; j < state.cols.length; j++) r.push(String(state.cells[i][j]));
+    lines.push(r.join('\t'));
+  }
+  var blob = new Blob([lines.join('\n') + '\n'], { type: 'text/tab-separated-values' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'eta_selectors_t' + state.t.toFixed(6) + '_s' + state.sigma.toFixed(3) + '.tsv';
+  a.click(); URL.revokeObjectURL(a.href);
+};
+
+// hover tooltip
+cv.addEventListener('mousemove', function (ev) {
+  var r = cv.getBoundingClientRect();
+  var j = Math.floor((ev.clientX - r.left - L) / cw);
+  var i = Math.floor((ev.clientY - r.top - T) / ch);
+  var tip = document.getElementById('tip');
+  if (i >= 0 && i < NTERMS && j >= 0 && j < state.cols.length) {
+    var k = state.cols[j], v = state.cells[i][j];
+    tip.textContent = 'n=' + (i + 1) + '  ' + (k + 2) + 'th fraction 1/' + (k + 2)
+      + '  δ=' + v + '  (freq ' + (state.freq[k] || 0) + ')';
+    tip.style.display = 'block';
+    tip.style.left = (ev.clientX + 12) + 'px';
+    tip.style.top = (ev.clientY + 12) + 'px';
+  } else tip.style.display = 'none';
+});
+cv.addEventListener('mouseleave', function () { document.getElementById('tip').style.display = 'none'; });
+
+document.getElementById('t').oninput = function () { setT(parseFloat(this.value)); };
+document.getElementById('s').oninput = function () { setS(parseFloat(this.value)); };
+document.getElementById('ordk').onclick = function () {
+  state.order = 'k'; this.classList.add('on');
+  document.getElementById('ordf').classList.remove('on'); refresh(true);
+};
+document.getElementById('ordf').onclick = function () {
+  state.order = 'f'; this.classList.add('on');
+  document.getElementById('ordk').classList.remove('on'); refresh(true);
+};
+document.querySelectorAll('[data-s]').forEach(function (b) {
+  b.onclick = function () {
+    document.querySelectorAll('[data-s]').forEach(function (x) { x.classList.remove('on'); });
+    this.classList.add('on'); setS(parseFloat(this.dataset.s));
+  };
+});
+
+setT(GAMMA1);
+</script>
+</body>
+</html>

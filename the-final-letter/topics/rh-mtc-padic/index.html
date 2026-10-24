@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH-MTC / p-adic MTC — reconstructed research programme</title>
+<style>
+:root{--paper:#fcfcfb;--ink:#1a202c;--muted:#555;--rule:#d8d8d8;--accent:#1a5fb4;--panel:#f3f5f7}
+*{box-sizing:border-box}
+body{font-family:Georgia,serif;max-width:980px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:var(--ink);background:var(--paper)}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.5rem;border-bottom:1px solid var(--rule);padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.7rem;font-size:1.1rem;color:#18466f}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+pre{background:#f3f5f7;border:1px solid #dde3ea;border-radius:6px;padding:.8rem 1rem;overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid var(--rule);padding:.42rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--panel)}
+.sub{color:var(--muted);font-size:1.05rem;font-style:italic}
+.top{background:var(--panel);border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.meta{color:var(--muted);font-size:.94rem}
+.tag{display:inline-block;border:1px solid #c9d4df;border-radius:4px;padding:0 .35rem;font-size:.8em;background:#fff}
+.small{font-size:.92rem}
+</style>
+</head>
+<body>
+
+<h1>RH-MTC / p-adic MTC</h1>
+<p class="sub">A reconstructed research programme: finite MTC/RT weights and local determinant bookkeeping, with the global RH argument left archived</p>
+
+<div class="top">
+<p><strong>Status.</strong> Archived claim, duplicate of the adelic programme. The finite MTC and local Euler-factor layer is reconstructed and verified; the global proof and the Riemann-hypothesis conclusion are <strong>not</strong> formalised and are not theorems of this reconstruction.</p>
+<p><strong>Source.</strong> <a href="../../archive/maths/rh/research/rh-mtc/padic-mtc.html"><code>padic-mtc.html</code></a>, with <a href="../../archive/maths/rh/research/rh-mtc/thesis.html"><code>thesis.html</code></a>, <a href="../../archive/maths/rh/research/rh-mtc/resolve-obstructions.md"><code>resolve-obstructions.md</code></a>, and the LaTeX fragments in <code>proof-part-1/</code> and <code>proof-part-2/</code>.</p>
+<p><strong>Inventory.</strong> <a href="../../scraps.html">Scraps</a> item 21 · <a href="../README.md">Topic index</a>.</p>
+</div>
+
+<h2>What the programme is</h2>
+<p>The archived source proposes a proof of the Riemann hypothesis from three ingredients:</p>
+<ol>
+<li>the Bruhat–Tits tree <code>T_p</code> of <code>PGL(2, Q_p)</code>, with a shift <code>σ_p</code> induced by multiplication by <code>p</code> on the boundary <code>P¹(Q_p)</code>;</li>
+<li>a prime-indexed family of modular tensor categories <code>C_p = SU(2)_{p-2}</code> at <code>q = exp(π i / p)</code>, used to colour framed braids attached to periodic orbits of <code>σ_p</code>;</li>
+<li>a restricted tensor product of local transfer operators whose Fredholm determinant is asserted to be the completed zeta function.</li>
+</ol>
+<p>The central local assertion is that the Reshetikhin–Turaev invariant of the braid attached to a length-<code>n</code> periodic orbit equals <code>p<sup>−n</sup></code>, so that the local determinant is <code>(1 − p<sup>−s</sup>)<sup>−1</sup></code>. The global argument then claims the functional equation, a self-adjointness/entropy argument, a vanishing winding number, and RH.</p>
+
+<p>The source is <strong>fragmentary and internally incomplete</strong>. The main page states the global claims without full proofs. The companion <code>thesis.html</code> is a skeleton whose sections are marked <code>TODO</code>. The prompt tree in <code>resolve-obstructions.md</code> explicitly records two unfinished obstructions: the missing explicit Seifert invariants of the braid closure and the mismatch <code>G_p ≠ τ_p</code> in the Gauss-sum evaluation. Most importantly, the appendix identity</p>
+<pre><code>Σ_j d_j^(p) θ_j^(p) S_(j j')  ?=  τ_p S_(0 j'),    τ_p = exp(π i / 4) / sqrt(p)</code></pre>
+<p>is <strong>false for small primes</strong>: the reconstruction's own high-precision test finds residuals of order one (<code>1.014</code> at <code>p = 3</code>, <code>1.905</code> at <code>p = 5</code>). This is consistent with the archived obstruction note's admission that <code>G_p ≠ τ_p</code>. The identity is recorded as a failed source claim, never as a theorem.</p>
+
+<p>This folder reconstructs the finite part that can be stated and checked: the <code>SU(2)_{p-2}</code> quantum dimensions and Verlinde matrix, the proposed normalised RT weight <code>p<sup>−n</sup></code>, and the exact local Euler-factor bookkeeping. It does <strong>not</strong> claim the geometric RT invariance <code>RT(β) = p<sup>−n</sup></code>, the existence of the global operator, or any consequence for the zeta function.</p>
+
+<h2>Reconstructed objects and notation</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition / reconstruction</th></tr></thead>
+<tbody>
+<tr><td>Prime</td><td><code>p</code> an odd prime, <code>p ≥ 3</code> (the source's domain).</td></tr>
+<tr><td>Category</td><td><code>C_p = SU(2)_{p-2}</code>, with <code>q = exp(π i / p)</code>.</td></tr>
+<tr><td>Simple objects</td><td>Spins <code>j = 0, 1/2, 1, …, (p−2)/2</code>; there are <code>p − 1</code> of them.</td></tr>
+<tr><td>Quantum dimension</td><td><code>d_j = sin((2j+1)π/p) / sin(π/p)</code>.</td></tr>
+<tr><td>Total quantum dimension</td><td><code>D_p² = Σ_j d_j² = p / (2 sin²(π/p))</code>.</td></tr>
+<tr><td>Verlinde matrix</td><td><code>S_(j j') = sqrt(2/p) sin((2j+1)(2j'+1)π/p)</code>.</td></tr>
+<tr><td>Twist</td><td><code>θ_j = exp(π i (j(j+1) − 1/4)/p)</code>, with <code>T_(j j') = δ_(j j') θ_j</code>.</td></tr>
+<tr><td>Orbit weight</td><td><code>w_p(n) = p<sup>−n</sup></code>, the source's proposed normalised local RT weight.</td></tr>
+<tr><td>Local Euler factor</td><td><code>1 − w_p(1) = 1 − 1/p</code>.</td></tr>
+<tr><td>Local determinant at <code>s = 1</code></td><td><code>(1 − p<sup>−1</sup>)<sup>−1</sup> = p/(p−1)</code>.</td></tr>
+</tbody>
+</table>
+<p>The Lean definition <code>PadicMTC.rtWeight p n</code> is exactly <code>w_p(n) = p<sup>−n</sup></code>. The theorems below concern this explicitly defined bookkeeping object. They do not assert that a geometrically defined Reshetikhin–Turaev invariant evaluates to it.</p>
+
+<h2>Theorem ledger</h2>
+<p>Every row marked <strong>Theorem</strong> is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every row marked <strong>Computation</strong> is exercised in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. Source claims and open items are not theorems of this reconstruction.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test evidence</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td><span class="tag">Theorem</span></td><td><code>w_p(n) &gt; 0</code> for every prime <code>p &gt; 0</code> and every <code>n</code>.</td><td><code>PadicMTC.rtWeight_pos</code></td></tr>
+<tr><td>T2</td><td><span class="tag">Theorem</span></td><td><code>w_p(n+m) = w_p(n) w_p(m)</code>: concatenating orbits multiplies weights.</td><td><code>PadicMTC.rtWeight_mul</code></td></tr>
+<tr><td>T3</td><td><span class="tag">Theorem</span></td><td>For <code>p &gt; 1</code>, <code>n ↦ w_p(n)</code> is strictly decreasing.</td><td><code>PadicMTC.rtWeight_strictAnti</code></td></tr>
+<tr><td>T4</td><td><span class="tag">Theorem</span></td><td><code>w_p(n) ≤ 1</code> for <code>p ≥ 1</code>.</td><td><code>PadicMTC.rtWeight_le_one</code></td></tr>
+<tr><td>T5</td><td><span class="tag">Theorem</span></td><td>Finite Euler bookkeeping: <code>(1 − w_p(1)) Σ_{k&lt;N} w_p(k) = 1 − w_p(N)</code>.</td><td><code>PadicMTC.partial_sum_bookkeeping</code></td></tr>
+<tr><td>T6</td><td><span class="tag">Theorem</span></td><td>The local weights sum to the Euler value: <code>Σ_n w_p(n) = p/(p−1)</code> for <code>p &gt; 1</code>.</td><td><code>PadicMTC.hasSum_rtWeight</code></td></tr>
+<tr><td>T7</td><td><span class="tag">Theorem</span></td><td><code>w_p(n) → 0</code> as <code>n → ∞</code> for <code>p &gt; 1</code>.</td><td><code>PadicMTC.rtWeight_tendsto_zero</code></td></tr>
+<tr><td>C1</td><td><span class="tag">Computation</span></td><td><code>w_p(n) = 1/p<sup>n</sup></code> exactly, multiplicative in <code>n</code>, positive, and strictly decreasing for <code>p ≤ 23</code>, <code>n, m ≤ 8</code>.</td><td><code>test_rt_weight_is_exact_multiplicative_and_positive</code></td></tr>
+<tr><td>C2</td><td><span class="tag">Computation</span></td><td>Exact partial sums satisfy <code>Σ_{k&lt;N} p<sup>−k</sup> = (1 − p<sup>−N</sup>)/(1 − p<sup>−1</sup>)</code>, and <code>(1 − p<sup>−1</sup>) · p/(p−1) = 1</code>.</td><td><code>test_local_determinant_bookkeeping_is_exact</code></td></tr>
+<tr><td>C3</td><td><span class="tag">Computation</span></td><td>Exact sine sum <code>Σ_{r=1}^{p−1} sin²(rπ/p) = p/2</code> and hence <code>D_p² = p/(2 sin²(π/p))</code> to <code>10<sup>−40</sup></code> for <code>p ≤ 23</code>.</td><td><code>test_total_quantum_dimension_identity_exactly_and_numerically</code></td></tr>
+<tr><td>C4</td><td><span class="tag">Computation</span></td><td><code>C_p</code> has <code>p − 1</code> simple objects; <code>d_0 = d_{(p−2)/2} = 1</code>.</td><td><code>test_simple_object_count_and_quantum_dimension_edge_values</code></td></tr>
+<tr><td>C5</td><td><span class="tag">Computation</span></td><td><code>S</code> is symmetric and <code>S² = I</code> to <code>10<sup>−30</sup></code> for <code>p ≤ 13</code>.</td><td><code>test_verlinde_s_matrix_is_a_symmetric_involution</code></td></tr>
+<tr><td>C6</td><td><span class="tag">Computation</span></td><td>The archived Gauss-sum identity fails, with residual <code>&gt; 0.1</code>, for <code>p ∈ {3,5,7,11}</code>.</td><td><code>test_archived_gauss_sum_identity_fails</code></td></tr>
+<tr><td>C7</td><td><span class="tag">Computation</span></td><td>Out-of-domain primes (<code>2, 4, 9, 15</code>), negative lengths, and out-of-range spins are rejected.</td><td><code>test_out_of_domain_primes_and_spins_are_rejected</code></td></tr>
+<tr><td>S1</td><td><span class="tag">Source claim</span></td><td>The RT invariant of the braid from any length-<code>n</code> periodic orbit equals <code>p<sup>−n</sup></code>.</td><td>Archived claim; proof only sketched. Not formalised.</td></tr>
+<tr><td>S2</td><td><span class="tag">Source claim</span></td><td>The tree shift has <code>p<sup>n</sup> + 1</code> length-<code>n</code> periodic orbits.</td><td>Archived claim; not established here.</td></tr>
+<tr><td>S3</td><td><span class="tag">Source claim</span></td><td>The local Fredholm determinant is <code>(1 − p<sup>−s</sup>)<sup>−1</sup></code> for <code>Re(s) &gt; 1</code>.</td><td>Archived claim; only the <code>s = 1</code> arithmetic bookkeeping is reconstructed.</td></tr>
+<tr><td>S4</td><td><span class="tag">Source claim</span></td><td>The global determinant equals <code>ζ̂(s) e<sup>P(s)</sup></code>.</td><td>Archived claim; no operator is constructed here.</td></tr>
+<tr><td>S5</td><td><span class="tag">Source claim</span></td><td>The functional equation follows from modular invariance of a product theta series.</td><td>Archived claim; not formalised.</td></tr>
+<tr><td>S6</td><td><span class="tag">Source claim</span></td><td>The entropy/Perron–Frobenius argument excludes zeros off the critical line.</td><td>Archived claim; not formalised.</td></tr>
+<tr><td>S7</td><td><span class="tag">Source claim</span></td><td>The winding number vanishes and the Riemann hypothesis follows.</td><td>Archived claim; RH is <strong>not</strong> proved here.</td></tr>
+<tr><td>S8</td><td><span class="tag">Source claim</span></td><td>The Gauss-sum identity <code>Σ_j d_j θ_j S_(j j') = τ_p S_(0 j')</code> holds.</td><td>Archived claim contradicted by C6; obstruction notes concede <code>G_p ≠ τ_p</code>.</td></tr>
+<tr><td>O1</td><td><span class="tag">Open / conjecture</span></td><td>Give a precise construction of the framed braid and its Seifert invariants from a tree orbit.</td><td>Open; missing in the source.</td></tr>
+<tr><td>O2</td><td><span class="tag">Open / conjecture</span></td><td>Prove or repair the periodic-orbit count <code>p<sup>n</sup> + 1</code>.</td><td>Open; the boundary map <code>z ↦ pz</code> appears to have only the fixed points <code>0</code> and <code>∞</code>.</td></tr>
+<tr><td>O3</td><td><span class="tag">Open / conjecture</span></td><td>Derive <code>RT(β) = p<sup>−n</sup></code> from the Verlinde/Kirby–Melvin formula.</td><td>Open; the source's Gauss-sum route fails.</td></tr>
+<tr><td>O4</td><td><span class="tag">Open / conjecture</span></td><td>Define the local operator and prove its Fredholm determinant.</td><td>Open; only its proposed weight series is reconstructed.</td></tr>
+<tr><td>O5</td><td><span class="tag">Open / conjecture</span></td><td>Construct the restricted tensor product and prove the global determinant identity.</td><td>Open; no such operator is defined in the source.</td></tr>
+<tr><td>O6</td><td><span class="tag">Open / conjecture</span></td><td>Establish any bridge from this categorical data to the zeros of <code>ζ</code>.</td><td>Open; the archived RH conclusion is unsupported.</td></tr>
+</tbody>
+</table>
+
+<h3>Source claims, with their archived status</h3>
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>Complete proof of RH via adelic transfer operators and prime-indexed MTCs</td><td>Archived claim, stated as a theorem in the source</td><td>Not a theorem here. The companion materials are incomplete, and the Gauss-sum step fails.</td></tr>
+<tr><td>Exact local RT weight <code>p<sup>−n</sup></code></td><td>Source “Theorem 4”, proof sketch</td><td>Only the arithmetic weight <code>w_p(n) = p<sup>−n</sup></code> is formalised (T1–T7); its geometric realisation is open (O3).</td></tr>
+<tr><td><code>p<sup>n</sup> + 1</code> periodic orbits</td><td>Source claim in §3</td><td>Not formalised; the stated count is not derived from the boundary dynamics.</td></tr>
+<tr><td>Local determinant <code>(1 − p<sup>−s</sup>)<sup>−1</sup></code></td><td>Source claim in §5</td><td>The <code>s = 1</code> Euler-factor sum is proved (T5–T6); the Fredholm determinant itself is not defined.</td></tr>
+<tr><td>Global determinant <code>ζ̂(s) e<sup>P(s)</sup></code></td><td>Source claim in §5</td><td>Not formalised.</td></tr>
+<tr><td>Functional equation from modular invariance</td><td>Source claim in §6</td><td>Not formalised.</td></tr>
+<tr><td>Reality of the spectrum / entropy exclusion</td><td>Source proposition in §7</td><td>Not formalised.</td></tr>
+<tr><td>Vanishing winding number and RH</td><td>Source claim in §8</td><td>Not formalised; recorded as an archived claim, never as a theorem.</td></tr>
+<tr><td>Appendix Gauss-sum identity</td><td>Source claim</td><td>Fails numerically (C6); explicitly flagged by the archived obstruction notes.</td></tr>
+</tbody>
+</table>
+
+<h2>Open items and known gaps</h2>
+<ol>
+<li><strong>The source is not a proof.</strong> The main HTML advertises a complete unconditional proof, but the companion thesis is a <code>TODO</code> skeleton, the prompt tree lists unresolved obstructions, and the appendix identity is false for small <code>p</code>. Treat the whole document as an archived claim.</li>
+<li><strong>The braid-to-manifold construction is missing.</strong> No explicit braid word, framing, or Seifert data is supplied, so <code>RT(β)</code> is not even defined in the source.</li>
+<li><strong>The local weight is assumed, not derived.</strong> The formal core defines <code>w_p(n) = p<sup>−n</sup></code> and proves its bookkeeping properties. It does not prove that a Reshetikhin–Turaev invariant equals it.</li>
+<li><strong>The global operator does not exist in the source.</strong> The restricted tensor product, its domain, self-adjointness, and the determinant identity are asserted without construction.</li>
+<li><strong>No RH consequence is established.</strong> The entropy and winding-number arguments are sketches; even if the local determinant were correct, the passage to the zeros of <code>ζ</code> would remain open.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> implements:</p>
+<ul>
+<li><code>simple_spins(p)</code>, <code>simple_object_count(p)</code>, <code>quantum_dimension(p, j)</code>, <code>total_quantum_dimension_sq(p)</code>;</li>
+<li><code>sine_square_sum_exact(p)</code> (exact cyclotomic computation);</li>
+<li><code>rt_weight(p, n)</code>, <code>local_partial_sum</code>, <code>local_partial_sum_closed</code>, <code>local_factor</code>, <code>local_determinant_limit</code>;</li>
+<li><code>verlinde_s(p, j, jp)</code>, <code>verlinde_s_squared_error(p)</code>;</li>
+<li><code>archived_gauss_sum_residual(p)</code>, recording the failure of the archived Gauss-sum identity;</li>
+<li><code>is_source_prime(p)</code> for the source's domain.</li>
+</ul>
+<p>Exact arithmetic uses <code>fractions.Fraction</code> and <code>sympy</code>; the <code>S</code>-matrix and Gauss-sum checks use <code>mpmath</code> at 40 decimal digits. The tolerance is <code>10<sup>−30</sup></code> for <code>S² = I</code> and <code>10<sup>−40</sup></code> for the quantum-dimension identity.</p>
+<pre><code>cd the-final-letter/topics/rh-mtc-padic
+python3 -m pytest -q tests</code></pre>
+<p>Current result: <strong>7 passed</strong> (about 3.5 s).</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, works in the namespace <code>PadicMTC</code>, defines <code>rtWeight p n = 1 / p<sup>n</sup></code>, and proves T1–T7. The proofs use only elementary order, power, geometric-series, and field facts. There is no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/rh-mtc-padic
+./lean/check.sh 2>&1 | tee lean/BUILD.log</code></pre>
+<p>The recorded build is <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a>. See <a href="lean/README.md"><code>lean/README.md</code></a> for the precise boundary between the formal core and the archived claims.</p>
+
+<h2>Provenance and links</h2>
+<ul>
+<li>Source page: <a href="../../archive/maths/rh/research/rh-mtc/padic-mtc.html"><code>padic-mtc.html</code></a> — inventory item 21, marked <em>archived claim</em> and <em>duplicate</em>.</li>
+<li>Companion thesis: <a href="../../archive/maths/rh/research/rh-mtc/thesis.html"><code>thesis.html</code></a> — incomplete, section-by-section <code>TODO</code>.</li>
+<li>Obstruction notes: <a href="../../archive/maths/rh/research/rh-mtc/resolve-obstructions.md"><code>resolve-obstructions.md</code></a> — records the missing Seifert invariants and <code>G_p ≠ τ_p</code>.</li>
+<li>Prompt tree: <a href="../../archive/maths/rh/research/rh-mtc/RH_Prompt_Tree_Padic_MTC.md"><code>RH_Prompt_Tree_Padic_MTC.md</code></a>.</li>
+<li>Overlapping programme: <a href="../adelic-transfer-operator/README.md">adelic transfer operator</a>.</li>
+<li>Inventory: <a href="../../scraps.html">Scraps</a> · <a href="../README.md">Topic index</a>.</li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body>
+</html>

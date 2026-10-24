@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Programme III — categorical Dirichlet polynomials</title>
+<style>
+:root{--ink:#1a202c;--muted:#555;--rule:#d8d8d8;--tint:#f3f5f7;--link:#1a5fb4}
+*{box-sizing:border-box}
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:var(--ink);background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid var(--rule);padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.6rem;font-size:1.08rem}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:var(--muted);font-size:1.05rem;font-style:italic}
+.top{background:var(--tint);border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.warn{border-left:4px solid #b45309;background:#fff8ef;padding:.7rem 1rem;border-radius:4px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+th,td{border:1px solid var(--rule);padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+.meta{color:var(--muted);font-size:.94rem}
+pre{background:#f6f8fa;border:1px solid var(--rule);padding:.8rem 1rem;overflow-x:auto;border-radius:6px}
+ul,ol{padding-left:1.4rem}
+</style>
+</head>
+<body>
+
+<h1>Research Programme III</h1>
+<p class="sub">Categorical Dirichlet polynomials — proposal, finite formal core, and open limits</p>
+
+<div class="top">
+<p><strong>Status.</strong> Proposal, reconstructed as a small finite formal core. Every limit and Riemann-hypothesis claim remains open or a source claim. The full dossier is in <a href="README.md">README.md</a>.</p>
+</div>
+
+<div class="warn">
+<p><strong>This folder does not prove the Riemann hypothesis, the convergence of the categorical polynomials to <code>ζ(2s)</code>, or the Quantum–Egyptian functional equation.</strong> The archived proposal is a research plan. Companion manuscripts in the same source folder dispute two of its central claims.</p>
+</div>
+
+<h2>Provenance and status</h2>
+<p>The specified source is <a href="../../archive/maths/rh/research/programme%203/01-research-programme.tex"><code>01-research-programme.tex</code></a>, a five-phase proposal: construct finite-level categorical Dirichlet polynomials <code>Ψ_k(s)</code>, prove <code>Ψ̂_k(s) → ζ(2s)</code>, derive a finite-level explicit formula, control the zero distribution, and conclude RH for <code>ζ(s)</code> in the limit.</p>
+<p>The same archived folder contains two further manuscripts:</p>
+<ul>
+<li><a href="../../archive/maths/rh/research/programme%203/categorical-dirichlet-polynomials.tex"><code>categorical-dirichlet-polynomials.tex</code></a>, which argues that the normalised polynomials converge to <code>0</code> for <code>Re s &gt; 1/2</code> rather than to <code>ζ(2s)</code>, and that the Mellin exponent in the QEFE derivation is mismatched;</li>
+<li><a href="../../archive/maths/rh/research/programme%203/categorical-dirichlet.tex"><code>categorical-dirichlet.tex</code></a>, which gives a character-sum heuristic for a vanishing limit and contains a visibly incomplete lower-bound argument inside its own proof.</li>
+</ul>
+<p>Those companion texts are <em>also</em> source claims. Neither has been checked line by line here. They are cited because ignoring them would make the dossier misleading. The net position is: <strong>the limit question is contested and open</strong>, not settled in either direction.</p>
+
+<h2>Objects and notation</h2>
+<p>For a level <code>k ≥ 1</code> put <code>N = k + 2</code>. The simple objects of <code>SU(2)_k</code> are labelled by spins <code>j = 0, 1/2, …, k/2</code>, equivalently by the integers <code>n = 2j+1 ∈ {1,2,…,N−1}</code>.</p>
+<table>
+<thead><tr><th>Object</th><th>Definition in the proposal</th></tr></thead>
+<tbody>
+<tr><td>Quantum dimension</td><td><code>d_n = sin(π n / N) / sin(π / N)</code></td></tr>
+<tr><td>Total quantum dimension squared</td><td><code>D_k² = N / (4 sin²(π / N))</code></td></tr>
+<tr><td>Egyptian denominator</td><td><code>m_n = D_k² / d_n² = N / (4 sin²(π n / N))</code></td></tr>
+<tr><td>Sign character</td><td><code>χ_n ∈ {+1,−1}</code>, a Galois sign attached to the object</td></tr>
+<tr><td>Categorical Dirichlet polynomial</td><td><code>Ψ_k(s) = Σ_n χ_n m_n^{−s}</code></td></tr>
+<tr><td>Completed function</td><td><code>Λ_k(s) = (D_k²/π)^{s/2} Γ((s+a_k)/2) Ψ_k(s/2)</code></td></tr>
+<tr><td>Normalised polynomial</td><td><code>Ψ̂_k(s) = Ψ_k(s) / Ψ_k(1/2)</code></td></tr>
+</tbody>
+</table>
+<p>The sign character <code>χ</code> is described abstractly in the proposal (a homomorphism from the Grothendieck ring to <code>{±1}</code>). No explicit formula for <code>χ</code> is given in <code>01-research-programme.tex</code>; the companion manuscripts propose the Jacobi symbol, but that identification is not verified here. The Python layer therefore requires the signs to be supplied by the caller.</p>
+
+<h3>Internal inconsistencies found while reconstructing</h3>
+<ol>
+<li><strong>Factor of two in <code>D_k²</code>.</strong> The standard <code>SU(2)_k</code> value is <code>N/(2 sin²(π/N))</code>, not <code>N/(4 sin²(π/N))</code>. The latter is the literal formula in the proposal, so it is the one implemented. With the literal formula the midpoint denominator is <code>N/4</code>, which need not be an integer.</li>
+<li><strong>The assertion “all <code>m_{j,k}</code> are integers” fails for the literal formula.</strong> At <code>k = 3</code> and <code>n = 1</code> the value is <code>(5+√5)/2</code>; at <code>k = 4</code> and <code>n = 3</code> it is <code>3/2</code>. Computation C4 records this counterexample. With the standard factor <code>2</code> the values at these levels are integers.</li>
+<li><strong>The stated asymptotic constant is inconsistent.</strong> The proposal writes <code>m_n ∼ N³/(3π² n²)</code>; the literal definition gives <code>N³/(4π² n²)</code>. Computation C7 verifies the <code>1/(4π²)</code> constant numerically to high precision.</li>
+<li><strong>Parity of <code>n</code>.</strong> Half-integer spins give even <code>n</code>, so the object labels are all integers <code>1, …, N−1</code>, not only odd integers. This is respected in both the Python and Lean layers.</li>
+</ol>
+
+<h2>Theorem ledger</h2>
+<p>Every row marked <strong>Theorem</strong> is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every row marked <strong>Computation</strong> has a test in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>Reflection symmetry of quantum dimensions: <code>qdim N (N − n) = qdim N n</code>.</td><td><code>RPIII.qdim_symm</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>Reflection symmetry of Egyptian denominators: <code>m(N − n) = m(n)</code>.</td><td><code>RPIII.egyptianDenom_symm</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>Positivity of the Egyptian denominator for <code>0 &lt; n &lt; N</code>, <code>N &gt; 0</code>.</td><td><code>RPIII.egyptianDenom_pos</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>Exact midpoint value <code>m(N/2) = N/4</code> for <code>N ≠ 0</code>.</td><td><code>RPIII.egyptianDenom_mid</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>The triangle bound <code>|Σ χ_n m_n^{−s}| ≤ Σ m_n^{−s}</code> for real <code>s</code> and <code>|χ_n| = 1</code>.</td><td><code>RPIII.psi_abs_le</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>Conditional zero reflection: if <code>Λ s = ε conj(Λ(1−s))</code>, <code>ε = ±1</code>, and <code>Λ(conj s) = conj(Λ s)</code>, then <code>Λ ρ = 0 ⇒ Λ(1−conj ρ) = 0</code>.</td><td><code>RPIII.zero_reflection</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>Positivity of the explicit-formula weight <code>log m / √m</code> for <code>m &gt; 1</code>.</td><td><code>RPIII.log_weight_pos</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td><code>d_n = d_{N−n}</code> exactly for levels <code>k ≤ 10</code>.</td><td><code>test_quantum_dimension_symmetry_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>The defining ratio <code>D_k²/d_n²</code> equals <code>N/(4 sin²(π n/N))</code> exactly for <code>k ≤ 8</code>.</td><td><code>test_egyptian_denominator_is_dimension_ratio_exact</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>At the reflection fixed point <code>n = N/2</code>, <code>m_n = N/4</code> exactly for even <code>k ≤ 12</code>.</td><td><code>test_midpoint_denominator_is_exact_rational</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>The literal integrality claim fails: <code>m_{0,3} = (5+√5)/2</code>, and the midpoint fixed point does not exist for odd <code>N</code>.</td><td><code>test_literal_integrality_claim_fails_at_k3</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>The exact triangle bound holds for a non-trivial sign pattern.</td><td><code>test_psi_obeys_trivial_triangle_bound</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>The normalisation <code>Ψ̂_k(s) = Ψ_k(s)/Ψ_k(1/2)</code> equals <code>1</code> at <code>s = 1/2</code>.</td><td><code>test_normalisation_fixes_value_at_half</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>The literal leading constant is <code>1/(4π²)</code>, not <code>1/(3π²)</code>; checked at <code>N = 4002</code> with tolerance <code>1e-8</code>.</td><td><code>test_literal_leading_constant_is_one_over_four_pi_squared</code></td></tr>
+<tr><td>S1</td><td>Source claim</td><td><code>D_k² = N/(4 sin²(π/N))</code> and <code>m_n = N/(4 sin²(π n/N))</code>.</td><td>Source definition; implemented literally. See S1 below.</td></tr>
+<tr><td>S2</td><td>Source claim</td><td>All <code>m_{j,k}</code> are integers.</td><td>Asserted; contradicted by C4. Not proved.</td></tr>
+<tr><td>S3</td><td>Source claim</td><td><code>m_{j,k} ∼ N³/(3π²(2j+1)²)</code>.</td><td>Asserted; contradicted by C7. Not proved.</td></tr>
+<tr><td>S4</td><td>Source claim</td><td>The QEFE <code>Λ_k(s) = ε_k conj(Λ_k(1−s))</code>.</td><td>Cited to QEFE Thm 3.5; contested. Not formalised.</td></tr>
+<tr><td>S5</td><td>Source claim</td><td><code>Ψ̂_k(s) → ζ(2s)</code> uniformly on compact subsets of <code>Re s &gt; 1/2</code>.</td><td>Numerical evidence in the source; contested by companion manuscripts. Open.</td></tr>
+<tr><td>S6</td><td>Source claim</td><td><code>Λ_k</code> has finitely many zeros, symmetric about <code>Re s = 1/2</code>, with an explicit formula.</td><td>Phase 3 proposal; not formalised.</td></tr>
+<tr><td>S7</td><td>Source claim</td><td>In the limit all zeros lie on the critical line, proving RH.</td><td>Ultimate goal; open.</td></tr>
+<tr><td>O1</td><td>Open / conjecture</td><td>Determine whether <code>Ψ̂_k(s)</code> converges at all, and if so to what.</td><td>Open / contested.</td></tr>
+<tr><td>O2</td><td>Open / conjecture</td><td>Correct and prove the QEFE for a suitable theta function.</td><td>Open.</td></tr>
+<tr><td>O3</td><td>Open / conjecture</td><td>Derive the finite-level explicit formula with explicit gamma terms.</td><td>Open.</td></tr>
+<tr><td>O4</td><td>Open / conjecture</td><td>Prove a zero-distribution or critical-line statement for <code>Λ_k</code>.</td><td>Open.</td></tr>
+<tr><td>O5</td><td>Open / conjecture</td><td>Determine the Galois signs <code>χ_{j,k}</code> explicitly.</td><td>Open.</td></tr>
+<tr><td>O6</td><td>Open / conjecture</td><td>Reconcile the factor of two in <code>D_k²</code> and the integrality/asymptotic claims.</td><td>Open; see inconsistencies above.</td></tr>
+</tbody>
+</table>
+<p>T6 is deliberately conditional. It proves the elementary symmetry mechanism, not that the proposal's <code>Λ_k</code> satisfies its hypotheses. The proposal asserts the functional equation; the companion manuscript disputes its derivation.</p>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<table>
+<thead><tr><th>#</th><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>S1</td><td><code>D_k² = N/(4 sin²(π/N))</code> and <code>m_n = N/(4 sin²(π n/N))</code></td><td>Definition in the proposal</td><td>Implemented literally. The factor differs from the standard <code>SU(2)_k</code> value; see inconsistency 1.</td></tr>
+<tr><td>S2</td><td>All <code>m_{j,k}</code> are integers.</td><td>Asserted in the proposal</td><td><strong>Contradicted by C4</strong> for the literal definition. Not a theorem.</td></tr>
+<tr><td>S3</td><td><code>m_{j,k} ∼ N³/(3π²(2j+1)²)</code> as <code>k → ∞</code>.</td><td>Asserted in the proposal</td><td><strong>Contradicted by C7</strong> for the literal definition, which gives <code>1/(4π²)</code>. Not a theorem.</td></tr>
+<tr><td>S4</td><td>The QEFE <code>Λ_k(s) = ε_k conj(Λ_k(1−s))</code>.</td><td>Proposal cites QEFE Theorem 3.5</td><td>Contested: the companion manuscript reports a Mellin-exponent mismatch. Not formalised.</td></tr>
+<tr><td>S5</td><td><code>Ψ̂_k(s) → ζ(2s)</code> uniformly on compact subsets of <code>Re s &gt; 1/2</code>, away from the pole.</td><td>Proposal calls it numerical evidence and a central task</td><td>Contested: companion manuscripts claim the normalised limit is <code>0</code>. Open, not a theorem.</td></tr>
+<tr><td>S6</td><td><code>Λ_k</code> has finitely many zeros, symmetric about <code>Re s = 1/2</code>, with a finite-level explicit formula.</td><td>Proposal's Phase 3</td><td>Not formalised. T6 only proves the abstract reflection mechanism.</td></tr>
+<tr><td>S7</td><td>In the limit all zeros lie on the critical line, proving RH.</td><td>Proposal's ultimate goal</td><td>Open. Not claimed here.</td></tr>
+</tbody>
+</table>
+
+<h2>Open items and known gaps</h2>
+<ol>
+<li><strong>Convergence to <code>ζ(2s)</code>.</strong> The source gives numerical evidence; the companion manuscripts claim the opposite. A precise statement, a corrected normalisation, and a proof (or disproof) are all missing.</li>
+<li><strong>The QEFE.</strong> The theta-function modular relation and the Mellin exponent need an independent check. The companion critique is itself not fully rigorous.</li>
+<li><strong>The explicit formula.</strong> The finite-level formula is asserted, not derived here. The gamma terms and the exact test-function class are unspecified.</li>
+<li><strong>Zero distribution and the critical line.</strong> No zero-counting or Levinson/Rouché argument is formalised.</li>
+<li><strong>The Galois signs <code>χ_{j,k}</code>.</strong> <code>01-research-programme.tex</code> gives no explicit formula. The Jacobi-symbol proposal in the companion manuscript is unverified.</li>
+<li><strong>Integrality and normalisation.</strong> The literal <code>D_k²</code> formula and the integrality claim are incompatible. A corrected reconstruction should choose the standard factor <code>2</code> and re-derive the asymptotics.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> uses exact sympy algebra:</p>
+<ul>
+<li><code>level_size(k)</code>, <code>object_indices(k)</code>;</li>
+<li><code>quantum_dimension(k, n)</code>, <code>total_quantum_dimension_squared(k)</code>;</li>
+<li><code>egyptian_denominator(k, n)</code>, <code>egyptian_denominator_from_ratio(k, n)</code>;</li>
+<li><code>midpoint_denominator(k)</code>;</li>
+<li><code>psi(k, s, signs)</code>, <code>trivial_bound(k, sigma)</code>, <code>normalised_psi(k, s, signs)</code>;</li>
+<li><code>scaled_leading_term(k, n)</code>.</li>
+</ul>
+<p>The signs are supplied by the caller; the default all-ones pattern is a bookkeeping device, not a claim about the modular tensor category. The module raises <code>ValueError</code> for invalid levels, labels, or signs, and <code>ZeroDivisionError</code> when a chosen sign pattern makes <code>Ψ_k(1/2) = 0</code>.</p>
+<pre><code>cd the-final-letter/topics/research-programme-iii
+python3 -m pytest -q tests</code></pre>
+<p>Current result: <strong>8 passed</strong> (under one second).</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib and defines <code>RPIII.qdim</code>, <code>RPIII.D2</code>, <code>RPIII.egyptianDenom</code>, and <code>RPIII.psi</code>. It proves T1–T7. There is no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/research-programme-iii
+./lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK Topic.lean</code>. See <a href="lean/README.md"><code>lean/README.md</code></a> for what is and is not formalised.</p>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../archive/maths/rh/research/programme%203/01-research-programme.tex"><code>01-research-programme.tex</code></a> — the proposal.</li>
+<li><a href="../../archive/maths/rh/research/programme%203/categorical-dirichlet-polynomials.tex"><code>categorical-dirichlet-polynomials.tex</code></a> — companion critique of the limit and the QEFE.</li>
+<li><a href="../../archive/maths/rh/research/programme%203/categorical-dirichlet.tex"><code>categorical-dirichlet.tex</code></a> — companion character-sum analysis.</li>
+<li><a href="../../scraps.html">Scraps</a> — inventory entry 20.</li>
+<li><a href="../README.md">Topic index</a> — all topic folders.</li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body>
+</html>

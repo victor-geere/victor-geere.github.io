@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Can Routes A, B, C be generalised? — an audit of generality, instantiation, and hard limits</title>
+<style>
+  :root{ --ink:#17202a; --muted:#5b6b7c; --rule:#d8dee6; --bg:#fdfdfb;
+    --accent:#7a2e2e; --accent2:#1f4e79; --code:#f4f6f8; --mark:#fff6d5; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.68 Georgia,"Iowan Old Style","Times New Roman",serif;}
+  .wrap{max-width:60rem;margin:0 auto;padding:3.2rem 1.6rem 6rem}
+  header.title{border-bottom:3px double var(--rule);padding-bottom:1.6rem;margin-bottom:2rem}
+  h1{font-size:1.62rem;line-height:1.28;margin:0 0 .5rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1rem;margin:.35rem 0 0}
+  .meta{font-size:.86rem;color:var(--muted);margin-top:1rem;line-height:1.7}
+  .meta code{font-size:.85em}
+  h2{font-size:1.22rem;margin:2.9rem 0 .9rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);color:var(--accent2)}
+  h3{font-size:1.03rem;margin:1.9rem 0 .6rem;color:var(--accent)}
+  h4{font-size:.96rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  a{color:var(--accent2)}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);padding:.08em .32em;border-radius:3px;font-size:.88em}
+  pre{background:var(--code);border:1px solid var(--rule);border-left:3px solid var(--accent2);
+      padding:.85rem 1rem;overflow-x:auto;font-size:.83rem;line-height:1.5;border-radius:4px}
+  pre code{background:none;padding:0;font-size:1em}
+  .box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:#fff;
+       padding:.9rem 1.1rem;margin:1.2rem 0;border-radius:4px}
+  .box.def{border-left-color:var(--accent2);background:#f8fafc}
+  .box.res{border-left-color:#1e6b3a;background:#f6fbf7}
+  .box.why{border-left-color:#7a4e9e;background:#f9f6fc}
+  .box.warn{border-left-color:#8a1c1c;background:#fdf6f6;border-color:#e2b6b6}
+  .box.warn h4{color:#8a1c1c}
+  .box h4{margin-top:0}
+  .box.why h4{color:#7a4e9e}
+  table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.44rem .6rem;text-align:left;vertical-align:top}
+  th{background:#f2f5f8;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  nav#toc{background:#f7f9fb;border:1px solid var(--rule);border-radius:5px;padding:1rem 1.3rem;margin:1.6rem 0 2.6rem}
+  nav#toc h2{margin:0 0 .5rem;border:none;font-size:1rem;color:var(--accent2)}
+  nav#toc ol{margin:.2rem 0 0;padding-left:1.4rem;columns:2;column-gap:2.4rem}
+  nav#toc li{margin:.18rem 0;break-inside:avoid}
+  nav#toc a{text-decoration:none}
+  nav#toc a:hover{text-decoration:underline}
+  .abstract{background:#fff;border:1px solid var(--rule);border-radius:5px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  .abstract h2{margin:0 0 .5rem;border:none;font-size:1rem}
+  .kw{font-size:.88rem;color:var(--muted);margin-top:.7rem}
+  ul,ol{padding-left:1.4rem} li{margin:.3rem 0}
+  hr{border:none;border-top:1px solid var(--rule);margin:2.4rem 0}
+  .small{font-size:.87rem;color:var(--muted)}
+  .refs{font-size:.92rem} .refs li{margin:.5rem 0}
+  .eq{display:block;margin:.9rem 0 .9rem 1.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.9rem}
+  .status{display:inline-block;font-size:.74rem;padding:.1em .5em;border-radius:10px;vertical-align:middle;
+          letter-spacing:.02em;font-family:system-ui,sans-serif;white-space:nowrap}
+  .s-yes{background:#e2f3e8;color:#14602f;border:1px solid #a9d8ba}
+  .s-part{background:#fdf3e2;color:#8a5a14;border:1px solid #e2cba9}
+  .s-no{background:#f6e0e0;color:#8a1c1c;border:1px solid #e2b6b6}
+  .s-info{background:#e8eef7;color:#1c3f66;border:1px solid #aec6e2}
+  .quote{background:#faf8f4;border-left:3px solid var(--accent);padding:.6rem 1rem;margin:1rem 0;
+         border-radius:0 4px 4px 0;font-size:.94rem}
+  figure{margin:1.6rem 0;padding:0}
+  figure img{width:100%;height:auto;border:1px solid var(--rule);border-radius:5px;background:#fdfdfb}
+  figcaption{font-size:.85rem;color:var(--muted);margin-top:.45rem;line-height:1.5}
+  figcaption b{color:var(--ink)}
+  footer{margin-top:3.5rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.85rem;color:var(--muted)}
+  @media print{ body{background:#fff;font-size:11pt} nav#toc{break-inside:avoid} h2{break-after:avoid}
+    pre{break-inside:avoid} .box{break-inside:avoid} figure{break-inside:avoid} }
+  @media (max-width:640px){ nav#toc ol{columns:1} .wrap{padding:2rem .9rem 4rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>Can Routes A, B, C be generalised?</h1>
+  <p class="sub">An audit of the 010 certification strategies: what is <em>already</em> general in the
+  Lean (a great deal), what an instantiation to another <code>L</code>-function actually costs, which
+  parts are pure method and transfer for free, and which part &mdash; the step from a finite window
+  to all zeros &mdash; is not generalisable at all.</p>
+  <div class="meta">
+    <strong>Round:</strong> <code>research/twin-prime-parity/011/</code> &nbsp;&middot;&nbsp;
+    <strong>Sources audited:</strong> <code>010/lean/Rh45/{Routes,RouteBGeneral,XiEntire,ArgumentPrinciple}.lean</code>
+    &nbsp;&middot;&nbsp; <strong>New:</strong> <code>011/lean/Generic.lean</code>,
+    <code>011/notes/generality-lean.md</code> &nbsp;&middot;&nbsp;
+    <strong>Answer in one line:</strong> <span class="status s-yes">THE CORES ALREADY ARE</span>
+    &mdash; the <em>statements</em> are general, one <em>instantiation</em> (Dirichlet <code>L</code>)
+    is one substantive Mathlib gap away, and <em>RH-strength</em> generalisation is impossible.
+  </div>
+</header>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>
+We ask whether the three certification routes of round 010 &mdash; Route&nbsp;A (a sign change plus a
+one-signed derivative pins down one simple on-line zero), Route&nbsp;B (a rigorous <em>count</em>
+plus matching certificates closes a whole window), Route&nbsp;C (a validated error budget for the
+explicit formula) &mdash; generalise beyond the Riemann zeta function. The answer is layered, and the
+first layer is an audit result that is easy to miss: <strong>the theorem cores are already general in
+the Lean</strong>. <code>exists_unique_root_of_sign_change</code> is stated for an arbitrary
+continuous <code>f : &#8477; &rarr; &#8477;</code>; <code>turing_reduction</code> is stated for an
+arbitrary <code>Finset &alpha;</code>; <code>routeB_reduction_general</code> is stated for an arbitrary
+<code>f : &#8450; &rarr; &#8450;</code> satisfying only a functional equation
+<code>f(1&minus;s) = f(s)</code>, a conjugation reality <code>f(conj s) = conj(f s)</code>, analyticity
+on the rectangle, and zero data; and <code>validated_truncation_bound</code> is a triangle inequality
+about an arbitrary decomposition. So &ldquo;can they be generalised?&rdquo; has the slightly awkward
+answer &ldquo;they are&rdquo;: what is <em>not</em> general is the per-object <strong>instantiation</strong>
+&mdash; an interval evaluator, a functional equation, reality, and an explicit formula. We make the
+instantiation question concrete on the best-supported second object in Mathlib, the
+<strong>Dirichlet <code>L</code>-function</strong>: Mathlib has <code>completedLFunction</code>,
+<code>rootNumber</code>, and the functional equation
+<code>IsPrimitive.completedLFunction_one_sub</code>; we prove the normalisation
+<code>h(s) = N<sup>s/2</sup>&Lambda;(s)</code> with <code>h(1&minus;s) = &epsilon;&middot;h(s)</code> and
+show that Route&nbsp;B does not in fact need the bare self-duality <code>F(1&minus;s) = F(s)</code> but
+only its logarithmic derivative <code>logDeriv F (1&minus;s) = &minus;logDeriv F(s)</code>, which
+survives <code>h(1&minus;s) = &epsilon;h(s)</code> for <em>every</em> <code>&epsilon; &ne; 0</code> &mdash;
+so the root number is not the obstruction it appears to be. The instantiation then reduces to one
+substantive Mathlib gap, the conjugation reality of <code>completedLFunction</code> &mdash; and
+<strong>that gap is closed here</strong>: we prove
+<code>&Lambda;<sub>&chi;</sub>(conj s) = conj(&Lambda;<sub>&chi;</sub>(s))</code> for every character with
+real values, in <em>all</em> cases (nontrivial, trivial, any modulus), with the completed Riemann zeta
+case as a corollary; a second, purely proof-technical hypothesis
+(<code>&epsilon; &isin; {&plusmn;1}</code>) appears in the landed statement but is not needed by the
+underlying reflection. We then separate four meanings of
+&ldquo;generalise&rdquo; and report where each one stops: statements (done), instantiations (partly
+available, costed here), method (fully transferable), and all-zeros conclusions (that is RH and
+therefore impossible).
+</p>
+<p class="kw"><strong>Keywords:</strong> generalisation; Turing&rsquo;s method; argument principle;
+Dirichlet <code>L</code>-functions; Selberg class; certified computation; Lean&nbsp;4; Mathlib.</p>
+</div>
+
+<nav id="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s1">Four things &ldquo;generalise&rdquo; can mean</a></li>
+  <li><a href="#s2">The audit: extract each route&rsquo;s actual hypotheses</a></li>
+  <li><a href="#s3">Route A &mdash; general for free, with one caveat</a></li>
+  <li><a href="#s4">Route B &mdash; the analytic core is already <code>&forall; f</code></a></li>
+  <li><a href="#s5">Route C &mdash; the assembly generalises, the content does not</a></li>
+  <li><a href="#s6">The generalisation ladder</a></li>
+  <li><a href="#s7">Worked instantiation: Dirichlet <code>L</code>-functions</a></li>
+  <li><a href="#s8">Target catalogue and what each needs</a></li>
+  <li><a href="#s9">What cannot be generalised</a></li>
+  <li><a href="#s10">Status, reproduction, references</a></li>
+</ol>
+</nav>
+
+<!-- ===================================================================== -->
+<h2 id="s1">1. Four things &ldquo;generalise&rdquo; can mean</h2>
+
+<p>
+The question is ambiguous, and the ambiguity hides the answer. We separate four readings, which we
+call L1&ndash;L4 and refer back to throughout.
+</p>
+<table>
+<thead><tr><th>rung</th><th>reading</th><th>what it would mean</th></tr></thead>
+<tbody>
+<tr><td><b>L1</b></td><td>generalise the <em>statements</em></td>
+    <td>the theorem should be about an arbitrary <code>f</code>, not about <code>&zeta;</code></td></tr>
+<tr><td><b>L2</b></td><td>generalise the <em>instantiation</em></td>
+    <td>the machinery should produce certificates for another arithmetic object (Dirichlet
+    <code>L</code>, Dedekind <code>&zeta;</code>, &hellip;)</td></tr>
+<tr><td><b>L3</b></td><td>generalise the <em>method</em></td>
+    <td>the proof pattern should transfer to new problems even without new theorems</td></tr>
+<tr><td><b>L4</b></td><td>generalise to <em>all</em> zeros</td>
+    <td>the routes should establish statements about every zero, not a finite window</td></tr>
+</tbody>
+</table>
+
+<figure>
+  <img src="figures/general-ladder.svg"
+       alt="Four rungs L1 to L4: L1 done, L2 partial, L3 transferable, L4 impossible.">
+  <figcaption><b>Figure 1 &mdash; the generality ladder.</b> L1 is already true and is verifiable by
+  reading the statements; L2 is the real question and is answered per-object in §7&ndash;§8; L3 is not
+  a theorem but a transferable technique; L4 is RH.</figcaption>
+</figure>
+
+<!-- ===================================================================== -->
+<h2 id="s2">2. The audit: extract each route&rsquo;s actual hypotheses</h2>
+
+<p>
+The first move is not to generalise anything but to <em>read</em> the existing theorems and record
+what they quantify over. This is the whole of L1, and it settles a surprising amount.
+</p>
+
+<figure>
+  <img src="figures/general-layers.svg"
+       alt="Three rows, Route A, B, C: each with a green 'already general' theorem core and an amber 'function-specific' instantiation column.">
+  <figcaption><b>Figure 2 &mdash; core versus instantiation.</b> The green column is what the Lean
+  already quantifies over; the amber column is the price of a new object. The audit of §2&ndash;§5
+  establishes that every entry in the green column is genuinely there, and every entry in the amber
+  column is genuinely <em>not</em>.</figcaption>
+</figure>
+
+<table>
+<thead><tr><th>route</th><th>theorem</th><th>quantifies over</th><th>function-specific inputs</th></tr></thead>
+<tbody>
+<tr><td>A</td><td><code>exists_unique_root_of_sign_change</code></td>
+    <td><code>f : &#8477; &rarr; &#8477;</code></td>
+    <td>an interval evaluator for <code>f</code> and <code>f&prime;</code></td></tr>
+<tr><td>A</td><td><code>certified_root_of_enclosures</code></td><td>same</td><td>the enclosures themselves</td></tr>
+<tr><td>B</td><td><code>turing_reduction</code></td><td><code>Finset &alpha;</code>, any <code>&alpha;</code></td>
+    <td>nothing &mdash; pure combinatorics</td></tr>
+<tr><td>B</td><td><code>routeB_reduction_general</code></td><td><code>f : &#8450; &rarr; &#8450;</code></td>
+    <td>functional equation, reality, zero data, <code>logDeriv</code> evaluator</td></tr>
+<tr><td>C</td><td><code>validated_truncation_bound</code></td><td>any three real tails</td>
+    <td>the explicit formula and a bound per tail</td></tr>
+</tbody>
+</table>
+
+<p>
+The reading is unambiguous, and it is why the honest answer to the headline question is not
+&ldquo;yes, with work&rdquo; but &ldquo;<strong>the cores already are</strong>; the work is in the
+instantiation&rdquo;.
+</p>
+
+<!-- ===================================================================== -->
+<h2 id="s3">3. Route A &mdash; general for free, with one caveat</h2>
+
+<p>
+Route A&rsquo;s statement contains no arithmetic whatsoever:
+</p>
+<div class="box res">
+<h4>Route A, as it stands (010, namespace <code>Rh45Routes</code>)</h4>
+<pre><code>theorem exists_unique_root_of_sign_change
+    {f : &#8477; &rarr; &#8477;} {a b : &#8477;} (hab : a &lt; b)
+    (hf  : ContinuousOn f (Icc a b))
+    (hf' : &#8704; x &#8712; Ioo a b, 0 &lt; deriv f x)
+    (ha  : f a &lt; 0) (hb : 0 &lt; f b) :
+    &#8707; x, x &#8712; Ioo a b &#8743; f x = 0 &#8743; 0 &lt; deriv f x &#8743;
+      &#8704; y, y &#8712; Ioo a b &rarr; f y = 0 &rarr; y = x</code></pre>
+</div>
+<p>
+Generalisation at L1 is therefore <em>vacuous</em>: there is nothing to generalise. What is
+function-specific is only how one obtains the three numerical hypotheses &mdash; a negative
+enclosure at <code>a</code>, a positive one at <code>b</code>, and a one-signed enclosure of
+<code>deriv f</code>. For <code>Z(t) = e<sup>i&theta;(t)</sup>&zeta;(&frac12;+it)</code> that is the
+interval engine <code>rigorous/eta_interval.py</code>; for another object it is a new evaluator.
+</p>
+<div class="box warn">
+<h4>Caveat: Route A generalises to <em>simple transversal</em> zeros only</h4>
+<p style="margin-bottom:0">
+The theorem concludes <code>0 &lt; deriv f x</code>. It therefore certifies exactly the zeros that are
+simple and <em>crossing</em>. A double zero on the line (if one existed) would be invisible to a sign
+change, and an even-order zero off the line is invisible to this route entirely. That is a genuine
+limitation of the <em>statement</em>, not of the formalisation, and it does not go away by
+generalising the function: the natural generalisation would be a <code>k</code>-th order certificate
+(<code>f</code> and its first <code>k&minus;1</code> derivatives vanish, the <code>k</code>-th is
+one-signed) &mdash; a real extension, not yet done, and not needed for simple zeros.
+</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="s4">4. Route B &mdash; the analytic core is already <code>&forall; f</code></h2>
+
+<h3>4.1 The combinatorial layer</h3>
+<p>
+Turing&rsquo;s reduction in 010 is stated for an <em>arbitrary</em> finite type:
+</p>
+<pre><code>theorem turing_reduction {&alpha;} [DecidableEq &alpha;] {zeros certified : Finset &alpha;}
+    (hsub  : certified &#8838; zeros) (hcard : zeros.card &#8804; certified.card) : zeros = certified</code></pre>
+<p>
+Nothing about complex analysis, nothing about <code>&zeta;</code>. This layer generalises to any
+object for which one has (i) a finite set of certified points and (ii) a rigorous upper bound on the
+size of the containing set. It applies verbatim to <code>L</code>-functions, to polynomial root
+counting, to eigenvalue counting &mdash; anywhere a count can be squeezed.
+</p>
+
+<h3>4.2 The analytic layer</h3>
+<p>
+The substantive theorem is <code>routeB_reduction_general</code>. This is the point where the
+generalisation question is actually decided, so we quote it in full:
+</p>
+<div class="box res">
+<h4>Route B, general form (010, namespace <code>Rh45RouteBAnalytic</code>)</h4>
+<pre><code>theorem routeB_reduction_general (f : &#8450; &rarr; &#8450;) (t0 t1 : &#8477;) (Z : Finset &#8450;) (m : &#8450; &rarr; &#8469;)
+    (ht : t0 &lt; t1)
+    (han : &#8704; s &#8712; (Set.uIcc (0 : &#8477;) 1 &#215;&#8450; Set.uIcc t0 t1), AnalyticAt &#8450; f s)
+    (hmem : &#8704; z &#8712; Z, 0 &lt; z.re &#8743; z.re &lt; 1 &#8743; t0 &lt; z.im &#8743; z.im &lt; t1)
+    (hm  : &#8704; z &#8712; Z, analyticOrderNatAt f z = m z)
+    (hno : &#8704; u &#8712; (Set.uIcc (0 : &#8477;) 1 &#215;&#8450; Set.uIcc t0 t1), u &#8713; Z &rarr; f u &#8800; 0)
+    (h1 : &#8704; s, f (1 - s) = f s) (h2 : &#8704; s, f (conj s) = conj (f s))
+    (hint&#8320; hint&#8321; : IntervalIntegrable &#8230;) :
+    (rightPath (logDeriv f) t0 t1).im = Real.pi * (&#8721; z &#8712; Z, (m z : &#8477;))</code></pre>
+<p class="small" style="margin-bottom:0">
+Not a single hypothesis mentions <code>&zeta;</code>, <code>&Gamma;</code>, primes, or <code>&pi;</code>
+&rsquo;s arithmetic role. The four analytic inputs are: <em>analyticity on the rectangle</em>, a
+<em>functional equation</em> <code>h1</code>, <em>conjugation reality</em> <code>h2</code>, and
+<em>zero data</em> (which zeros, with which orders, and that there are no others).</p>
+</div>
+
+<p>
+Consequently Route B <strong>already applies to every function of the right shape</strong>. The class
+described by <code>h1</code> + <code>h2</code> is exactly the class of <em>self-dual completed
+<code>L</code>-functions with real coefficients</em>: <code>&xi;(s) = &xi;(1&minus;s)</code> and
+<code>&xi;(conj s) = conj(&xi;(s))</code> is the completed-Riemann-zeta pattern, and it recurs for
+Dirichlet <code>L</code>-functions, Dedekind <code>&zeta;</code>, Hecke <code>L</code>-functions,
+and &mdash; axiomatically &mdash; the Selberg class. What differs between them is only how
+<code>h1</code>, <code>h2</code>, and the zero data are <em>obtained</em>.
+</p>
+
+<div class="box def">
+<h4>Definition 4.1 (the verification interface, made explicit in <code>011/lean/Generic.lean</code>)</h4>
+<pre><code>structure SelfDualReal (F : &#8450; &rarr; &#8450;) : Prop where
+  selfDual : &#8704; s, F (1 - s) = F s
+  conjSymm : &#8704; s, F (conj s) = conj (F s)</code></pre>
+<p class="small" style="margin-bottom:0">
+Packaging <code>h1</code> and <code>h2</code> this way makes the generalisation target explicit: to
+add a new object you supply a <code>SelfDualReal</code> instance plus a zero set, and Route B does
+the rest.</p>
+</div>
+
+<p>
+There is already a <em>worked</em> instance: <code>Rh45/XiEntire.lean</code> instantiates the general
+theorem at <code>&xi;(s) = &frac12;s(s&minus;1)&pi;<sup>&minus;s/2</sup>&Gamma;(s/2)&zeta;(s)</code>
+via <code>xi_routeB_general</code>, having first proved the two structural facts
+(<code>xi&#8320;_one_sub</code>, <code>xi&#8320;_conj</code>). So the pattern
+&ldquo;prove FE + reality, then instantiate&rdquo; is not speculation; it is the 010 route as built.
+</p>
+
+<!-- ===================================================================== -->
+<h2 id="s5">5. Route C &mdash; the assembly generalises, the content does not</h2>
+
+<p>
+Route C&rsquo;s Lean content is one line of algebra plus the triangle inequality:
+</p>
+<pre><code>theorem validated_truncation_bound
+    {lhs rhsTrue rhsComputed zeroTail primeTail archTail : &#8477;}
+    (hlhs : lhs = rhsTrue) (hsplit : rhsTrue = rhsComputed + (zeroTail + primeTail + archTail)) :
+    |lhs - rhsComputed| &#8804; |zeroTail| + |primeTail| + |archTail|</code></pre>
+<p>
+The three-tail shape is an accident of the explicit formula, not of the idea. The `n`-tail
+generalisation is a finite-sum triangle inequality and is proved in
+<code>011/lean/Generic.lean</code>; the 010 statement is its three-element instance. At L1, Route C
+therefore generalises trivially and completely.
+</p>
+<p>
+What does <em>not</em> generalise is the <em>content</em> of the three tails, because each names a
+piece of arithmetic specific to <code>&zeta;</code>:
+</p>
+<table>
+<thead><tr><th>tail</th><th>what it is for <code>&zeta;</code></th><th>what a general <code>L</code> needs</th></tr></thead>
+<tbody>
+<tr><td>zero</td><td>the certified on-line zeros plus a density tail</td>
+    <td>the same, for the new zero set (needs Route A/B for the new object)</td></tr>
+<tr><td>prime</td><td><code>&sum; (&Lambda;(n)/&radic;n)[g(log n) + g(&minus;log n)]</code>, tailed by Chebyshev</td>
+    <td>the Dirichlet coefficients of the Euler product, plus a Chebyshev-type bound for them</td></tr>
+<tr><td>archimedean</td><td><code>&int; &phi;(t) &Psi;(t) dt</code> with <code>&Psi; = &minus;log&pi; + Re &psi;(&frac14;+it/2)</code></td>
+    <td>the new gamma factor and its logarithmic derivative (for Dirichlet <code>L</code>: a
+    <code>&psi;</code> at <code>(s+a)/2</code>, i.e. the same <code>&psi;</code> budget with shifted
+    arguments)</td></tr>
+</tbody>
+</table>
+<p>
+Note how much of the <em>hard</em> part survives: the archimedean tail of any
+<code>L</code>-function in the Selberg class is built from <code>&Gamma;</code>-factors, so the
+machinery of round 010 &mdash; the locally uniform Gauss product, the polygamma series, the Simpson
+panel bound &mdash; is reusable with shifted arguments. That is a genuine and non-obvious
+generalisation dividend.
+</p>
+
+<!-- ===================================================================== -->
+<h2 id="s6">6. The generalisation ladder</h2>
+
+<p>
+Summarising §2&ndash;§5:
+</p>
+<table>
+<thead><tr><th>rung</th><th>verdict</th><th>evidence</th></tr></thead>
+<tbody>
+<tr><td><b>L1</b> statements</td><td><span class="status s-yes">ALREADY GENERAL</span></td>
+    <td><code>&forall; f</code> (A, B-analytic), <code>&forall; Finset &alpha;</code> (B-combinatorial),
+    any decomposition (C); re-packaged in <code>011/lean/Generic.lean</code></td></tr>
+<tr><td><b>L2</b> instantiation</td><td><span class="status s-part">PARTIAL</span></td>
+    <td>Dirichlet <code>L</code>: FE-normalisation, reflection, conjugation reality, root-number sign <em>and</em> the two analytic lemmas all proved; the interval engine now exists and passes containment. Only the numerical zero data remains</td></tr>
+<tr><td><b>L3</b> method</td><td><span class="status s-yes">TRANSFERABLE</span></td>
+    <td>enclosure&nbsp;&rArr;&nbsp;sign&nbsp;&rArr;&nbsp;root; cardinality squeeze; pointwise
+    &rArr; locally uniform &rArr; Weierstrass differentiation</td></tr>
+<tr><td><b>L4</b> all zeros</td><td><span class="status s-no">IMPOSSIBLE</span></td>
+    <td>a finite certificate cannot imply a statement about infinitely many zeros; that step is RH</td></tr>
+</tbody>
+</table>
+
+<div class="box why">
+<h4>Why L1 being already true is the interesting part</h4>
+<p style="margin-bottom:0">
+It is tempting to treat &ldquo;can it be generalised?&rdquo; as a research programme. The audit says
+otherwise: whoever wrote the 010 theorems chose the <em>right</em> abstractions the first time, so the
+remaining work is <em>instantiation data</em> (functional equations, reality, evaluators), not new
+mathematics. That is a much better position than a bespoke theorem about <code>&zeta;</code> would
+have been, and it is why the Dirichlet <code>L</code> question reduced to a single named Mathlib gap &mdash;
+the conjugation reality now closed in §7.3 &mdash; rather than
+to a new development.
+</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="s7">7. Worked instantiation: Dirichlet <code>L</code>-functions</h2>
+
+<p>
+The best-supported second object in Mathlib is the Dirichlet <code>L</code>-function of a character
+<code>&chi;</code> mod <code>N</code>. Mathlib supplies exactly the analytic skeleton Route B needs.
+</p>
+
+<h3>7.1 What Mathlib has</h3>
+<table>
+<thead><tr><th>ingredient</th><th>Mathlib</th><th>role in Route B</th></tr></thead>
+<tbody>
+<tr><td><code>completedLFunction &chi; s</code></td><td><code>LSeries/DirichletContinuation.lean</code></td>
+    <td>the completed object <code>&Lambda;</code> whose <code>logDeriv</code> is integrated</td></tr>
+<tr><td><code>IsPrimitive.completedLFunction_one_sub</code></td><td>same file</td>
+    <td>the functional equation: <code>&Lambda;(1&minus;s) = N<sup>s&minus;&frac12;</sup>&middot;rootNumber &chi;&middot;&Lambda;<sub>&chi;&minus;1</sub>(s)</code></td></tr>
+<tr><td><code>rootNumber &chi;</code></td><td>same file</td><td>the global root number <code>&epsilon;</code></td></tr>
+<tr><td><code>differentiableAt_completedLFunction</code></td><td>same file</td>
+    <td>analyticity away from the two exceptional points</td></tr>
+<tr><td><code>completedLFunction_modOne_eq</code></td><td>same file</td>
+    <td>the consistency check: mod 1 recovers <code>completedRiemannZeta</code></td></tr>
+</tbody>
+</table>
+
+<h3>7.2 The normalisation, proved</h3>
+<p>
+Route B wants a self-dual function, but Mathlib&rsquo;s functional equation carries a factor
+<code>N<sup>s&minus;&frac12;</sup></code>. For a character with <code>&chi; = &chi;&minus;1</code>
+(a real/quadratic character, <code>L(&chi;,s)</code> real on the real axis) the equation relates
+<code>&Lambda;<sub>&chi;</sub></code> to itself, and the conductor factor can be absorbed by the
+classical normalisation
+</p>
+<span class="eq">h(s) = N<sup>s/2</sup> &Lambda;<sub>&chi;</sub>(s),&nbsp;&nbsp;&nbsp; whence&nbsp;&nbsp; h(1&minus;s) = &epsilon; &middot; h(s),&nbsp; &epsilon; = rootNumber &chi;.</span>
+<p>
+The exponent bookkeeping is
+<code>(1&minus;s)/2 + (s&minus;&frac12;) = s/2</code>. This is proved in
+<code>011/lean/Generic.lean</code> (<code>dirichletL_normalised_one_sub</code>): it delivers Route
+B&rsquo;s hypothesis <code>h1</code> <em>up to the constant &epsilon;</em>, and since
+<code>&epsilon;</code> is constant in <code>s</code> it differentiates to the required reflection of
+the logarithmic derivative,
+</p>
+<span class="eq">h(1&minus;s) = &epsilon; h(s) &nbsp;&rArr;&nbsp; logDeriv h (1&minus;s) = &minus; logDeriv h (s),&nbsp;&nbsp; for any &epsilon; &ne; 0.</span>
+<p>
+(Proof of the implication, which is where the generalisation is subtler than it looks: differentiating
+<code>h(1&minus;s) = &epsilon; h(s)</code> gives <code>&minus;h&prime;(1&minus;s) = &epsilon; h&prime;(s)</code>,
+so <code>logDeriv h (1&minus;s) = h&prime;(1&minus;s)/h(1&minus;s) = (&minus;&epsilon;h&prime;(s))/(&epsilon;h(s)) = &minus;logDeriv h(s)</code>.
+The factor <code>&epsilon;</code> cancels: <em>it never has to be <code>&plusmn;1</code></em>.)
+</p>
+
+<div class="box why">
+<h4>Route B does not need self-duality &mdash; it needs its logarithmic derivative</h4>
+<p style="margin-bottom:0">
+This is worth isolating, because it changes which gaps matter. The bare identity
+<code>F(1&minus;s) = F(s)</code> is <em>not</em> recoverable when <code>&epsilon; &ne; 1</code>: no constant
+rescaling can fix it, since <code>logDeriv (c&middot;F) = logDeriv F</code>. But the 010 proof consumes
+self-duality only through the reflection <code>logDeriv F (1&minus;s) = &minus;logDeriv F(s)</code>, and
+that survives <code>h(1&minus;s) = &epsilon;h(s)</code> for every nonzero <code>&epsilon;</code>. So the
+root number is <strong>not</strong> an obstruction to Route B &mdash; only to the cosmetic rewriting
+<code>F(1&minus;s) = F(s)</code>. The landed Lean reflects this with two interfaces,
+<code>SelfDualReal</code> and the more general <code>SelfDualRealUpToSign</code> plus
+<code>routeB_general_of_logDeriv</code>, which takes the reflection directly.
+</p>
+</div>
+
+<h3>7.3 The remaining gaps &mdash; and the closure of the substantive one</h3>
+<p>
+Route B&rsquo;s hypotheses were within reach but for one substantive gap and one proof-technical one.
+<strong>The substantive gap is closed here.</strong>
+</p>
+
+<div class="box res">
+<h4>Conjugation reality of the completed Dirichlet L-function &mdash; PROVED</h4>
+<pre><code>theorem DirichletCharacter.completedLFunction_conj {N : &#8469;} [NeZero N]
+    (χ : DirichletCharacter &#8450; N) (hreal : &#8704; n : &#8469;, conj (χ n) = χ n) (s : &#8450;) :
+    completedLFunction χ (conj s) = conj (completedLFunction χ s)</code></pre>
+<p style="margin-bottom:0">
+Proved in <code>011/lean/DirichletConj.lean</code> (a Mathlib-only, PR-shaped module), for
+<strong>every</strong> character with real values &mdash; nontrivial or trivial, primitive or not, any
+modulus. No primitivity, parity or extra hypothesis on <code>N</code> is needed. The trivial-character
+value <code>N = 1</code> is the completed Riemann zeta function, so the same theorem yields
+<code>completedRiemannZeta_conj</code>, also a genuine Mathlib gap.</p>
+<p style="margin-bottom:0">
+It is then wired back into Route B: <code>011/lean/DirichletRouteB.lean</code> proves
+<code>routeB_for_dirichletL_of_real</code>, which is the earlier
+<code>routeB_for_dirichletL</code> with the <code>CompletedLFunctionConj</code> hypothesis
+<em>discharged</em> from the reality of the character (<code>&forall; n, conj (χ n) = χ n</code>).
+The single remaining hypothesis beyond the shared analytic data is the proof-technical
+<code>RootNumberSign</code>.</p>
+</div>
+
+<div class="box why">
+<h4>How it is proved (the route is worth recording)</h4>
+<ol style="margin-bottom:0">
+<li><b>Series conjugation.</b> <code>LSeries_conj : conj (LSeries f (conj s)) = LSeries (fun n =&gt; conj (f n)) s</code>
+    &mdash; unconditional, from <code>LSeries.term_def</code> and <code>Complex.cpow_conj</code> at the real
+    nonnegative base <code>n</code>.</li>
+<li><b>Half-plane.</b> Combining with <code>LFunction_eq_LSeries</code> (<code>1 &lt; re s</code>) and
+    <code>hreal</code> gives <code>LFunction χ (conj s) = conj (LFunction χ s)</code>, and
+    <code>gammaFactor_conj</code> (from <code>Gammaℝ_conj</code>) gives the archimedean factor. Their
+    product is <code>completedLFunction</code> by <code>LFunction_eq_completed_div_gammaFactor</code>,
+    so the identity holds for <code>1 &lt; re s</code>.</li>
+<li><b>Global extension.</b> The identity theorem is applied not to <code>completedLFunction χ</code>
+    (which has a pole at <code>s = 1</code> for the trivial character) but to the <em>entire</em>
+    normalisation <code>ZMod.completedLFunction₀ χ</code>, using
+    <code>ZMod.completedLFunction_eq</code> to write
+    <code>Λ₀ = Λ + N<sup>&minus;z</sup>χ(0)/z + N<sup>&minus;z</sup>(&sum;χ)/(1&minus;z)</code>; the two
+    correction terms commute with conjugation because <code>N</code> is nonnegative real
+    (<code>conj_cpow_ofReal</code>) and <code>χ</code> is real. Conjugating the algebraic identity back
+    covers <em>every</em> <code>s</code>, including the poles. <strong>No case is left open.</strong></li>
+</ol>
+</div>
+
+<div class="box res">
+<h4>The root-number sign &mdash; PROVED (and a correction to the statement)</h4>
+<p>
+<code>rootNumber &chi; = 1 &or; rootNumber &chi; = &minus;1</code> is now proved
+(<code>011/lean/RootNumber.lean</code>, <code>RouteABC.rootNumberSign_of_conj_eq_self</code>), so the
+Route B statement for Dirichlet <code>L</code> is fully discharged:
+<code>RouteABC.routeB_for_dirichletL_unconditional</code>.
+</p>
+<p style="margin-bottom:0">
+<strong>But the statement needs <code>IsPrimitive &chi;</code>, and without it it is false.</strong> The
+natural impulse &mdash; prove the sign from <code>gaussSum_sq</code> &mdash; also does not work as
+stated, since Mathlib&rsquo;s <code>gaussSum_sq</code> sits in a <code>[Field R]</code> section and so
+covers prime moduli only. The proof instead applies the primitive functional equation twice and
+evaluates at <code>s = 1</code>. And the hypothesis cannot be dropped: the <code>changeLevel</code>
+image of the quadratic character mod 3 at modulus 6 is the function
+<code>(0,1,0,0,0,&minus;1)</code>, which is odd with Gauss sum <code>i&radic;3</code>, hence
+<code>rootNumber = i&radic;3/(i&radic;6) = 1/&radic;2 &ne; &plusmn;1</code> (verified numerically).
+Every application already assumes primitivity, so nothing is lost &mdash; but the hypothesis is
+genuinely necessary, not bookkeeping.</p>
+</div>
+
+<div class="box res">
+<h4>The <code>gaussSum_sq</code> route now works &mdash; a new Mathlib lemma</h4>
+<p>
+The obstruction above was real: Mathlib&rsquo;s <code>MulChar.gaussSum_sq</code> lives in a
+<code>[Field R]</code> section, so it covers prime moduli only. That missing composite-modulus
+statement is now supplied
+(<code>011/lean/GaussSumComposite.lean</code>):
+</p>
+<pre><code>theorem RouteABC.gaussSum_sq_of_isPrimitive {N : ℕ} [NeZero N] {χ : DirichletCharacter ℂ N}
+    (hχ : IsPrimitive χ) (hχ₁ : χ ≠ 1) (hχ₂ : IsQuadratic χ) :
+    gaussSum χ stdAddChar ^ 2 = χ (-1) * (N : ℂ)</code></pre>
+<p style="margin-bottom:0">
+It comes from the product form
+<code>gaussSum χ stdAddChar * gaussSum χ&#8315;&#185; stdAddChar = χ(-1)·N</code>, proved
+<em>without ever dividing in <code>ZMod N</code></em> &mdash; by comparing the two evaluations of
+<code>&#8497;(&#8497;&chi;)</code> at <code>k = 1</code>: <code>dft_dft</code> gives
+<code>N&middot;&chi;(&minus;1)</code>, while the Fourier-transform identity plus
+<code>gaussSum_mulShift_of_isPrimitive</code> gives
+<code>&tau;&middot;gaussSum &chi;&#8315;&#185; stdAddChar</code>. The file also specialises back to
+Mathlib&rsquo;s field case at prime <code>N</code> (<code>N = 3, 5, 7</code>) as a consistency
+check, and gives a <strong>second, independent proof</strong> of the root-number sign
+(<code>rootNumber_eq_one_or_neg_one'</code>) along the route that was originally blocked. Verified
+numerically for primitive quadratic characters at <code>N = 8, 12, 20, 24</code>, and shown to fail
+at <code>N = 6</code> without primitivity
+(<code>011/verify/check_gausssum_sq.py</code>).
+</p>
+</div>
+
+<div class="box res">
+<h4>The interval engine now exists &mdash; and the last two analytic lemmas are proved</h4>
+<p>
+<strong>(a) The engine.</strong> <code>011/rigorous/dirichlet_interval.py</code> encloses
+<code>&zeta;(s,a), &zeta;&prime;, &zeta;&Prime;, L, L&prime;/L, (L&prime;/L)&prime;,
+&Lambda;&prime;<sub>&chi;</sub>/&Lambda;<sub>&chi;</sub>, (log &Lambda;<sub>&chi;</sub>)&Prime;</code>
+on boxes, by Euler&ndash;Maclaurin with a periodic-Bernoulli remainder (differentiated for the
+derivatives) and <em>no mpmath in the rigorous path</em>. Verified by
+<code>011/verify/check_dirichlet_engine.py</code> (<strong>PASS</strong>): 756 Hurwitz enclosures with
+worst width <code>7.1&middot;10<sup>&minus;10</sup></code>, 84 path points across four characters,
+105 boxed-sample containment checks &mdash; 0 failures. Exposed limits, stated honestly: the
+<code>M = 20, K = 50</code> bound is <code>5&middot;10<sup>&minus;27</sup></code> at
+<code>t = 50</code> but <code>1.2&middot;10<sup>&minus;6</sup></code> at <code>t = 100</code>
+(<code>M</code> must grow like <code>t/4</code>); a &sigma;-box wider than ~<code>0.1</code> makes the
+<code>L</code> enclosure contain 0 and the log-derivative routine refuses rather than lie; and near a
+zero of <code>L</code> the enclosure of <code>L&prime;/L</code> blows up, so only relative accuracy
+survives there.
+</p>
+<p style="margin-bottom:0">
+<strong>(b) The last two analytic lemmas.</strong> <code>011/lean/DirichletAnalytic.lean</code>
+discharges the only two non-numerical hypotheses of the Dirichlet Route B theorem &mdash;
+analyticity on the rectangle and interval integrability of <code>logDeriv</code> on the two horizontal
+edges &mdash; so <code>routeB_for_dirichletL_of_zeros</code> now carries <strong>no analytic
+hypothesis at all</strong>, only the numerical zero data <code>Z</code>, <code>m</code>,
+<code>hno</code>. (The edge non-vanishing the integrability needs is itself derived from
+<code>hmem</code> + <code>hno</code>.)
+</p>
+</div>
+
+<div class="box warn">
+<h4>Erratum: building the engine exposed two soundness bugs in the 010 primitives</h4>
+<p style="margin-bottom:0">
+Independently verifying the engine surfaced two real bugs in
+<code>010/rigorous/eta_interval.py</code>: <code>exp_num</code> <em>inverted</em> its interval for
+<code>y &le; 0</code> (and <code>ivmath.Num</code> silently clamped the negative radius to 0), and
+<code>ndef</code> used the nonnegative-numerator division formula, which under-covers for signed
+numerators (1584/3000 random failures) &mdash; and <code>cdiv</code> feeds it a signed numerator.
+Both made <strong>positive-width box enclosures too narrow</strong>. Both are <strong>fixed</strong>,
+with regression tests (<code>eta_box</code> corner failures 36&nbsp;&rarr;&nbsp;0;
+<code>ndef</code> 0/3000). <strong>Route A and Route C are unaffected</strong> (point
+&sigma; / no box path); the <strong>Route B counts are affected</strong> &mdash; their curvature bound
+came from a box enclosure &mdash; and must be re-run before being quoted as rigorous. See
+<a href="../../publish/013-twin-prime-parity-explicit-function/notes/010-EXP_NUM_ERRATUM.md"><code>010/rigorous/EXP_NUM_ERRATUM.md</code></a>.</p>
+<p>
+<b>Re-run outcome (this round).</b> With the fixed primitives the <code>T = 15</code> count gives
+<code>N &isin; [0.56932353, 1.4325407]</code> (<code>N = 1</code> certified at the
+<code>010</code> convention), but the <code>T = 33</code> count at <code>steps/unit = 40</code>
+gives <code>N &isin; [3.3040886, 6.695946]</code> &mdash; <b>undecided</b>: the archived
+<code>N(33) = 5</code> does not survive. Rather than enlarging the budget, the curvature bound was
+removed: since <code>Im(I<sub>3</sub>) = &Delta; arg &xi;</code>,
+<a href="rigorous/zeta_routeB.py"><code>rigorous/zeta_routeB.py</code></a> tracks
+<code>arg &xi;</code> from a rigorous value enclosure of
+<code>&xi;(s) = &frac12;s(s&minus;1)&pi;<sup>&minus;s/2</sup>&Gamma;(s/2)&zeta;(s)</code>, giving
+<code>N(15) &isin; [0.999999909, 1.000000091]</code> and
+<code>N(33) &isin; [4.999999675, 5.000000325]</code> &mdash; both pinned, in minutes, with no
+midpoint rule and hence no <code>1/8</code>-vs-<code>1/4</code> constant (see
+<a href="notes/midpoint-constant.md">notes/midpoint-constant.md</a>).
+</p>
+</div>
+
+<div class="box res">
+<h4>A certified Dirichlet window: <code>&chi;<sub>3</sub></code>, <code>1/2 &lt; Im s &lt; 10</code></h4>
+<p>
+The numerical zero data is now supplied for the real primitive character <code>&chi;<sub>3</sub></code>
+mod 3 (<code>011/rigorous/certify_dirichlet_routeB.py</code>). Two independent rigorous
+computations are combined:
+</p>
+<ol>
+<li><b>The count, by argument tracking.</b> Since
+    <code>Im(I<sub>3</sub>) = &Delta; arg H</code> along the path, the count
+    <code>N<sub>&chi;</sub>(T) = Im(I<sub>3</sub>)/&pi;</code> is the <em>continuous change of the
+    argument</em> of <code>H</code> from <code>1/2+i/2</code> to <code>1/2+iT</code>. Tracking it
+    sample by sample (with adaptive refinement) needs <em>no</em> curvature bound, which is
+    essential here: the box enclosure of <code>L</code> from the interval engine is sound but
+    loose near <code>Re s = 1/2</code> (Euler&ndash;Maclaurin cancellation), so a midpoint-rule
+    budget is unusable. The rigorous result:
+    <span class="mono">N<sub>&chi;<sub>3</sub></sub>(10) &isin; [0.9999999979, 1.000000002]</span>,
+    hence <code>N = 1</code>.</li>
+<li><b>The on-line zeros.</b> On the critical line <code>H</code> is real (the root number is
+    <code>+1</code>), so <code>&Xi;(t) = Re H(1/2+it)</code> is real-analytic and its zeros are the
+    on-line zeros. Certified sign changes of <code>&Xi;</code> (each endpoint enclosure excludes 0)
+    bracket exactly one zero, at <span class="mono">Im s = 8.039737156&hellip;</span>, in a bracket
+    of width <code>1.1&middot;10<sup>&minus;10</sup></code>. Correctness is checked independently by
+    <code>011/verify/check_dirichlet_routeB.py</code> (containment of
+    <code>&Gamma;</code>, <code>H</code>, <code>&Xi;</code> against mpmath, the count against direct
+    quadrature, and the bracket against an mpmath root).</li>
+</ol>
+<p style="margin-bottom:0">
+Since the number of certified on-line zeros equals the total multiplicity
+<code>N<sub>&chi;<sub>3</sub></sub>(10)</code>, <strong>every zero of
+<code>L(&chi;<sub>3</sub>,&middot;)</code> with <code>1/2 &lt; Im s &lt; 10</code> is simple and on
+the critical line</strong>, and the finite data <code>Z</code>, <code>m &equiv; 1</code>,
+<code>hno</code> is certified for that window
+(<code>011/rigorous/certify_dirichlet_routeB_chi_3_T10.json</code>). The Lean statement for the
+concrete character is <code>RouteABC.routeB_for_chi3_of_zeros</code>
+(<code>011/lean/DirichletL.lean</code>), conditional only on that numerical data.
+</p>
+</div>
+<div class="box warn">
+<h4>What is still open after this</h4>
+<ol style="margin-bottom:0">
+<li><b>No formalised numerics.</b> The Lean statement still takes <code>Z</code>, <code>m</code>,
+    <code>hno</code> as hypotheses; the numerical certificate is not formalised in Lean. The
+    obligation is now named as the structure <code>CertifiedWindow</code>
+    (<a href="lean/CertifiedWindow.lean"><code>lean/CertifiedWindow.lean</code></a>), with
+    <code>routeB_for_chi3_of_window</code> for the concrete window <code>(1/2, 10)</code>;
+    producing a <code>CertifiedWindow</code> would require a verified numerical evaluator for
+    <code>dirichletCompleted chi3</code> and a formalised argument-principle count, neither of
+    which is in Mathlib.</li>
+<li><b>The midpoint constant (fixed).</b> The <code>010</code> midpoint budget used
+    <code>(1/8)|ds|<sup>2</sup> sup|f&prime;|</code> where the sharp elementary constant is
+    <code>1/4</code>; the engine&rsquo;s <code>Lf</code> overestimates <code>sup|f&prime;|</code> by
+    orders of magnitude, so the archived numbers were not threatened, but the bound as stated was
+    unproved. It has now been changed to <code>1/4</code> in
+    <code>eta_interval.I3_certificate</code> and <code>certify_count_par</code>, and the
+    quadrature route is retired as the primary count in favour of
+    <a href="rigorous/zeta_routeB.py">argument tracking</a>. See
+    <a href="notes/midpoint-constant.md"><code>notes/midpoint-constant.md</code></a>.</li>
+</ol>
+</div>
+<div class="box res">
+<h4>Is the engine tractable? &mdash; measured, and yes</h4>
+<p style="margin-bottom:0">
+The classical route is <code>L(&chi;,s) = N<sup>&minus;s</sup>&sum;<sub>a</sub>&chi;(a)&zeta;(s,a/N)</code>
+with the <strong>Hurwitz zeta by Euler&ndash;Maclaurin</strong>. A probe
+(<code>lib/dirichlet_engine_probe.py</code>) measures: the standard periodic-Bernoulli remainder bound
+<em>dominates</em> the true error at every one of ~100 test points with a ~2&times; margin; at
+<code>t = 50</code> the choice <code>M = 20, K = 50</code> gives <code>&zeta;, &zeta;&prime;, &zeta;&Prime;</code>
+and hence <code>L, L&prime;/L, (log L)&Prime;</code> to <code>~10<sup>&minus;27</sup></code> (the engine
+needs only <code>~10<sup>&minus;10</sup></code>); the required term counts stay small
+(<code>M &le; 50, K &le; 60</code> up to <code>t = 80</code>), <em>below</em> the existing
+<code>&zeta;</code> engine&rsquo;s Euler-series length; and one evaluation costs ~3&nbsp;ms at 60 dps.
+There is also no removable-singularity routing to write, because the Hurwitz-zeta route has no
+<code>1/(1&minus;2<sup>1&minus;s</sup>)</code> denominator. So the engine is an <em>engineering</em>
+exercise, not a mathematical one.
+</p>
+</div>
+<p>
+With that supplied, Route B applies to <code>h</code> immediately: the general theorem is
+already in place, the zero data would come from a Dirichlet-<code>L</code> interval engine (which does
+not exist yet &mdash; see §8), and the conclusion would read: <em>every zero of
+<code>&Lambda;<sub>&chi;</sub></code> in a Turing window is simple and on the critical line</em>.
+</p>
+
+<div class="box res">
+<h4>Verdict for Dirichlet <code>L</code></h4>
+<p style="margin-bottom:0">
+Route B <strong>does</strong> generalise to Dirichlet <code>L</code>-functions with real character. The
+functional-equation normalisation, the logarithmic-derivative reflection, and the conjugation reality
+are all now <strong>proved</strong>; the numerical input &mdash; the interval engine and, on top of it,
+the argument-tracking count and the on-line zero brackets &mdash; now exists, and for
+<code>&chi;<sub>3</sub></code> it <strong>certifies</strong> the window
+<code>1/2 &lt; Im s &lt; 10</code> (see the box above). Beyond that window the proof-technical
+root-number case split and the per-window numerics remain to be repeated.</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="s8">8. Target catalogue and what each needs</h2>
+
+<p>
+For each candidate generalisation we list the four Route-B inputs and the Route-C inputs, and rate the
+tractability with current Mathlib. This is the actionable form of the answer.
+</p>
+
+<table>
+<thead><tr><th>object</th><th>functional equation</th><th>reality</th><th>interval engine</th><th>explicit formula</th><th>verdict</th></tr></thead>
+<tbody>
+<tr><td><b>Riemann <code>&zeta;</code></b></td><td><span class="status s-yes">done</span> (010)</td>
+    <td><span class="status s-yes">done</span> (010)</td><td><span class="status s-yes">done</span> (<code>rigorous/</code>)</td>
+    <td><span class="status s-yes">done</span> (010 Route C)</td><td>three windows certified</td></tr>
+<tr><td><b>Dirichlet <code>L</code></b> (real primitive <code>&chi;</code>)</td>
+    <td><span class="status s-part">normalisation proved here</span></td>
+    <td><span class="status s-no">missing</span> (conj lemma)</td>
+    <td><span class="status s-no">missing</span></td>
+    <td><span class="status s-part">standard, needs conductor/root number</span></td>
+    <td><b>closest</b>: 2 lemmas + an engine</td></tr>
+<tr><td><b>Dedekind <code>&zeta;<sub>K</sub></code></b></td><td><span class="status s-info">partly in Mathlib</span></td>
+    <td><span class="status s-info">plausible</span></td><td><span class="status s-no">missing</span></td>
+    <td><span class="status s-part">standard</span></td>
+    <td>needs the class-number formula side</td></tr>
+<tr><td><b>Hecke / Maass <code>L</code></b></td><td><span class="status s-no">absent</span></td>
+    <td><span class="status s-no">absent</span></td><td><span class="status s-no">missing</span></td>
+    <td><span class="status s-no">absent</span></td><td>out of reach</td></tr>
+<tr><td><b>Elliptic-curve <code>L</code></b></td><td><span class="status s-no">absent</span></td>
+    <td><span class="status s-no">absent</span></td><td><span class="status s-no">missing</span></td>
+    <td><span class="status s-no">absent</span></td><td>out of reach</td></tr>
+<tr><td><b>Selberg class</b> (axiomatic)</td><td>an axiom of the class</td><td>an axiom</td>
+    <td>per-object</td><td>Weil form with conductor</td>
+    <td>the right <em>formal</em> home for the interface</td></tr>
+</tbody>
+</table>
+
+<div class="box why">
+<h4>The Selberg class is the natural formal target</h4>
+<p style="margin-bottom:0">
+Route B&rsquo;s hypotheses are, essentially, the Selberg-class axioms restricted to a rectangle:
+analyticity, a functional equation with conductor and root number, an Euler product (needed only on
+Route C&rsquo;s prime side), and a Ramanujan-type growth condition (needed only for tail bounds). So
+the clean generalisation is not &ldquo;Route B for object X&rdquo; but &ldquo;<strong>Route B for any
+member of the Selberg class</strong>&rdquo;, with the numerical engine as an extra parameter. A Lean
+`structure SelbergClass` carrying exactly these fields, plus
+<code>routeB_reduction_general</code> applied to it, is the honest general statement &mdash; and, per
+§2, essentially the statement that already exists in 010 modulo the Euler product and the conductor.
+</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="s9">9. What cannot be generalised</h2>
+
+<p>
+Four limits, stated plainly so that the audit is not read as optimism.
+</p>
+<ol>
+<li><b>L4 is impossible, not merely hard.</b> Routes A&ndash;C certify <em>finite</em> windows. No
+    generalisation of the statements produces a conclusion about all zeros of anything, because the
+    hypotheses are finitely many enclosures. For general <code>L</code>-functions the corresponding
+    all-zeros statement is the <em>generalised</em> Riemann Hypothesis, and it is untouched. Any claim
+    of the form &ldquo;the routes generalise to GRH&rdquo; is false.</li>
+<li><b>The numerical engine is not generic.</b> The hard-won <code>rigorous/</code> machinery
+    (Euler-accelerated <code>&eta;</code>, the removable-singularity routing, the <code>K &asymp; 0.25t</code>
+    requirement, the per-step <code>Lf</code> enclosure) is engineered around <code>&zeta;</code>
+    &apos;s Dirichlet series. Each new object needs its own evaluator with its own singularity structure;
+    this is the dominant cost of any L2 generalisation, not the Lean glue.</li>
+<li><b>Route A cannot see multiplicity above one.</b> As noted in §3, the certificate concludes
+    <code>f&prime;(x) &ne; 0</code>. A <code>k</code>-th order certificate is a genuine extension, not
+    an instantiation, and even then it certifies the zeros it is pointed at, not all of them.</li>
+<li><b>The archimedean budget generalises only within the same family.</b> The 010 polygamma series
+    gives bounds at <code>(s+j)<sup>&minus;k&minus;1</sup></code> for the <code>&psi;</code> function
+    entering <code>&Psi;</code>. Dirichlet <code>L</code>-functions reuse that with shifted arguments;
+    an object whose archimedean factor is not built from <code>&Gamma;</code> (or whose degree exceeds
+    the framework) is a different problem.</li>
+</ol>
+
+<!-- ===================================================================== -->
+<h2 id="s10">10. Status, reproduction, references</h2>
+
+<h3>Status</h3>
+<table>
+<thead><tr><th>claim</th><th>status</th><th>where</th></tr></thead>
+<tbody>
+<tr><td>Route A is already stated for arbitrary <code>f</code></td><td><span class="status s-yes">AUDITED</span></td><td><code>010/lean/Rh45/Routes.lean</code></td></tr>
+<tr><td>Route B&rsquo;s squeeze is already stated for arbitrary <code>Finset &alpha;</code></td><td><span class="status s-yes">AUDITED</span></td><td>same</td></tr>
+<tr><td>Route B&rsquo;s analytic core is already <code>&forall; f</code></td><td><span class="status s-yes">AUDITED</span></td><td><code>010/lean/Rh45/RouteBGeneral.lean</code></td></tr>
+<tr><td>Route C&rsquo;s assembly generalises to <code>n</code> tails</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/Generic.lean</code></td></tr>
+<tr><td>the interface <code>SelfDualReal</code> and the Route-B packaging</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/Generic.lean</code></td></tr>
+<tr><td>Dirichlet <code>L</code> normalisation <code>h(1&minus;s) = &epsilon; h(s)</code></td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/Generic.lean</code></td></tr>
+<tr><td><code>logDeriv F(1&minus;s) = &minus;logDeriv F(s)</code> from <code>h(1&minus;s) = &epsilon;h(s)</code>, any <code>&epsilon; &ne; 0</code></td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/Generic.lean</code> (<code>logDeriv_one_sub_of_const_mul</code>, <code>routeB_general_of_logDeriv</code>)</td></tr>
+<tr><td>conjugation reality of <code>completedLFunction</code> (all characters)</td><td><span class="status s-yes">PROVED (new, was the gap)</span></td><td><code>011/lean/DirichletConj.lean</code>: <code>DirichletCharacter.completedLFunction_conj</code></td></tr>
+<tr><td>conjugation reality of <code>completedRiemannZeta</code></td><td><span class="status s-yes">PROVED (new)</span></td><td>corollary at <code>N = 1</code>; also a genuine Mathlib gap</td></tr>
+<tr><td><code>LSeries</code>, <code>LFunction</code> (Re&gt;1), <code>gammaFactor</code> conjugation</td><td><span class="status s-yes">PROVED (new)</span></td><td>helper lemmas in the same module</td></tr>
+<tr><td>Route B for Dirichlet <code>L</code> with the conjugation hypothesis discharged</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/DirichletRouteB.lean</code>, <code>routeB_for_dirichletL_of_real</code></td></tr>
+<tr><td><code>rootNumber &chi; &isin; {&plusmn;1}</code> for primitive real <code>&chi;</code></td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/RootNumber.lean</code>; needs <code>IsPrimitive</code> &mdash; without it the statement is <em>false</em> (mod-6 counterexample, §7.3)</td></tr>
+<tr><td>composite-modulus <code>gaussSum_sq</code> (Mathlib gap)</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/GaussSumComposite.lean</code>, <code>RouteABC.gaussSum_sq_of_isPrimitive</code></td></tr>
+<tr><td>root-number sign, second independent proof</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>rootNumber_eq_one_or_neg_one'</code>, via the Gauss-sum route</td></tr>
+<tr><td>Route B for Dirichlet <code>L</code>, all hypotheses discharged</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>routeB_for_dirichletL_unconditional</code></td></tr>
+<tr><td>an interval engine for a Dirichlet <code>L</code></td><td><span class="status s-yes">BUILT (new)</span></td><td><code>011/rigorous/dirichlet_interval.py</code>; verified by <code>011/verify/check_dirichlet_engine.py</code></td></tr>
+<tr><td>the numerical zero data of Route B for <code>&chi;<sub>3</sub></code>, <code>T=10</code></td><td><span class="status s-yes">CERTIFIED (new)</span></td><td><code>011/rigorous/certify_dirichlet_routeB.py</code>: <code>N=1</code> and one certified on-line simple zero, hence every zero with <code>1/2&lt;Im s&lt;10</code> is simple and on the critical line</td></tr>
+<tr><td>a concrete real primitive character in Lean, all character hypotheses discharged</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/DirichletL.lean</code>: <code>chi3_isPrimitive</code>, <code>chi3_isQuadratic</code>, <code>chi3_ne_one</code>, <code>routeB_for_chi3_of_zeros</code></td></tr>
+<tr><td>the Dirichlet <code>L</code> explicit formula (Route C), validated assembly</td><td><span class="status s-yes">CERTIFIED (new)</span></td><td><code>011/rigorous/dirichlet_explicit.py</code>: <code>&chi;<sub>3</sub></code> residual <code>&minus;4.3&middot;10<sup>&minus;10</sup></code> ≤ budget <code>2.0&middot;10<sup>&minus;7</sup></code>; <code>&chi;<sub>5</sub></code> residual <code>2.2&middot;10<sup>&minus;8</sup></code> ≤ budget <code>1.3&middot;10<sup>&minus;6</sup></code> (zero + prime + archimedean tails)</td></tr>
+<tr><td>the Dirichlet <code>L</code> explicit formula, Lean algebraic layer</td><td><span class="status s-yes">PROVED (new)</span></td><td><code>011/lean/DirichletExplicit.lean</code>: <code>dirichletWeight</code> (<code>&Lambda;(n)&chi;(n)</code>, the Euler-product coefficient), its prime-power values, the prime-side split, <code>dirichletPsi</code>, and <code>DirichletExplicitData.validated</code></td></tr>
+<tr><td>any all-zeros (GRH-strength) conclusion</td><td><span class="status s-no">IMPOSSIBLE</span></td><td>§9</td></tr>
+</tbody>
+</table>
+
+<h3>Reproduction</h3>
+<pre><code>cd research/twin-prime-parity/011/lean
+./check.sh --all                     # Generic.lean, no sorry / axiom
+./check.sh Generic.lean
+
+-- axiom footprint
+#print axioms RouteABC.routeB_of_selfDualReal
+#print axioms RouteABC.validated_truncation_bound_finset
+#print axioms RouteABC.dirichletL_normalised_one_sub
+#print axioms DirichletCharacter.completedLFunction_conj
+#print axioms completedRiemannZeta_conj
+#print axioms RouteABC.routeB_for_dirichletL_of_real
+./check.sh AxiomsConj.lean               # all 13: [propext, Classical.choice, Quot.sound]
+
+python3 ../verify/check_dirichlet_conj.py  # numerical cross-check, ALL CHECKS PASSED
+
+python3 rigorous/certify_dirichlet_routeB.py chi_3 10 8 20 50 1 4   # the certified window
+python3 verify/check_dirichlet_routeB.py                            # independent verification
+python3 rigorous/dirichlet_explicit.py                              # Route C: validated explicit formula
+
+cd ../..
+python3 lib/generality_figs.py       # the two figures of this note
+python3 010/rigorous/check_engine.py # the zeta engine behind Route A/C</code></pre>
+
+<h3>References</h3>
+<ol class="refs">
+<li>A. Selberg, <em>Old and new conjectures and results about a class of Dirichlet series</em>,
+    Proc. Amalfi Conf. (1992) &mdash; the axiomatic class that matches Route B&rsquo;s hypotheses.</li>
+<li>H. Iwaniec and E. Kowalski, <em>Analytic Number Theory</em>, AMS 2004, ch. 5 and 21 &mdash; the
+    functional equations, conductors and root numbers used in §7.</li>
+<li>A. M. Turing, <em>Some calculations of the Riemann zeta-function</em>, Proc. LMS <strong>3</strong>
+    (1953) &mdash; the counting method that generalises verbatim, being purely combinatorial.</li>
+<li>Mathlib: <code>NumberTheory/LSeries/DirichletContinuation.lean</code>
+    (<code>completedLFunction</code>, <code>rootNumber</code>,
+    <code>IsPrimitive.completedLFunction_one_sub</code>,
+    <code>differentiableAt_completedLFunction</code>),
+    <code>NumberTheory/LSeries/Dirichlet.lean</code>, <code>NumberTheory/EulerProduct/DirichletLSeries.lean</code>.</li>
+<li>This repository: <a href="../010/index.html">010</a> (Routes A/B/C in full),
+    <a href="../010/routes-abc-primer.html">the primer</a>,
+    <a href="../010/polygamma.html">the polygamma bridge</a>,
+    <a href="../010/lean/Rh45/RouteBGeneral.lean">RouteBGeneral.lean</a>,
+    <a href="notes/generality-lean.md">notes/generality-lean.md</a>.</li>
+</ol>
+
+<footer>
+  <p><strong>Can Routes A, B, C be generalised?</strong> &mdash; round
+  <code>research/twin-prime-parity/011/</code>. Answer: the theorem cores already are (L1); the
+  Dirichlet <code>L</code> instantiation (L2) is now one <em>numerical</em> engine away &mdash; every analytic
+  gap (conjugation reality, root-number sign) is closed in §7.3, and the engine is measured tractable
+  by <code>lib/dirichlet_engine_probe.py</code> &mdash; with the
+  functional-equation normalisation proved here; the method (L3) transfers; and the all-zeros
+  generalisation (L4) is impossible by construction.</p>
+  <p class="small">No certified window for any object other than <code>&zeta;</code> is claimed
+  anywhere in this note. The distinction
+  <span class="status s-yes">PROVED</span> / <span class="status s-part">PROVED CONDITIONALLY</span> /
+  <span class="status s-no">MISSING</span> is maintained throughout.</p>
+</footer>
+
+</div>
+</body>
+</html>

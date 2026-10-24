@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh7 — the sieve of sines in the 2π base</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The primes of the 2π base</h1>
+  <p class="sub">The sieve of sines, run inside the base-2π numeral: why a radix cannot move a prime, what the sieve turns out to be sieving instead, and why the p-row of the sieve is literally the factorization of p.</p>
+  <p class="meta">docs/rh7 · continues <a href="rh4.html">rh4</a>, <a href="rh5.html">rh5</a>, <a href="rh6.html">rh6</a> · figures computed, not sketched · 2026-07-31</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <a href="rh6.html#s1">rh6 §1</a> made the numeral positional in base 2π: the station angle is the residue, the winding is the carry. This document runs <a href="rh5.html#s1">rh5 §1</a>'s sine sieve inside that base. The direct answer is a negative one and it is worth stating first: <b>the primes are unchanged</b> — the first-miss cascade in base 2π is {2}→3→5→7→11→13, computed here twice, once on integers and once natively on rotations. The sieve reads <i>periods</i>, and a period is a count, not an angle; 2π is a unit of angle and never enters the count (§1). The substance is in what the sieve is sieving once it has been moved there. Gears become <b>rotations</b> ξ, with row sin(π<i>x</i>ξ), and they fall into three classes (§2): irrational ξ never closes at all — verified to <i>x</i> ≤ 2×10⁵ — so Lebesgue-almost every gear is invisible; rational ξ = <i>a</i>/<i>q</i> closes exactly on <i>q</i>ℤ, <b>independent of the numerator</b>; hence the sieve's entire visible world is the torsion subgroup ℚ/ℤ and primality lives in the <i>denominator</i>. The primes of the 2π base are therefore the <b>rotations of prime order</b> — the primitive <i>p</i>-th roots of unity. And then the sieve row turns out to be an old object in disguise (§3–4): |1 − ζ<sub><i>p</i></sub><sup><i>k</i></sup>| = 2 sin(π<i>k</i>/<i>p</i>), so rh5's chord identity ∏ 2 sin(π<i>k</i>/<i>p</i>) = <i>p</i> <i>is</i> Φ<sub><i>p</i></sub>(1) = <i>p</i>; the quotients (1−ζ<sup><i>k</i></sup>)/(1−ζ) are units; and <b><i>p</i> = unit · λ<sub><i>p</i></sub><sup><i>p</i>−1</sup></b> with λ<sub><i>p</i></sub> = 1 − ζ<sub><i>p</i></sub> — in the 2π base <i>p</i> is not prime but <i>totally ramified</i>, and the genuine prime's modulus 2 sin(π/<i>p</i>) is the row's opening chord. Only <i>p</i> = 2 is its own cyclotomic prime, which is the half-turn axiom. Dually (§5), ℚ/ℤ ≅ ⊕<sub><i>p</i></sub> ℤ(<i>p</i><sup>∞</sup>) is Pontryagin dual to the gear train Ẑ of <a href="rh5.html#s5">rh5 §5</a>: the primary decomposition is unique factorization, dualized, and Kronecker–Weber places the whole base at ℚ<sup>ab</sup> with Galois group Ẑ<sup>×</sup>. Taken literally as a radix (§6), 2π is transcendental, hence not a Parry number, hence no integer expansion terminates or repeats: 2, 3, 5 are single digits, 7 is the first prime needing a carry, and <b>in base 2π the primes keep their primality and lose their names</b>.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The answer, and why a radix cannot move a prime</a></li>
+  <li><a href="#s2">What the sieve sieves there: three kinds of rotation</a></li>
+  <li><a href="#s3">The prime rotations, and the row as a factorization</a></li>
+  <li><a href="#s4">Total ramification, and the seed gear as fixed point</a></li>
+  <li><a href="#s5">The dual picture: ℚ/ℤ against Ẑ</a></li>
+  <li><a href="#s6">2π taken literally as a radix</a></li>
+  <li><a href="#s7">What this settles</a></li>
+  <li><a href="#s8">Dictionary additions</a></li>
+</ol>
+</nav>
+
+<p class="kicker">Part I · The negative answer</p>
+
+<section class="prose" id="s1">
+<h2>1 · The answer, and why a radix cannot move a prime</h2>
+<p>The question is direct, so answer it directly. <b>The primes in the 2π base are the primes: 2, 3, 5, 7, 11, 13, …</b> The sieve's first-miss cascade was run here twice — once on integers as in <a href="rh5.html#s1">rh5 §1</a>, and once natively, enrolling <i>rotations</i> rather than divisors — and both produce</p>
+<div class="eq"><span class="tag">(1)</span>
+{2} ↦ 3, &nbsp; {2,3} ↦ 5, &nbsp; {2,3,5} ↦ 7, &nbsp; {2,3,5,7} ↦ 11, &nbsp; {2,3,5,7,11} ↦ 13.
+</div>
+<p>Nothing moved. The reason is worth stating in the construction's own vocabulary, because it is not a coincidence of this particular sieve. The sieve enrols a gear and asks when that gear <b>closes</b> — returns to its starting tooth. Closure is counted in <i>clicks</i>: gear <i>p</i> closes at click <i>n</i> exactly when <i>p</i> | <i>n</i>. A period is therefore a <b>count</b>, an element of ℕ. But 2π is a <b>unit of angle</b>. It measures the circle the gear turns on; it never appears in the tally of how many clicks the gear took. Changing the base rescales the ruler laid along the number line, and primality is not a property of the ruler.</p>
+<div class="box thm">
+<span class="lbl">Why no radix can do it</span>
+<p>A radix is a choice of <b>additive</b> bookkeeping: it fixes how a number is assembled from place values by addition. Primality is a statement about <b>multiplicative</b> structure — the impossibility of a factorization. The two structures are related only through distributivity, which every base shares. So "the primes in base <i>b</i>" is, for any <i>b</i> whatsoever, the same set of numbers wearing different names. This is why the interesting question is not <i>which</i> numbers are prime in the 2π base, but <b>which objects the sieve is acting on</b> once it has been moved there — and there the answer does change.</p>
+</div>
+</section>
+
+<p class="kicker">Part II · What the sieve actually sieves</p>
+
+<section class="prose" id="s2">
+<h2>2 · What the sieve sieves there: three kinds of rotation</h2>
+<p>In the base-2π numeral the natural object is not an integer <i>p</i> but a <b>rotation</b>. Let a gear advance by angle α per click and write ξ = α/2π for its rotation number. After <i>x</i> clicks it stands at angle 2π<i>x</i>ξ, so its chord distance from closure is 2<i>R</i>|sin(π<i>x</i>ξ)|: the sieve row is</p>
+<div class="eq"><span class="tag">(2)</span>
+<i>s</i><sub>ξ</sub>(<i>x</i>) = sin(π<i>x</i>ξ),
+&nbsp;&nbsp; with rh5's row sin(π<i>x</i>/<i>p</i>) the special case ξ = 1/<i>p</i>.
+</div>
+<p>Now the rotations sort themselves into three classes, and the sorting is the whole content of this section.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 432" role="img" aria-label="Three sieve rows in the two pi base: rotation by one fifth closes on multiples of five, rotation by two fifths has exactly the same zeros, and rotation by one over pi never closes at all">
+<text x="360.0" y="22" class="ftitle">what a rotation sieves: sin(&#960;&#8202;x&#8202;&#958;)</text>
+<line x1="78" y1="80" x2="706" y2="80" class="axis"/>
+<path d="M78.0 80.0L79.5 79.1L80.9 78.1L82.4 77.2L83.9 76.2L85.3 75.3L86.8 74.4L88.3 73.5L89.7 72.5L91.2 71.6L92.7 70.7L94.1 69.8L95.6 69.0L97.1 68.1L98.5 67.2L100.0 66.4L101.5 65.5L102.9 64.7L104.4 63.9L105.9 63.1L107.3 62.4L108.8 61.6L110.3 60.9L111.7 60.2L113.2 59.5L114.7 58.8L116.1 58.1L117.6 57.5L119.1 56.9L120.6 56.3L122.0 55.7L123.5 55.2L125.0 54.7L126.4 54.2L127.9 53.7L129.4 53.3L130.8 52.9L132.3 52.5L133.8 52.1L135.2 51.8L136.7 51.5L138.2 51.2L139.6 50.9L141.1 50.7L142.6 50.5L144.0 50.4L145.5 50.2L147.0 50.1L148.4 50.1L149.9 50.0L151.4 50.0L152.8 50.0L154.3 50.1L155.8 50.1L157.2 50.2L158.7 50.4L160.2 50.5L161.6 50.7L163.1 50.9L164.6 51.2L166.0 51.5L167.5 51.8L169.0 52.1L170.4 52.5L171.9 52.9L173.4 53.3L174.8 53.7L176.3 54.2L177.8 54.7L179.2 55.2L180.7 55.7L182.2 56.3L183.6 56.9L185.1 57.5L186.6 58.1L188.0 58.8L189.5 59.5L191.0 60.2L192.4 60.9L193.9 61.6L195.4 62.4L196.9 63.1L198.3 63.9L199.8 64.7L201.3 65.5L202.7 66.4L204.2 67.2L205.7 68.1L207.1 69.0L208.6 69.8L210.1 70.7L211.5 71.6L213.0 72.5L214.5 73.5L215.9 74.4L217.4 75.3L218.9 76.2L220.3 77.2L221.8 78.1L223.3 79.1L224.7 80.0L226.2 80.9L227.7 81.9L229.1 82.8L230.6 83.8L232.1 84.7L233.5 85.6L235.0 86.5L236.5 87.5L237.9 88.4L239.4 89.3L240.9 90.2L242.3 91.0L243.8 91.9L245.3 92.8L246.7 93.6L248.2 94.5L249.7 95.3L251.1 96.1L252.6 96.9L254.1 97.6L255.5 98.4L257.0 99.1L258.5 99.8L259.9 100.5L261.4 101.2L262.9 101.9L264.3 102.5L265.8 103.1L267.3 103.7L268.7 104.3L270.2 104.8L271.7 105.3L273.1 105.8L274.6 106.3L276.1 106.7L277.6 107.1L279.0 107.5L280.5 107.9L282.0 108.2L283.4 108.5L284.9 108.8L286.4 109.1L287.8 109.3L289.3 109.5L290.8 109.6L292.2 109.8L293.7 109.9L295.2 109.9L296.6 110.0L298.1 110.0L299.6 110.0L301.0 109.9L302.5 109.9L304.0 109.8L305.4 109.6L306.9 109.5L308.4 109.3L309.8 109.1L311.3 108.8L312.8 108.5L314.2 108.2L315.7 107.9L317.2 107.5L318.6 107.1L320.1 106.7L321.6 106.3L323.0 105.8L324.5 105.3L326.0 104.8L327.4 104.3L328.9 103.7L330.4 103.1L331.8 102.5L333.3 101.9L334.8 101.2L336.2 100.5L337.7 99.8L339.2 99.1L340.6 98.4L342.1 97.6L343.6 96.9L345.0 96.1L346.5 95.3L348.0 94.5L349.4 93.6L350.9 92.8L352.4 91.9L353.9 91.0L355.3 90.2L356.8 89.3L358.3 88.4L359.7 87.5L361.2 86.5L362.7 85.6L364.1 84.7L365.6 83.8L367.1 82.8L368.5 81.9L370.0 80.9L371.5 80.0L372.9 79.1L374.4 78.1L375.9 77.2L377.3 76.2L378.8 75.3L380.3 74.4L381.7 73.5L383.2 72.5L384.7 71.6L386.1 70.7L387.6 69.8L389.1 69.0L390.5 68.1L392.0 67.2L393.5 66.4L394.9 65.5L396.4 64.7L397.9 63.9L399.3 63.1L400.8 62.4L402.3 61.6L403.7 60.9L405.2 60.2L406.7 59.5L408.1 58.8L409.6 58.1L411.1 57.5L412.5 56.9L414.0 56.3L415.5 55.7L416.9 55.2L418.4 54.7L419.9 54.2L421.3 53.7L422.8 53.3L424.3 52.9L425.7 52.5L427.2 52.1L428.7 51.8L430.1 51.5L431.6 51.2L433.1 50.9L434.6 50.7L436.0 50.5L437.5 50.4L439.0 50.2L440.4 50.1L441.9 50.1L443.4 50.0L444.8 50.0L446.3 50.0L447.8 50.1L449.2 50.1L450.7 50.2L452.2 50.4L453.6 50.5L455.1 50.7L456.6 50.9L458.0 51.2L459.5 51.5L461.0 51.8L462.4 52.1L463.9 52.5L465.4 52.9L466.8 53.3L468.3 53.7L469.8 54.2L471.2 54.7L472.7 55.2L474.2 55.7L475.6 56.3L477.1 56.9L478.6 57.5L480.0 58.1L481.5 58.8L483.0 59.5L484.4 60.2L485.9 60.9L487.4 61.6L488.8 62.4L490.3 63.1L491.8 63.9L493.2 64.7L494.7 65.5L496.2 66.4L497.6 67.2L499.1 68.1L500.6 69.0L502.0 69.8L503.5 70.7L505.0 71.6L506.4 72.5L507.9 73.5L509.4 74.4L510.9 75.3L512.3 76.2L513.8 77.2L515.3 78.1L516.7 79.1L518.2 80.0L519.7 80.9L521.1 81.9L522.6 82.8L524.1 83.8L525.5 84.7L527.0 85.6L528.5 86.5L529.9 87.5L531.4 88.4L532.9 89.3L534.3 90.2L535.8 91.0L537.3 91.9L538.7 92.8L540.2 93.6L541.7 94.5L543.1 95.3L544.6 96.1L546.1 96.9L547.5 97.6L549.0 98.4L550.5 99.1L551.9 99.8L553.4 100.5L554.9 101.2L556.3 101.9L557.8 102.5L559.3 103.1L560.7 103.7L562.2 104.3L563.7 104.8L565.1 105.3L566.6 105.8L568.1 106.3L569.5 106.7L571.0 107.1L572.5 107.5L573.9 107.9L575.4 108.2L576.9 108.5L578.3 108.8L579.8 109.1L581.3 109.3L582.7 109.5L584.2 109.6L585.7 109.8L587.1 109.9L588.6 109.9L590.1 110.0L591.6 110.0L593.0 110.0L594.5 109.9L596.0 109.9L597.4 109.8L598.9 109.6L600.4 109.5L601.8 109.3L603.3 109.1L604.8 108.8L606.2 108.5L607.7 108.2L609.2 107.9L610.6 107.5L612.1 107.1L613.6 106.7L615.0 106.3L616.5 105.8L618.0 105.3L619.4 104.8L620.9 104.3L622.4 103.7L623.8 103.1L625.3 102.5L626.8 101.9L628.2 101.2L629.7 100.5L631.2 99.8L632.6 99.1L634.1 98.4L635.6 97.6L637.0 96.9L638.5 96.1L640.0 95.3L641.4 94.5L642.9 93.6L644.4 92.8L645.8 91.9L647.3 91.0L648.8 90.2L650.2 89.3L651.7 88.4L653.2 87.5L654.6 86.5L656.1 85.6L657.6 84.7L659.0 83.8L660.5 82.8L662.0 81.9L663.4 80.9L664.9 80.0L666.4 79.1L667.9 78.1L669.3 77.2L670.8 76.2L672.3 75.3L673.7 74.4L675.2 73.5L676.7 72.5L678.1 71.6L679.6 70.7L681.1 69.8L682.5 69.0L684.0 68.1L685.5 67.2L686.9 66.4L688.4 65.5L689.9 64.7L691.3 63.9L692.8 63.1L694.3 62.4L695.7 61.6L697.2 60.9L698.7 60.2L700.1 59.5L701.6 58.8L703.1 58.1L704.5 57.5L705.7 57.0" class="sine"/>
+<circle cx="224.7" cy="80" r="3.2" class="digit main"/>
+<circle cx="371.5" cy="80" r="3.2" class="digit main"/>
+<circle cx="518.2" cy="80" r="3.2" class="digit main"/>
+<circle cx="664.9" cy="80" r="3.2" class="digit main"/>
+<text x="8" y="84" class="flab st">&#958; = 1/5</text>
+<text x="78" y="132" class="flab st">closes at every fifth click &#8212; the zero set is 5&#8484;</text>
+<line x1="78" y1="192" x2="706" y2="192" class="axis"/>
+<path d="M78.0 192.0L79.2 190.5L80.3 189.0L81.5 187.5L82.7 186.0L83.9 184.5L85.0 183.1L86.2 181.7L87.4 180.3L88.6 178.9L89.7 177.5L90.9 176.2L92.4 174.7L93.8 173.2L95.3 171.7L96.8 170.4L98.2 169.1L99.7 168.0L101.2 166.9L102.7 165.9L104.1 165.0L105.6 164.2L107.1 163.6L108.5 163.0L110.0 162.6L111.5 162.3L112.9 162.1L114.4 162.0L115.9 162.0L117.3 162.2L118.8 162.5L120.3 162.9L121.7 163.4L123.2 164.0L124.7 164.7L126.1 165.5L127.6 166.5L129.1 167.5L130.5 168.6L132.0 169.9L133.5 171.2L134.9 172.6L136.4 174.1L137.9 175.6L139.3 177.2L140.5 178.5L141.7 179.9L142.9 181.3L144.0 182.7L145.2 184.2L146.4 185.6L147.5 187.1L148.7 188.6L149.9 190.1L151.1 191.6L152.2 193.1L153.4 194.6L154.6 196.1L155.8 197.6L156.9 199.1L158.1 200.6L159.3 202.0L160.5 203.4L161.6 204.8L162.8 206.1L164.0 207.4L165.5 209.0L166.9 210.5L168.4 212.0L169.9 213.3L171.3 214.6L172.8 215.8L174.3 216.9L175.7 217.9L177.2 218.8L178.7 219.6L180.1 220.3L181.6 220.9L183.1 221.3L184.5 221.7L186.0 221.9L187.5 222.0L188.9 222.0L190.4 221.8L191.9 221.6L193.3 221.2L194.8 220.8L196.3 220.2L197.7 219.5L199.2 218.6L200.7 217.7L202.1 216.7L203.6 215.6L205.1 214.4L206.5 213.1L208.0 211.7L209.5 210.2L210.9 208.7L212.4 207.1L213.6 205.8L214.8 204.4L215.9 203.0L217.1 201.6L218.3 200.2L219.4 198.7L220.6 197.3L221.8 195.8L223.0 194.3L224.1 192.8L225.3 191.2L226.5 189.7L227.7 188.2L228.8 186.7L230.0 185.3L231.2 183.8L232.4 182.4L233.5 181.0L234.7 179.6L235.9 178.2L237.1 176.9L238.5 175.3L240.0 173.8L241.5 172.3L242.9 170.9L244.4 169.6L245.9 168.4L247.3 167.3L248.8 166.3L250.3 165.4L251.7 164.5L253.2 163.8L254.7 163.2L256.1 162.8L257.6 162.4L259.1 162.2L260.5 162.0L262.0 162.0L263.5 162.1L264.9 162.3L266.4 162.7L267.9 163.1L269.3 163.7L270.8 164.4L272.3 165.2L273.7 166.1L275.2 167.1L276.7 168.2L278.1 169.4L279.6 170.7L281.1 172.0L282.5 173.5L284.0 175.0L285.5 176.6L286.6 177.9L287.8 179.2L289.0 180.6L290.2 182.0L291.3 183.4L292.5 184.9L293.7 186.4L294.9 187.9L296.0 189.4L297.2 190.9L298.4 192.4L299.6 193.9L300.7 195.4L301.9 196.9L303.1 198.4L304.3 199.8L305.4 201.3L306.6 202.7L307.8 204.1L309.0 205.5L310.1 206.8L311.6 208.4L313.1 209.9L314.5 211.4L316.0 212.8L317.5 214.1L318.9 215.4L320.4 216.5L321.9 217.5L323.3 218.5L324.8 219.3L326.3 220.0L327.7 220.6L329.2 221.1L330.7 221.5L332.1 221.8L333.6 222.0L335.1 222.0L336.5 221.9L338.0 221.7L339.5 221.4L340.9 221.0L342.4 220.4L343.9 219.8L345.3 219.0L346.8 218.1L348.3 217.1L349.7 216.0L351.2 214.9L352.7 213.6L354.1 212.3L355.6 210.8L357.1 209.3L358.5 207.8L359.7 206.5L360.9 205.1L362.1 203.7L363.2 202.3L364.4 200.9L365.6 199.5L366.8 198.0L367.9 196.5L369.1 195.0L370.3 193.5L371.5 192.0L372.6 190.5L373.8 189.0L375.0 187.5L376.2 186.0L377.3 184.5L378.5 183.1L379.7 181.7L380.8 180.3L382.0 178.9L383.2 177.5L384.4 176.2L385.8 174.7L387.3 173.2L388.8 171.7L390.2 170.4L391.7 169.1L393.2 168.0L394.6 166.9L396.1 165.9L397.6 165.0L399.0 164.2L400.5 163.6L402.0 163.0L403.4 162.6L404.9 162.3L406.4 162.1L407.8 162.0L409.3 162.0L410.8 162.2L412.2 162.5L413.7 162.9L415.2 163.4L416.7 164.0L418.1 164.7L419.6 165.5L421.1 166.5L422.5 167.5L424.0 168.6L425.5 169.9L426.9 171.2L428.4 172.6L429.9 174.1L431.3 175.6L432.8 177.2L434.0 178.5L435.1 179.9L436.3 181.3L437.5 182.7L438.7 184.2L439.8 185.6L441.0 187.1L442.2 188.6L443.4 190.1L444.5 191.6L445.7 193.1L446.9 194.6L448.1 196.1L449.2 197.6L450.4 199.1L451.6 200.6L452.7 202.0L453.9 203.4L455.1 204.8L456.3 206.1L457.4 207.4L458.9 209.0L460.4 210.5L461.8 212.0L463.3 213.3L464.8 214.6L466.2 215.8L467.7 216.9L469.2 217.9L470.6 218.8L472.1 219.6L473.6 220.3L475.0 220.9L476.5 221.3L478.0 221.7L479.5 221.9L480.9 222.0L482.4 222.0L483.9 221.8L485.3 221.6L486.8 221.2L488.3 220.8L489.7 220.2L491.2 219.5L492.7 218.6L494.1 217.7L495.6 216.7L497.1 215.6L498.5 214.4L500.0 213.1L501.5 211.7L502.9 210.2L504.4 208.7L505.9 207.1L507.0 205.8L508.2 204.4L509.4 203.0L510.6 201.6L511.7 200.2L512.9 198.7L514.1 197.3L515.3 195.8L516.4 194.3L517.6 192.8L518.8 191.2L519.9 189.7L521.1 188.2L522.3 186.7L523.5 185.3L524.6 183.8L525.8 182.4L527.0 181.0L528.2 179.6L529.3 178.2L530.5 176.9L532.0 175.3L533.4 173.8L534.9 172.3L536.4 170.9L537.8 169.6L539.3 168.4L540.8 167.3L542.3 166.3L543.7 165.4L545.2 164.5L546.7 163.8L548.1 163.2L549.6 162.8L551.1 162.4L552.5 162.2L554.0 162.0L555.5 162.0L556.9 162.1L558.4 162.3L559.9 162.7L561.3 163.1L562.8 163.7L564.3 164.4L565.7 165.2L567.2 166.1L568.7 167.1L570.1 168.2L571.6 169.4L573.1 170.7L574.5 172.0L576.0 173.5L577.5 175.0L578.9 176.6L580.1 177.9L581.3 179.2L582.5 180.6L583.6 182.0L584.8 183.4L586.0 184.9L587.1 186.4L588.3 187.9L589.5 189.4L590.7 190.9L591.8 192.4L593.0 193.9L594.2 195.4L595.4 196.9L596.5 198.4L597.7 199.8L598.9 201.3L600.1 202.7L601.2 204.1L602.4 205.5L603.6 206.8L605.1 208.4L606.5 209.9L608.0 211.4L609.5 212.8L610.9 214.1L612.4 215.4L613.9 216.5L615.3 217.5L616.8 218.5L618.3 219.3L619.7 220.0L621.2 220.6L622.7 221.1L624.1 221.5L625.6 221.8L627.1 222.0L628.5 222.0L630.0 221.9L631.5 221.7L632.9 221.4L634.4 221.0L635.9 220.4L637.3 219.8L638.8 219.0L640.3 218.1L641.7 217.1L643.2 216.0L644.7 214.9L646.1 213.6L647.6 212.3L649.1 210.8L650.5 209.3L652.0 207.8L653.2 206.5L654.4 205.1L655.5 203.7L656.7 202.3L657.9 200.9L659.0 199.5L660.2 198.0L661.4 196.5L662.6 195.0L663.7 193.5L664.9 192.0L666.1 190.5L667.3 189.0L668.4 187.5L669.6 186.0L670.8 184.5L672.0 183.1L673.1 181.7L674.3 180.3L675.5 178.9L676.7 177.5L677.8 176.2L679.3 174.7L680.8 173.2L682.2 171.7L683.7 170.4L685.2 169.1L686.6 168.0L688.1 166.9L689.6 165.9L691.0 165.0L692.5 164.2L694.0 163.6L695.4 163.0L696.9 162.6L698.4 162.3L699.8 162.1L701.3 162.0L702.8 162.0L704.2 162.2L705.7 162.5" class="sine"/>
+<circle cx="224.7" cy="192" r="3.2" class="digit main"/>
+<circle cx="371.5" cy="192" r="3.2" class="digit main"/>
+<circle cx="518.2" cy="192" r="3.2" class="digit main"/>
+<circle cx="664.9" cy="192" r="3.2" class="digit main"/>
+<text x="8" y="196" class="flab st">&#958; = 2/5</text>
+<text x="78" y="244" class="flab st">twice the speed, <tspan class="c1">the same zeros</tspan> &#8212; the sieve cannot see the numerator</text>
+<line x1="78" y1="304" x2="706" y2="304" class="axis"/>
+<path d="M78.0 304.0L79.5 302.5L80.9 301.0L82.4 299.5L83.9 298.0L85.3 296.6L86.8 295.1L88.3 293.7L89.7 292.3L91.2 291.0L92.7 289.6L94.1 288.3L95.6 287.1L97.1 285.8L98.5 284.7L100.0 283.6L101.5 282.5L102.9 281.5L104.4 280.5L105.9 279.6L107.3 278.8L108.8 278.0L110.3 277.3L111.7 276.6L113.2 276.0L114.7 275.5L116.1 275.1L117.6 274.7L119.1 274.4L120.6 274.2L122.0 274.1L123.5 274.0L125.0 274.0L126.4 274.1L127.9 274.3L129.4 274.5L130.8 274.8L132.3 275.2L133.8 275.6L135.2 276.1L136.7 276.7L138.2 277.4L139.6 278.1L141.1 278.9L142.6 279.7L144.0 280.7L145.5 281.6L147.0 282.7L148.4 283.7L149.9 284.9L151.4 286.0L152.8 287.3L154.3 288.5L155.8 289.8L157.2 291.2L158.7 292.6L160.2 294.0L161.6 295.4L163.1 296.8L164.6 298.3L166.0 299.8L167.5 301.3L169.0 302.8L170.4 304.3L171.9 305.8L173.4 307.2L174.8 308.7L176.3 310.2L177.8 311.7L179.2 313.1L180.7 314.5L182.2 315.9L183.6 317.3L185.1 318.6L186.6 319.9L188.0 321.1L189.5 322.4L191.0 323.5L192.4 324.6L193.9 325.7L195.4 326.7L196.9 327.7L198.3 328.5L199.8 329.4L201.3 330.1L202.7 330.8L204.2 331.5L205.7 332.1L207.1 332.5L208.6 333.0L210.1 333.3L211.5 333.6L213.0 333.8L214.5 333.9L215.9 334.0L217.4 334.0L218.9 333.9L220.3 333.7L221.8 333.5L223.3 333.2L224.7 332.8L226.2 332.3L227.7 331.8L229.1 331.2L230.6 330.5L232.1 329.8L233.5 329.0L235.0 328.1L236.5 327.2L237.9 326.2L239.4 325.2L240.9 324.1L242.3 322.9L243.8 321.8L245.3 320.5L246.7 319.2L248.2 317.9L249.7 316.6L251.1 315.2L252.6 313.8L254.1 312.4L255.5 310.9L257.0 309.5L258.5 308.0L259.9 306.5L261.4 305.0L262.9 303.5L264.3 302.0L265.8 300.5L267.3 299.0L268.7 297.5L270.2 296.1L271.7 294.7L273.1 293.2L274.6 291.9L276.1 290.5L277.6 289.2L279.0 287.9L280.5 286.6L282.0 285.4L283.4 284.3L284.9 283.2L286.4 282.1L287.8 281.1L289.3 280.2L290.8 279.3L292.2 278.5L293.7 277.7L295.2 277.0L296.6 276.4L298.1 275.9L299.6 275.4L301.0 275.0L302.5 274.6L304.0 274.4L305.4 274.2L306.9 274.0L308.4 274.0L309.8 274.0L311.3 274.1L312.8 274.3L314.2 274.6L315.7 274.9L317.2 275.3L318.6 275.8L320.1 276.3L321.6 276.9L323.0 277.6L324.5 278.4L326.0 279.2L327.4 280.0L328.9 281.0L330.4 282.0L331.8 283.0L333.3 284.1L334.8 285.3L336.2 286.5L337.7 287.7L339.2 289.0L340.6 290.3L342.1 291.6L343.6 293.0L345.0 294.4L346.5 295.9L348.0 297.3L349.4 298.8L350.9 300.3L352.4 301.8L353.9 303.3L355.3 304.8L356.8 306.3L358.3 307.7L359.7 309.2L361.2 310.7L362.7 312.2L364.1 313.6L365.6 315.0L367.1 316.4L368.5 317.7L370.0 319.0L371.5 320.3L372.9 321.6L374.4 322.8L375.9 323.9L377.3 325.0L378.8 326.0L380.3 327.0L381.7 328.0L383.2 328.8L384.7 329.6L386.1 330.4L387.6 331.1L389.1 331.7L390.5 332.2L392.0 332.7L393.5 333.1L394.9 333.4L396.4 333.7L397.9 333.9L399.3 334.0L400.8 334.0L402.3 334.0L403.7 333.8L405.2 333.6L406.7 333.4L408.1 333.0L409.6 332.6L411.1 332.1L412.5 331.6L414.0 331.0L415.5 330.3L416.9 329.5L418.4 328.7L419.9 327.8L421.3 326.9L422.8 325.9L424.3 324.8L425.7 323.7L427.2 322.5L428.7 321.3L430.1 320.1L431.6 318.8L433.1 317.5L434.6 316.1L436.0 314.7L437.5 313.3L439.0 311.9L440.4 310.4L441.9 309.0L443.4 307.5L444.8 306.0L446.3 304.5L447.8 303.0L449.2 301.5L450.7 300.0L452.2 298.5L453.6 297.1L455.1 295.6L456.6 294.2L458.0 292.8L459.5 291.4L461.0 290.1L462.4 288.7L463.9 287.5L465.4 286.2L466.8 285.1L468.3 283.9L469.8 282.8L471.2 281.8L472.7 280.8L474.2 279.9L475.6 279.0L477.1 278.2L478.6 277.5L480.0 276.8L481.5 276.2L483.0 275.7L484.4 275.2L485.9 274.8L487.4 274.5L488.8 274.3L490.3 274.1L491.8 274.0L493.2 274.0L494.7 274.1L496.2 274.2L497.6 274.4L499.1 274.7L500.6 275.0L502.0 275.5L503.5 276.0L505.0 276.5L506.4 277.2L507.9 277.9L509.4 278.6L510.9 279.5L512.3 280.4L513.8 281.3L515.3 282.3L516.7 283.4L518.2 284.5L519.7 285.7L521.1 286.9L522.6 288.1L524.1 289.4L525.5 290.7L527.0 292.1L528.5 293.5L529.9 294.9L531.4 296.3L532.9 297.8L534.3 299.3L535.8 300.8L537.3 302.3L538.7 303.8L540.2 305.3L541.7 306.8L543.1 308.2L544.6 309.7L546.1 311.2L547.5 312.6L549.0 314.1L550.5 315.5L551.9 316.8L553.4 318.2L554.9 319.5L556.3 320.7L557.8 322.0L559.3 323.1L560.7 324.3L562.2 325.4L563.7 326.4L565.1 327.4L566.6 328.3L568.1 329.1L569.5 329.9L571.0 330.6L572.5 331.3L573.9 331.9L575.4 332.4L576.9 332.8L578.3 333.2L579.8 333.5L581.3 333.8L582.7 333.9L584.2 334.0L585.7 334.0L587.1 333.9L588.6 333.8L590.1 333.6L591.6 333.3L593.0 332.9L594.5 332.5L596.0 332.0L597.4 331.4L598.9 330.7L600.4 330.0L601.8 329.2L603.3 328.4L604.8 327.5L606.2 326.5L607.7 325.5L609.2 324.4L610.6 323.3L612.1 322.1L613.6 320.9L615.0 319.7L616.5 318.4L618.0 317.0L619.4 315.7L620.9 314.3L622.4 312.9L623.8 311.4L625.3 309.9L626.8 308.5L628.2 307.0L629.7 305.5L631.2 304.0L632.6 302.5L634.1 301.0L635.6 299.5L637.0 298.0L638.5 296.6L640.0 295.1L641.4 293.7L642.9 292.3L644.4 290.9L645.8 289.6L647.3 288.3L648.8 287.0L650.2 285.8L651.7 284.7L653.2 283.5L654.6 282.5L656.1 281.5L657.6 280.5L659.0 279.6L660.5 278.7L662.0 278.0L663.4 277.3L664.9 276.6L666.4 276.0L667.9 275.5L669.3 275.1L670.8 274.7L672.3 274.4L673.7 274.2L675.2 274.1L676.7 274.0L678.1 274.0L679.6 274.1L681.1 274.3L682.5 274.5L684.0 274.8L685.5 275.2L686.9 275.6L688.4 276.1L689.9 276.7L691.3 277.4L692.8 278.1L694.3 278.9L695.7 279.8L697.2 280.7L698.7 281.6L700.1 282.7L701.6 283.7L703.1 284.9L704.5 286.1L705.7 287.0" class="sine irr"/>
+<circle cx="166.0" cy="299.8" r="2.4" class="digit alt"/>
+<circle cx="254.1" cy="312.4" r="2.4" class="digit alt"/>
+<circle cx="547.5" cy="312.6" r="2.4" class="digit alt"/>
+<circle cx="635.6" cy="299.5" r="2.4" class="digit alt"/>
+<text x="8" y="308" class="flab st">&#958; = 1/&#960;</text>
+<text x="78" y="356" class="flab st">never closes at any click &#8212; only near-misses, which equidistribute</text>
+<line x1="78" y1="384" x2="706" y2="384" class="axis"/>
+<line x1="78.0" y1="384" x2="78.0" y2="389" class="axis"/>
+<text x="78.0" y="403" class="flab">0</text>
+<line x1="107.3" y1="384" x2="107.3" y2="387" class="axis"/>
+<line x1="136.7" y1="384" x2="136.7" y2="387" class="axis"/>
+<line x1="166.0" y1="384" x2="166.0" y2="387" class="axis"/>
+<line x1="195.4" y1="384" x2="195.4" y2="387" class="axis"/>
+<line x1="224.7" y1="384" x2="224.7" y2="389" class="axis"/>
+<text x="224.7" y="403" class="flab">5</text>
+<line x1="254.1" y1="384" x2="254.1" y2="387" class="axis"/>
+<line x1="283.4" y1="384" x2="283.4" y2="387" class="axis"/>
+<line x1="312.8" y1="384" x2="312.8" y2="387" class="axis"/>
+<line x1="342.1" y1="384" x2="342.1" y2="387" class="axis"/>
+<line x1="371.5" y1="384" x2="371.5" y2="389" class="axis"/>
+<text x="371.5" y="403" class="flab">10</text>
+<line x1="400.8" y1="384" x2="400.8" y2="387" class="axis"/>
+<line x1="430.1" y1="384" x2="430.1" y2="387" class="axis"/>
+<line x1="459.5" y1="384" x2="459.5" y2="387" class="axis"/>
+<line x1="488.8" y1="384" x2="488.8" y2="387" class="axis"/>
+<line x1="518.2" y1="384" x2="518.2" y2="389" class="axis"/>
+<text x="518.2" y="403" class="flab">15</text>
+<line x1="547.5" y1="384" x2="547.5" y2="387" class="axis"/>
+<line x1="576.9" y1="384" x2="576.9" y2="387" class="axis"/>
+<line x1="606.2" y1="384" x2="606.2" y2="387" class="axis"/>
+<line x1="635.6" y1="384" x2="635.6" y2="387" class="axis"/>
+<line x1="664.9" y1="384" x2="664.9" y2="389" class="axis"/>
+<text x="664.9" y="403" class="flab">20</text>
+<line x1="694.3" y1="384" x2="694.3" y2="387" class="axis"/>
+<text x="706" y="377" class="flab end">click x</text>
+<text x="8" y="403" class="flab st">&#9679; closure &#183; <tspan class="c2">&#9679;</tspan> near-miss</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the three kinds of rotation.</b> Top: ξ = 1/5 closes at every fifth click (violet dots). Middle: ξ = 2/5 traces a visibly different path — it steps twice as fast around the circle — yet its closures are the <i>same set</i>, 5ℤ: the sieve cannot see the numerator. Bottom: ξ = 1/π never closes at any click; only near-misses (orange), which by Weyl equidistribution fill the circle uniformly and, at any finite stage, in gaps of at most three lengths (<a href="rh5.html#s6">rh5 §6</a>). Computed: over <i>x</i> ≤ 2×10⁵ the row for 1/π never comes nearer to closure than 1.10×10<sup>−5</sup>, and the golden, √2−1 and <i>e</i>−2 rotations behave the same way.</figcaption>
+</figure>
+<p><b>Irrational ξ: never closes.</b> If ξ is irrational then <i>x</i>ξ is never an integer for <i>x</i> ≥ 1, so <i>s</i><sub>ξ</sub>(<i>x</i>) ≠ 0 always. Such a gear sieves <i>nothing</i>: it deletes no integer, announces no prime, and contributes no row to the product. Since the rationals are Lebesgue-null in the circle, <b>almost every rotation is invisible to the sieve</b>. This is <a href="rh5.html#s6">rh5 §6</a>'s breach theorem arriving from the other side: there, exact incidence was shown to be reserved to a discrete lattice; here that same lattice is exactly the part of the circle the sieve can read at all.</p>
+<p><b>Rational ξ = <i>a</i>/<i>q</i>: closes on <i>q</i>ℤ, and the numerator is invisible.</b> With gcd(<i>a</i>, <i>q</i>) = 1, sin(π<i>xa</i>/<i>q</i>) = 0 ⟺ <i>q</i> | <i>xa</i> ⟺ <i>q</i> | <i>x</i>. Verified here for every reduced <i>a</i>/<i>q</i> with <i>q</i> ≤ 24: all φ(<i>q</i>) rotations of denominator <i>q</i> have <i>identical</i> zero sets. The gear's <i>speed</i> is the numerator and its <i>period</i> is the denominator, and the sieve — which reads only closures — sees the period alone.</p>
+<div class="box rh">
+<span class="lbl">The relocation</span>
+<p>The sieve's visible world in the 2π base is the <b>torsion subgroup</b> ℚ/ℤ of the circle: the rotations of finite order. On that world the sieve is the sieve of Eratosthenes run on <b>denominators</b>. Hence the answer to the question as an object-level question: <b>the primes of the 2π base are the rotations of prime order</b> — the primitive <i>p</i>-th roots of unity <i>e</i><sup>2π<i>ia</i>/<i>p</i></sup>, of which there are φ(<i>p</i>) = <i>p</i> − 1 for each prime <i>p</i>, all sieving identically.</p>
+</div>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · The prime rotations, and the row as a factorization</h2>
+<p>Having moved the primes onto the circle, one identity does all the remaining work. For any root of unity, |1 − <i>e</i><sup><i>i</i>θ</sup>| = 2|sin(θ/2)|, so with ζ<sub><i>p</i></sub> = <i>e</i><sup>2π<i>i</i>/<i>p</i></sup>,</p>
+<div class="eq"><span class="tag">(3)</span>
+|1 − ζ<sub><i>p</i></sub><sup><i>k</i></sup>| = 2 sin(π<i>k</i>/<i>p</i>) :
+</div>
+<p>the sieve's <i>p</i>-row, sampled at the clicks <i>k</i> = 1, …, <i>p</i>−1, is precisely the list of distances from the point 1 to the other <i>p</i>-th roots of unity — the chords of Figure 2. Verified to 10<sup>−13</sup> for <i>p</i> ≤ 13. And rh5's chord identity, which there looked like a pleasant fact about polygons, is now recognizable:</p>
+<div class="eq"><span class="tag">(4)</span>
+<span class="bigop"><span class="up"><i>p</i>−1</span><span class="sym">∏</span><span class="lo"><i>k</i>=1</span></span>
+2 sin(π<i>k</i>/<i>p</i>)
+&nbsp;=&nbsp;
+<span class="bigop"><span class="up"><i>p</i>−1</span><span class="sym">∏</span><span class="lo"><i>k</i>=1</span></span>
+(1 − ζ<sub><i>p</i></sub><sup><i>k</i></sup>)
+&nbsp;=&nbsp; Φ<sub><i>p</i></sub>(1) &nbsp;=&nbsp; <i>p</i>,
+</div>
+<p>where Φ<sub><i>p</i></sub>(<i>x</i>) = 1 + <i>x</i> + ⋯ + <i>x</i><sup><i>p</i>−1</sup> is the <i>p</i>-th cyclotomic polynomial. Both products computed to 10<sup>−9</sup> for <i>p</i> = 2, 3, 5, 7, 11, 13. <b>The <i>p</i>-row of the sine sieve is the factorization of <i>p</i> in the 2π base</b>, written out chord by chord — not an analogy for it, the thing itself. What rh5 §1 could only say as "place value is the circle's own trigonometry" is here the exact statement that the row multiplies to the integer it belongs to.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 392" role="img" aria-label="The eleven sided polygon with every chord drawn from the vertex at one; the ten chord lengths are two sine of pi k over eleven and the table beside it shows their running product reaching exactly eleven">
+<text x="360.0" y="22" class="ftitle">the 11-row, drawn: the chords from 1 multiply to 11</text>
+<circle cx="186" cy="210" r="142" class="gear"/>
+<line x1="186.0" y1="68.0" x2="262.8" y2="90.5" class="chord hi"/>
+<line x1="186.0" y1="68.0" x2="315.2" y2="151.0" class="chord"/>
+<line x1="186.0" y1="68.0" x2="326.6" y2="230.2" class="chord"/>
+<line x1="186.0" y1="68.0" x2="293.3" y2="303.0" class="chord"/>
+<line x1="186.0" y1="68.0" x2="226.0" y2="346.2" class="chord"/>
+<line x1="186.0" y1="68.0" x2="146.0" y2="346.2" class="chord"/>
+<line x1="186.0" y1="68.0" x2="78.7" y2="303.0" class="chord"/>
+<line x1="186.0" y1="68.0" x2="45.4" y2="230.2" class="chord"/>
+<line x1="186.0" y1="68.0" x2="56.8" y2="151.0" class="chord"/>
+<line x1="186.0" y1="68.0" x2="109.2" y2="90.5" class="chord"/>
+<circle cx="186.0" cy="68.0" r="3.8" class="digit main"/>
+<circle cx="262.8" cy="90.5" r="2.8" class="digit"/>
+<circle cx="315.2" cy="151.0" r="2.8" class="digit"/>
+<circle cx="326.6" cy="230.2" r="2.8" class="digit"/>
+<circle cx="293.3" cy="303.0" r="2.8" class="digit"/>
+<circle cx="226.0" cy="346.2" r="2.8" class="digit"/>
+<circle cx="146.0" cy="346.2" r="2.8" class="digit"/>
+<circle cx="78.7" cy="303.0" r="2.8" class="digit"/>
+<circle cx="45.4" cy="230.2" r="2.8" class="digit"/>
+<circle cx="56.8" cy="151.0" r="2.8" class="digit"/>
+<circle cx="109.2" cy="90.5" r="2.8" class="digit"/>
+<text x="186.0" y="55.0" class="flab c1">1</text>
+<text x="274.8" y="92.5" class="flab st c2">&#950;<tspan dy="3" font-size="9">11</tspan></text>
+<text x="186" y="382.0" class="flab c2">the short chord is &#955;<tspan dy="3" font-size="9">11</tspan><tspan dy="-3">, the true prime</tspan></text>
+<text x="404" y="52" class="flab st">k</text>
+<text x="496" y="52" class="flab end">2&#8202;sin(&#960;k/11)</text>
+<text x="614" y="52" class="flab end">running product</text>
+<line x1="396" y1="58" x2="618" y2="58" class="axis"/>
+<text x="404" y="74" class="flab st">1</text>
+<text x="496" y="74" class="flab end c2">0.5635</text>
+<text x="614" y="74" class="flab end">0.5635</text>
+<text x="404" y="96" class="flab st">2</text>
+<text x="496" y="96" class="flab end">1.0813</text>
+<text x="614" y="96" class="flab end">0.6093</text>
+<text x="404" y="118" class="flab st">3</text>
+<text x="496" y="118" class="flab end">1.5115</text>
+<text x="614" y="118" class="flab end">0.9209</text>
+<text x="404" y="140" class="flab st">4</text>
+<text x="496" y="140" class="flab end">1.8193</text>
+<text x="614" y="140" class="flab end">1.6754</text>
+<text x="404" y="162" class="flab st">5</text>
+<text x="496" y="162" class="flab end">1.9796</text>
+<text x="614" y="162" class="flab end">3.3166</text>
+<text x="404" y="184" class="flab st">6</text>
+<text x="496" y="184" class="flab end">1.9796</text>
+<text x="614" y="184" class="flab end">6.5657</text>
+<text x="404" y="206" class="flab st">7</text>
+<text x="496" y="206" class="flab end">1.8193</text>
+<text x="614" y="206" class="flab end">11.9448</text>
+<text x="404" y="228" class="flab st">8</text>
+<text x="496" y="228" class="flab end">1.5115</text>
+<text x="614" y="228" class="flab end">18.0546</text>
+<text x="404" y="250" class="flab st">9</text>
+<text x="496" y="250" class="flab end">1.0813</text>
+<text x="614" y="250" class="flab end">19.5221</text>
+<text x="404" y="272" class="flab st">10</text>
+<text x="496" y="272" class="flab end">0.5635</text>
+<text x="614" y="272" class="flab end">11.0000</text>
+<line x1="396" y1="286" x2="618" y2="286" class="axis"/>
+<text x="614" y="304" class="flab end c1">= 11 exactly &#8212; &#934;<tspan dy="3" font-size="9">11</tspan><tspan dy="-3">(1)</tspan></text>
+<text x="396" y="330" class="flab st">11 = unit &#183; &#955;<tspan dy="3" font-size="9">11</tspan><tspan dy="-8" font-size="9">10</tspan></text>
+<text x="396" y="346" class="flab st c2">&#8212; totally ramified</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — the 11-row, drawn.</b> The eleven 11-th roots of unity, with every chord from the vertex at 1 to the others. The chord to ζ<sub>11</sub><sup><i>k</i></sup> has length 2 sin(π<i>k</i>/11) — the <i>k</i>-th sample of the sieve's 11-row — and the ten chords multiply to exactly 11 (computed 11.000000000). The shortest chord, λ<sub>11</sub> = |1 − ζ<sub>11</sub>| = 0.5635, is the genuine prime; 11 itself is its tenth power up to a unit.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · Total ramification, and the seed gear as fixed point</h2>
+<p>Equation (4) contains more than a product. Each factor is the shortest chord times a ratio,</p>
+<div class="eq"><span class="tag">(5)</span>
+<span class="fr"><span class="nu">1 − ζ<sup><i>k</i></sup></span><span class="de">1 − ζ</span></span>
+= 1 + ζ + ⋯ + ζ<sup><i>k</i>−1</sup>,
+</div>
+<p>and every one of these ratios is a <b>unit</b>: its norm is ∏<sub><i>j</i></sub>(1 − ζ<sup><i>jk</i></sup>)/∏<sub><i>j</i></sub>(1 − ζ<sup><i>j</i></sup>) = <i>p</i>/<i>p</i> = 1, verified numerically to 10<sup>−8</sup> for every <i>k</i> and every <i>p</i> ≤ 13. Writing λ<sub><i>p</i></sub> = 1 − ζ<sub><i>p</i></sub>, equation (4) collapses to</p>
+<div class="eq"><span class="tag">(6)</span>
+<i>p</i> = (unit) · λ<sub><i>p</i></sub><sup><i>p</i>−1</sup>,
+&nbsp;&nbsp; |λ<sub><i>p</i></sub>| = 2 sin(π/<i>p</i>).
+</div>
+<div class="box thm">
+<span class="lbl">The primes are not where they were</span>
+<p>In the 2π base <i>p</i> is <b>not a prime element at all</b>: it is a (<i>p</i>−1)-st power. The genuine prime is λ<sub><i>p</i></sub> = 1 − ζ<sub><i>p</i></sub>, and <i>p</i> is <b>totally ramified</b> — the ramification index equals the full degree <i>p</i>−1 of the extension. This is classical (Washington, <i>Cyclotomic Fields</i>, Lemma 1.4); what the geometry contributes is the reading: <b>the modulus of the true prime is the opening chord of the sieve's row</b>, 2 sin(π/<i>p</i>), the first sample the sieve ever takes of gear <i>p</i>.</p>
+</div>
+<p>The numbers make the relocation vivid. As <i>p</i> grows the integer <i>p</i> grows while its prime λ<sub><i>p</i></sub> <i>shrinks</i>, the two reconciled by the exponent:</p>
+<table class="zeros">
+<tr><th><i>p</i></th><th>λ<sub><i>p</i></sub> = 2 sin(π/<i>p</i>)</th><th>λ<sub><i>p</i></sub><sup><i>p</i>−1</sup> · |units|</th></tr>
+<tr><td>2</td><td>2.000000</td><td>2</td></tr>
+<tr><td>3</td><td>1.732051</td><td>3</td></tr>
+<tr><td>5</td><td>1.175570</td><td>5</td></tr>
+<tr><td>7</td><td>0.867767</td><td>7</td></tr>
+<tr><td>11</td><td>0.563465</td><td>11</td></tr>
+<tr><td>13</td><td>0.478631</td><td>13</td></tr>
+</table>
+<p><b>The seed gear is the fixed point.</b> At <i>p</i> = 2 the exponent <i>p</i>−1 is 1 and the chord is the diameter: λ<sub>2</sub> = 1 − <i>e</i><sup><i>i</i>π</sup> = 1 − (−1) = 2, exactly. So 2 is the one prime that is <i>already</i> its own cyclotomic prime, unramified and unmoved by the change of base — and 1 − <i>e</i><sup><i>i</i>π</sup> is nothing but the phase-opposite axiom of <a href="rh4.html#s2">rh4</a>, the half-turn, written as an algebraic element. The axiom that <a href="rh5.html#s1">rh5 §1</a> found seeding the sieve is the same object that here refuses to ramify. Every other prime disperses into <i>p</i>−1 conjugate chords; the half-turn stands alone.</p>
+<p>One further identity closes the picture, and it is the sieve's bookkeeping made exact. The closure poset — which gears close at which clicks — is the divisor lattice, and cyclotomic polynomials factor along it:</p>
+<div class="eq"><span class="tag">(7)</span>
+<i>x</i><sup><i>n</i></sup> − 1 =
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∏</span><span class="lo"><i>d</i> | <i>n</i></span></span>
+Φ<sub><i>d</i></sub>(<i>x</i>),
+</div>
+<p>verified at <i>n</i> = 6, 12, 30, 36. Reading it in the geometry: the rotations that close by click <i>n</i> are partitioned by their exact order <i>d</i>, one cyclotomic factor per divisor — <a href="rh5.html#s1">rh5 §1</a>'s statement that a gear's closures are its multiples, promoted from a set identity to a polynomial one.</p>
+</section>
+
+<p class="kicker">Part III · The dual, the radix, the balance</p>
+
+<section class="prose" id="s5">
+<h2>5 · The dual picture: ℚ/ℤ against Ẑ</h2>
+<p><a href="rh5.html#s5">rh5 §5</a> identified the gear train's state space as the profinite integers Ẑ = lim<sub>←</sub> ℤ/<i>m</i>. The sieve's visible world here is the torsion subgroup ℚ/ℤ. These are not two unrelated finds: <b>ℚ/ℤ is the Pontryagin dual of Ẑ</b>. The train's states and the rotations that read them are dual descriptions of one object — which is why the sieve, moved from one to the other, returned the same primes.</p>
+<p>The duality carries the arithmetic across intact. Every torsion rotation splits uniquely into prime-power parts,</p>
+<div class="eq"><span class="tag">(8)</span>
+ℚ/ℤ ≅
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">⊕</span><span class="lo"><i>p</i></span></span>
+ℤ(<i>p</i><sup>∞</sup>),
+&nbsp;&nbsp; e.g. 116/231 = 1/3 + 5/7 + 5/11 (mod 1),
+</div>
+<p>the primary decomposition into Prüfer groups — verified here for every <i>k</i>/<i>n</i> with <i>n</i> ∈ {12, 30, 36, 60, 231}. <b>This is unique factorization, dualized:</b> where the train factors a <i>count</i> into prime powers, the circle splits a <i>rotation</i> into prime-order components, and the Chinese remainder theorem is the same theorem read in either direction. The sieve's inability to see numerators is the group-theoretic statement that ℤ(<i>p</i><sup>∞</sup>)'s subgroups are totally ordered — only the order matters, never which generator.</p>
+<p>Globally, the base has a name. Adjoining all the prime rotations to ℚ generates ℚ(ζ<sub>∞</sub>), and by <b>Kronecker–Weber</b> that is exactly ℚ<sup>ab</sup>, the maximal abelian extension — with Gal(ℚ<sup>ab</sup>/ℚ) ≅ Ẑ<sup>×</sup>, the <i>units</i> of the gear train. So the 2π base is not an eccentric choice of ruler; it is the abelian closure of the rationals, and its symmetry group is the invertible part of the object <a href="rh5.html#s5">rh5 §5</a> already named. This is also the ceiling: rh5's diagnosis was that every symmetry the construction presents is abelian, and Kronecker–Weber says the 2π base reaches precisely as far as abelian goes and not one step further. The missing representation is still missing, and now one knows exactly which wall it is behind.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · 2π taken literally as a radix</h2>
+<p>The remaining reading is the most literal: use 2π as an actual radix, expanding numbers as ∑ <i>d</i><sub><i>k</i></sub>(2π)<sup><i>k</i></sup>. This is the theory of β-expansions (Rényi 1957, Parry 1960): the greedy algorithm gives every positive real a representation with digits in {0, …, ⌈β⌉−1}, here <b>{0, …, 6}</b>. Two facts settle its character immediately. 2π is <b>transcendental</b> (Lindemann 1882), hence not an algebraic integer, hence not a Perron number; and every Parry number is Perron. So <b>2π is not a Parry number</b>: the β-shift is not sofic, and no integer's expansion terminates or falls into a cycle.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 345" role="img" aria-label="Greedy base two pi expansions of the first nine primes: two three and five are single digits, seven is the first to need a carry, and every carrying expansion runs on without repeating">
+<text x="360.0" y="22" class="ftitle">the primes written in base 2&#960; (greedy, digits 0&#8211;6)</text>
+<text x="360.0" y="42" class="flab">place values &#8230; (2&#960;)&#185;, (2&#960;)&#8304;, (2&#960;)&#8315;&#185;, &#8230;</text>
+<text x="134" y="77" class="flab end">2</text>
+<text x="141" y="77" class="flab st">=</text>
+<rect x="194" y="62" width="23" height="21" class="cell"/>
+<text x="205.5" y="77" class="dig">2</text>
+<rect x="220" y="62" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="77" class="dig frac">0</text>
+<rect x="246" y="62" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="77" class="dig frac">0</text>
+<rect x="272" y="62" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="77" class="dig frac">0</text>
+<rect x="298" y="62" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="77" class="dig frac">0</text>
+<rect x="324" y="62" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="77" class="dig frac">0</text>
+<rect x="350" y="62" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="77" class="dig frac">0</text>
+<rect x="376" y="62" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="77" class="dig frac">0</text>
+<rect x="402" y="62" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="77" class="dig frac">0</text>
+<rect x="428" y="62" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="77" class="dig frac">0</text>
+<rect x="454" y="62" width="23" height="21" class="cell frac"/>
+<text x="465.5" y="77" class="dig frac">0</text>
+<line x1="218.5" y1="64" x2="218.5" y2="81" class="radix"/>
+<text x="486" y="77" class="flab st"></text>
+<text x="712" y="77" class="flab end">single digit</text>
+<text x="134" y="104" class="flab end">3</text>
+<text x="141" y="104" class="flab st">=</text>
+<rect x="194" y="89" width="23" height="21" class="cell"/>
+<text x="205.5" y="104" class="dig">3</text>
+<rect x="220" y="89" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="104" class="dig frac">0</text>
+<rect x="246" y="89" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="104" class="dig frac">0</text>
+<rect x="272" y="89" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="104" class="dig frac">0</text>
+<rect x="298" y="89" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="104" class="dig frac">0</text>
+<rect x="324" y="89" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="104" class="dig frac">0</text>
+<rect x="350" y="89" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="104" class="dig frac">0</text>
+<rect x="376" y="89" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="104" class="dig frac">0</text>
+<rect x="402" y="89" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="104" class="dig frac">0</text>
+<rect x="428" y="89" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="104" class="dig frac">0</text>
+<rect x="454" y="89" width="23" height="21" class="cell frac"/>
+<text x="465.5" y="104" class="dig frac">0</text>
+<line x1="218.5" y1="91" x2="218.5" y2="108" class="radix"/>
+<text x="486" y="104" class="flab st"></text>
+<text x="712" y="104" class="flab end">single digit</text>
+<text x="134" y="131" class="flab end">5</text>
+<text x="141" y="131" class="flab st">=</text>
+<rect x="194" y="116" width="23" height="21" class="cell"/>
+<text x="205.5" y="131" class="dig">5</text>
+<rect x="220" y="116" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="131" class="dig frac">0</text>
+<rect x="246" y="116" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="131" class="dig frac">0</text>
+<rect x="272" y="116" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="131" class="dig frac">0</text>
+<rect x="298" y="116" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="131" class="dig frac">0</text>
+<rect x="324" y="116" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="131" class="dig frac">0</text>
+<rect x="350" y="116" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="131" class="dig frac">0</text>
+<rect x="376" y="116" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="131" class="dig frac">0</text>
+<rect x="402" y="116" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="131" class="dig frac">0</text>
+<rect x="428" y="116" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="131" class="dig frac">0</text>
+<rect x="454" y="116" width="23" height="21" class="cell frac"/>
+<text x="465.5" y="131" class="dig frac">0</text>
+<line x1="218.5" y1="118" x2="218.5" y2="135" class="radix"/>
+<text x="486" y="131" class="flab st"></text>
+<text x="712" y="131" class="flab end">single digit</text>
+<text x="134" y="158" class="flab end">7</text>
+<text x="141" y="158" class="flab st">=</text>
+<rect x="168" y="143" width="23" height="21" class="cell"/>
+<text x="179.5" y="158" class="dig">1</text>
+<rect x="194" y="143" width="23" height="21" class="cell"/>
+<text x="205.5" y="158" class="dig">0</text>
+<rect x="220" y="143" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="158" class="dig frac">4</text>
+<rect x="246" y="143" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="158" class="dig frac">3</text>
+<rect x="272" y="143" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="158" class="dig frac">1</text>
+<rect x="298" y="143" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="158" class="dig frac">0</text>
+<rect x="324" y="143" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="158" class="dig frac">1</text>
+<rect x="350" y="143" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="158" class="dig frac">4</text>
+<rect x="376" y="143" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="158" class="dig frac">2</text>
+<rect x="402" y="143" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="158" class="dig frac">0</text>
+<rect x="428" y="143" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="158" class="dig frac">4</text>
+<line x1="218.5" y1="145" x2="218.5" y2="162" class="radix"/>
+<text x="460" y="158" class="flab st">&#8230;</text>
+<text x="712" y="158" class="flab end c2">first carry</text>
+<text x="134" y="185" class="flab end">11</text>
+<text x="141" y="185" class="flab st">=</text>
+<rect x="168" y="170" width="23" height="21" class="cell"/>
+<text x="179.5" y="185" class="dig">1</text>
+<rect x="194" y="170" width="23" height="21" class="cell"/>
+<text x="205.5" y="185" class="dig">4</text>
+<rect x="220" y="170" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="185" class="dig frac">4</text>
+<rect x="246" y="170" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="185" class="dig frac">3</text>
+<rect x="272" y="170" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="185" class="dig frac">1</text>
+<rect x="298" y="170" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="185" class="dig frac">0</text>
+<rect x="324" y="170" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="185" class="dig frac">1</text>
+<rect x="350" y="170" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="185" class="dig frac">4</text>
+<rect x="376" y="170" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="185" class="dig frac">2</text>
+<rect x="402" y="170" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="185" class="dig frac">0</text>
+<rect x="428" y="170" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="185" class="dig frac">4</text>
+<line x1="218.5" y1="172" x2="218.5" y2="189" class="radix"/>
+<text x="460" y="185" class="flab st">&#8230;</text>
+<text x="134" y="212" class="flab end">13</text>
+<text x="141" y="212" class="flab st">=</text>
+<rect x="168" y="197" width="23" height="21" class="cell"/>
+<text x="179.5" y="212" class="dig">2</text>
+<rect x="194" y="197" width="23" height="21" class="cell"/>
+<text x="205.5" y="212" class="dig">0</text>
+<rect x="220" y="197" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="212" class="dig frac">2</text>
+<rect x="246" y="197" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="212" class="dig frac">4</text>
+<rect x="272" y="197" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="212" class="dig frac">3</text>
+<rect x="298" y="197" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="212" class="dig frac">2</text>
+<rect x="324" y="197" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="212" class="dig frac">6</text>
+<rect x="350" y="197" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="212" class="dig frac">0</text>
+<rect x="376" y="197" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="212" class="dig frac">3</text>
+<rect x="402" y="197" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="212" class="dig frac">0</text>
+<rect x="428" y="197" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="212" class="dig frac">4</text>
+<line x1="218.5" y1="199" x2="218.5" y2="216" class="radix"/>
+<text x="460" y="212" class="flab st">&#8230;</text>
+<text x="134" y="239" class="flab end">17</text>
+<text x="141" y="239" class="flab st">=</text>
+<rect x="168" y="224" width="23" height="21" class="cell"/>
+<text x="179.5" y="239" class="dig">2</text>
+<rect x="194" y="224" width="23" height="21" class="cell"/>
+<text x="205.5" y="239" class="dig">4</text>
+<rect x="220" y="224" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="239" class="dig frac">2</text>
+<rect x="246" y="224" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="239" class="dig frac">4</text>
+<rect x="272" y="224" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="239" class="dig frac">3</text>
+<rect x="298" y="224" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="239" class="dig frac">2</text>
+<rect x="324" y="224" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="239" class="dig frac">6</text>
+<rect x="350" y="224" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="239" class="dig frac">0</text>
+<rect x="376" y="224" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="239" class="dig frac">3</text>
+<rect x="402" y="224" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="239" class="dig frac">0</text>
+<rect x="428" y="224" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="239" class="dig frac">4</text>
+<line x1="218.5" y1="226" x2="218.5" y2="243" class="radix"/>
+<text x="460" y="239" class="flab st">&#8230;</text>
+<text x="134" y="266" class="flab end">19</text>
+<text x="141" y="266" class="flab st">=</text>
+<rect x="168" y="251" width="23" height="21" class="cell"/>
+<text x="179.5" y="266" class="dig">3</text>
+<rect x="194" y="251" width="23" height="21" class="cell"/>
+<text x="205.5" y="266" class="dig">0</text>
+<rect x="220" y="251" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="266" class="dig frac">0</text>
+<rect x="246" y="251" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="266" class="dig frac">5</text>
+<rect x="272" y="251" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="266" class="dig frac">5</text>
+<rect x="298" y="251" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="266" class="dig frac">5</text>
+<rect x="324" y="251" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="266" class="dig frac">4</text>
+<rect x="350" y="251" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="266" class="dig frac">1</text>
+<rect x="376" y="251" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="266" class="dig frac">0</text>
+<rect x="402" y="251" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="266" class="dig frac">6</text>
+<rect x="428" y="251" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="266" class="dig frac">1</text>
+<line x1="218.5" y1="253" x2="218.5" y2="270" class="radix"/>
+<text x="460" y="266" class="flab st">&#8230;</text>
+<text x="134" y="293" class="flab end">23</text>
+<text x="141" y="293" class="flab st">=</text>
+<rect x="168" y="278" width="23" height="21" class="cell"/>
+<text x="179.5" y="293" class="dig">3</text>
+<rect x="194" y="278" width="23" height="21" class="cell"/>
+<text x="205.5" y="293" class="dig">4</text>
+<rect x="220" y="278" width="23" height="21" class="cell frac"/>
+<text x="231.5" y="293" class="dig frac">0</text>
+<rect x="246" y="278" width="23" height="21" class="cell frac"/>
+<text x="257.5" y="293" class="dig frac">5</text>
+<rect x="272" y="278" width="23" height="21" class="cell frac"/>
+<text x="283.5" y="293" class="dig frac">5</text>
+<rect x="298" y="278" width="23" height="21" class="cell frac"/>
+<text x="309.5" y="293" class="dig frac">5</text>
+<rect x="324" y="278" width="23" height="21" class="cell frac"/>
+<text x="335.5" y="293" class="dig frac">4</text>
+<rect x="350" y="278" width="23" height="21" class="cell frac"/>
+<text x="361.5" y="293" class="dig frac">1</text>
+<rect x="376" y="278" width="23" height="21" class="cell frac"/>
+<text x="387.5" y="293" class="dig frac">0</text>
+<rect x="402" y="278" width="23" height="21" class="cell frac"/>
+<text x="413.5" y="293" class="dig frac">6</text>
+<rect x="428" y="278" width="23" height="21" class="cell frac"/>
+<text x="439.5" y="293" class="dig frac">1</text>
+<line x1="218.5" y1="280" x2="218.5" y2="297" class="radix"/>
+<text x="460" y="293" class="flab st">&#8230;</text>
+<text x="128" y="325" class="flab st">2&#960; is transcendental &#8594; not a Parry number &#8594; no integer expansion ever terminates or repeats</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — the primes, written in base 2π.</b> Greedy expansions, digits 0–6, integer places shaded and fractional places open, the radix point marked in orange. Since 2π ≈ 6.2832, the primes below it — 2, 3, 5 — are single digits; <b>7 is the first prime that needs a carry</b>, and from there nothing ever terminates. Note 7 and 11 share every fractional digit, as do 13/17 and 19/23: each pair differs by 4, which is less than the digit alphabet, so the difference is absorbed at the units place and the tails are identical.</figcaption>
+</figure>
+<p>The consequence is the exact inverse of what a radix is normally for. A base exists to give numbers short, checkable names — in base ten primality is not visible in the digits either, but at least the digits stop. Here they do not. <b>In base 2π the primes keep their primality and lose their names.</b> That is not a defect of the sieve; it is the reason the sieve had to be moved onto rotations in §2 rather than run on digit strings. The digit expansion is the <i>additive</i> face of the base and it is hostile to arithmetic; the torsion rotations are the <i>multiplicative</i> face and they carry the arithmetic perfectly.</p>
+<p>How much of the circle does the sieve reach? The closing rotations are dense but Lebesgue-null, and among them the prime-order ones thin out — though only logarithmically. Of the torsion points with denominator at most <i>Q</i>, the fraction of prime order tracks π²/(6 log <i>Q</i>):</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 340" role="img" aria-label="The share of torsion points of prime order against the denominator bound, decaying slowly along pi squared over six log Q and never reaching zero on the plot">
+<text x="360.0" y="22" class="ftitle">how many of the closing rotations are prime</text>
+<text x="58" y="42" class="flab st">share of prime order</text>
+<line x1="62" y1="268" x2="700" y2="268" class="axis"/>
+<line x1="62" y1="52" x2="62" y2="268" class="axis"/>
+<line x1="62" y1="234.1" x2="700" y2="234.1" class="grid"/>
+<text x="56" y="238.1" class="flab end">10%</text>
+<line x1="62" y1="200.3" x2="700" y2="200.3" class="grid"/>
+<text x="56" y="204.3" class="flab end">20%</text>
+<line x1="62" y1="166.4" x2="700" y2="166.4" class="grid"/>
+<text x="56" y="170.4" class="flab end">30%</text>
+<line x1="62" y1="132.5" x2="700" y2="132.5" class="grid"/>
+<text x="56" y="136.5" class="flab end">40%</text>
+<line x1="62" y1="98.6" x2="700" y2="98.6" class="grid"/>
+<text x="56" y="102.6" class="flab end">50%</text>
+<line x1="62" y1="64.8" x2="700" y2="64.8" class="grid"/>
+<text x="56" y="68.8" class="flab end">60%</text>
+<line x1="62.0" y1="268" x2="62.0" y2="272" class="axis"/>
+<text x="62.0" y="286" class="flab">10</text>
+<line x1="210.3" y1="268" x2="210.3" y2="272" class="axis"/>
+<text x="210.3" y="286" class="flab">100</text>
+<line x1="358.7" y1="268" x2="358.7" y2="272" class="axis"/>
+<text x="358.7" y="286" class="flab">1,000</text>
+<line x1="507.0" y1="268" x2="507.0" y2="272" class="axis"/>
+<text x="507.0" y="286" class="flab">10,000</text>
+<line x1="655.3" y1="268" x2="655.3" y2="272" class="axis"/>
+<text x="655.3" y="286" class="flab">100,000</text>
+<text x="700" y="300" class="flab end">denominator bound Q (log)</text>
+<path d="M84.6 58.0L85.9 59.6L87.1 61.1L88.4 62.6L89.7 64.1L91.0 65.6L92.2 67.0L93.5 68.4L94.8 69.8L96.1 71.2L97.3 72.6L98.6 73.9L99.9 75.3L101.2 76.6L102.4 77.9L103.7 79.1L105.0 80.4L106.3 81.6L107.5 82.9L108.8 84.1L110.1 85.3L111.4 86.5L112.6 87.6L113.9 88.8L115.2 89.9L116.5 91.0L117.8 92.1L119.0 93.2L120.3 94.3L121.6 95.4L122.9 96.4L124.1 97.5L125.4 98.5L126.7 99.5L128.0 100.5L129.2 101.5L130.5 102.5L131.8 103.4L133.1 104.4L134.3 105.3L135.6 106.3L136.9 107.2L138.2 108.1L139.4 109.0L140.7 109.9L142.0 110.8L143.3 111.7L144.5 112.5L145.8 113.4L147.1 114.2L148.4 115.1L149.6 115.9L150.9 116.7L152.2 117.5L153.5 118.3L154.7 119.1L156.0 119.9L157.3 120.7L158.6 121.4L159.8 122.2L161.1 123.0L162.4 123.7L163.7 124.4L165.0 125.2L166.2 125.9L167.5 126.6L168.8 127.3L170.1 128.0L171.3 128.7L172.6 129.4L173.9 130.1L175.2 130.7L176.4 131.4L177.7 132.1L179.0 132.7L180.3 133.4L181.5 134.0L182.8 134.6L184.1 135.3L185.4 135.9L186.6 136.5L187.9 137.1L189.2 137.7L190.5 138.3L191.7 138.9L193.0 139.5L194.3 140.1L195.6 140.7L196.8 141.3L198.1 141.8L199.4 142.4L200.7 142.9L201.9 143.5L203.2 144.0L204.5 144.6L205.8 145.1L207.1 145.7L208.3 146.2L209.6 146.7L210.9 147.2L212.2 147.8L213.4 148.3L214.7 148.8L216.0 149.3L217.3 149.8L218.5 150.3L219.8 150.8L221.1 151.2L222.4 151.7L223.6 152.2L224.9 152.7L226.2 153.2L227.5 153.6L228.7 154.1L230.0 154.5L231.3 155.0L232.6 155.4L233.8 155.9L235.1 156.3L236.4 156.8L237.7 157.2L238.9 157.7L240.2 158.1L241.5 158.5L242.8 158.9L244.0 159.4L245.3 159.8L246.6 160.2L247.9 160.6L249.1 161.0L250.4 161.4L251.7 161.8L253.0 162.2L254.3 162.6L255.5 163.0L256.8 163.4L258.1 163.8L259.4 164.2L260.6 164.6L261.9 164.9L263.2 165.3L264.5 165.7L265.7 166.1L267.0 166.4L268.3 166.8L269.6 167.1L270.8 167.5L272.1 167.9L273.4 168.2L274.7 168.6L275.9 168.9L277.2 169.3L278.5 169.6L279.8 170.0L281.0 170.3L282.3 170.6L283.6 171.0L284.9 171.3L286.1 171.6L287.4 172.0L288.7 172.3L290.0 172.6L291.2 172.9L292.5 173.3L293.8 173.6L295.1 173.9L296.4 174.2L297.6 174.5L298.9 174.8L300.2 175.1L301.5 175.4L302.7 175.7L304.0 176.0L305.3 176.3L306.6 176.6L307.8 176.9L309.1 177.2L310.4 177.5L311.7 177.8L312.9 178.1L314.2 178.4L315.5 178.7L316.8 179.0L318.0 179.2L319.3 179.5L320.6 179.8L321.9 180.1L323.1 180.3L324.4 180.6L325.7 180.9L327.0 181.2L328.2 181.4L329.5 181.7L330.8 182.0L332.1 182.2L333.3 182.5L334.6 182.7L335.9 183.0L337.2 183.2L338.5 183.5L339.7 183.8L341.0 184.0L342.3 184.3L343.6 184.5L344.8 184.8L346.1 185.0L347.4 185.2L348.7 185.5L349.9 185.7L351.2 186.0L352.5 186.2L353.8 186.4L355.0 186.7L356.3 186.9L357.6 187.1L358.9 187.4L360.1 187.6L361.4 187.8L362.7 188.1L364.0 188.3L365.2 188.5L366.5 188.7L367.8 189.0L369.1 189.2L370.3 189.4L371.6 189.6L372.9 189.8L374.2 190.1L375.4 190.3L376.7 190.5L378.0 190.7L379.3 190.9L380.5 191.1L381.8 191.3L383.1 191.5L384.4 191.7L385.7 192.0L386.9 192.2L388.2 192.4L389.5 192.6L390.8 192.8L392.0 193.0L393.3 193.2L394.6 193.4L395.9 193.6L397.1 193.8L398.4 194.0L399.7 194.1L401.0 194.3L402.2 194.5L403.5 194.7L404.8 194.9L406.1 195.1L407.3 195.3L408.6 195.5L409.9 195.7L411.2 195.9L412.4 196.0L413.7 196.2L415.0 196.4L416.3 196.6L417.5 196.8L418.8 196.9L420.1 197.1L421.4 197.3L422.6 197.5L423.9 197.7L425.2 197.8L426.5 198.0L427.8 198.2L429.0 198.4L430.3 198.5L431.6 198.7L432.9 198.9L434.1 199.0L435.4 199.2L436.7 199.4L438.0 199.5L439.2 199.7L440.5 199.9L441.8 200.0L443.1 200.2L444.3 200.4L445.6 200.5L446.9 200.7L448.2 200.8L449.4 201.0L450.7 201.2L452.0 201.3L453.3 201.5L454.5 201.6L455.8 201.8L457.1 202.0L458.4 202.1L459.6 202.3L460.9 202.4L462.2 202.6L463.5 202.7L464.7 202.9L466.0 203.0L467.3 203.2L468.6 203.3L469.8 203.5L471.1 203.6L472.4 203.8L473.7 203.9L475.0 204.1L476.2 204.2L477.5 204.3L478.8 204.5L480.1 204.6L481.3 204.8L482.6 204.9L483.9 205.1L485.2 205.2L486.4 205.3L487.7 205.5L489.0 205.6L490.3 205.8L491.5 205.9L492.8 206.0L494.1 206.2L495.4 206.3L496.6 206.4L497.9 206.6L499.2 206.7L500.5 206.8L501.7 207.0L503.0 207.1L504.3 207.2L505.6 207.4L506.8 207.5L508.1 207.6L509.4 207.8L510.7 207.9L511.9 208.0L513.2 208.1L514.5 208.3L515.8 208.4L517.1 208.5L518.3 208.6L519.6 208.8L520.9 208.9L522.2 209.0L523.4 209.1L524.7 209.3L526.0 209.4L527.3 209.5L528.5 209.6L529.8 209.7L531.1 209.9L532.4 210.0L533.6 210.1L534.9 210.2L536.2 210.3L537.5 210.5L538.7 210.6L540.0 210.7L541.3 210.8L542.6 210.9L543.8 211.0L545.1 211.2L546.4 211.3L547.7 211.4L548.9 211.5L550.2 211.6L551.5 211.7L552.8 211.8L554.0 212.0L555.3 212.1L556.6 212.2L557.9 212.3L559.1 212.4L560.4 212.5L561.7 212.6L563.0 212.7L564.3 212.8L565.5 212.9L566.8 213.0L568.1 213.2L569.4 213.3L570.6 213.4L571.9 213.5L573.2 213.6L574.5 213.7L575.7 213.8L577.0 213.9L578.3 214.0L579.6 214.1L580.8 214.2L582.1 214.3L583.4 214.4L584.7 214.5L585.9 214.6L587.2 214.7L588.5 214.8L589.8 214.9L591.0 215.0L592.3 215.1L593.6 215.2L594.9 215.3L596.1 215.4L597.4 215.5L598.7 215.6L600.0 215.7L601.2 215.8L602.5 215.9L603.8 216.0L605.1 216.1L606.4 216.2L607.6 216.3L608.9 216.4L610.2 216.5L611.5 216.6L612.7 216.7L614.0 216.7L615.3 216.8L616.6 216.9L617.8 217.0L619.1 217.1L620.4 217.2L621.7 217.3L622.9 217.4L624.2 217.5L625.5 217.6L626.8 217.7L628.0 217.8L629.3 217.8L630.6 217.9L631.9 218.0L633.1 218.1L634.4 218.2L635.7 218.3L637.0 218.4L638.2 218.5L639.5 218.6L640.8 218.6L642.1 218.7L643.3 218.8L644.6 218.9L645.9 219.0L647.2 219.1L648.5 219.2L649.7 219.2L651.0 219.3L652.3 219.4L653.6 219.5L654.8 219.6L656.1 219.7L657.4 219.7L658.7 219.8L659.9 219.9L661.2 220.0L662.5 220.1L663.8 220.1L665.0 220.2L666.3 220.3L667.6 220.4L668.9 220.5L670.1 220.6L671.4 220.6L672.7 220.7L674.0 220.8L675.2 220.9L676.5 220.9L677.8 221.0L679.1 221.1L680.3 221.2L681.6 221.3L682.9 221.3L684.2 221.4L685.4 221.5L686.7 221.6L688.0 221.6L689.3 221.7L690.5 221.8L691.8 221.9L693.1 222.0L694.4 222.0L695.7 222.1L696.9 222.2L698.2 222.2L699.5 222.3" class="brk"/>
+<path d="M132.8 123.0L210.3 152.8L281.1 166.5L358.7 183.4L429.4 194.5L507.0 204.1" class="helix thin"/>
+<circle cx="132.8" cy="123.0" r="3.2" class="digit main"/>
+<circle cx="210.3" cy="152.8" r="3.2" class="digit main"/>
+<circle cx="281.1" cy="166.5" r="3.2" class="digit main"/>
+<circle cx="358.7" cy="183.4" r="3.2" class="digit main"/>
+<circle cx="429.4" cy="194.5" r="3.2" class="digit main"/>
+<circle cx="507.0" cy="204.1" r="3.2" class="digit main"/>
+<text x="271.1" y="192.5" class="flab end c1">29.98% at Q = 300</text>
+<text x="696" y="71.5" class="flab end c2">dashed: &#960;&#178;/(6&#8202;log&#8202;Q) &#8594; 0,</text>
+<text x="696" y="86.5" class="flab end c2">but only logarithmically</text>
+<text x="696" y="105.5" class="flab end c1">solid: measured, by totient sieve</text>
+<line id="dline" class="cross" x1="0" y1="52" x2="0" y2="268" visibility="hidden"/>
+<circle id="ddot" class="crossdot" r="3.5" visibility="hidden"/>
+</svg>
+<div class="ztip" id="dtip"></div>
+</div>
+<figcaption><b>Figure 4 — the prime share of the closing rotations.</b> Measured share of prime-order points among all torsion points of denominator ≤ <i>Q</i> (violet, computed exactly by totient sieve to <i>Q</i> = 10⁴: 5,735,167 of 30,397,486), against the asymptotic π²/(6 log <i>Q</i>) (dashed; hover for values). The share is 29.98% at <i>Q</i> = 300 and still 18.87% at <i>Q</i> = 10⁴. It tends to zero — but as a reciprocal logarithm, which is the density-zero statement at its slowest.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s7">
+<h2>7 · What this settles</h2>
+<p>The question was what the sine sieve yields in the base-2π numeral, and the answer has three layers that should not be collapsed into each other.</p>
+<p><b>At the level of numbers:</b> nothing changes. 2, 3, 5, 7, 11, 13, …, cascade for cascade. A radix is additive bookkeeping and primality is multiplicative; no choice of base can touch it, and it is worth having the reason stated cleanly rather than discovered by accident (§1).</p>
+<p><b>At the level of objects:</b> everything changes. The sieve stops acting on integers and starts acting on rotations; almost all of them are invisible to it; the ones it can read are the torsion ℚ/ℤ; and the primes among those are the prime-order roots of unity (§2). This is the honest content of "primes in the 2π base".</p>
+<p><b>At the level of arithmetic:</b> the geometry turns out to have been carrying cyclotomic theory all along. The chord identity of <a href="rh5.html#s1">rh5 §1</a> is Φ<sub><i>p</i></sub>(1) = <i>p</i>; the row is the factorization; <i>p</i> is totally ramified with the true prime's modulus equal to the row's opening chord; the seed gear <i>p</i> = 2 is the unique fixed point, and it is the half-turn axiom (§3–4). Dually the gear train Ẑ and the rotation circle ℚ/ℤ are Pontryagin partners, the primary decomposition is unique factorization, and Kronecker–Weber names the base ℚ<sup>ab</sup> with Galois group Ẑ<sup>×</sup> (§5).</p>
+<p>That last point is where this document connects back to the arc. <a href="rh5.html#s5">rh5 §5</a> diagnosed the missing Axiom 8 as a missing <i>representation</i>: every symmetry on the table is abelian, and abelian symmetry has no room for a nontrivial positivity. The 2π base does not repair that, and §5 explains why it cannot — Kronecker–Weber says this base <i>is</i> the abelian world, exactly and completely. Moving the sieve onto the circle buys a genuinely better description of what the primes are; it buys no new symmetry, because there is none left of that kind to buy. The construction's ceiling and the 2π base's ceiling are the same ceiling.</p>
+</section>
+
+<section id="s8">
+<h2 class="prose" style="max-width:46rem">8 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic / algebraic number theory</th></tr>
+<tr><td>gear as a rotation; row sin(π<i>x</i>ξ)</td><td>rotation number ξ; rh5's sin(π<i>x</i>/<i>p</i>) is ξ = 1/<i>p</i></td></tr>
+<tr><td>gear that never closes</td><td>irrational rotation; Weyl equidistribution; Lebesgue-a.e. gear</td></tr>
+<tr><td>speed is the numerator, period the denominator</td><td>zeros of sin(π<i>xa</i>/<i>q</i>) are <i>q</i>ℤ for every reduced <i>a</i></td></tr>
+<tr><td>the sieve's visible world</td><td>torsion subgroup ℚ/ℤ of the circle</td></tr>
+<tr><td>prime gear in the 2π base</td><td>primitive <i>p</i>-th root of unity; <i>p</i>-torsion point</td></tr>
+<tr><td>the <i>p</i>-row, sampled at the clicks</td><td>chords |1 − ζ<sub><i>p</i></sub><sup><i>k</i></sup>| = 2 sin(π<i>k</i>/<i>p</i>)</td></tr>
+<tr><td>the row multiplies to its integer</td><td>Φ<sub><i>p</i></sub>(1) = ∏(1 − ζ<sup><i>k</i></sup>) = <i>p</i></td></tr>
+<tr><td>opening chord of the row</td><td>λ<sub><i>p</i></sub> = 1 − ζ<sub><i>p</i></sub>, the genuine prime; |λ<sub><i>p</i></sub>| = 2 sin(π/<i>p</i>)</td></tr>
+<tr><td><i>p</i> disperses into <i>p</i>−1 conjugate chords</td><td>total ramification: <i>p</i> = unit · λ<sub><i>p</i></sub><sup><i>p</i>−1</sup></td></tr>
+<tr><td>the half-turn axiom refuses to ramify</td><td>λ₂ = 1 − <i>e</i><sup><i>i</i>π</sup> = 2; the unique fixed point</td></tr>
+<tr><td>closure poset of the gears</td><td>divisor lattice; <i>x</i><sup><i>n</i></sup> − 1 = ∏<sub><i>d</i>|<i>n</i></sub> Φ<sub><i>d</i></sub>(<i>x</i>)</td></tr>
+<tr><td>train states vs. rotations that read them</td><td>Pontryagin duality Ẑ ↔ ℚ/ℤ</td></tr>
+<tr><td>splitting a rotation into prime-order parts</td><td>ℚ/ℤ = ⊕<sub><i>p</i></sub> ℤ(<i>p</i><sup>∞</sup>); unique factorization dualized</td></tr>
+<tr><td>the 2π base, named</td><td>ℚ<sup>ab</sup> = ℚ(ζ<sub>∞</sub>) by Kronecker–Weber; Gal ≅ Ẑ<sup>×</sup></td></tr>
+<tr><td>digits of the literal radix</td><td>β-expansion, β = 2π; alphabet {0,…,6}; not a Parry number</td></tr>
+<tr><td>primes keep primality, lose their names</td><td>expansions of integers never terminate or repeat</td></tr>
+<tr><td>prime share of the closing rotations</td><td>π²/(6 log <i>Q</i>) — density zero, logarithmically slow</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<p class="meta" style="margin-bottom:.6rem">Additions to the rh4, rh5 and rh6 lists, which remain in force.</p>
+<ol>
+<li>L. Kronecker, <i>Über die algebraisch auflösbaren Gleichungen</i>, Berlin (1853); H. Weber, <i>Theorie der Abel'schen Zahlkörper</i>, Acta Math. 8 (1886); D. Hilbert, <i>Zahlbericht</i> (1897) — the Kronecker–Weber theorem.</li>
+<li>F. Lindemann, <i>Über die Zahl π</i>, Math. Ann. 20 (1882) — transcendence, hence 2π is not a Perron number.</li>
+<li>H. Prüfer, <i>Untersuchungen über die Zerlegbarkeit der abzählbaren primären abelschen Gruppen</i>, Math. Z. 17 (1923) — the groups ℤ(<i>p</i><sup>∞</sup>).</li>
+<li>L. Pontryagin, <i>Topological Groups</i>, Princeton (1939) — the duality Ẑ ↔ ℚ/ℤ.</li>
+<li>A. Rényi, <i>Representations for real numbers and their ergodic properties</i>, Acta Math. Acad. Sci. Hungar. 8 (1957).</li>
+<li>W. Parry, <i>On the β-expansions of real numbers</i>, Acta Math. Acad. Sci. Hungar. 11 (1960) — Parry numbers and the β-shift.</li>
+<li>L. C. Washington, <i>Introduction to Cyclotomic Fields</i>, 2nd ed., Springer (1997), Lemma 1.4 and ch. 1 — (<i>p</i>) = (1 − ζ<sub><i>p</i></sub>)<sup><i>p</i>−1</sup>, total ramification.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page was computed for this document and cross-checked against 101 internal identities (plus some thousands of routine assertions): the first-miss cascade run twice, on integers and natively on rotations, both giving {2}→3→5→7→11→13; numerator-blindness of every reduced <i>a</i>/<i>q</i> with <i>q</i> ≤ 24; non-closure of the golden, √2−1, <i>e</i>−2 and 1/π rotations over <i>x</i> ≤ 2×10⁵, with their nearest approaches; the three-distance gap relation at golden torsion; the chord identity |1 − ζ<sub><i>p</i></sub><sup><i>k</i></sup>| = 2 sin(π<i>k</i>/<i>p</i>) for every <i>k</i> and the two product forms Φ<sub><i>p</i></sub>(1) = ∏(1−ζ<sup><i>k</i></sup>) = ∏2sin(π<i>k</i>/<i>p</i>) = <i>p</i>, at <i>p</i> = 2, 3, 5, 7, 11, 13; unit norms of every (1−ζ<sup><i>k</i></sup>)/(1−ζ); the ramification reconstruction |λ<sub><i>p</i></sub>|<sup><i>p</i>−1</sup>·|units| = <i>p</i>; λ₂ = 2 exactly; <i>x</i><sup><i>n</i></sup> − 1 = ∏<sub><i>d</i>|<i>n</i></sub>Φ<sub><i>d</i></sub>(<i>x</i>) at <i>n</i> = 6, 12, 30, 36 and three values of <i>x</i>; the CRT bijection for 60 and the primary decomposition of every <i>k</i>/<i>n</i> for <i>n</i> ∈ {12, 30, 36, 60, 231}; greedy base-2π expansions of the first eleven primes, each reconstructed exactly from its digits plus truncation remainder, with the greedy bound verified and the shared tails of (7,11), (13,17), (19,23); and the totient-sieve counts behind Figure 4 up to <i>Q</i> = 10⁴. Companion texts: <a href="rh4.html">rh4 — null helices and the critical line</a> · <a href="rh5.html">rh5 — the circles, pressed further</a> · <a href="rh6.html">rh6 — the cone, made lawful</a>.
+</div>
+
+</div>
+
+<script>
+(function () {
+  var H = {"d":[[84.6,58.0,"Q = 14 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 62.0%"],[88.3,62.5,"Q = 15 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 60.7%"],[92.1,66.8,"Q = 16 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 59.4%"],[95.8,71.0,"Q = 17 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 58.2%"],[99.6,75.0,"Q = 18 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 57.0%"],[103.4,78.8,"Q = 19 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 55.9%"],[107.1,82.5,"Q = 20 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 54.8%"],[110.9,86.0,"Q = 21 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 53.7%"],[114.6,89.4,"Q = 23 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 52.7%"],[118.4,92.7,"Q = 24 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 51.8%"],[122.1,95.8,"Q = 25 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 50.8%"],[125.9,98.9,"Q = 27 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 49.9%"],[129.6,101.8,"Q = 29 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 49.1%"],[133.4,104.6,"Q = 30 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 48.2%"],[137.1,107.4,"Q = 32 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 47.4%"],[140.9,110.0,"Q = 34 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 46.6%"],[144.6,112.6,"Q = 36 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 45.9%"],[148.4,115.1,"Q = 38 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 45.1%"],[152.2,117.5,"Q = 41 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 44.4%"],[155.9,119.8,"Q = 43 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 43.7%"],[159.7,122.1,"Q = 46 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 43.1%"],[163.4,124.3,"Q = 48 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 42.4%"],[167.2,126.4,"Q = 51 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 41.8%"],[170.9,128.5,"Q = 54 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 41.2%"],[174.7,130.5,"Q = 57 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 40.6%"],[178.4,132.4,"Q = 61 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 40.0%"],[182.2,134.3,"Q = 65 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 39.5%"],[185.9,136.2,"Q = 68 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 38.9%"],[189.7,138.0,"Q = 73 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 38.4%"],[193.4,139.7,"Q = 77 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 37.9%"],[197.2,141.4,"Q = 82 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 37.4%"],[200.9,143.1,"Q = 86 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 36.9%"],[204.7,144.7,"Q = 92 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 36.4%"],[208.5,146.2,"Q = 97 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 35.9%"],[212.2,147.8,"Q = 103 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 35.5%"],[216.0,149.3,"Q = 109 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 35.1%"],[219.7,150.7,"Q = 116 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 34.6%"],[223.5,152.1,"Q = 123 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 34.2%"],[227.2,153.5,"Q = 130 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 33.8%"],[231.0,154.9,"Q = 138 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 33.4%"],[234.7,156.2,"Q = 146 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 33.0%"],[238.5,157.5,"Q = 155 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 32.6%"],[242.2,158.8,"Q = 164 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 32.3%"],[246.0,160.0,"Q = 174 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 31.9%"],[249.7,161.2,"Q = 184 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 31.5%"],[253.5,162.4,"Q = 195 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 31.2%"],[257.3,163.5,"Q = 207 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 30.8%"],[261.0,164.7,"Q = 220 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 30.5%"],[264.8,165.8,"Q = 233 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 30.2%"],[268.5,166.9,"Q = 247 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 29.9%"],[272.3,167.9,"Q = 262 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 29.6%"],[276.0,168.9,"Q = 277 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 29.2%"],[279.8,170.0,"Q = 294 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 28.9%"],[283.5,171.0,"Q = 311 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 28.7%"],[287.3,171.9,"Q = 330 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 28.4%"],[291.0,172.9,"Q = 350 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 28.1%"],[294.8,173.8,"Q = 371 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 27.8%"],[298.5,174.7,"Q = 393 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 27.5%"],[302.3,175.6,"Q = 417 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 27.3%"],[306.1,176.5,"Q = 442 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 27.0%"],[309.8,177.4,"Q = 468 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 26.8%"],[313.6,178.2,"Q = 496 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 26.5%"],[317.3,179.1,"Q = 526 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 26.3%"],[321.1,179.9,"Q = 558 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 26.0%"],[324.8,180.7,"Q = 591 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 25.8%"],[328.6,181.5,"Q = 627 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 25.5%"],[332.3,182.3,"Q = 664 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 25.3%"],[336.1,183.0,"Q = 704 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 25.1%"],[339.8,183.8,"Q = 747 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 24.9%"],[343.6,184.5,"Q = 791 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 24.6%"],[347.3,185.2,"Q = 839 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 24.4%"],[351.1,185.9,"Q = 889 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 24.2%"],[354.9,186.6,"Q = 942 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 24.0%"],[358.6,187.3,"Q = 999 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 23.8%"],[362.4,188.0,"Q = 1,059 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 23.6%"],[366.1,188.7,"Q = 1,122 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 23.4%"],[369.9,189.3,"Q = 1,190 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 23.2%"],[373.6,190.0,"Q = 1,261 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 23.0%"],[377.4,190.6,"Q = 1,337 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 22.9%"],[381.1,191.2,"Q = 1,417 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 22.7%"],[384.9,191.8,"Q = 1,502 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 22.5%"],[388.6,192.4,"Q = 1,592 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 22.3%"],[392.4,193.0,"Q = 1,688 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 22.1%"],[396.1,193.6,"Q = 1,789 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 22.0%"],[399.9,194.2,"Q = 1,896 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 21.8%"],[403.7,194.7,"Q = 2,010 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 21.6%"],[407.4,195.3,"Q = 2,131 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 21.5%"],[411.2,195.9,"Q = 2,259 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 21.3%"],[414.9,196.4,"Q = 2,394 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 21.1%"],[418.7,196.9,"Q = 2,538 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 21.0%"],[422.4,197.5,"Q = 2,690 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 20.8%"],[426.2,198.0,"Q = 2,851 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 20.7%"],[429.9,198.5,"Q = 3,023 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 20.5%"],[433.7,199.0,"Q = 3,204 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 20.4%"],[437.4,199.5,"Q = 3,396 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 20.2%"],[441.2,200.0,"Q = 3,600 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 20.1%"],[444.9,200.4,"Q = 3,816 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.9%"],[448.7,200.9,"Q = 4,045 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.8%"],[452.5,201.4,"Q = 4,288 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.7%"],[456.2,201.8,"Q = 4,545 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.5%"],[460.0,202.3,"Q = 4,817 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.4%"],[463.7,202.7,"Q = 5,107 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.3%"],[467.5,203.2,"Q = 5,413 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.1%"],[471.2,203.6,"Q = 5,738 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 19.0%"],[475.0,204.1,"Q = 6,082 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.9%"],[478.7,204.5,"Q = 6,447 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.8%"],[482.5,204.9,"Q = 6,834 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.6%"],[486.2,205.3,"Q = 7,244 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.5%"],[490.0,205.7,"Q = 7,678 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.4%"],[493.7,206.1,"Q = 8,139 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.3%"],[497.5,206.5,"Q = 8,627 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.2%"],[501.3,206.9,"Q = 9,145 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 18.0%"],[505.0,207.3,"Q = 9,694 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.9%"],[508.8,207.7,"Q = 10,275 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.8%"],[512.5,208.1,"Q = 10,892 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.7%"],[516.3,208.4,"Q = 11,545 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.6%"],[520.0,208.8,"Q = 12,238 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.5%"],[523.8,209.2,"Q = 12,972 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.4%"],[527.5,209.5,"Q = 13,751 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.3%"],[531.3,209.9,"Q = 14,576 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.2%"],[535.0,210.2,"Q = 15,450 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.1%"],[538.8,210.6,"Q = 16,377 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 17.0%"],[542.5,210.9,"Q = 17,360 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.9%"],[546.3,211.3,"Q = 18,402 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.8%"],[550.1,211.6,"Q = 19,506 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.7%"],[553.8,211.9,"Q = 20,676 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.6%"],[557.6,212.3,"Q = 21,917 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.5%"],[561.3,212.6,"Q = 23,232 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.4%"],[565.1,212.9,"Q = 24,626 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.3%"],[568.8,213.2,"Q = 26,103 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.2%"],[572.6,213.5,"Q = 27,669 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.1%"],[576.3,213.8,"Q = 29,329 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 16.0%"],[580.1,214.1,"Q = 31,089 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.9%"],[583.8,214.4,"Q = 32,955 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.8%"],[587.6,214.7,"Q = 34,932 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.7%"],[591.3,215.0,"Q = 37,028 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.6%"],[595.1,215.3,"Q = 39,249 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.6%"],[598.9,215.6,"Q = 41,604 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.5%"],[602.6,215.9,"Q = 44,101 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.4%"],[606.4,216.2,"Q = 46,747 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.3%"],[610.1,216.5,"Q = 49,551 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.2%"],[613.9,216.7,"Q = 52,525 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.1%"],[617.6,217.0,"Q = 55,676 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.1%"],[621.4,217.3,"Q = 59,017 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 15.0%"],[625.1,217.6,"Q = 62,558 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.9%"],[628.9,217.8,"Q = 66,311 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.8%"],[632.6,218.1,"Q = 70,290 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.7%"],[636.4,218.3,"Q = 74,507 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.7%"],[640.1,218.6,"Q = 78,977 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.6%"],[643.9,218.8,"Q = 83,716 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.5%"],[647.6,219.1,"Q = 88,739 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.4%"],[651.4,219.3,"Q = 94,063 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.4%"],[655.2,219.6,"Q = 99,707 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.3%"],[658.9,219.8,"Q = 105,690 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.2%"],[662.7,220.1,"Q = 112,031 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.1%"],[666.4,220.3,"Q = 118,753 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.1%"],[670.2,220.6,"Q = 125,878 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 14.0%"],[673.9,220.8,"Q = 133,431 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 13.9%"],[677.7,221.0,"Q = 141,437 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 13.9%"],[681.4,221.3,"Q = 149,923 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 13.8%"],[685.2,221.5,"Q = 158,918 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 13.7%"],[688.9,221.7,"Q = 168,453 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 13.7%"],[692.7,221.9,"Q = 178,560 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 13.6%"],[696.4,222.1,"Q = 189,274 &#183; &#960;&#178;/6&#8202;log&#8202;Q = 13.5%"]]};
+  function hook(svgSel, tipId, lineId, dotId, data) {
+    var svg = document.querySelector(svgSel);
+    if (!svg) return;
+    var wrap = svg.closest('.fig-frame');
+    var tip = document.getElementById(tipId);
+    var line = document.getElementById(lineId);
+    var dot = document.getElementById(dotId);
+    if (!wrap || !tip || !line || !dot) return;
+    var vb = svg.viewBox.baseVal;
+    function move(ev) {
+      var r = svg.getBoundingClientRect();
+      var px = (ev.clientX - r.left) * vb.width / r.width;
+      var best = 0, bd = 1e9;
+      for (var i = 0; i < data.length; i++) {
+        var d = Math.abs(data[i][0] - px);
+        if (d < bd) { bd = d; best = i; }
+      }
+      var p = data[best];
+      line.setAttribute('x1', p[0]); line.setAttribute('x2', p[0]);
+      line.removeAttribute('visibility');
+      dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]);
+      dot.removeAttribute('visibility');
+      tip.innerHTML = p[2];
+      tip.style.display = 'block';
+      var wr = wrap.getBoundingClientRect();
+      var sx = r.width / vb.width;
+      var lx = (r.left - wr.left) + p[0] * sx + 12;
+      if (lx + tip.offsetWidth > wr.width - 8) lx = lx - tip.offsetWidth - 24;
+      tip.style.left = lx + 'px';
+      tip.style.top = ((r.top - wr.top) + p[1] * (r.height / vb.height) - 34) + 'px';
+    }
+    function leave() {
+      tip.style.display = 'none';
+      line.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+    }
+    svg.addEventListener('mousemove', move);
+    svg.addEventListener('mouseleave', leave);
+  }
+  hook('svg:has(#dline)', 'dtip', 'dline', 'ddot', H.d);
+})();
+</script>
+</body>
+</html>

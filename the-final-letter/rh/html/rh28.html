@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh28 — the symbol, the cancellation, and the depth</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The symbol, the cancellation, and the depth</h1>
+  <p class="sub">rh27c left three. Certify the two supports its §5 searched but did not certify; explain what saturates, which it measured and could not name; and find a ceiling with the mesh in it, since rh27c's throws the whole lattice away by bounding λ<sub>min</sub> with the section's diagonal. <b>(a)</b> Δ′ = 0.06 and 0.03 are certified at depth 18, floors 4.7650&#215;10&#8315;&#178; and 2.8063&#215;10&#8315;&#178;, and the certified set becomes a cross of 9 points. <b>(b)</b> The ceiling is one line of linear algebra: u<sub>j</sub> = e<sup>ijθ</sup>/√n is a unit vector and u*Tu is exactly the Fejér mean of the row, so min<sub>θ</sub> F<sub>n</sub>(θ) is an upper bound too — and it is too large by at most 1.14× where rh27c's diagonal was too large by up to 24.5×, closing 93% of the gap at every support. <b>(c)</b> What saturates is <i>not</i> the section length: slicing one support to the same five lengths does not reproduce the curve, and my prediction that it would was wrong. Two of the three obvious answers are now gone and the question is still open. The same computation gives the depth axis for the first time, and it is not the reassuring shape it first looks: λ<sub>min</sub>'s decay <i>steepens</i> with depth, from a local slope of 0.04 on the shallowest segment to 0.77 on the deepest, so the endpoint secant v<sup>−0.414</sup> understates what happens past 18.</p>
+  <p class="meta">docs/rh28 · continues <a href="rh27a.html">rh27a</a>–<a href="rh27c.html">rh27c</a> · figures computed, not sketched · 2026-08-04</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <b>(a) The cross at nine</b> (§2). Backend α unchanged from rh27a — verified Cholesky at 40 digits, exact-product residual at 90, rh24's binned radius, rh26's half-turn split, rh27a's certified ψ̃ table — applied to the two supports rh27c searched and left uncertified. Δ′ = 0.06 at n = 301, floor 4.7650&#215;10&#8315;&#178;; Δ′ = 0.03 at n = 601, floor 2.8063&#215;10&#8315;&#178;; both confirmed positive definite by an independent dense route in exact 60-digit arithmetic. The certified set is now 9 points, five meshes at one support crossed by five supports at one mesh, and every support rh27c's §5 test used carries a floor. <b>(b) A ceiling with the mesh in it</b> (§3). For the Toeplitz section T[i][j] = E<sub>h</sub>((i−j)Δ′) the plane wave u<sub>j</sub> = e<sup>ijθ</sup>/√n has u*Tu = F<sub>n</sub>(θ) = Σ<sub>|k|&lt;n</sub>(1−|k|/n)E<sub>h</sub>(kΔ′)e<sup>ikθ</sup>, the Fejér mean of the row. So λ<sub>min</sub> ≤ min<sub>θ</sub> F<sub>n</sub>(θ), computable from exactly the row the arc already has. Measured at five supports the Fejér ceiling exceeds λ<sub>min</sub> by 2.75, 1.53, 1.12, 1.14, 1.13, against the diagonal's 24.5, 8.7, 3.5, 3.7, 3.3 — it closes at least 93% of the gap everywhere, and it is not tight on the shortest section, which is said rather than averaged away. <b>(c) What saturates, refuted</b> (§4). rh27c found λ<sub>min</sub>/E<sub>h</sub>(0) climbing then flattening and could not say why. The obvious reading was that it varied support and mesh together so its n grew with its support, and the flattening was a section-length effect. Slicing the single support 0.03 to the same five lengths gives 0.997, 0.992, 0.951, 0.958, 0.886 — flat and near 1, nothing like the cross-support curve, and moving the other way with depth. The prediction was wrong. One correspondence is recorded and flagged as post-hoc: three independent quantities — both ceiling ratios and the depth secant — all flatten at Δ′ = 0.12, which is the first support whose lattice reaches past γ₁. <b>The cancellation</b> (§4). The pole rises by cosh 9 = 4,052 across the range and the comb rises with it; at v = 18 they agree to 0.8%, and the row they leave behind never exceeds its own diagonal. That is why there is no Toeplitz symbol here to take an infimum of. <b>The depth</b> (§6). The cheapest measurement in the arc and nobody had made it: every prefix of an existing row is a section. End to end λ<sub>min</sub> falls by a factor 3.4 over a factor 18.8 in depth, an endpoint secant of v<sup>−0.414</sup>. But it is not a power law — the local slope runs 0.04, 0.45, 0.49, 0.52, 0.73, 0.77 at Δ′ = 0.12, steepening by 18× — so the secant understates the decay past 18 and any extrapolation from it is optimistic. Reported as it came out rather than as it was hoped. 43 named checks in 840 seconds.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">(a) The cross, at nine points</a></li>
+  <li><a href="#s3">(b) A ceiling with the mesh in it</a></li>
+  <li><a href="#s4">(c) What saturates — a prediction, refuted</a></li>
+  <li><a href="#s5">The cancellation, and why there is no symbol</a></li>
+  <li><a href="#s6">The depth, and it is not a power law</a></li>
+  <li><a href="#s7">The conjunction, and the bill</a></li>
+  <li><a href="#s8">Dictionary additions and references</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>rh27c ended with three, and this document takes all three. <b>(a)</b> "The searches at 0.06 and 0.03 are uncertified, and certifying them is arithmetic of exactly the kind rh27a made cheap." <b>(b)</b> "§5 finds λ<sub>min</sub>/E<sub>h</sub>(0) levelling near 0.26 and does not explain it. The ceiling is not what stops it, and the answer is a statement about the section's spectrum rather than about the window." <b>(c)</b> "(5) bounds λ<sub>min</sub> by the diagonal, which throws away the whole lattice. A bound that used the off-diagonal structure would be tighter by whatever §5 measured as the eigenvalue-to-diagonal gap, and it is the obvious next inequality."</p>
+
+<p>(b) and (c) looked like the same item and turned out not to be. (c) works — the lattice-aware ceiling exists, is one line, and closes almost all of the gap. (b) does not: the explanation this document proposed for the saturation is wrong, and §4 says so.</p>
+
+<p><b>The ground.</b> No new sieve. rh27c's 4,930,376-gear stream and its histogram are reused unchanged, together with rh27b's stream for the two wide supports and rh27a's certified ψ̃ table to r = 4800. Five kernels, one per support, all five checked to reproduce the λ<sub>min</sub> their own documents published before anything is built on them, and rh27a's certified floor on Δ/4 re-read from its constants.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · (a) The cross, at nine points</h2>
+<p>Nothing new is needed. rh27a's backend α takes the support and the mesh as parameters, and rh27b and this document supply two more of each. The AT table at r = 4800 is 96,001 certified interval nodes and costs 56 seconds per support; the certified archimedean and pole rows cost 435 seconds at n = 601; the half-turn split makes the factorisation n³/4.</p>
+
+<div class="cardbox">&#916;&#8242; = 0.06 &nbsp; n = 301, v = 18.00 &nbsp; &#955;<sub>min</sub> = 4.8132&#215;10&#8315;&#178; &nbsp; &#961; = 7.44&#215;10&#8315;&#185;&#185; &nbsp; floor 4.7650&#215;10&#8315;&#178; &nbsp; [15 s]<br>
+&#916;&#8242; = 0.03 &nbsp; n = 601, v = 18.00 &nbsp; &#955;<sub>min</sub> = 2.8347&#215;10&#8315;&#178; &nbsp; &#961; = 4.86&#215;10&#8315;&#185;&#185; &nbsp; floor 2.8063&#215;10&#8315;&#178; &nbsp; [51 s]</div>
+
+<p>Both floors positive, both sections confirmed positive definite by an independent dense route in exact 60-digit arithmetic. The margins are wide — 6.5&#215;10&#8312; and 5.8&#215;10&#8312; against their own radii — for the same reason rh27b's were: these are short sections in nodes at a fine mesh, and arithmetic is not what limits them.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 398" role="img" aria-label="The certified set in the support-versus-mesh plane: a column of five meshes at support 0.24 crossed by five supports on the diagonal, nine points in all, with the two added here marked.">
+<text x="360.0" y="21" class="ftitle">the cross, at nine points</text>
+<text x="96.0" y="284" class="flab mid">0.03</text>
+<text x="187.0" y="284" class="flab mid">0.06</text>
+<text x="278.0" y="284" class="flab mid">0.12</text>
+<text x="369.0" y="284" class="flab mid">0.24</text>
+<text x="460.0" y="284" class="flab mid">0.48</text>
+<text x="90" y="63.5" class="flab end">0.48</text>
+<line x1="96" y1="60.0" x2="460" y2="60.0" class="grid"/>
+<text x="90" y="105.1" class="flab end">0.24</text>
+<line x1="96" y1="101.6" x2="460" y2="101.6" class="grid"/>
+<text x="90" y="146.7" class="flab end">0.12</text>
+<line x1="96" y1="143.2" x2="460" y2="143.2" class="grid"/>
+<text x="90" y="188.3" class="flab end">0.06</text>
+<line x1="96" y1="184.8" x2="460" y2="184.8" class="grid"/>
+<text x="90" y="229.9" class="flab end">0.03</text>
+<line x1="96" y1="226.4" x2="460" y2="226.4" class="grid"/>
+<text x="90" y="271.5" class="flab end">0.015</text>
+<line x1="96" y1="268.0" x2="460" y2="268.0" class="grid"/>
+<line x1="96" y1="268" x2="460" y2="268" class="axis"/>
+<line x1="96" y1="60" x2="96" y2="268" class="axis"/>
+<path d="M96.0 226.4L187.0 184.8L278.0 143.2L369.0 101.6L460.0 60.0" class="lnm lnd"/>
+<line x1="369.0" y1="101.6" x2="369.0" y2="268.0" class="ln4"/>
+<circle cx="369.0" cy="101.6" r="4.4" class="hm4"/>
+<circle cx="369.0" cy="143.2" r="4.4" class="hm4"/>
+<circle cx="369.0" cy="184.8" r="4.4" class="hm4"/>
+<circle cx="369.0" cy="226.4" r="4.4" class="hm4"/>
+<circle cx="369.0" cy="268.0" r="4.4" class="hm4"/>
+<circle cx="460.0" cy="60.0" r="5.4" class="hm3"/>
+<circle cx="369.0" cy="101.6" r="5.4" class="hm3"/>
+<circle cx="278.0" cy="143.2" r="5.4" class="hm3"/>
+<circle cx="187.0" cy="184.8" r="7.4" class="hm1"/>
+<circle cx="187.0" cy="184.8" r="11" class="hm1" fill-opacity="0.22"/>
+<circle cx="96.0" cy="226.4" r="7.4" class="hm1"/>
+<circle cx="96.0" cy="226.4" r="11" class="hm1" fill-opacity="0.22"/>
+<text x="102" y="74" class="flab st hmo">&#8212; &#8212; rh18&#8217;s diagonal</text>
+<text x="380" y="264" class="flab st c4">rh26 + rh27a</text>
+<text x="287" y="161" class="flab st hm3">rh27b</text>
+<text x="109" y="245" class="flab st hm1">rh28</text>
+<text x="278" y="304" class="flab mid">window half-support</text>
+<text x="38" y="47" class="flab st">sample mesh</text>
+<text x="500" y="62" class="flab st hm1">the two added here, at depth 18</text>
+<text x="500" y="86" class="flab st">&#916;&#8242; = 0.06, n = 301</text>
+<text x="510" y="104" class="flab st hm1">floor 4.765&#215;10&#8315;&#178;</text>
+<text x="500" y="126" class="flab st">&#916;&#8242; = 0.03, n = 601</text>
+<text x="510" y="144" class="flab st hm1">floor 2.806&#215;10&#8315;&#178;</text>
+<text x="500" y="172" class="flab st">and rh27c&#8217;s test now</text>
+<text x="500" y="190" class="flab st">rests on five certified</text>
+<text x="500" y="208" class="flab st">supports, not three.</text>
+<text x="26" y="334" class="flab st">rh26 and rh27a built the column, rh27b and rh27c extended the diagonal, and the two points added here close it:</text>
+<text x="26" y="352" class="flab st">9 points, five meshes at one support crossed by five supports at one mesh. Nine is still measure zero against</text>
+<text x="26" y="370" class="flab st">every support, every mesh and every depth &#8212; what it buys is that rh27c §5&#8217;s refutation of rh27b&#8217;s power law is</text>
+<text x="26" y="388" class="flab st">now made on certified ground at every point it uses.</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 · The cross, at nine points.</b> rh26 and rh27a built the column, rh27b and rh27c extended the diagonal, and the two points added here close it. Nine is still measure zero against every support, every mesh and every depth; what it buys is that rh27c §5's refutation of rh27b's power law is now made on certified ground at every point it uses.</figcaption>
+</figure>
+
+<p><b>What this is worth.</b> Not much on its own — it is two more points, and the arc has said at every step that finite sets are measure zero. What it does do is remove an asymmetry: rh27c drew a conclusion about how λ<sub>min</sub> behaves across five supports, and two of those five were float. They are not now.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · (b) A ceiling with the mesh in it</h2>
+<p>rh27c's ceiling ends in λ<sub>min</sub>(T<sub>n</sub>) ≤ E<sub>h</sub>(0), which is true for the elementary reason that the smallest eigenvalue of a symmetric matrix is at most any diagonal entry. It is also the worst test vector available: a coordinate vector, which sees none of the lattice. Any other unit vector does better, and one of them is free.</p>
+
+<div class="eq"><span class="tag">(1)</span>
+u<sub>j</sub> = e<sup>ijθ</sup>/√n &nbsp;⟹&nbsp; u*T<sub>n</sub>u = Σ<sub>|k|&lt;n</sub> (1 − |k|/n) E<sub>h</sub>(kΔ′) e<sup>ikθ</sup> = F<sub>n</sub>(θ),
+</div>
+
+<p>the Fejér mean of the row, because the number of (i, j) with i − j = k in an n × n block is n − |k|. So</p>
+
+<div class="eq"><span class="tag">(2)</span>
+λ<sub>min</sub>(T<sub>n</sub>) &nbsp;≤&nbsp; min<sub>θ∈[0,π]</sub> F<sub>n</sub>(θ),
+</div>
+
+<p>computable from exactly the row the arc already builds, at the cost of one scan over θ. That is the bound rh27c asked for, and the whole of its content is that the section is Toeplitz.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 410" role="img" aria-label="For each of five supports, the certified eigenvalue, the Fejer ceiling just above it, and rh27c diagonal ceiling far above, on a logarithmic axis.">
+<text x="360.0" y="21" class="ftitle">two ceilings, and the one with the lattice in it</text>
+<line x1="96" y1="179.2" x2="560" y2="179.2" class="grid"/>
+<text x="90" y="182.7" class="flab end">10&#8315;&#185;</text>
+<line x1="96" y1="65.4" x2="560" y2="65.4" class="grid"/>
+<text x="90" y="68.9" class="flab end">10&#8304;</text>
+<line x1="96" y1="262" x2="560" y2="262" class="axis"/>
+<line x1="96" y1="62" x2="96" y2="262" class="axis"/>
+<path d="M142.4 82.5L235.2 106.9L328.0 124.8L420.8 151.2L513.6 181.8" class="ln4"/>
+<circle cx="142.4" cy="82.5" r="3.8" class="hm4"/>
+<circle cx="235.2" cy="106.9" r="3.8" class="hm4"/>
+<circle cx="328.0" cy="124.8" r="3.8" class="hm4"/>
+<circle cx="420.8" cy="151.2" r="3.8" class="hm4"/>
+<circle cx="513.6" cy="181.8" r="3.8" class="hm4"/>
+<path d="M142.4 190.6L235.2 192.5L328.0 181.5L420.8 208.8L513.6 235.5" class="ln1"/>
+<circle cx="142.4" cy="190.6" r="3.8" class="hm3"/>
+<circle cx="235.2" cy="192.5" r="3.8" class="hm3"/>
+<circle cx="328.0" cy="181.5" r="3.8" class="hm3"/>
+<circle cx="420.8" cy="208.8" r="3.8" class="hm3"/>
+<circle cx="513.6" cy="235.5" r="3.8" class="hm3"/>
+<path d="M142.4 240.7L235.2 213.6L328.0 187.0L420.8 215.3L513.6 241.5" class="ln0"/>
+<circle cx="142.4" cy="240.7" r="3.8" class="hm1"/>
+<circle cx="235.2" cy="213.6" r="3.8" class="hm1"/>
+<circle cx="328.0" cy="187.0" r="3.8" class="hm1"/>
+<circle cx="420.8" cy="215.3" r="3.8" class="hm1"/>
+<circle cx="513.6" cy="241.5" r="3.8" class="hm1"/>
+<text x="142.4" y="278" class="flab mid">0.48</text>
+<line x1="142.4" y1="240.7" x2="142.4" y2="190.6" class="stem"/>
+<text x="153" y="228" class="flab st hm3">2.75&#215;</text>
+<text x="235.2" y="278" class="flab mid">0.24</text>
+<line x1="235.2" y1="213.6" x2="235.2" y2="192.5" class="stem"/>
+<text x="246" y="215" class="flab st hm3">1.53&#215;</text>
+<text x="328.0" y="278" class="flab mid">0.12</text>
+<line x1="328.0" y1="187.0" x2="328.0" y2="181.5" class="stem"/>
+<text x="339" y="196" class="flab st hm3">1.12&#215;</text>
+<text x="420.8" y="278" class="flab mid">0.06</text>
+<line x1="420.8" y1="215.3" x2="420.8" y2="208.8" class="stem"/>
+<text x="432" y="224" class="flab st hm3">1.14&#215;</text>
+<text x="513.6" y="278" class="flab mid">0.03</text>
+<line x1="513.6" y1="241.5" x2="513.6" y2="235.5" class="stem"/>
+<text x="525" y="251" class="flab st hm3">1.13&#215;</text>
+<text x="569" y="186" class="flab st hm4">rh27c&#8217;s diagonal</text>
+<text x="569" y="230" class="flab st hm3">the Fej&#233;r ceiling</text>
+<text x="569" y="254" class="flab st hm1">&#955;&#8344;&#7522;&#8345;, certified</text>
+<text x="328" y="298" class="flab mid">window half-support &#916;&#8242;, at its own mesh, depth 18</text>
+<text x="56" y="49" class="flab st">in units of C&#8341;(0)&#8217;s own normalisation</text>
+<text x="26" y="328" class="flab st">rh27c bounded &#955;&#8344;&#7522;&#8345; by the section&#8217;s diagonal, which throws the lattice away and is too large by a factor of 3.3</text>
+<text x="26" y="346" class="flab st">to 24.5. The plane wave u&#11388; = e^(ij&#952;)/&#8730;n is a unit vector and u*Tu is exactly the Fej&#233;r mean of the row, so its</text>
+<text x="26" y="364" class="flab st">minimum over &#952; is a ceiling too &#8212; and it is too large by only 1.14 from n = 151 on, though by 2.75 on the</text>
+<text x="26" y="382" class="flab st">thirty-nine-node section, where a truncated plane wave is a poor test vector. One line of linear algebra closes</text>
+<text x="26" y="400" class="flab st">93% of the gap, at every support.</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 · Two ceilings, and the one with the lattice in it.</b> At each support: the certified λ<sub>min</sub>, the Fejér ceiling just above it, and rh27c's diagonal far above. The stems are labelled with the Fejér ratio.</figcaption>
+</figure>
+
+<p><b>How much it buys.</b> The diagonal exceeds λ<sub>min</sub> by 24.5, 8.7, 3.5, 3.7, 3.3 at the five supports; the Fejér minimum by 2.75, 1.53, 1.12, 1.14, 1.13. So (2) closes 93% of the gap at the worst support and 95% at the best — one line of linear algebra against an inequality that took rh27c three.</p>
+
+<p><b>Where it is not tight, and why.</b> At Δ′ = 0.48 the ratio is 2.75, which is not close. That section has 39 nodes: a plane wave truncated to thirty-nine terms is a poor approximation to anything, and the Fejér weights (1 − |k|/n) throw away a third of the row's mass. The bound improves with the section and is inside 1.14× from n = 151 on. Stated rather than averaged away, because the arc's convention is that a bound is described where it fails as well as where it works.</p>
+
+<p><b>What it is not.</b> It is still an upper bound, and §6 of rh27c applies verbatim: upper bounds say how much positivity is available, never that any is present. It does not certify anything and it does not enter any floor.</p>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · (c) What saturates — a prediction, refuted</h2>
+<p>rh27c measured λ<sub>min</sub>/E<sub>h</sub>(0) at five supports — 0.041, 0.115, 0.285, 0.273, 0.299 — and called it out as a climb that stops: "what limits the narrow end is not the archimedean ceiling but something about the section's own spectrum, and this document does not know what."</p>
+
+<p><b>The prediction.</b> rh27c varied the support and the mesh together, taking the mesh equal to the support at depth 18. So its n was 18/Δ′ + 1 and grew as the support narrowed: 39, 76, 151, 301, 601. Two variables moved at once, and the obvious reading is that the flattening is a section-length effect — a plane wave, or any smooth test vector, becomes a better approximation to the true minimiser as the section lengthens, so the ratio should rise and settle for reasons that have nothing to do with the support. §3's Fejér ratio does exactly this across supports: 2.75, 1.53, 1.12, 1.14, 1.13.</p>
+
+<p><b>The test.</b> Take the single support Δ′ = 0.03 and slice its own row to the same five lengths, 39, 76, 151, 301 and 601. If the effect is section length, the curve should reappear.</p>
+
+<div class="cardbox">n =  39 &nbsp; v = 1.14 &nbsp; &#955;<sub>min</sub> = 8.6831&#215;10&#8315;&#178; &nbsp; &#955;<sub>min</sub>/min F<sub>n</sub> = 0.997<br>
+n =  76 &nbsp; v = 2.25 &nbsp; &#955;<sub>min</sub> = 8.3874&#215;10&#8315;&#178; &nbsp; &#955;<sub>min</sub>/min F<sub>n</sub> = 0.992<br>
+n = 151 &nbsp; v = 4.50 &nbsp; &#955;<sub>min</sub> = 7.2728&#215;10&#8315;&#178; &nbsp; &#955;<sub>min</sub>/min F<sub>n</sub> = 0.951<br>
+n = 301 &nbsp; v = 9.00 &nbsp; &#955;<sub>min</sub> = 5.0013&#215;10&#8315;&#178; &nbsp; &#955;<sub>min</sub>/min F<sub>n</sub> = 0.958<br>
+n = 601 &nbsp; v = 18.00 &nbsp; &#955;<sub>min</sub> = 2.8347&#215;10&#8315;&#178; &nbsp; &#955;<sub>min</sub>/min F<sub>n</sub> = 0.886</div>
+
+<p><b>It does not.</b> The ratio is flat and near 1 where the cross-support version climbed from 0.363, and it moves the <i>other</i> way — the Fejér ceiling is tightest on the shallowest slice and loosens as the section deepens, where across supports at fixed depth it tightens as the mesh refines. The prediction was wrong, and it was wrong in the informative direction: the two variables are not interchangeable, and a short section on a fine mesh is a completely different object from a short section on a coarse one.</p>
+
+<p><b>Where that leaves the question.</b> rh27c ruled out the archimedean ceiling; this document rules out the section length. Two of the three obvious answers are gone and the third — that it is a property of the mesh itself — is not tested here. The honest statement is that §3 gives a much better ceiling and §4 does not explain the saturation, and those are separate results.</p>
+
+<p><b>One correspondence, flagged.</b> Three quantities in this document flatten at the same place: the diagonal ratio, the Fejér ratio, and §6's depth secant, all of which move sharply from Δ′ = 0.48 to 0.12 and barely at all from 0.12 to 0.03. Δ′ = 0.12 is also the first support whose lattice reaches past the first zero — π/Δ′ = 26.18 against γ₁ = 14.1347, where 0.24 reaches only 13.09. Three quantities and one threshold is more than one, but the observation was made after the fact, three flat points are not evidence, and no mechanism is proposed. It is recorded so that a later document can test it rather than rediscover it.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · The cancellation, and why there is no symbol</h2>
+<p>§3's Fejér mean is the truncation of a Fourier series, and the natural question is what it truncates. For an ordinary Toeplitz operator the answer is the symbol f(θ) = Σ<sub>k∈ℤ</sub>E<sub>h</sub>(kΔ′)e<sup>ikθ</sup>, and then λ<sub>min</sub>(T<sub>n</sub>) ≥ ess inf f for every n — which would collapse the whole depth direction into one number. It does not apply here, and the reason is worth measuring.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 416" role="img" aria-label="Left: the pole term and the comb term against depth on a logarithmic axis, rising together across four decades, with the row they leave behind far below both. Right: that row on a linear axis, away from the diagonal, showing it does not grow.">
+<text x="360.0" y="21" class="ftitle">the cancellation, measured</text>
+<line x1="84" y1="234.2" x2="336" y2="234.2" class="grid"/>
+<text x="78" y="237.7" class="flab end">10&#8315;&#179;</text>
+<line x1="84" y1="194.6" x2="336" y2="194.6" class="grid"/>
+<text x="78" y="198.1" class="flab end">10&#8315;&#178;</text>
+<line x1="84" y1="155.1" x2="336" y2="155.1" class="grid"/>
+<text x="78" y="158.6" class="flab end">10&#8315;&#185;</text>
+<line x1="84" y1="115.5" x2="336" y2="115.5" class="grid"/>
+<text x="78" y="119.0" class="flab end">10&#8304;</text>
+<line x1="84" y1="76.0" x2="336" y2="76.0" class="grid"/>
+<text x="78" y="79.5" class="flab end">10&#185;</text>
+<line x1="84" y1="250" x2="336" y2="250" class="axis"/>
+<line x1="84" y1="76" x2="84" y2="250" class="axis"/>
+<text x="84.0" y="266" class="flab mid">0</text>
+<text x="168.0" y="266" class="flab mid">6</text>
+<text x="252.0" y="266" class="flab mid">12</text>
+<text x="336.0" y="266" class="flab mid">18</text>
+<path d="M90.7 253.5L95.8 253.5L97.4 247.6L99.1 196.0L100.8 226.4L102.5 208.0L104.2 205.7L105.8 220.5L107.5 227.3L109.2 243.4L114.2 213.4L115.9 207.6L117.6 168.9L124.3 235.6L126.0 200.3L127.7 212.3L129.4 194.8L141.1 177.6L142.8 198.3L146.2 210.5L152.9 178.7L154.6 189.2L157.9 189.5L161.3 246.8L163.0 177.9L164.6 181.7L166.3 210.1L168.0 208.5L169.7 202.1L171.4 188.9L173.0 173.0L174.7 197.1L178.1 185.7L179.8 184.0L181.4 196.6L183.1 180.9L188.2 192.6L191.5 195.5L193.2 190.4L194.9 189.3L196.6 193.9L199.9 178.0L201.6 184.9L203.3 180.2L205.0 166.6L206.6 174.9L208.3 182.1L210.0 166.5L211.7 172.5L213.4 163.2L215.0 179.0L216.7 191.5L218.4 167.9L220.1 166.9L221.8 166.2L223.4 163.8L225.1 177.7L226.8 166.7L228.5 166.1L230.2 165.5L231.8 166.2L233.5 163.7L235.2 162.5L236.9 168.8L238.6 160.5L240.2 156.2L241.9 157.7L243.6 153.3L245.3 157.1L247.0 153.5L248.6 151.7L250.3 153.1L252.0 152.5L253.7 154.1L255.4 149.7L257.0 149.7L258.7 148.2L260.4 146.5L262.1 146.8L263.8 145.1L265.4 144.1L267.1 142.8L268.8 141.7L270.5 140.6L272.2 139.9L273.8 139.8L275.5 138.7L277.2 136.6L278.9 134.7L280.6 135.2L282.2 134.9L283.9 133.0L285.6 131.8L287.3 130.4L289.0 131.0L290.6 128.2L292.3 127.9L294.0 126.4L295.7 124.8L297.4 123.9L299.0 123.1L300.7 123.0L302.4 122.3L304.1 119.9L305.8 119.5L307.4 118.2L309.1 117.5L310.8 116.2L312.5 115.5L314.2 114.3L315.8 112.6L317.5 112.2L319.2 111.1L320.9 110.3L322.6 109.3L324.2 108.1L325.9 107.1L327.6 106.2L329.3 105.2L331.0 104.1L332.6 102.9L334.3 102.0L336.0 101.0" class="ln1" stroke-width="3.4" stroke-opacity="0.55"/>
+<path d="M90.7 243.1L95.8 242.1L97.4 241.7L99.1 241.2L100.8 240.7L102.5 240.1L104.2 239.5L105.8 238.8L107.5 238.1L109.2 237.4L114.2 235.1L115.9 234.2L117.6 233.4L124.3 229.8L126.0 228.9L127.7 228.0L129.4 227.0L141.1 220.2L142.8 219.2L146.2 217.2L152.9 213.1L154.6 212.1L157.9 210.1L161.3 208.0L163.0 207.0L164.6 206.0L166.3 204.9L168.0 203.9L169.7 202.9L171.4 201.9L173.0 200.8L174.7 199.8L178.1 197.8L179.8 196.7L181.4 195.7L183.1 194.7L188.2 191.6L191.5 189.5L193.2 188.5L194.9 187.5L196.6 186.4L199.9 184.4L201.6 183.4L203.3 182.3L205.0 181.3L206.6 180.3L208.3 179.2L210.0 178.2L211.7 177.2L213.4 176.1L215.0 175.1L216.7 174.1L218.4 173.0L220.1 172.0L221.8 171.0L223.4 170.0L225.1 168.9L226.8 167.9L228.5 166.9L230.2 165.8L231.8 164.8L233.5 163.8L235.2 162.7L236.9 161.7L238.6 160.7L240.2 159.7L241.9 158.6L243.6 157.6L245.3 156.6L247.0 155.5L248.6 154.5L250.3 153.5L252.0 152.4L253.7 151.4L255.4 150.4L257.0 149.3L258.7 148.3L260.4 147.3L262.1 146.3L263.8 145.2L265.4 144.2L267.1 143.2L268.8 142.1L270.5 141.1L272.2 140.1L273.8 139.0L275.5 138.0L277.2 137.0L278.9 136.0L280.6 134.9L282.2 133.9L283.9 132.9L285.6 131.8L287.3 130.8L289.0 129.8L290.6 128.7L292.3 127.7L294.0 126.7L295.7 125.6L297.4 124.6L299.0 123.6L300.7 122.6L302.4 121.5L304.1 120.5L305.8 119.5L307.4 118.4L309.1 117.4L310.8 116.4L312.5 115.3L314.2 114.3L315.8 113.3L317.5 112.3L319.2 111.2L320.9 110.2L322.6 109.2L324.2 108.1L325.9 107.1L327.6 106.1L329.3 105.0L331.0 104.0L332.6 103.0L334.3 101.9L336.0 100.9" class="ln4" stroke-width="1.5" stroke-opacity="1"/>
+<path d="M85.7 204.1L87.4 253.5L89.0 253.5L90.7 253.5L92.4 209.7L94.1 211.4L95.8 253.5L97.4 253.5L99.1 196.9L100.8 233.2L102.5 210.2L104.2 207.7L105.8 226.2L107.5 237.4L109.2 253.5L110.9 208.0L112.6 199.9L114.2 218.4L115.9 211.3L117.6 169.3L119.3 195.3L121.0 193.1L122.6 192.2L124.3 253.5L126.0 203.7L127.7 220.7L129.4 197.6L131.0 176.9L132.7 191.9L134.4 179.6L136.1 185.6L137.8 180.3L139.4 183.2L141.1 179.0L142.8 204.2L144.5 197.4L146.2 229.5L147.8 205.1L149.5 174.4L151.2 191.4L152.9 181.1L154.6 194.4L156.2 190.6L157.9 195.7L159.6 191.7L161.3 210.0L163.0 181.4L164.6 186.5L166.3 228.2L168.0 229.2L169.7 253.5L171.4 199.7L173.0 176.7L174.7 229.7L176.4 195.3L178.1 197.4L179.8 195.0L181.4 247.3L183.1 191.2L184.8 192.3L186.5 188.4L188.2 240.7L189.8 186.5L191.5 210.6L193.2 227.2L194.9 227.0L196.6 204.4L198.2 174.5L199.9 198.0L201.6 225.9L203.3 217.0L205.0 176.2L206.6 197.4L208.3 211.2L210.0 178.7L211.7 197.1L213.4 174.1L215.0 202.5L216.7 181.8L218.4 191.1L220.1 190.2L221.8 190.6L223.4 184.3L225.1 184.6L226.8 213.6L228.5 219.6L230.2 231.4L231.8 209.2L233.5 253.5L235.2 233.3L236.9 180.3L238.6 240.4L240.2 185.2L241.9 208.3L243.6 179.1L245.3 217.5L247.0 191.0L248.6 184.1L250.3 218.4L252.0 253.5L253.7 184.5L255.4 205.3L257.0 214.9L258.7 232.1L260.4 200.1L262.1 204.5L263.8 229.6L265.4 233.7L267.1 207.9L268.8 206.7L270.5 200.2L272.2 216.8L273.8 192.3L275.5 194.6L277.2 202.2L278.9 180.7L280.6 209.2L282.2 183.3L283.9 214.5L285.6 253.5L287.3 197.1L289.0 175.3L290.6 188.0L292.3 206.2L294.0 198.9L295.7 176.4L297.4 178.1L299.0 185.0L300.7 185.2L302.4 175.8L304.1 176.8L305.8 227.3L307.4 194.8L309.1 200.6L310.8 191.8L312.5 195.2L314.2 216.5L315.8 168.2L317.5 209.9L319.2 199.7L320.9 191.6L322.6 197.2L324.2 220.9L325.9 226.7L327.6 189.0L329.3 187.4L331.0 200.5L332.6 196.7L334.3 192.4L336.0 184.7" class="ln0" stroke-opacity="0.8"/>
+<line x1="94" y1="89" x2="112" y2="89" class="ln4"/>
+<text x="118" y="93" class="flab st hm4">the pole, cosh(v/2)</text>
+<line x1="94" y1="104" x2="112" y2="104" class="ln1"/>
+<text x="118" y="108" class="flab st hm3">the comb</text>
+<line x1="94" y1="119" x2="112" y2="119" class="ln0"/>
+<text x="118" y="123" class="flab st hm1">|E&#8341;(v)|, what is left</text>
+<text x="210" y="284" class="flab mid">depth v</text>
+<text x="54" y="62" class="flab st">&#916;&#8242; = 0.12, log scale</text>
+<line x1="432" y1="163.0" x2="700" y2="163.0" class="axis"/>
+<line x1="432" y1="228.0" x2="700" y2="228.0" class="grid"/>
+<text x="426" y="231.5" class="flab end">-0.04</text>
+<line x1="432" y1="195.5" x2="700" y2="195.5" class="grid"/>
+<text x="426" y="199.0" class="flab end">-0.02</text>
+<line x1="432" y1="130.5" x2="700" y2="130.5" class="grid"/>
+<text x="426" y="134.0" class="flab end">0.02</text>
+<line x1="432" y1="98.0" x2="700" y2="98.0" class="grid"/>
+<text x="426" y="101.5" class="flab end">0.04</text>
+<line x1="432" y1="76" x2="432" y2="250" class="axis"/>
+<path d="M433.8 153.6L435.6 163.3L437.4 162.8L439.1 162.8L440.9 156.2L442.7 156.9L444.5 162.6L446.3 163.0L448.1 177.2L449.9 164.7L451.7 169.6L453.4 170.6L455.2 165.6L457.0 164.3L458.8 162.8L460.6 155.6L462.4 151.0L464.2 167.1L465.9 169.2L467.7 234.1L469.5 147.4L471.3 145.2L473.1 144.3L474.9 162.5L476.7 172.6L478.5 166.6L480.2 176.7L482.0 117.3L483.8 143.9L485.6 124.0L487.4 135.5L489.2 125.6L491.0 131.3L492.7 203.3L494.5 172.3L496.3 149.1L498.1 165.1L499.9 154.2L501.7 110.4L503.5 143.4L505.3 198.7L507.0 179.5L508.8 142.5L510.6 178.3L512.4 143.7L514.2 156.4L516.0 198.2L517.8 189.1L519.5 160.7L521.3 160.8L523.1 163.5L524.9 175.1L526.7 209.0L528.5 165.1L530.3 147.4L532.1 176.8L533.8 178.9L535.6 162.2L537.4 182.8L539.2 144.4L541.0 139.6L542.8 161.9L544.6 136.9L546.3 156.6L548.1 160.6L549.9 160.5L551.7 153.8L553.5 110.5L555.3 176.4L557.1 160.4L558.9 167.4L560.6 210.6L562.4 176.8L564.2 156.8L566.0 204.2L567.8 177.1L569.6 216.6L571.4 152.8L573.1 128.8L574.9 183.0L576.7 184.1L578.5 183.6L580.3 192.7L582.1 133.9L583.9 168.4L585.7 166.8L587.4 164.9L589.2 156.0L591.0 163.5L592.8 164.7L594.6 125.6L596.4 164.1L598.2 191.2L599.9 170.3L601.7 203.2L603.5 158.7L605.3 183.1L607.1 193.0L608.9 167.1L610.7 162.9L612.5 133.8L614.2 171.7L616.0 158.0L617.8 164.8L619.6 174.8L621.4 153.9L623.2 165.1L625.0 164.7L626.7 170.5L628.5 171.0L630.3 174.7L632.1 167.5L633.9 144.4L635.7 146.7L637.5 173.5L639.3 199.5L641.0 156.0L642.8 131.5L644.6 157.9L646.4 162.5L648.2 177.1L650.0 112.9L651.8 186.9L653.5 154.7L655.3 175.7L657.1 209.9L658.9 205.6L660.7 191.4L662.5 134.9L664.3 114.2L666.1 209.0L667.8 160.6L669.6 179.1L671.4 151.5L673.2 182.2L675.0 147.2L676.8 167.5L678.6 238.7L680.3 169.7L682.1 175.1L683.9 143.7L685.7 149.0L687.5 166.5L689.3 160.5L691.1 140.5L692.9 138.2L694.6 151.5L696.4 177.4L698.2 144.5L700.0 134.1" class="ln0"/>
+<text x="432.0" y="266" class="flab mid">0</text>
+<text x="521.3" y="266" class="flab mid">6</text>
+<text x="610.7" y="266" class="flab mid">12</text>
+<text x="700.0" y="266" class="flab mid">18</text>
+<text x="566" y="284" class="flab mid">depth v</text>
+<text x="402" y="44" class="flab st">E&#8341;(v) off the diagonal, linear scale</text>
+<text x="402" y="62" class="flab st hmo">the diagonal itself is 0.300</text>
+<text x="26" y="316" class="flab st">The pole carries cosh(v/2) and rises by cosh 9 = 4,052 across the range; the comb carries the gear mass, rises</text>
+<text x="26" y="334" class="flab st">with it, and is lumpy because the prime powers are. At v = 18 the two agree to 0.8%, and what they leave behind</text>
+<text x="26" y="352" class="flab st">does not grow at all &#8212; the row is 7.6e-03 of the pole term that made it, its largest entry anywhere is the</text>
+<text x="26" y="370" class="flab st">diagonal, and off the diagonal it never leaves &#177;0.047. That is the explicit formula&#8217;s own balance, seen</text>
+<text x="26" y="388" class="flab st">directly, and it is why there is no L&#185; symbol here to take an infimum of: the pieces are unbounded and only the</text>
+<text x="26" y="406" class="flab st">difference is not.</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 · The cancellation, measured.</b> Left: the pole term and the comb term against depth on a logarithmic axis, rising together across four decades. Right: the row they leave behind, on a linear axis, which does not grow at all.</figcaption>
+</figure>
+
+<p>The kernel row is pole + arch − comb. The pole carries 2ĥ(i/2)²cosh(v/2) and rises by cosh 9 = 4,052 from v = 0 to v = 18. The comb carries the gear mass Σ<sub>|ln m − v| ≤ 2Δ′</sub>Λ(m)m<sup>−½</sup>, which by the prime number theorem also rises like e<sup>v/2</sup>, and it does: at v = 18 the two agree to 0.8%. The archimedean term has decayed to 3.5&#215;10&#8315;&#8312; by then and is irrelevant. What is left is the row, and <b>the row does not grow</b>: its largest entry over the whole eighteen is the diagonal itself, and at v = 18 it is 7.6&#215;10&#8315;&#179; of the pole term that made it.</p>
+
+<p>That is the explicit formula's own balance, seen directly rather than inferred. It is also the answer to the symbol question. Individually the two series diverge; the row is their difference and is bounded but not obviously summable, and the comb's lumpiness — comb/pole is 5.30 at v = 3 and 0.77 at v = 6, one prime power at a time — is what a Fourier series would have to absorb. So there is no L¹ symbol to take an infimum of, and the Szegő route to the depth infinity is closed. The arc works at finite depth because that is the only place the objects exist.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The depth, and it is not a power law</h2>
+<p>Every document in this arc has treated depth as the direction one simply goes further into. rh19 fixed the horizon at v = 18; rh26 measured where positivity was lost with a short cut; rh27a restored it. None of them measured how λ<sub>min</sub> falls with depth, which is odd, because it is the cheapest measurement in the arc — the row is already built, and every prefix of it is a section. It is done here, and it does not say what one would have guessed.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 428" role="img" aria-label="The certified eigenvalue against depth on logarithmic axes, one curve per support, each a straight line of small negative slope.">
+<text x="360.0" y="21" class="ftitle">the depth, and it is not a power law</text>
+<line x1="96" y1="213.9" x2="528" y2="213.9" class="grid"/>
+<text x="90" y="217.4" class="flab end">0.05</text>
+<line x1="96" y1="177.4" x2="528" y2="177.4" class="grid"/>
+<text x="90" y="180.9" class="flab end">0.1</text>
+<line x1="96" y1="140.9" x2="528" y2="140.9" class="grid"/>
+<text x="90" y="144.4" class="flab end">0.2</text>
+<line x1="96" y1="92.7" x2="528" y2="92.7" class="grid"/>
+<text x="90" y="96.2" class="flab end">0.5</text>
+<text x="130.4" y="278" class="flab mid">1</text>
+<text x="334.6" y="278" class="flab mid">5</text>
+<text x="497.1" y="278" class="flab mid">18</text>
+<line x1="96" y1="262" x2="528" y2="262" class="axis"/>
+<line x1="96" y1="74" x2="96" y2="262" class="axis"/>
+<path d="M125.2 92.2L213.2 100.9L316.0 122.7L380.9 157.4L429.4 199.9L468.8 226.6L498.8 242.9" class="ln1"/>
+<circle cx="125.2" cy="92.2" r="3.2" class="hm3"/>
+<circle cx="213.2" cy="100.9" r="3.2" class="hm3"/>
+<circle cx="316.0" cy="122.7" r="3.2" class="hm3"/>
+<circle cx="380.9" cy="157.4" r="3.2" class="hm3"/>
+<circle cx="429.4" cy="199.9" r="3.2" class="hm3"/>
+<circle cx="468.8" cy="226.6" r="3.2" class="hm3"/>
+<circle cx="498.8" cy="242.9" r="3.2" class="hm3"/>
+<path d="M125.2 105.5L213.2 116.8L316.0 150.8L376.6 160.4L432.3 179.8L468.8 193.6L497.1 214.1" class="lnm"/>
+<circle cx="125.2" cy="105.5" r="3.2" class="hmo"/>
+<circle cx="213.2" cy="116.8" r="3.2" class="hmo"/>
+<circle cx="316.0" cy="150.8" r="3.2" class="hmo"/>
+<circle cx="376.6" cy="160.4" r="3.2" class="hmo"/>
+<circle cx="432.3" cy="179.8" r="3.2" class="hmo"/>
+<circle cx="468.8" cy="193.6" r="3.2" class="hmo"/>
+<circle cx="497.1" cy="214.1" r="3.2" class="hmo"/>
+<path d="M125.2 121.8L220.8 123.5L319.5 142.0L378.7 154.0L432.3 165.6L468.8 176.6L497.1 185.7" class="ln0"/>
+<circle cx="125.2" cy="121.8" r="3.2" class="hm1"/>
+<circle cx="220.8" cy="123.5" r="3.2" class="hm1"/>
+<circle cx="319.5" cy="142.0" r="3.2" class="hm1"/>
+<circle cx="378.7" cy="154.0" r="3.2" class="hm1"/>
+<circle cx="432.3" cy="165.6" r="3.2" class="hm1"/>
+<circle cx="468.8" cy="176.6" r="3.2" class="hm1"/>
+<circle cx="497.1" cy="185.7" r="3.2" class="hm1"/>
+<path d="M132.9 149.5L224.5 150.7L319.5 164.2L379.8 173.9L432.3 186.8L468.8 202.1L497.1 215.9" class="ln2"/>
+<circle cx="132.9" cy="149.5" r="3.2" class="hm2"/>
+<circle cx="224.5" cy="150.7" r="3.2" class="hm2"/>
+<circle cx="319.5" cy="164.2" r="3.2" class="hm2"/>
+<circle cx="379.8" cy="173.9" r="3.2" class="hm2"/>
+<circle cx="432.3" cy="186.8" r="3.2" class="hm2"/>
+<circle cx="468.8" cy="202.1" r="3.2" class="hm2"/>
+<circle cx="497.1" cy="215.9" r="3.2" class="hm2"/>
+<path d="M136.6 184.8L226.3 186.4L320.4 194.1L380.3 206.5L432.3 221.3L468.8 232.5L497.1 243.8" class="ln4"/>
+<circle cx="136.6" cy="184.8" r="3.2" class="hm4"/>
+<circle cx="226.3" cy="186.4" r="3.2" class="hm4"/>
+<circle cx="320.4" cy="194.1" r="3.2" class="hm4"/>
+<circle cx="380.3" cy="206.5" r="3.2" class="hm4"/>
+<circle cx="432.3" cy="221.3" r="3.2" class="hm4"/>
+<circle cx="468.8" cy="232.5" r="3.2" class="hm4"/>
+<circle cx="497.1" cy="243.8" r="3.2" class="hm4"/>
+<line x1="531" y1="185.7" x2="541" y2="155.7" class="stem"/>
+<text x="545" y="160" class="flab st hm1">&#916;&#8242; = 0.12, &#8722;0.41</text>
+<line x1="531" y1="214.1" x2="541" y2="175.7" class="stem"/>
+<text x="545" y="180" class="flab st hmo">&#916;&#8242; = 0.24, &#8722;0.70</text>
+<line x1="531" y1="215.9" x2="541" y2="195.7" class="stem"/>
+<text x="545" y="200" class="flab st hm2">&#916;&#8242; = 0.06, &#8722;0.44</text>
+<line x1="531" y1="242.9" x2="541" y2="215.7" class="stem"/>
+<text x="545" y="220" class="flab st hm3">&#916;&#8242; = 0.48, &#8722;0.97</text>
+<line x1="531" y1="243.8" x2="541" y2="235.7" class="stem"/>
+<text x="545" y="240" class="flab st hm4">&#916;&#8242; = 0.03, &#8722;0.39</text>
+<text x="312" y="298" class="flab mid">depth v, at each support&#8217;s own mesh</text>
+<text x="56" y="61" class="flab st">&#955;&#8344;&#7522;&#8345;</text>
+<text x="26" y="328" class="flab st">The cheapest measurement in the arc, and nobody had made it: every prefix of a row that already exists is a</text>
+<text x="26" y="346" class="flab st">section. End to end &#955;&#8344;&#7522;&#8345; falls by a factor 3.4 at &#916;&#8242; = 0.12, an endpoint secant of v&#8315;<tspan</text>
+<text x="26" y="364" class="flab st">dy="-4">0.41</tspan><tspan dy="4">. But the curves are not straight. The local slope steepens throughout &#8212; 0.04,</text>
+<text x="26" y="382" class="flab st">0.45, 0.49, 0.52, 0.73, 0.77 over the six segments at 0.12 &#8212; so the secant averages over the shallow end where</text>
+<text x="26" y="400" class="flab st">nothing is happening, and the decay past v = 18 is steeper than it, not equal to it. Any extrapolation from</text>
+<text x="26" y="418" class="flab st">these numbers is optimistic, and that is the direction the arc would rather it were not.</tspan></text>
+</svg>
+</div>
+<figcaption><b>Figure 4 · The depth, and it is not a power law.</b> λ<sub>min</sub> against depth on logarithmic axes, one curve per support. A power law would be a straight line; these bend downwards throughout, and the endpoint secants on the right are averages over that bend, not exponents.</figcaption>
+</figure>
+
+<p>End to end the decay is a factor 3.4 at Δ′ = 0.12 over a factor 18.8 in depth, which as a single exponent is v<sup>−0.414</sup>; across the five supports the endpoint secants are 0.972, 0.703, 0.414, 0.440, 0.394. Taken at face value that would be reassuring — a power below 1 never reaches zero — and it is the first quantitative statement the arc has about the one direction the conjunction requires infinitely much of.</p>
+
+<p><b>It is not a power law, and the direction of the error matters.</b> The curves in Figure 4 are not straight. At Δ′ = 0.12 the local slope over the six segments runs 0.04, 0.45, 0.49, 0.52, 0.73, 0.77 — nearly flat where the section is shallow and steepening throughout, by a factor of 18 end to end. The same happens at every support. So the endpoint secant is not an exponent, it is an average dominated by the shallow segments where almost nothing is happening, and the decay past v = 18 is <i>steeper</i> than the secant, not equal to it. An extrapolation built on 0.414 is therefore optimistic, and the extrapolated costs — 2.0 to reach v = 100, 5.3 to reach 1000 — are lower bounds on what it would actually cost, not estimates.</p>
+
+<p><b>What that leaves.</b> Something honest and unwelcome: the arc now has its depth curve, and the curve is worse than a power law. Whether the slope steepens to a finite limit — in which case λ<sub>min</sub> stays positive — or grows without bound — in which case it does not — is not decided by six points over one decade, and this document does not decide it. What can be said is that the previous silent assumption, that going deeper is a matter of arithmetic, is not supported by the only measurement of it. rh27b fitted an exponent over one dyadic range, called it the obstruction, and rh27c refuted it one document later; this section declines to make the same mistake and reports the curvature instead of the fit.</p>
+</section>
+
+<section class="prose" id="s7">
+<h2>7 · The conjunction, and the bill</h2>
+<p><b>Where the conjunction stands.</b> Nine certified points, still measure zero. Nothing here is a step towards RH: (a) adds two points to a finite set, (b) is an upper bound and upper bounds never certify, and (c) refutes an explanation without supplying one. What §6 adds is the depth <i>curve</i>, which is the first thing the arc has that speaks to an infinity rather than to another rung — and it is not the shape one would want. The decay steepens; the endpoint secant understates it; and whether the steepening stops is not decided here. That is a worse position than the arc believed it was in an hour ago, and it is the position.</p>
+
+<p><b>What §5 rules out.</b> One route that looked open is now closed. If the row had an L¹ symbol, positivity at every depth for a fixed window and mesh would reduce to ess inf f ≥ 0, a single number, and the depth infinity would be a computation rather than an infinity. It does not: the pole and the comb each diverge and only their difference is bounded. Ruling out a route is worth stating; it is why the finite-depth machinery exists.</p>
+
+<p><b>A direction, named and still not attempted.</b> Carried now for four documents rather than dropped. For a real even window g of compact support, ĝ is entire and ĥ = ĝ², so a hypothetical off-line quadruple at ½ ± σ + iγ contributes 4 Re[ĝ(γ + iσ)²] to the Weil functional — negative exactly when |Im ĝ(γ + iσ)| exceeds |Re ĝ(γ + iσ)|, and directly computable for the arc's actual windows on a (γ, σ) grid. A certified floor bounds what such a contribution could hide behind. It is still the only route in sight by which these certificates would speak about ζ rather than about forms, and it is still untried.</p>
+
+<p><b>The bill.</b> 43 named checks in 840 seconds. No new sieve; rh27c's stream and histogram and rh27a's ψ̃ table reused unchanged; all five rows checked against the λ<sub>min</sub> their own documents published; the two certificates issued by rh27a's backend with its parameters untouched and each confirmed twice; the Fejér bound checked to hold at every support; the pole–arch–comb decomposition checked to reconstruct the row it came from to machine precision.</p>
+
+<p><b>What is left.</b> Three.</p>
+<p><b>(a) The saturation, third attempt.</b> Two explanations are dead. The one not tested is that it is the mesh — that the Fejér ceiling's tightness, and the depth exponent, are functions of δ alone. That is one more slice of the same rows: fix the depth and vary the mesh at a fixed support, which the arc has never done because it has always taken mesh = support or support = 0.24.</p>
+<p><b>(b) The depth curve, past one decade.</b> §6 measures v ∈ [1, 18] and finds the decay steepening. Whether the local slope tends to a limit or grows without bound is the whole question, and six points cannot answer it. The certified horizon is 18 because rh19 put it there and the comb costs e<sup>v</sup>; but the <i>float</i> λ<sub>min</sub> costs nothing beyond the sieve, and a stream to e<sup>24</sup> would extend the curve by a third of a decade at about eleven times rh27c's gear count. That is the cheapest thing in the arc that bears directly on the conjunction, and it should be next.</p>
+<p><b>(c) A better test vector.</b> §3's plane wave is the crudest thing that is not a coordinate vector, and it already closes 93% of the gap. A tapered plane wave — the same e<sup>ijθ</sup> against a Hann or prolate envelope — replaces the Fejér weights with the taper's own autocorrelation and would close most of the rest, at the cost of one more parameter to minimise over. It is worth doing only if a ceiling is worth having, which §7's first paragraph doubts.</p>
+</section>
+
+<section class="prose" id="s8">
+<h2>8 · Dictionary additions and references</h2>
+<dl class="dict">
+<dt>the Fejér ceiling</dt><dd>λ<sub>min</sub>(T<sub>n</sub>) ≤ min<sub>θ</sub>F<sub>n</sub>(θ), where F<sub>n</sub> is the Fejér mean Σ(1−|k|/n)E<sub>h</sub>(kΔ′)e<sup>ikθ</sup> of the kernel row. Follows from u<sub>j</sub> = e<sup>ijθ</sup>/√n being a unit vector. Too large by 1.14× or less from n = 151 on; 2.75× at n = 39.</dd>
+<dt>the cross at nine</dt><dd>the certified set as it now stands: five meshes at support 0.24, five supports at mesh = support, meeting at (0.24, Δ). Replaces rh27b's seven.</dd>
+<dt>the cancellation</dt><dd>the pole rising by cosh(v/2) and the comb rising with it, agreeing to 0.8% at v = 18, leaving a row that never exceeds its own diagonal. The explicit formula's balance, measured rather than inferred, and the reason there is no L¹ symbol.</dd>
+<dt>the depth secant</dt><dd>the endpoint slope of λ<sub>min</sub> against v over [1, 18]: 0.972, 0.703, 0.414, 0.440, 0.394. Not an exponent — the local slope steepens from 0.04 to 0.77 at Δ′ = 0.12 — so it averages over segments where nothing happens and understates the decay past 18.</dd>
+<dt>the 0.12 threshold</dt><dd>the support at which three independent quantities in this document stop moving, and the first whose lattice reaches past γ₁. Post-hoc, untested, recorded for a later document.</dd>
+</dl>
+<p class="refs">rh11 (the cached zeros) · rh17 (the interval kit, backend α, L1) · rh18 (the equivalence lattice ⟺ windows ⟺ Bochner ⟺ RH) · rh19 (streaming comb, the v = 18 horizon) · rh22 (the escape radius) · rh24 (the 768-bin radius) · rh25 (the hyperbolic generator, the β search) · rh26 (the half-turn split, the gear-mass histogram) · rh27a (the certified cut to r = 4800, the parameterised backend) · rh27b (the second support) · rh27c (the log-Sobolev ceiling, and the three items this document takes). Toeplitz–Fejér and the Szegő limit theorem are cited, not reproved; Weil's positivity criterion likewise; IEEE-754, libmpdec and libm's log within one ulp are assumed.</p>
+</section>
+
+
+</div>
+</body>
+</html>

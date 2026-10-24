@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh17 — the certificates made unconditional</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.bar2 { fill: var(--chart-2); fill-opacity: .34; stroke: var(--chart-2); stroke-width: .7; }
+.ln1 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The certificates made unconditional</h1>
+  <p class="sub">Ordered: execute the successor's first move — rh16 priced it as "a finite amount of engineering and no new mathematics," the only item on its list certain to succeed. Executed: an outward-rounded interval arithmetic, two structural lemmas in place of the two error terms that would have sunk the budget, and a non-iterative Cholesky certificate. The three Schur certificates of rh15 are now theorems about the exact kernel. The bill is itemized at the end, because the price was almost as quoted but not quite: run blindly, the intervalization fails by five orders of magnitude, and the recursion itself refuses to carry intervals past a few dozen steps.</p>
+  <p class="meta">docs/rh17 · continues <a href="rh15.html">rh15</a>–<a href="rh16.html">rh16</a> · figures computed, not sketched · 2026-08-03</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> rh15 measured three certificates — the Toeplitz sections E(kΔ), k &lt; n, of the prime-built kernel at (Δ, n) = (0.06, 199), (0.03, 399), (0.015, 799) are positive definite, margins 0.403, 0.623, 0.698 — in 60-digit floating point, with error bars that were themselves measurements. This document re-derives them as theorems. <b>The decomposition</b> (§2): the exact kernel splits, on each grid, as E<sub>cert</sub> + (discrete tail) − D, where the tail beyond a cut R₀ is a nonnegative combination of cosine kernels — positive semidefinite by inspection, because ψ̃(r) = Re ψ(¼+ir/2) − ln π ≥ 1.1558 for every r ≥ 20 (lemma L1, three elementary lines) — and |D(v)| ≤ 2M₁(v)/(e<sup>16π</sup>−1) ≤ 5×10⁻²⁰ per entry at trapezoid step h = 0.05 (lemma L2, one strip bound with every constant written out). So the tail is dropped without being bounded, and the aliasing radius ρ<sub>D</sub> ≤ 4.2×10⁻¹⁸ sits five orders below the smallest eigenvalue it must not disturb. The cut itself carries a finding: truncated at 3.8 notches the finest section <i>loses</i> positive definiteness — its softest modes feed on the whole ladder of B's nulls, not the first — and recovers only from 5.7 notches; the cut was placed at 7.6. <b>The instrument</b> (§3): intervals over Decimal with directed rounding, enclosures for π, ln, sin, cos, cosh and Re ψ at complex arguments, each containment-tested, and the whole pipeline re-deriving rh15's stored rows to the last bit before a single new claim is made. <b>The theorem</b> (§4–5): a verified-Cholesky certificate — one 40-digit factorization, one exact-product residual, radius row-sums — gives certified floors λ<sub>min</sub> ≥ 5.45×10⁻¹¹, 4.17×10⁻¹³, 1.43×10⁻¹³ for the three <i>exact</i> sections, brackets closing around the pilot values, and therefore: <b>every one of the 1394 Schur parameters of the three exact kernel sections lies strictly inside (−1, 1)</b> — the rh15 equation, unconditional on everything except IEEE-754 and libmpdec behaving as specified. <b>The wall</b> (§4): the recursion itself, run forward on intervals, certifies only k ≤ 19, 33, 62 before dependency growth (measured ~0.35 digits per step; worst case from rh15's own ρ-sequence, 10<sup>51</sup>) devours any precision — 120 digits buy zero steps over 40. That is why the theorem enters by a non-iterative door, and it is the honest answer to "just run it on intervals": you cannot. §6 audits rh16's price quote against the bill.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">What stands between a float and a theorem</a></li>
+  <li><a href="#s3">The instrument, and what the floats got wrong</a></li>
+  <li><a href="#s4">The two backends</a></li>
+  <li><a href="#s5">The theorems</a></li>
+  <li><a href="#s6">The bill, audited</a></li>
+  <li><a href="#s7">Dictionary additions and references</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>rh16 §6 left three moves for a successor and priced the first: <i>"Make the certificates unconditional. Everything here is a floating-point statement with a measured error bar… Redo the same quadrature in interval arithmetic and every computed certificate becomes a theorem about the kernel — a finite amount of engineering and no new mathematics. This is first because it is the only item on the list that is certain to succeed."</i> This document executes that move and audits the quote.</p>
+<p>What "unconditional" means here, precisely. The kernel is a definite mathematical object — E(v) = 2B<sub>i</sub>²cosh(v/2) + (1/π)∫₀^∞ B(r)²ψ̃(r)cos(rv)dr − Σ Λ(n)n<sup>−1/2</sup>[C(log n − v) + C(log n + v)] — and rh15's certificates were statements about a floating-point <i>approximation</i> of it, with error bars obtained by recomputing on a second quadrature and watching what moved. A theorem about the kernel must instead carry every error — truncation, discretization, transcendental evaluation, rounding — as a proved bound or eliminate it structurally. Nothing else changes: same kernel, same sections, same recursion. The claims at the end are conditional only on two named hypotheses about machine arithmetic (§5), which is the standard residue of any computer-assisted proof.</p>
+</section>
+
+<p class="kicker">Part I · The mathematics of the error budget</p>
+
+<section class="prose" id="s2">
+<h2>2 · What stands between a float and a theorem</h2>
+<p>Write the archimedean integral as the even half of a line integral and discretize by the infinite trapezoid sum at step h = 0.05,</p>
+<div class="eq"><span class="tag">(1)</span>
+(1/π)&#8747;₀^∞ B²ψ̃ cos(rv) dr &nbsp;=&nbsp; S<sub>h</sub><sup>[0,R₀]</sup>(v) &nbsp;+&nbsp; S<sub>h</sub><sup>(R₀,∞)</sup>(v) &nbsp;−&nbsp; D(v),
+</div>
+<p>where S<sub>h</sub> is the trapezoid sum (half-weight at 0), the middle term is its tail past a cut R₀, and D is the aliasing error of the full sum against the true integral. Four error sources stand between rh15's floats and a theorem: the tail, the aliasing, the transcendental values (ψ̃, cos, log p), and rounding. The last two are routine — intervals at 40 digits (§3). The first two would sink the budget if bounded naively, and the whole design reduces to two lemmas that make them cheap.</p>
+<p><b>L1 — the tail is never bounded, because it helps.</b> The honest worst-case bound on the tail past R₀ is ~10⁻⁸ per entry at the finest mesh, against a smallest eigenvalue of 10⁻¹³: hopeless by five orders. But the tail does not need a bound. Each dropped term is c<sub>j</sub>cos(r<sub>j</sub>v) with c<sub>j</sub> = h·B(r<sub>j</sub>)²ψ̃(r<sub>j</sub>)/π, and a cosine kernel cos(r(u−w)) is positive semidefinite; a nonnegative combination of them is too. So the dropped tail is PSD on every grid the moment every c<sub>j</sub> ≥ 0, i.e. the moment ψ̃ ≥ 0 past the cut — and then E<sub>exact</sub> = E<sub>cert</sub> + (PSD) − D means certifying E<sub>cert</sub> certifies E<sub>exact</sub>. The sign fact is three elementary lines: for r ≥ 20, |z| = |¼+ir/2| ≥ 10, and Stirling with its corrections summed crudely gives Re ψ(z) ≥ ln|z| − C₀ with C₀ ≤ 0.0021, so</p>
+<div class="eq"><span class="tag">(2)</span>
+ψ̃(r) &#8805; ln(r/2π) − C₀ &#8805; ln(10/π) − C₀ &#8805; 1.1558 &nbsp;&nbsp; for every r ≥ 20,
+</div>
+<p>evaluated as intervals, not floats. The density is negative only below r = 6.3 — far below any cut. Where the cut may sit is a different and more delicate question, and the answer was a surprise (Figure 1, right): positivity of the <i>truncated</i> section demands far more tail than the notch analysis of rh15 suggested. All three meshes are still indefinite with the cut at 2.4 notches; the coarser two recover at 3.8, the finest only past 5.7 — and when it fails, it fails at k = 785 of 798, in the last two percent of the recursion. The certificate's softest modes are fed by the entire ladder of B's nulls, and the ledger only balances when several rungs are kept.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 470" role="img" aria-label="Left: the archimedean density psi-tilde against frequency on a logarithmic axis: negative below six point three, then positive forever, above one point one five past twenty, which is the certified floor; the three mesh notches and the three cut points R-zero sit far to the right of the sign change. Right: the verdict of the sixty-digit recursion on the truncated kernel against the cut point in units of the notch: crosses mark cuts where positive definiteness is lost, dots where it holds; the finest mesh stays broken out to almost four notches and recovers by five point seven, so its cut was placed at seven point six.">
+<text x="360.0" y="22" class="ftitle">L1 in one picture: beyond the notch the dropped tail is a sum of nonnegative cosine kernels</text>
+<line x1="56" y1="256.1" x2="396" y2="256.1" class="axis"/>
+<text x="51" y="260.1" class="flab end">0</text>
+<line x1="130.6" y1="400" x2="130.6" y2="404" class="axis"/>
+<text x="130.6" y="416" class="flab">1</text>
+<line x1="205.2" y1="400" x2="205.2" y2="404" class="axis"/>
+<text x="205.2" y="416" class="flab">10</text>
+<line x1="279.9" y1="400" x2="279.9" y2="404" class="axis"/>
+<text x="279.9" y="416" class="flab">100</text>
+<line x1="354.5" y1="400" x2="354.5" y2="404" class="axis"/>
+<text x="354.5" y="416" class="flab">1000</text>
+<line x1="56" y1="400" x2="396" y2="400" class="axis"/>
+<path d="M130.6 308.2L153.1 286.0L166.2 275.2L175.5 267.8L182.8 262.0L188.7 257.3L193.7 253.4L198.0 249.9L201.8 246.9L205.2 244.2L208.3 241.7L211.2 239.5L213.7 237.4L216.1 235.5L218.4 233.8L220.5 232.1L222.4 230.6L224.3 229.1L226.0 227.7L227.7 226.4L229.3 225.1L230.8 223.9L232.2 222.8L233.6 221.7L234.9 220.6L236.2 219.6L237.4 218.7L238.6 217.7L239.7 216.8L240.8 216.0L241.9 215.1L242.9 214.3L243.9 213.5L244.9 212.7L245.8 212.0L246.8 211.3L247.6 210.6L248.5 209.9L249.4 209.2L250.2 208.6L251.0 207.9L251.8 207.3L252.5 206.7L253.3 206.1L254.0 205.5L254.7 205.0L255.4 204.4L256.1 203.9L256.7 203.4L257.4 202.8L258.0 202.3L258.7 201.8L259.3 201.3L259.9 200.9L260.5 200.4L261.1 199.9L261.6 199.5L262.2 199.0L262.8 198.6L263.3 198.1L263.8 197.7L264.4 197.3L264.9 196.9L265.4 196.5L265.9 196.1L266.9 195.3L267.8 194.6L268.8 193.8L269.7 193.1L270.5 192.4L271.4 191.7L272.2 191.1L273.0 190.4L273.8 189.8L274.6 189.2L275.4 188.6L276.1 188.0L276.8 187.4L277.5 186.9L278.2 186.3L278.9 185.8L279.5 185.3L280.2 184.8L280.8 184.3L281.4 183.8L282.1 183.3L282.7 182.8L283.2 182.3L283.8 181.9L284.4 181.4L285.0 181.0L285.5 180.6L286.0 180.1L286.6 179.7L287.1 179.3L287.6 178.9L288.1 178.5L288.9 177.9L289.6 177.3L290.3 176.7L291.0 176.2L291.7 175.7L292.4 175.1L293.0 174.6L293.6 174.1L294.3 173.6L294.9 173.1L295.5 172.6L296.1 172.2L296.7 171.7L297.3 171.2L297.8 170.8L298.4 170.4L298.9 169.9L299.5 169.5L300.0 169.1L300.5 168.7L301.0 168.3L301.5 167.9L302.2 167.3L302.8 166.8L303.4 166.3L304.1 165.8L304.7 165.4L305.3 164.9L305.9 164.4L306.4 164.0L307.0 163.5L307.6 163.1L308.1 162.6L308.6 162.2L309.2 161.8L309.7 161.4L310.2 161.0L310.7 160.6L311.3 160.1L311.9 159.6L312.5 159.1L313.1 158.7L313.7 158.2L314.3 157.8L314.8 157.3L315.4 156.9L316.5 156.0L317.6 155.1L318.6 154.4L319.5 153.6L320.5 152.8L321.4 152.1L322.3 151.4L323.1 150.7L324.0 150.1L324.8 149.4L325.6 148.8L326.4 148.2L327.1 147.5L327.9 147.0L328.6 146.4L329.3 145.8L330.0 145.3L330.7 144.7L331.4 144.2L332.0 143.7L332.7 143.2L333.3 142.7L333.9 142.2L334.5 141.7L335.1 141.2L335.7 140.8L336.3 140.3L336.8 139.9L337.4 139.4L337.9 139.0L338.5 138.6L339.0 138.1L339.5 137.7L340.0 137.3L340.5 136.9L341.5 136.2L342.5 135.4L343.4 134.7L344.3 134.0L345.2 133.3L346.0 132.6L346.8 131.9L347.7 131.3L348.4 130.7L349.2 130.0L350.0 129.4L350.7 128.9L351.4 128.3L352.1 127.7L352.8 127.2L353.5 126.6L354.2 126.1L354.8 125.6L355.4 125.1L356.1 124.6L356.7 124.1L357.3 123.7L357.9 123.2L358.4 122.7L359.0 122.3L359.6 121.8L360.1 121.4L360.7 121.0L361.2 120.5L361.7 120.1L362.2 119.7L362.7 119.3L363.5 118.7L364.2 118.2L364.9 117.6L365.6 117.0L366.3 116.5L367.0 116.0L367.6 115.4L368.3 114.9L368.9 114.4L369.5 114.0L370.1 113.5L370.7 113.0L371.3 112.5L371.9 112.1L372.4 111.6L373.0 111.2L373.5 110.8L374.1 110.3L374.6 109.9L375.1 109.5L375.6 109.1L376.1 108.7L376.8 108.2L377.4 107.7L378.1 107.2L378.7 106.7L379.3 106.2L379.9 105.7L380.5 105.3L381.1 104.8L381.6 104.4L382.2 103.9L382.7 103.5L383.3 103.1L383.8 102.6L384.3 102.2L384.8 101.8L385.3 101.4L385.9 100.9L386.6 100.4L387.2 100.0L387.7 99.5L388.3 99.0L388.9 98.6L389.4 98.2L390.0 97.7L390.5 97.3L391.0 96.9L391.6 96.5L392.1 96.1L392.6 95.7L393.2 95.2L393.8 94.7L394.1 94.4" class="ln1"/>
+<line x1="190.3" y1="256.1" x2="190.3" y2="88" class="grid" stroke-dasharray="3 3"/>
+<text x="194.3" y="98" class="flab st">sign change at r = 6.3</text>
+<line x1="227.7" y1="226.4" x2="396" y2="226.4" class="comb2" stroke-dasharray="6 4"/>
+<text x="231.7" y="241.4" class="flab st c2">certified: &#968;&#732;(r) &#8805; 1.16 for every r &#8805; 20</text>
+<line x1="281.4" y1="256.1" x2="281.4" y2="396" class="lnm" stroke-dasharray="2 3"/>
+<line x1="303.8" y1="256.1" x2="303.8" y2="396" class="ln2" stroke-dasharray="2 3"/>
+<line x1="326.3" y1="256.1" x2="326.3" y2="396" class="ln1" stroke-dasharray="2 3"/>
+<text x="281.4" y="390" class="flab">the three notches r*</text>
+<line x1="337.9" y1="68" x2="337.9" y2="256.1" class="lnm"/>
+<line x1="360.4" y1="68" x2="360.4" y2="256.1" class="ln2"/>
+<line x1="392.2" y1="68" x2="392.2" y2="256.1" class="ln1"/>
+<text x="360.4" y="80" class="flab">the cuts R&#8320;</text>
+<text x="226.0" y="434" class="flab">frequency r (log scale)</text>
+<text x="226.0" y="46" class="ftitle" font-size="12">&#968;&#732;(r) = Re &#968;(&#188;+ir/2) &#8722; ln &#960;</text>
+<text x="572.0" y="46" class="ftitle" font-size="12">the recursion&#8217;s verdict vs the cut</text>
+<line x1="452" y1="400" x2="692" y2="400" class="axis"/>
+<line x1="475.7" y1="400" x2="475.7" y2="404" class="axis"/>
+<text x="475.7" y="416" class="flab">1</text>
+<line x1="505.3" y1="400" x2="505.3" y2="404" class="axis"/>
+<text x="505.3" y="416" class="flab">2</text>
+<line x1="564.6" y1="400" x2="564.6" y2="404" class="axis"/>
+<text x="564.6" y="416" class="flab">4</text>
+<line x1="623.9" y1="400" x2="623.9" y2="404" class="axis"/>
+<text x="623.9" y="416" class="flab">6</text>
+<line x1="683.1" y1="400" x2="683.1" y2="404" class="axis"/>
+<text x="683.1" y="416" class="flab">8</text>
+<line x1="475.7" y1="82" x2="475.7" y2="400" class="grid" stroke-dasharray="3 3"/>
+<text x="475.7" y="94" class="flab">the notch</text>
+<line x1="452" y1="130" x2="692" y2="130" class="grid" stroke-opacity="0.5"/>
+<text x="452" y="106" class="flab st ">&#916; = 0.06</text>
+<path d="M457.5 126.6L464.3 133.4M457.5 133.4L464.3 126.6" class="lnm"/>
+<path d="M467.9 126.6L474.7 133.4M467.9 133.4L474.7 126.6" class="lnm"/>
+<path d="M473.8 126.6L480.6 133.4M473.8 133.4L480.6 126.6" class="lnm"/>
+<path d="M487.1 126.6L493.9 133.4M487.1 133.4L493.9 126.6" class="lnm"/>
+<path d="M513.8 126.6L520.6 133.4M513.8 133.4L520.6 126.6" class="lnm"/>
+<circle cx="559.3" cy="130" r="3.4" class="hm2"/>
+<circle cx="615.9" cy="130" r="3.4" class="hm2"/>
+<text x="692" y="106" class="flab end">positive from 3.8 on</text>
+<text x="517.2" y="148" class="flab">fails at k = 130</text>
+<line x1="452" y1="218" x2="692" y2="218" class="grid" stroke-opacity="0.5"/>
+<text x="452" y="194" class="flab st c2">&#916; = 0.03</text>
+<path d="M457.5 214.6L464.3 221.4M457.5 221.4L464.3 214.6" class="ln2"/>
+<path d="M467.9 214.6L474.7 221.4M467.9 221.4L474.7 214.6" class="ln2"/>
+<path d="M473.8 214.6L480.6 221.4M473.8 221.4L480.6 214.6" class="ln2"/>
+<path d="M487.1 214.6L493.9 221.4M487.1 221.4L493.9 214.6" class="ln2"/>
+<path d="M513.8 214.6L520.6 221.4M513.8 221.4L520.6 214.6" class="ln2"/>
+<circle cx="559.3" cy="218" r="3.4" class="hm2"/>
+<circle cx="615.9" cy="218" r="3.4" class="hm2"/>
+<text x="692" y="194" class="flab end">positive from 3.8 on</text>
+<text x="517.2" y="236" class="flab">fails at k = 371</text>
+<line x1="452" y1="306" x2="692" y2="306" class="grid" stroke-opacity="0.5"/>
+<text x="452" y="282" class="flab st c1">&#916; = 0.015</text>
+<path d="M457.5 302.6L464.3 309.4M457.5 309.4L464.3 302.6" class="ln1"/>
+<path d="M467.9 302.6L474.7 309.4M467.9 309.4L474.7 302.6" class="ln1"/>
+<path d="M473.8 302.6L480.6 309.4M473.8 309.4L480.6 302.6" class="ln1"/>
+<path d="M487.1 302.6L493.9 309.4M487.1 309.4L493.9 302.6" class="ln1"/>
+<path d="M513.8 302.6L520.6 309.4M513.8 309.4L520.6 302.6" class="ln1"/>
+<path d="M555.9 302.6L562.7 309.4M555.9 309.4L562.7 302.6" class="ln1"/>
+<circle cx="615.9" cy="306" r="3.4" class="hm1"/>
+<circle cx="672.4" cy="306" r="3.4" class="hm1"/>
+<text x="692" y="282" class="flab end">positive only from 5.7</text>
+<text x="559.3" y="324" class="flab">fails at k = 785</text>
+<text x="452" y="392" class="flab st">&#215; fails &#160;&#183;&#160; &#9679; positive (60-digit verdicts)</text>
+<text x="572.0" y="434" class="flab">cut R&#8320; in notch units &#8212; chosen: 5.7, 5.7, 7.6</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the two lemmas, drawn.</b> <i>Left:</i> the archimedean density ψ̃(r) on a log frequency axis: negative below r = 6.3, then positive forever, with the certified floor 1.1558 from r = 20 on (amber dashes). The three mesh notches r* = 2π/Δ and the three cuts R₀ sit two decades past the sign change. <i>Right:</i> what the cut costs, judged by the 60-digit recursion — the only reliable oracle at these eigenvalue scales (§3). Crosses: the truncated section is <i>not</i> positive definite; dots: it is, with λ<sub>min</sub> on a log scale. Every mesh is broken not merely below its notch but far past it — all three still fail with the cut at 2.4 notches. The coarser two recover by 3.8; the finest is still broken there — its 799-section fails at k = 785 — and recovers only by 5.7: the softest modes draw support from the whole ladder of B's nulls at multiples of r*, and the finer the mesh, the more rungs it needs. The deeper the cut, the later the recursion notices — the failure index climbs from k = 19 at half a notch to k = 785 at 3.8. The chosen cuts, 5.7, 5.7 and 7.6 r*, leave the finest a full step of slack.</figcaption>
+</figure>
+<p><b>L2 — the aliasing bound, with its constants shown.</b> For a function analytic in the strip |Im r| &lt; ½ (the integrand's poles are those of ψ at ¼ + ir/2) the infinite trapezoid at step h errs by at most 2M₁/(e<sup>2πτ/h</sup> − 1), where M₁ bounds the line integrals of |f| along |Im r| = τ (Trefethen–Weideman). Take τ = 0.4, h = 0.05: the denominator is e<sup>16π</sup> − 1 ≈ 6.8×10²¹. The numerator chain is elementary: |sinc(u+iw)|² ≤ cosh²(w) — from sin²u ≤ u², sinh²w ≤ w²cosh²w and the mediant inequality — gives ∫|B(x+ib)|²dx ≤ (16/3)Δcosh⁴(τΔ/2); two recurrence steps and the same Stirling corrections give |g(x+ib)| ≤ ln(3+|x|/2) + C<sub>ψ</sub> with C<sub>ψ</sub> ≤ 22.37 on the whole strip; and |cos((x+ib)v)| ≤ e<sup>τv</sup>. Folded together (the script evaluates every constant as an interval),</p>
+<div class="eq"><span class="tag">(3)</span>
+|D(v)| &#8804; 2K<sub>Δ</sub>e<sup>0.4v</sup>/(e<sup>16π</sup> − 1), &nbsp;&nbsp; ρ<sub>D</sub> = Σ-row bound &#8804; 4.2×10⁻¹⁸ &nbsp; (Δ = 0.015),
+</div>
+<p>which is five orders below λ<sub>min</sub>. At rh15's step h = 0.1 the same bound is 10¹¹ times weaker — e<sup>8π</sup> in the denominator — and the theorem would fail; halving the step is what buys it. This is the one place the certified object differs from rh15's: same kernel, same cuts' side, finer lattice.</p>
+</section>
+
+<p class="kicker">Part II · The machine</p>
+
+<section class="prose" id="s3">
+<h2>3 · The instrument, and what the floats got wrong</h2>
+<p>The arithmetic is an interval class over Python's Decimal: libmpdec rounds +, −, ×, ÷ and √ correctly under a directed-rounding context, so [lo, hi] endpoints computed in paired floor/ceiling contexts enclose rigorously. On top of it, enclosures for π (Machin, alternating-tail bound), ln (dyadic scaling and the atanh series), sin and cos (range reduction against the π enclosure — arguments are exact decimals by construction, so reduction loses nothing — then Taylor with an explicit remainder), cosh, sinh, exp, and Re ψ(x+iy): the recurrence ψ(z) = ψ(z+m) − Σ1/(z+j) pushed to |z| ≥ 40, then six Stirling terms with remainder ≤ 86/|z|<sup>14</sup> — a Boyd-type bound taken with a factor-four cushion. Only real parts are ever needed, so the complex kit is powers and reciprocals; no arctangent exists anywhere in the pipeline.</p>
+<p>Each enclosure is containment-tested against the float library on spot grids, and the ψ kit passes three γ-free identities as intervals: ψ(½) − ψ(¼) = ln 2 + π/2, ψ(2) − ψ(1) = 1, and the duplication identity Re ψ(¼+it) + Re ψ(¾+it) − 2Re ψ(½+2it) + 2 ln 2 = 0 at four heights up to t = 400 — every enclosure straddles 0 at width below 10⁻¹⁹. The ψ̃ table (64,001 points to r = 3200) has width ≤ 6.5×10⁻²¹; the finished row enclosures have width ≤ 2.2×10⁻²² (3.2×10⁻²³ at the finest mesh) and radius row-sums ρ<sub>Σ</sub> ≤ 2.8×10⁻²⁰ — the full budget is drawn in Figure 2. Before any of it is believed, the pipeline re-derives rh15: the h = 0.1 rows rebuild <b>bit for bit</b> (difference 0.0), the h = 0.05 cert rows agree with their h = 0.1 counterparts within the asserted 3×10⁻⁹ gate (the Euler–Maclaurin ripple of the cut's endpoint, exactly as expected), the pilot floats sit inside the enclosures, and the 60-digit margins of the cert sections match rh15's stored ones to 1.3×10⁻⁴ — 0.4034, 0.6230, 0.6981 against 0.4034, 0.6231, 0.6982.</p>
+<p>The floats deserve one honest paragraph, because three of them lied during construction, and each lie shaped the design. The plain double-precision recursion at n = 799 reports a positivity failure that is not there — rh15 already knew this and ran 60 digits; it is why every verdict here runs through the 60-digit recursion or the interval layer. Inverse iteration in doubles, asked for λ<sub>min</sub> of the miscut finest section, returned +1.4×10⁻¹³ for a matrix that is <i>not positive definite</i> — it converged to the eigenvalue its starting vector could see and missed the negative one; the 60-digit recursion caught the failure at k = 785. And a shifted variant, iterating on T + cI with c ~ E(0), has convergence ratio 1 − 10⁻¹² at these gaps — it reports its warm start, dressed as an answer; an early version of the cut experiment used it and placed the finest mesh's recovery point at 2.4 notches when the truth is 5.7. In this document floats survive in exactly one load-bearing role: choosing the shift s that the certificate then proves things about. A wrong s costs tightness, never truth.</p>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · The two backends</h2>
+<p><b>α — the theorem, by a non-iterative door.</b> Take the enclosure's midpoint row Mc (exact decimals) and radius row-sum ρ<sub>Σ</sub>. Factor Mc − sI ≈ R̂ᵀR̂ once, at 40 digits, with s a dyadic fraction of the pilot's eigenvalue; form the residual F = Mc − sI − R̂ᵀR̂ with <i>exact</i> products — 40-digit entries multiply exactly at 90 digits — so ‖F‖<sub>∞</sub> is a rigorous number with a blanket rounding slop. Since R̂ᵀR̂ ⪰ 0 always, every symmetric matrix within the radii of Mc has</p>
+<div class="eq"><span class="tag">(4)</span>
+λ<sub>min</sub> &#8805; s − ‖F‖<sub>∞</sub> − ρ<sub>Σ</sub>, &nbsp;&nbsp; and for the exact section, &nbsp; λ<sub>min</sub> &#8805; s − ‖F‖<sub>∞</sub> − ρ<sub>Σ</sub> − ρ<sub>D</sub>.
+</div>
+<p>No iteration, so no dependency growth: the certificate's quality is set by how well s was guessed and how small the three subtractions are. Figure 2 places all of them on one axis; Figure 4 is the resulting card. The certified floors reach 99% of the pilot values, and the brackets close: an interval Rayleigh quotient with the pilot's eigenvector caps each λ<sub>min</sub> from above at 1.45×10⁻¹³ (finest), so the certificate is tight, not merely true.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 452" role="img" aria-label="For each of the three meshes, every error the rigorous computation carries is placed on one logarithmic axis running from ten to the minus forty-one up to ten to the minus ten: the Cholesky residual near ten to the minus thirty-nine, the enclosure radii near ten to the minus twenty, the aliasing bound near four times ten to the minus eighteen, and far to their right the certified floor and the eigenvalue it certifies, at ten to the minus thirteen to ten to the minus eleven. The gap between the added errors and the certified quantity is at least four and a half orders of magnitude.">
+<text x="360.0" y="22" class="ftitle">everything the rigor added, on the same axis as the eigenvalue it certifies</text>
+<line x1="66" y1="336" x2="686" y2="336" class="axis"/>
+<line x1="86.0" y1="336" x2="86.0" y2="340" class="axis"/>
+<text x="86.0" y="353" class="flab">10&#8315;&#8308;&#8304;</text>
+<line x1="86.0" y1="56" x2="86.0" y2="336" class="grid" stroke-opacity="0.35"/>
+<line x1="186.0" y1="336" x2="186.0" y2="340" class="axis"/>
+<text x="186.0" y="353" class="flab">10&#8315;&#179;&#8309;</text>
+<line x1="186.0" y1="56" x2="186.0" y2="336" class="grid" stroke-opacity="0.35"/>
+<line x1="286.0" y1="336" x2="286.0" y2="340" class="axis"/>
+<text x="286.0" y="353" class="flab">10&#8315;&#179;&#8304;</text>
+<line x1="286.0" y1="56" x2="286.0" y2="336" class="grid" stroke-opacity="0.35"/>
+<line x1="386.0" y1="336" x2="386.0" y2="340" class="axis"/>
+<text x="386.0" y="353" class="flab">10&#8315;&#178;&#8309;</text>
+<line x1="386.0" y1="56" x2="386.0" y2="336" class="grid" stroke-opacity="0.35"/>
+<line x1="486.0" y1="336" x2="486.0" y2="340" class="axis"/>
+<text x="486.0" y="353" class="flab">10&#8315;&#178;&#8304;</text>
+<line x1="486.0" y1="56" x2="486.0" y2="336" class="grid" stroke-opacity="0.35"/>
+<line x1="586.0" y1="336" x2="586.0" y2="340" class="axis"/>
+<text x="586.0" y="353" class="flab">10&#8315;&#185;&#8309;</text>
+<line x1="586.0" y1="56" x2="586.0" y2="336" class="grid" stroke-opacity="0.35"/>
+<line x1="686.0" y1="336" x2="686.0" y2="340" class="axis"/>
+<text x="686.0" y="353" class="flab">10&#8315;&#185;&#8304;</text>
+<line x1="686.0" y1="56" x2="686.0" y2="336" class="grid" stroke-opacity="0.35"/>
+<text x="66" y="66" class="flab st ">&#916; = 0.06, n = 199 &#8212; &#955;<tspan baseline-shift="sub" font-size="8.5px">min</tspan> &#8776; 5.5&#215;10&#8315;&#185;&#185;</text>
+<rect x="66" y="87" width="36.4" height="10" class="bar2"/>
+<rect x="66" y="87" width="428.9" height="10" class="bar2"/>
+<rect x="66" y="87" width="471.6" height="10" class="bar2"/>
+<text x="68" y="113" class="flab st">residual 7&#215;10&#8315;&#8308;&#8304; &#183; radii 3&#215;10&#8315;&#178;&#8304; &#183; aliasing 4&#215;10&#8315;&#185;&#8312;</text>
+<line x1="680.7" y1="79" x2="680.7" y2="105" class="stem"/>
+<circle cx="680.8" cy="92.0" r="3.4" class="hm1"/>
+<text x="674.7" y="79" class="flab end c1">certified floor 5.4&#215;10&#8315;&#185;&#185;</text>
+<text x="66" y="158" class="flab st c2">&#916; = 0.03, n = 399 &#8212; &#955;<tspan baseline-shift="sub" font-size="8.5px">min</tspan> &#8776; 4.2&#215;10&#8315;&#185;&#179;</text>
+<rect x="66" y="179" width="37.4" height="10" class="bar2"/>
+<rect x="66" y="179" width="428.0" height="10" class="bar2"/>
+<rect x="66" y="179" width="472.1" height="10" class="bar2"/>
+<text x="68" y="205" class="flab st">residual 7&#215;10&#8315;&#8308;&#8304; &#183; radii 3&#215;10&#8315;&#178;&#8304; &#183; aliasing 4&#215;10&#8315;&#185;&#8312;</text>
+<line x1="638.4" y1="171" x2="638.4" y2="197" class="stem"/>
+<circle cx="638.5" cy="184.0" r="3.4" class="hm1"/>
+<text x="632.4" y="171" class="flab end c1">certified floor 4.2&#215;10&#8315;&#185;&#179;</text>
+<text x="66" y="250" class="flab st c1">&#916; = 0.015, n = 799 &#8212; &#955;<tspan baseline-shift="sub" font-size="8.5px">min</tspan> &#8776; 1.4&#215;10&#8315;&#185;&#179;</text>
+<rect x="66" y="271" width="42.5" height="10" class="bar2"/>
+<rect x="66" y="271" width="424.2" height="10" class="bar2"/>
+<rect x="66" y="271" width="472.4" height="10" class="bar2"/>
+<text x="68" y="297" class="flab st">residual 1&#215;10&#8315;&#179;&#8313; &#183; radii 2&#215;10&#8315;&#178;&#8304; &#183; aliasing 4&#215;10&#8315;&#185;&#8312;</text>
+<line x1="629.1" y1="263" x2="629.1" y2="289" class="stem"/>
+<circle cx="629.2" cy="276.0" r="3.4" class="hm1"/>
+<text x="623.1" y="263" class="flab end c1">certified floor 1.4&#215;10&#8315;&#185;&#179;</text>
+<text x="686" y="369" class="flab end">absolute size, log scale &#8212; bars: what rigor added; line and dot: the certified floor and the eigenvalue</text>
+<text x="66" y="46" class="flab st">the added errors sit 4.5+ orders below the smallest thing they must not disturb</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — the error budget, spent.</b> Everything the rigor added, per mesh, on one logarithmic axis, next to the certified floor and the eigenvalue it protects. The Cholesky residual — exact products plus a blanket rounding slop — lands at 10⁻³⁹, the radius row-sums at ~10⁻²⁰, the aliasing bound at 4×10⁻¹⁸ — and the floors at 10⁻¹³ to 10⁻¹¹. The added errors clear the certified quantity by 4.5 or more orders of magnitude. This is what L1 bought: with the naive tail bound in place of the PSD drop, the radii would land at 10⁻⁸ and the figure would be unbuildable.</figcaption>
+</figure>
+<p><b>β — the recursion itself, and the wall.</b> The natural move — run Levinson–Durbin forward on the interval rows, get certified enclosures for every ρ<sub>k</sub> — works, briefly. At 40 digits the finest mesh certifies k ≤ 62 of 798. At 120 digits: k ≤ 62 — <i>the same wall, to the step</i>. Eighty additional digits buy nothing, because the wall is not rounding: it is the dependency problem — each interval operation treats correlated enclosures as independent, and the recursion compounds the overestimate at a measured ~0.35 digits per step (1.28 and 0.71 at the coarser meshes, which fall at k = 19 and 33). A control run on <i>exact</i>, zero-width inputs climbs at the same slope and gains nine steps (k ≤ 71) — the price of pushing the width floor from 10⁻²² down to the 40-digit rounding floor at 10⁻⁴⁰. The worst case computable from rh15's own sequence — Π(1+|ρ<sub>k</sub>|)/(1−|ρ<sub>k</sub>|) — is 10²⁴, 10³⁵, 10⁵¹ for the three meshes; no precision ladder survives that. What β delivers is still real: over the tight prefixes (radius &lt; 10⁻³, k ≤ 18, 31, 60) it certifies |ρ<sub>k</sub>| &lt; 1 with margins 0.4034, 0.6338, 0.7808 — and for the coarsest mesh that prefix covers k = 9, where its largest reflection coefficient lives, so the headline margin 0.403 is certified coefficient-by-coefficient. The finer meshes' maxima sit at k = 54 and 171, beyond their walls — which is why their prefix margins run higher than their headline 0.623 and 0.698 — and belong to α: positive definiteness of the whole section is equivalent to every |ρ<sub>k</sub>| &lt; 1, so the theorem covers all 1394 coefficients without the recursion ever certifying most of them individually.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 500" role="img" aria-label="Top: the reflection coefficients of the three meshes plotted against index, all inside the unit band, with vertical marks where the forward interval recursion stops certifying: index nineteen, thirty-three and sixty-two. Bottom: the interval radius against index on a logarithmic scale for the finest mesh, at forty digits, at one hundred twenty digits, and with exact inputs. The forty and one-hundred-twenty digit curves coincide, climbing about a third of a digit per step; the exact-input control gains only nine steps. Precision does not move the wall.">
+<text x="360.0" y="22" class="ftitle">the recursion run on intervals: certified as far as dependency allows, and no further</text>
+<line x1="56" y1="218" x2="692" y2="218" class="axis"/>
+<line x1="56" y1="62" x2="692" y2="62" class="grid" stroke-dasharray="5 4"/>
+<text x="51" y="66" class="flab end">1</text>
+<text x="51" y="222" class="flab end">0</text>
+<text x="215.4" y="233" class="flab">200</text>
+<text x="374.8" y="233" class="flab">400</text>
+<text x="534.2" y="233" class="flab">600</text>
+<text x="692.0" y="233" class="flab">798</text>
+<path d="M56.8 183.9L57.6 167.7L58.4 172.8L59.2 170.2L60.0 166.6L60.8 160.6L61.6 151.8L62.4 139.3L63.2 124.9L64.0 138.7L64.8 147.2L65.6 134.3L66.4 166.2L67.2 203.0L68.0 167.3L68.8 184.2L69.5 153.4L70.3 152.5L71.1 207.5L71.9 172.4L72.7 189.1L73.5 165.6L74.3 211.0L75.1 182.5L75.9 144.2L76.7 188.8L77.5 216.9L78.3 201.7L79.1 178.3L79.9 210.4L80.7 182.8L81.5 216.3L82.3 212.5L83.1 216.6L83.9 197.4L84.7 217.2L85.5 190.0L86.3 163.4L87.1 168.6L87.9 201.0L88.7 180.7L89.5 216.6L90.3 211.0L91.1 204.8L91.9 177.6L92.7 197.3L93.5 182.7L94.3 170.0L95.1 159.5L95.8 177.4L96.6 200.0L97.4 193.5L98.2 214.3L99.0 181.1L99.8 216.3L100.6 185.6L101.4 173.7L102.2 208.3L103.0 179.8L103.8 206.5L104.6 171.9L105.4 204.5L106.2 217.2L107.0 201.4L107.8 210.4L108.6 191.1L109.4 174.6L110.2 164.6L111.0 217.0L111.8 203.7L112.6 210.6L113.4 209.0L114.2 178.5L115.0 206.9L115.8 193.0L116.6 186.8L117.4 208.6L118.2 217.3L119.0 188.7L119.8 205.4L120.6 210.8L121.4 207.7L122.2 213.0L122.9 215.0L123.7 217.1L124.5 211.2L125.3 181.8L126.1 181.2L126.9 216.5L127.7 211.0L128.5 207.4L129.3 180.2L130.1 186.5L130.9 171.4L131.7 202.5L132.5 195.0L133.3 206.3L134.1 199.0L134.9 195.2L135.7 194.8L136.5 211.1L137.3 204.1L138.1 181.8L138.9 211.8L139.7 183.7L140.5 193.4L141.3 194.5L142.1 206.8L142.9 214.1L143.7 183.1L144.5 196.3L145.3 190.9L146.1 216.3L146.9 211.9L147.7 176.6L148.5 217.8L149.2 203.9L150.0 183.3L150.8 210.2L151.6 193.7L152.4 213.5L153.2 199.0L154.0 205.1L154.8 214.3L155.6 188.6L156.4 214.6L157.2 214.8L158.0 187.4L158.8 209.7L159.6 212.3L160.4 214.9L161.2 188.2L162.0 198.3L162.8 198.7L163.6 195.7L164.4 179.2L165.2 210.7L166.0 217.2L166.8 218.0L167.6 200.8L168.4 194.8L169.2 207.3L170.0 207.9L170.8 212.1L171.6 212.7L172.4 186.2L173.2 211.9L174.0 184.6L174.8 176.6L175.5 211.5L176.3 185.7L177.1 217.8L177.9 177.3L178.7 212.5L179.5 212.1L180.3 207.5L181.1 215.5L181.9 204.8L182.7 207.7L183.5 214.0L184.3 213.5L185.1 177.3L185.9 208.3L186.7 210.1L187.5 209.3L188.3 217.5L189.1 217.4L189.9 186.5L190.7 214.6L191.5 212.2L192.3 181.4L193.1 197.2L193.9 217.2L194.7 192.8L195.5 213.9L196.3 207.5L197.1 217.4L197.9 215.4L198.7 208.1L199.5 217.1L200.3 201.5L201.1 210.3L201.8 207.7L202.6 206.6L203.4 206.8L204.2 212.4L205.0 213.3L205.8 186.3L206.6 207.9L207.4 203.9L208.2 202.6L209.0 214.1L209.8 211.8L210.6 209.3L211.4 212.6L212.2 188.1L213.0 213.0L213.8 216.3" class="lnm"/>
+<line x1="71.1" y1="62.0" x2="71.1" y2="218" class="lnm" stroke-dasharray="2 3"/>
+<path d="M56.8 205.9L57.6 184.1L58.4 193.5L59.2 193.6L60.0 194.6L60.8 194.8L61.6 194.7L62.4 194.3L63.2 193.6L64.0 192.7L64.8 191.5L65.6 190.1L66.4 188.3L67.2 186.1L68.0 183.4L68.8 180.1L69.5 176.3L70.3 171.8L71.1 167.4L71.9 165.4L72.7 174.6L73.5 197.0L74.3 165.9L75.1 169.6L75.9 167.1L76.7 163.9L77.5 161.6L78.3 160.9L79.1 164.7L79.9 178.4L80.7 205.6L81.5 200.1L82.3 190.1L83.1 208.6L83.9 198.1L84.7 192.9L85.5 195.7L86.3 180.2L87.1 164.1L87.9 167.5L88.7 192.1L89.5 204.8L90.3 186.6L91.1 203.5L91.9 195.0L92.7 201.6L93.5 167.5L94.3 165.5L95.1 206.7L95.8 175.7L96.6 191.7L97.4 209.5L98.2 199.3L99.0 159.2L99.8 185.3L100.6 197.0L101.4 181.0L102.2 213.7L103.0 190.7L103.8 186.6L104.6 192.3L105.4 175.4L106.2 182.7L107.0 176.5L107.8 178.7L108.6 194.1L109.4 217.5L110.2 178.1L111.0 201.0L111.8 175.1L112.6 215.4L113.4 178.7L114.2 212.5L115.0 189.6L115.8 200.2L116.6 217.1L117.4 181.2L118.2 169.1L119.0 190.7L119.8 217.6L120.6 211.1L121.4 192.9L122.2 211.7L122.9 190.9L123.7 197.1L124.5 192.4L125.3 215.9L126.1 201.4L126.9 205.3L127.7 211.4L128.5 203.5L129.3 215.1L130.1 198.7L130.9 206.8L131.7 190.2L132.5 197.0L133.3 194.1L134.1 212.0L134.9 201.7L135.7 212.4L136.5 208.8L137.3 209.4L138.1 203.5L138.9 203.9L139.7 216.8L140.5 214.6L141.3 206.3L142.1 217.1L142.9 213.9L143.7 185.5L144.5 213.4L145.3 211.0L146.1 203.2L146.9 209.3L147.7 216.0L148.5 208.6L149.2 216.4L150.0 217.2L150.8 200.0L151.6 212.5L152.4 202.2L153.2 216.4L154.0 203.6L154.8 182.8L155.6 209.8L156.4 210.4L157.2 207.0L158.0 193.9L158.8 201.0L159.6 214.9L160.4 205.9L161.2 210.2L162.0 215.1L162.8 202.1L163.6 177.9L164.4 180.4L165.2 181.5L166.0 181.7L166.8 193.9L167.6 204.7L168.4 171.1L169.2 196.0L170.0 206.2L170.8 213.7L171.6 200.6L172.4 217.7L173.2 209.6L174.0 195.0L174.8 211.0L175.5 196.1L176.3 188.1L177.1 205.1L177.9 215.1L178.7 213.9L179.5 212.4L180.3 217.9L181.1 185.5L181.9 205.9L182.7 187.8L183.5 198.9L184.3 200.3L185.1 213.4L185.9 206.4L186.7 195.7L187.5 180.4L188.3 198.1L189.1 187.2L189.9 213.6L190.7 202.7L191.5 198.4L192.3 197.6L193.1 210.9L193.9 211.2L194.7 188.2L195.5 207.7L196.3 215.2L197.1 217.2L197.9 182.5L198.7 206.5L199.5 216.4L200.3 205.7L201.1 193.4L201.8 211.7L202.6 203.7L203.4 207.3L204.2 188.9L205.0 202.1L205.8 208.6L206.6 200.4L207.4 207.4L208.2 209.2L209.0 201.2L209.8 204.7L210.6 193.4L211.4 215.8L212.2 212.4L213.0 211.2L213.8 204.9L214.6 205.3L215.4 210.5L216.2 200.8L217.0 212.6L217.8 200.9L218.6 206.6L219.4 201.1L220.2 183.3L221.0 181.8L221.8 185.0L222.6 213.6L223.4 207.7L224.2 215.7L225.0 214.4L225.8 200.8L226.6 206.7L227.4 190.3L228.2 214.1L228.9 206.6L229.7 198.1L230.5 197.5L231.3 212.0L232.1 211.4L232.9 200.1L233.7 207.8L234.5 193.7L235.3 194.2L236.1 211.0L236.9 216.9L237.7 192.3L238.5 194.4L239.3 204.3L240.1 203.0L240.9 203.9L241.7 201.7L242.5 212.6L243.3 196.2L244.1 212.5L244.9 194.8L245.7 210.9L246.5 217.4L247.3 209.6L248.1 205.5L248.9 214.9L249.7 206.8L250.5 193.5L251.3 201.0L252.1 198.0L252.9 209.3L253.7 208.2L254.5 213.7L255.2 212.9L256.0 215.8L256.8 209.5L257.6 215.4L258.4 201.2L259.2 201.3L260.0 211.7L260.8 212.2L261.6 206.0L262.4 205.6L263.2 197.7L264.0 196.1L264.8 213.7L265.6 214.5L266.4 202.3L267.2 206.4L268.0 207.4L268.8 210.9L269.6 216.7L270.4 211.7L271.2 212.8L272.0 209.7L272.8 191.2L273.6 211.0L274.4 191.2L275.2 197.9L276.0 213.9L276.8 195.7L277.6 209.6L278.4 193.4L279.2 208.3L280.0 209.7L280.8 210.1L281.5 209.9L282.3 217.6L283.1 207.8L283.9 207.9L284.7 211.1L285.5 193.2L286.3 204.8L287.1 204.2L287.9 217.6L288.7 206.7L289.5 207.4L290.3 197.5L291.1 214.2L291.9 215.3L292.7 217.3L293.5 217.2L294.3 214.3L295.1 197.6L295.9 215.8L296.7 205.4L297.5 190.5L298.3 197.6L299.1 215.8L299.9 216.5L300.7 208.1L301.5 216.7L302.3 214.5L303.1 203.5L303.9 216.4L304.7 216.2L305.5 215.9L306.3 211.3L307.1 200.0L307.8 193.8L308.6 205.9L309.4 214.7L310.2 217.9L311.0 217.0L311.8 214.1L312.6 217.5L313.4 204.5L314.2 206.8L315.0 201.2L315.8 201.4L316.6 210.9L317.4 202.6L318.2 206.5L319.0 215.2L319.8 209.3L320.6 213.3L321.4 208.2L322.2 216.9L323.0 214.9L323.8 216.5L324.6 202.6L325.4 212.2L326.2 215.5L327.0 215.9L327.8 205.3L328.6 182.9L329.4 197.7L330.2 213.3L331.0 214.9L331.8 195.6L332.6 209.3L333.4 186.9L334.2 209.6L334.9 215.0L335.7 215.4L336.5 199.4L337.3 209.4L338.1 213.5L338.9 216.3L339.7 210.8L340.5 217.1L341.3 212.0L342.1 198.0L342.9 201.9L343.7 209.6L344.5 208.3L345.3 194.5L346.1 209.7L346.9 216.0L347.7 206.2L348.5 211.1L349.3 215.0L350.1 184.1L350.9 216.2L351.7 210.1L352.5 214.3L353.3 205.7L354.1 209.4L354.9 217.9L355.7 217.6L356.5 211.1L357.3 207.2L358.1 212.1L358.9 211.5L359.7 200.9L360.5 209.9L361.2 202.1L362.0 199.1L362.8 209.3L363.6 217.0L364.4 216.3L365.2 212.7L366.0 213.7L366.8 217.1L367.6 208.9L368.4 212.5L369.2 200.3L370.0 206.0L370.8 211.4L371.6 197.8L372.4 196.8L373.2 210.8" class="ln2"/>
+<line x1="82.3" y1="62.0" x2="82.3" y2="218" class="ln2" stroke-dasharray="2 3"/>
+<path d="M56.8 217.4L57.6 192.0L58.4 202.6L59.2 202.5L60.0 204.1L60.8 204.7L61.6 205.3L62.4 205.7L63.2 206.0L64.0 206.2L64.8 206.3L65.6 206.3L66.4 206.4L67.2 206.3L68.0 206.3L68.8 206.2L69.5 206.1L70.3 205.9L71.1 205.7L71.9 205.5L72.7 205.2L73.5 204.9L74.3 204.6L75.1 204.2L75.9 203.8L76.7 203.4L77.5 202.9L78.3 202.3L79.1 201.7L79.9 201.1L80.7 200.3L81.5 199.5L82.3 198.6L83.1 197.7L83.9 196.6L84.7 195.5L85.5 194.3L86.3 193.1L87.1 192.0L87.9 191.2L88.7 191.2L89.5 192.6L90.3 196.8L91.1 205.7L91.9 214.7L92.7 186.6L93.5 192.7L94.3 194.7L95.1 192.8L95.8 192.5L96.6 191.5L97.4 190.7L98.2 189.7L99.0 188.8L99.8 187.8L100.6 186.7L101.4 185.7L102.2 184.9L103.0 184.2L103.8 183.8L104.6 184.1L105.4 185.2L106.2 187.6L107.0 191.4L107.8 196.4L108.6 201.6L109.4 205.1L110.2 205.0L111.0 201.1L111.8 197.5L112.6 208.0L113.4 189.6L114.2 205.5L115.0 201.3L115.8 196.0L116.6 198.3L117.4 201.6L118.2 208.6L119.0 217.8L119.8 208.0L120.6 198.7L121.4 191.6L122.2 187.7L122.9 187.2L123.7 190.0L124.5 195.1L125.3 200.3L126.1 202.5L126.9 201.6L127.7 206.1L128.5 198.3L129.3 192.7L130.1 194.1L130.9 189.9L131.7 197.5L132.5 209.9L133.3 209.4L134.1 194.7L134.9 187.2L135.7 187.1L136.5 195.9L137.3 209.7L138.1 218.0L138.9 212.4L139.7 208.0L140.5 182.8L141.3 190.5L142.1 201.6L142.9 209.8L143.7 208.2L144.5 193.1L145.3 183.1L146.1 182.4L146.9 190.8L147.7 204.5L148.5 216.7L149.2 211.1L150.0 189.8L150.8 187.7L151.6 200.4L152.4 217.6L153.2 197.8L154.0 186.1L154.8 192.9L155.6 217.7L156.4 200.8L157.2 213.5L158.0 205.9L158.8 178.8L159.6 217.4L160.4 197.8L161.2 176.1L162.0 179.1L162.8 199.3L163.6 213.0L164.4 207.1L165.2 194.5L166.0 193.2L166.8 207.0L167.6 188.1L168.4 189.3L169.2 213.4L170.0 195.8L170.8 202.5L171.6 198.3L172.4 213.4L173.2 186.8L174.0 184.9L174.8 206.7L175.5 200.2L176.3 196.7L177.1 198.0L177.9 214.9L178.7 184.6L179.5 194.2L180.3 192.8L181.1 182.2L181.9 211.1L182.7 210.1L183.5 174.3L184.3 185.1L185.1 216.4L185.9 198.0L186.7 207.0L187.5 205.0L188.3 192.3L189.1 204.7L189.9 176.6L190.7 203.4L191.5 193.6L192.3 170.9L193.1 209.1L193.9 193.1L194.7 217.5L195.5 196.1L196.3 201.4L197.1 195.8L197.9 196.7L198.7 211.9L199.5 195.1L200.3 212.7L201.1 191.5L201.8 213.1L202.6 202.4L203.4 210.4L204.2 183.9L205.0 188.4L205.8 185.3L206.6 205.3L207.4 204.7L208.2 208.1L209.0 208.6L209.8 180.2L210.6 205.5L211.4 187.3L212.2 215.3L213.0 206.9L213.8 205.3L214.6 214.3L215.4 192.0L216.2 203.1L217.0 215.9L217.8 196.1L218.6 213.4L219.4 211.1L220.2 187.2L221.0 186.2L221.8 192.3L222.6 213.9L223.4 211.8L224.2 194.2L225.0 217.6L225.8 203.1L226.6 204.9L227.4 202.4L228.2 214.2L228.9 204.5L229.7 204.9L230.5 215.2L231.3 217.4L232.1 200.1L232.9 209.4L233.7 201.6L234.5 209.1L235.3 209.3L236.1 190.1L236.9 186.8L237.7 203.2L238.5 205.4L239.3 212.0L240.1 214.4L240.9 216.1L241.7 206.1L242.5 209.4L243.3 212.1L244.1 209.6L244.9 200.8L245.7 197.5L246.5 206.6L247.3 201.8L248.1 209.8L248.9 213.8L249.7 209.0L250.5 200.1L251.3 208.0L252.1 205.8L252.9 216.0L253.7 206.5L254.5 202.5L255.2 217.2L256.0 210.8L256.8 207.2L257.6 216.1L258.4 206.8L259.2 207.7L260.0 217.0L260.8 212.1L261.6 209.8L262.4 205.4L263.2 211.9L264.0 211.3L264.8 208.0L265.6 199.7L266.4 208.5L267.2 215.7L268.0 211.4L268.8 214.9L269.6 212.0L270.4 199.7L271.2 195.4L272.0 212.6L272.8 195.2L273.6 200.5L274.4 212.0L275.2 209.3L276.0 206.9L276.8 210.1L277.6 212.3L278.4 217.8L279.2 212.2L280.0 208.3L280.8 204.5L281.5 207.7L282.3 193.8L283.1 196.3L283.9 216.6L284.7 196.9L285.5 214.2L286.3 206.9L287.1 217.7L287.9 216.4L288.7 217.4L289.5 213.7L290.3 209.1L291.1 213.2L291.9 201.3L292.7 200.4L293.5 208.1L294.3 215.0L295.1 215.0L295.9 212.8L296.7 198.3L297.5 200.7L298.3 210.4L299.1 206.3L299.9 215.5L300.7 197.0L301.5 213.8L302.3 217.5L303.1 209.7L303.9 198.9L304.7 197.6L305.5 188.4L306.3 212.3L307.1 217.0L307.8 195.1L308.6 204.5L309.4 193.4L310.2 217.6L311.0 203.9L311.8 198.1L312.6 213.3L313.4 207.6L314.2 205.9L315.0 199.9L315.8 208.7L316.6 183.4L317.4 216.6L318.2 203.1L319.0 217.7L319.8 201.1L320.6 214.5L321.4 213.7L322.2 204.2L323.0 210.1L323.8 205.6L324.6 217.1L325.4 216.5L326.2 213.4L327.0 202.7L327.8 216.2L328.6 210.5L329.4 211.5L330.2 216.5L331.0 216.0L331.8 213.7L332.6 214.7L333.4 214.6L334.2 194.4L334.9 211.7L335.7 201.1L336.5 217.3L337.3 198.2L338.1 201.1L338.9 204.8L339.7 195.1L340.5 215.1L341.3 215.6L342.1 215.5L342.9 211.0L343.7 216.8L344.5 202.3L345.3 212.7L346.1 191.3L346.9 201.6L347.7 209.5L348.5 215.9L349.3 209.2L350.1 199.3L350.9 214.5L351.7 215.8L352.5 208.8L353.3 209.5L354.1 197.2L354.9 197.8L355.7 215.9L356.5 201.8L357.3 211.6L358.1 209.2L358.9 217.8L359.7 206.9L360.5 213.3L361.2 212.7L362.0 198.7L362.8 201.0L363.6 194.0L364.4 205.3L365.2 211.0L366.0 200.9L366.8 212.9L367.6 215.5L368.4 208.0L369.2 211.8L370.0 208.1L370.8 197.8L371.6 211.5L372.4 204.3L373.2 212.5L374.0 215.9L374.8 201.5L375.6 209.7L376.4 201.1L377.2 210.6L378.0 202.2L378.8 213.7L379.6 212.9L380.4 213.4L381.2 209.4L382.0 198.4L382.8 215.2L383.6 209.1L384.4 207.9L385.2 217.1L386.0 211.7L386.8 212.2L387.5 200.8L388.3 201.4L389.1 216.3L389.9 195.0L390.7 213.8L391.5 211.2L392.3 217.8L393.1 210.5L393.9 206.9L394.7 204.7L395.5 207.7L396.3 217.9L397.1 217.7L397.9 204.2L398.7 216.2L399.5 198.9L400.3 212.7L401.1 214.5L401.9 203.7L402.7 209.0L403.5 206.5L404.3 197.9L405.1 211.4L405.9 182.2L406.7 213.8L407.5 198.4L408.3 216.9L409.1 213.5L409.9 207.2L410.7 201.7L411.5 200.7L412.3 217.3L413.1 216.8L413.8 217.3L414.6 209.4L415.4 204.5L416.2 206.5L417.0 207.7L417.8 209.0L418.6 199.9L419.4 200.6L420.2 215.6L421.0 211.6L421.8 216.2L422.6 212.7L423.4 212.5L424.2 208.2L425.0 209.8L425.8 217.3L426.6 215.9L427.4 208.8L428.2 211.0L429.0 207.4L429.8 217.8L430.6 212.0L431.4 215.6L432.2 211.7L433.0 212.2L433.8 211.9L434.6 215.1L435.4 209.4L436.2 213.3L437.0 209.0L437.8 214.0L438.6 205.2L439.4 205.8L440.2 216.6L440.9 202.3L441.7 211.7L442.5 195.1L443.3 216.0L444.1 212.9L444.9 203.0L445.7 204.6L446.5 207.1L447.3 210.5L448.1 216.7L448.9 216.1L449.7 206.8L450.5 210.7L451.3 202.1L452.1 204.0L452.9 216.0L453.7 215.6L454.5 199.7L455.3 198.4L456.1 203.3L456.9 214.0L457.7 213.9L458.5 198.4L459.3 203.8L460.1 214.9L460.9 204.7L461.7 202.5L462.5 188.1L463.3 200.8L464.1 211.5L464.9 217.5L465.7 206.5L466.5 203.9L467.2 206.5L468.0 198.0L468.8 211.1L469.6 215.4L470.4 214.6L471.2 217.7L472.0 207.9L472.8 214.8L473.6 212.9L474.4 209.4L475.2 217.1L476.0 206.4L476.8 213.5L477.6 215.4L478.4 204.8L479.2 186.5L480.0 206.4L480.8 216.6L481.6 209.6L482.4 206.0L483.2 195.5L484.0 214.4L484.8 217.5L485.6 203.5L486.4 211.3L487.2 209.0L488.0 210.3L488.8 207.4L489.6 194.4L490.4 217.4L491.2 215.7L492.0 209.3L492.8 213.7L493.5 210.6L494.3 213.8L495.1 215.3L495.9 215.8L496.7 215.2L497.5 201.4L498.3 215.1L499.1 212.5L499.9 211.4L500.7 200.5L501.5 203.9L502.3 205.6L503.1 194.6L503.9 216.1L504.7 212.7L505.5 207.7L506.3 210.7L507.1 203.6L507.9 209.1L508.7 216.0L509.5 212.5L510.3 217.6L511.1 204.3L511.9 214.3L512.7 200.1L513.5 215.3L514.3 218.0L515.1 208.9L515.9 199.9L516.7 208.7L517.5 212.1L518.3 217.9L519.1 213.5L519.8 215.1L520.6 209.9L521.4 203.7L522.2 208.1L523.0 216.8L523.8 213.3L524.6 214.1L525.4 203.8L526.2 213.5L527.0 202.7L527.8 205.3L528.6 208.0L529.4 214.4L530.2 214.3L531.0 217.5L531.8 214.2L532.6 210.4L533.4 208.0L534.2 214.6L535.0 215.9L535.8 207.7L536.6 212.8L537.4 207.8L538.2 217.3L539.0 214.8L539.8 212.5L540.6 215.8L541.4 206.8L542.2 201.4L543.0 214.0L543.8 205.8L544.6 209.8L545.4 214.0L546.2 216.1L546.9 217.0L547.7 215.5L548.5 210.0L549.3 207.3L550.1 206.2L550.9 210.0L551.7 202.2L552.5 214.7L553.3 217.3L554.1 202.1L554.9 213.2L555.7 207.8L556.5 197.4L557.3 211.6L558.1 202.1L558.9 195.0L559.7 208.4L560.5 216.2L561.3 212.6L562.1 212.2L562.9 207.8L563.7 217.5L564.5 212.2L565.3 214.8L566.1 215.1L566.9 217.4L567.7 216.8L568.5 204.3L569.3 202.9L570.1 214.0L570.9 215.5L571.7 204.5L572.5 211.6L573.2 191.5L574.0 206.4L574.8 214.4L575.6 195.9L576.4 206.7L577.2 213.3L578.0 214.5L578.8 214.7L579.6 217.6L580.4 215.2L581.2 212.9L582.0 209.5L582.8 200.6L583.6 215.2L584.4 216.2L585.2 199.3L586.0 204.9L586.8 217.5L587.6 210.2L588.4 215.2L589.2 207.1L590.0 208.7L590.8 203.6L591.6 207.1L592.4 212.7L593.2 211.2L594.0 207.5L594.8 217.2L595.6 214.5L596.4 217.7L597.2 206.7L598.0 211.8L598.8 206.2L599.5 201.0L600.3 213.9L601.1 200.5L601.9 211.8L602.7 211.2L603.5 216.7L604.3 208.8L605.1 211.1L605.9 214.0L606.7 215.2L607.5 209.3L608.3 202.7L609.1 216.2L609.9 213.6L610.7 210.8L611.5 214.7L612.3 209.1L613.1 207.8L613.9 217.7L614.7 205.1L615.5 214.3L616.3 201.5L617.1 213.7L617.9 198.4L618.7 211.7L619.5 215.8L620.3 202.6L621.1 213.4L621.9 214.0L622.7 210.3L623.5 213.5L624.3 216.1L625.1 213.2L625.8 211.6L626.6 207.5L627.4 215.2L628.2 216.1L629.0 207.6L629.8 216.4L630.6 204.7L631.4 216.3L632.2 209.4L633.0 217.4L633.8 216.1L634.6 212.8L635.4 216.8L636.2 204.2L637.0 205.7L637.8 216.4L638.6 217.9L639.4 213.2L640.2 217.7L641.0 200.1L641.8 206.2L642.6 215.4L643.4 199.0L644.2 215.5L645.0 214.1L645.8 197.3L646.6 217.1L647.4 215.2L648.2 213.8L649.0 213.7L649.8 208.5L650.6 207.8L651.4 217.0L652.2 210.7L652.9 209.7L653.7 214.9L654.5 211.8L655.3 205.3L656.1 210.2L656.9 217.1L657.7 204.5L658.5 215.1L659.3 207.8L660.1 208.8L660.9 216.4L661.7 208.8L662.5 200.2L663.3 204.1L664.1 215.0L664.9 209.5L665.7 214.3L666.5 213.1L667.3 214.7L668.1 217.7L668.9 210.8L669.7 213.2L670.5 205.4L671.3 214.6L672.1 213.3L672.9 202.5L673.7 209.8L674.5 215.2L675.3 213.7L676.1 211.0L676.9 207.6L677.7 206.6L678.5 205.6L679.2 200.0L680.0 209.5L680.8 216.7L681.6 212.4L682.4 210.7L683.2 209.2L684.0 215.2L684.8 216.2L685.6 218.0L686.4 212.0L687.2 206.3L688.0 211.0L688.8 217.6L689.6 211.3L690.4 214.1L691.2 198.5L692.0 217.6" class="ln1"/>
+<line x1="105.4" y1="62.0" x2="105.4" y2="218" class="ln1" stroke-dasharray="2 3"/>
+<text x="692.0" y="248" class="flab end">index k of the reflection coefficient |&#961;<tspan baseline-shift="sub" font-size="8.5px">k</tspan>|</text>
+<text x="56" y="44" class="flab st">certified prefixes: k &#8804; 19, <tspan class="c2">k &#8804; 33</tspan>, <tspan class="c1">k &#8804; 62</tspan> (dashed)</text>
+<text x="692" y="44" class="flab end">the three meshes&#8217; |&#961;<tspan baseline-shift="sub" font-size="8.5px">k</tspan>|</text>
+<text x="360.0" y="264" class="ftitle" font-size="12">the wall is dependency, not digits &#8212; &#916; = 0.015</text>
+<line x1="56" y1="452" x2="692" y2="452" class="axis"/>
+<line x1="53" y1="444.5" x2="56" y2="444.5" class="axis"/>
+<text x="50" y="448.5" class="flab end">10&#8315;&#8308;&#8304;</text>
+<line x1="53" y1="406.7" x2="56" y2="406.7" class="axis"/>
+<text x="50" y="410.7" class="flab end">10&#8315;&#179;&#8304;</text>
+<line x1="53" y1="369.0" x2="56" y2="369.0" class="axis"/>
+<text x="50" y="373.0" class="flab end">10&#8315;&#178;&#8304;</text>
+<line x1="53" y1="331.3" x2="56" y2="331.3" class="axis"/>
+<text x="50" y="335.3" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="53" y1="293.5" x2="56" y2="293.5" class="axis"/>
+<text x="50" y="297.5" class="flab end">10&#8304;</text>
+<text x="138.6" y="467" class="flab">10</text>
+<text x="221.2" y="467" class="flab">20</text>
+<text x="303.8" y="467" class="flab">30</text>
+<text x="386.4" y="467" class="flab">40</text>
+<text x="469.0" y="467" class="flab">50</text>
+<text x="551.6" y="467" class="flab">60</text>
+<text x="634.2" y="467" class="flab">70</text>
+<path d="M64.3 373.8L72.5 373.8L80.8 373.2L97.3 372.6L122.1 371.8L155.1 370.9L204.7 369.4L262.5 367.4L345.1 362.8L469.0 343.9L568.1 297.2" class="ln1"/>
+<path d="M64.3 373.8L72.5 373.8L80.8 373.2L97.3 372.6L122.1 371.8L155.1 370.9L204.7 369.4L262.5 367.4L345.1 362.8L469.0 343.9L568.1 297.2" class="ln2" stroke-dasharray="7 5"/>
+<path d="M64.3 452.0L72.5 443.8L80.8 446.0L97.3 444.1L122.1 443.1L155.1 441.7L204.7 440.1L262.5 438.1L345.1 433.5L469.0 414.6L634.2 309.0L642.4 300.7" class="lnm"/>
+<line x1="56" y1="293.5454545454545" x2="692" y2="293.5454545454545" class="grid" stroke-dasharray="5 4"/>
+<text x="692" y="287.5" class="flab end">radius 1: nothing is excluded any more</text>
+<text x="66" y="302" class="flab st c1">40 digits</text>
+<text x="136" y="302" class="flab st c2">120 digits</text>
+<text x="216" y="302" class="flab st">exact inputs (rounding only)</text>
+<text x="692" y="485" class="flab end">interval radius of &#961;<tspan baseline-shift="sub" font-size="8.5px">k</tspan> vs k &#8212; the real-row curves climb ~0.35 digits per step; adding 80 digits moved the wall by 0 steps</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — the certified prefix and the dependency wall.</b> <i>Top:</i> the three meshes' reflection coefficients |ρ<sub>k</sub>| against k, with the walls — the last index at which the interval recursion still excludes |ρ| = 1 — marked by dashed verticals at k = 19, 33, 62. <i>Bottom:</i> the interval radius of ρ<sub>k</sub> against k for the finest mesh, log scale: 40 digits and 120 digits on the real rows, and 40 digits on exact zero-width inputs. All three climb at the same slope — the wall is dependency, not digits. The 120-digit wall coincides with the 40-digit one to the step; the exact-input control gains nine.</figcaption>
+</figure>
+</section>
+
+<p class="kicker">Part III · What is now proved, and what it cost</p>
+
+<section class="prose" id="s5">
+<h2>5 · The theorems</h2>
+<p>Let E be the kernel above with its exact constants, Δ ∈ {0.06, 0.03, 0.015}, n = 199, 399, 799, and let M<sub>Δ</sub> = [E((i−j)Δ)] be the n×n exact sections. Let E<sub>cert</sub> be the explicitly finite object: pole + S<sub>h</sub><sup>[0,R₀]</sup> − comb at h = 0.05, R₀ = 600, 1200, 3200.</p>
+<p><b>T1 (certified sections).</b> Every symmetric Toeplitz matrix whose first row lies within the computed enclosures of E<sub>cert</sub> is positive definite, with λ<sub>min</sub> ∈ [5.45×10⁻¹¹, 5.50×10⁻¹¹], [4.17×10⁻¹³, 4.22×10⁻¹³], [1.43×10⁻¹³, 1.45×10⁻¹³] for the three meshes.</p>
+<p><b>T2 (exact sections).</b> M<sub>Δ</sub> = (matrix in T1's enclosure) + (PSD tail matrix, L1) − (matrix of ∞-norm ≤ ρ<sub>D</sub>, L2). Hence each exact section is positive definite with λ<sub>min</sub> ≥ 5.45×10⁻¹¹, 4.17×10⁻¹³, 1.43×10⁻¹³.</p>
+<p><b>T3 (the equation).</b> Positive definiteness of a Toeplitz section is equivalent to all its reflection coefficients lying in (−1, 1) with all prediction errors positive. Therefore every one of the 198 + 398 + 798 = 1394 Schur parameters of the three exact sections of E lies strictly inside the open unit disc — rh15's reading, σ<sub>k</sub>² = σ<sub>k−1</sub>²(1 − ρ<sub>k</sub>²) with |ρ<sub>k</sub>| &lt; 1 at every step, as a theorem about the kernel.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 448" role="img" aria-label="A drawn ledger. For each mesh: the certified interval for the smallest eigenvalue of the kernel section, drawn as a bracket on a logarithmic axis, with the pilot value as a dot inside it; beneath each bracket the shift, residual, radius and aliasing numbers that entered the bound. The closing line states that every Schur parameter of all three exact sections lies strictly inside the open unit interval.">
+<text x="360.0" y="22" class="ftitle">the theorem card: three certified sections of the exact kernel</text>
+<line x1="96" y1="350" x2="660" y2="350" class="axis"/>
+<line x1="185.1" y1="350" x2="185.1" y2="354" class="axis"/>
+<text x="185.1" y="367" class="flab">10&#8315;&#185;&#179;</text>
+<line x1="185.1" y1="60" x2="185.1" y2="350" class="grid" stroke-opacity="0.35"/>
+<line x1="333.5" y1="350" x2="333.5" y2="354" class="axis"/>
+<text x="333.5" y="367" class="flab">10&#8315;&#185;&#178;</text>
+<line x1="333.5" y1="60" x2="333.5" y2="350" class="grid" stroke-opacity="0.35"/>
+<line x1="481.9" y1="350" x2="481.9" y2="354" class="axis"/>
+<text x="481.9" y="367" class="flab">10&#8315;&#185;&#185;</text>
+<line x1="481.9" y1="60" x2="481.9" y2="350" class="grid" stroke-opacity="0.35"/>
+<line x1="630.3" y1="350" x2="630.3" y2="354" class="axis"/>
+<text x="630.3" y="367" class="flab">10&#8315;&#185;&#8304;</text>
+<line x1="630.3" y1="60" x2="630.3" y2="350" class="grid" stroke-opacity="0.35"/>
+<line x1="591.2" y1="96" x2="591.8" y2="96" class="stem"/>
+<line x1="591.2" y1="89" x2="591.2" y2="103" class="stem"/>
+<line x1="591.8" y1="89" x2="591.8" y2="103" class="stem"/>
+<circle cx="591.8" cy="96" r="3.4" class="hm2"/>
+<text x="88" y="88" class="flab end ">&#916; = 0.06</text>
+<text x="88" y="104" class="flab end">n = 199</text>
+<text x="585.2" y="83" class="flab end c1">&#8805; 5.4&#215;10&#8315;&#185;&#185;</text>
+<text x="597.8" y="83" class="flab st">&#8804; 5.5&#215;10&#8315;&#185;&#185;</text>
+<text x="186" y="120" class="flab st">s = 5.4&#215;10&#8315;&#185;&#185; &#8722; &#8214;F&#8214; 7&#215;10&#8315;&#8308;&#8304; &#8722; &#961;<tspan baseline-shift="sub" font-size="8.5px">&#931;</tspan> 3&#215;10&#8315;&#178;&#8304; &#8722; &#961;<tspan baseline-shift="sub" font-size="8.5px">D</tspan> 4&#215;10&#8315;&#185;&#8312;</text>
+<line x1="277.1" y1="184" x2="277.9" y2="184" class="stem"/>
+<line x1="277.1" y1="177" x2="277.1" y2="191" class="stem"/>
+<line x1="277.9" y1="177" x2="277.9" y2="191" class="stem"/>
+<circle cx="277.8" cy="184" r="3.4" class="hm2"/>
+<text x="88" y="176" class="flab end c2">&#916; = 0.03</text>
+<text x="88" y="192" class="flab end">n = 399</text>
+<text x="271.1" y="171" class="flab end c1">&#8805; 4.2&#215;10&#8315;&#185;&#179;</text>
+<text x="283.9" y="171" class="flab st">&#8804; 4.2&#215;10&#8315;&#185;&#179;</text>
+<text x="186" y="208" class="flab st">s = 4.2&#215;10&#8315;&#185;&#179; &#8722; &#8214;F&#8214; 7&#215;10&#8315;&#8308;&#8304; &#8722; &#961;<tspan baseline-shift="sub" font-size="8.5px">&#931;</tspan> 3&#215;10&#8315;&#178;&#8304; &#8722; &#961;<tspan baseline-shift="sub" font-size="8.5px">D</tspan> 4&#215;10&#8315;&#185;&#8312;</text>
+<line x1="208.0" y1="272" x2="208.8" y2="272" class="stem"/>
+<line x1="208.0" y1="265" x2="208.0" y2="279" class="stem"/>
+<line x1="208.8" y1="265" x2="208.8" y2="279" class="stem"/>
+<circle cx="208.6" cy="272" r="3.4" class="hm2"/>
+<text x="88" y="264" class="flab end c1">&#916; = 0.015</text>
+<text x="88" y="280" class="flab end">n = 799</text>
+<text x="202.0" y="259" class="flab end c1">&#8805; 1.4&#215;10&#8315;&#185;&#179;</text>
+<text x="214.8" y="259" class="flab st">&#8804; 1.4&#215;10&#8315;&#185;&#179;</text>
+<text x="186" y="296" class="flab st">s = 1.4&#215;10&#8315;&#185;&#179; &#8722; &#8214;F&#8214; 1&#215;10&#8315;&#179;&#8313; &#8722; &#961;<tspan baseline-shift="sub" font-size="8.5px">&#931;</tspan> 2&#215;10&#8315;&#178;&#8304; &#8722; &#961;<tspan baseline-shift="sub" font-size="8.5px">D</tspan> 4&#215;10&#8315;&#185;&#8312;</text>
+<text x="660" y="383" class="flab end">certified brackets for &#955;<tspan baseline-shift="sub" font-size="8.5px">min</tspan> (bracket: theorem; dot: the pilot&#8217;s float value)</text>
+<text x="360.0" y="408" class="flab">therefore all 1394 Schur parameters of the three exact sections lie strictly inside (&#8722;1, 1)</text>
+<text x="360.0" y="426" class="flab">rh15&#8217;s equation as a theorem &#8212; hypotheses: IEEE-754 and libmpdec directed rounding behave as specified</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 — the theorem card.</b> The certified λ<sub>min</sub> brackets for the three sections on one log axis — lower ends from (4), upper ends from the interval Rayleigh quotient — with the pilot's float value sitting inside each. Beneath each bracket, the four numbers that entered its lower end. The closing line is T3.</figcaption>
+</figure>
+<p><b>Hypotheses, in full.</b> (i) IEEE-754 double arithmetic behaves as specified (used in the residual's magnitude bookkeeping and the pilots); (ii) libmpdec's Decimal arithmetic rounds correctly in directed-rounding contexts. Plus two cited classical facts with explicit constants: the strip aliasing bound and the Stirling remainder. There is no other input: no zero table, no float quadrature, no library special function stands anywhere under the theorems.</p>
+<p><b>What is not proved.</b> RH — three finite sections are certified, not all sections of all meshes; rh15's proposition P2 (the continuity/density step from finite certificates to the full Bochner statement) is untouched and remains the open link. The certificates are also statements about <i>this</i> test family — the cubic-hat autocorrelation windows of rh14 — not about an arbitrary one. And T1/T2 certify positivity with an explicit floor, not the exact value of λ<sub>min</sub>: the brackets in Figure 4 are ~1.0–1.3% wide.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The bill, audited</h2>
+<p>rh16's quote: <i>finite engineering, no new mathematics, certain to succeed.</i> The audit:</p>
+<p><b>Succeeded.</b> Runtime 21 minutes (1276 s) for the whole pipeline — pilots, lemmas, rows, both backends — under 54 named checks; precisions 40 (rows, α), 60 (recursion verdicts), 90 (exact residual), 120 (β's ladder). Nothing beyond a laptop-class budget, exactly as priced.</p>
+<p><b>"No new mathematics" — almost.</b> Both load-bearing lemmas are classical: PSD-ness of nonnegative cosine sums is Bochner's easy direction, and the trapezoid strip bound is nineteenth-century analysis with a modern citation. But the <i>selection</i> of them was the work. The naive execution of rh16's sentence — intervalize the existing quadrature as it stands — fails outright: the honest tail bound is five orders too large, and rh15's step h = 0.1 leaves the aliasing bound 10¹¹ too weak. The move that saves the tail is refusing to bound it (L1); the move that saves the aliasing is halving the step. Neither is deep; both were mandatory; neither was in the quote.</p>
+<p><b>The genuine surprise.</b> The recursion — the arc's protagonist since rh15 — cannot itself be run rigorously to depth: forward interval propagation dies at k ≈ 62 of 798 at any usable precision, with the worst case at 10⁵¹. The certificates had to come from a non-iterative argument (α), with the recursion reduced to an equivalence (T3) rather than an execution. The finest mesh added a second lesson: cut the archimedean tail at 3.8 notches and positivity is <i>lost</i> — the certificate's own softest modes live on the entire null ladder. Both were found because verification failed loudly, which is the argument for building the rigor rather than asserting it.</p>
+<p><b>For the successor</b>, rh16's remaining two moves stand — ρ<sub>k</sub> as an arithmetic object, and the two unexplained constants (σ²v² ≈ 3.9×10⁻³ and D*'s missing mesh limit) — and this document adds one: push β's wall with an a-posteriori method (verify each ρ<sub>k</sub> from a high-precision candidate by a Krawczyk-type contraction, rather than propagating forward), which would turn the margin figures themselves into per-coefficient theorems at all k.</p>
+</section>
+
+<section class="prose" id="s7">
+<h2>7 · Dictionary additions and references</h2>
+<div class="tbl-scroll"><table>
+<tr><th>term</th><th>meaning here</th></tr>
+<tr><td>enclosure / outward rounding</td><td>an interval [lo, hi] guaranteed to contain the exact value; every operation rounds lo down and hi up, so the guarantee survives composition</td></tr>
+<tr><td>PSD drop (L1)</td><td>discarding a matrix term known to be positive semidefinite; the remaining certificate then under-claims, never over-claims — the only error bound that costs zero</td></tr>
+<tr><td>aliasing / strip bound (L2)</td><td>the infinite trapezoid sum errs by the integrand's line integrals along the strip boundary, damped by e<sup>2πτ/h</sup>; the reason step 0.05 certifies what step 0.1 cannot</td></tr>
+<tr><td>verified Cholesky certificate</td><td>λ<sub>min</sub>(A) ≥ s − ‖A − sI − R̂ᵀR̂‖ for any candidate factor R̂, because R̂ᵀR̂ ⪰ 0; a theorem regardless of how R̂ was obtained</td></tr>
+<tr><td>dependency problem</td><td>interval arithmetic's overestimate when one quantity enters twice; compounds geometrically through recursions and is indifferent to precision</td></tr>
+<tr><td>tight prefix</td><td>the leading run of β's enclosures with radius &lt; 10⁻³ — the part of the sequence certified with usable margins, as opposed to merely certified</td></tr>
+</table></div>
+<div class="refs">
+<p><b>References.</b></p>
+<ol>
+<li>A. Weil, <i>Sur les "formules explicites" de la théorie des nombres premiers</i>, Comm. Sém. Math. Lund (1952).</li>
+<li>I. Schur, <i>Über Potenzreihen, die im Innern des Einheitskreises beschränkt sind</i>, J. reine angew. Math. 147 (1917).</li>
+<li>S. Verblunsky, <i>On positive harmonic functions</i>, Proc. LMS 40 (1935).</li>
+<li>N. Levinson, J. Math. Phys. 25 (1947); J. Durbin, Rev. Inst. Int. Statist. 28 (1960).</li>
+<li>R. E. Moore, <i>Interval Analysis</i>, Prentice-Hall (1966).</li>
+<li>S. M. Rump, <i>Verification methods: rigorous results using floating-point arithmetic</i>, Acta Numerica 19 (2010).</li>
+<li>W. Tucker, <i>Validated Numerics</i>, Princeton (2011).</li>
+<li>L. N. Trefethen, J. A. C. Weideman, <i>The exponentially convergent trapezoidal rule</i>, SIAM Review 56 (2014).</li>
+<li>N. J. Higham, <i>Accuracy and Stability of Numerical Algorithms</i>, 2nd ed., SIAM (2002).</li>
+<li>NIST Digital Library of Mathematical Functions, §5.11 (asymptotics of ψ, with error bounds).</li>
+<li>B. Simon, <i>Orthogonal Polynomials on the Unit Circle</i>, AMS Colloq. 54 (2005).</li>
+</ol>
+</div>
+<p class="foot">Verification: every number above is produced and asserted by compute_rh17.py (54 named checks — kit containments, the bit-for-bit rh15 regression, both lemmas' constants, both backends' floors and walls) before the figures are drawn from its stored constants. The document's own remit ends where §5 says: three sections, one kernel, unconditional.</p>
+</section>
+
+
+</div>
+</body>
+</html>

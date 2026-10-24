@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>005 lab — alphabet, digits, monotonicity</title>
+<style>
+  :root { --ink:#111; --mut:#666; --line:#ddd; --bg:#fff; --acc:#0b4ea2; --orange:#b95f1e; --green:#14825a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.45 -apple-system,"Helvetica Neue",Arial,sans-serif; }
+  header { padding:14px 20px 10px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 5px; font-size:19px; font-weight:600; }
+  .sub { color:var(--mut); font-size:12.5px; }
+  code { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:12.5px; }
+  .wrap { display:flex; gap:16px; padding:14px 20px 40px; align-items:flex-start; flex-wrap:wrap; }
+  .panel { border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+  .col1 { width:340px; }
+  .col2 { flex:1 1 520px; min-width:300px; }
+  .col3 { width:430px; }
+  label.sl { display:block; margin:11px 0 2px; font-size:11.5px; color:var(--mut);
+             text-transform:uppercase; letter-spacing:.6px; }
+  input[type=range] { width:100%; }
+  .num { display:flex; justify-content:space-between; align-items:baseline;
+         font-variant-numeric:tabular-nums; }
+  .num b { font-size:15px; }
+  .btns { display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; }
+  button { font:inherit; font-size:12px; padding:4px 8px; border:1px solid var(--line);
+           background:#fafafa; border-radius:6px; cursor:pointer; }
+  button:hover { background:#f0f0f0; }
+  button.on { background:var(--acc); color:#fff; border-color:var(--acc); }
+  table.stats { border-collapse:collapse; width:100%; margin-top:8px;
+                font-variant-numeric:tabular-nums; }
+  table.stats td { padding:2px 0; border-bottom:1px solid #f2f2f2; font-size:12px; }
+  table.stats td:last-child { text-align:right; font-family:"SF Mono",Menlo,monospace; }
+  .hint { color:var(--mut); font-size:11.5px; margin-top:9px; }
+  .cap { font-size:12.5px; color:#333; margin:6px 0 4px; font-weight:600; }
+  canvas { display:block; max-width:100%; }
+  #tip { position:fixed; pointer-events:none; background:#111; color:#fff;
+         font:11px/1.3 Menlo,monospace; padding:3px 6px; border-radius:4px; display:none; z-index:9; }
+  .ok { color:var(--green); font-weight:600; }
+  .no { color:#b02020; font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <h1>The alphabet lab — which digits are monotone, and what monotonicity costs</h1>
+  <div class="sub">
+    Greedy threshold rule on an alphabet <code>w<sub>0</sub> &gt; w<sub>1</sub> &gt; …</code>:
+    <code>δ<sub>k</sub>(x) = 1 ⟺ r<sub>k</sub> ≥ w<sub>k</sub></code>,
+    <code>r<sub>k+1</sub> = r<sub>k</sub> − δ<sub>k</sub>w<sub>k</sub></code>.
+    A digit is <b>monotone</b> iff its support <code>{x : δ<sub>k</sub>=1}</code> is a single
+    prefix or suffix. The <b>running-minimum theorem</b>: a strict running minimum
+    <code>w<sub>k</sub> &lt; min<sub>j&lt;k</sub> w<sub>j</sub></code> forces δ<sub>k</sub>
+    non-monotone. If <code>w<sub>k</sub> → 0</code> that happens infinitely often.
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="panel col1">
+    <label class="sl">alphabet</label>
+    <div class="btns" id="presets"></div>
+
+    <label class="sl" for="c">c &nbsp;(constant / offset) <span id="cv"></span></label>
+    <input type="range" id="c" min="0.02" max="0.6" step="0.01" value="0.30">
+
+    <label class="sl" for="p">p &nbsp;(power 1/(k+2)^p) <span id="pv"></span></label>
+    <input type="range" id="p" min="0.5" max="4" step="0.05" value="1">
+
+    <label class="sl" for="L">L &nbsp;(block length) <span id="Lv"></span></label>
+    <input type="range" id="L" min="1" max="6" step="1" value="2">
+
+    <label class="sl" for="K">K &nbsp;digits shown <span id="Kv"></span></label>
+    <input type="range" id="K" min="4" max="12" step="1" value="8">
+
+    <table class="stats" id="stats"></table>
+    <div class="hint" id="readout"></div>
+    <div class="hint">
+      <b>Trade-off.</b> <code>w<sub>k</sub>→0</code> gives an exact expansion but
+      non-monotone digits. <code>inf w<sub>k</sub>=c&gt;0</code> can give monotone digits,
+      but the sum stops at <code>x − (x mod c)</code>: resolution floor <code>c</code>.
+    </div>
+  </div>
+
+  <div class="panel col2">
+    <div class="cap">Binary digits: rows = x ∈ (0,1), columns = k. Black = δ<sub>k</sub>(x) = 1.</div>
+    <canvas id="cvM"></canvas>
+    <div class="hint" id="mnote"></div>
+  </div>
+
+  <div class="panel col3">
+    <div class="cap">Support structure of each digit (1 interval at an end = monotone)</div>
+    <canvas id="cvT"></canvas>
+
+    <div class="cap" style="margin-top:14px">w<sub>k</sub> and its running minimum</div>
+    <canvas id="cvW"></canvas>
+
+    <div class="cap" style="margin-top:14px">Residual x − Σ δ<sub>k</sub>w<sub>k</sub> (the resolution floor)</div>
+    <canvas id="cvR"></canvas>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script>
+/* ---BEGIN CORE--- */
+/* alphabet definitions and the exact (float-interval) digit-support computation */
+
+// Each preset: label + w(k, K, par).
+var PRESETS = {
+  harmonic: { label: "harmonic 1/(k+2)", w: function (k) { return 1 / (k + 2); } },
+  power:    { label: "power 1/(k+2)^p",  w: function (k, K, p) { return Math.pow(k + 2, -p.p); } },
+  constant: { label: "constant c",        w: function (k, K, p) { return p.c; } },
+  linear:   { label: "non-decreasing",    w: function (k) { return 0.2 + 0.7 * (k / (k + 3)); } },
+  block:    { label: "block 1/(⌊k/L⌋+2)", w: function (k, K, p) { return 1 / (Math.floor(k / p.L) + 2); } },
+  offset:   { label: "offset c+1/(k+2)",  w: function (k, K, p) { return p.c + (1 - p.c) / (k + 2); } },
+  witness:  { label: "inf>0 witness",     w: function (k) {
+              var a = [0.17, 0.81, 0.44, 0.21, 0.28, 0.72, 0.70, 0.25];
+              return k < a.length ? a[k] : 0.25; } }
+};
+
+function makeAlphabet(name, K, par) {
+  var f = PRESETS[name].w, w = [];
+  for (var k = 0; k < K; k++) w.push(f(k, K, par));
+  return w;
+}
+
+// Exact support of {x : delta_k(x)=1} as merged float intervals.
+// cells = [lo, hi, P]; residual = x - P on (lo, hi].
+function deltaSupport(w, k) {
+  var cells = [[0, 1, 0]], j, i;
+  for (j = 0; j < k; j++) {
+    var out = [];
+    for (i = 0; i < cells.length; i++) {
+      var lo = cells[i][0], hi = cells[i][1], P = cells[i][2], t = P + w[j];
+      if (t <= lo) out.push([lo, hi, P + w[j]]);
+      else if (t >= hi) out.push([lo, hi, P]);
+      else { out.push([lo, t, P]); out.push([t, hi, P + w[j]]); }
+    }
+    cells = out;
+    if (cells.length > 6000) return null;      // bail out; caller falls back to a grid
+  }
+  var ivs = [];
+  for (i = 0; i < cells.length; i++) {
+    var lo2 = cells[i][0], hi2 = cells[i][1], P2 = cells[i][2], t2 = P2 + w[k];
+    var a = Math.max(lo2, t2);
+    if (a < hi2) ivs.push([a, hi2]);
+  }
+  ivs.sort(function (p, q) { return p[0] - q[0]; });
+  var m = [];
+  for (i = 0; i < ivs.length; i++) {
+    if (m.length && ivs[i][0] <= m[m.length - 1][1] + 1e-12)
+      m[m.length - 1][1] = Math.max(m[m.length - 1][1], ivs[i][1]);
+    else m.push([ivs[i][0], ivs[i][1]]);
+  }
+  return m;
+}
+
+// digit support by fine grid, if the interval method bailed
+function supportByGrid(w, k, N) {
+  var prev = null, runs = [], start = 0;
+  for (var i = 0; i <= N; i++) {
+    var x = i / N, r = x, v = 0;
+    for (var j = 0; j <= k; j++) { if (r >= w[j] - 1e-15) { if (j === k) v = 1; r -= w[j]; } }
+    if (prev === null) { prev = v; start = x; }
+    else if (v !== prev) { runs.push([start, x, prev]); prev = v; start = x; }
+  }
+  runs.push([start, 1, prev]);
+  var m = [];
+  for (var q = 0; q < runs.length; q++) if (runs[q][2] === 1) m.push([runs[q][0], runs[q][1]]);
+  return m;
+}
+
+// monotone iff the support is empty, a single prefix, or a single suffix
+function digitMonotone(w, k, N) {
+  var m = deltaSupport(w, k);
+  if (!m) m = supportByGrid(w, k, N || 4000);
+  if (!m || m.length === 0) return { mono: true, n: 0, m: [] };
+  var mono = (m.length === 1) && (m[0][0] < 1e-9 || m[0][1] > 1 - 1e-9);
+  return { mono: mono, n: m.length, m: m };
+}
+
+// the greedy word of x, with residual, for the matrix and the resolution plot
+function wordResidual(x, w) {
+  var r = x, bits = [], sum = 0;
+  for (var k = 0; k < w.length; k++) {
+    if (r >= w[k] - 1e-15) { bits.push(1); r -= w[k]; sum += w[k]; }
+    else bits.push(0);
+    if (r <= 1e-15) { while (bits.length < w.length) bits.push(0); break; }
+  }
+  return { bits: bits, residual: r, sum: sum };
+}
+
+function strictDrops(w) {
+  var out = [], mu = w[0];
+  for (var k = 1; k < w.length; k++) { if (w[k] < mu - 1e-15) out.push(k); mu = Math.min(mu, w[k]); }
+  return out;
+}
+/* ---END CORE--- */
+
+// ------------------------------------------------------------------ UI
+var state = { preset: 'constant', c: 0.30, p: 1, L: 2, K: 8 };
+var NX = 220, GRIDN = 4000;
+
+function par() { return { c: state.c, p: state.p, L: state.L }; }
+
+function drawMatrix(w) {
+  var cv = document.getElementById('cvM');
+  var cw = Math.max(10, Math.min(90, Math.floor(560 / w.length)));
+  var chh = 2.2, W = 60 + w.length * cw + 12, H = 24 + NX * chh + 24;
+  cv.width = W; cv.height = H; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  var L0 = 54, T0 = 18;
+  // black cells: x increasing upward
+  ctx.fillStyle = '#143c8c';
+  var M = [];
+  for (var i = 0; i < NX; i++) {
+    var x = (i + 0.5) / NX;
+    var wr = wordResidual(x, w);
+    M.push(wr.bits);
+    for (var k = 0; k < w.length; k++) {
+      if (wr.bits[k]) {
+        var row = NX - 1 - i;
+        ctx.fillRect(L0 + k * cw, T0 + row * chh, cw - 1, chh);
+      }
+    }
+  }
+  // grid
+  ctx.strokeStyle = '#e6e6e6'; ctx.lineWidth = 1;
+  for (k = 0; k <= w.length; k++) { ctx.beginPath(); ctx.moveTo(L0 + k * cw + .5, T0); ctx.lineTo(L0 + k * cw + .5, T0 + NX * chh); ctx.stroke(); }
+  ctx.font = '10px Menlo, monospace'; ctx.textBaseline = 'middle'; ctx.textAlign = 'center'; ctx.fillStyle = '#666';
+  for (k = 0; k < w.length; k++) ctx.fillText(String(k), L0 + k * cw + cw / 2, T0 - 9);
+  ctx.textAlign = 'right'; ctx.fillStyle = '#888';
+  ctx.fillText('x=1', L0 - 6, T0 + 4); ctx.fillText('x=0', L0 - 6, T0 + NX * chh - 4);
+  ctx.textAlign = 'center'; ctx.fillText('digit k', L0 + w.length * cw / 2, T0 + NX * chh + 14);
+  cv._geo = { L0: L0, T0: T0, cw: cw, ch: chh, bits: M, K: w.length, NX: NX };
+}
+
+function drawTransitions(w) {
+  var cv = document.getElementById('cvT');
+  var W = 420, H = 210, L0 = 40, T0 = 18, B = 28;
+  cv.width = W; cv.height = H; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  var res = [], maxn = 1;
+  for (var k = 0; k < w.length; k++) { var r = digitMonotone(w, k, GRIDN); res.push(r); if (r.n > maxn) maxn = r.n; }
+  var pw = W - L0 - 14, ph = H - T0 - B, bw = pw / w.length;
+  ctx.strokeStyle = '#eee';
+  for (var g = 0; g <= 4; g++) { var y = T0 + ph * g / 4; ctx.beginPath(); ctx.moveTo(L0, y); ctx.lineTo(L0 + pw, y); ctx.stroke(); }
+  for (k = 0; k < w.length; k++) {
+    var n = res[k].n, h = n / maxn * ph;
+    if (n === 0) {                       // delta_k is identically 0: mark it as a green stub
+      ctx.fillStyle = '#14825a';
+      ctx.fillRect(L0 + k * bw + 3, T0 + ph - 3, bw - 6, 3);
+    } else {
+      ctx.fillStyle = res[k].mono ? '#14825a' : '#b02020';
+      ctx.fillRect(L0 + k * bw + 3, T0 + ph - h, bw - 6, h);
+    }
+    ctx.fillStyle = '#666'; ctx.font = '10px Menlo, monospace'; ctx.textAlign = 'center';
+    ctx.fillText(String(k), L0 + (k + 0.5) * bw, T0 + ph + 13);
+  }
+  ctx.textAlign = 'left'; ctx.fillStyle = '#888';
+  ctx.font = '10px Menlo, monospace'; ctx.fillText('number of support intervals (stub = identically 0)', L0 + 2, T0 + 9);
+  ctx.fillStyle = '#14825a'; ctx.fillText('green = monotone (1 end interval, or 0)', L0 + 2, T0 + ph + 26);
+  return res;
+}
+
+function drawAlphabet(w, drops) {
+  var cv = document.getElementById('cvW');
+  var W = 420, H = 210, L0 = 44, T0 = 18, B = 28;
+  cv.width = W; cv.height = H; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  var pw = W - L0 - 14, ph = H - T0 - B;
+  ctx.strokeStyle = '#eee';
+  for (var g = 0; g <= 4; g++) { var y = T0 + ph * g / 4; ctx.beginPath(); ctx.moveTo(L0, y); ctx.lineTo(L0 + pw, y); ctx.stroke(); }
+  var mx = Math.max.apply(null, w) * 1.05;
+  var lx = function (k) { return L0 + (w.length === 1 ? pw / 2 : k / (w.length - 1) * pw); };
+  var ly = function (v) { return T0 + ph - v / mx * ph; };
+  // running minimum
+  ctx.strokeStyle = '#c8c8c8'; ctx.lineWidth = 2; ctx.beginPath();
+  var mu = w[0];
+  for (var k = 0; k < w.length; k++) { mu = Math.min(mu, w[k]); var y = ly(mu); if (k === 0) ctx.moveTo(lx(k), y); else ctx.lineTo(lx(k), y); }
+  ctx.stroke();
+  ctx.strokeStyle = '#143c8c'; ctx.lineWidth = 2; ctx.beginPath();
+  for (k = 0; k < w.length; k++) { if (k === 0) ctx.moveTo(lx(k), ly(w[k])); else ctx.lineTo(lx(k), ly(w[k])); }
+  ctx.stroke();
+  ctx.fillStyle = '#143c8c';
+  for (k = 0; k < w.length; k++) ctx.fillRect(lx(k) - 2, ly(w[k]) - 2, 4, 4);
+  ctx.fillStyle = '#b02020';
+  for (var i = 0; i < drops.length; i++) { k = drops[i]; ctx.beginPath(); ctx.arc(lx(k) - 4, ly(w[k]) + 4, 3.5, 0, 7); ctx.fill(); }
+  ctx.font = '10px Menlo, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#666';
+  for (k = 0; k < w.length; k++) ctx.fillText(String(k), lx(k), T0 + ph + 13);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#888'; ctx.fillText('blue w_k   grey running min   red = strict drop', L0 + 2, T0 + 9);
+}
+
+function maxResidual(w, N) {
+  N = N || 400; var s = 0;
+  for (var i = 1; i <= N; i++) { var r = wordResidual(i / N, w).residual; if (r > s) s = r; }
+  return s;
+}
+
+function drawResidual(w) {
+  var cv = document.getElementById('cvR');
+  var W = 420, H = 200, L0 = 44, T0 = 16, B = 26;
+  cv.width = W; cv.height = H; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  var ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  var pw = W - L0 - 14, ph = H - T0 - B;
+  // use a long alphabet here: the resolution floor must not be limited by the K displayed
+  var long = makeAlphabet(state.preset, 240, par());
+  var N = 500, rs = [];
+  for (var i = 1; i <= N; i++) rs.push(wordResidual(i / N, long).residual);
+  var rawMax = Math.max.apply(null, rs);
+  var mx = rawMax * 1.1 || 1;
+  ctx.strokeStyle = '#eee';
+  for (var g = 0; g <= 4; g++) { var y = T0 + ph * g / 4; ctx.beginPath(); ctx.moveTo(L0, y); ctx.lineTo(L0 + pw, y); ctx.stroke(); }
+  ctx.fillStyle = '#7a288a';
+  for (i = 0; i < N; i++) {
+    var xx = L0 + (i + 1) / N * pw, yy = T0 + ph - rs[i] / mx * ph;
+    ctx.fillRect(xx - 1.5, yy - 1.5, 3, 3);
+  }
+  ctx.strokeStyle = '#b02020'; ctx.lineWidth = 1.5; ctx.beginPath();
+  ctx.moveTo(L0, T0 + ph - rawMax / mx * ph); ctx.lineTo(L0 + pw, T0 + ph - rawMax / mx * ph); ctx.stroke();
+  ctx.font = '10px Menlo, monospace'; ctx.textAlign = 'left'; ctx.fillStyle = '#888';
+  ctx.fillText('max residual = ' + rawMax.toFixed(4) + '  (240 digits)', L0 + 2, T0 + 9);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#666';
+  ctx.fillText('x →', L0 + pw / 2, T0 + ph + 15);
+  return rawMax;
+}
+
+function refresh() {
+  var K = isFinite(state.K) ? Math.max(2, Math.min(12, Math.round(state.K))) : 8;
+  if (!isFinite(state.c)) state.c = 0.3;
+  if (!isFinite(state.p)) state.p = 1;
+  if (!isFinite(state.L)) state.L = 2;
+  state.K = K;
+  var w = makeAlphabet(state.preset, K, par());
+  if (!w.length || !isFinite(w[w.length - 1])) w = makeAlphabet('constant', K, { c: 0.3, p: 1, L: 2 });
+  var drops = strictDrops(w);
+  drawMatrix(w);
+  var res = drawTransitions(w);
+  drawAlphabet(w, drops);
+  // residual at two depths: intrinsic floors stay, truncation floors shrink
+  var longA = makeAlphabet(state.preset, 240, par());
+  var longB = makeAlphabet(state.preset, 480, par());
+  var maxr = drawResidual(longA);
+  var m480 = maxResidual(longB);
+  var intrinsic = m480 > 0.7 * maxr;
+  var nmono = res.filter(function (r) { return r.mono; }).length;
+  var infw = Math.min.apply(null, w);
+  var lastw = w[w.length - 1];
+  document.getElementById('stats').innerHTML = [
+    ['alphabet', PRESETS[state.preset].label],
+    ['K (digits)', String(K)],
+    ['monotone digits', nmono + ' / ' + K],
+    ['all digits monotone', (nmono === K ? '<span class="ok">yes</span>' : '<span class="no">no</span>')],
+    ['strict running minima', drops.length ? drops.join(', ') : 'none'],
+    ['inf w_k over K', infw.toFixed(4)],
+    ['w_K (→0 ?)', lastw.toFixed(4) + (lastw < 1e-3 ? '  yes' : '  no')],
+    ['residual floor (240 digits)', maxr.toFixed(4)],
+    ['floor type', intrinsic
+      ? '<span class="no">intrinsic (does not shrink with K)</span>'
+      : '<span class="ok">truncation → 0 as K grows</span>']
+  ].map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join('');
+  document.getElementById('readout').innerHTML =
+    (nmono === K
+      ? 'Every digit is monotone. '
+      : 'Digits ' + res.map(function (r, k) { return r.mono ? null : k; }).filter(function (v) { return v !== null; }).join(', ') + ' are not monotone. ')
+    + (infw < 1e-3
+      ? 'Here w_k → 0: the expansion is exact in the limit, but the running minimum keeps dropping.'
+      : 'Here inf w_k = ' + infw.toFixed(3) + ' > 0: ' + (intrinsic
+          ? 'the residual floor ' + maxr.toFixed(3) + ' is intrinsic (it does not shrink as K grows).'
+          : 'no strict drop, but the residual floor is still only truncation.'));
+}
+
+// presets UI
+(function () {
+  var box = document.getElementById('presets');
+  Object.keys(PRESETS).forEach(function (name) {
+    var b = document.createElement('button');
+    b.textContent = PRESETS[name].label;
+    b.dataset.preset = name;
+    if (name === state.preset) b.classList.add('on');
+    b.onclick = function () {
+      state.preset = name;
+      Array.prototype.forEach.call(box.children, function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      refresh();
+    };
+    box.appendChild(b);
+  });
+})();
+
+function bind(id, key, fmt, scale) {
+  var el = document.getElementById(id);
+  var lab = document.getElementById(id + 'v');
+  var upd = function () {
+    state[key] = scale ? scale(parseFloat(el.value)) : parseFloat(el.value);
+    if (lab) lab.textContent = fmt ? fmt(state[key]) : state[key];
+    refresh();
+  };
+  el.oninput = upd; upd();
+}
+bind('c', 'c', function (v) { return v.toFixed(2); });
+bind('p', 'p', function (v) { return v.toFixed(2); });
+bind('L', 'L', function (v) { return String(v); });
+bind('K', 'K', function (v) { return String(v); });
+
+// hover on the matrix
+document.getElementById('cvM').addEventListener('mousemove', function (ev) {
+  var cv = this, g = cv._geo, tip = document.getElementById('tip');
+  if (!g) return;
+  var r = cv.getBoundingClientRect();
+  var k = Math.floor((ev.clientX - r.left - g.L0) / g.cw);
+  var row = Math.floor((ev.clientY - r.top - g.T0) / g.ch);
+  if (k >= 0 && k < g.K && row >= 0 && row < g.NX) {
+    var i = g.NX - 1 - row, x = (i + 0.5) / g.NX;
+    tip.textContent = 'x=' + x.toFixed(4) + '   k=' + k + '   δ=' + g.bits[i][k];
+    tip.style.display = 'block';
+    tip.style.left = (ev.clientX + 12) + 'px'; tip.style.top = (ev.clientY + 12) + 'px';
+  } else tip.style.display = 'none';
+});
+document.getElementById('cvM').addEventListener('mouseleave', function () {
+  document.getElementById('tip').style.display = 'none';
+});
+
+refresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh21 — three answers</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.cardbox { fill: none; stroke: var(--muted); stroke-width: 1.1; }
+.ln1 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>Three answers</h1>
+  <p class="sub">Ordered: the two successors rh19 left and the question rh20 raised. Answered — and two of the three turn out to be corrections rather than solutions. rh19's floor does not decay exponentially: over a factor 25 in the horizon it is a power law, v<sup>&#8722;5.741</sup>, and the exponential rh19 published was an artifact of fitting over a factor of three. rh19's proposed fix for the row radius — a better logarithm — is nearly exhausted, because the logarithm and the hat arithmetic contribute almost exactly equally, so fixing either alone buys under 1.5 in v; fixing both reaches 49.8, which is past where the sieve stops anyway. The wall was never arithmetic. And rh20's question opens rather than closes: the barrier w ≤ πC(0)/T holds for every compactly supported window, the triangle hat sits 3,780× under it, and a Slepian window at the same support and the same energy gains 62×.</p>
+  <p class="meta">docs/rh21 · continues <a href="rh19.html">rh19</a>–<a href="rh20.html">rh20</a> · figures computed, not sketched · 2026-08-03</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> rh19 §6 left two successors and rh20 §6 added a third. This document answers all three, and the answers are not the ones the questions expected. <b>The instrument</b> (§2): under RH the kernel can be built from the zeros instead of the primes, and the two agree — measured here to 4.4% on λ<sub>min</sub> at every point rh19 computed, with the residual bias drifting only as v<sup>+0.0071</sup>, far too little to manufacture a law. The zeros side needs no sieve, so the ladder runs to v = 100 instead of 20. <b>(iii) the decay law</b> (§3): rh19 fitted e<sup>&#8722;0.528v</sup> over v ≤ 20 and called the rate unexplained. Over a factor 25 in v at Δ = 0.24 the law is unambiguously a power law, v<sup>&#8722;5.741</sup> at R² = 0.993 against the exponential's 0.843. The correction carries its own warning: at Δ = 0.06 the ladder reaches only a factor 5.5 and the exponential still wins — the reach needed to decide scales like 1/Δ, so the coarse mesh is the only one that could have settled it. A second constant is confirmed rather than corrected: rh15's σ²v² ≈ 3.9×10⁻³, measured at v = 12, is a clean power law σ²<sub>min</sub> ~ v<sup>&#8722;1.777</sup> holding to 3.9&#215;10<sup>&#8722;3</sup> out to v = 100. <b>(ii) the row radius</b> (§4): rh19 proposed a better logarithm. Its radius has two terms and they are all but equal — the logarithm contributes 1.87&#215;10<sup>&#8722;16</sup> per unit gear mass and the hat arithmetic 1.87&#215;10<sup>&#8722;16</sup>, a ratio of 0.9972 — so a perfect logarithm caps at v = 20.9 against rh19's 20.0. Fixing both reaches 49.8. But a day of sieving reaches v = 26.5 and a month 30.1: the comb, not the arithmetic, is the end of the method. <b>(rh20) the window</b> (§5): if |ĥ|² ≥ w on [0,T] then 2Tw ≤ ∫|ĥ|² = 2πC(0), so w ≤ πC(0)/T for every compactly supported window — elementary, unconditional, and three powers above what the triangle hat achieves. At equal support and equal energy a Slepian window raises the typical low-zero weight from 6.76&#215;10<sup>&#8722;6</sup> to 4.22&#215;10<sup>&#8722;4</sup>, a factor 62, closing the gap to the barrier from 3,780× to 61×. One methodological finding came with it: the <i>minimum</i> over zeros is not a property of a window at all — it swings by 140× under refinement while the typical weight moves by 1.15×, because the minimum is a lottery on where the nulls fall. §6 audits the bill: 32 named checks in 57 seconds.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">The kernel without primes</a></li>
+  <li><a href="#s3">The decay law, corrected</a></li>
+  <li><a href="#s4">The radius, and what the wall really is</a></li>
+  <li><a href="#s5">The window, and the room under the barrier</a></li>
+  <li><a href="#s6">The bill, audited</a></li>
+  <li><a href="#s7">Dictionary additions and references</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>rh19 §6, after retiring its own first successor in rh20, left two: <i>"(ii) A tighter row radius: rh19's ceiling on the certified horizon moves by the log of whatever the arithmetic improves; the two-double logarithm bought a factor 22, a triple-double would buy the next few units of v. Known price, pure engineering. (iii) The floor's decay rate: −0.528, −0.601, −0.639 at Δ = 0.24, 0.12, 0.06 — the rate itself depends on the mesh and nothing explains why."</i> rh20 §6 added a third: <i>"The ceiling is a statement about </i>this<i> hat. A different window — one whose transform decays more slowly — would have a different ceiling, and the arc has never varied the hat."</i></p>
+<p>Two of the three are answered by finding that the question was wrong. (iii) asked for an explanation of a rate that is not a rate: the decay is a power law, and the exponential rh19 fitted was an artifact of its range. (ii) asked for a better logarithm, which is nearly exhausted; the radius floor is set by the hat arithmetic sitting beside it, and once both are fixed the arithmetic ceiling leaves the sieve far behind. Only the third question survives contact, and it survives well: the window is the largest untouched lever in the whole construction.</p>
+<p>Nothing here certifies anything new about the zeros. §2's instrument assumes RH, which is exactly the right posture for a document whose subject is the <i>construction</i> rather than the hypothesis.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · The kernel without primes</h2>
+<p>Everything rh19 could measure was capped by the sieve: a horizon v costs every prime power below e<sup>v+2Δ</sup>, so its ladder stopped at v = 19.92 and its fits had a factor of three to work with. But rh14 established the other face of the same kernel — on RH,</p>
+
+<div class="eq"><span class="tag">(1)</span>
+E<sub>Δ</sub>(v) &nbsp;=&nbsp; 2 Σ<sub>γ &gt; 0</sub> |B<sub>Δ</sub>(γ)|² cos(γv), &nbsp;&nbsp; B<sub>Δ</sub>(r) = Δ·sinc²(rΔ/2),
+</div>
+
+<p>and this side costs no primes at all: 1517 cached zeros and a cosine sum. The substitution is what makes §§3–4 possible, so it is checked before it is used. Pointwise the two kernels agree to 8.6&#215;10<sup>&#8722;5</sup> relative — the difference being the zeros above the cache's height 2000 and the archimedean cut at R₀, neither of which is in either object exactly. What matters more is that their λ<sub>min</sub> agree: at every one of the twenty-six points rh19 computed, to better than 4.4% at Δ = 0.24 and 0.12. The fine mesh drifts further (13%), because a fine mesh keeps more weight above the cache's height — which is why §3's verdict rests on the coarse mesh.</p>
+<p>The model runs slightly <i>high</i>, and the bias grows with v, which could in principle flatten a fitted exponent. It cannot: the ratio itself drifts only as v<sup>+0.0071</sup>, so it shifts any power-law exponent by less than 0.02 against a measured &#8722;5.741. The instrument cannot manufacture the law it is used to measure.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · The decay law, corrected</h2>
+<p>rh19 measured its floor at nine horizons between v = 4 and v = 19.92, fitted ln λ<sub>min</sub> against v, got e<sup>&#8722;0.528v</sup> with a good R², and built its "arithmetic ceiling" on that law. The fit was sound; the range was not. A factor of three in v cannot distinguish an exponential from a power law, and over a factor 25 the answer is clear:</p>
+
+<div class="eq"><span class="tag">(2)</span>
+λ<sub>min</sub>(v) &nbsp;~&nbsp; v<sup>&#8722;5.741</sup> &nbsp;&nbsp;(R² = 0.993), &nbsp;&nbsp; against &nbsp; e<sup>&#8722;0.170v</sup> &nbsp;(R² = 0.843) &nbsp;&nbsp; at Δ = 0.24.
+</div>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 516" role="img" aria-label="The certified floor against the horizon on log-log axes, out to v of one hundred. On these axes a power law is a straight line and an exponential curves down. The data are straight. rh19 fitted an exponential over the shaded range v below twenty, which is too short to tell them apart.">
+<text x="360.0" y="21" class="ftitle">on log-log axes the floor is a straight line &#8212; it was never an exponential</text>
+<line x1="60" y1="359.4" x2="560" y2="359.4" class="grid"/>
+<text x="54" y="362.9" class="flab end">10&#8315;&#185;&#8308;</text>
+<line x1="60" y1="290.6" x2="560" y2="290.6" class="grid"/>
+<text x="54" y="294.1" class="flab end">10&#8315;&#185;&#178;</text>
+<line x1="60" y1="221.9" x2="560" y2="221.9" class="grid"/>
+<text x="54" y="225.4" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="60" y1="153.1" x2="560" y2="153.1" class="grid"/>
+<text x="54" y="156.6" class="flab end">10&#8315;&#8312;</text>
+<line x1="60" y1="84.4" x2="560" y2="84.4" class="grid"/>
+<text x="54" y="87.9" class="flab end">10&#8315;&#8310;</text>
+<line x1="91.9" y1="50" x2="91.9" y2="380" class="grid"/>
+<text x="91.9" y="395" class="flab st">4</text>
+<line x1="216.2" y1="50" x2="216.2" y2="380" class="grid"/>
+<text x="216.2" y="395" class="flab st">10</text>
+<line x1="310.3" y1="50" x2="310.3" y2="380" class="grid"/>
+<text x="310.3" y="395" class="flab st">20</text>
+<line x1="434.7" y1="50" x2="434.7" y2="380" class="grid"/>
+<text x="434.7" y="395" class="flab st">50</text>
+<line x1="528.8" y1="50" x2="528.8" y2="380" class="grid"/>
+<text x="528.8" y="395" class="flab st">100</text>
+<rect x="60" y="50" width="250.3" height="330" fill="currentColor" opacity="0.05"/>
+<text x="304.3" y="64" class="flab end">rh19 fitted here</text>
+<line x1="60" y1="380" x2="560" y2="380" class="axis"/>
+<line x1="60" y1="50" x2="60" y2="380" class="axis"/>
+<path d="M94.6 71.8L146.9 122.7L184.6 138.4L229.7 153.5L280.7 198.4L323.7 239.9L373.8 250.4L420.7 288.1L468.4 315.1L514.5 345.8L528.9 349.7" class="ln1"/>
+<circle cx="94.6" cy="71.8" r="2.6" class="hm1"/>
+<circle cx="146.9" cy="122.7" r="2.6" class="hm1"/>
+<circle cx="184.6" cy="138.4" r="2.6" class="hm1"/>
+<circle cx="229.7" cy="153.5" r="2.6" class="hm1"/>
+<circle cx="280.7" cy="198.4" r="2.6" class="hm1"/>
+<circle cx="323.7" cy="239.9" r="2.6" class="hm1"/>
+<circle cx="373.8" cy="250.4" r="2.6" class="hm1"/>
+<circle cx="420.7" cy="288.1" r="2.6" class="hm1"/>
+<circle cx="468.4" cy="315.1" r="2.6" class="hm1"/>
+<circle cx="514.5" cy="345.8" r="2.6" class="hm1"/>
+<circle cx="528.9" cy="349.7" r="2.6" class="hm1"/>
+<path d="M91.9 78.2L528.9 354.1" class="lnm" stroke-dasharray="4 3"/>
+<text x="88.6" y="75.8" class="flab end c1">&#916;=0.24</text>
+<path d="M90.5 138.3L146.9 146.8L186.6 155.9L229.7 176.3L279.7 235.2L323.0 276.1L374.3 293.6L420.4 306.7" class="ln2"/>
+<circle cx="90.5" cy="138.3" r="2.6" class="hm2"/>
+<circle cx="146.9" cy="146.8" r="2.6" class="hm2"/>
+<circle cx="186.6" cy="155.9" r="2.6" class="hm2"/>
+<circle cx="229.7" cy="176.3" r="2.6" class="hm2"/>
+<circle cx="279.7" cy="235.2" r="2.6" class="hm2"/>
+<circle cx="323.0" cy="276.1" r="2.6" class="hm2"/>
+<circle cx="374.3" cy="293.6" r="2.6" class="hm2"/>
+<circle cx="420.4" cy="306.7" r="2.6" class="hm2"/>
+<path d="M91.9 118.0L420.4 313.9" class="lnm" stroke-dasharray="4 3"/>
+<text x="84.5" y="142.3" class="flab end c2">&#916;=0.12</text>
+<path d="M92.6 166.7L146.9 178.7L185.6 199.9L228.9 224.1L280.2 289.1L323.4 301.8" class="lnm"/>
+<circle cx="92.6" cy="166.7" r="2.6" class="hm1"/>
+<circle cx="146.9" cy="178.7" r="2.6" class="hm1"/>
+<circle cx="185.6" cy="199.9" r="2.6" class="hm1"/>
+<circle cx="228.9" cy="224.1" r="2.6" class="hm1"/>
+<circle cx="280.2" cy="289.1" r="2.6" class="hm1"/>
+<circle cx="323.4" cy="301.8" r="2.6" class="hm1"/>
+<path d="M91.9 150.7L323.4 300.2" class="lnm" stroke-dasharray="4 3"/>
+<text x="86.6" y="170.7" class="flab end ">&#916;=0.06</text>
+<text x="286" y="411" class="flab st">horizon v</text>
+<text x="580" y="66" class="flab st">dashed: the fitted</text>
+<text x="580" y="81" class="flab st">power law</text>
+<text x="580" y="108" class="flab st c1">&#916; = 0.24</text>
+<text x="580" y="122" class="flab st">v^(-5.74) R&#178;=0.993</text>
+<text x="580" y="140" class="flab st c2">&#916; = 0.12</text>
+<text x="580" y="154" class="flab st">v^(-5.42) R&#178;=0.944</text>
+<text x="580" y="172" class="flab st ">&#916; = 0.06</text>
+<text x="580" y="186" class="flab st">v^(-5.87) R&#178;=0.942</text>
+<text x="26" y="452" class="flab st">rh19 read e^(-0.528v) from the shaded strip. Over a factor 25 in v the power law fits at R&#178; = 0.993</text>
+<text x="26" y="470" class="flab st">and the exponential at 0.843. The finest mesh reaches only a factor 5.5 and STILL prefers the exponential.</text>
+<text x="26" y="488" class="flab st">The reach needed to decide scales like 1/&#916;, so the coarse mesh is the only one that could settle it.</text>
+<text x="26" y="506" class="flab st">The error was the range, not the arithmetic.</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 · On log-log axes the floor is a straight line.</b> λ<sub>min</sub> against the horizon at three meshes, out to v = 100. A power law is straight on these axes; an exponential curves down. The shaded strip is the range rh19 fitted. Dashed: the fitted power laws.</figcaption>
+</figure>
+
+<p><b>The warning inside the correction.</b> Restricted to v ≤ 20, every mesh still fits an exponential well — Δ = 0.24 at R² = 0.915 — which is exactly how rh19 got its rates, and there was nothing wrong with its arithmetic. Worse, at Δ = 0.06 the ladder reaches only a factor 5.5 in v, because the horizon is nΔ and a fine mesh needs proportionally more nodes; and over that shorter reach the exponential <i>still</i> wins (0.954 against 0.942). The reach needed to tell the two apart scales like 1/Δ. So the coarse mesh was the only one that could have settled this — an unplanned echo of rh19's own finding that coarse is stronger.</p>
+<p><b>A constant confirmed, not corrected.</b> The same ladder measures the other quantity the arc has been quoting without derivation. rh15 found σ²v² ≈ 3.9×10⁻³ at v = 12 and left it unexplained. It is a power law and it holds: σ²<sub>min</sub> ~ v<sup>&#8722;1.777</sup> at R² above 0.99 at every mesh, with σ²v² staying within 3.9&#215;10<sup>&#8722;3</sup> of rh15's value out to v = 100. One of the arc's three unexplained constants is now verified over a decade rather than fitted at a point — still not derived, but no longer suspect.</p>
+<p>What this does <i>not</i> do is explain either exponent. −5.741 for λ<sub>min</sub> and −2 for σ² are measured, not derived, and they are different laws for different quantities: λ<sub>min</sub> is the global minimum eigenvalue and σ²<sub>min</sub> the worst one-step prediction error. rh19 asked why the rate depends on the mesh; the answer is that it does not much — &#8722;5.741, &#8722;5.423, &#8722;5.872 across a factor four in Δ — and the apparent mesh-dependence in rh19's numbers was the same range artifact.</p>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · The radius, and what the wall really is</h2>
+<p>rh19's certified horizon stops where its floor crosses the proven radius of its comb. The radius per unit gear mass has two terms, and rh19 named only the first:</p>
+
+<div class="eq"><span class="tag">(3)</span>
+rad / M<sub>k</sub> &nbsp;=&nbsp; (2/3)·δu &nbsp;+&nbsp; Δ·δw, &nbsp;&nbsp; δu = the logarithm's error, &nbsp; δw = the hat arithmetic's.
+</div>
+
+<p>In rh19's lane those terms are 1.87&#215;10<sup>&#8722;16</sup> and 1.87&#215;10<sup>&#8722;16</sup> — a ratio of 0.9972. They are all but exactly equal, which is why rh19's proposed fix does so little. A <i>perfect</i> logarithm with the hat arithmetic left in double caps the ceiling at v = 20.9, against rh19's own 20.0: the whole remaining budget in the logarithm is under 1.5 in v, not the "next few units" rh19 priced. Fixing only the hat arithmetic is no better, for the mirror reason. Only fixing both moves anything, and then it moves a lot — to v = 49.8 in double-double throughout, and 113.4 in exact arithmetic.</p>
+<p>Which makes the question moot, because the sieve arrives first. The comb at horizon v needs every prime power below e<sup>v+2Δ</sup>, and at rh19's measured 4.3 µs per gear that is 2 hours at v = 24, 98 hours at v = 28, and 677 hours at v = 30. A day of sieving reaches v = 26.5; a month reaches 30.1. Both are far below what the arithmetic would allow once it is fixed properly.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 500" role="img" aria-label="The arithmetic ceiling for five arithmetic lanes against the sieve cost. Fixing the logarithm alone caps at v of twenty-one; fixing the hat arithmetic too reaches fifty; but a month of sieving only reaches thirty, so the sieve is what binds.">
+<text x="360.0" y="21" class="ftitle">the arithmetic was never the wall &#8212; the sieve is</text>
+<line x1="58" y1="320.9" x2="500" y2="320.9" class="grid"/>
+<text x="52" y="324.4" class="flab end">6 min</text>
+<line x1="58" y1="262.5" x2="500" y2="262.5" class="grid"/>
+<text x="52" y="266.0" class="flab end">1 hour</text>
+<line x1="58" y1="204.0" x2="500" y2="204.0" class="grid"/>
+<text x="52" y="207.5" class="flab end">10 h</text>
+<line x1="58" y1="145.5" x2="500" y2="145.5" class="grid"/>
+<text x="52" y="149.0" class="flab end">4 days</text>
+<line x1="58" y1="87.1" x2="500" y2="87.1" class="grid"/>
+<text x="52" y="90.6" class="flab end">6 weeks</text>
+<text x="79.0" y="371" class="flab st">16</text>
+<text x="163.2" y="371" class="flab st">24</text>
+<text x="247.4" y="371" class="flab st">32</text>
+<text x="331.6" y="371" class="flab st">40</text>
+<text x="415.8" y="371" class="flab st">48</text>
+<text x="500.0" y="371" class="flab st">56</text>
+<line x1="58" y1="356" x2="500" y2="356" class="axis"/>
+<line x1="58" y1="52" x2="58" y2="356" class="axis"/>
+<path d="M115.9 352.9L118.5 346.8L121.1 340.8L123.8 334.7L126.4 328.7L129.0 322.7L131.7 316.6L134.3 310.6L136.9 304.5L139.6 298.4L142.2 292.4L144.8 286.3L147.5 280.2L150.1 274.2L152.7 268.1L155.3 262.0L158.0 255.9L160.6 249.8L163.2 243.8L165.9 237.7L168.5 231.6L171.1 225.5L173.8 219.4L176.4 213.3L179.0 207.2L181.7 201.1L184.3 195.0L186.9 188.9L189.5 182.8L192.2 176.6L194.8 170.5L197.4 164.4L200.1 158.3L202.7 152.2L205.3 146.0L208.0 139.9L210.6 133.8L213.2 127.7L215.9 121.5L218.5 115.4L221.1 109.3L223.8 103.1L226.4 97.0L229.0 90.8L231.6 84.7L234.3 78.6L236.9 72.4L239.5 66.3L242.2 60.1L244.8 54.0" class="ln1"/>
+<text x="163.3" y="266.0" class="flab st c1">sieve cost</text>
+<line x1="58" y1="181.8" x2="500" y2="181.8" class="lnm" stroke-dasharray="4 3"/>
+<text x="62" y="175.8" class="flab st">one day of sieving &#8212; v = 26.5</text>
+<line x1="95.2" y1="52" x2="95.2" y2="356" class="lnm" stroke-dasharray="2 3"/>
+<text x="99.2" y="68" class="flab st">17.5</text>
+<line x1="121.6" y1="52" x2="121.6" y2="356" class="lnm" stroke-dasharray="2 3"/>
+<text x="125.6" y="83" class="flab st">20.0</text>
+<line x1="130.3" y1="52" x2="130.3" y2="356" class="lnm" stroke-dasharray="2 3"/>
+<text x="134.3" y="98" class="flab st">20.9</text>
+<line x1="434.8" y1="52" x2="434.8" y2="356" class="ln2" stroke-dasharray="2 3"/>
+<text x="438.8" y="68" class="flab st">49.8</text>
+<text x="255" y="387" class="flab st">horizon v</text>
+<text x="522" y="62" class="flab st">arithmetic ceiling</text>
+<text x="522" y="84" class="flab st">bare log, double hat</text>
+<text x="522" y="98" class="flab st ">v = 17.5</text>
+<text x="522" y="112" class="flab st">two-double log (rh19)</text>
+<text x="522" y="126" class="flab st ">v = 20.0</text>
+<text x="522" y="140" class="flab st">two-double log + dd hat</text>
+<text x="522" y="154" class="flab st ">v = 20.9</text>
+<text x="522" y="168" class="flab st">double-double throughout</text>
+<text x="522" y="182" class="flab st c2">v = 49.8</text>
+<text x="522" y="196" class="flab st">exact Decimal-40</text>
+<text x="522" y="210" class="flab st ">v = 113.4</text>
+<text x="26" y="436" class="flab st">In rh19&#8217;s lane the two error terms are all but equal &#8212; the logarithm 1.87&#215;10&#8315;&#185;&#8310; per unit gear mass,</text>
+<text x="26" y="454" class="flab st">the hat arithmetic 1.87&#215;10&#8315;&#185;&#8310; &#8212; so fixing either alone buys under 1.5 in v.</text>
+<text x="26" y="472" class="flab st">Fixing both reaches 49.8. But a month of sieving only reaches 30.1, so the end of the method</text>
+<text x="26" y="490" class="flab st">is the comb, at v &#8776; 27&#8211;30 &#8212; not the arithmetic rh19 blamed.</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 · The arithmetic was never the wall.</b> The sieve's cost against the horizon, with the arithmetic ceiling of five lanes marked. rh19's lane stops at 20.0; a perfect logarithm alone at 20.9; both terms fixed at 49.8. A day of sieving reaches 26.5.</figcaption>
+</figure>
+
+<div class="box thm"><span class="lbl">The end of the method</span>
+<p>With the arithmetic repaired — both terms of (3), not just the logarithm — the certified horizon at Δ = 0.24 is limited by the prime comb and by nothing else, at <b>v ≈ 26.5 for a day of computation and 30.1 for a month</b>. The arithmetic ceiling at that point is 49.8, comfortably out of reach. rh19's successor (ii) is therefore retired as a wrong diagnosis: the row radius is worth fixing, it is worth about 30 in v, and after that the method ends at the sieve.</p>
+</div>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · The window, and the room under the barrier</h2>
+<p>rh20 proved |B<sub>Δ</sub>(γ)|² ≤ c₀/γ² with c₀ = 2.100246 for every mesh at once, and noted that this is a statement about the triangle hat. It is, and the general statement is both simpler and much weaker. Let h be any window supported in [−Δ, Δ], and suppose |ĥ(γ)|² ≥ w for every γ in [0, T]. Then</p>
+
+<div class="eq"><span class="tag">(4)</span>
+2Tw &nbsp;≤&nbsp; ∫<sub>−T</sub><sup>T</sup>|ĥ|² &nbsp;≤&nbsp; ∫<sub>ℝ</sub>|ĥ|² &nbsp;=&nbsp; 2π‖h‖₂² &nbsp;=&nbsp; 2πC(0) &nbsp;&nbsp;⟹&nbsp;&nbsp; w ≤ πC(0)/T.
+</div>
+
+<p>One line, unconditional, and it bounds the weight floor by <i>1/T</i> where the hat manages 1/γ⁴. C(0) = ‖h‖₂² is exactly the quantity that has to stay finite for the comb to be a finite sum, so (4) is not an artefact of a normalisation — it is the trade the construction already makes, priced.</p>
+<p>At unit energy, over the first 40 zeros (up to γ = 122.9), the barrier is 2.56&#215;10<sup>&#8722;2</sup> and the triangle hat achieves a typical weight of 6.76&#215;10<sup>&#8722;6</sup> — <b>3,780× under it</b>. A Slepian window of the same support and the same energy, the classical solution to concentrating a transform in a band, achieves 4.22&#215;10<sup>&#8722;4</sup>: a gain of 62×, closing the gap to 61×. It stays admissible without modification — unit energy keeps C(0) finite, so C = h⋆ȟ is bounded, the comb remains a finite sum, and rh18's identity at arbitrary nodes applies unchanged.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 486" role="img" aria-label="The typical weight a window gives the low zeros, against the universal barrier. The triangle hat sits three thousand times under it; a Slepian window at the same support and energy sits sixty times under. The minimum over zeros is unstable and is not a property of the window.">
+<text x="360.0" y="21" class="ftitle">the window was never optimised &#8212; and it is the largest lever left</text>
+<line x1="70" y1="335.3" x2="430" y2="335.3" class="grid"/>
+<text x="64" y="338.8" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="70" y1="303.6" x2="430" y2="303.6" class="grid"/>
+<text x="64" y="307.1" class="flab end">10&#8315;&#8313;</text>
+<line x1="70" y1="271.8" x2="430" y2="271.8" class="grid"/>
+<text x="64" y="275.3" class="flab end">10&#8315;&#8312;</text>
+<line x1="70" y1="240.1" x2="430" y2="240.1" class="grid"/>
+<text x="64" y="243.6" class="flab end">10&#8315;&#8311;</text>
+<line x1="70" y1="208.3" x2="430" y2="208.3" class="grid"/>
+<text x="64" y="211.8" class="flab end">10&#8315;&#8310;</text>
+<line x1="70" y1="176.6" x2="430" y2="176.6" class="grid"/>
+<text x="64" y="180.1" class="flab end">10&#8315;&#8309;</text>
+<line x1="70" y1="144.9" x2="430" y2="144.9" class="grid"/>
+<text x="64" y="148.4" class="flab end">10&#8315;&#8308;</text>
+<line x1="70" y1="113.1" x2="430" y2="113.1" class="grid"/>
+<text x="64" y="116.6" class="flab end">10&#8315;&#179;</text>
+<line x1="70" y1="81.4" x2="430" y2="81.4" class="grid"/>
+<text x="64" y="84.9" class="flab end">10&#8315;&#178;</text>
+<line x1="70" y1="348" x2="430" y2="348" class="axis"/>
+<line x1="70" y1="56" x2="70" y2="348" class="axis"/>
+<line x1="70" y1="68.5" x2="430" y2="68.5" class="ln1"/>
+<text x="76" y="61.5" class="flab st c1">universal barrier &#960;C(0)/T = 2.56&#215;10&#8315;&#178;</text>
+<rect x="130" y="182.0" width="60" height="166.0" class="hm1" fill-opacity="0.30"/>
+<line x1="126" y1="182.0" x2="194" y2="182.0" class="ln1"/>
+<text x="160" y="174.0" class="flab st" text-anchor="middle">6.76&#215;10&#8315;&#8310;</text>
+<circle cx="160" cy="306.4" r="3.2" class="hm1"/>
+<text x="168" y="310.4" class="flab st">min 8.1&#215;10&#8315;&#185;&#8304;</text>
+<text x="160" y="364" class="flab st" text-anchor="middle">triangle hat</text>
+<rect x="290" y="125.0" width="60" height="223.0" class="hm2" fill-opacity="0.30"/>
+<line x1="286" y1="125.0" x2="354" y2="125.0" class="ln2"/>
+<text x="320" y="117.0" class="flab st" text-anchor="middle">4.22&#215;10&#8315;&#8308;</text>
+<circle cx="320" cy="256.5" r="3.2" class="hm2"/>
+<text x="328" y="260.5" class="flab st">min 3.1&#215;10&#8315;&#8312;</text>
+<text x="320" y="364" class="flab st" text-anchor="middle">Slepian</text>
+<text x="250" y="382" class="flab st" text-anchor="middle">weight given the first 40 zeros, at equal support and equal energy</text>
+<text x="460" y="58" class="flab st">under refinement</text>
+<line x1="460" y1="64" x2="694" y2="64" class="axis"/>
+<text x="460" y="80" class="flab st">M</text>
+<text x="500" y="80" class="flab st">typical</text>
+<text x="586" y="80" class="flab st">minimum</text>
+<text x="460" y="98" class="flab st">121</text>
+<text x="500" y="98" class="flab st">4.74&#215;10&#8315;&#8308;</text>
+<text x="586" y="98" class="flab st">4.27&#215;10&#8315;&#8310;</text>
+<text x="460" y="117" class="flab st">201</text>
+<text x="500" y="117" class="flab st">4.86&#215;10&#8315;&#8308;</text>
+<text x="586" y="117" class="flab st">3.12&#215;10&#8315;&#8310;</text>
+<text x="460" y="136" class="flab st">301</text>
+<text x="500" y="136" class="flab st">4.22&#215;10&#8315;&#8308;</text>
+<text x="586" y="136" class="flab st">3.05&#215;10&#8315;&#8312;</text>
+<text x="460" y="169" class="flab st">swing: typical &#215;1.15</text>
+<text x="460" y="185" class="flab st c1">minimum &#215;140</text>
+<text x="460" y="207" class="flab st">The minimum is a</text>
+<text x="460" y="223" class="flab st">lottery on where the</text>
+<text x="460" y="239" class="flab st">nulls fall, not a</text>
+<text x="460" y="255" class="flab st">property of the window.</text>
+<text x="26" y="422" class="flab st">The barrier is elementary: if |h&#770;|&#178; &#8805; w on [0,T] then 2Tw &#8804; &#8747;|h&#770;|&#178; = 2&#960;C(0),</text>
+<text x="26" y="440" class="flab st">so w &#8804; &#960;C(0)/T for EVERY compactly supported window. The triangle hat sits 3780&#215; under it.</text>
+<text x="26" y="458" class="flab st">A Slepian at the same support and energy gains 62&#215; and closes to 61&#215;, and stays admissible:</text>
+<text x="26" y="476" class="flab st">unit energy keeps C(0) finite, so the comb is still a finite sum.</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 · The window was never optimised.</b> The typical weight the low zeros receive, at equal support and equal energy, against the universal barrier. Right: the same two windows under a tripled discretisation — the typical weight is stable, the minimum is not.</figcaption>
+</figure>
+
+<p><b>A methodological finding.</b> The obvious way to score a window is the minimum weight it gives any low zero, and that number is worthless. Tripling the discretisation moves the Slepian's minimum by 140× while its typical weight moves by 1.15×. The minimum is set by whichever zero happens to land nearest a null of ĥ, and the nulls move; it is a lottery, not a property. This is rh20's own finding seen from the other side — there, four particular zeros sitting near notches decided what a mesh pair was worth. Any future window comparison has to be scored on a typical weight, and the first draft of this document was scored on the minimum and was wrong by three orders.</p>
+<p><b>What is actually claimed.</b> That a better window exists, that it is worth 62× on the quantity that feeds the certified floor, and that 61× more remains between the best window tried and an elementary barrier. Not that a Slepian is the right choice: it was picked because it is the classical extremal for exactly this concentration problem, and no search over windows was run. The search is the successor.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The bill, audited</h2>
+<p>32 named checks in 57 seconds. The instrument is validated before use (§2) and the validation includes a bound on its own bias; rh19's ladder is rebuilt at all twenty-six of its points; rh20's c₀ is reproduced from its stored constants; rh19's stated two-double log error is re-measured over every gear of the small sieve (1.52&#215;10<sup>&#8722;16</sup> against its 1.58&#215;10<sup>&#8722;16</sup>); the power-versus-exponential verdict, the range-dependence of that verdict, rh15's σ² law, the balance of the two radius terms, the sieve crossover, the barrier, the Slepian's gain and the instability of the minimum each carry their own assertion.</p>
+<p><b>Against the order.</b> Successor (iii) — retired, as a correction: there is no rate to explain because the decay is not exponential, and the mesh-dependence rh19 saw was the same artifact. Successor (ii) — retired, as a wrong diagnosis: a better logarithm is nearly exhausted, the radius is worth about 30 in v if both its terms are fixed, and past that the sieve ends the method at v ≈ 26.5–30.1. rh20's question — opened, and it is now the only one with real headroom in it.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 508" role="img" aria-label="A card giving the three answers: the decay law is a power law, the arithmetic was not the wall, and the window has sixty times of headroom left.">
+<text x="360.0" y="21" class="ftitle">three questions, three answers</text>
+<rect x="26" y="42" width="215" height="242" class="cardbox"/>
+<text x="40" y="64" class="flab st c2">(iii) the decay law</text>
+<text x="40" y="86" class="flab st">rh19 fitted e^(&#8722;0.53v) over a</text>
+<text x="40" y="103" class="flab st">factor 3 in v. Over a factor 25 the</text>
+<text x="40" y="120" class="flab st">law is a POWER law, v^(-5.74),</text>
+<text x="40" y="137" class="flab st">R&#178; 0.993 against 0.843.</text>
+<text x="40" y="154" class="flab st">A correction, not an explanation.</text>
+<text x="40" y="171" class="flab st"></text>
+<text x="40" y="188" class="flab st">And rh15's other constant is</text>
+<text x="40" y="205" class="flab st">confirmed: &#963;&#178;_min ~ v^(-1.78),</text>
+<text x="40" y="222" class="flab st">&#963;&#178;v&#178; = 3.9&#215;10&#8315;&#179; out to v = 100.</text>
+<rect x="253" y="42" width="215" height="242" class="cardbox"/>
+<text x="267" y="64" class="flab st c1">(ii) the row radius</text>
+<text x="267" y="86" class="flab st">rh19 proposed a better logarithm.</text>
+<text x="267" y="103" class="flab st">It is nearly exhausted: perfect</text>
+<text x="267" y="120" class="flab st">logs cap at v = 20.9 against</text>
+<text x="267" y="137" class="flab st">rh19's 20.0. The two error terms</text>
+<text x="267" y="154" class="flab st">are all but equal, so neither</text>
+<text x="267" y="171" class="flab st">alone is the floor. Fixing both</text>
+<text x="267" y="188" class="flab st">reaches 49.8 &#8212; past the sieve,</text>
+<text x="267" y="205" class="flab st">which stops at v = 27&#8211;30.</text>
+<text x="267" y="222" class="flab st">The wall was never arithmetic.</text>
+<rect x="479" y="42" width="215" height="242" class="cardbox"/>
+<text x="493" y="64" class="flab st c2">(rh20) the window</text>
+<text x="493" y="86" class="flab st">The barrier w &#8804; &#960;C(0)/T holds</text>
+<text x="493" y="103" class="flab st">for every compactly supported</text>
+<text x="493" y="120" class="flab st">window. The triangle hat sits</text>
+<text x="493" y="137" class="flab st">3780&#215; under it. A Slepian at</text>
+<text x="493" y="154" class="flab st">the same support and energy</text>
+<text x="493" y="171" class="flab st">gains 62&#215; and closes to 61&#215;.</text>
+<text x="493" y="188" class="flab st"></text>
+<text x="493" y="205" class="flab st">The hat was never optimised.</text>
+<text x="493" y="222" class="flab st">It is the largest lever left.</text>
+<text x="26" y="316" class="flab st">What made the first two answerable: the kernel can be built from the ZEROS, not the primes. Under RH the two agree</text>
+<text x="26" y="334" class="flab st">&#8212; measured to 4.4% on &#955;<tspan dy="3" font-size="9">min</tspan><tspan dy="-3"></tspan> at every point rh19 computed &#8212; and the zeros side costs no sieve,</text>
+<text x="26" y="352" class="flab st">so the ladder runs to v = 100 instead of 20.</text>
+<text x="26" y="378" class="flab st">Hypotheses: RH itself, for the zeros-side kernel of &#167;2 &#8212; this document measures the construction, not the zeros.</text>
+<text x="26" y="396" class="flab st">Weil (cited), IEEE-754 and libmpdec elsewhere. The barrier of &#167;5 is elementary and unconditional.</text>
+<text x="26" y="422" class="flab st">Not proved: RH. Two of rh19&#8217;s open items are retired as mis-stated rather than solved, and the third</text>
+<text x="26" y="440" class="flab st">is replaced by a sharper one: not &#8220;make the arithmetic better&#8221; but &#8220;make the window better&#8221;.</text>
+<text x="26" y="466" class="flab st">32 named checks in 57 s, including a rebuild of rh19&#8217;s ladder and rh20&#8217;s c&#8320;.</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 · Three questions, three answers.</b> What each of the three open items turned out to be, with the instrument that made the first two answerable and the hypotheses each answer rests on.</figcaption>
+</figure>
+
+<p><b>What is left.</b> One item, and it is a search rather than a fix. <b>The window.</b> Find the h, supported in [−Δ, Δ] at unit energy, that maximises the typical weight over the low zeros — or better, that maximises the certified floor m₀ directly, which is the quantity the certificates actually spend. A Slepian gains 62× without trying; the barrier says up to 61× more is available; and every gain there multiplies straight through rh18's T3 into the escape radius and through rh19's α into the certified floor. It is the first time in the arc that a lever has been found with a proven ceiling above it and a measured gain below it.</p>
+<p>Two cautions for whoever runs that search. It must be scored on a typical weight, for the reason §5 gives. And a window that widens its support to buy weight pays for it twice — in the prime comb, which grows like e<sup>a</sup>, and in rh18's K<sub>lin</sub>, which grows the same way — so the search is properly over shapes at fixed support, not over supports.</p>
+</section>
+
+<section id="s7">
+<h2 class="prose" style="max-width:46rem">7 · Dictionary additions and references</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>term</th><th>in this arc</th><th>standard name</th></tr>
+<tr><td>the zeros-side kernel</td><td>E<sub>Δ</sub> built from (1) instead of the primes</td><td>the explicit formula, read right to left</td></tr>
+<tr><td>the reach</td><td>v<sub>max</sub>/v<sub>min</sub> of a ladder — what a fit can see</td><td>the dynamic range of a regression</td></tr>
+<tr><td>the two radius terms</td><td>(2/3)δu from the logarithm, Δδw from the hat</td><td>forward error of a compensated sum</td></tr>
+<tr><td>the barrier</td><td>w ≤ πC(0)/T</td><td>Plancherel plus a mean-value bound</td></tr>
+<tr><td>typical weight</td><td>geometric mean of |ĥ(γ<sub>j</sub>)|² over the low zeros</td><td>—</td></tr>
+<tr><td>Slepian window</td><td>the band-concentrated window of §5</td><td>prolate spheroidal wave function</td></tr>
+</table>
+</div>
+<div class="prose refs">
+<p><b>References.</b> A. Weil, <i>Sur les "formules explicites" de la théorie des nombres premiers</i> (1952) — cited for the RH face. D. Slepian and H. O. Pollak, <i>Prolate spheroidal wave functions, Fourier analysis and uncertainty I</i> (1961), and H. J. Landau and H. O. Pollak, <i>II</i> (1961) — the window of §5 and the concentration problem it solves. T. J. Dekker (1971) and A. Neumaier (1974) — the compensated arithmetic whose two error terms §4 separates. R. E. Moore, <i>Interval Analysis</i> (1966) and S. M. Rump, <i>Verification methods</i> (2010) — the interval machinery inherited from rh17. NIST DLMF §5 — the digamma asymptotics behind ψ̃.</p>
+</div>
+</section>
+
+
+</div>
+</body>
+</html>

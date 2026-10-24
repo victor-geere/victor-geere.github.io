@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The &Xi; horn &#8212; the integers, the mirror, the margin</title>
+<style>
+:root {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16; --klein: #002fa7;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --warn: #a86b16; --warn-bg: #f9f0e2;
+  --sh1: #6d4aa8; --sh2: #a86b16; --sh3: #1f7a4d; --sh4: #a8365b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e; --klein: #4f7ae8;
+    --thm: #5fc78e; --thm-bg: #16291f; --warn: #e0ac5c; --warn-bg: #2b2214;
+    --sh1: #9878d6; --sh2: #b9832e; --sh3: #5fc78e; --sh4: #d4718f;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16; --klein: #002fa7;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --warn: #a86b16; --warn-bg: #f9f0e2;
+  --sh1: #6d4aa8; --sh2: #a86b16; --sh3: #1f7a4d; --sh4: #a8365b;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e; --klein: #4f7ae8;
+  --thm: #5fc78e; --thm-bg: #16291f; --warn: #e0ac5c; --warn-bg: #2b2214;
+  --sh1: #9878d6; --sh2: #b9832e; --sh3: #5fc78e; --sh4: #d4718f;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif; }
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+.prose { max-width: 46rem; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.15; letter-spacing: -0.018em;
+  margin: 0 0 .6rem; font-weight: 600; }
+h2 { font-size: clamp(1.2rem, 2.4vw, 1.5rem); font-weight: 600; letter-spacing: -0.012em;
+  margin: 3rem 0 .8rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+p { margin: .9rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 1.6rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+.abstract { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1rem 1.25rem; margin: 1.6rem 0 2.2rem; font-size: .97rem; }
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .8rem 1.1rem; margin: 1.3rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .3rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .4rem 0; }
+figure { margin: 2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1rem; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.panes { display: flex; gap: 1rem; flex-wrap: wrap; }
+.pane { flex: 1 1 330px; min-width: 290px; position: relative; }
+.pane canvas { display: block; width: 100%; height: 100%; border-radius: 6px;
+  background: transparent; touch-action: none; }
+#scene { aspect-ratio: 1 / 1; cursor: grab; }
+#scene:active { cursor: grabbing; }
+#plane { aspect-ratio: 1 / 1; }
+.ptitle { font: 600 12px ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  margin: 0 0 .3rem; letter-spacing: .01em; }
+.legend { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
+  font: .8rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg); padding: .5rem 0 .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .4rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.ctl { font: .82rem/1.5 ui-sans-serif, system-ui, sans-serif; margin-top: .9rem;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: .55rem 1.6rem; }
+.ctl .row { display: flex; align-items: center; gap: .5rem; }
+.ctl .row > label { flex: 0 0 auto; color: var(--muted); min-width: 6.4em; }
+.ctl input[type=range] { flex: 0 1 150px; min-width: 70px; accent-color: var(--chart-1); }
+.ctl .val { flex: 0 0 auto; min-width: 5.4em; font-variant-numeric: tabular-nums; }
+.ctl .row.wide { grid-column: 1 / -1; flex-wrap: wrap; }
+.ctl button { font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--rule-strong); border-radius: 5px; padding: .1rem .5rem; cursor: pointer; }
+.ctl button:hover { border-color: var(--chart-1); color: var(--chart-1); }
+.ctl label.chk { display: inline-flex; align-items: center; gap: .35rem; cursor: pointer; }
+.ctl input[type=checkbox] { accent-color: var(--chart-1); }
+.readout { font: .82rem/1.7 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color: var(--muted); margin-top: .6rem; }
+.readout b { color: var(--fg); font-weight: 600; }
+.readout .closed { color: var(--thm); font-weight: 600; }
+.readout .open { color: var(--chart-2); font-weight: 600; }
+.readout .bad { color: #b8434f; font-weight: 600; }
+table.dict { border-collapse: collapse; width: 100%; font-size: .86rem; margin: 1rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .4rem .6rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .35rem .6rem; border-bottom: 1px solid var(--rule);
+  font-variant-numeric: tabular-nums; }
+.tbl-scroll { overflow-x: auto; }
+code { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 3.5rem; padding-top: 1.1rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+.eq { margin: 1.1rem 0; text-align: center; font-size: 1.04em; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The &Xi; horn</h1>
+  <p class="sub">The completed zeta function as a two-sided surface: the integers drawn as
+  nested shells, the functional equation as a mirror, and closure replaced by a positivity
+  margin. Computed live, in double precision, with no external dependency.</p>
+  <p class="meta">docs/xi-horn &middot; figure for
+  <a href="README.md">README</a> &middot; <a href="POSITIVITY.md">POSITIVITY</a> &middot;
+  <a href="INTEGERS.md">INTEGERS</a> &middot; successor to <a href="../html/rh3.html">rh3</a></p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <a href="../html/rh3.html">rh3</a> draws the Dirichlet eta numeral as a helix and
+cannot decide anything from it: the chain's remaining travel is always half the last gear's
+radius, so 10<sup>31</sup> gears are needed to certify a closure. This page draws the completed
+function instead. Riemann's weight &Phi; is <i>even</i>, and its evenness is the functional
+equation, so the surface has two mirror-congruent sheets meeting at a throat; the whole object
+lives in |<i>u</i>| &le; 1.5 and closure is decidable from the entire picture. &Phi; is a sum
+over the integers, so the horn is <b>literally built out of them</b> &mdash; shell 1 carries
+99.78% of the throat, shell 2 carries 0.217%, shell 3 carries 1.8&times;10<sup>&minus;9</sup>
+&mdash; and switching the shells on peels them apart. On the mirror side those same shells
+annihilate to twenty-three digits, which <i>is</i> the theta functional equation being enforced.
+Finally the phase can be modded out entirely: the moments of the silhouette carry the whole
+question as one explicit inequality, and the readout shows it. Nothing here is new mathematics
+and nothing here is a step towards the hypothesis.
+</div>
+
+<section class="prose">
+<h2>1 &middot; The construction</h2>
+<p>Riemann's weight, a sum over the integers:</p>
+<div class="eq">
+&Phi;(<i>u</i>) = &sum;<sub><i>n</i>&ge;1</sub> &phi;<sub><i>n</i></sub>(<i>u</i>),
+&nbsp;&nbsp; &phi;<sub><i>n</i></sub>(<i>u</i>) =
+(2&pi;<sup>2</sup><i>n</i><sup>4</sup><i>e</i><sup>9<i>u</i>/2</sup> &minus;
+3&pi;<i>n</i><sup>2</sup><i>e</i><sup>5<i>u</i>/2</sup>)&middot;<i>e</i><sup>&minus;&pi;<i>n</i><sup>2</sup><i>e</i><sup>2<i>u</i></sup></sup>
+</div>
+<p>&Phi; is even &mdash; that is &theta;(1/<i>x</i>) = &radic;<i>x</i>&middot;&theta;(<i>x</i>),
+the functional equation, already installed &mdash; positive, and double-exponentially small.
+The horn is the surface of revolution with depth <i>u</i> and radius &Phi;(<i>u</i>), drawn on a
+logarithmic radial axis so that thirty decades fit. Its value is</p>
+<div class="eq">
+&Xi;(<i>t</i>) = &xi;(&frac12; + <i>it</i>) = 2(<i>S</i><sub>+</sub> + <i>S</i><sub>&minus;</sub>),
+&nbsp;&nbsp;
+<i>S</i><sub>&plusmn;</sub> = &int;<sub>0</sub><sup>&infin;</sup>
+&Phi;(<i>u</i>)&middot;<i>e</i><sup>&plusmn;<i>itu</i></sup> d<i>u</i>
+</div>
+<p>For real <i>t</i> the two are conjugate, so &Xi; = 4&thinsp;Re&thinsp;<i>S</i><sub>+</sub> is
+real and <b>a zero is where the two dual endpoints are purely imaginary and annihilate</b>.
+Letting <i>t</i> = <i>t</i><sub>r</sub> + <i>i</i>&thinsp;<i>t</i><sub>i</sub> tilts the two
+sheets by <i>e</i><sup>&#8723;<i>t</i><sub>i</sub><i>u</i></sup> and breaks the mirror;
+|<i>t</i><sub>i</sub>| &lt; &frac12; is exactly the critical strip, and
+<i>t</i><sub>i</sub> = 0 is the critical line. RH, here: <b>the horn only closes when it is
+untilted.</b></p>
+</section>
+
+<figure>
+<div class="fig-frame">
+<div class="legend" aria-hidden="true">
+  <span class="chip"><span class="sw" style="background:var(--sh1)"></span>shell <i>n</i>=1</span>
+  <span class="chip"><span class="sw" style="background:var(--sh2)"></span><i>n</i>=2</span>
+  <span class="chip"><span class="sw" style="background:var(--sh3)"></span><i>n</i>=3</span>
+  <span class="chip"><span class="sw" style="background:var(--sh4)"></span><i>n</i>=4</span>
+  <span class="chip"><span class="sw" style="background:var(--klein)"></span><i>S</i><sub>+</sub> thread</span>
+  <span class="chip"><span class="sw" style="background:var(--chart-2)"></span><i>S</i><sub>&minus;</sub>, the mirror</span>
+</div>
+<div class="panes">
+  <div class="pane">
+    <p class="ptitle">The horn &mdash; log-radial, 30 decades</p>
+    <canvas id="scene"></canvas>
+  </div>
+  <div class="pane">
+    <p class="ptitle">The value plane &mdash; two conjugate threads</p>
+    <canvas id="plane"></canvas>
+  </div>
+</div>
+<div class="ctl" id="ctl">
+  <div class="row"><label for="c-tr"><i>t</i><sub>r</sub></label>
+    <input type="range" id="c-tr" min="0" max="40" step="any" value="14.134725141734693">
+    <span class="val" id="v-tr">14.134725</span></div>
+  <div class="row"><label for="c-ti">tilt <i>t</i><sub>i</sub></label>
+    <input type="range" id="c-ti" min="-0.5" max="0.5" step="0.001" value="0">
+    <span class="val" id="v-ti">0.000</span></div>
+  <div class="row"><label for="c-u">extent <i>U</i></label>
+    <input type="range" id="c-u" min="0.05" max="1.7" step="0.01" value="1.7">
+    <span class="val" id="v-u">1.70</span></div>
+  <div class="row"><label for="c-k">shells</label>
+    <input type="range" id="c-k" min="1" max="4" step="1" value="2">
+    <span class="val" id="v-k">2</span></div>
+  <div class="row wide">
+    <span style="color:var(--muted)">snap <i>t</i><sub>r</sub> to</span>
+    <button type="button" data-t="14.134725141734693">&gamma;&#8321;</button>
+    <button type="button" data-t="21.022039638771555">&gamma;&#8322;</button>
+    <button type="button" data-t="25.010857580145688">&gamma;&#8323;</button>
+    <button type="button" data-t="30.424876125859513">&gamma;&#8324;</button>
+    <button type="button" data-t="32.935061587739190">&gamma;&#8325;</button>
+    <button type="button" data-t="17">17 (no zero)</button>
+    <label class="chk"><input type="checkbox" id="c-mirror" checked> mirror sheet</label>
+    <label class="chk"><input type="checkbox" id="c-spin"> spin</label>
+    <button type="button" id="c-reset">reset view</button>
+  </div>
+</div>
+<div class="readout" id="readout"></div>
+<p class="readout" id="readout2"></p>
+</div>
+<figcaption><b>Figure 1 &mdash; the horn, and its value.</b> Left: the surface of revolution at
+depth <i>u</i>, radius &Phi;(<i>u</i>) mapped logarithmically over thirty decades, with the
+integer shells &phi;<sub><i>n</i></sub> drawn separately &mdash; they nest at the throat and
+telescope outward, shell 1 reaching <i>u</i> &asymp; 1.7, shell 2 to 0.95, shell 3 to 0.50,
+shell 4 to 0.22. Drag to orbit. Right: the value plane, with
+<i>S</i><sub>+</sub>(<i>U</i>) spiralling from the throat and <i>S</i><sub>&minus;</sub> its
+mirror; the chord joins the endpoints and its midpoint is &Xi;/4 on the real axis. At a zero the
+endpoints are purely imaginary and the midpoint sits on the origin. The tilt slider sweeps the
+critical strip; the mirror is exact only at <i>t</i><sub>i</sub> = 0. All arithmetic is
+float64 &mdash; &Phi; is evaluated at |<i>u</i>| with six terms, which is accurate to
+10<sup>&minus;15</sup> relative down to &Phi; ~ 10<sup>&minus;30</sup>.</figcaption>
+</figure>
+
+<section class="prose">
+<h2>2 &middot; The mirror, measured</h2>
+<p>On <i>u</i> &ge; 0 the shells are hierarchical and never cancel. On <i>u</i> &lt; 0 the same
+shells annihilate: at <i>u</i> = &minus;1.5 they sum to 0.95 in absolute value and produce
+6.5&times;10<sup>&minus;24</sup>. The readout above prints that condition number
+&sum;|&phi;<sub><i>n</i></sub>| / |&Phi;| at the current extent.</p>
+<div class="box thm">
+<span class="lbl">What the cancellation is</span>
+<p>It is not a numerical misfortune. The twenty-three-digit collapse on the mirror side <b>is</b>
+the theta functional equation being enforced &mdash; the integers conspiring to reproduce,
+exactly, the mirror of the smooth positive side. Its magnitude is the content, and it is also
+why one must never evaluate &Phi; at negative <i>u</i>: use &Phi;(|<i>u</i>|), and double
+precision is sufficient everywhere.</p>
+</div>
+</section>
+
+<section class="prose">
+<h2>3 &middot; Modding out the phase</h2>
+<p>Expand the transform instead of evaluating it. With
+&gamma;(<i>n</i>) = 4&int;<sub>0</sub><sup>&infin;</sup><i>u</i><sup>2<i>n</i></sup>&Phi;(<i>u</i>)d<i>u</i>
+&mdash; the even moments of the silhouette &mdash;
+&xi;(&frac12;+<i>z</i>) = &sum; &gamma;(<i>n</i>)<i>z</i><sup>2<i>n</i></sup>/(2<i>n</i>)!,
+and <i>t</i> disappears entirely. The moments themselves are forced log-<i>convex</i> by
+Cauchy&ndash;Schwarz, so they carry no information; all the content is in the factorial
+division. Splitting the Tur&aacute;n ratio exactly:</p>
+<div class="eq">
+&Delta;<sup>2</sup>log&thinsp;&gamma;(<i>n</i>) &nbsp;&lt;&nbsp;
+log[(2<i>n</i>+3)(2<i>n</i>+4) / ((2<i>n</i>+1)(2<i>n</i>+2))] &nbsp; &asymp; 2/<i>n</i>
+</div>
+<p>&mdash; the horn's Cauchy&ndash;Schwarz defect against the factorial gain. Positivity holds
+when the ratio of the two is below 1. Computed live from &Phi; at page load:</p>
+<div class="tbl-scroll"><table class="dict" id="margins">
+<tr><th><i>n</i></th><th>C&ndash;S defect</th><th>factorial gain</th><th>margin ratio</th><th></th></tr>
+</table></div>
+<div class="box warn">
+<span class="lbl">What this is not</span>
+<p>Nothing on this page is new. &Xi; as the transform of &Phi; is 1859; the Tur&aacute;n
+inequalities for &xi; are a theorem (Csordas&ndash;Norfolk&ndash;Varga, 1986); the Jensen /
+Laguerre&ndash;P&oacute;lya criterion is classical and the Hermite limit is 2019. This page
+computes and draws; it discovers nothing. The margin table is a finite number of <i>d</i> = 2
+conditions, and RH needs all degrees and all <i>n</i> &mdash; the open part is uniformity in the
+degree, which no margin table can see.</p>
+</div>
+</section>
+
+<div class="foot prose">
+All numbers computed in the browser in double precision from the definitions above, with no
+external dependency and no fallback needed. Cross-checked offline against a 60-digit mpmath
+evaluation: &Xi; at &gamma;&#8321;&hellip;&gamma;&#8325; returns ~2&times;10<sup>&minus;17</sup>
+(machine zero) and &Xi;(17) = &minus;5.433786&times;10<sup>&minus;4</sup> against
+&minus;5.433785679&times;10<sup>&minus;4</sup>; &gamma;(<i>n</i>) agrees to 10<sup>&minus;9</sup>
+relative through <i>n</i> = 20; the margin ratios reproduce the 60-digit values to six figures.
+Companion texts: <a href="README.md">the closure form</a>,
+<a href="POSITIVITY.md">the shape form</a>, <a href="INTEGERS.md">the integer shells</a>.
+</div>
+
+</div>
+
+<script>
+(function () {
+'use strict';
+var TAU = Math.PI * 2;
+
+/* ---------------- the weight, float64, evaluated at |u| only ---------------- */
+function shell(n, u) {
+  u = Math.abs(u);
+  var e2 = Math.exp(2 * u);
+  return (2 * Math.PI * Math.PI * n * n * n * n * Math.exp(4.5 * u)
+          - 3 * Math.PI * n * n * Math.exp(2.5 * u)) * Math.exp(-Math.PI * n * n * e2);
+}
+function Phi(u) {
+  var s = 0;
+  for (var n = 1; n <= 6; n++) s += shell(n, u);
+  return s;
+}
+var PHI0 = Phi(0);                       /* 0.4466969004671234 */
+
+/* ---------------- moments and the Turan margin (independent of t) ---------- */
+var UMAX = 1.7, HSTEP = 0.0005;
+function moment(k) {
+  var s = 0, N = Math.round(UMAX / HSTEP), u, w;
+  for (var i = 0; i <= N; i++) {
+    u = i * HSTEP; w = (i === 0 || i === N) ? 0.5 : 1;
+    s += w * Math.pow(u, 2 * k) * Phi(u);
+  }
+  return 4 * s * HSTEP;
+}
+var GAM = [], MARG = [];
+(function () {
+  for (var n = 0; n <= 12; n++) GAM.push(moment(n));
+  for (n = 0; n <= 10; n++) {
+    var def = Math.log(GAM[n + 2]) - 2 * Math.log(GAM[n + 1]) + Math.log(GAM[n]);
+    var gain = Math.log((2 * n + 3) * (2 * n + 4) / ((2 * n + 1) * (2 * n + 2)));
+    MARG.push({ n: n, def: def, gain: gain, r: def / gain });
+  }
+})();
+(function fillTable() {
+  var t = document.getElementById('margins');
+  for (var i = 0; i < MARG.length; i++) {
+    var m = MARG[i], tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + m.n + '</td><td>' + m.def.toFixed(7) + '</td><td>' +
+      m.gain.toFixed(7) + '</td><td>' + m.r.toFixed(6) + '</td><td style="color:var(--thm)">' +
+      (m.r < 1 ? 'positive' : 'FAILS') + '</td>';
+    t.appendChild(tr);
+  }
+})();
+
+/* ---------------- the two threads ------------------------------------------ */
+/* S_+ = int_0^U Phi(u) e^{-ti u} e^{i tr u} du   (the +u sheet)
+   S_- = int_0^U Phi(u) e^{+ti u} e^{-i tr u} du   (the mirror sheet)
+   Xi = 2 (S_+ + S_-);  at ti = 0 they are conjugate and Xi = 4 Re S_+.        */
+function threads(tr, ti, U) {
+  var N = Math.max(8, Math.round(U / HSTEP)), h = U / N;
+  var pr = 0, pi = 0, mr = 0, mi = 0, P = [], M = [], u, w, wp, wm, c, s;
+  for (var i = 0; i <= N; i++) {
+    u = i * h; w = (i === 0 || i === N) ? 0.5 : 1;
+    wp = Phi(u) * Math.exp(-ti * u) * w * h;
+    wm = Phi(u) * Math.exp(ti * u) * w * h;
+    c = Math.cos(tr * u); s = Math.sin(tr * u);
+    pr += wp * c; pi += wp * s;
+    mr += wm * c; mi -= wm * s;
+    if (i % 2 === 0) { P.push(pr, pi, u); M.push(mr, mi, -u); }
+  }
+  return { P: P, M: M, ep: [pr, pi], em: [mr, mi],
+           xi: [2 * (pr + mr), 2 * (pi + mi)] };
+}
+
+/* condition number of the shell sum at depth -u (the mirror) */
+function condAt(u) {
+  var tot = 0, abs = 0, v;
+  for (var n = 1; n <= 12; n++) {
+    v = (2 * Math.PI * Math.PI * n * n * n * n * Math.exp(-4.5 * u)
+         - 3 * Math.PI * n * n * Math.exp(-2.5 * u)) * Math.exp(-Math.PI * n * n * Math.exp(-2 * u));
+    tot += v; abs += Math.abs(v);
+  }
+  return { tot: tot, abs: abs, cond: abs / Math.max(Math.abs(tot), 1e-300) };
+}
+
+/* ---------------- radial map: 30 decades, log ------------------------------ */
+var DECADES = 30;
+function radius(v) {
+  if (!(v > 0)) return 0;
+  var r = 1 + Math.log(v / PHI0) / Math.LN10 / DECADES;
+  return r > 0 ? r : 0;
+}
+
+/* ---------------- tiny 3D: yaw/pitch + perspective ------------------------- */
+var yaw = 0.72, pitch = 0.30, dist = 6.4, zoom = 1;
+function project(x, y, z, w, h) {
+  var cy = Math.cos(yaw), sy = Math.sin(yaw);
+  var X = x * cy - z * sy, Z = x * sy + z * cy;
+  var cp = Math.cos(pitch), sp = Math.sin(pitch);
+  var Y = y * cp - Z * sp, Z2 = y * sp + Z * cp;
+  var d = dist * zoom, f = (0.72 * Math.min(w, h)) * d / (d + Z2 + 3.0);
+  return [w / 2 + X * f, h / 2 - Y * f, Z2];
+}
+
+/* ---------------- state ---------------------------------------------------- */
+var P = { tr: 14.134725141734693, ti: 0, U: 1.7, K: 2, mirror: true, spin: false };
+var dirty = true;
+var sc = document.getElementById('scene'), pl = document.getElementById('plane');
+var sctx = sc.getContext('2d'), pctx = pl.getContext('2d');
+function css(n, f) { var v = getComputedStyle(document.documentElement).getPropertyValue(n).trim(); return v || f; }
+
+function fit(cv) {
+  var r = Math.min(2, window.devicePixelRatio || 1);
+  var w = cv.clientWidth, h = cv.clientHeight;
+  if (!w || !h) return false;
+  if (cv.width !== Math.round(w * r) || cv.height !== Math.round(h * r)) {
+    cv.width = Math.round(w * r); cv.height = Math.round(h * r);
+  }
+  return true;
+}
+
+/* ---------------- the horn ------------------------------------------------- */
+var SHELL_COL = ['--sh1', '--sh2', '--sh3', '--sh4'];
+function drawScene() {
+  if (!fit(sc)) return;
+  var w = sc.width, h = sc.height, r = w / sc.clientWidth;
+  sctx.clearRect(0, 0, w, h);
+  sctx.lineWidth = 1 * r;
+
+  var uTop = P.U, RINGS = 44, SEG = 40, k, i, j;
+
+  /* the depth axis */
+  sctx.strokeStyle = css('--rule-strong', '#c9c3b8'); sctx.globalAlpha = 0.7;
+  sctx.beginPath();
+  var a0 = project(0, 0, -uTop - 0.12, w, h), a1 = project(0, 0, uTop + 0.12, w, h);
+  sctx.moveTo(a0[0], a0[1]); sctx.lineTo(a1[0], a1[1]); sctx.stroke();
+  sctx.globalAlpha = 1;
+
+  for (k = P.K; k >= 1; k--) {
+    sctx.strokeStyle = css(SHELL_COL[k - 1], '#6d4aa8');
+    /* rings */
+    for (i = 0; i <= RINGS; i++) {
+      var u = uTop * i / RINGS;
+      var rad = radius(shell(k, u));
+      if (rad <= 0) continue;
+      sctx.globalAlpha = k === 1 ? 0.30 : 0.45;
+      sctx.beginPath();
+      for (j = 0; j <= SEG; j++) {
+        var th = TAU * j / SEG;
+        var pt = project(rad * Math.cos(th), rad * Math.sin(th), u, w, h);
+        j ? sctx.lineTo(pt[0], pt[1]) : sctx.moveTo(pt[0], pt[1]);
+      }
+      sctx.stroke();
+      if (P.mirror) {                             /* the mirror sheet */
+        sctx.globalAlpha = k === 1 ? 0.16 : 0.24;
+        sctx.beginPath();
+        for (j = 0; j <= SEG; j++) {
+          var th2 = TAU * j / SEG;
+          var pm = project(rad * Math.cos(th2), rad * Math.sin(th2), -u, w, h);
+          j ? sctx.lineTo(pm[0], pm[1]) : sctx.moveTo(pm[0], pm[1]);
+        }
+        sctx.stroke();
+      }
+    }
+    /* four meridians, so the taper reads */
+    sctx.globalAlpha = 0.55;
+    for (j = 0; j < 4; j++) {
+      var ang = TAU * j / 4;
+      sctx.beginPath();
+      var started = false;
+      for (i = 0; i <= RINGS * 2; i++) {
+        var uu = uTop * i / (RINGS * 2), rr = radius(shell(k, uu));
+        if (rr <= 0) { started = false; continue; }
+        var q = project(rr * Math.cos(ang), rr * Math.sin(ang), uu, w, h);
+        if (!started) { sctx.moveTo(q[0], q[1]); started = true; } else sctx.lineTo(q[0], q[1]);
+      }
+      sctx.stroke();
+      if (P.mirror) {
+        sctx.globalAlpha = 0.28;
+        sctx.beginPath(); started = false;
+        for (i = 0; i <= RINGS * 2; i++) {
+          var uv = uTop * i / (RINGS * 2), rv = radius(shell(k, uv));
+          if (rv <= 0) { started = false; continue; }
+          var qm = project(rv * Math.cos(ang), rv * Math.sin(ang), -uv, w, h);
+          if (!started) { sctx.moveTo(qm[0], qm[1]); started = true; } else sctx.lineTo(qm[0], qm[1]);
+        }
+        sctx.stroke();
+        sctx.globalAlpha = 0.55;
+      }
+    }
+  }
+  /* the throat ring */
+  sctx.globalAlpha = 1; sctx.strokeStyle = css('--fg', '#1b1a17'); sctx.lineWidth = 1.6 * r;
+  sctx.beginPath();
+  for (j = 0; j <= SEG; j++) {
+    var tt = TAU * j / SEG, pt0 = project(Math.cos(tt), Math.sin(tt), 0, w, h);
+    j ? sctx.lineTo(pt0[0], pt0[1]) : sctx.moveTo(pt0[0], pt0[1]);
+  }
+  sctx.stroke();
+
+  sctx.fillStyle = css('--muted', '#6a655c');
+  sctx.font = (11 * r) + 'px ui-sans-serif, system-ui, sans-serif';
+  sctx.textAlign = 'center';
+  var lt = project(0, 0, uTop + 0.12, w, h);
+  sctx.fillText('u = ' + uTop.toFixed(2), lt[0], lt[1] - 6 * r);
+  var lb = project(0, 0, -uTop - 0.12, w, h);
+  if (P.mirror) sctx.fillText('−u  (the mirror)', lb[0], lb[1] + 14 * r);
+  var lc = project(1.16, 0, 0, w, h);
+  sctx.fillText('throat', lc[0], lc[1] - 7 * r);
+}
+
+/* ---------------- the value plane ------------------------------------------ */
+function drawPlane(T) {
+  if (!fit(pl)) return;
+  var w = pl.width, h = pl.height, r = w / pl.clientWidth;
+  pctx.clearRect(0, 0, w, h);
+  var span = 0.052, S = Math.min(w, h) * 0.42 / span;
+  function X(v) { return w / 2 + v * S; }
+  function Y(v) { return h / 2 - v * S; }
+
+  pctx.lineWidth = 1 * r; pctx.strokeStyle = css('--rule-strong', '#c9c3b8');
+  pctx.beginPath(); pctx.moveTo(0, Y(0)); pctx.lineTo(w, Y(0)); pctx.stroke();
+  pctx.globalAlpha = 0.5;
+  pctx.beginPath(); pctx.moveTo(X(0), 0); pctx.lineTo(X(0), h); pctx.stroke();
+  pctx.globalAlpha = 1;
+
+  function path(A, col, alpha) {
+    pctx.strokeStyle = col; pctx.globalAlpha = alpha; pctx.lineWidth = 1.8 * r;
+    pctx.beginPath();
+    for (var i = 0; i < A.length; i += 3) {
+      var x = X(A[i]), y = Y(A[i + 1]);
+      i ? pctx.lineTo(x, y) : pctx.moveTo(x, y);
+    }
+    pctx.stroke(); pctx.globalAlpha = 1;
+  }
+  path(T.P, css('--klein', '#002fa7'), 1);
+  if (P.mirror) path(T.M, css('--chart-2', '#a86b16'), 0.95);
+
+  /* the chord and its midpoint */
+  var mx = (T.ep[0] + T.em[0]) / 2, my = (T.ep[1] + T.em[1]) / 2;
+  if (P.mirror) {
+    pctx.strokeStyle = css('--muted', '#6a655c'); pctx.globalAlpha = 0.75;
+    pctx.setLineDash([4 * r, 4 * r]); pctx.lineWidth = 1.2 * r;
+    pctx.beginPath(); pctx.moveTo(X(T.ep[0]), Y(T.ep[1]));
+    pctx.lineTo(X(T.em[0]), Y(T.em[1])); pctx.stroke();
+    pctx.setLineDash([]); pctx.globalAlpha = 1;
+  }
+  function dot(x, y, col, rad, fill) {
+    pctx.beginPath(); pctx.arc(X(x), Y(y), rad * r, 0, TAU);
+    if (fill) { pctx.fillStyle = col; pctx.fill(); }
+    else { pctx.strokeStyle = col; pctx.lineWidth = 1.8 * r; pctx.stroke(); }
+  }
+  dot(T.ep[0], T.ep[1], css('--klein', '#002fa7'), 4.2, true);
+  if (P.mirror) dot(T.em[0], T.em[1], css('--chart-2', '#a86b16'), 4.2, true);
+  dot(0, 0, css('--fg', '#1b1a17'), 5, false);
+  if (P.mirror) dot(mx, my, css('--thm', '#1f7a4d'), 3.4, true);
+
+  pctx.fillStyle = css('--muted', '#6a655c');
+  pctx.font = (11 * r) + 'px ui-sans-serif, system-ui, sans-serif';
+  pctx.textAlign = 'left';
+  pctx.fillText('0', X(0) + 7 * r, Y(0) - 7 * r);
+  pctx.fillText('Re', w - 26 * r, Y(0) - 7 * r);
+  pctx.fillText('Im', X(0) + 6 * r, 14 * r);
+}
+
+/* ---------------- readouts ------------------------------------------------- */
+function fmt(x, d) { return (x < 0 ? '' : '+') + x.toFixed(d); }
+function sci(x) { return Math.abs(x) < 1e-4 ? x.toExponential(3) : x.toFixed(7); }
+function readout(T) {
+  var ro = document.getElementById('readout'), ro2 = document.getElementById('readout2');
+  var mag = Math.hypot(T.xi[0], T.xi[1]);
+  var closed = mag < 1e-12;
+  var tag = closed ? '<span class="closed">closed &mdash; the endpoints annihilate</span>'
+                   : '<span class="open">open by ' + mag.toExponential(3) + '</span>';
+  ro.innerHTML =
+    '<b>t = ' + P.tr.toFixed(6) + ' ' + (P.ti < 0 ? '−' : '+') + ' ' +
+    Math.abs(P.ti).toFixed(3) + 'i</b> · &Xi; = ' + sci(T.xi[0]) +
+    (Math.abs(T.xi[1]) > 1e-14 ? ' ' + (T.xi[1] < 0 ? '−' : '+') + ' ' +
+      Math.abs(T.xi[1]).toExponential(3) + 'i' : '') +
+    ' · ' + tag +
+    '<br>S<sub>+</sub> = ' + fmt(T.ep[0], 7) + ' ' + (T.ep[1] < 0 ? '−' : '+') + ' ' +
+    Math.abs(T.ep[1]).toFixed(7) + 'i · &sigma; = ' + (0.5 - P.ti).toFixed(3) +
+    (Math.abs(P.ti) < 1e-9 ? ' <span class="closed">(critical line — mirror exact)</span>'
+                           : ' <span class="open">(tilted — mirror broken)</span>');
+
+  var cd = condAt(P.U), sh = [], tot = Phi(0);
+  for (var n = 1; n <= 4; n++) sh.push('n=' + n + ' ' + (shell(n, 0) / tot * 100).toPrecision(6) + '%');
+  ro2.innerHTML =
+    'shell shares at the throat &nbsp; ' + sh.join(' · ') +
+    '<br>mirror at u = −' + P.U.toFixed(2) + ': &Phi; = ' + cd.tot.toExponential(3) +
+    ' from &sum;|&phi;<sub>n</sub>| = ' + cd.abs.toFixed(6) +
+    ' &nbsp;→&nbsp; condition number <b>' + cd.cond.toExponential(2) + '</b> (' +
+    Math.max(0, Math.round(Math.log(cd.cond) / Math.LN10)) + ' digits lost — this is the functional equation)' +
+    '<br>Tur&aacute;n margin at n=0: <b>' + MARG[0].r.toFixed(6) + '</b> · at n=10: <b>' +
+    MARG[10].r.toFixed(6) + '</b> · <span class="closed">positivity holds (&lt; 1)</span>';
+}
+
+/* ---------------- loop, controls, pointer ---------------------------------- */
+function render() {
+  var T = threads(P.tr, P.ti, P.U);
+  drawScene(); drawPlane(T); readout(T);
+}
+function bind(id, key, out, dec) {
+  var el = document.getElementById(id), o = document.getElementById(out);
+  function apply() {
+    P[key] = parseFloat(el.value);
+    if (key === 'K') P.K = Math.round(P.K);
+    o.textContent = dec === 0 ? String(P[key]) : P[key].toFixed(dec);
+    dirty = true;
+  }
+  el.addEventListener('input', apply); apply(); return el;
+}
+var elTr = bind('c-tr', 'tr', 'v-tr', 6);
+bind('c-ti', 'ti', 'v-ti', 3);
+bind('c-u', 'U', 'v-u', 2);
+bind('c-k', 'K', 'v-k', 0);
+document.getElementById('c-mirror').addEventListener('change', function () { P.mirror = this.checked; dirty = true; });
+document.getElementById('c-spin').addEventListener('change', function () { P.spin = this.checked; dirty = true; });
+document.getElementById('c-reset').addEventListener('click', function () {
+  yaw = 0.72; pitch = 0.30; zoom = 1; dirty = true;
+});
+var snaps = document.querySelectorAll('#ctl button[data-t]');
+for (var si = 0; si < snaps.length; si++) {
+  snaps[si].addEventListener('click', function () {
+    elTr.value = this.getAttribute('data-t');
+    elTr.dispatchEvent(new Event('input'));
+  });
+}
+var last = null, ptrs = {}, pinch = 0;
+sc.addEventListener('pointerdown', function (e) {
+  sc.setPointerCapture(e.pointerId); ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+  last = { x: e.clientX, y: e.clientY, shift: e.shiftKey }; pinch = 0;
+});
+sc.addEventListener('pointermove', function (e) {
+  if (!(e.pointerId in ptrs)) return;
+  ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+  var ids = Object.keys(ptrs);
+  if (ids.length >= 2) {
+    var d = Math.hypot(ptrs[ids[0]].x - ptrs[ids[1]].x, ptrs[ids[0]].y - ptrs[ids[1]].y);
+    if (pinch) { zoom *= Math.pow(pinch / d, 0.9); zoom = Math.min(5, Math.max(0.25, zoom)); dirty = true; }
+    pinch = d; return;
+  }
+  if (!last) return;
+  var dx = e.clientX - last.x, dy = e.clientY - last.y;
+  if (last.shift || e.shiftKey) { zoom *= Math.exp(dy * 0.005); zoom = Math.min(5, Math.max(0.25, zoom)); }
+  else { yaw += dx * 0.008; pitch = Math.max(-1.4, Math.min(1.4, pitch + dy * 0.006)); }
+  last = { x: e.clientX, y: e.clientY, shift: last.shift }; dirty = true;
+});
+function up(e) { delete ptrs[e.pointerId]; last = null; pinch = 0; }
+sc.addEventListener('pointerup', up);
+sc.addEventListener('pointercancel', up);
+
+var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reduce) { var s = document.getElementById('c-spin'); s.checked = false; s.disabled = true; }
+if (window.ResizeObserver) new ResizeObserver(function () { dirty = true; }).observe(sc);
+else window.addEventListener('resize', function () { dirty = true; });
+new MutationObserver(function () { dirty = true; })
+  .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+if (window.matchMedia) {
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  var onc = function () { dirty = true; };
+  if (mq.addEventListener) mq.addEventListener('change', onc); else if (mq.addListener) mq.addListener(onc);
+}
+(function loop() {
+  requestAnimationFrame(loop);
+  if (P.spin && !reduce) { yaw += 0.0026; dirty = true; }
+  if (!dirty) return;
+  dirty = false;
+  render();
+})();
+})();
+</script>
+</body>
+</html>

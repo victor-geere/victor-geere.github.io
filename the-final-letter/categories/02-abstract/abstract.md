@@ -1,0 +1,11 @@
+# Abstract
+
+This programme unifies two research corpora that were pursued separately: the geometric dynamical-phase-transition (DQPT) programme for the Riemann hypothesis, and the greedy-harmonic-sine programme for the twin-prime parity problem. The first converts the Riemann hypothesis into an equality of supports of two families of spectral measures, proves that its own additive toolbox cannot prove the hypothesis by transferring the construction to the Davenport–Heilbronn function, and identifies the missing input as arithmetic positivity. The second proves a finite-prefix indeterminacy theorem for the two-point Liouville correlation, shows that the greedy support is Sylvester-sparse, and disposes of all five proposed bridges from the greedy sine to parity. It identifies the missing input as a sign-blind rule with positive-density multiplicative coupling to `Ω`.
+
+The unified diagnosis is that neither wall is an estimate wall. Both are **global-input walls**: the local, additive, finite-prefix, density, or sign-blind data available to the two programmes cannot produce the required conclusion. The Riemann wall needs a positivity/multiplicativity input that fails for the Davenport–Heilbronn twist; the parity wall needs a positive-density multiplicative coupling that fails for the greedy support. The two missing objects are not identical, but they are structurally the same kind of object: an arithmetic positivity that the local machinery cannot manufacture.
+
+The programme’s achievements are a conversion theorem, a sharpness theorem, a finite-prefix no-go theorem, a five-bridge refutation, a unified two-wall map, and a Lean formalisation of the finite-prefix core and the two wall statements. The programme does **not** prove the Riemann hypothesis, the twin-prime conjecture, Chowla for `k ≥ 2`, Sarnak’s conjecture, or Elliott’s conjecture.
+
+The final note argues that the futility is structural rather than accidental. More computation, more estimates, more finite prefixes, and more local structure cannot close these walls; the missing object is global arithmetic positivity. The letter is a map of the wall, not a key to the door.
+
+**Keywords:** Riemann hypothesis; twin primes; parity barrier; Chowla; Liouville function; finite-prefix indeterminacy; Davenport–Heilbronn; Weil positivity; Lean 4; formalisation; no-go theorem.

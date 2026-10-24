@@ -1,0 +1,41 @@
+"""Exact computation layer for the greedy-harmonic Hilbert–Pólya topic."""
+
+from .programme import (  # noqa: F401
+    PI,
+    block_constant,
+    block_trace,
+    disc0,
+    discriminant,
+    discriminant_closed_form,
+    eigenvalue_ordering_holds,
+    partial_determinant,
+    partial_determinant_closed_form,
+    partial_trace,
+    partial_trace_closed_form,
+    q0,
+    q_n,
+    roots0,
+    roots_n,
+    vieta_product,
+    vieta_sum,
+)
+
+__all__ = [
+    "PI",
+    "block_constant",
+    "block_trace",
+    "disc0",
+    "discriminant",
+    "discriminant_closed_form",
+    "eigenvalue_ordering_holds",
+    "partial_determinant",
+    "partial_determinant_closed_form",
+    "partial_trace",
+    "partial_trace_closed_form",
+    "q0",
+    "q_n",
+    "roots0",
+    "roots_n",
+    "vieta_product",
+    "vieta_sum",
+]

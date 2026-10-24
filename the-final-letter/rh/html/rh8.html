@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh8 — primes, circle primes, and the zeros</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>Primes, circle primes, and the zeros</h1>
+  <p class="sub">One arithmetic in three registers: the gears, the roots of unity that refine them, and the spectrum dual to both — with the prime staircase rebuilt from 138 zeros and nothing else.</p>
+  <p class="meta">docs/rh8 · continues <a href="rh4.html">rh4</a>, <a href="rh5.html">rh5</a>, <a href="rh6.html">rh6</a>, <a href="rh7.html">rh7</a> · figures computed, not sketched · 2026-07-31</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <a href="rh7.html">rh7</a> relocated the primes onto the circle: the sieve's visible world is the torsion ℚ/ℤ and its primes are the rotations of prime order. This document asks how that picture stands to the ζ zeros, and answers in four steps. <b>Integer primes and circle primes are one set of data</b> at two resolutions; <b>the zeros are its Fourier dual</b>, and the duality is exhibited here rather than asserted — the Chebyshev staircase ψ(<i>x</i>) is reconstructed on 2 ≤ <i>x</i> ≤ 28 from 138 computed ordinates and no prime whatsoever, agreeing to better than 0.09 at sample points (§2). The circle picture then meets the zeros through a second and different circle: <b>each prime is itself a circle</b>, since <i>p</i><sup>−<i>it</i></sup> is periodic in <i>t</i> with period 2π/log <i>p</i>. Those local closures are computed and shown to be <b>arithmetically silent</b> — local Euler factors have poles, never zeros, and over all 138 ordinates and six gears no zero comes within 0.012 of any closure (§3). Because <i>p</i><sup><i>a</i></sup> = <i>q</i><sup><i>b</i></sup> is impossible, no two gears ever close together: the joint map <i>t</i> ↦ (<i>p</i><sup>−<i>it</i></sup>)<sub><i>p</i></sub> winds densely on the infinite torus ∏<sub><i>p</i></sub> S¹ (Kronecker, Bohr), gears 2 and 3 approaching joint closure no nearer than 0.0476 rad on <i>t</i> ≤ 300, and <b>the zeros are the residue of that permanent disagreement</b> (§4) — the dynamical form of <a href="rh5.html#s3">rh5 §3</a>'s zero-free smooth limb. That the zeros nevertheless remember each gear individually is Landau's theorem, computed here: ∑<sub>γ≤T</sub> <i>x</i><sup><i>i</i>γ</sup> shows sharp negative spikes at every prime power, matching −(<i>T</i>/2π)Λ(<i>x</i>)/√<i>x</i> to within 2.5, and stays near zero elsewhere (§5). Finally the ceiling: the circle primes furnish exactly the Dirichlet characters, verified factor by factor as ζ<sub>ℚ(ζ₅)</sub> = ∏<sub>χ</sub> L(<i>s</i>, χ), and everything in that world is abelian by Kronecker–Weber — while the zeros' gap statistics show pronounced level repulsion, P(gap ≤ ½) = 0.058 against Poisson's 0.393, a unitary-group signature no abelian symmetry produces (§6).
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">Two different circles, kept apart</a></li>
+  <li><a href="#s2">The duality, exhibited</a></li>
+  <li><a href="#s3">Each prime is a circle — and its closures are silent</a></li>
+  <li><a href="#s4">The torus: no two gears ever agree</a></li>
+  <li><a href="#s5">Landau's bias: how the zeros remember the gears</a></li>
+  <li><a href="#s6">The abelian ceiling, and what lies past it</a></li>
+  <li><a href="#s7">The three objects, in one picture</a></li>
+  <li><a href="#s8">Dictionary additions</a></li>
+</ol>
+</nav>
+
+<p class="kicker">Part I · The duality</p>
+
+<section class="prose" id="s1">
+<h2>1 · Two different circles, kept apart</h2>
+<p>Two circles appear in this material and conflating them is the standard error, so they are separated first.</p>
+<div class="box warn">
+<span class="lbl">The two circles</span>
+<p><b>rh7's circle</b> is <i>one</i> circle — the unit circle — and prime <i>p</i> appears in it as an <b>element of finite order <i>p</i></b>: ζ<sub><i>p</i></sub> = <i>e</i><sup>2π<i>i</i>/<i>p</i></sup>. It closes after <i>p</i> steps. This is where the sieve lives, where ∏ 2 sin(π<i>k</i>/<i>p</i>) = <i>p</i> holds, and where <i>p</i> is totally ramified (<a href="rh7.html#s4">rh7 §4</a>).</p>
+<p><b>The Bohr circle</b> is <i>one circle per prime</i>. As the height <i>t</i> advances, gear <i>p</i>'s contribution <i>p</i><sup>−<i>it</i></sup> = <i>e</i><sup>−<i>it</i> log <i>p</i></sup> traverses its own copy of S¹ at rate log <i>p</i>. Here the prime is not a point on a circle — <b>the prime <i>is</i> a circle</b>, and its rate is log <i>p</i>.</p>
+</div>
+<p>Both are the prime presented as a rotation, and both are needed. The first says what a prime <i>is</i> once the sieve is moved off the integers. The second says how a prime <i>acts</i> on the critical strip. §3 and §4 are about the second; §6 returns to the first.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · The duality, exhibited</h2>
+<p>The Euler product sends the primes to ζ; the explicit formula sends the zeros back to the primes. Writing ψ(<i>x</i>) = ∑<sub><i>p</i><sup><i>k</i></sup> ≤ <i>x</i></sub> log <i>p</i> for the Chebyshev staircase, Riemann's formula reads</p>
+<div class="eq"><span class="tag">(1)</span>
+ψ(<i>x</i>) = <i>x</i> −
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">ρ</span></span>
+<span class="fr"><span class="nu"><i>x</i><sup>ρ</sup></span><span class="de">ρ</span></span>
+− log 2π − ½ log(1 − <i>x</i><sup>−2</sup>).
+</div>
+<p>Neither side is prior to the other. In Weil's symmetric form the pairing is explicit: the values of a test function on the zeros equal the values of its Fourier transform on the numbers log <i>p</i>. So <b>{log <i>p</i>} are the frequencies and {γ} are the spectrum</b> — in the construction's vocabulary (<a href="rh4.html#s8">rh4 §8</a>), log <i>p</i> is the rotation rate of gear <i>p</i> and γ is the torsion at which the helix closes.</p>
+<p>That is usually asserted. It can be shown. Pairing ρ = ½ + <i>i</i>γ with its conjugate turns (1) into a real sum, and truncating at the 138 ordinates computed here for <i>t</i> ≤ 300 gives Figure 1 — the prime staircase drawn <b>without ever consulting a prime</b>.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 400" role="img" aria-label="The Chebyshev prime staircase psi of x drawn as exact steps, and the same function reconstructed from 138 zeta zeros alone, which tracks every step and rings around each jump">
+<text x="360.0" y="22" class="ftitle">the primes, rebuilt from the zeros alone</text>
+<text x="50" y="42" class="flab st">&#968;(x) = &#8721;<tspan dy="3" font-size="9">p^k &#8804; x</tspan><tspan dy="-3"> log p</tspan></text>
+<line x1="54" y1="330" x2="706" y2="330" class="axis"/>
+<line x1="54" y1="74" x2="54" y2="330" class="axis"/>
+<line x1="54" y1="247.3" x2="706" y2="247.3" class="grid"/>
+<text x="48" y="251.3" class="flab end">10</text>
+<line x1="54" y1="164.7" x2="706" y2="164.7" class="grid"/>
+<text x="48" y="168.7" class="flab end">20</text>
+<line x1="54" y1="82.0" x2="706" y2="82.0" class="grid"/>
+<text x="48" y="86.0" class="flab end">30</text>
+<path d="M54.0 324.3L54.0 324.3L54.0 318.5L79.1 318.5L79.1 309.5L104.2 309.5L104.2 303.7L129.2 303.7L129.2 290.4L179.4 290.4L179.4 274.3L204.5 274.3L204.5 268.6L229.5 268.6L229.5 259.5L279.7 259.5L279.7 239.7L329.8 239.7L329.8 218.5L405.1 218.5L405.1 212.8L430.2 212.8L430.2 189.3L480.3 189.3L480.3 165.0L580.6 165.0L580.6 139.1L630.8 139.1L630.8 125.8L680.9 125.8L680.9 116.7L706.0 116.7" class="stair"/>
+<path d="M54.0 327.1L54.7 324.0L55.4 324.2L56.2 324.4L56.9 324.2L57.6 324.3L58.3 324.3L59.1 324.2L59.8 324.3L60.5 324.3L61.2 324.3L62.0 324.3L62.7 324.2L63.4 324.3L64.1 324.2L64.9 324.3L65.6 324.3L66.3 324.2L67.0 324.3L67.8 324.2L68.5 324.3L69.2 324.2L69.9 324.3L70.7 324.2L71.4 324.3L72.1 324.3L72.8 324.3L73.6 324.3L74.3 324.2L75.0 324.3L75.7 324.2L76.5 324.3L77.2 324.2L77.9 324.3L78.6 324.1L79.4 316.7L80.1 314.6L80.8 315.6L81.5 314.8L82.3 315.5L83.0 315.0L83.7 315.3L84.4 315.1L85.2 315.2L85.9 315.3L86.6 315.0L87.3 315.4L88.0 315.1L88.8 315.3L89.5 315.2L90.2 315.1L90.9 315.3L91.7 315.1L92.4 315.2L93.1 315.2L93.8 315.1L94.6 315.3L95.3 315.1L96.0 315.1L96.7 315.3L97.5 315.1L98.2 315.2L98.9 315.3L99.6 315.0L100.4 315.3L101.1 315.3L101.8 314.9L102.5 315.3L103.3 315.5L104.0 313.2L104.7 309.8L105.4 308.9L106.2 309.8L106.9 309.6L107.6 309.2L108.3 309.6L109.1 309.6L109.8 309.2L110.5 309.6L111.2 309.6L112.0 309.2L112.7 309.5L113.4 309.7L114.1 309.3L114.9 309.4L115.6 309.7L116.3 309.3L117.0 309.3L117.8 309.7L118.5 309.5L119.2 309.2L119.9 309.6L120.6 309.7L121.4 309.2L122.1 309.4L122.8 309.8L123.5 309.3L124.3 309.1L125.0 309.8L125.7 309.8L126.4 308.8L127.2 309.4L127.9 310.8L128.6 308.3L129.3 301.6L130.1 296.1L130.8 295.2L131.5 296.5L132.2 296.5L133.0 295.9L133.7 296.0L134.4 296.3L135.1 296.3L135.9 296.0L136.6 296.1L137.3 296.3L138.0 296.2L138.8 296.1L139.5 296.1L140.2 296.2L140.9 296.2L141.7 296.1L142.4 296.1L143.1 296.2L143.8 296.2L144.6 296.2L145.3 296.1L146.0 296.1L146.7 296.2L147.5 296.2L148.2 296.1L148.9 296.1L149.6 296.2L150.4 296.2L151.1 296.2L151.8 296.1L152.5 296.1L153.2 296.2L154.0 296.2L154.7 296.1L155.4 296.1L156.1 296.2L156.9 296.2L157.6 296.2L158.3 296.1L159.0 296.1L159.8 296.2L160.5 296.2L161.2 296.1L161.9 296.0L162.7 296.2L163.4 296.3L164.1 296.2L164.8 296.0L165.6 296.0L166.3 296.3L167.0 296.3L167.7 296.1L168.5 295.9L169.2 296.0L169.9 296.4L170.6 296.4L171.4 296.1L172.1 295.8L172.8 296.0L173.5 296.5L174.3 296.5L175.0 295.9L175.7 295.4L176.4 296.0L177.2 297.3L177.9 297.3L178.6 294.3L179.3 288.6L180.1 282.7L180.8 279.2L181.5 278.7L182.2 280.0L183.0 280.9L183.7 280.6L184.4 279.8L185.1 279.5L185.8 279.9L186.6 280.4L187.3 280.5L188.0 280.0L188.7 279.7L189.5 279.8L190.2 280.2L190.9 280.4L191.6 280.2L192.4 279.8L193.1 279.8L193.8 280.1L194.5 280.3L195.3 280.3L196.0 279.9L196.7 279.8L197.4 280.0L198.2 280.3L198.9 280.3L199.6 280.1L200.3 279.7L201.1 279.8L201.8 280.3L202.5 280.6L203.2 280.1L204.0 278.6L204.7 276.5L205.4 274.7L206.1 273.9L206.9 273.9L207.6 274.4L208.3 274.7L209.0 274.5L209.8 274.2L210.5 274.1L211.2 274.2L211.9 274.4L212.7 274.6L213.4 274.4L214.1 274.2L214.8 274.1L215.6 274.2L216.3 274.4L217.0 274.5L217.7 274.5L218.4 274.3L219.2 274.1L219.9 274.2L220.6 274.3L221.3 274.5L222.1 274.6L222.8 274.4L223.5 274.2L224.2 274.0L225.0 274.1L225.7 274.4L226.4 274.9L227.1 275.0L227.9 274.5L228.6 273.0L229.3 270.7L230.0 268.1L230.8 265.9L231.5 264.6L232.2 264.3L232.9 264.8L233.7 265.5L234.4 265.9L235.1 265.7L235.8 265.3L236.6 264.8L237.3 264.8L238.0 265.1L238.7 265.5L239.5 265.7L240.2 265.6L240.9 265.2L241.6 264.9L242.4 264.9L243.1 265.1L243.8 265.5L244.5 265.7L245.3 265.5L246.0 265.2L246.7 264.9L247.4 264.9L248.2 265.1L248.9 265.5L249.6 265.7L250.3 265.6L251.0 265.2L251.8 264.9L252.5 264.8L253.2 265.1L253.9 265.4L254.7 265.7L255.4 265.6L256.1 265.3L256.8 265.0L257.6 264.8L258.3 265.0L259.0 265.3L259.7 265.7L260.5 265.7L261.2 265.5L261.9 265.0L262.6 264.7L263.4 264.8L264.1 265.1L264.8 265.6L265.5 265.9L266.3 265.7L267.0 265.3L267.7 264.8L268.4 264.5L269.2 264.8L269.9 265.4L270.6 265.9L271.3 266.1L272.1 265.7L272.8 264.9L273.5 264.2L274.2 264.1L275.0 264.8L275.7 266.0L276.4 267.0L277.1 267.1L277.9 265.6L278.6 262.4L279.3 257.8L280.0 252.8L280.8 248.5L281.5 245.5L282.2 244.1L282.9 244.0L283.6 244.7L284.4 245.6L285.1 246.1L285.8 246.1L286.5 245.8L287.3 245.3L288.0 245.1L288.7 245.1L289.4 245.2L290.2 245.5L290.9 245.6L291.6 245.7L292.3 245.6L293.1 245.4L293.8 245.3L294.5 245.3L295.2 245.4L296.0 245.4L296.7 245.5L297.4 245.5L298.1 245.4L298.9 245.4L299.6 245.4L300.3 245.5L301.0 245.5L301.8 245.5L302.5 245.4L303.2 245.4L303.9 245.3L304.7 245.3L305.4 245.4L306.1 245.5L306.8 245.6L307.6 245.6L308.3 245.5L309.0 245.3L309.7 245.2L310.5 245.2L311.2 245.3L311.9 245.5L312.6 245.7L313.4 245.8L314.1 245.7L314.8 245.5L315.5 245.2L316.2 245.0L317.0 245.0L317.7 245.2L318.4 245.6L319.1 245.9L319.9 246.1L320.6 245.9L321.3 245.5L322.0 244.9L322.8 244.5L323.5 244.5L324.2 245.0L324.9 245.9L325.7 246.8L326.4 247.3L327.1 246.9L327.8 245.2L328.6 242.3L329.3 238.3L330.0 233.8L330.7 229.5L331.5 225.9L332.2 223.5L332.9 222.4L333.6 222.4L334.4 223.2L335.1 224.1L335.8 224.9L336.5 225.3L337.3 225.1L338.0 224.7L338.7 224.1L339.4 223.7L340.2 223.5L340.9 223.7L341.6 224.0L342.3 224.4L343.1 224.7L343.8 224.7L344.5 224.6L345.2 224.3L346.0 224.1L346.7 223.9L347.4 223.8L348.1 223.9L348.8 224.2L349.6 224.4L350.3 224.5L351.0 224.6L351.7 224.5L352.5 224.3L353.2 224.1L353.9 224.0L354.6 224.0L355.4 224.0L356.1 224.2L356.8 224.3L357.5 224.4L358.3 224.4L359.0 224.4L359.7 224.3L360.4 224.2L361.2 224.1L361.9 224.1L362.6 224.1L363.3 224.2L364.1 224.3L364.8 224.3L365.5 224.4L366.2 224.3L367.0 224.3L367.7 224.2L368.4 224.1L369.1 224.1L369.9 224.1L370.6 224.2L371.3 224.2L372.0 224.3L372.8 224.3L373.5 224.3L374.2 224.3L374.9 224.2L375.7 224.2L376.4 224.2L377.1 224.2L377.8 224.2L378.6 224.2L379.3 224.2L380.0 224.2L380.7 224.2L381.4 224.2L382.2 224.2L382.9 224.2L383.6 224.3L384.3 224.3L385.1 224.3L385.8 224.2L386.5 224.2L387.2 224.2L388.0 224.1L388.7 224.1L389.4 224.2L390.1 224.2L390.9 224.3L391.6 224.3L392.3 224.4L393.0 224.4L393.8 224.3L394.5 224.2L395.2 224.1L395.9 224.0L396.7 223.9L397.4 224.0L398.1 224.1L398.8 224.3L399.6 224.6L400.3 224.7L401.0 224.8L401.7 224.6L402.5 224.2L403.2 223.6L403.9 222.8L404.6 221.9L405.4 220.9L406.1 220.0L406.8 219.3L407.5 218.7L408.3 218.4L409.0 218.2L409.7 218.1L410.4 218.2L411.2 218.3L411.9 218.3L412.6 218.4L413.3 218.5L414.0 218.6L414.8 218.7L415.5 218.7L416.2 218.8L416.9 218.8L417.7 218.8L418.4 218.6L419.1 218.4L419.8 218.1L420.6 217.9L421.3 217.8L422.0 217.9L422.7 218.2L423.5 218.7L424.2 219.3L424.9 219.9L425.6 220.2L426.4 220.0L427.1 219.1L427.8 217.4L428.5 214.9L429.3 211.8L430.0 208.1L430.7 204.2L431.4 200.5L432.2 197.3L432.9 194.9L433.6 193.3L434.3 192.6L435.1 192.7L435.8 193.4L436.5 194.4L437.2 195.4L438.0 196.2L438.7 196.6L439.4 196.6L440.1 196.2L440.9 195.6L441.6 194.9L442.3 194.3L443.0 193.9L443.8 193.9L444.5 194.1L445.2 194.6L445.9 195.2L446.6 195.7L447.4 196.0L448.1 196.1L448.8 196.0L449.5 195.6L450.3 195.1L451.0 194.6L451.7 194.3L452.4 194.1L453.2 194.2L453.9 194.5L454.6 194.9L455.3 195.4L456.1 195.8L456.8 196.0L457.5 196.0L458.2 195.8L459.0 195.4L459.7 194.9L460.4 194.4L461.1 194.1L461.9 194.1L462.6 194.2L463.3 194.6L464.0 195.1L464.8 195.6L465.5 196.0L466.2 196.2L466.9 196.2L467.7 195.8L468.4 195.2L469.1 194.6L469.8 194.0L470.6 193.7L471.3 193.6L472.0 194.0L472.7 194.6L473.5 195.5L474.2 196.4L474.9 197.2L475.6 197.5L476.4 197.2L477.1 196.1L477.8 194.1L478.5 191.4L479.2 188.1L480.0 184.5L480.7 180.7L481.4 177.1L482.1 174.0L482.9 171.6L483.6 169.9L484.3 168.9L485.0 168.7L485.8 169.0L486.5 169.6L487.2 170.4L487.9 171.1L488.7 171.6L489.4 171.8L490.1 171.8L490.8 171.5L491.6 171.1L492.3 170.7L493.0 170.3L493.7 170.0L494.5 170.0L495.2 170.1L495.9 170.3L496.6 170.6L497.4 170.9L498.1 171.2L498.8 171.3L499.5 171.4L500.3 171.2L501.0 171.0L501.7 170.8L502.4 170.5L503.2 170.3L503.9 170.2L504.6 170.2L505.3 170.3L506.1 170.5L506.8 170.8L507.5 171.0L508.2 171.2L509.0 171.3L509.7 171.2L510.4 171.1L511.1 170.9L511.8 170.7L512.6 170.5L513.3 170.3L514.0 170.2L514.7 170.2L515.5 170.4L516.2 170.6L516.9 170.8L517.6 171.0L518.4 171.2L519.1 171.2L519.8 171.2L520.5 171.1L521.3 171.0L522.0 170.7L522.7 170.5L523.4 170.3L524.2 170.2L524.9 170.2L525.6 170.3L526.3 170.5L527.1 170.7L527.8 170.9L528.5 171.1L529.2 171.2L530.0 171.3L530.7 171.2L531.4 171.1L532.1 170.9L532.9 170.7L533.6 170.4L534.3 170.3L535.0 170.2L535.8 170.2L536.5 170.3L537.2 170.5L537.9 170.7L538.7 171.0L539.4 171.2L540.1 171.3L540.8 171.4L541.6 171.3L542.3 171.1L543.0 170.9L543.7 170.6L544.4 170.4L545.2 170.2L545.9 170.1L546.6 170.1L547.3 170.2L548.1 170.4L548.8 170.6L549.5 170.9L550.2 171.2L551.0 171.4L551.7 171.5L552.4 171.5L553.1 171.3L553.9 171.1L554.6 170.7L555.3 170.4L556.0 170.1L556.8 169.9L557.5 169.8L558.2 169.9L558.9 170.1L559.7 170.4L560.4 170.8L561.1 171.2L561.8 171.6L562.6 171.8L563.3 171.9L564.0 171.8L564.7 171.5L565.5 171.0L566.2 170.5L566.9 170.0L567.6 169.6L568.4 169.3L569.1 169.2L569.8 169.4L570.5 169.8L571.3 170.4L572.0 171.2L572.7 172.0L573.4 172.7L574.2 173.2L574.9 173.3L575.6 173.0L576.3 172.2L577.0 170.8L577.8 168.8L578.5 166.4L579.2 163.5L579.9 160.4L580.7 157.2L581.4 154.1L582.1 151.2L582.8 148.6L583.6 146.4L584.3 144.8L585.0 143.7L585.7 143.0L586.5 142.8L587.2 143.0L587.9 143.4L588.6 143.9L589.4 144.4L590.1 144.9L590.8 145.4L591.5 145.6L592.3 145.7L593.0 145.7L593.7 145.5L594.4 145.3L595.2 145.0L595.9 144.8L596.6 144.5L597.3 144.4L598.1 144.4L598.8 144.4L599.5 144.5L600.2 144.6L601.0 144.7L601.7 144.9L602.4 145.0L603.1 145.0L603.9 145.0L604.6 145.0L605.3 145.0L606.0 144.9L606.8 144.8L607.5 144.8L608.2 144.7L608.9 144.7L609.6 144.7L610.4 144.8L611.1 144.9L611.8 144.9L612.5 145.0L613.3 145.0L614.0 145.0L614.7 144.9L615.4 144.8L616.2 144.7L616.9 144.6L617.6 144.5L618.3 144.4L619.1 144.4L619.8 144.5L620.5 144.7L621.2 144.9L622.0 145.2L622.7 145.4L623.4 145.7L624.1 145.8L624.9 145.8L625.6 145.6L626.3 145.3L627.0 144.6L627.8 143.8L628.5 142.7L629.2 141.5L629.9 140.1L630.7 138.6L631.4 137.0L632.1 135.5L632.8 134.1L633.6 132.9L634.3 131.9L635.0 131.1L635.7 130.6L636.5 130.3L637.2 130.2L637.9 130.3L638.6 130.5L639.4 130.9L640.1 131.2L640.8 131.6L641.5 131.9L642.2 132.1L643.0 132.2L643.7 132.3L644.4 132.2L645.1 132.1L645.9 131.9L646.6 131.7L647.3 131.5L648.0 131.3L648.8 131.1L649.5 131.0L650.2 131.0L650.9 131.0L651.7 131.1L652.4 131.2L653.1 131.4L653.8 131.5L654.6 131.7L655.3 131.8L656.0 131.9L656.7 131.9L657.5 131.9L658.2 131.9L658.9 131.8L659.6 131.7L660.4 131.6L661.1 131.4L661.8 131.3L662.5 131.3L663.3 131.2L664.0 131.2L664.7 131.2L665.4 131.2L666.2 131.3L666.9 131.3L667.6 131.4L668.3 131.5L669.1 131.6L669.8 131.7L670.5 131.8L671.2 131.9L672.0 132.0L672.7 132.0L673.4 132.0L674.1 132.0L674.8 131.9L675.6 131.7L676.3 131.4L677.0 131.0L677.7 130.5L678.5 130.0L679.2 129.3L679.9 128.5L680.6 127.7L681.4 126.8L682.1 125.9L682.8 125.0L683.5 124.1L684.3 123.3L685.0 122.6L685.7 122.0L686.4 121.6L687.2 121.3L687.9 121.1L688.6 121.2L689.3 121.3L690.1 121.6L690.8 121.9L691.5 122.3L692.2 122.6L693.0 122.9L693.7 123.2L694.4 123.4L695.1 123.5L695.9 123.4L696.6 123.3L697.3 123.1L698.0 122.8L698.8 122.4L699.5 122.1L700.2 121.8L700.9 121.6L701.7 121.4L702.4 121.4L703.1 121.5L703.8 121.6L704.6 121.9L705.3 122.2L706.0 122.5" class="helix thin"/>
+<line x1="54.0" y1="330" x2="54.0" y2="334" class="axis"/>
+<text x="54.0" y="347" class="flab">2</text>
+<line x1="104.2" y1="330" x2="104.2" y2="334" class="axis"/>
+<text x="104.2" y="347" class="flab">4</text>
+<line x1="154.3" y1="330" x2="154.3" y2="334" class="axis"/>
+<text x="154.3" y="347" class="flab">6</text>
+<line x1="204.5" y1="330" x2="204.5" y2="334" class="axis"/>
+<text x="204.5" y="347" class="flab">8</text>
+<line x1="254.6" y1="330" x2="254.6" y2="334" class="axis"/>
+<text x="254.6" y="347" class="flab">10</text>
+<line x1="304.8" y1="330" x2="304.8" y2="334" class="axis"/>
+<text x="304.8" y="347" class="flab">12</text>
+<line x1="354.9" y1="330" x2="354.9" y2="334" class="axis"/>
+<text x="354.9" y="347" class="flab">14</text>
+<line x1="405.1" y1="330" x2="405.1" y2="334" class="axis"/>
+<text x="405.1" y="347" class="flab">16</text>
+<line x1="455.2" y1="330" x2="455.2" y2="334" class="axis"/>
+<text x="455.2" y="347" class="flab">18</text>
+<line x1="505.4" y1="330" x2="505.4" y2="334" class="axis"/>
+<text x="505.4" y="347" class="flab">20</text>
+<line x1="555.5" y1="330" x2="555.5" y2="334" class="axis"/>
+<text x="555.5" y="347" class="flab">22</text>
+<line x1="605.7" y1="330" x2="605.7" y2="334" class="axis"/>
+<text x="605.7" y="347" class="flab">24</text>
+<line x1="655.8" y1="330" x2="655.8" y2="334" class="axis"/>
+<text x="655.8" y="347" class="flab">26</text>
+<line x1="706.0" y1="330" x2="706.0" y2="334" class="axis"/>
+<text x="706.0" y="347" class="flab">28</text>
+<text x="706" y="361" class="flab end">x</text>
+<line x1="54.0" y1="74" x2="54.0" y2="80" class="pred"/>
+<text x="54.0" y="69" class="flab c2">2</text>
+<line x1="79.1" y1="74" x2="79.1" y2="80" class="pred"/>
+<text x="79.1" y="69" class="flab c2">3</text>
+<line x1="104.2" y1="74" x2="104.2" y2="80" class="pred"/>
+<text x="104.2" y="69" class="flab c2">4</text>
+<line x1="129.2" y1="74" x2="129.2" y2="80" class="pred"/>
+<text x="129.2" y="69" class="flab c2">5</text>
+<line x1="179.4" y1="74" x2="179.4" y2="80" class="pred"/>
+<text x="179.4" y="69" class="flab c2">7</text>
+<line x1="204.5" y1="74" x2="204.5" y2="80" class="pred"/>
+<text x="204.5" y="69" class="flab c2">8</text>
+<line x1="229.5" y1="74" x2="229.5" y2="80" class="pred"/>
+<text x="229.5" y="69" class="flab c2">9</text>
+<line x1="279.7" y1="74" x2="279.7" y2="80" class="pred"/>
+<text x="279.7" y="69" class="flab c2">11</text>
+<line x1="329.8" y1="74" x2="329.8" y2="80" class="pred"/>
+<text x="329.8" y="69" class="flab c2">13</text>
+<line x1="405.1" y1="74" x2="405.1" y2="80" class="pred"/>
+<text x="405.1" y="69" class="flab c2">16</text>
+<line x1="430.2" y1="74" x2="430.2" y2="80" class="pred"/>
+<text x="430.2" y="69" class="flab c2">17</text>
+<line x1="480.3" y1="74" x2="480.3" y2="80" class="pred"/>
+<text x="480.3" y="69" class="flab c2">19</text>
+<line x1="580.6" y1="74" x2="580.6" y2="80" class="pred"/>
+<text x="580.6" y="69" class="flab c2">23</text>
+<line x1="630.8" y1="74" x2="630.8" y2="80" class="pred"/>
+<text x="630.8" y="69" class="flab c2">25</text>
+<line x1="680.9" y1="74" x2="680.9" y2="80" class="pred"/>
+<text x="680.9" y="69" class="flab c2">27</text>
+<text x="702" y="44" class="flab end c2">&#9662; prime powers &#8212; every jump of &#968;</text>
+<text x="66" y="102.7" class="flab st c1">violet: 138 zeros, no primes used</text>
+<text x="66" y="117.7" class="flab st">grey: the true staircase</text>
+<line id="eline" class="cross" x1="0" y1="74" x2="0" y2="330" visibility="hidden"/>
+<circle id="edot" class="crossdot" r="3.5" visibility="hidden"/>
+</svg>
+<div class="ztip" id="etip"></div>
+</div>
+<figcaption><b>Figure 1 — the primes, rebuilt from the zeros.</b> Grey: the exact staircase ψ(<i>x</i>), jumping by log <i>p</i> at every prime power. Violet: <i>x</i> − 2√<i>x</i> ∑<sub>0&lt;γ≤300</sub> Re(<i>x</i><sup><i>i</i>γ</sup>/(½+<i>i</i>γ)) − log 2π − ½log(1−<i>x</i><sup>−2</sup>), computed from the 138 ordinates alone (hover for both values). It finds every jump, in the right place, of the right size, and rings around each one — Gibbs oscillation from the truncation, not error. At the sampled midpoints the two agree to better than 0.09: at <i>x</i> = 10.5, 7.846 against 7.832; at <i>x</i> = 25.5, 23.922 against 24.011. The zeros are not evidence about the primes. They are the primes, in the conjugate variable.</figcaption>
+</figure>
+</section>
+
+<p class="kicker">Part II · Local and global</p>
+
+<section class="prose" id="s3">
+<h2>3 · Each prime is a circle — and its closures are silent</h2>
+<p>Fix a prime and watch it alone. Since <i>p</i><sup>−<i>s</i></sup> = <i>p</i><sup>−σ</sup><i>e</i><sup>−<i>it</i> log <i>p</i></sup>, gear <i>p</i> is <b>periodic in <i>t</i> with period 2π/log <i>p</i></b> — verified here to 10<sup>−12</sup> — and it <i>closes</i>, returning to phase zero, on the lattice</p>
+<div class="eq"><span class="tag">(2)</span>
+<i>t</i> ∈ (2π/log <i>p</i>) ℤ :
+&nbsp;&nbsp; 9.0647 for <i>p</i> = 2, &nbsp; 5.7192 for 3, &nbsp; 3.9044 for 5, &nbsp; 3.2287 for 7.
+</div>
+<p>So every prime has its own perfectly regular comb of closures. Two facts, both computed, say that this regularity has nothing to do with the zeros.</p>
+<div class="box thm">
+<span class="lbl">Local factors never vanish</span>
+<p>The Euler factor (1 − <i>p</i><sup>−<i>s</i></sup>)<sup>−1</sup> has <i>poles</i>, never zeros: |1 − <i>p</i><sup>−<i>s</i></sup>| ≥ 1 − <i>p</i><sup>−σ</sup> &gt; 0 on σ = ½, verified over 30 000 sample heights for each of six gears. Hence <b>no prime, and no finite set of primes, can produce a zero of ζ</b>. Zeros are irreducibly infinite objects — which is <a href="rh5.html#s3">rh5 §3</a>'s zero-free smooth limb seen locally instead of asymptotically.</p>
+</div>
+<p>And the closures miss the zeros. Over all 138 ordinates and all six gears, the nearest any zero comes to any gear's closure lattice is <b>0.0117</b> — and that near-miss is γ₁₀ = 49.7738 against gear 11, the same ordinate <a href="rh6.html#s5">rh6 §5.2</a> found sitting near a half-closure of gear 2. Near-misses are inevitable and mean nothing; exact coincidences never occur. The sharpest case is the gauge closure of <a href="rh4.html#s3">rh4 §3</a>: at <i>t</i>₁ = 2π/log 2 = 9.0647 gear 2 closes exactly, η's presentation degenerates — and |ζ(1 + <i>it</i>₁)| = 1.351055, with the nearest actual zero 5.07 away. <b>The gear closes; the arithmetic does not.</b></p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 414" role="img" aria-label="Closure combs for gears two three five seven and eleven against the height axis, with the first twelve zeta ordinates on a separate track below; no comb tooth lands on a zero and the combs never align with one another">
+<text x="360.0" y="22" class="ftitle">where each gear closes, and where &#950; actually vanishes</text>
+<line x1="74" y1="58" x2="706" y2="58" class="axis"/>
+<line x1="169.5" y1="47" x2="169.5" y2="69" class="comb"/>
+<line x1="265.0" y1="47" x2="265.0" y2="69" class="comb"/>
+<line x1="360.4" y1="47" x2="360.4" y2="69" class="comb"/>
+<line x1="455.9" y1="47" x2="455.9" y2="69" class="comb"/>
+<line x1="551.4" y1="47" x2="551.4" y2="69" class="comb"/>
+<line x1="646.9" y1="47" x2="646.9" y2="69" class="comb"/>
+<text x="8" y="62" class="flab st">gear 2</text>
+<text x="706" y="42" class="flab end">period 9.065</text>
+<line x1="74" y1="98" x2="706" y2="98" class="axis"/>
+<line x1="134.2" y1="87" x2="134.2" y2="109" class="comb"/>
+<line x1="194.5" y1="87" x2="194.5" y2="109" class="comb"/>
+<line x1="254.7" y1="87" x2="254.7" y2="109" class="comb"/>
+<line x1="315.0" y1="87" x2="315.0" y2="109" class="comb"/>
+<line x1="375.2" y1="87" x2="375.2" y2="109" class="comb"/>
+<line x1="435.5" y1="87" x2="435.5" y2="109" class="comb"/>
+<line x1="495.7" y1="87" x2="495.7" y2="109" class="comb"/>
+<line x1="555.9" y1="87" x2="555.9" y2="109" class="comb"/>
+<line x1="616.2" y1="87" x2="616.2" y2="109" class="comb"/>
+<line x1="676.4" y1="87" x2="676.4" y2="109" class="comb"/>
+<text x="8" y="102" class="flab st">gear 3</text>
+<text x="706" y="82" class="flab end">period 5.719</text>
+<line x1="74" y1="138" x2="706" y2="138" class="axis"/>
+<line x1="115.1" y1="127" x2="115.1" y2="149" class="comb"/>
+<line x1="156.2" y1="127" x2="156.2" y2="149" class="comb"/>
+<line x1="197.4" y1="127" x2="197.4" y2="149" class="comb"/>
+<line x1="238.5" y1="127" x2="238.5" y2="149" class="comb"/>
+<line x1="279.6" y1="127" x2="279.6" y2="149" class="comb"/>
+<line x1="320.7" y1="127" x2="320.7" y2="149" class="comb"/>
+<line x1="361.9" y1="127" x2="361.9" y2="149" class="comb"/>
+<line x1="403.0" y1="127" x2="403.0" y2="149" class="comb"/>
+<line x1="444.1" y1="127" x2="444.1" y2="149" class="comb"/>
+<line x1="485.2" y1="127" x2="485.2" y2="149" class="comb"/>
+<line x1="526.3" y1="127" x2="526.3" y2="149" class="comb"/>
+<line x1="567.5" y1="127" x2="567.5" y2="149" class="comb"/>
+<line x1="608.6" y1="127" x2="608.6" y2="149" class="comb"/>
+<line x1="649.7" y1="127" x2="649.7" y2="149" class="comb"/>
+<line x1="690.8" y1="127" x2="690.8" y2="149" class="comb"/>
+<text x="8" y="142" class="flab st">gear 5</text>
+<text x="706" y="122" class="flab end">period 3.904</text>
+<line x1="74" y1="178" x2="706" y2="178" class="axis"/>
+<line x1="108.0" y1="167" x2="108.0" y2="189" class="comb"/>
+<line x1="142.0" y1="167" x2="142.0" y2="189" class="comb"/>
+<line x1="176.0" y1="167" x2="176.0" y2="189" class="comb"/>
+<line x1="210.0" y1="167" x2="210.0" y2="189" class="comb"/>
+<line x1="244.1" y1="167" x2="244.1" y2="189" class="comb"/>
+<line x1="278.1" y1="167" x2="278.1" y2="189" class="comb"/>
+<line x1="312.1" y1="167" x2="312.1" y2="189" class="comb"/>
+<line x1="346.1" y1="167" x2="346.1" y2="189" class="comb"/>
+<line x1="380.1" y1="167" x2="380.1" y2="189" class="comb"/>
+<line x1="414.1" y1="167" x2="414.1" y2="189" class="comb"/>
+<line x1="448.1" y1="167" x2="448.1" y2="189" class="comb"/>
+<line x1="482.1" y1="167" x2="482.1" y2="189" class="comb"/>
+<line x1="516.1" y1="167" x2="516.1" y2="189" class="comb"/>
+<line x1="550.2" y1="167" x2="550.2" y2="189" class="comb"/>
+<line x1="584.2" y1="167" x2="584.2" y2="189" class="comb"/>
+<line x1="618.2" y1="167" x2="618.2" y2="189" class="comb"/>
+<line x1="652.2" y1="167" x2="652.2" y2="189" class="comb"/>
+<line x1="686.2" y1="167" x2="686.2" y2="189" class="comb"/>
+<text x="8" y="182" class="flab st">gear 7</text>
+<text x="706" y="162" class="flab end">period 3.229</text>
+<line x1="74" y1="218" x2="706" y2="218" class="axis"/>
+<line x1="101.6" y1="207" x2="101.6" y2="229" class="comb"/>
+<line x1="129.2" y1="207" x2="129.2" y2="229" class="comb"/>
+<line x1="156.8" y1="207" x2="156.8" y2="229" class="comb"/>
+<line x1="184.4" y1="207" x2="184.4" y2="229" class="comb"/>
+<line x1="212.0" y1="207" x2="212.0" y2="229" class="comb"/>
+<line x1="239.6" y1="207" x2="239.6" y2="229" class="comb"/>
+<line x1="267.2" y1="207" x2="267.2" y2="229" class="comb"/>
+<line x1="294.8" y1="207" x2="294.8" y2="229" class="comb"/>
+<line x1="322.4" y1="207" x2="322.4" y2="229" class="comb"/>
+<line x1="350.0" y1="207" x2="350.0" y2="229" class="comb"/>
+<line x1="377.6" y1="207" x2="377.6" y2="229" class="comb"/>
+<line x1="405.2" y1="207" x2="405.2" y2="229" class="comb"/>
+<line x1="432.8" y1="207" x2="432.8" y2="229" class="comb"/>
+<line x1="460.4" y1="207" x2="460.4" y2="229" class="comb"/>
+<line x1="488.0" y1="207" x2="488.0" y2="229" class="comb"/>
+<line x1="515.6" y1="207" x2="515.6" y2="229" class="comb"/>
+<line x1="543.2" y1="207" x2="543.2" y2="229" class="comb"/>
+<line x1="570.8" y1="207" x2="570.8" y2="229" class="comb"/>
+<line x1="598.4" y1="207" x2="598.4" y2="229" class="comb"/>
+<line x1="626.0" y1="207" x2="626.0" y2="229" class="comb"/>
+<line x1="653.6" y1="207" x2="653.6" y2="229" class="comb"/>
+<line x1="681.2" y1="207" x2="681.2" y2="229" class="comb"/>
+<text x="8" y="222" class="flab st">gear 11</text>
+<text x="706" y="202" class="flab end">period 2.620</text>
+<line x1="74" y1="258" x2="706" y2="258" class="axis"/>
+<line x1="99.8" y1="247" x2="99.8" y2="269" class="comb"/>
+<line x1="125.6" y1="247" x2="125.6" y2="269" class="comb"/>
+<line x1="151.4" y1="247" x2="151.4" y2="269" class="comb"/>
+<line x1="177.2" y1="247" x2="177.2" y2="269" class="comb"/>
+<line x1="203.0" y1="247" x2="203.0" y2="269" class="comb"/>
+<line x1="228.8" y1="247" x2="228.8" y2="269" class="comb"/>
+<line x1="254.6" y1="247" x2="254.6" y2="269" class="comb"/>
+<line x1="280.4" y1="247" x2="280.4" y2="269" class="comb"/>
+<line x1="306.2" y1="247" x2="306.2" y2="269" class="comb"/>
+<line x1="332.0" y1="247" x2="332.0" y2="269" class="comb"/>
+<line x1="357.8" y1="247" x2="357.8" y2="269" class="comb"/>
+<line x1="383.6" y1="247" x2="383.6" y2="269" class="comb"/>
+<line x1="409.4" y1="247" x2="409.4" y2="269" class="comb"/>
+<line x1="435.2" y1="247" x2="435.2" y2="269" class="comb"/>
+<line x1="461.0" y1="247" x2="461.0" y2="269" class="comb"/>
+<line x1="486.8" y1="247" x2="486.8" y2="269" class="comb"/>
+<line x1="512.6" y1="247" x2="512.6" y2="269" class="comb"/>
+<line x1="538.5" y1="247" x2="538.5" y2="269" class="comb"/>
+<line x1="564.3" y1="247" x2="564.3" y2="269" class="comb"/>
+<line x1="590.1" y1="247" x2="590.1" y2="269" class="comb"/>
+<line x1="615.9" y1="247" x2="615.9" y2="269" class="comb"/>
+<line x1="641.7" y1="247" x2="641.7" y2="269" class="comb"/>
+<line x1="667.5" y1="247" x2="667.5" y2="269" class="comb"/>
+<line x1="693.3" y1="247" x2="693.3" y2="269" class="comb"/>
+<text x="8" y="262" class="flab st">gear 13</text>
+<text x="706" y="242" class="flab end">period 2.450</text>
+<line x1="74" y1="320" x2="706" y2="320" class="axis"/>
+<line x1="222.9" y1="306" x2="222.9" y2="334" class="zeroline"/>
+<line x1="295.4" y1="306" x2="295.4" y2="334" class="zeroline"/>
+<line x1="337.4" y1="306" x2="337.4" y2="334" class="zeroline"/>
+<line x1="394.5" y1="306" x2="394.5" y2="334" class="zeroline"/>
+<line x1="420.9" y1="306" x2="420.9" y2="334" class="zeroline"/>
+<line x1="469.9" y1="306" x2="469.9" y2="334" class="zeroline"/>
+<line x1="505.0" y1="306" x2="505.0" y2="334" class="zeroline"/>
+<line x1="530.4" y1="306" x2="530.4" y2="334" class="zeroline"/>
+<line x1="579.7" y1="306" x2="579.7" y2="334" class="zeroline"/>
+<line x1="598.3" y1="306" x2="598.3" y2="334" class="zeroline"/>
+<line x1="632.0" y1="306" x2="632.0" y2="334" class="zeroline"/>
+<line x1="668.6" y1="306" x2="668.6" y2="334" class="zeroline"/>
+<line x1="699.1" y1="306" x2="699.1" y2="334" class="zeroline"/>
+<text x="8" y="324" class="flab st c1">&#950; zeros</text>
+<line x1="169.5" y1="46" x2="169.5" y2="338" class="cross"/>
+<text x="175.5" y="352" class="flab st c2">t&#8321; = 2&#960;/log&#8202;2: gear 2 closes, &#950; does not</text>
+<line x1="74" y1="368" x2="706" y2="368" class="axis"/>
+<line x1="74.0" y1="368" x2="74.0" y2="372" class="axis"/>
+<text x="74.0" y="385" class="flab">0</text>
+<line x1="179.3" y1="368" x2="179.3" y2="372" class="axis"/>
+<text x="179.3" y="385" class="flab">10</text>
+<line x1="284.7" y1="368" x2="284.7" y2="372" class="axis"/>
+<text x="284.7" y="385" class="flab">20</text>
+<line x1="390.0" y1="368" x2="390.0" y2="372" class="axis"/>
+<text x="390.0" y="385" class="flab">30</text>
+<line x1="495.3" y1="368" x2="495.3" y2="372" class="axis"/>
+<text x="495.3" y="385" class="flab">40</text>
+<line x1="600.7" y1="368" x2="600.7" y2="372" class="axis"/>
+<text x="600.7" y="385" class="flab">50</text>
+<line x1="706.0" y1="368" x2="706.0" y2="372" class="axis"/>
+<text x="706.0" y="385" class="flab">60</text>
+<text x="706" y="399" class="flab end">height t</text>
+<text x="74" y="399" class="flab st">closest approach over all 138 zeros and all six gears: 0.0117</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — closure combs against the true ordinates.</b> Each row is one gear's closure lattice (2π/log <i>p</i>)ℤ; the bottom track is the twelve ζ ordinates below <i>t</i> = 60. The combs are perfectly periodic and mutually incommensurable — no two ever line up — and no tooth of any comb lands on a zero. The dashed line marks <i>t</i>₁ = 2π/log 2, where gear 2 closes and ζ does not.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · The torus: no two gears ever agree</h2>
+<p>Could two gears close at once? Only if <i>t</i> log <i>p</i> and <i>t</i> log <i>q</i> both lay in 2πℤ, which forces log <i>p</i>/log <i>q</i> ∈ ℚ, i.e. <i>p</i><sup><i>a</i></sup> = <i>q</i><sup><i>b</i></sup> — forbidden by unique factorization (<a href="rh5.html#s7">rh5 §7</a>). So apart from the trivial <i>t</i> = 0, the gears never agree. Computed for the first two gears: on 1 ≤ <i>t</i> ≤ 300, gears 2 and 3 come no closer to joint closure than <b>0.0476 radians</b>, at <i>t</i> = 108.708.</p>
+<p>The right home for this is the torus. Send each height to the full phase state of the train,</p>
+<div class="eq"><span class="tag">(3)</span>
+<i>t</i> &nbsp;⟼&nbsp; ( <i>p</i><sup>−<i>it</i></sup> )<sub><i>p</i></sub> &nbsp;∈&nbsp;
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∏</span><span class="lo"><i>p</i></span></span>
+S¹ = 𝕋<sup>∞</sup>.
+</div>
+<p>Because the log <i>p</i> are ℚ-linearly independent, Kronecker's theorem says this line <b>never returns and its orbit is dense</b> — indeed equidistributed. This is Bohr's picture: for σ &gt; 1, ζ is a genuine function on 𝕋<sup>∞</sup> and the vertical line is one irrational winding of it. Bohr–Jessen value distribution and Voronin universality (<a href="rh4.html#s17">rh4 §17</a>) are theorems about this torus; so is <a href="rh5.html#s6">rh5 §6</a>'s breach census, which is the same statement counted rather than named.</p>
+<figure>
+<div class="fig-row">
+<div class="cell"><div class="fig-frame">
+<svg viewBox="0 0 400 434" role="img" aria-label="The square torus of the gears two and three, with the orbit of the height parameter winding densely across it, and the first zeta ordinates marked at generic positions">
+<text x="200.0" y="22" class="ftitle">the two-gear torus, wound by t</text>
+<rect x="52" y="52" width="300" height="300" class="torus"/>
+<path d="M52.0 352.0L241.2 52.1" class="wind"/>
+<path d="M241.3 352.0L352.0 176.5" class="wind"/>
+<path d="M52.0 176.4L130.5 52.0" class="wind"/>
+<path d="M130.6 351.9L319.8 52.1" class="wind"/>
+<path d="M319.8 352.0L352.0 301.1" class="wind"/>
+<path d="M52.0 301.0L209.1 52.0" class="wind"/>
+<path d="M209.2 351.9L352.0 125.5" class="wind"/>
+<path d="M52.1 125.4L98.4 52.0" class="wind"/>
+<path d="M98.5 351.9L287.6 52.1" class="wind"/>
+<path d="M287.7 352.0L352.0 250.1" class="wind"/>
+<path d="M52.0 250.0L176.9 52.0" class="wind"/>
+<path d="M177.0 351.9L351.9 74.6" class="wind"/>
+<path d="M52.0 74.5L66.2 52.1" class="wind"/>
+<path d="M66.2 352.0L255.5 52.0" class="wind"/>
+<path d="M255.5 351.9L352.0 199.1" class="wind"/>
+<path d="M52.1 199.0L144.8 52.0" class="wind"/>
+<path d="M144.9 351.9L334.0 52.1" class="wind"/>
+<path d="M334.1 352.0L352.0 323.6" class="wind"/>
+<path d="M52.0 323.5L223.3 52.0" class="wind"/>
+<path d="M223.4 351.9L351.9 148.2" class="wind"/>
+<path d="M52.0 148.1L112.6 52.1" class="wind"/>
+<path d="M112.6 352.0L301.9 52.0" class="wind"/>
+<path d="M301.9 351.9L352.0 272.6" class="wind"/>
+<path d="M52.1 272.5L191.2 52.0" class="wind"/>
+<path d="M191.2 351.9L352.0 97.2" class="wind"/>
+<path d="M52.0 97.1L80.4 52.1" class="wind"/>
+<path d="M80.5 352.0L269.7 52.0" class="wind"/>
+<path d="M269.8 351.9L351.9 221.7" class="wind"/>
+<path d="M52.0 221.6L159.0 52.1" class="wind"/>
+<path d="M159.0 352.0L348.3 52.0" class="wind"/>
+<path d="M348.3 351.9L352.0 346.2" class="wind"/>
+<path d="M52.0 346.1L237.6 52.0" class="wind"/>
+<path d="M237.6 351.9L352.0 170.7" class="wind"/>
+<path d="M52.0 170.6L126.8 52.1" class="wind"/>
+<path d="M126.9 352.0L316.1 52.0" class="wind"/>
+<path d="M316.2 351.9L352.0 295.2" class="wind"/>
+<path d="M52.1 295.1L205.4 52.1" class="wind"/>
+<path d="M205.4 352.0L352.0 119.7" class="wind"/>
+<path d="M52.0 119.6L94.7 52.0" class="wind"/>
+<path d="M94.7 351.9L284.0 52.0" class="wind"/>
+<path d="M284.0 351.9L351.9 244.3" class="wind"/>
+<path d="M52.0 244.2L173.2 52.1" class="wind"/>
+<path d="M173.3 352.0L352.0 68.7" class="wind"/>
+<path d="M52.1 68.6L62.5 52.0" class="wind"/>
+<path d="M62.6 351.9L251.8 52.1" class="wind"/>
+<path d="M251.8 352.0L352.0 193.3" class="wind"/>
+<path d="M52.0 193.1L141.1 52.0" class="wind"/>
+<path d="M141.1 351.9L330.4 52.0" class="wind"/>
+<path d="M330.4 351.9L351.9 317.8" class="wind"/>
+<path d="M52.0 317.7L219.6 52.1" class="wind"/>
+<path d="M219.7 352.0L352.0 142.2" class="wind"/>
+<path d="M52.1 142.1L108.9 52.0" class="wind"/>
+<path d="M109.0 351.9L298.1 52.1" class="wind"/>
+<path d="M298.2 352.0L352.0 266.8" class="wind"/>
+<path d="M52.0 266.7L187.5 52.0" class="wind"/>
+<path d="M187.5 351.9L351.9 91.3" class="wind"/>
+<path d="M52.0 91.2L76.8 52.0" class="wind"/>
+<path d="M76.8 351.9L266.0 52.1" class="wind"/>
+<path d="M266.1 352.0L352.0 215.8" class="wind"/>
+<path d="M52.0 215.7L155.3 52.0" class="wind"/>
+<path d="M155.4 351.9L344.5 52.1" class="wind"/>
+<path d="M344.6 352.0L352.0 340.3" class="wind"/>
+<path d="M52.0 340.2L233.8 52.0" class="wind"/>
+<path d="M233.9 351.9L352.0 164.8" class="wind"/>
+<path d="M52.1 164.7L123.2 52.0" class="wind"/>
+<path d="M123.2 351.9L312.4 52.1" class="wind"/>
+<path d="M312.5 352.0L352.0 289.3" class="wind"/>
+<path d="M52.0 289.2L201.7 52.0" class="wind"/>
+<path d="M201.8 351.9L352.0 113.9" class="wind"/>
+<path d="M52.0 113.8L90.9 52.1" class="wind"/>
+<path d="M91.0 352.0L280.2 52.0" class="wind"/>
+<path d="M280.3 351.9L352.0 238.3" class="wind"/>
+<path d="M52.1 238.2L169.5 52.0" class="wind"/>
+<path d="M169.6 351.9L352.0 62.9" class="wind"/>
+<path d="M52.0 62.8L58.8 52.1" class="wind"/>
+<path d="M58.9 352.0L248.1 52.0" class="wind"/>
+<path d="M248.2 351.9L351.9 187.4" class="wind"/>
+<path d="M52.0 187.3L137.3 52.1" class="wind"/>
+<path d="M137.4 352.0L326.6 52.0" class="wind"/>
+<path d="M326.7 351.9L352.0 311.9" class="wind"/>
+<path d="M52.1 311.8L215.9 52.0" class="wind"/>
+<path d="M216.0 351.9L352.0 136.4" class="wind"/>
+<path d="M52.0 136.3L105.2 52.1" class="wind"/>
+<path d="M105.2 352.0L294.5 52.0" class="wind"/>
+<path d="M294.6 351.9L351.9 261.0" class="wind"/>
+<path d="M52.0 260.9L183.7 52.1" class="wind"/>
+<path d="M183.8 352.0L352.0 85.4" class="wind"/>
+<path d="M52.0 85.3L73.0 52.0" class="wind"/>
+<path d="M73.1 351.9L262.3 52.0" class="wind"/>
+<path d="M262.4 351.9L352.0 210.0" class="wind"/>
+<path d="M52.0 209.9L151.6 52.1" class="wind"/>
+<path d="M151.6 352.0L340.9 52.0" class="wind"/>
+<path d="M340.9 351.9L351.9 334.5" class="wind"/>
+<path d="M52.0 334.4L230.1 52.1" class="wind"/>
+<path d="M230.2 352.0L352.0 159.0" class="wind"/>
+<path d="M52.0 158.8L119.4 52.0" class="wind"/>
+<path d="M119.5 351.9L308.7 52.0" class="wind"/>
+<path d="M308.8 351.9L352.0 283.5" class="wind"/>
+<path d="M52.0 283.4L198.0 52.1" class="wind"/>
+<path d="M198.0 352.0L352.0 107.9" class="wind"/>
+<path d="M52.1 107.8L87.3 52.0" class="wind"/>
+<path d="M87.3 351.9L276.5 52.1" class="wind"/>
+<path d="M276.6 352.0L352.0 232.5" class="wind"/>
+<path d="M52.0 232.4L165.8 52.0" class="wind"/>
+<path d="M165.9 351.9L351.9 57.0" class="wind"/>
+<path d="M52.0 56.9L55.1 52.0" class="wind"/>
+<path d="M55.2 351.9L244.4 52.1" class="wind"/>
+<path d="M244.4 352.0L352.0 181.5" class="wind"/>
+<path d="M52.1 181.4L133.7 52.0" class="wind"/>
+<path d="M133.7 351.9L322.9 52.1" class="wind"/>
+<path d="M323.0 352.0L352.0 306.0" class="wind"/>
+<path d="M52.0 305.9L212.2 52.0" class="wind"/>
+<path d="M212.3 351.9L351.9 130.6" class="wind"/>
+<path d="M52.0 130.5L90.1 70.2" class="wind"/>
+<line x1="52" y1="352" x2="352" y2="352" class="axhi"/>
+<line x1="52" y1="52" x2="52" y2="352" class="axhi2"/>
+<circle cx="219.8" cy="210.6" r="2.6" class="digit main"/>
+<circle cx="147.7" cy="149.3" r="2.6" class="digit main"/>
+<circle cx="279.7" cy="240.1" r="2.6" class="digit main"/>
+<circle cx="158.9" cy="256.1" r="2.6" class="digit main"/>
+<circle cx="242.0" cy="124.4" r="2.6" class="digit main"/>
+<circle cx="95.9" cy="180.4" r="2.6" class="digit main"/>
+<circle cx="206.2" cy="305.6" r="2.6" class="digit main"/>
+<circle cx="285.9" cy="179.3" r="2.6" class="digit main"/>
+<circle cx="140.7" cy="233.9" r="2.6" class="digit main"/>
+<circle cx="199.3" cy="141.1" r="2.6" class="digit main"/>
+<circle cx="305.1" cy="273.4" r="2.6" class="digit main"/>
+<circle cx="120.1" cy="91.1" r="2.6" class="digit main"/>
+<circle cx="216.1" cy="239.0" r="2.6" class="digit main"/>
+<circle cx="265.2" cy="161.1" r="2.6" class="digit main"/>
+<circle cx="106.9" cy="236.5" r="2.6" class="digit main"/>
+<circle cx="172.0" cy="133.3" r="2.6" class="digit main"/>
+<circle cx="253.7" cy="304.0" r="2.6" class="digit main"/>
+<circle cx="337.1" cy="171.7" r="2.6" class="digit main"/>
+<circle cx="157.5" cy="280.9" r="2.6" class="digit main"/>
+<circle cx="205.1" cy="205.4" r="2.6" class="digit main"/>
+<circle cx="277.7" cy="90.4" r="2.6" class="digit main"/>
+<circle cx="95.9" cy="202.9" r="2.6" class="digit main"/>
+<circle cx="156.3" cy="107.2" r="2.6" class="digit main"/>
+<circle cx="245.4" cy="266.1" r="2.6" class="digit main"/>
+<circle cx="291.2" cy="193.5" r="2.6" class="digit main"/>
+<circle cx="113.1" cy="300.3" r="2.6" class="digit main"/>
+<circle cx="184.5" cy="187.1" r="2.6" class="digit main"/>
+<circle cx="224.9" cy="123.1" r="2.6" class="digit main"/>
+<circle cx="322.9" cy="267.8" r="2.6" class="digit main"/>
+<circle cx="105.1" cy="137.4" r="2.6" class="digit main"/>
+<circle cx="184.8" cy="311.1" r="2.6" class="digit main"/>
+<circle cx="241.8" cy="220.8" r="2.6" class="digit main"/>
+<circle cx="298.8" cy="130.5" r="2.6" class="digit main"/>
+<circle cx="126.6" cy="228.0" r="2.6" class="digit main"/>
+<circle cx="154.5" cy="183.6" r="2.6" class="digit main"/>
+<circle cx="235.5" cy="55.3" r="2.6" class="digit main"/>
+<circle cx="298.6" cy="255.3" r="2.6" class="digit main"/>
+<circle cx="83.4" cy="120.8" r="2.6" class="digit main"/>
+<circle cx="168.8" cy="285.5" r="2.6" class="digit main"/>
+<circle cx="221.0" cy="202.8" r="2.6" class="digit main"/>
+<circle cx="52.0" cy="352.0" r="4" class="origin"/>
+<text x="46" y="368" class="flab end">0</text>
+<text x="352" y="368" class="flab">2&#960;</text>
+<text x="202.0" y="386" class="flab">gear 2 phase &#183; t&#8202;log&#8202;2 mod 2&#960;</text>
+<text x="44" y="40" class="flab st">gear 3 phase</text>
+<text x="202.0" y="406" class="flab c2">orbit of t &#8712; [0, 400] &#8212; one line, never closing</text>
+<text x="202.0" y="424" class="flab c1">&#9679; the first 40 &#950; ordinates &#8212; no pattern, no axis</text>
+</svg>
+</div></div>
+<div class="cell prose" style="min-width:280px">
+<p style="margin-top:0"><b>What Figure 3 shows.</b> The two-gear torus, with gear 2's phase across and gear 3's up. Orange: the orbit of <i>t</i> ↦ (<i>t</i> log 2, <i>t</i> log 3) mod 2π for 0 ≤ <i>t</i> ≤ 400 — a <i>single</i> line, cut only by the wrapping, already covering the square, and it will never close. Gear 2 closes on the left edge, gear 3 on the bottom edge; joint closure would require the corner, which the orbit reaches only at <i>t</i> = 0.</p>
+<p>Violet dots are the first forty ζ ordinates. They sit at <b>generic</b> positions — not on either edge, not on any diagonal, no pattern. That is the picture in one image: <b>a zero is not an event in any single gear's circle.</b> It is a property of where the winding line is with respect to <i>all</i> the circles at once.</p>
+<p>The zeros are the residue of a disagreement that never resolves. Every gear is individually periodic and completely understood; the zeros are what is left when infinitely many incommensurable periodicities are made to interfere.</p>
+</div>
+</div>
+<figcaption><b>Figure 3 — the two-gear torus, wound by <i>t</i>.</b> Computed orbit and computed ordinates; the axes are the two gears' closure sets.</figcaption>
+</figure>
+</section>
+
+<p class="kicker">Part III · Memory and ceiling</p>
+
+<section class="prose" id="s5">
+<h2>5 · Landau's bias: how the zeros remember the gears</h2>
+<p>If a zero belongs to no gear, in what sense do the zeros know the primes at all? Landau (1912) gives the exact answer. For fixed <i>x</i> &gt; 1,</p>
+<div class="eq"><span class="tag">(4)</span>
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">0&lt;γ≤<i>T</i></span></span>
+<i>x</i><sup>ρ</sup> = −
+<span class="fr"><span class="nu"><i>T</i></span><span class="de">2π</span></span>
+Λ(<i>x</i>) + <i>O</i>(log <i>T</i>),
+&nbsp;&nbsp; so on the line &nbsp;
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">0&lt;γ≤<i>T</i></span></span>
+<i>x</i><sup><i>i</i>γ</sup> ≈ −
+<span class="fr"><span class="nu"><i>T</i> Λ(<i>x</i>)</span><span class="de">2π √<i>x</i></span></span>.
+</div>
+<p>The zeros' phases are unbiased at every <i>x</i> <b>except prime powers</b>, where the bias is exactly the von Mangoldt weight — and it carries a <b>minus sign</b>: the zeros lean toward <i>anti</i>-closure at each gear. Computed over the 138 ordinates:</p>
+<div class="tbl-scroll">
+<table class="zeros">
+<tr><th><i>x</i></th><th>2</th><th>3</th><th>4</th><th>5</th><th>7</th><th>8</th><th>9</th><th>11</th><th>13</th></tr>
+<tr><td>measured</td><td>−22.1</td><td>−29.8</td><td>−14.4</td><td>−33.1</td><td>−33.5</td><td>−11.3</td><td>−15.0</td><td>−33.1</td><td>−32.5</td></tr>
+<tr><td>predicted</td><td>−23.4</td><td>−30.3</td><td>−16.5</td><td>−34.4</td><td>−35.1</td><td>−11.7</td><td>−17.5</td><td>−34.5</td><td>−34.0</td></tr>
+</table>
+</div>
+<p>while at the non-prime-powers 6, 10, 12, 14, 15 the same sum returns +0.7, +2.5, +2.2, +2.4, +2.0 — nothing. Note the prime <i>powers</i> behave exactly as the theory demands: 4 = 2² and 8 = 2³ carry weight log 2, not log 4 or log 8, and their depths are correspondingly shallower. This is the von Mangoldt weighting of <a href="rh5.html#s1">rh5 §1</a> read off the zeros instead of the sieve.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 372" role="img" aria-label="The sum over zeta zeros of x to the i gamma plotted against x, showing sharp negative spikes exactly at the prime powers and nothing elsewhere">
+<text x="360.0" y="22" class="ftitle">the zeros remember every gear &#8212; and lean against it</text>
+<text x="56" y="42" class="flab st">Re &#8721;<tspan dy="3" font-size="9">0&lt;&#947;&#8804;T</tspan><tspan dy="-3"> x</tspan><tspan dy="-5" font-size="9">i&#947;</tspan></text>
+<line x1="60" y1="143.3" x2="706" y2="143.3" class="axis"/>
+<text x="54" y="147.3" class="flab end">0</text>
+<line x1="60" y1="170.0" x2="706" y2="170.0" class="grid"/>
+<text x="54" y="174.0" class="flab end">-10</text>
+<line x1="60" y1="196.7" x2="706" y2="196.7" class="grid"/>
+<text x="54" y="200.7" class="flab end">-20</text>
+<line x1="60" y1="223.3" x2="706" y2="223.3" class="grid"/>
+<text x="54" y="227.3" class="flab end">-30</text>
+<line x1="60" y1="250.0" x2="706" y2="250.0" class="grid"/>
+<text x="54" y="254.0" class="flab end">-40</text>
+<line x1="126.5" y1="143.3" x2="126.5" y2="205.7" class="pred"/>
+<circle cx="126.5" cy="205.7" r="3" class="zero"/>
+<line x1="247.2" y1="143.3" x2="247.2" y2="224.1" class="pred"/>
+<circle cx="247.2" cy="224.1" r="3" class="zero"/>
+<line x1="332.9" y1="143.3" x2="332.9" y2="187.5" class="pred"/>
+<circle cx="332.9" cy="187.5" r="3" class="zero"/>
+<line x1="399.4" y1="143.3" x2="399.4" y2="235.0" class="pred"/>
+<circle cx="399.4" cy="235.0" r="3" class="zero"/>
+<line x1="499.6" y1="143.3" x2="499.6" y2="237.0" class="pred"/>
+<circle cx="499.6" cy="237.0" r="3" class="zero"/>
+<line x1="539.3" y1="143.3" x2="539.3" y2="174.5" class="pred"/>
+<circle cx="539.3" cy="174.5" r="3" class="zero"/>
+<line x1="574.4" y1="143.3" x2="574.4" y2="190.0" class="pred"/>
+<circle cx="574.4" cy="190.0" r="3" class="zero"/>
+<line x1="634.2" y1="143.3" x2="634.2" y2="235.4" class="pred"/>
+<circle cx="634.2" cy="235.4" r="3" class="zero"/>
+<line x1="683.9" y1="143.3" x2="683.9" y2="233.9" class="pred"/>
+<circle cx="683.9" cy="233.9" r="3" class="zero"/>
+<path d="M60.0 141.4L60.2 142.3L60.5 143.3L60.7 144.2L61.2 145.6L62.2 145.8L62.7 144.6L63.0 143.8L63.2 142.8L63.5 141.9L63.7 140.9L64.0 140.1L64.5 138.8L65.5 139.0L66.0 140.3L66.2 141.2L66.5 142.1L66.7 143.1L67.0 143.9L67.5 145.4L68.4 145.7L68.9 144.6L69.2 143.8L69.4 142.9L69.7 142.0L69.9 141.0L70.2 140.2L70.7 138.9L71.7 138.9L72.2 140.1L72.4 141.0L72.7 141.9L72.9 142.8L73.2 143.7L73.7 145.2L74.7 145.7L75.2 144.6L75.7 143.0L75.9 142.1L76.1 141.2L76.4 140.3L76.9 139.0L77.9 138.8L78.4 139.9L78.6 140.8L78.9 141.7L79.1 142.6L79.4 143.5L79.6 144.3L80.1 145.5L81.1 145.3L81.6 144.0L81.9 143.1L82.1 142.2L82.4 141.3L82.6 140.4L83.1 139.0L84.1 138.6L84.6 139.7L85.1 141.4L85.3 142.3L85.6 143.2L85.8 144.1L86.3 145.3L87.3 145.4L87.8 144.2L88.1 143.3L88.3 142.4L88.6 141.5L88.8 140.5L89.1 139.7L89.6 138.6L90.6 138.8L91.1 140.2L91.3 141.1L91.6 142.0L91.8 143.0L92.1 143.8L92.5 145.2L93.5 145.6L94.0 144.4L94.3 143.6L94.5 142.6L94.8 141.7L95.0 140.7L95.3 139.8L95.8 138.5L96.8 138.4L97.3 139.8L97.5 140.7L97.8 141.6L98.0 142.6L98.3 143.6L98.5 144.5L99.0 145.7L100.0 145.5L100.5 144.0L100.7 143.0L101.0 142.0L101.2 140.9L101.5 139.9L101.7 139.1L102.2 137.9L103.2 138.4L103.7 140.1L104.0 141.1L104.2 142.2L104.5 143.3L104.7 144.3L105.0 145.2L105.5 146.4L106.5 145.5L106.7 144.6L107.0 143.6L107.2 142.4L107.5 141.3L107.7 140.1L108.0 139.0L108.2 138.1L108.7 136.9L109.7 138.2L109.9 139.1L110.2 140.3L110.4 141.6L110.7 142.9L110.9 144.2L111.2 145.4L111.4 146.3L111.9 147.5L112.9 145.9L113.2 144.7L113.4 143.4L113.7 141.9L113.9 140.3L114.2 138.8L114.4 137.5L114.7 136.4L114.9 135.5L115.9 136.0L116.2 137.2L116.4 138.6L116.6 140.3L116.9 142.2L117.1 144.1L117.4 145.9L117.6 147.6L117.9 149.0L118.1 150.1L119.1 149.4L119.4 147.9L119.6 145.9L119.9 143.6L120.1 140.9L120.4 138.2L120.6 135.5L120.9 132.9L121.1 130.7L121.4 129.0L121.6 127.9L122.4 129.4L122.6 131.7L122.9 135.0L123.1 139.1L123.4 144.0L123.6 149.6L123.9 155.7L124.1 162.1L124.4 168.6L124.6 175.1L124.8 181.2L125.1 186.9L125.3 192.0L125.6 196.1L125.8 199.3L126.1 201.4L126.3 202.3L126.8 200.7L127.1 198.1L127.3 194.5L127.6 190.1L127.8 184.9L128.1 179.1L128.3 173.0L128.6 166.7L128.8 160.4L129.1 154.4L129.3 148.8L129.6 143.7L129.8 139.2L130.1 135.6L130.3 132.8L130.6 130.8L130.8 129.6L131.6 130.7L131.8 132.2L132.1 134.2L132.3 136.3L132.6 138.6L132.8 140.9L133.0 143.1L133.3 145.0L133.5 146.6L133.8 147.7L134.3 148.9L135.0 147.5L135.3 146.4L135.5 145.0L135.8 143.6L136.0 142.2L136.3 140.7L136.5 139.5L136.8 138.4L137.0 137.5L137.5 136.7L138.3 137.6L138.8 139.3L139.0 140.3L139.3 141.4L139.5 142.5L139.8 143.4L140.0 144.3L140.5 145.4L141.5 144.9L142.0 143.5L142.2 142.7L142.5 141.8L142.7 141.0L143.2 139.5L143.7 138.6L144.7 139.0L145.2 140.2L145.7 141.6L146.2 143.0L146.7 144.0L147.7 144.2L148.2 143.4L148.7 142.2L149.2 140.9L149.7 139.8L150.7 139.2L151.4 140.1L151.9 141.2L152.4 142.3L152.9 143.3L153.9 143.8L154.7 142.9L155.2 141.8L155.7 140.8L156.2 139.9L157.1 139.6L157.9 140.5L158.4 141.5L158.9 142.4L159.6 143.4L160.6 143.2L161.4 142.0L161.9 141.0L162.4 140.2L163.4 139.7L164.4 140.8L164.9 141.7L165.3 142.6L166.3 143.3L167.3 142.4L167.8 141.6L168.3 140.8L169.1 139.9L170.1 140.1L170.8 141.2L171.3 142.0L172.1 142.9L173.1 142.9L173.8 142.0L174.3 141.2L175.0 140.2L176.0 140.0L177.0 141.1L177.8 142.2L178.8 143.0L179.8 142.3L180.5 141.2L181.2 140.3L182.2 140.0L183.2 141.1L184.0 142.2L185.0 142.9L186.0 142.2L186.7 141.2L187.5 140.3L188.5 140.1L189.4 141.1L190.2 142.1L191.2 142.8L192.2 142.1L192.9 141.1L193.7 140.3L194.7 140.2L195.7 141.2L196.4 142.2L197.4 142.7L198.4 141.9L199.1 140.9L200.1 140.1L201.1 140.5L201.9 141.4L202.6 142.2L203.6 142.6L204.6 141.7L205.4 140.7L206.3 140.0L207.3 140.6L208.1 141.6L208.8 142.4L209.8 142.5L210.8 141.4L211.6 140.4L212.6 139.9L213.5 140.8L214.3 141.9L215.3 142.7L216.3 142.2L217.0 141.0L217.8 140.0L218.8 139.7L219.5 140.6L220.0 141.5L220.5 142.4L221.5 143.1L222.5 142.0L223.0 141.0L223.5 140.0L224.2 139.1L225.2 139.8L225.7 140.8L226.2 142.1L226.7 143.2L227.7 143.8L228.5 142.5L229.0 141.0L229.5 139.5L229.9 138.4L230.9 138.3L231.4 139.5L231.7 140.3L231.9 141.3L232.2 142.2L232.4 143.2L232.7 144.0L233.2 145.2L234.2 144.5L234.4 143.7L234.7 142.6L234.9 141.4L235.2 140.1L235.4 138.8L235.7 137.6L235.9 136.6L236.4 135.3L237.2 136.2L237.4 137.3L237.7 138.7L237.9 140.3L238.1 142.2L238.4 144.0L238.6 145.9L238.9 147.5L239.1 148.8L239.4 149.7L240.4 147.7L240.6 145.8L240.9 143.3L241.1 140.5L241.4 137.4L241.6 134.3L241.9 131.3L242.1 128.7L242.4 126.7L242.6 125.3L243.4 127.5L243.6 130.6L243.9 134.9L244.1 140.4L244.4 147.0L244.6 154.5L244.9 162.7L245.1 171.4L245.4 180.2L245.6 189.0L245.8 197.3L246.1 204.8L246.3 211.3L246.6 216.6L246.8 220.4L247.1 222.5L247.6 221.6L247.8 218.5L248.1 213.9L248.3 207.8L248.6 200.5L248.8 192.3L249.1 183.4L249.3 174.2L249.6 165.0L249.8 156.1L250.1 147.9L250.3 140.4L250.6 134.1L250.8 129.0L251.1 125.2L251.3 122.8L251.6 121.7L252.1 123.3L252.3 125.6L252.6 128.6L252.8 132.2L253.1 136.0L253.3 139.9L253.6 143.5L253.8 146.8L254.0 149.5L254.3 151.5L254.5 152.8L255.3 152.0L255.5 150.3L255.8 148.2L256.0 145.8L256.3 143.1L256.5 140.5L256.8 138.0L257.0 135.8L257.3 134.0L257.5 132.7L258.0 131.9L258.5 133.3L258.8 134.7L259.0 136.5L259.3 138.5L259.5 140.6L259.8 142.6L260.0 144.5L260.3 146.1L260.5 147.4L260.8 148.2L261.8 146.9L262.0 145.6L262.2 144.0L262.5 142.3L262.7 140.5L263.0 138.8L263.2 137.3L263.5 136.1L263.7 135.2L264.7 135.5L265.0 136.5L265.2 137.8L265.5 139.2L265.7 140.7L266.0 142.3L266.2 143.7L266.5 144.9L266.7 145.9L267.2 146.8L268.0 145.6L268.2 144.5L268.5 143.3L268.7 142.0L269.0 140.6L269.2 139.3L269.5 138.0L269.7 137.0L270.2 135.9L271.2 137.3L271.4 138.3L271.7 139.5L271.9 140.7L272.2 142.0L272.4 143.2L272.7 144.2L272.9 145.0L273.4 145.8L274.2 144.9L274.4 144.0L274.7 143.0L274.9 141.8L275.2 140.7L275.4 139.5L275.7 138.5L275.9 137.6L276.4 136.5L277.4 137.7L277.7 138.6L277.9 139.6L278.1 140.7L278.4 141.8L278.6 142.8L278.9 143.7L279.4 145.0L280.4 144.4L280.9 142.8L281.1 141.8L281.4 140.7L281.6 139.7L281.9 138.8L282.1 138.0L282.6 137.0L283.6 137.9L284.1 139.6L284.4 140.6L284.6 141.6L284.9 142.5L285.1 143.4L285.6 144.6L286.6 144.2L287.1 142.7L287.3 141.8L287.6 140.9L287.8 139.9L288.1 139.0L288.6 137.7L289.6 137.5L290.1 138.7L290.3 139.5L290.6 140.4L290.8 141.4L291.1 142.3L291.3 143.1L291.8 144.2L292.8 144.0L293.3 142.7L293.6 141.9L293.8 141.0L294.1 140.1L294.3 139.3L294.8 137.9L295.8 137.6L296.3 138.7L296.8 140.2L297.0 141.1L297.3 142.0L297.8 143.4L298.3 144.2L299.3 143.5L299.8 142.0L300.0 141.2L300.3 140.4L300.5 139.5L301.0 138.2L302.0 137.6L302.5 138.5L303.0 140.0L303.2 140.8L303.5 141.6L304.0 143.1L304.5 144.0L305.5 143.5L306.0 142.3L306.5 140.7L306.7 139.9L307.2 138.5L307.7 137.7L308.7 138.3L309.2 139.6L309.7 141.1L310.2 142.6L310.7 143.7L311.7 143.7L312.2 142.7L312.7 141.2L312.9 140.4L313.4 138.9L313.9 137.9L314.9 137.9L315.4 138.9L315.9 140.4L316.2 141.2L316.7 142.7L317.2 143.8L318.2 143.9L318.6 142.9L319.1 141.4L319.4 140.5L319.6 139.7L320.1 138.2L320.6 137.2L321.6 137.6L322.1 138.9L322.4 139.7L322.6 140.6L322.9 141.6L323.1 142.5L323.4 143.4L323.9 144.8L324.9 145.2L325.4 143.9L325.6 142.9L325.9 141.8L326.1 140.6L326.4 139.2L326.6 137.9L326.8 136.6L327.1 135.4L327.3 134.4L327.8 133.1L328.6 134.0L328.8 135.2L329.1 136.9L329.3 139.0L329.6 141.6L329.8 144.6L330.1 147.9L330.3 151.5L330.6 155.3L330.8 159.1L331.1 163.0L331.3 166.8L331.6 170.4L331.8 173.6L332.1 176.4L332.3 178.7L332.6 180.4L332.8 181.4L333.6 180.2L333.8 178.4L334.1 175.9L334.3 172.8L334.6 169.2L334.8 165.2L335.0 160.9L335.3 156.4L335.5 151.9L335.8 147.6L336.0 143.5L336.3 139.8L336.5 136.5L336.8 133.8L337.0 131.7L337.3 130.3L337.8 129.4L338.3 131.0L338.5 132.5L338.8 134.3L339.0 136.4L339.3 138.7L339.5 140.9L339.8 143.0L340.0 144.9L340.3 146.5L340.5 147.6L341.0 148.7L341.8 146.8L342.0 145.5L342.3 143.9L342.5 142.2L342.7 140.5L343.0 138.8L343.2 137.2L343.5 135.9L343.7 134.9L344.2 134.0L345.0 135.4L345.2 136.6L345.5 137.9L345.7 139.5L346.0 141.0L346.2 142.5L346.5 143.9L346.7 145.0L347.0 145.9L348.0 146.1L348.2 145.2L348.5 144.2L348.7 142.9L349.0 141.5L349.2 140.0L349.5 138.6L349.7 137.4L350.0 136.3L350.5 135.0L351.4 136.5L351.7 137.5L351.9 138.8L352.2 140.2L352.4 141.6L352.7 142.9L352.9 144.1L353.2 145.0L353.7 146.1L354.4 145.3L354.7 144.4L354.9 143.3L355.2 142.0L355.4 140.6L355.7 139.3L355.9 138.0L356.2 136.9L356.4 136.0L356.9 135.1L357.7 136.2L357.9 137.2L358.2 138.3L358.4 139.6L358.7 141.0L358.9 142.3L359.1 143.5L359.4 144.6L359.6 145.4L360.6 145.4L361.1 143.6L361.4 142.4L361.6 141.1L361.9 139.7L362.1 138.4L362.4 137.2L362.6 136.2L363.1 135.1L364.1 136.7L364.4 137.9L364.6 139.1L364.9 140.5L365.1 141.9L365.4 143.2L365.6 144.4L365.9 145.3L366.4 146.2L367.1 145.1L367.3 144.1L367.6 142.8L367.8 141.5L368.1 140.0L368.3 138.6L368.6 137.3L368.8 136.2L369.1 135.4L370.1 135.3L370.3 136.2L370.6 137.3L370.8 138.6L371.1 140.1L371.3 141.6L371.6 143.0L371.8 144.3L372.1 145.4L372.6 146.6L373.3 145.7L373.6 144.7L373.8 143.4L374.1 141.9L374.3 140.3L374.6 138.8L374.8 137.3L375.0 136.0L375.3 134.9L375.8 133.9L376.5 135.4L376.8 136.5L377.0 138.0L377.3 139.6L377.5 141.3L377.8 143.0L378.0 144.5L378.3 145.8L378.5 146.8L379.0 147.6L379.5 146.7L379.8 145.6L380.0 144.2L380.3 142.5L380.5 140.7L380.8 138.8L381.0 137.1L381.3 135.4L381.5 134.1L381.8 133.2L382.8 134.0L383.0 135.3L383.2 137.0L383.5 138.9L383.7 141.0L384.0 143.1L384.2 145.1L384.5 146.8L384.7 148.2L385.0 149.1L386.0 147.4L386.2 145.7L386.5 143.6L386.7 141.3L387.0 138.8L387.2 136.4L387.5 134.2L387.7 132.2L388.0 130.8L388.2 129.8L389.0 131.0L389.2 132.7L389.5 134.9L389.7 137.6L390.0 140.5L390.2 143.6L390.5 146.6L390.7 149.4L391.0 151.7L391.2 153.4L391.4 154.4L392.2 152.3L392.4 149.8L392.7 146.6L392.9 142.8L393.2 138.6L393.4 134.2L393.7 129.9L393.9 125.9L394.2 122.5L394.4 119.9L394.7 118.4L395.2 119.4L395.4 122.1L395.7 126.3L395.9 131.9L396.2 138.9L396.4 147.1L396.7 156.2L396.9 166.0L397.2 176.1L397.4 186.3L397.7 196.2L397.9 205.3L398.2 213.5L398.4 220.4L398.7 225.8L398.9 229.5L399.2 231.4L399.6 229.4L399.9 225.8L400.1 220.5L400.4 213.8L400.6 205.9L400.9 197.1L401.1 187.7L401.4 178.1L401.6 168.6L401.9 159.5L402.1 151.0L402.4 143.4L402.6 136.9L402.9 131.6L403.1 127.5L403.4 124.8L403.6 123.3L404.4 125.4L404.6 127.8L404.9 130.6L405.1 133.7L405.4 137.0L405.6 140.1L405.9 142.9L406.1 145.4L406.4 147.3L406.6 148.7L407.1 149.6L407.6 148.3L407.8 146.9L408.1 145.3L408.3 143.5L408.6 141.7L408.8 139.9L409.1 138.2L409.3 136.8L409.6 135.7L410.1 134.5L410.8 135.5L411.1 136.3L411.3 137.4L411.6 138.6L411.8 139.8L412.1 141.0L412.3 142.1L412.6 143.0L413.1 144.1L414.1 143.5L414.6 142.1L414.8 141.2L415.1 140.4L415.3 139.6L415.8 138.3L416.5 137.5L417.5 138.6L418.0 139.8L418.5 140.9L419.0 141.8L420.0 142.2L420.8 141.4L421.3 140.5L422.0 139.4L423.0 138.9L424.0 139.5L424.7 140.3L425.7 141.1L426.7 141.0L427.7 140.4L428.7 139.8L429.7 139.6L430.7 139.9L431.7 140.3L432.7 140.5L433.7 140.5L434.7 140.4L435.7 140.1L436.7 139.9L437.7 139.8L438.7 139.9L439.6 140.3L440.6 140.7L441.6 140.6L442.6 140.1L443.6 139.5L444.6 139.4L445.6 139.9L446.6 140.7L447.6 141.1L448.6 140.6L449.6 139.6L450.6 139.0L451.6 139.3L452.3 140.2L453.1 141.0L454.1 141.4L455.1 140.6L455.8 139.5L456.5 138.7L457.5 138.7L458.3 139.6L459.0 140.8L459.8 141.6L460.8 141.5L461.5 140.5L462.0 139.5L462.5 138.7L463.5 138.1L464.5 139.2L465.0 140.2L465.5 141.2L466.2 142.2L467.2 141.7L467.7 140.8L468.2 139.6L468.7 138.5L469.5 137.5L470.5 138.2L471.0 139.3L471.5 140.6L471.9 141.9L472.4 142.7L473.4 142.4L473.9 141.2L474.4 139.7L474.9 138.2L475.4 137.1L476.4 136.9L476.9 137.9L477.4 139.6L477.7 140.5L477.9 141.4L478.2 142.2L478.7 143.5L479.7 143.4L480.1 142.0L480.4 141.1L480.6 140.0L480.9 138.9L481.1 137.9L481.4 136.9L481.6 136.1L482.1 135.2L483.1 136.7L483.4 137.7L483.6 138.9L483.9 140.2L484.1 141.5L484.4 142.8L484.6 144.0L484.9 144.9L485.4 145.9L486.1 144.7L486.4 143.6L486.6 142.2L486.9 140.6L487.1 139.0L487.4 137.3L487.6 135.6L487.9 134.2L488.1 133.1L488.6 132.0L489.3 133.9L489.6 135.5L489.8 137.4L490.1 139.6L490.3 141.9L490.6 144.2L490.8 146.4L491.1 148.4L491.3 149.9L491.6 150.8L492.3 149.8L492.6 148.0L492.8 145.6L493.1 142.6L493.3 139.2L493.6 135.5L493.8 131.8L494.1 128.3L494.3 125.1L494.6 122.6L494.8 120.9L495.6 122.7L495.8 126.0L496.0 130.6L496.3 136.6L496.5 143.7L496.8 152.0L497.0 161.1L497.3 170.7L497.5 180.7L497.8 190.6L498.0 200.1L498.3 208.9L498.5 216.6L498.8 223.1L499.0 228.0L499.3 231.3L499.5 232.6L500.0 229.7L500.3 225.5L500.5 219.7L500.8 212.4L501.0 203.9L501.3 194.5L501.5 184.6L501.8 174.5L502.0 164.5L502.3 154.9L502.5 146.1L502.8 138.3L503.0 131.6L503.3 126.3L503.5 122.4L503.8 120.0L504.0 118.9L504.5 120.7L504.7 123.1L505.0 126.3L505.2 130.1L505.5 134.1L505.7 138.1L506.0 141.9L506.2 145.4L506.5 148.2L506.7 150.4L507.0 151.8L508.0 149.8L508.2 147.7L508.5 145.3L508.7 142.6L509.0 139.9L509.2 137.3L509.5 135.0L509.7 133.1L510.0 131.6L510.2 130.7L511.2 132.8L511.5 134.4L511.7 136.3L512.0 138.4L512.2 140.5L512.4 142.4L512.7 144.1L512.9 145.6L513.2 146.6L514.2 146.1L514.4 144.9L514.7 143.5L514.9 141.8L515.2 140.1L515.4 138.4L515.7 136.8L515.9 135.4L516.2 134.4L516.7 133.3L517.4 134.7L517.7 135.8L517.9 137.1L518.2 138.6L518.4 140.1L518.7 141.5L518.9 142.9L519.2 144.0L519.4 144.8L520.4 144.6L520.6 143.7L520.9 142.6L521.1 141.3L521.4 140.0L521.6 138.6L521.9 137.3L522.1 136.2L522.4 135.3L522.9 134.4L523.6 135.5L523.9 136.5L524.1 137.6L524.4 138.9L524.6 140.2L524.9 141.4L525.1 142.6L525.4 143.6L525.9 144.7L526.9 143.1L527.1 142.0L527.4 140.8L527.6 139.5L527.9 138.2L528.1 137.0L528.3 135.9L528.6 135.1L529.6 135.1L529.8 135.9L530.1 137.0L530.3 138.2L530.6 139.6L530.8 141.1L531.1 142.4L531.3 143.6L531.6 144.6L532.1 145.5L532.8 144.0L533.1 142.7L533.3 141.2L533.6 139.4L533.8 137.6L534.1 135.8L534.3 134.2L534.6 132.8L534.8 131.8L535.8 133.3L536.1 135.2L536.3 137.8L536.5 140.8L536.8 144.3L537.0 148.2L537.3 152.2L537.5 156.2L537.8 160.1L538.0 163.8L538.3 167.0L538.5 169.6L538.8 171.6L539.0 172.9L539.8 172.0L540.0 170.1L540.3 167.6L540.5 164.5L540.8 161.0L541.0 157.2L541.3 153.3L541.5 149.4L541.8 145.6L542.0 142.2L542.3 139.1L542.5 136.5L542.8 134.5L543.0 133.0L543.3 132.2L544.3 134.0L544.5 135.3L544.7 136.9L545.0 138.5L545.2 140.0L545.5 141.4L545.7 142.7L546.0 143.6L546.5 144.5L547.2 143.4L547.5 142.6L547.7 141.5L548.0 140.4L548.2 139.3L548.5 138.2L548.7 137.2L549.2 135.9L550.2 136.1L550.7 137.5L551.0 138.4L551.2 139.3L551.5 140.3L551.7 141.1L552.2 142.4L553.2 142.7L553.7 141.7L554.2 140.1L554.4 139.3L554.7 138.5L555.2 137.1L555.7 136.3L556.7 136.9L557.2 138.2L557.7 139.7L558.2 141.2L558.7 142.2L559.7 142.4L560.2 141.5L560.6 140.1L561.1 138.5L561.6 137.1L562.1 136.2L563.1 136.4L563.6 137.5L564.1 139.1L564.4 140.0L564.6 140.8L564.9 141.7L565.4 143.0L566.4 143.6L566.9 142.6L567.1 141.8L567.4 140.7L567.6 139.6L567.9 138.3L568.1 137.0L568.4 135.7L568.6 134.4L568.8 133.3L569.1 132.5L569.6 131.6L570.3 133.5L570.6 135.0L570.8 137.1L571.1 139.7L571.3 142.7L571.6 146.1L571.8 149.8L572.1 153.8L572.3 158.0L572.6 162.2L572.8 166.3L573.1 170.2L573.3 173.9L573.6 177.0L573.8 179.7L574.1 181.7L574.3 182.9L575.1 182.0L575.3 180.0L575.6 177.3L575.8 174.0L576.1 170.0L576.3 165.6L576.6 160.9L576.8 156.0L577.0 151.1L577.3 146.3L577.5 141.8L577.8 137.7L578.0 134.2L578.3 131.3L578.5 129.1L578.8 127.7L579.8 129.0L580.0 130.8L580.3 132.9L580.5 135.3L580.8 137.8L581.0 140.2L581.3 142.5L581.5 144.5L581.8 146.1L582.0 147.3L583.0 146.9L583.3 145.6L583.5 144.0L583.8 142.2L584.0 140.2L584.3 138.3L584.5 136.4L584.8 134.8L585.0 133.5L585.2 132.5L586.2 132.9L586.5 134.0L586.7 135.4L587.0 137.1L587.2 138.8L587.5 140.5L587.7 142.1L588.0 143.5L588.2 144.7L588.5 145.5L589.5 144.8L589.7 143.7L590.0 142.4L590.2 140.8L590.5 139.2L590.7 137.6L591.0 136.1L591.2 134.8L591.5 133.8L592.0 132.8L592.7 134.2L592.9 135.3L593.2 136.6L593.4 138.1L593.7 139.7L593.9 141.2L594.2 142.6L594.4 143.8L594.7 144.7L595.7 144.7L595.9 143.8L596.2 142.6L596.4 141.2L596.7 139.7L596.9 138.2L597.2 136.7L597.4 135.3L597.7 134.2L598.2 133.0L598.9 134.0L599.2 135.0L599.4 136.2L599.7 137.7L599.9 139.2L600.2 140.8L600.4 142.2L600.7 143.5L600.9 144.5L601.4 145.5L602.1 144.1L602.4 142.9L602.6 141.6L602.9 140.0L603.1 138.4L603.4 136.9L603.6 135.4L603.9 134.2L604.1 133.3L605.1 133.5L605.4 134.5L605.6 135.8L605.9 137.3L606.1 138.9L606.4 140.5L606.6 142.1L606.9 143.5L607.1 144.7L607.4 145.5L608.4 144.6L608.6 143.4L608.9 142.0L609.1 140.3L609.3 138.6L609.6 136.9L609.8 135.3L610.1 133.9L610.3 132.8L610.8 131.9L611.3 132.7L611.6 133.7L611.8 135.1L612.1 136.7L612.3 138.6L612.6 140.4L612.8 142.2L613.1 143.9L613.3 145.2L613.6 146.2L614.6 145.5L614.8 144.3L615.1 142.6L615.3 140.7L615.6 138.7L615.8 136.7L616.1 134.7L616.3 133.1L616.6 131.7L616.8 130.8L617.8 132.4L618.0 134.0L618.3 136.0L618.5 138.2L618.8 140.5L619.0 142.7L619.3 144.8L619.5 146.5L619.8 147.8L620.3 148.8L620.8 147.4L621.0 145.8L621.3 143.8L621.5 141.4L621.8 138.7L622.0 136.1L622.3 133.5L622.5 131.2L622.8 129.3L623.0 128.0L624.0 129.7L624.3 131.8L624.5 134.5L624.8 137.6L625.0 140.9L625.2 144.2L625.5 147.3L625.7 150.0L626.0 152.2L626.2 153.6L627.0 152.4L627.2 150.1L627.5 146.9L627.7 143.0L628.0 138.7L628.2 134.0L628.5 129.3L628.7 124.9L629.0 121.1L629.2 118.1L629.5 116.2L630.2 118.8L630.5 122.8L630.7 128.4L631.0 135.5L631.2 143.8L631.5 153.1L631.7 163.3L632.0 173.8L632.2 184.4L632.5 194.6L632.7 204.2L633.0 212.8L633.2 220.0L633.4 225.7L633.7 229.5L633.9 231.5L634.4 229.4L634.7 225.6L634.9 220.1L635.2 213.1L635.4 204.9L635.7 195.9L635.9 186.3L636.2 176.5L636.4 166.8L636.7 157.6L636.9 149.1L637.2 141.6L637.4 135.2L637.7 130.0L637.9 126.2L638.2 123.7L638.4 122.4L638.9 123.3L639.2 125.1L639.4 127.5L639.7 130.3L639.9 133.4L640.2 136.4L640.4 139.3L640.7 141.9L640.9 144.0L641.2 145.6L641.4 146.6L642.4 145.3L642.6 144.0L642.9 142.5L643.1 140.8L643.4 139.2L643.6 137.7L643.9 136.4L644.1 135.4L644.6 134.3L645.6 135.6L645.9 136.5L646.1 137.4L646.4 138.3L646.6 139.2L647.1 140.6L648.1 141.3L648.9 140.2L649.4 139.1L649.8 138.2L650.8 137.5L651.8 138.3L652.8 139.2L653.8 139.1L654.8 138.4L655.8 138.3L656.8 139.1L657.8 139.9L658.8 139.5L659.5 138.4L660.0 137.5L660.8 136.7L661.8 137.4L662.3 138.5L662.8 139.8L663.3 140.9L664.3 141.6L664.8 140.7L665.3 139.2L665.5 138.3L665.7 137.4L666.0 136.6L666.5 135.2L667.5 135.0L668.0 136.5L668.2 137.5L668.5 138.6L668.7 139.9L669.0 141.0L669.2 142.1L669.5 143.1L670.0 144.1L670.7 143.1L671.0 142.1L671.2 140.8L671.5 139.3L671.7 137.7L672.0 136.0L672.2 134.5L672.5 133.1L672.7 132.0L673.2 131.0L673.7 132.0L673.9 133.1L674.2 134.8L674.4 136.7L674.7 138.9L674.9 141.3L675.2 143.6L675.4 145.7L675.7 147.5L675.9 148.9L676.4 149.7L676.9 147.7L677.2 145.6L677.4 142.8L677.7 139.6L677.9 136.0L678.2 132.2L678.4 128.5L678.7 125.2L678.9 122.3L679.2 120.3L679.4 119.2L679.9 120.8L680.2 123.6L680.4 127.9L680.7 133.6L680.9 140.6L681.2 148.7L681.4 157.7L681.7 167.3L681.9 177.3L682.1 187.3L682.4 196.9L682.6 205.8L682.9 213.7L683.1 220.3L683.4 225.3L683.6 228.5L683.9 229.9L684.4 226.8L684.6 222.4L684.9 216.4L685.1 209.0L685.4 200.4L685.6 191.0L685.9 181.1L686.1 171.0L686.4 161.1L686.6 151.8L686.9 143.2L687.1 135.7L687.4 129.5L687.6 124.6L687.9 121.2L688.1 119.2L688.9 121.0L689.1 123.7L689.4 126.9L689.6 130.6L689.9 134.5L690.1 138.3L690.3 141.8L690.6 144.8L690.8 147.2L691.1 149.0L691.3 149.9L692.1 148.4L692.3 146.6L692.6 144.5L692.8 142.1L693.1 139.7L693.3 137.2L693.6 135.0L693.8 133.2L694.1 131.7L694.3 130.8L695.3 132.0L695.6 133.4L695.8 135.0L696.1 136.8L696.3 138.6L696.6 140.3L696.8 141.8L697.1 143.0L697.3 143.9L698.3 143.7L698.5 142.8L698.8 141.6L699.0 140.3L699.3 138.9L699.5 137.5L699.8 136.3L700.0 135.2L700.3 134.4L700.8 133.5L701.5 134.6L701.8 135.4L702.0 136.4L702.3 137.5L702.5 138.6L702.8 139.6L703.0 140.6L703.5 141.9L704.5 141.7L705.0 140.3L705.3 139.5L705.5 138.6L705.8 137.7L706.0 136.9" class="helix thin"/>
+<line x1="126.5" y1="250" x2="126.5" y2="254" class="axis"/>
+<text x="126.5" y="267" class="flab c2">2</text>
+<line x1="247.2" y1="250" x2="247.2" y2="254" class="axis"/>
+<text x="247.2" y="267" class="flab c2">3</text>
+<line x1="332.9" y1="250" x2="332.9" y2="254" class="axis"/>
+<text x="332.9" y="267" class="flab c2">4</text>
+<line x1="399.4" y1="250" x2="399.4" y2="254" class="axis"/>
+<text x="399.4" y="267" class="flab c2">5</text>
+<line x1="453.7" y1="250" x2="453.7" y2="254" class="axis"/>
+<text x="453.7" y="267" class="flab">6</text>
+<line x1="499.6" y1="250" x2="499.6" y2="254" class="axis"/>
+<text x="499.6" y="267" class="flab c2">7</text>
+<line x1="539.3" y1="250" x2="539.3" y2="254" class="axis"/>
+<text x="539.3" y="267" class="flab c2">8</text>
+<line x1="574.4" y1="250" x2="574.4" y2="254" class="axis"/>
+<text x="574.4" y="267" class="flab c2">9</text>
+<line x1="605.8" y1="250" x2="605.8" y2="254" class="axis"/>
+<text x="605.8" y="267" class="flab">10</text>
+<line x1="634.2" y1="250" x2="634.2" y2="254" class="axis"/>
+<text x="634.2" y="267" class="flab c2">11</text>
+<line x1="660.1" y1="250" x2="660.1" y2="254" class="axis"/>
+<text x="660.1" y="267" class="flab">12</text>
+<line x1="683.9" y1="250" x2="683.9" y2="254" class="axis"/>
+<text x="683.9" y="267" class="flab c2">13</text>
+<text x="706" y="281" class="flab end">x (log scale)</text>
+<text x="60" y="281" class="flab st c2">orange = prime powers &#183; grey = everything else</text>
+<text x="702" y="63.3" class="flab end c2">&#9679; predicted depth &#8722;(T/2&#960;)&#923;(x)/&#8730;x</text>
+<text x="702" y="78.3" class="flab end c1">measured, 138 zeros to T = 300</text>
+<line id="lline" class="cross" x1="0" y1="52" x2="0" y2="250" visibility="hidden"/>
+<circle id="ldot" class="crossdot" r="3.5" visibility="hidden"/>
+</svg>
+<div class="ztip" id="ltip"></div>
+</div>
+<figcaption><b>Figure 4 — the zeros' bias at each gear.</b> Violet: Re ∑<sub>0&lt;γ≤300</sub> <i>x</i><sup><i>i</i>γ</sup> as a continuous function of <i>x</i> (hover for values). Orange stems and dots: the predicted depth −(<i>T</i>/2π)Λ(<i>x</i>)/√<i>x</i> at each prime power. The function is quiet everywhere and plunges at 2, 3, 4, 5, 7, 8, 9, 11, 13 — and only there. Each gear is separately visible in the zeros, with the sign inverted: <b>closure of the train pairs with anti-closure of each gear.</b></figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The abelian ceiling, and what lies past it</h2>
+<p>Now return to rh7's circle. Its primes — the roots of unity — furnish exactly the Dirichlet characters, and with them ζ decomposes. For the cyclotomic field ℚ(ζ<sub><i>q</i></sub>),</p>
+<div class="eq"><span class="tag">(5)</span>
+ζ<sub>ℚ(ζ<sub><i>q</i></sub>)</sub>(<i>s</i>) =
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∏</span><span class="lo">χ mod <i>q</i></span></span>
+L(<i>s</i>, χ),
+</div>
+<p>with the trivial character returning ζ itself. Verified here for <i>q</i> = 5 <b>factor by factor</b>: for each prime <i>r</i> ≠ 5, with <i>f</i> the order of <i>r</i> mod 5 and <i>g</i> = 4/<i>f</i>, the Dedekind local factor (1 − <i>r</i><sup>−<i>fs</i></sup>)<sup>−<i>g</i></sup> equals the product of the four character factors to 10<sup>−12</sup>, for every <i>r</i> up to 4000, giving ζ<sub>ℚ(ζ₅)</sub>(3) = 1.011582516. The splitting type is exactly the ramification data of <a href="rh7.html#s4">rh7 §4</a>: <i>r</i> = 11 splits into four, <i>r</i> = 2 stays inert, and <i>r</i> = 5 — the ramified prime — contributes a single factor. <b>The circle primes are what splits ζ into its irreducible pieces.</b></p>
+<p>And that is also the ceiling. By Kronecker–Weber the roots of unity generate ℚ<sup>ab</sup> exactly (<a href="rh7.html#s5">rh7 §5</a>), so the entire apparatus of this document — characters, Dirichlet L-functions, the Bohr torus, the local combs — is <b>abelian</b>. Locally, at each prime, everything is a root of unity: periodic, explicit, finished. Whatever forbids off-line zeros is not in there, because abelian symmetry has only one-dimensional irreducibles and no room for a nontrivial positivity (<a href="rh5.html#s5">rh5 §5</a>).</p>
+<p>The evidence that something else is present is statistical, and it can be seen even in a small sample. Normalizing each gap between consecutive ordinates by the local mean spacing 2π/log(<i>t</i>/2π) gives 137 gaps of mean 1.0013. Their distribution shows <b>strong level repulsion</b>:</p>
+<figure>
+<div class="fig-row">
+<div class="cell"><div class="fig-frame">
+<svg viewBox="0 0 420 372" role="img" aria-label="Cumulative distribution of the normalised gaps between consecutive zeta zeros, compared with the GUE Wigner surmise and with the Poisson law; the data shows strong level repulsion, lying far from Poisson">
+<text x="210.0" y="22" class="ftitle">gaps between consecutive zeros</text>
+<text x="50" y="42" class="flab st">P(gap &#8804; s)</text>
+<line x1="54" y1="288" x2="402" y2="288" class="axis"/>
+<line x1="54" y1="48" x2="54" y2="288" class="axis"/>
+<line x1="54" y1="230.0" x2="402" y2="230.0" class="grid"/>
+<text x="48" y="234.0" class="flab end">0.25</text>
+<line x1="54" y1="172.0" x2="402" y2="172.0" class="grid"/>
+<text x="48" y="176.0" class="flab end">0.5</text>
+<line x1="54" y1="114.0" x2="402" y2="114.0" class="grid"/>
+<text x="48" y="118.0" class="flab end">0.75</text>
+<line x1="54" y1="56.0" x2="402" y2="56.0" class="grid"/>
+<text x="48" y="60.0" class="flab end">1</text>
+<line x1="54.0" y1="288" x2="54.0" y2="292" class="axis"/>
+<text x="54.0" y="305" class="flab">0</text>
+<line x1="170.0" y1="288" x2="170.0" y2="292" class="axis"/>
+<text x="170.0" y="305" class="flab">1</text>
+<line x1="286.0" y1="288" x2="286.0" y2="292" class="axis"/>
+<text x="286.0" y="305" class="flab">2</text>
+<line x1="402.0" y1="288" x2="402.0" y2="292" class="axis"/>
+<text x="402.0" y="305" class="flab">3</text>
+<text x="402" y="319" class="flab end">gap / mean gap</text>
+<path d="M54.0 288.0L54.7 286.6L55.4 285.2L56.1 283.9L56.8 282.5L57.5 281.1L58.2 279.8L58.9 278.5L59.6 277.1L60.3 275.8L61.0 274.5L61.7 273.2L62.4 271.9L63.0 270.6L63.7 269.3L64.4 268.0L65.1 266.8L65.8 265.5L66.5 264.2L67.2 263.0L67.9 261.8L68.6 260.5L69.3 259.3L70.0 258.1L70.7 256.9L71.4 255.7L72.1 254.5L72.8 253.3L73.5 252.1L74.2 250.9L74.9 249.8L75.6 248.6L76.3 247.5L77.0 246.3L77.7 245.2L78.4 244.1L79.1 242.9L79.8 241.8L80.4 240.7L81.1 239.6L81.8 238.5L82.5 237.4L83.2 236.3L83.9 235.2L84.6 234.2L85.3 233.1L86.0 232.0L86.7 231.0L87.4 229.9L88.1 228.9L88.8 227.9L89.5 226.8L90.2 225.8L90.9 224.8L91.6 223.8L92.3 222.8L93.7 220.8L95.1 218.8L96.5 216.9L97.8 215.0L99.2 213.1L100.6 211.2L102.0 209.4L103.4 207.5L104.8 205.7L106.2 203.9L107.6 202.2L109.0 200.4L110.4 198.7L111.8 197.0L113.2 195.3L114.6 193.7L115.9 192.0L117.3 190.4L118.7 188.8L120.1 187.2L121.5 185.6L122.9 184.1L124.3 182.6L125.7 181.1L127.1 179.6L128.5 178.1L129.9 176.6L131.3 175.2L132.6 173.8L134.0 172.4L135.4 171.0L136.8 169.6L138.2 168.3L139.6 166.9L141.0 165.6L142.4 164.3L143.8 163.0L145.2 161.7L146.6 160.5L148.0 159.2L149.4 158.0L150.7 156.8L152.1 155.6L153.5 154.4L154.9 153.2L156.3 152.0L157.7 150.9L159.1 149.8L160.5 148.6L161.9 147.5L163.3 146.4L164.7 145.4L166.1 144.3L167.4 143.2L168.8 142.2L170.2 141.2L171.6 140.2L173.0 139.2L174.4 138.2L175.8 137.2L177.2 136.2L178.6 135.3L180.0 134.3L181.4 133.4L182.8 132.5L184.2 131.5L185.5 130.6L186.9 129.8L188.3 128.9L189.7 128.0L191.1 127.1L192.5 126.3L193.9 125.5L195.3 124.6L196.7 123.8L198.1 123.0L199.5 122.2L200.9 121.4L202.2 120.6L203.6 119.9L205.0 119.1L206.4 118.3L207.8 117.6L209.2 116.9L210.6 116.1L212.0 115.4L213.4 114.7L214.8 114.0L216.2 113.3L217.6 112.6L219.0 112.0L220.3 111.3L221.7 110.6L223.1 110.0L224.5 109.3L225.9 108.7L227.3 108.1L228.7 107.5L230.1 106.8L231.5 106.2L232.9 105.6L234.3 105.0L235.7 104.5L237.0 103.9L238.4 103.3L239.8 102.7L241.2 102.2L242.6 101.6L244.0 101.1L245.4 100.6L246.8 100.0L248.2 99.5L249.6 99.0L251.0 98.5L252.4 98.0L253.8 97.5L255.1 97.0L256.5 96.5L257.9 96.0L259.3 95.5L260.7 95.0L262.1 94.6L263.5 94.1L264.9 93.7L266.3 93.2L267.7 92.8L269.1 92.3L270.5 91.9L271.8 91.5L273.2 91.0L274.6 90.6L276.0 90.2L277.4 89.8L278.8 89.4L280.2 89.0L281.6 88.6L283.0 88.2L284.4 87.8L285.8 87.5L287.2 87.1L288.6 86.7L289.9 86.3L291.3 86.0L292.7 85.6L294.1 85.3L295.5 84.9L296.9 84.6L298.3 84.2L299.7 83.9L301.1 83.6L302.5 83.2L303.9 82.9L305.3 82.6L306.6 82.3L308.0 82.0L309.4 81.7L310.8 81.3L312.2 81.0L313.6 80.7L315.0 80.5L316.4 80.2L317.8 79.9L319.2 79.6L320.6 79.3L322.0 79.0L323.4 78.8L324.7 78.5L326.1 78.2L327.5 77.9L328.9 77.7L330.3 77.4L331.7 77.2L333.1 76.9L334.5 76.7L335.9 76.4L337.3 76.2L338.7 75.9L340.1 75.7L341.4 75.5L342.8 75.2L344.2 75.0L345.6 74.8L347.0 74.6L348.4 74.3L349.8 74.1L351.2 73.9L352.6 73.7L354.0 73.5L355.4 73.3L356.8 73.1L358.2 72.9L359.5 72.7L360.9 72.5L362.3 72.3L363.7 72.1L365.1 71.9L366.5 71.7L367.9 71.5L369.3 71.3L370.7 71.1L372.1 71.0L373.5 70.8L374.9 70.6L376.2 70.4L377.6 70.2L379.0 70.1L380.4 69.9L381.8 69.7L383.2 69.6L384.6 69.4L386.0 69.3L387.4 69.1L388.8 68.9L390.2 68.8L391.6 68.6L393.0 68.5L394.3 68.3L395.7 68.2L397.1 68.0L398.5 67.9L399.9 67.8L401.3 67.6L402.0 67.6" class="poi"/>
+<path d="M54.0 288.0L55.2 288.0L56.3 288.0L57.5 288.0L58.6 288.0L59.8 288.0L61.0 287.9L62.1 287.9L63.3 287.9L64.4 287.8L65.6 287.8L66.8 287.7L67.9 287.6L69.1 287.5L70.2 287.3L71.4 287.2L72.6 287.0L73.7 286.8L74.9 286.6L76.0 286.3L77.2 286.1L78.4 285.8L79.5 285.4L80.7 285.1L81.8 284.7L83.0 284.3L84.2 283.8L85.3 283.3L86.5 282.8L87.6 282.3L88.8 281.7L90.0 281.1L91.1 280.4L92.3 279.7L93.4 279.0L94.6 278.2L95.8 277.4L96.9 276.5L98.1 275.7L99.2 274.7L100.4 273.8L101.6 272.8L102.7 271.7L103.9 270.7L105.0 269.5L106.2 268.4L107.4 267.2L108.5 266.0L109.7 264.7L110.8 263.4L112.0 262.0L113.2 260.6L114.3 259.2L115.5 257.7L116.6 256.3L117.8 254.7L119.0 253.2L120.1 251.6L121.3 249.9L122.4 248.3L123.6 246.6L124.8 244.8L125.9 243.1L127.1 241.3L128.2 239.5L129.4 237.6L130.6 235.8L131.7 233.9L132.9 232.0L134.0 230.0L135.2 228.0L136.4 226.1L137.5 224.1L138.7 222.0L139.8 220.0L141.0 217.9L142.2 215.9L143.3 213.8L144.5 211.7L145.6 209.5L146.8 207.4L148.0 205.3L149.1 203.1L150.3 201.0L151.4 198.8L152.6 196.7L153.8 194.5L154.9 192.3L156.1 190.2L157.2 188.0L158.4 185.8L159.6 183.6L160.7 181.5L161.9 179.3L163.0 177.1L164.2 175.0L165.4 172.8L166.5 170.7L167.7 168.6L168.8 166.4L170.0 164.3L171.2 162.2L172.3 160.1L173.5 158.1L174.6 156.0L175.8 154.0L177.0 151.9L178.1 149.9L179.3 147.9L180.4 145.9L181.6 144.0L182.8 142.0L183.9 140.1L185.1 138.2L186.2 136.3L187.4 134.5L188.6 132.7L189.7 130.8L190.9 129.1L192.0 127.3L193.2 125.5L194.4 123.8L195.5 122.1L196.7 120.5L197.8 118.8L199.0 117.2L200.2 115.6L201.3 114.0L202.5 112.5L203.6 111.0L204.8 109.5L206.0 108.0L207.1 106.6L208.3 105.2L209.4 103.8L210.6 102.4L211.8 101.1L212.9 99.8L214.1 98.5L215.2 97.2L216.4 96.0L217.6 94.8L218.7 93.6L219.9 92.5L221.0 91.4L222.2 90.3L223.4 89.2L224.5 88.1L225.7 87.1L226.8 86.1L228.0 85.1L229.2 84.2L230.3 83.2L231.5 82.3L232.6 81.5L233.8 80.6L235.0 79.8L236.1 78.9L237.3 78.2L238.4 77.4L239.6 76.6L240.8 75.9L241.9 75.2L243.1 74.5L244.2 73.8L245.4 73.2L246.6 72.6L247.7 71.9L248.9 71.4L250.0 70.8L251.2 70.2L252.4 69.7L253.5 69.2L254.7 68.6L255.8 68.2L257.0 67.7L258.2 67.2L259.3 66.8L260.5 66.4L261.6 65.9L262.8 65.5L264.0 65.1L265.1 64.8L266.3 64.4L267.4 64.1L268.6 63.7L269.8 63.4L270.9 63.1L272.1 62.8L273.2 62.5L274.4 62.2L275.6 62.0L276.7 61.7L277.9 61.4L279.0 61.2L280.2 61.0L281.4 60.8L282.5 60.5L283.7 60.3L284.8 60.1L286.0 60.0L287.2 59.8L288.3 59.6L289.5 59.4L290.6 59.3L291.8 59.1L293.0 59.0L294.1 58.8L295.3 58.7L296.4 58.6L297.6 58.4L298.8 58.3L299.9 58.2L301.1 58.1L302.2 58.0L303.4 57.9L304.6 57.8L305.7 57.7L306.9 57.6L308.0 57.6L309.2 57.5L310.4 57.4L311.5 57.3L312.7 57.3L313.8 57.2L315.0 57.1L316.2 57.1L317.3 57.0L318.5 57.0L319.6 56.9L320.8 56.9L322.0 56.8L323.1 56.8L324.3 56.7L325.4 56.7L326.6 56.7L327.8 56.6L328.9 56.6L330.1 56.6L331.2 56.5L332.4 56.5L333.6 56.5L334.7 56.4L335.9 56.4L337.0 56.4L338.2 56.4L339.4 56.3L340.5 56.3L341.7 56.3L342.8 56.3L344.0 56.3L345.2 56.3L346.3 56.2L347.5 56.2L348.6 56.2L349.8 56.2L351.0 56.2L352.1 56.2L353.3 56.2L354.4 56.2L355.6 56.1L356.8 56.1L357.9 56.1L359.1 56.1L360.2 56.1L361.4 56.1L362.6 56.1L363.7 56.1L364.9 56.1L366.0 56.1L367.2 56.1L368.4 56.1L369.5 56.1L370.7 56.1L371.8 56.1L373.0 56.1L374.2 56.1L375.3 56.0L376.5 56.0L377.6 56.0L378.8 56.0L380.0 56.0L381.1 56.0L382.3 56.0L383.4 56.0L384.6 56.0L385.8 56.0L386.9 56.0L388.1 56.0L389.2 56.0L390.4 56.0L391.6 56.0L392.7 56.0L393.9 56.0L395.0 56.0L396.2 56.0L397.4 56.0L398.5 56.0L399.7 56.0L400.8 56.0L402.0 56.0" class="brk"/>
+<path d="M54.0 288.0L97.2 288.0L97.2 286.3L98.9 286.3L98.9 284.6L99.2 282.9L101.1 282.9L101.1 281.2L103.1 281.2L103.1 279.5L103.7 279.5L103.7 277.8L105.1 277.8L105.1 276.1L106.4 276.1L106.4 274.5L114.4 274.5L114.4 272.8L115.2 272.8L115.2 271.1L115.9 271.1L115.9 269.4L118.0 269.4L118.0 267.7L118.5 266.0L119.5 266.0L119.5 264.3L120.4 264.3L120.4 262.6L120.5 260.9L121.0 259.2L121.5 257.5L122.5 257.5L122.5 255.8L125.1 255.8L125.1 254.1L126.1 254.1L126.1 252.4L126.5 250.7L127.1 250.7L127.1 249.1L127.5 247.4L128.6 247.4L128.6 245.7L129.0 244.0L131.5 244.0L131.5 242.3L132.1 242.3L132.1 240.6L132.7 240.6L132.7 238.9L133.6 238.9L133.6 237.2L136.3 237.2L136.3 235.5L136.7 233.8L137.5 233.8L137.5 232.1L138.2 232.1L138.2 230.4L138.5 228.7L138.6 227.0L139.5 227.0L139.5 225.3L140.4 225.3L140.4 223.6L140.8 222.0L141.3 220.3L141.8 220.3L141.8 218.6L142.2 216.9L143.4 216.9L143.4 215.2L143.9 215.2L143.9 213.5L144.5 213.5L144.5 211.8L146.6 211.8L146.6 210.1L149.2 210.1L149.2 208.4L149.6 206.7L152.0 206.7L152.0 205.0L153.6 205.0L153.6 203.3L153.9 201.6L154.0 199.9L154.5 199.9L154.5 198.2L156.0 198.2L156.0 196.6L156.1 194.9L156.3 193.2L156.4 191.5L157.7 191.5L157.7 189.8L159.9 189.8L159.9 188.1L159.9 186.4L161.7 186.4L161.7 184.7L161.7 183.0L162.0 181.3L162.1 179.6L162.7 179.6L162.7 177.9L162.9 176.2L164.5 176.2L164.5 174.5L166.7 174.5L166.7 172.8L166.7 171.2L167.8 171.2L167.8 169.5L168.3 169.5L168.3 167.8L168.5 166.1L168.9 164.4L169.9 164.4L169.9 162.7L171.9 162.7L171.9 161.0L172.9 161.0L172.9 159.3L173.4 157.6L173.6 155.9L173.9 154.2L175.4 154.2L175.4 152.5L177.5 152.5L177.5 150.8L178.0 150.8L178.0 149.1L178.1 147.4L179.8 147.4L179.8 145.8L181.1 145.8L181.1 144.1L181.1 142.4L181.2 140.7L183.1 140.7L183.1 139.0L184.0 139.0L184.0 137.3L184.5 137.3L184.5 135.6L184.8 133.9L186.7 133.9L186.7 132.2L189.6 132.2L189.6 130.5L190.8 130.5L190.8 128.8L191.0 127.1L191.1 125.4L191.3 123.7L192.4 123.7L192.4 122.0L192.6 120.4L192.9 118.7L193.8 118.7L193.8 117.0L194.1 115.3L194.5 113.6L196.1 113.6L196.1 111.9L196.1 110.2L202.1 110.2L202.1 108.5L202.4 106.8L202.4 105.1L203.8 105.1L203.8 103.4L205.0 103.4L205.0 101.7L206.8 101.7L206.8 100.0L206.9 98.3L207.7 98.3L207.7 96.6L214.4 96.6L214.4 94.9L215.3 94.9L215.3 93.3L216.0 93.3L216.0 91.6L218.5 91.6L218.5 89.9L219.5 89.9L219.5 88.2L220.2 88.2L220.2 86.5L221.3 86.5L221.3 84.8L222.7 84.8L222.7 83.1L223.7 83.1L223.7 81.4L225.2 81.4L225.2 79.7L225.3 78.0L234.4 78.0L234.4 76.3L235.5 76.3L235.5 74.6L236.2 74.6L236.2 72.9L236.6 71.2L243.3 71.2L243.3 69.5L243.7 67.9L244.7 67.9L244.7 66.2L244.9 64.5L257.5 64.5L257.5 62.8L261.5 62.8L261.5 61.1L261.5 59.4L267.7 59.4L267.7 57.7L281.0 57.7L281.0 56.0L402.0 56.0" class="helix thin"/>
+<text x="72.6" y="69.9" class="flab st c1">measured (137 gaps)</text>
+<text x="72.6" y="85.9" class="flab st c2">GUE (Wigner surmise)</text>
+<text x="72.6" y="101.9" class="flab st">Poisson (no repulsion)</text>
+</svg>
+</div></div>
+<div class="cell prose" style="min-width:280px">
+<p style="margin-top:0"><b>Read this figure carefully.</b> The measured gaps sit far from Poisson — P(gap ≤ ½) = <b>0.058</b> where independent points would give 0.393. Small gaps are strongly suppressed: the zeros repel one another. That is the qualitative signature of a <i>spectrum</i>, not of a random set, and it is the reason the Hilbert–Pólya idea is taken seriously.</p>
+<p><b>But the fit to GUE is not good here, and should not be claimed.</b> The Wigner surmise predicts P(gap ≤ ½) = 0.112, roughly double what these 137 gaps show — the low zeros are <i>more</i> rigid than the asymptotic law. This is expected: Montgomery's pair correlation and Odlyzko's confirmation are statements about height, and Odlyzko needed zeros near the 10<sup>20</sup>-th to see GUE cleanly. At <i>t</i> ≤ 300 one can honestly show repulsion and nothing finer.</p>
+<p>What matters for the argument survives that caveat. Repulsion is a <b>unitary-group</b> phenomenon — it comes from eigenvalue statistics of matrices with multiplicity — and no abelian symmetry produces it.</p>
+</div>
+</div>
+<figcaption><b>Figure 5 — gaps between consecutive zeros.</b> Cumulative distribution of the 137 normalized gaps (violet), against the GUE Wigner surmise (dashed orange) and the Poisson law (dotted). The surmise is self-verified in the compute script: it integrates to 1 and has mean 1, both to 10<sup>−9</sup>.</figcaption>
+</figure>
+</section>
+
+<p class="kicker">Part IV · The balance</p>
+
+<section class="prose" id="s7">
+<h2>7 · The three objects, in one picture</h2>
+<p>Assembling the six sections:</p>
+<div class="box rh">
+<span class="lbl">The relationship</span>
+<p><b>Integer primes and circle primes are the same data</b> at two resolutions — the circle primes are the integer primes with their conjugates, Galois action and chord geometry exposed (rh7). Anything one determines, the other determines.</p>
+<p><b>The zeros are the Fourier dual of that data</b>, not a further fact about it. §2 exhibits the dual transform running backwards: 138 ordinates rebuild the prime staircase exactly, jump by jump.</p>
+<p><b>The two meet in the torus.</b> Each prime is a circle of period 2π/log <i>p</i>; the circles are pairwise incommensurable by unique factorization; the joint winding is dense and never returns. Local closures are silent (§3), no two gears agree (§4), and the zeros are the residue of that permanent disagreement — while Landau's bias shows each gear is still individually legible in the zeros, inverted (§5).</p>
+<p><b>The difficulty is the passage from local to global.</b> Prime by prime the picture is complete and abelian, and Kronecker–Weber says it cannot be enlarged within the circle. The zeros' repulsion is a signature from outside that world (§6). RH is the assertion that the global interference is maximally fair — the coin-flip law of <a href="rh4.html#s9">rh4 §9</a>.</p>
+</div>
+<p>Which is also the honest position of this whole sequence of documents. rh4 built the geometry; rh5 priced its missing axiom; rh6 made its continuum lawful; rh7 relocated its primes and found the abelian ceiling; rh8 shows the ceiling from the zeros' side. Every layer is describable, computable, and verified. The one thing none of them supplies is a space on which these commuting symmetries act with multiplicity — and that, from five directions now, is the whole of the remaining problem.</p>
+</section>
+
+<section id="s8">
+<h2 class="prose" style="max-width:46rem">8 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic number theory</th></tr>
+<tr><td>gear <i>p</i>'s rotation rate along the numeral</td><td>log <i>p</i> — a frequency in the explicit formula</td></tr>
+<tr><td>torsion at which the helix closes</td><td>γ — a point of the spectrum</td></tr>
+<tr><td>the train rebuilt from its closures</td><td>ψ(<i>x</i>) = <i>x</i> − ∑<sub>ρ</sub> <i>x</i><sup>ρ</sup>/ρ − log 2π − ½log(1−<i>x</i><sup>−2</sup>)</td></tr>
+<tr><td>each prime is its own circle</td><td><i>p</i><sup>−<i>it</i></sup> periodic in <i>t</i> with period 2π/log <i>p</i></td></tr>
+<tr><td>a gear closing, alone</td><td><i>t</i> ∈ (2π/log <i>p</i>)ℤ; arithmetically silent</td></tr>
+<tr><td>a gear can never fail on its own</td><td>|1 − <i>p</i><sup>−<i>s</i></sup>| ≥ 1 − <i>p</i><sup>−σ</sup> &gt; 0: local factors have poles, not zeros</td></tr>
+<tr><td>full phase state of the train</td><td>a point of 𝕋<sup>∞</sup> = ∏<sub><i>p</i></sub> S¹; ζ as a function on it (Bohr)</td></tr>
+<tr><td>the height line, wound on the train</td><td>dense equidistributed orbit; Kronecker's theorem</td></tr>
+<tr><td>two gears never closing together</td><td><i>p</i><sup><i>a</i></sup> = <i>q</i><sup><i>b</i></sup> impossible; ℚ-independence of {log <i>p</i>}</td></tr>
+<tr><td>zeros as the residue of disagreement</td><td>zeros carried entirely by the lattice term (<a href="rh5.html#s3">rh5 §3</a>)</td></tr>
+<tr><td>zeros leaning against each gear</td><td>Landau 1912: ∑<sub>γ≤T</sub> <i>x</i><sup>ρ</sup> = −(<i>T</i>/2π)Λ(<i>x</i>) + <i>O</i>(log <i>T</i>)</td></tr>
+<tr><td>circle primes as the splitting data</td><td>ζ<sub>ℚ(ζ<sub><i>q</i></sub>)</sub> = ∏<sub>χ</sub> L(<i>s</i>,χ); splitting type = (<i>e</i>, <i>f</i>, <i>g</i>)</td></tr>
+<tr><td>the ceiling of the circle description</td><td>Kronecker–Weber: the roots of unity give ℚ<sup>ab</sup> and no more</td></tr>
+<tr><td>closures repelling one another</td><td>level repulsion; GUE pair correlation (Montgomery, Odlyzko)</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<p class="meta" style="margin-bottom:.6rem">Additions to the rh4–rh7 lists, which remain in force.</p>
+<ol>
+<li>H. von Mangoldt, <i>Zu Riemanns Abhandlung «Über die Anzahl der Primzahlen unter einer gegebenen Grösse»</i>, J. reine angew. Math. 114 (1895) — the explicit formula for ψ(x).</li>
+<li>E. Landau, <i>Über die Nullstellen der Zetafunktion</i>, Math. Ann. 71 (1912) — the bias of §5.</li>
+<li>H. Bohr, R. Courant, <i>Neue Anwendungen der Theorie der Diophantischen Approximationen auf die Riemannsche Zetafunktion</i>, J. reine angew. Math. 144 (1914); H. Bohr, B. Jessen, <i>Über die Werteverteilung der Riemannschen Zetafunktion</i>, Acta Math. 54 (1930) and 58 (1932) — ζ on the infinite torus.</li>
+<li>L. Kronecker, <i>Näherungsweise ganzzahlige Auflösung linearer Gleichungen</i>, Berl. Sitzungsber. (1884) — density of the winding orbit.</li>
+<li>H. L. Montgomery, <i>The pair correlation of zeros of the zeta function</i>, Proc. Sympos. Pure Math. 24, AMS (1973).</li>
+<li>A. M. Odlyzko, <i>On the distribution of spacings between zeros of the zeta function</i>, Math. Comp. 48 (1987).</li>
+<li>M. L. Mehta, <i>Random Matrices</i>, 3rd ed., Elsevier (2004) — the Wigner surmise and GUE statistics.</li>
+<li>H. Davenport, <i>Multiplicative Number Theory</i>, 3rd ed., Springer (2000), ch. 17 — the explicit formula in the form used for Figure 1.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page was computed for this document and cross-checked against 62 internal identities (plus several thousand routine assertions): 138 ordinates located by bisection on the Riemann–Siegel <i>Z</i>-function built from an Euler–Maclaurin ζ, the first ten agreeing with published values to 10<sup>−7</sup> and the total matching the Riemann–von Mangoldt count θ(300)/π + 1 = 137.712; every recovered ordinate independently confirmed to give |ζ(½+<i>i</i>γ)| &lt; 10<sup>−7</sup>; the explicit formula evaluated against the true ψ(<i>x</i>) at five midpoints (worst error 0.089); the local period identity for six gears at two heights; non-vanishing of six local Euler factors over 30 000 heights each; the closest approach of any of the 138 ordinates to any of the six closure lattices (0.01171, gear 11, γ₁₀); the gauge closure <i>t</i>₁ = 9.064720 with |ζ(1+<i>it</i>₁)| = 1.351055 and nearest zero 5.07 away; 2<sup><i>a</i></sup> ≠ 3<sup><i>b</i></sup> for <i>a</i>, <i>b</i> ≤ 40 and the 0.04758-radian minimum joint approach of gears 2 and 3 on 1 ≤ <i>t</i> ≤ 300; Landau's bias at nine prime powers against its predicted depth, and its absence at five non-prime-powers; the cyclotomic factorization ζ<sub>ℚ(ζ₅)</sub> = ∏<sub>χ</sub>L(<i>s</i>,χ) verified at every prime below 4000 and in the completed product; and the Wigner surmise self-verified to integrate to 1 and to have mean 1, against 137 normalized gaps of mean 1.0013. Companion texts: <a href="rh4.html">rh4</a> · <a href="rh5.html">rh5</a> · <a href="rh6.html">rh6</a> · <a href="rh7.html">rh7</a>.
+</div>
+
+
+</div>
+<script>
+(function () {
+  var H = {"e":[[54.0,327.1,"x = 2.00 &#183; from zeros 0.35 &#183; true 0.69"],[57.0,324.2,"x = 2.12 &#183; from zeros 0.70 &#183; true 0.69"],[59.9,324.3,"x = 2.24 &#183; from zeros 0.69 &#183; true 0.69"],[62.9,324.2,"x = 2.35 &#183; from zeros 0.70 &#183; true 0.69"],[65.9,324.3,"x = 2.47 &#183; from zeros 0.69 &#183; true 0.69"],[68.8,324.3,"x = 2.59 &#183; from zeros 0.69 &#183; true 0.69"],[71.8,324.2,"x = 2.71 &#183; from zeros 0.70 &#183; true 0.69"],[74.7,324.2,"x = 2.83 &#183; from zeros 0.70 &#183; true 0.69"],[77.7,324.0,"x = 2.95 &#183; from zeros 0.73 &#183; true 0.69"],[80.7,315.7,"x = 3.06 &#183; from zeros 1.73 &#183; true 1.79"],[83.6,315.3,"x = 3.18 &#183; from zeros 1.78 &#183; true 1.79"],[86.6,315.0,"x = 3.30 &#183; from zeros 1.81 &#183; true 1.79"],[89.6,315.2,"x = 3.42 &#183; from zeros 1.79 &#183; true 1.79"],[92.5,315.3,"x = 3.54 &#183; from zeros 1.78 &#183; true 1.79"],[95.5,315.1,"x = 3.65 &#183; from zeros 1.81 &#183; true 1.79"],[98.5,315.3,"x = 3.77 &#183; from zeros 1.78 &#183; true 1.79"],[101.4,315.1,"x = 3.89 &#183; from zeros 1.80 &#183; true 1.79"],[104.4,311.3,"x = 4.01 &#183; from zeros 2.27 &#183; true 2.48"],[107.3,309.2,"x = 4.13 &#183; from zeros 2.52 &#183; true 2.48"],[110.3,309.4,"x = 4.25 &#183; from zeros 2.49 &#183; true 2.48"],[113.3,309.7,"x = 4.36 &#183; from zeros 2.46 &#183; true 2.48"],[116.2,309.4,"x = 4.48 &#183; from zeros 2.50 &#183; true 2.48"],[119.2,309.2,"x = 4.60 &#183; from zeros 2.52 &#183; true 2.48"],[122.2,309.5,"x = 4.72 &#183; from zeros 2.48 &#183; true 2.48"],[125.1,309.9,"x = 4.84 &#183; from zeros 2.43 &#183; true 2.48"],[128.1,310.6,"x = 4.95 &#183; from zeros 2.34 &#183; true 2.48"],[131.1,295.7,"x = 5.07 &#183; from zeros 4.15 &#183; true 4.09"],[134.0,296.2,"x = 5.19 &#183; from zeros 4.09 &#183; true 4.09"],[137.0,296.2,"x = 5.31 &#183; from zeros 4.09 &#183; true 4.09"],[139.9,296.2,"x = 5.43 &#183; from zeros 4.09 &#183; true 4.09"],[142.9,296.2,"x = 5.55 &#183; from zeros 4.09 &#183; true 4.09"],[145.9,296.1,"x = 5.66 &#183; from zeros 4.10 &#183; true 4.09"],[148.8,296.1,"x = 5.78 &#183; from zeros 4.10 &#183; true 4.09"],[151.8,296.1,"x = 5.90 &#183; from zeros 4.10 &#183; true 4.09"],[154.8,296.1,"x = 6.02 &#183; from zeros 4.10 &#183; true 4.09"],[157.7,296.1,"x = 6.14 &#183; from zeros 4.10 &#183; true 4.09"],[160.7,296.2,"x = 6.25 &#183; from zeros 4.09 &#183; true 4.09"],[163.7,296.3,"x = 6.37 &#183; from zeros 4.08 &#183; true 4.09"],[166.6,296.3,"x = 6.49 &#183; from zeros 4.07 &#183; true 4.09"],[169.6,296.2,"x = 6.61 &#183; from zeros 4.09 &#183; true 4.09"],[172.5,295.9,"x = 6.73 &#183; from zeros 4.13 &#183; true 4.09"],[175.5,295.5,"x = 6.85 &#183; from zeros 4.18 &#183; true 4.09"],[178.5,295.1,"x = 6.96 &#183; from zeros 4.23 &#183; true 4.09"],[181.4,278.7,"x = 7.08 &#183; from zeros 6.21 &#183; true 6.04"],[184.4,279.8,"x = 7.20 &#183; from zeros 6.07 &#183; true 6.04"],[187.4,280.4,"x = 7.32 &#183; from zeros 6.00 &#183; true 6.04"],[190.3,280.3,"x = 7.44 &#183; from zeros 6.01 &#183; true 6.04"],[193.3,279.9,"x = 7.55 &#183; from zeros 6.07 &#183; true 6.04"],[196.3,279.9,"x = 7.67 &#183; from zeros 6.07 &#183; true 6.04"],[199.2,280.2,"x = 7.79 &#183; from zeros 6.02 &#183; true 6.04"],[202.2,280.5,"x = 7.91 &#183; from zeros 5.98 &#183; true 6.04"],[205.1,275.3,"x = 8.03 &#183; from zeros 6.62 &#183; true 6.73"],[208.1,274.6,"x = 8.15 &#183; from zeros 6.70 &#183; true 6.73"],[211.1,274.2,"x = 8.26 &#183; from zeros 6.75 &#183; true 6.73"],[214.0,274.3,"x = 8.38 &#183; from zeros 6.74 &#183; true 6.73"],[217.0,274.5,"x = 8.50 &#183; from zeros 6.71 &#183; true 6.73"],[220.0,274.2,"x = 8.62 &#183; from zeros 6.75 &#183; true 6.73"],[222.9,274.4,"x = 8.74 &#183; from zeros 6.73 &#183; true 6.73"],[225.9,274.5,"x = 8.85 &#183; from zeros 6.71 &#183; true 6.73"],[228.9,272.3,"x = 8.97 &#183; from zeros 6.98 &#183; true 6.73"],[231.8,264.3,"x = 9.09 &#183; from zeros 7.95 &#183; true 7.83"],[234.8,265.9,"x = 9.21 &#183; from zeros 7.76 &#183; true 7.83"],[237.7,264.9,"x = 9.33 &#183; from zeros 7.87 &#183; true 7.83"],[240.7,265.3,"x = 9.45 &#183; from zeros 7.83 &#183; true 7.83"],[243.7,265.4,"x = 9.56 &#183; from zeros 7.81 &#183; true 7.83"],[246.6,264.9,"x = 9.68 &#183; from zeros 7.87 &#183; true 7.83"],[249.6,265.7,"x = 9.80 &#183; from zeros 7.78 &#183; true 7.83"],[252.6,264.9,"x = 9.92 &#183; from zeros 7.88 &#183; true 7.83"],[255.5,265.6,"x = 10.04 &#183; from zeros 7.79 &#183; true 7.83"],[258.5,265.0,"x = 10.15 &#183; from zeros 7.86 &#183; true 7.83"],[261.5,265.3,"x = 10.27 &#183; from zeros 7.82 &#183; true 7.83"],[264.4,265.4,"x = 10.39 &#183; from zeros 7.82 &#183; true 7.83"],[267.4,265.0,"x = 10.51 &#183; from zeros 7.87 &#183; true 7.83"],[270.3,265.8,"x = 10.63 &#183; from zeros 7.77 &#183; true 7.83"],[273.3,264.4,"x = 10.75 &#183; from zeros 7.94 &#183; true 7.83"],[276.3,266.9,"x = 10.86 &#183; from zeros 7.64 &#183; true 7.83"],[279.2,258.3,"x = 10.98 &#183; from zeros 8.68 &#183; true 7.83"],[282.2,244.1,"x = 11.10 &#183; from zeros 10.40 &#183; true 10.23"],[285.2,246.1,"x = 11.22 &#183; from zeros 10.15 &#183; true 10.23"],[288.1,245.1,"x = 11.34 &#183; from zeros 10.28 &#183; true 10.23"],[291.1,245.7,"x = 11.45 &#183; from zeros 10.20 &#183; true 10.23"],[294.1,245.3,"x = 11.57 &#183; from zeros 10.24 &#183; true 10.23"],[297.0,245.5,"x = 11.69 &#183; from zeros 10.23 &#183; true 10.23"],[300.0,245.4,"x = 11.81 &#183; from zeros 10.23 &#183; true 10.23"],[302.9,245.4,"x = 11.93 &#183; from zeros 10.24 &#183; true 10.23"],[305.9,245.5,"x = 12.05 &#183; from zeros 10.22 &#183; true 10.23"],[308.9,245.4,"x = 12.16 &#183; from zeros 10.24 &#183; true 10.23"],[311.8,245.5,"x = 12.28 &#183; from zeros 10.22 &#183; true 10.23"],[314.8,245.5,"x = 12.40 &#183; from zeros 10.23 &#183; true 10.23"],[317.8,245.3,"x = 12.52 &#183; from zeros 10.25 &#183; true 10.23"],[320.7,245.8,"x = 12.64 &#183; from zeros 10.18 &#183; true 10.23"],[323.7,244.6,"x = 12.75 &#183; from zeros 10.33 &#183; true 10.23"],[326.7,247.3,"x = 12.87 &#183; from zeros 10.01 &#183; true 10.23"],[329.6,236.3,"x = 12.99 &#183; from zeros 11.34 &#183; true 10.23"],[332.6,222.8,"x = 13.11 &#183; from zeros 12.97 &#183; true 12.79"],[335.5,224.7,"x = 13.23 &#183; from zeros 12.74 &#183; true 12.79"],[338.5,224.3,"x = 13.35 &#183; from zeros 12.79 &#183; true 12.79"],[341.5,223.9,"x = 13.46 &#183; from zeros 12.83 &#183; true 12.79"],[344.4,224.6,"x = 13.58 &#183; from zeros 12.75 &#183; true 12.79"],[347.4,223.8,"x = 13.70 &#183; from zeros 12.84 &#183; true 12.79"],[350.4,224.5,"x = 13.82 &#183; from zeros 12.76 &#183; true 12.79"],[353.3,224.1,"x = 13.94 &#183; from zeros 12.81 &#183; true 12.79"],[356.3,224.2,"x = 14.05 &#183; from zeros 12.80 &#183; true 12.79"],[359.3,224.3,"x = 14.17 &#183; from zeros 12.78 &#183; true 12.79"],[362.2,224.1,"x = 14.29 &#183; from zeros 12.81 &#183; true 12.79"],[365.2,224.4,"x = 14.41 &#183; from zeros 12.78 &#183; true 12.79"],[368.1,224.2,"x = 14.53 &#183; from zeros 12.80 &#183; true 12.79"],[371.1,224.2,"x = 14.65 &#183; from zeros 12.80 &#183; true 12.79"],[374.1,224.3,"x = 14.76 &#183; from zeros 12.79 &#183; true 12.79"],[377.0,224.2,"x = 14.88 &#183; from zeros 12.80 &#183; true 12.79"],[380.0,224.2,"x = 15.00 &#183; from zeros 12.79 &#183; true 12.79"],[383.0,224.2,"x = 15.12 &#183; from zeros 12.79 &#183; true 12.79"],[385.9,224.2,"x = 15.24 &#183; from zeros 12.79 &#183; true 12.79"],[388.9,224.1,"x = 15.35 &#183; from zeros 12.81 &#183; true 12.79"],[391.9,224.4,"x = 15.47 &#183; from zeros 12.78 &#183; true 12.79"],[394.8,224.2,"x = 15.59 &#183; from zeros 12.80 &#183; true 12.79"],[397.8,224.0,"x = 15.71 &#183; from zeros 12.82 &#183; true 12.79"],[400.7,224.8,"x = 15.83 &#183; from zeros 12.73 &#183; true 12.79"],[403.7,223.0,"x = 15.95 &#183; from zeros 12.94 &#183; true 12.79"],[406.7,219.4,"x = 16.06 &#183; from zeros 13.38 &#183; true 13.49"],[409.6,218.1,"x = 16.18 &#183; from zeros 13.53 &#183; true 13.49"],[412.6,218.4,"x = 16.30 &#183; from zeros 13.50 &#183; true 13.49"],[415.6,218.7,"x = 16.42 &#183; from zeros 13.46 &#183; true 13.49"],[418.5,218.6,"x = 16.54 &#183; from zeros 13.48 &#183; true 13.49"],[421.5,217.8,"x = 16.65 &#183; from zeros 13.57 &#183; true 13.49"],[424.5,219.6,"x = 16.77 &#183; from zeros 13.36 &#183; true 13.49"],[427.4,218.4,"x = 16.89 &#183; from zeros 13.50 &#183; true 13.49"],[430.4,206.0,"x = 17.01 &#183; from zeros 15.00 &#183; true 16.32"],[433.3,193.8,"x = 17.13 &#183; from zeros 16.48 &#183; true 16.32"],[436.3,194.1,"x = 17.25 &#183; from zeros 16.44 &#183; true 16.32"],[439.3,196.6,"x = 17.36 &#183; from zeros 16.13 &#183; true 16.32"],[442.2,194.3,"x = 17.48 &#183; from zeros 16.41 &#183; true 16.32"],[445.2,194.6,"x = 17.60 &#183; from zeros 16.38 &#183; true 16.32"],[448.2,196.1,"x = 17.72 &#183; from zeros 16.19 &#183; true 16.32"],[451.1,194.6,"x = 17.84 &#183; from zeros 16.39 &#183; true 16.32"],[454.1,194.6,"x = 17.95 &#183; from zeros 16.38 &#183; true 16.32"],[457.1,196.1,"x = 18.07 &#183; from zeros 16.20 &#183; true 16.32"],[460.0,194.7,"x = 18.19 &#183; from zeros 16.37 &#183; true 16.32"],[463.0,194.4,"x = 18.31 &#183; from zeros 16.40 &#183; true 16.32"],[465.9,196.2,"x = 18.43 &#183; from zeros 16.19 &#183; true 16.32"],[468.9,194.8,"x = 18.55 &#183; from zeros 16.36 &#183; true 16.32"],[471.9,193.9,"x = 18.66 &#183; from zeros 16.47 &#183; true 16.32"],[474.8,197.1,"x = 18.78 &#183; from zeros 16.07 &#183; true 16.32"],[477.8,194.1,"x = 18.90 &#183; from zeros 16.43 &#183; true 16.32"],[480.8,180.4,"x = 19.02 &#183; from zeros 18.10 &#183; true 19.27"],[483.7,169.6,"x = 19.14 &#183; from zeros 19.40 &#183; true 19.27"],[486.7,169.8,"x = 19.25 &#183; from zeros 19.38 &#183; true 19.27"],[489.7,171.8,"x = 19.37 &#183; from zeros 19.13 &#183; true 19.27"],[492.6,170.5,"x = 19.49 &#183; from zeros 19.29 &#183; true 19.27"],[495.6,170.2,"x = 19.61 &#183; from zeros 19.33 &#183; true 19.27"],[498.5,171.3,"x = 19.73 &#183; from zeros 19.20 &#183; true 19.27"],[501.5,170.8,"x = 19.85 &#183; from zeros 19.25 &#183; true 19.27"],[504.5,170.2,"x = 19.96 &#183; from zeros 19.33 &#183; true 19.27"],[507.4,171.0,"x = 20.08 &#183; from zeros 19.24 &#183; true 19.27"],[510.4,171.1,"x = 20.20 &#183; from zeros 19.22 &#183; true 19.27"],[513.4,170.3,"x = 20.32 &#183; from zeros 19.32 &#183; true 19.27"],[516.3,170.6,"x = 20.44 &#183; from zeros 19.28 &#183; true 19.27"],[519.3,171.3,"x = 20.55 &#183; from zeros 19.20 &#183; true 19.27"],[522.3,170.7,"x = 20.67 &#183; from zeros 19.28 &#183; true 19.27"],[525.2,170.2,"x = 20.79 &#183; from zeros 19.33 &#183; true 19.27"],[528.2,171.0,"x = 20.91 &#183; from zeros 19.23 &#183; true 19.27"],[531.1,171.2,"x = 21.03 &#183; from zeros 19.21 &#183; true 19.27"],[534.1,170.3,"x = 21.15 &#183; from zeros 19.32 &#183; true 19.27"],[537.1,170.4,"x = 21.26 &#183; from zeros 19.30 &#183; true 19.27"],[540.0,171.3,"x = 21.38 &#183; from zeros 19.20 &#183; true 19.27"],[543.0,170.9,"x = 21.50 &#183; from zeros 19.24 &#183; true 19.27"],[546.0,170.1,"x = 21.62 &#183; from zeros 19.35 &#183; true 19.27"],[548.9,170.7,"x = 21.74 &#183; from zeros 19.27 &#183; true 19.27"],[551.9,171.5,"x = 21.85 &#183; from zeros 19.17 &#183; true 19.27"],[554.9,170.6,"x = 21.97 &#183; from zeros 19.28 &#183; true 19.27"],[557.8,169.8,"x = 22.09 &#183; from zeros 19.38 &#183; true 19.27"],[560.8,171.0,"x = 22.21 &#183; from zeros 19.23 &#183; true 19.27"],[563.7,171.8,"x = 22.33 &#183; from zeros 19.13 &#183; true 19.27"],[566.7,170.2,"x = 22.45 &#183; from zeros 19.34 &#183; true 19.27"],[569.7,169.3,"x = 22.56 &#183; from zeros 19.44 &#183; true 19.27"],[572.6,171.9,"x = 22.68 &#183; from zeros 19.12 &#183; true 19.27"],[575.6,173.0,"x = 22.80 &#183; from zeros 18.99 &#183; true 19.27"],[578.6,166.1,"x = 22.92 &#183; from zeros 19.82 &#183; true 19.27"],[581.5,153.5,"x = 23.04 &#183; from zeros 21.35 &#183; true 22.40"],[584.5,144.4,"x = 23.15 &#183; from zeros 22.45 &#183; true 22.40"],[587.5,143.1,"x = 23.27 &#183; from zeros 22.61 &#183; true 22.40"],[590.4,145.1,"x = 23.39 &#183; from zeros 22.36 &#183; true 22.40"],[593.4,145.6,"x = 23.51 &#183; from zeros 22.31 &#183; true 22.40"],[596.3,144.6,"x = 23.63 &#183; from zeros 22.43 &#183; true 22.40"],[599.3,144.4,"x = 23.75 &#183; from zeros 22.45 &#183; true 22.40"],[602.3,144.9,"x = 23.86 &#183; from zeros 22.39 &#183; true 22.40"],[605.2,145.0,"x = 23.98 &#183; from zeros 22.38 &#183; true 22.40"],[608.2,144.7,"x = 24.10 &#183; from zeros 22.41 &#183; true 22.40"],[611.2,144.9,"x = 24.22 &#183; from zeros 22.39 &#183; true 22.40"],[614.1,144.9,"x = 24.34 &#183; from zeros 22.39 &#183; true 22.40"],[617.1,144.5,"x = 24.45 &#183; from zeros 22.44 &#183; true 22.40"],[620.1,144.6,"x = 24.57 &#183; from zeros 22.43 &#183; true 22.40"],[623.0,145.5,"x = 24.69 &#183; from zeros 22.31 &#183; true 22.40"],[626.0,145.5,"x = 24.81 &#183; from zeros 22.32 &#183; true 22.40"],[628.9,141.9,"x = 24.93 &#183; from zeros 22.75 &#183; true 22.40"],[631.9,135.9,"x = 25.05 &#183; from zeros 23.48 &#183; true 24.01"],[634.9,131.2,"x = 25.16 &#183; from zeros 24.04 &#183; true 24.01"],[637.8,130.3,"x = 25.28 &#183; from zeros 24.16 &#183; true 24.01"],[640.8,131.6,"x = 25.40 &#183; from zeros 24.00 &#183; true 24.01"],[643.8,132.3,"x = 25.52 &#183; from zeros 23.92 &#183; true 24.01"],[646.7,131.6,"x = 25.64 &#183; from zeros 24.00 &#183; true 24.01"],[649.7,131.0,"x = 25.75 &#183; from zeros 24.07 &#183; true 24.01"],[652.7,131.3,"x = 25.87 &#183; from zeros 24.04 &#183; true 24.01"],[655.6,131.8,"x = 25.99 &#183; from zeros 23.97 &#183; true 24.01"],[658.6,131.8,"x = 26.11 &#183; from zeros 23.97 &#183; true 24.01"],[661.5,131.4,"x = 26.23 &#183; from zeros 24.03 &#183; true 24.01"],[664.5,131.2,"x = 26.35 &#183; from zeros 24.05 &#183; true 24.01"],[667.5,131.4,"x = 26.46 &#183; from zeros 24.02 &#183; true 24.01"],[670.4,131.8,"x = 26.58 &#183; from zeros 23.97 &#183; true 24.01"],[673.4,132.0,"x = 26.70 &#183; from zeros 23.95 &#183; true 24.01"],[676.4,131.4,"x = 26.82 &#183; from zeros 24.03 &#183; true 24.01"],[679.3,129.2,"x = 26.94 &#183; from zeros 24.29 &#183; true 24.01"],[682.3,125.7,"x = 27.05 &#183; from zeros 24.72 &#183; true 25.11"],[685.3,122.4,"x = 27.17 &#183; from zeros 25.12 &#183; true 25.11"],[688.2,121.1,"x = 27.29 &#183; from zeros 25.27 &#183; true 25.11"],[691.2,122.1,"x = 27.41 &#183; from zeros 25.15 &#183; true 25.11"],[694.1,123.3,"x = 27.53 &#183; from zeros 25.00 &#183; true 25.11"],[697.1,123.1,"x = 27.65 &#183; from zeros 25.03 &#183; true 25.11"],[700.1,121.9,"x = 27.76 &#183; from zeros 25.18 &#183; true 25.11"],[703.0,121.5,"x = 27.88 &#183; from zeros 25.23 &#183; true 25.11"],[706.0,122.5,"x = 28.00 &#183; from zeros 25.10 &#183; true 25.11"]],"l":[[60.0,141.4,"x = 1.600 &#183; &#8721; = +0.74"],[62.5,145.3,"x = 1.613 &#183; &#8721; = -0.74"],[65.0,138.4,"x = 1.627 &#183; &#8721; = +1.83"],[67.5,145.4,"x = 1.641 &#183; &#8721; = -0.76"],[69.9,141.0,"x = 1.654 &#183; &#8721; = +0.86"],[72.4,141.0,"x = 1.668 &#183; &#8721; = +0.88"],[74.9,145.3,"x = 1.682 &#183; &#8721; = -0.72"],[77.4,138.4,"x = 1.696 &#183; &#8721; = +1.84"],[79.9,145.0,"x = 1.710 &#183; &#8721; = -0.61"],[82.4,141.3,"x = 1.725 &#183; &#8721; = +0.77"],[84.8,140.5,"x = 1.739 &#183; &#8721; = +1.06"],[87.3,145.4,"x = 1.754 &#183; &#8721; = -0.77"],[89.8,138.3,"x = 1.768 &#183; &#8721; = +1.90"],[92.3,144.6,"x = 1.783 &#183; &#8721; = -0.48"],[94.8,141.7,"x = 1.798 &#183; &#8721; = +0.63"],[97.3,139.8,"x = 1.813 &#183; &#8721; = +1.34"],[99.8,145.9,"x = 1.828 &#183; &#8721; = -0.96"],[102.2,137.9,"x = 1.844 &#183; &#8721; = +2.05"],[104.7,144.3,"x = 1.859 &#183; &#8721; = -0.37"],[107.2,142.4,"x = 1.875 &#183; &#8721; = +0.33"],[109.7,138.2,"x = 1.891 &#183; &#8721; = +1.94"],[112.2,147.6,"x = 1.906 &#183; &#8721; = -1.61"],[114.7,136.4,"x = 1.922 &#183; &#8721; = +2.62"],[117.1,144.1,"x = 1.938 &#183; &#8721; = -0.28"],[119.6,145.9,"x = 1.955 &#183; &#8721; = -0.96"],[122.1,128.0,"x = 1.971 &#183; &#8721; = +5.74"],[124.6,175.1,"x = 1.988 &#183; &#8721; = -11.90"],[127.1,198.1,"x = 2.004 &#183; &#8721; = -20.54"],[129.6,143.7,"x = 2.021 &#183; &#8721; = -0.12"],[132.1,134.2,"x = 2.038 &#183; &#8721; = +3.44"],[134.5,148.8,"x = 2.055 &#183; &#8721; = -2.04"],[137.0,137.5,"x = 2.072 &#183; &#8721; = +2.18"],[139.5,142.5,"x = 2.090 &#183; &#8721; = +0.33"],[142.0,143.5,"x = 2.107 &#183; &#8721; = -0.07"],[144.5,138.6,"x = 2.125 &#183; &#8721; = +1.76"],[147.0,144.3,"x = 2.143 &#183; &#8721; = -0.36"],[149.4,140.3,"x = 2.160 &#183; &#8721; = +1.12"],[151.9,141.2,"x = 2.179 &#183; &#8721; = +0.80"],[154.4,143.3,"x = 2.197 &#183; &#8721; = +0.02"],[156.9,139.5,"x = 2.215 &#183; &#8721; = +1.45"],[159.4,143.2,"x = 2.234 &#183; &#8721; = +0.05"],[161.9,141.0,"x = 2.253 &#183; &#8721; = +0.86"],[164.4,140.8,"x = 2.271 &#183; &#8721; = +0.94"],[166.8,143.1,"x = 2.290 &#183; &#8721; = +0.10"],[169.3,139.8,"x = 2.310 &#183; &#8721; = +1.32"],[171.8,142.7,"x = 2.329 &#183; &#8721; = +0.24"],[174.3,141.2,"x = 2.348 &#183; &#8721; = +0.79"],[176.8,140.8,"x = 2.368 &#183; &#8721; = +0.97"],[179.3,142.8,"x = 2.388 &#183; &#8721; = +0.19"],[181.7,140.0,"x = 2.408 &#183; &#8721; = +1.26"],[184.2,142.5,"x = 2.428 &#183; &#8721; = +0.33"],[186.7,141.2,"x = 2.448 &#183; &#8721; = +0.81"],[189.2,140.8,"x = 2.469 &#183; &#8721; = +0.95"],[191.7,142.6,"x = 2.490 &#183; &#8721; = +0.29"],[194.2,140.1,"x = 2.511 &#183; &#8721; = +1.23"],[196.7,142.4,"x = 2.532 &#183; &#8721; = +0.35"],[199.1,140.9,"x = 2.553 &#183; &#8721; = +0.90"],[201.6,141.0,"x = 2.574 &#183; &#8721; = +0.86"],[204.1,142.3,"x = 2.596 &#183; &#8721; = +0.40"],[206.6,140.1,"x = 2.617 &#183; &#8721; = +1.23"],[209.1,142.5,"x = 2.639 &#183; &#8721; = +0.30"],[211.6,140.4,"x = 2.662 &#183; &#8721; = +1.09"],[214.0,141.5,"x = 2.684 &#183; &#8721; = +0.68"],[216.5,141.8,"x = 2.706 &#183; &#8721; = +0.57"],[219.0,139.9,"x = 2.729 &#183; &#8721; = +1.27"],[221.5,143.1,"x = 2.752 &#183; &#8721; = +0.09"],[224.0,139.3,"x = 2.775 &#183; &#8721; = +1.53"],[226.5,142.7,"x = 2.798 &#183; &#8721; = +0.25"],[229.0,141.0,"x = 2.822 &#183; &#8721; = +0.87"],[231.4,139.5,"x = 2.845 &#183; &#8721; = +1.45"],[233.9,145.1,"x = 2.869 &#183; &#8721; = -0.68"],[236.4,135.3,"x = 2.893 &#183; &#8721; = +3.00"],[238.9,147.5,"x = 2.917 &#183; &#8721; = -1.56"],[241.4,137.4,"x = 2.942 &#183; &#8721; = +2.22"],[243.9,134.9,"x = 2.966 &#183; &#8721; = +3.17"],[246.3,211.3,"x = 2.991 &#183; &#8721; = -25.50"],[248.8,192.3,"x = 3.016 &#183; &#8721; = -18.36"],[251.3,122.8,"x = 3.042 &#183; &#8721; = +7.70"],[253.8,146.8,"x = 3.067 &#183; &#8721; = -1.30"],[256.3,143.1,"x = 3.093 &#183; &#8721; = +0.08"],[258.8,134.7,"x = 3.119 &#183; &#8721; = +3.22"],[261.3,148.5,"x = 3.145 &#183; &#8721; = -1.93"],[263.7,135.2,"x = 3.171 &#183; &#8721; = +3.06"],[266.2,143.7,"x = 3.198 &#183; &#8721; = -0.13"],[268.7,142.0,"x = 3.224 &#183; &#8721; = +0.51"],[271.2,137.3,"x = 3.252 &#183; &#8721; = +2.27"],[273.7,145.8,"x = 3.279 &#183; &#8721; = -0.93"],[276.2,136.9,"x = 3.306 &#183; &#8721; = +2.40"],[278.6,142.8,"x = 3.334 &#183; &#8721; = +0.19"],[281.1,141.8,"x = 3.362 &#183; &#8721; = +0.57"],[283.6,137.9,"x = 3.390 &#183; &#8721; = +2.03"],[286.1,144.9,"x = 3.418 &#183; &#8721; = -0.57"],[288.6,137.7,"x = 3.447 &#183; &#8721; = +2.12"],[291.1,142.3,"x = 3.476 &#183; &#8721; = +0.40"],[293.6,141.9,"x = 3.505 &#183; &#8721; = +0.54"],[296.0,138.0,"x = 3.534 &#183; &#8721; = +1.99"],[298.5,144.4,"x = 3.564 &#183; &#8721; = -0.39"],[301.0,138.2,"x = 3.594 &#183; &#8721; = +1.93"],[303.5,141.6,"x = 3.624 &#183; &#8721; = +0.65"],[306.0,142.3,"x = 3.654 &#183; &#8721; = +0.40"],[308.5,137.8,"x = 3.685 &#183; &#8721; = +2.06"],[310.9,144.0,"x = 3.716 &#183; &#8721; = -0.25"],[313.4,138.9,"x = 3.747 &#183; &#8721; = +1.66"],[315.9,140.4,"x = 3.778 &#183; &#8721; = +1.10"],[318.4,143.5,"x = 3.810 &#183; &#8721; = -0.05"],[320.9,137.0,"x = 3.842 &#183; &#8721; = +2.37"],[323.4,143.4,"x = 3.874 &#183; &#8721; = -0.03"],[325.9,141.8,"x = 3.907 &#183; &#8721; = +0.57"],[328.3,133.3,"x = 3.939 &#183; &#8721; = +3.76"],[330.8,159.1,"x = 3.972 &#183; &#8721; = -5.93"],[333.3,181.4,"x = 4.006 &#183; &#8721; = -14.27"],[335.8,147.6,"x = 4.039 &#183; &#8721; = -1.60"],[338.3,131.0,"x = 4.073 &#183; &#8721; = +4.64"],[340.8,148.4,"x = 4.107 &#183; &#8721; = -1.89"],[343.2,137.2,"x = 4.141 &#183; &#8721; = +2.29"],[345.7,139.5,"x = 4.176 &#183; &#8721; = +1.46"],[348.2,145.2,"x = 4.211 &#183; &#8721; = -0.72"],[350.7,134.9,"x = 4.246 &#183; &#8721; = +3.17"],[353.2,145.0,"x = 4.282 &#183; &#8721; = -0.63"],[355.7,139.3,"x = 4.318 &#183; &#8721; = +1.52"],[358.2,138.3,"x = 4.354 &#183; &#8721; = +1.88"],[360.6,145.4,"x = 4.391 &#183; &#8721; = -0.79"],[363.1,135.1,"x = 4.427 &#183; &#8721; = +3.09"],[365.6,144.4,"x = 4.464 &#183; &#8721; = -0.39"],[368.1,140.0,"x = 4.502 &#183; &#8721; = +1.24"],[370.6,137.3,"x = 4.540 &#183; &#8721; = +2.26"],[373.1,146.4,"x = 4.578 &#183; &#8721; = -1.14"],[375.5,134.2,"x = 4.616 &#183; &#8721; = +3.41"],[378.0,144.5,"x = 4.655 &#183; &#8721; = -0.45"],[380.5,140.7,"x = 4.694 &#183; &#8721; = +0.98"],[383.0,135.3,"x = 4.733 &#183; &#8721; = +3.01"],[385.5,149.3,"x = 4.773 &#183; &#8721; = -2.25"],[388.0,130.8,"x = 4.812 &#183; &#8721; = +4.71"],[390.5,146.6,"x = 4.853 &#183; &#8721; = -1.24"],[392.9,142.8,"x = 4.893 &#183; &#8721; = +0.20"],[395.4,122.1,"x = 4.934 &#183; &#8721; = +7.97"],[397.9,205.3,"x = 4.976 &#183; &#8721; = -23.25"],[400.4,213.8,"x = 5.017 &#183; &#8721; = -26.41"],[402.9,131.6,"x = 5.060 &#183; &#8721; = +4.41"],[405.4,137.0,"x = 5.102 &#183; &#8721; = +2.39"],[407.8,146.9,"x = 5.145 &#183; &#8721; = -1.35"],[410.3,134.5,"x = 5.188 &#183; &#8721; = +3.32"],[412.8,143.6,"x = 5.231 &#183; &#8721; = -0.12"],[415.3,139.6,"x = 5.275 &#183; &#8721; = +1.41"],[417.8,139.2,"x = 5.319 &#183; &#8721; = +1.56"],[420.3,142.0,"x = 5.364 &#183; &#8721; = +0.50"],[422.8,138.9,"x = 5.409 &#183; &#8721; = +1.67"],[425.2,140.8,"x = 5.454 &#183; &#8721; = +0.94"],[427.7,140.4,"x = 5.500 &#183; &#8721; = +1.11"],[430.2,139.7,"x = 5.546 &#183; &#8721; = +1.34"],[432.7,140.5,"x = 5.592 &#183; &#8721; = +1.06"],[435.2,140.3,"x = 5.639 &#183; &#8721; = +1.15"],[437.7,139.8,"x = 5.686 &#183; &#8721; = +1.34"],[440.1,140.5,"x = 5.734 &#183; &#8721; = +1.05"],[442.6,140.1,"x = 5.782 &#183; &#8721; = +1.20"],[445.1,139.6,"x = 5.830 &#183; &#8721; = +1.41"],[447.6,141.1,"x = 5.879 &#183; &#8721; = +0.85"],[450.1,139.2,"x = 5.929 &#183; &#8721; = +1.56"],[452.6,140.5,"x = 5.978 &#183; &#8721; = +1.07"],[455.1,140.6,"x = 6.028 &#183; &#8721; = +1.03"],[457.5,138.7,"x = 6.079 &#183; &#8721; = +1.74"],[460.0,141.8,"x = 6.130 &#183; &#8721; = +0.59"],[462.5,138.7,"x = 6.181 &#183; &#8721; = +1.73"],[465.0,140.2,"x = 6.233 &#183; &#8721; = +1.17"],[467.5,141.3,"x = 6.285 &#183; &#8721; = +0.77"],[470.0,137.5,"x = 6.338 &#183; &#8721; = +2.18"],[472.4,142.7,"x = 6.391 &#183; &#8721; = +0.24"],[474.9,138.2,"x = 6.444 &#183; &#8721; = +1.92"],[477.4,139.6,"x = 6.498 &#183; &#8721; = +1.41"],[479.9,142.8,"x = 6.553 &#183; &#8721; = +0.19"],[482.4,135.1,"x = 6.608 &#183; &#8721; = +3.09"],[484.9,144.9,"x = 6.663 &#183; &#8721; = -0.59"],[487.4,137.3,"x = 6.719 &#183; &#8721; = +2.28"],[489.8,137.4,"x = 6.775 &#183; &#8721; = +2.23"],[492.3,149.8,"x = 6.832 &#183; &#8721; = -2.42"],[494.8,120.9,"x = 6.889 &#183; &#8721; = +8.40"],[497.3,170.7,"x = 6.947 &#183; &#8721; = -10.28"],[499.8,232.1,"x = 7.005 &#183; &#8721; = -33.29"],[502.3,154.9,"x = 7.064 &#183; &#8721; = -4.35"],[504.7,123.1,"x = 7.123 &#183; &#8721; = +7.58"],[507.2,152.4,"x = 7.183 &#183; &#8721; = -3.42"],[509.7,133.1,"x = 7.243 &#183; &#8721; = +3.85"],[512.2,140.5,"x = 7.303 &#183; &#8721; = +1.08"],[514.7,143.5,"x = 7.365 &#183; &#8721; = -0.05"],[517.2,133.9,"x = 7.426 &#183; &#8721; = +3.55"],[519.7,145.3,"x = 7.489 &#183; &#8721; = -0.72"],[522.1,136.2,"x = 7.551 &#183; &#8721; = +2.67"],[524.6,140.2,"x = 7.614 &#183; &#8721; = +1.18"],[527.1,142.0,"x = 7.678 &#183; &#8721; = +0.49"],[529.6,135.1,"x = 7.743 &#183; &#8721; = +3.10"],[532.1,145.5,"x = 7.807 &#183; &#8721; = -0.82"],[534.6,132.8,"x = 7.873 &#183; &#8721; = +3.95"],[537.0,148.2,"x = 7.939 &#183; &#8721; = -1.81"],[539.5,173.1,"x = 8.005 &#183; &#8721; = -11.15"],[542.0,142.2,"x = 8.072 &#183; &#8721; = +0.44"],[544.5,135.3,"x = 8.140 &#183; &#8721; = +3.00"],[547.0,144.1,"x = 8.208 &#183; &#8721; = -0.28"],[549.5,135.6,"x = 8.277 &#183; &#8721; = +2.91"],[552.0,141.9,"x = 8.346 &#183; &#8721; = +0.55"],[554.4,139.3,"x = 8.416 &#183; &#8721; = +1.52"],[556.9,137.5,"x = 8.487 &#183; &#8721; = +2.19"],[559.4,142.6,"x = 8.558 &#183; &#8721; = +0.26"],[561.9,136.6,"x = 8.630 &#183; &#8721; = +2.52"],[564.4,140.0,"x = 8.702 &#183; &#8721; = +1.26"],[566.9,142.6,"x = 8.775 &#183; &#8721; = +0.27"],[569.3,131.9,"x = 8.848 &#183; &#8721; = +4.29"],[571.8,149.8,"x = 8.922 &#183; &#8721; = -2.43"],[574.3,182.9,"x = 8.997 &#183; &#8721; = -14.85"],[576.8,156.0,"x = 9.072 &#183; &#8721; = -4.75"],[579.3,127.0,"x = 9.148 &#183; &#8721; = +6.13"],[581.8,146.1,"x = 9.225 &#183; &#8721; = -1.05"],[584.3,138.3,"x = 9.302 &#183; &#8721; = +1.89"],[586.7,135.4,"x = 9.380 &#183; &#8721; = +2.96"],[589.2,145.6,"x = 9.459 &#183; &#8721; = -0.84"],[591.7,133.1,"x = 9.538 &#183; &#8721; = +3.83"],[594.2,142.6,"x = 9.618 &#183; &#8721; = +0.26"],[596.7,139.7,"x = 9.699 &#183; &#8721; = +1.36"],[599.2,135.0,"x = 9.780 &#183; &#8721; = +3.14"],[601.6,145.4,"x = 9.862 &#183; &#8721; = -0.77"],[604.1,133.3,"x = 9.944 &#183; &#8721; = +3.75"],[606.6,142.1,"x = 10.028 &#183; &#8721; = +0.46"],[609.1,140.3,"x = 10.112 &#183; &#8721; = +1.12"],[611.6,133.7,"x = 10.196 &#183; &#8721; = +3.61"],[614.1,146.8,"x = 10.282 &#183; &#8721; = -1.31"],[616.6,131.7,"x = 10.368 &#183; &#8721; = +4.35"],[619.0,142.7,"x = 10.455 &#183; &#8721; = +0.23"],[621.5,141.4,"x = 10.542 &#183; &#8721; = +0.74"],[624.0,129.7,"x = 10.631 &#183; &#8721; = +5.11"],[626.5,154.1,"x = 10.720 &#183; &#8721; = -4.05"],[629.0,121.1,"x = 10.810 &#183; &#8721; = +8.34"],[631.5,153.1,"x = 10.900 &#183; &#8721; = -3.68"],[633.9,231.5,"x = 10.992 &#183; &#8721; = -33.05"],[636.4,166.8,"x = 11.084 &#183; &#8721; = -8.81"],[638.9,123.3,"x = 11.176 &#183; &#8721; = +7.52"],[641.4,146.6,"x = 11.270 &#183; &#8721; = -1.23"],[643.9,136.4,"x = 11.365 &#183; &#8721; = +2.59"],[646.4,138.3,"x = 11.460 &#183; &#8721; = +1.88"],[648.9,140.2,"x = 11.556 &#183; &#8721; = +1.18"],[651.3,137.8,"x = 11.653 &#183; &#8721; = +2.08"],[653.8,139.1,"x = 11.750 &#183; &#8721; = +1.59"],[656.3,138.6,"x = 11.849 &#183; &#8721; = +1.78"],[658.8,139.5,"x = 11.948 &#183; &#8721; = +1.43"],[661.3,136.8,"x = 12.048 &#183; &#8721; = +2.47"],[663.8,141.6,"x = 12.149 &#183; &#8721; = +0.64"],[666.2,135.8,"x = 12.251 &#183; &#8721; = +2.83"],[668.7,139.9,"x = 12.353 &#183; &#8721; = +1.31"],[671.2,140.8,"x = 12.457 &#183; &#8721; = +0.95"],[673.7,132.0,"x = 12.561 &#183; &#8721; = +4.27"],[676.2,149.6,"x = 12.666 &#183; &#8721; = -2.35"],[678.7,125.2,"x = 12.772 &#183; &#8721; = +6.82"],[681.2,148.7,"x = 12.879 &#183; &#8721; = -2.01"],[683.6,228.5,"x = 12.987 &#183; &#8721; = -31.95"],[686.1,171.0,"x = 13.096 &#183; &#8721; = -10.38"],[688.6,119.3,"x = 13.206 &#183; &#8721; = +9.03"],[691.1,149.0,"x = 13.316 &#183; &#8721; = -2.11"],[693.6,135.0,"x = 13.428 &#183; &#8721; = +3.11"],[696.1,136.8,"x = 13.541 &#183; &#8721; = +2.46"],[698.5,142.8,"x = 13.654 &#183; &#8721; = +0.21"],[701.0,133.6,"x = 13.768 &#183; &#8721; = +3.65"],[703.5,141.9,"x = 13.884 &#183; &#8721; = +0.54"],[706.0,136.9,"x = 14.000 &#183; &#8721; = +2.42"]]};
+  function hook(svgSel, tipId, lineId, dotId, data) {
+    var svg = document.querySelector(svgSel);
+    if (!svg) return;
+    var wrap = svg.closest('.fig-frame');
+    var tip = document.getElementById(tipId);
+    var line = document.getElementById(lineId);
+    var dot = document.getElementById(dotId);
+    if (!wrap || !tip || !line || !dot) return;
+    var vb = svg.viewBox.baseVal;
+    function move(ev) {
+      var r = svg.getBoundingClientRect();
+      var px = (ev.clientX - r.left) * vb.width / r.width;
+      var best = 0, bd = 1e9;
+      for (var i = 0; i < data.length; i++) {
+        var d = Math.abs(data[i][0] - px);
+        if (d < bd) { bd = d; best = i; }
+      }
+      var p = data[best];
+      line.setAttribute('x1', p[0]); line.setAttribute('x2', p[0]);
+      line.removeAttribute('visibility');
+      dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]);
+      dot.removeAttribute('visibility');
+      tip.innerHTML = p[2];
+      tip.style.display = 'block';
+      var wr = wrap.getBoundingClientRect();
+      var sx = r.width / vb.width;
+      var lx = (r.left - wr.left) + p[0] * sx + 12;
+      if (lx + tip.offsetWidth > wr.width - 8) lx = lx - tip.offsetWidth - 24;
+      tip.style.left = lx + 'px';
+      tip.style.top = ((r.top - wr.top) + p[1] * (r.height / vb.height) - 34) + 'px';
+    }
+    function leave() {
+      tip.style.display = 'none';
+      line.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+    }
+    svg.addEventListener('mousemove', move);
+    svg.addEventListener('mouseleave', leave);
+  }
+  hook('svg:has(#eline)', 'etip', 'eline', 'edot', H.e);
+  hook('svg:has(#lline)', 'ltip', 'lline', 'ldot', H.l);
+})();
+</script>
+</body>
+</html>

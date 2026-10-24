@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Routes A, B, C — a pedagogical guide to certifying zeros of the Riemann zeta function</title>
+<style>
+  :root{ --ink:#17202a; --muted:#5b6b7c; --rule:#d8dee6; --bg:#fdfdfb;
+    --accent:#7a2e2e; --accent2:#1f4e79; --code:#f4f6f8; --mark:#fff6d5; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.68 Georgia,"Iowan Old Style","Times New Roman",serif;}
+  .wrap{max-width:60rem;margin:0 auto;padding:3.2rem 1.6rem 6rem}
+  header.title{border-bottom:3px double var(--rule);padding-bottom:1.6rem;margin-bottom:2rem}
+  h1{font-size:1.62rem;line-height:1.28;margin:0 0 .5rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1rem;margin:.35rem 0 0}
+  .meta{font-size:.86rem;color:var(--muted);margin-top:1rem;line-height:1.7}
+  .meta code{font-size:.85em}
+  h2{font-size:1.22rem;margin:2.9rem 0 .9rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);color:var(--accent2)}
+  h3{font-size:1.03rem;margin:1.9rem 0 .6rem;color:var(--accent)}
+  h4{font-size:.96rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  a{color:var(--accent2)}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);padding:.08em .32em;border-radius:3px;font-size:.88em}
+  pre{background:var(--code);border:1px solid var(--rule);border-left:3px solid var(--accent2);
+      padding:.85rem 1rem;overflow-x:auto;font-size:.83rem;line-height:1.5;border-radius:4px}
+  pre code{background:none;padding:0;font-size:1em}
+  .box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:#fff;
+       padding:.9rem 1.1rem;margin:1.2rem 0;border-radius:4px}
+  .box.def{border-left-color:var(--accent2);background:#f8fafc}
+  .box.res{border-left-color:#1e6b3a;background:#f6fbf7}
+  .box.why{border-left-color:#7a4e9e;background:#f9f6fc}
+  .box.warn{border-left-color:#8a1c1c;background:#fdf6f6;border-color:#e2b6b6}
+  .box.warn h4{color:#8a1c1c}
+  .box h4{margin-top:0}
+  .box.why h4{color:#7a4e9e}
+  table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.44rem .6rem;text-align:left;vertical-align:top}
+  th{background:#f2f5f8;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  nav#toc{background:#f7f9fb;border:1px solid var(--rule);border-radius:5px;padding:1rem 1.3rem;margin:1.6rem 0 2.6rem}
+  nav#toc h2{margin:0 0 .5rem;border:none;font-size:1rem;color:var(--accent2)}
+  nav#toc ol{margin:.2rem 0 0;padding-left:1.4rem;columns:2;column-gap:2.4rem}
+  nav#toc li{margin:.18rem 0;break-inside:avoid}
+  nav#toc a{text-decoration:none}
+  nav#toc a:hover{text-decoration:underline}
+  .abstract{background:#fff;border:1px solid var(--rule);border-radius:5px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  .abstract h2{margin:0 0 .5rem;border:none;font-size:1rem}
+  .kw{font-size:.88rem;color:var(--muted);margin-top:.7rem}
+  ul,ol{padding-left:1.4rem} li{margin:.3rem 0}
+  hr{border:none;border-top:1px solid var(--rule);margin:2.4rem 0}
+  .small{font-size:.87rem;color:var(--muted)}
+  .refs{font-size:.92rem} .refs li{margin:.5rem 0}
+  .eq{display:block;margin:.9rem 0 .9rem 1.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.9rem}
+  .status{display:inline-block;font-size:.74rem;padding:.1em .5em;border-radius:10px;vertical-align:middle;
+          letter-spacing:.02em;font-family:system-ui,sans-serif;white-space:nowrap}
+  .s-proved{background:#e2f3e8;color:#14602f;border:1px solid #a9d8ba}
+  .s-num{background:#e8eef7;color:#1c3f66;border:1px solid #aec6e2}
+  .s-thm{background:#f0e8f8;color:#5a2a86;border:1px solid #cbb0e2}
+  .s-cited{background:#fdf3e2;color:#8a5a14;border:1px solid #e2cba9}
+  .s-open{background:#eef0f2;color:#4a5560;border:1px solid #c3cad1}
+  .s-fail{background:#f6e0e0;color:#8a1c1c;border:1px solid #e2b6b6}
+  .quote{background:#faf8f4;border-left:3px solid var(--accent);padding:.6rem 1rem;margin:1rem 0;
+         border-radius:0 4px 4px 0;font-size:.94rem}
+  .steps{counter-reset:st;list-style:none;padding-left:0}
+  .steps li{counter-increment:st;margin:.6rem 0;padding-left:2.2rem;position:relative}
+  .steps li::before{content:counter(st);position:absolute;left:0;top:.05em;width:1.5rem;height:1.5rem;
+     border-radius:50%;background:var(--accent2);color:#fff;font:600 .8rem/1.5rem system-ui,sans-serif;text-align:center}
+  figure{margin:1.6rem 0;padding:0}
+  figure img{width:100%;height:auto;border:1px solid var(--rule);border-radius:5px;background:#fdfdfb}
+  figcaption{font-size:.85rem;color:var(--muted);margin-top:.45rem;line-height:1.5}
+  figcaption b{color:var(--ink)}
+  footer{margin-top:3.5rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.85rem;color:var(--muted)}
+  @media print{ body{background:#fff;font-size:11pt} nav#toc{break-inside:avoid} h2{break-after:avoid}
+    pre{break-inside:avoid} .box{break-inside:avoid} figure{break-inside:avoid} }
+  @media (max-width:640px){ nav#toc ol{columns:1} .wrap{padding:2rem .9rem 4rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>Routes A, B, C &mdash; a pedagogical guide to<br>certifying zeros of the Riemann zeta function</h1>
+  <p class="sub">A self-contained explanation of the three certification strategies developed in
+  round <code>010</code>: <strong>Route&nbsp;A</strong> pins down one zero (existence, uniqueness,
+  simplicity); <strong>Route&nbsp;B</strong> uses a rigorous <em>count</em> to prove that a whole
+  window contains nothing but simple on-line zeros; <strong>Route&nbsp;C</strong> turns the explicit
+  formula into a validated inequality. Everything is explained from scratch: what is being certified,
+  why it is harder than it sounds, and how each route works.</p>
+  <div class="meta">
+    <strong>Source of record:</strong> <code>research/twin-prime-parity/010/</code> &nbsp;&middot;&nbsp;
+    <strong>Lean:</strong> <code>Rh45/Routes.lean</code>, <code>Rh45/RouteBAnalytic.lean</code>,
+    <code>Rh45/ArgumentPrinciple.lean</code>, <code>Rh45/Weierstrass.lean</code>,
+    <code>Rh45/RouteBGeneral.lean</code>, <code>Rh45/XiEntire.lean</code>,
+    <code>Rh45/SimpsonPanel.lean</code>, <code>Rh45/PolygammaSeries.lean</code> &nbsp;&middot;&nbsp;
+    <strong>Build:</strong> <code>./check.sh --all</code> <strong>13/13</strong>, <code>0 sorry</code>,
+    <code>0 axiom</code> &nbsp;&middot;&nbsp; <strong>Numerics:</strong> <code>../rigorous/</code>
+  </div>
+</header>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>
+Suppose you want to <em>prove</em> &mdash; not plot, not approximate &mdash; that the first
+non-trivial zero of <code>&zeta;</code> lies on the critical line, that whole windows
+<code>&frac12; &lt; Im s &lt; 15</code> and <code>&frac12; &lt; Im s &lt; 33</code> contain nothing but simple on-line zeros, and that the
+explicit formula balances to within a stated error. Numerical evaluation alone cannot do this: a
+decimal expansion of <code>&zeta;</code> is not a proof, and a sign change of a floating-point
+partial sum can be an artefact. This paper explains, from first principles, the three strategies the
+round uses. <strong>Route&nbsp;A</strong> (existence, uniqueness, simplicity of one zero) is elementary
+analysis packaged for interval arithmetic: a sign change gives existence, a one-signed derivative
+gives uniqueness, and a non-zero derivative at the root gives simplicity.
+<strong>Route&nbsp;B</strong> (exhaustiveness in a window) is Turing&rsquo;s method: a rigorous
+<em>upper</em> bound <code>N(T)</code> on how many zeros there can be, matched against a set of
+certified zeros of the same size, forces the two to coincide &mdash; a pure cardinality squeeze whose
+analytic input is the argument principle <code>&oint; &xi;&prime;/&xi; = 2&pi;iN(T)</code>, reduced
+by the functional equation to a path in <code>&frac12; &le; Re s &le; 1</code> where the interval
+engine is valid. <strong>Route&nbsp;C</strong> (a validated value) splits the explicit formula into a
+computed part plus three tails and bounds the residual by their sum; each tail is an inequality
+(Chebyshev for the primes, a Simpson-panel error for the archimedean term, the certified zero list for
+the zero sum). The paper states exactly which ingredient is <em>proved</em> (machine-checked),
+<em>certified</em> (interval arithmetic) or <em>cited</em>, and what none of the three routes claims:
+none of them proves the Riemann Hypothesis.
+</p>
+<p class="kw"><strong>Keywords:</strong> Riemann zeta function; certified computation; interval
+arithmetic; Riemann&ndash;Siegel <code>Z</code>; Turing&rsquo;s method; argument principle; explicit
+formula; Lean&nbsp;4; Mathlib.</p>
+</div>
+
+<nav id="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s1">What does it mean to certify a zero?</a></li>
+  <li><a href="#s2">Route A &mdash; pinning down one zero</a></li>
+  <li><a href="#s3">Route B &mdash; ruling out the zeros you have not seen</a></li>
+  <li><a href="#s4">Route C &mdash; a validated value for the explicit formula</a></li>
+  <li><a href="#s5">How the three routes interlock</a></li>
+  <li><a href="#s6">Ledger: proved, certified, cited</a></li>
+  <li><a href="#s7">Reproduction</a></li>
+  <li><a href="#s8">Glossary and references</a></li>
+</ol>
+</nav>
+
+<!-- ===================================================================== -->
+<h2 id="s1">1. What does it mean to certify a zero?</h2>
+
+<h3>1.1 The object</h3>
+
+<p>
+The Riemann zeta function is <code>&zeta;(s) = &sum;<sub>n&ge;1</sub> n<sup>&minus;s</sup></code>, which
+converges for <code>Re s &gt; 1</code> and continues meromorphically to the whole plane with a single
+pole at <code>s = 1</code>. It has <em>trivial</em> zeros at the negative even integers and infinitely
+many <em>non-trivial</em> zeros, all in the open strip <code>0 &lt; Re s &lt; 1</code> (the
+<em>critical strip</em>). The <em>critical line</em> is <code>Re s = &frac12;</code>. The Riemann
+Hypothesis (RH) says every non-trivial zero lies on it.
+</p>
+
+<p>
+A numerical table of zeros is not a proof of anything. What we want, in this round, is a
+<strong>certificate</strong>: a finite body of evidence that a machine can check, from which a
+precise statement follows by pure logic. Three different precise statements are in play.
+</p>
+
+<table>
+<thead><tr><th>route</th><th>statement certified</th><th>logical shape</th></tr></thead>
+<tbody>
+<tr><td><b>A</b></td><td>&ldquo;this bracketed interval contains <em>exactly one</em> zero, and it is simple&rdquo;</td>
+    <td>existence + uniqueness + simplicity for one zero</td></tr>
+<tr><td><b>B</b></td><td>&ldquo;<em>every</em> zero with <code>&frac12; &lt; Im s &lt; T</code> is one of the certified simple on-line zeros&rdquo;</td>
+    <td>exhaustiveness: nothing is missed in the window</td></tr>
+<tr><td><b>C</b></td><td>&ldquo;the explicit formula differs from its computed value by at most <code>&epsilon;</code>&rdquo;</td>
+    <td>a rigorous error budget for a numerical value</td></tr>
+</tbody>
+</table>
+
+<h3>1.2 From complex zeros to real sign changes: the function <code>Z</code></h3>
+
+<p>
+Zeros of <code>&zeta;</code> are complex, but there is a classical device that turns the search for
+zeros <em>on the critical line</em> into the search for <em>sign changes of a real function</em>. Put
+<code>s = &frac12; + it</code> and define
+</p>
+<span class="eq">Z(t) = e<sup>i&theta;(t)</sup> &zeta;(&frac12; + it),&nbsp;&nbsp;&nbsp;
+&theta;(t) = arg &Gamma;(&frac14; + it/2) &minus; (t/2) log &pi;,</span>
+<p>
+with <code>&theta;</code> the Riemann&ndash;Siegel theta function chosen so that <code>Z</code> is
+<em>real</em> for real <code>t</code>. Then, for real <code>t</code>:
+</p>
+<div class="box def">
+<h4>Key dictionary</h4>
+<p style="margin:0">
+<code>&zeta;(&frac12; + it) = 0 &nbsp;&hArr;&nbsp; Z(t) = 0</code>, and the order of vanishing agrees.
+So <em>zeros on the critical line are exactly the real zeros of a real smooth function</em>
+<code>Z</code>. Since <code>Z</code> is real and continuous, a sign change is a zero.
+</p>
+</div>
+
+<h3>1.3 Why naive computation fails</h3>
+
+<p>
+Three traps, each of which one of the routes is designed to avoid.
+</p>
+<ul>
+  <li><b>Floating point is not a proof.</b> A computed value <code>Z(t)&asymp;10<sup>&minus;9</sup></code>
+      might be <code>0</code>, might be positive, might be negative &mdash; the sign is not determined
+      by the approximation. <em>Interval arithmetic</em> fixes this: instead of a number you maintain
+      an interval <code>[lo, hi]</code> that is <em>guaranteed</em> to contain the true value. If
+      <code>hi &lt; 0</code>, then <code>Z(t) &lt; 0</code> is a theorem.</li>
+  <li><b>Existence is not uniqueness.</b> A sign change proves <em>some</em> zero lies between; it does
+      not prove there is only one. Two zeros can sit in the same bracket.</li>
+  <li><b>On-line is not all-of-them.</b> Even a perfect detection of every on-line zero up to
+      <code>T</code> says nothing about zeros <em>off</em> the line in the same window.</li>
+</ul>
+
+<p>
+Route A addresses the first two for a single zero. Route B addresses the third, and does so without
+ever computing a zero off the line. Route C is orthogonal: it validates a number, not a zero.
+</p>
+
+<h3>1.4 The explicit formula &mdash; what Route C actually evaluates</h3>
+
+<p>
+The Weil form of the explicit formula, in the clean audited normalisation of this round, is
+</p>
+<span class="eq">&sum;<sub>&rho;</sub> &Phi;(&rho;) = &Phi;(1) + &Phi;(0) &minus; &sum;<sub>n&ge;2</sub> (&Lambda;(n)/&radic;n)[g(log n) + g(&minus;log n)] + (1/2&pi;) &int;<sub>&#8477;</sub> &phi;(t) &Psi;(t) dt,</span>
+<p>
+where <code>&Phi;(s) = &phi;((s&minus;&frac12;)/i)</code>, <code>&phi;(t) = &int; g(u)e<sup>itu</sup>du</code>
+is the Fourier transform of an even test function <code>g</code>, <code>&Lambda;</code> is the von
+Mangoldt function, and
+</p>
+<span class="eq">&Psi;(t) = &minus;log &pi; + Re &psi;(&frac14; + it/2),&nbsp;&nbsp; &psi; = &Gamma;&prime;/&Gamma; (the digamma function).</span>
+<p>
+Three sums appear &mdash; over the zeros <code>&rho;</code>, over the prime powers <code>n</code>, and
+over the real line (the <em>archimedean</em> term). Route C bounds each one. That is why the rounds
+care about <code>&psi;</code> and its derivatives at all: they are the archimedean term.
+</p>
+
+<!-- ===================================================================== -->
+<h2 id="s2">2. Route A &mdash; pinning down one zero</h2>
+
+<h3>2.1 The logic, in words</h3>
+
+<p>
+One zero is easy to certify, if you can certify three inequalities on the bracket
+<code>[a,b]</code>:
+</p>
+<ol class="steps">
+  <li><b>Existence.</b> <code>Z</code> is continuous on <code>[a,b]</code> and
+      <code>Z(a)</code> and <code>Z(b)</code> have opposite signs. The intermediate value theorem
+      gives a zero in <code>(a,b)</code>.</li>
+  <li><b>Uniqueness.</b> <code>Z&prime;</code> is one-signed on <code>(a,b)</code> (say
+      <code>Z&prime; &gt; 0</code>). Then <code>Z</code> is <em>strictly increasing</em>, so it can
+      cross zero at most once: the zero is unique.</li>
+  <li><b>Simplicity.</b> At the zero, <code>Z&prime; &ne; 0</code> (it is already known to be
+      <code>&gt; 0</code>, or <code>&lt; 0</code>). A zero with non-zero derivative has multiplicity
+      one, and crossing the critical line transversally means the zero is <em>simple</em>.</li>
+</ol>
+<p>
+Notice what is <em>not</em> required: no value of <code>Z</code> is ever needed exactly, only the
+<em>signs</em> and the <em>sign</em> of <code>Z&prime;</code>. That is precisely what interval
+arithmetic can deliver.
+</p>
+
+<div class="box res">
+<h4>Theorem A (Route A; Lean <code>exists_unique_root_of_sign_change</code>)</h4>
+<pre><code>theorem exists_unique_root_of_sign_change
+    {f : &#8477; &rarr; &#8477;} {a b : &#8477;} (hab : a &lt; b)
+    (hf  : ContinuousOn f (Icc a b))
+    (hf' : &forall; x &isin; Ioo a b, 0 &lt; deriv f x)
+    (ha  : f a &lt; 0) (hb : 0 &lt; f b) :
+    &exist; x, x &isin; Ioo a b &and; f x = 0 &and; 0 &lt; deriv f x &and; &forall; y, y &isin; Ioo a b &rarr; f y = 0 &rarr; y = x</code></pre>
+<p class="small" style="margin-bottom:0">
+Read the conclusion aloud: there is a point <code>x</code> in the open interval with
+<code>f x = 0</code>, with <code>f&prime;(x) &gt; 0</code> (<em>simplicity</em>), and any other zero in
+the interval equals <code>x</code> (<em>uniqueness</em>).</p>
+</div>
+
+<p>
+The proof is three classical facts glued together, and it is worth seeing the glue because that is
+what the formalisation contributes:
+</p>
+<pre><code>-- existence: IVT on the sign change
+obtain &lang;x, hx, hfx&rang; := intermediate_value_Icc hab.le hf &lang;ha.le, hb.le&rang;
+-- uniqueness: strict monotonicity from a positive derivative
+have hmono : StrictMonoOn f (Icc a b) := strictMonoOn_of_deriv_pos (convex_Icc a b) hf &hellip;
+-- then any second zero violates strict monotonicity (a Rolle-type contradiction)</code></pre>
+
+<h3>2.2 The reality of the hypotheses: enclosures, not values</h3>
+
+<p>
+A numerical certificate never produces <code>f a &lt; 0</code> directly; it produces an interval
+enclosure <code>f a &isin; [l<sub>a</sub>, h<sub>a</sub>]</code> with <code>h<sub>a</sub> &lt; 0</code>.
+Route A is therefore also stated in the form the certificate actually supplies:
+</p>
+<div class="box res">
+<h4>Theorem A&prime; (enclosure form; Lean <code>certified_root_of_enclosures</code>)</h4>
+<p style="margin:.4rem 0">
+Given enclosures <code>f a &isin; [l<sub>a</sub>,h<sub>a</sub>]</code> with
+<code>h<sub>a</sub> &lt; 0</code>, <code>f b &isin; [l<sub>b</sub>,h<sub>b</sub>]</code> with
+<code>0 &lt; l<sub>b</sub></code>, and <code>deriv f x &ge; m</code> on <code>(a,b)</code> with
+<code>m &gt; 0</code>, there is a unique simple zero in <code>(a,b)</code>.
+</p>
+</div>
+<p>
+The bridge from Theorem A&prime; to Theorem A is two <code>linarith</code> steps: an upper bound
+<code>h<sub>a</sub> &lt; 0</code> makes <code>f a &lt; 0</code>, and a uniform lower bound
+<code>deriv f &ge; m &gt; 0</code> makes the derivative positive pointwise. This is the whole formal
+content of &ldquo;an interval certificate is a proof&rdquo;.
+</p>
+
+<figure>
+  <img src="figures/route-a.svg"
+       alt="A monotone increasing curve crossing zero once between a and b, with enclosed sign values at the endpoints, next to a dashed non-monotone curve crossing twice.">
+  <figcaption><b>Figure 1 &mdash; Route A.</b> The solid curve is the certified situation: enclosed
+  <code>Z(a) &lt; 0 &lt; Z(b)</code> (two dots) together with an enclosed one-signed
+  <code>Z&prime;</code> forces exactly one crossing. The dashed curve shows why the derivative
+  hypothesis is essential: with the same sign change but a derivative that changes sign, there can be
+  two zeros, and existence alone is not uniqueness.</figcaption>
+</figure>
+
+<h3>2.3 The certificates actually produced</h3>
+
+<p>
+For each of the first <strong>fifteen</strong> zeros a bracket of width <code>10<sup>&minus;3</sup></code> is
+exhibited with enclosed <code>Z(a) &lt; 0 &lt; Z(b)</code> and an enclosed one-signed
+<code>Z&prime;</code>. The sign of <code>Z&prime;</code> alternates, which is why the round carries both
+the increasing (<code>Z&prime; &gt; 0</code>) and the decreasing (<code>Z&prime; &lt; 0</code>,
+<code>exists_unique_root_of_sign_change_neg</code>) form:
+</p>
+<table>
+<thead><tr><th>zero</th><th>enclosed <code>Z&prime;</code></th><th>sign</th><th><code>K</code> needed</th></tr></thead>
+<tbody>
+<tr><td><code>&gamma;<sub>1</sub></code></td><td class="num">[0.766441, 0.819918]</td><td>+</td><td class="num">90</td></tr>
+<tr><td><code>&gamma;<sub>2</sub></code></td><td class="num">[&minus;1.17358, &minus;1.10014]</td><td>&minus;</td><td class="num">90</td></tr>
+<tr><td><code>&gamma;<sub>3</sub></code></td><td class="num">[1.32035, 1.42321]</td><td>+</td><td class="num">90</td></tr>
+<tr><td><code>&gamma;<sub>4</sub></code></td><td class="num">[&minus;1.34866, &minus;1.25925]</td><td>&minus;</td><td class="num">90</td></tr>
+<tr><td><code>&gamma;<sub>5</sub></code></td><td class="num">[1.33534, 1.42899]</td><td>+</td><td class="num">90</td></tr>
+<tr><td><code>&gamma;<sub>6</sub></code></td><td class="num">[&minus;2.01426, &minus;1.85888]</td><td>&minus;</td><td class="num">100</td></tr>
+<tr><td><code>&gamma;<sub>7</sub></code></td><td class="num">[1.45519, 1.52604]</td><td>+</td><td class="num">140</td></tr>
+<tr><td><code>&gamma;<sub>8</sub></code></td><td class="num">[&minus;1.94072, &minus;1.72657]</td><td>&minus;</td><td class="num">140</td></tr>
+<tr><td><code>&gamma;<sub>9</sub></code></td><td class="num">[1.49912, 1.63694]</td><td>+</td><td class="num">140</td></tr>
+<tr><td><code>&gamma;<sub>10</sub></code></td><td class="num">[&minus;1.45863, &minus;1.37924]</td><td>&minus;</td><td class="num">140</td></tr>
+<tr><td><code>&gamma;<sub>11</sub></code></td><td class="num">[2.31312, 2.54036]</td><td>+</td><td class="num">140</td></tr>
+<tr><td><code>&gamma;<sub>12</sub></code></td><td class="num">[&minus;2.46865, &minus;2.26733]</td><td>&minus;</td><td class="num">140</td></tr>
+<tr><td><code>&gamma;<sub>13</sub></code></td><td class="num">[1.32379, 1.45985]</td><td>+</td><td class="num">180</td></tr>
+<tr><td><code>&gamma;<sub>14</sub></code></td><td class="num">[&minus;1.74417, &minus;1.56427]</td><td>&minus;</td><td class="num">180</td></tr>
+<tr><td><code>&gamma;<sub>15</sub></code></td><td class="num">[2.1295, 2.44608]</td><td>+</td><td class="num">180</td></tr>
+</tbody>
+</table>
+<p class="small">
+Each row is a machine-checkable claim: the interval does not contain <code>0</code>, therefore
+<code>Z&prime;</code> is one-signed on the bracket, therefore that zero is unique and simple.
+Logs: <code>rigorous/certify_unique.log</code> (<code>5 / 5</code>, <code>K = 90</code>),
+<code>rigorous/certify_unique10.log</code> (<code>10 / 10</code>) and
+<code>rigorous/certify_unique15.log</code> (<code>15 / 15</code>), all <code>exit=0</code>. The
+<code>K</code> column is the length of the Euler-accelerated <code>&eta;</code> series needed for a
+<em>usable</em> (not merely valid) enclosure of <code>Z&prime;</code>; it grows with
+<code>t</code>, and <code>&gamma;<sub>7</sub></code> already fails at <code>K = 100</code> while
+succeeding at <code>K = 140</code>, which is why the certificate script tries a ladder
+<code>(90, 100, 140, 180, 220, 260)</code> and takes the first success.
+</p>
+
+<div class="box warn">
+<h4>Pitfall: even-order zeros and the role of <code>Z&prime;</code></h4>
+<p style="margin-bottom:0">
+If <code>Z</code> had a double zero on the line, it would touch zero without crossing and no sign change
+would detect it; and at a double zero <code>Z&prime; = 0</code>, so the derivative hypothesis is
+exactly the instrument that rules this out. Route A therefore certifies <em>transversal</em> (hence
+simple) on-line zeros, and only those.</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="s3">3. Route B &mdash; ruling out the zeros you have not seen</h2>
+
+<h3>3.1 Turing&rsquo;s idea, in words</h3>
+
+<p>
+Route A finds zeros. Route B answers the harder question: <em>have we found all of them</em> in a
+window? The idea, due to Turing (1953), is a <strong>cardinality squeeze</strong>, and it needs no new
+zero computed off the line:
+</p>
+<ol class="steps">
+  <li>Get a rigorous <em>upper bound</em> <code>N(T)</code> on the number of zeros with
+      <code>0 &lt; Im &rho; &le; T</code> &mdash; a bound that counts <em>all</em> zeros, wherever they
+      are in the strip.</li>
+  <li>Exhibit <code>N(T)</code> certified on-line zeros in the window, each by Route A.</li>
+  <li>Then the certified set has exactly as many elements as there can possibly be zeros. Hence the
+      two sets are equal &mdash; and every zero in the window is a certified one, i.e. simple and on
+      the line.</li>
+</ol>
+
+<p>
+The logical core is so short that it is a one-liner about finite sets:
+</p>
+
+<div class="box res">
+<h4>Theorem B (Turing reduction; Lean <code>turing_reduction</code>, <code>all_zeros_are_certified</code>)</h4>
+<pre><code>theorem turing_reduction {&alpha;} [DecidableEq &alpha;] {zeros certified : Finset &alpha;}
+    (hsub  : certified &sube; zeros)          -- every certified zero is a zero
+    (hcard : zeros.card &le; certified.card)  -- the rigorous count is at most the certified count
+    : zeros = certified :=
+  (Finset.eq_of_subset_of_card_le hsub hcard).symm</code></pre>
+<p class="small" style="margin-bottom:0">
+There is no analysis here at all. The whole work of Route B is to <em>earn the two hypotheses</em>:
+the subset relation is Route A, and the cardinality bound is the rigorous count.</p>
+</div>
+
+<figure>
+  <img src="figures/route-b.svg"
+       alt="The rectangle [0,1] x [0,T] with the critical line Re s = 1/2 dashed, the right-half path I3 in bold green, the conjugate left half dashed grey, and marked zeros on the critical line.">
+  <figcaption><b>Figure 2 &mdash; Route B geometry.</b> The contour is the boundary of
+  <code>[0,1] &times; [&frac12;,T]</code>. The bold green path is the three-segment path
+  <code>I&#8323;</code> through <code>(&frac12;,&frac12;) &rarr; (1,&frac12;) &rarr; (1,T) &rarr;
+  (&frac12;,T)</code>; the grey dashed half is its complex conjugate. Because <code>&xi;</code>
+  satisfies <code>&xi;(1&minus;s) = &xi;(s)</code>, the two halves combine into the full contour
+  integral, and the whole computation lives in <code>&frac12; &le; Re s &le; 1</code> &mdash; the region
+  where the interval engine of <code>rigorous/</code> is designed to work.</figcaption>
+</figure>
+
+<h3>3.2 Where the count comes from: the argument principle</h3>
+
+<p>
+The count <code>N(T)</code> is produced not by finding zeros but by integrating the logarithmic
+derivative of a completed <code>&zeta;</code>. Let
+</p>
+<span class="eq">&xi;(s) = &frac12; s(s&minus;1) &pi;<sup>&minus;s/2</sup> &Gamma;(s/2) &zeta;(s).</span>
+<p>
+The factor <code>&frac12;s(s&minus;1)</code> removes the pole, <code>&pi;<sup>&minus;s/2</sup>&Gamma;(s/2)</code>
+is the archimedean factor, and the result is entire and satisfies the clean functional equation
+<code>&xi;(1&minus;s) = &xi;(s)</code>. Its zeros are exactly the non-trivial zeros of <code>&zeta;</code>.
+The <strong>argument principle</strong> for a rectangle <code>R</code> says
+</p>
+<span class="eq">&oint;<sub>&part;R</sub> &xi;&prime;/&xi; ds = 2&pi;i &middot; (#zeros of &xi; inside R, with multiplicity).</span>
+<p>
+This is the identity that Route B turns into a count. Two simplifications make it usable:
+</p>
+<ul>
+  <li><b>Symmetry halves the contour.</b> With <code>&xi;(1&minus;s) = &xi;(s)</code> the integrand
+      satisfies <code>logDeriv &xi;(1&minus;conj s) = &minus;conj(logDeriv &xi;(s))</code>, so the
+      left half of the contour is the conjugate of the right half. Writing <code>I&#8323;</code> for
+      the right-half integral,
+      <span class="mono">2I&#8323; = &oint;<sub>&part;R</sub> = 2&pi;i N(T)</span>, hence
+      <span class="mono">N(T) = Im(I&#8323;)/&pi;</span> &mdash; only the <em>imaginary part</em> is
+      needed, and the path stays in <code>&frac12; &le; Re s &le; 1</code>.</li>
+  <li><b>Quadrature with a budget.</b> <code>I&#8323;</code> is evaluated by the midpoint rule with the
+      curvature bound <code>|err| &le; &frac18;|ds|<sup>2</sup> sup|f&prime;|</code>, the step being
+      chosen so that the total quadrature budget is below <code>&pi;/2</code> &mdash; because
+      <code>N(T)</code> is an integer, an enclosure of width <code>&lt; 1</code> around
+      <code>Im(I&#8323;)/&pi;</code> pins it down exactly.</li>
+</ul>
+
+<h3>3.3 The three hypotheses that used to be gaps &mdash; now theorems</h3>
+
+<p>
+The symmetry reduction as stated above <em>assumes</em> the argument principle. In earlier rounds
+that assumption was explicit (<code>hAP</code>), together with two concrete facts about <code>&xi;</code>.
+All three are now proved in the same development, and this is worth stressing pedagogically, because
+it shows how the route became unconditional:
+</p>
+<table>
+<thead><tr><th>ingredient</th><th>Lean</th><th>status</th></tr></thead>
+<tbody>
+<tr><td>the rectangle winding number <code>&oint;&part;R (s&minus;a)<sup>&minus;1</sup>ds = 2&pi;i</code></td>
+    <td><code>rectBoundary_inv_of_mem</code></td><td><span class="status s-proved">PROVED</span></td></tr>
+<tr><td>the general argument principle (divide out the zeros, then Cauchy&ndash;Goursat)</td>
+    <td><code>exists_factorization</code>, <code>argument_principle_general</code></td><td><span class="status s-thm">PROVED (new)</span></td></tr>
+<tr><td>reality <code>&xi;(conj s) = conj(&xi;(s))</code> and entireness of the normalisation</td>
+    <td><code>completedRiemannZeta&#8320;_conj</code>, <code>xi&#8320;</code>, <code>xi_eq_xi&#8320;</code></td><td><span class="status s-thm">PROVED (new)</span></td></tr>
+<tr><td>the reduction itself: <code>(rightPath (logDeriv f)).im = &pi;&sum;m<sub>z</sub></code></td>
+    <td><code>routeB_reduction_general</code>, <code>xi_routeB_general</code></td><td><span class="status s-thm">PROVED (new)</span></td></tr>
+</tbody>
+</table>
+<p class="small">
+The point of the general argument principle is that the zero set and its multiplicities are now
+<em>data</em> with a proved relationship to the integral, rather than a hypothesis: Route B no longer
+assumes &ldquo;<code>&oint; = 2&pi;iZ</code>&rdquo;, it assumes the zero set, which is what the numerics
+actually supply. (Details and the zero-division factorisation are in the companion paper
+<a href="polygamma.html">The polygamma series, proved</a>, which uses the same <code>&oint;&part;R f&prime;/f</code>
+machinery.)</p>
+
+<h3>3.4 The certificate: the window <code>&frac12; &lt; Im s &lt; 15</code></h3>
+
+<p>
+The round certifies the count at three values of <code>T</code> by enclosing
+<code>Im(I&#8323;)/&pi;</code> in an interval of half-width <code>&lt; &frac12;</code>:
+</p>
+<table>
+<thead><tr><th><code>T</code></th><th>enclosure of <code>Im(I&#8323;)/&pi;</code></th><th>half-width</th><th>conclusion</th></tr></thead>
+<tbody>
+<tr><td>3</td><td class="num">[&minus;0.34815, 0.34815]</td><td class="num">0.348</td><td><code>N(3) = 0</code></td></tr>
+<tr><td>15</td><td class="num">[0.79816, 1.20181]</td><td class="num">0.202</td><td><code>N(15) = 1</code></td></tr>
+<tr><td>33</td><td class="num">[4.711, 5.2890345]</td><td class="num">0.289</td><td><code>N(33) = 5</code></td></tr>
+</tbody>
+</table>
+<p class="small">
+All three runs are <strong>unconditional</strong>: they use <code>Lf_const=None</code>, i.e. the
+curvature bound is enclosed <em>per step</em> rather than cited
+(<code>certify_count15_uncond.py</code>, <code>certify_count33_par.py</code>). The earlier
+<code>T = 15</code> run with a cited <code>Lf = 30</code> reaches the tighter enclosure
+<code>[0.57197, 1.42794]</code> and is kept for comparison.
+</p>
+<p>
+The Route-A certificates give <code>{&gamma;<sub>1</sub>}</code> as the certified on-line zeros with
+<code>&frac12; &lt; Im &lt; 15</code> and <code>{&gamma;<sub>1</sub>,&hellip;,&gamma;<sub>5</sub>}</code>
+for <code>&frac12; &lt; Im &lt; 33</code>. So <code>certified &sube; zeros</code> and
+<code>zeros.card = N(15) = 1 = certified.card</code>. The squeeze fires:
+</p>
+<div class="box res">
+<h4>Conclusion (<code>all_zeros_are_certified</code>)</h4>
+<p style="margin:0">
+<strong>Every zero of <code>&xi;</code> with <code>&frac12; &lt; Im s &lt; 15</code> is simple and lies
+on the critical line.</strong> There is exactly one of them, namely
+<code>&gamma;<sub>1</sub> = 14.1347&hellip;</code>. The same squeeze at <code>T = 33</code>, fed by the
+five certificates <code>&gamma;<sub>1</sub>&hellip;&gamma;<sub>5</sub></code> (all
+<code>&lt; 33</code>), gives the wider window:
+</p>
+</div>
+<div class="box res">
+<h4>Conclusion at <code>T = 33</code> (also unconditional)</h4>
+<p style="margin:0">
+<strong>Every zero of <code>&xi;</code> with <code>&frac12; &lt; Im s &lt; 33</code> is simple and lies
+on the critical line</strong>, and there are exactly five of them:
+<code>14.1347&hellip;, 21.0220&hellip;, 25.0109&hellip;, 30.4249&hellip;, 32.9351&hellip;</code>.
+</p>
+</div>
+
+<div class="box warn">
+<h4>What Route B does <em>not</em> say</h4>
+<p style="margin-bottom:0">
+It says nothing about <code>Im s &ge; T</code>, nothing about <code>Re s &ne; &frac12;</code> outside
+the window, and it is not a step towards RH in the sense of a general argument &mdash; it is a
+<em>finite verification</em>, and it remains finite however far the engine is pushed. It is exactly
+the kind of statement (a Turing window) that makes a numerical table into a theorem for the range
+covered.</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="s4">4. Route C &mdash; a validated value for the explicit formula</h2>
+
+<h3>4.1 The shape of the argument</h3>
+
+<p>
+Route C is not about zeros as such; it is about turning a numerical evaluation of the explicit formula
+into an inequality. The pattern is always the same. Write the exact quantity as a computed partial
+sum plus a remainder, bound the remainder, and add:
+</p>
+<div class="box res">
+<h4>Theorem C (validated truncation; Lean <code>validated_truncation_bound</code>)</h4>
+<pre><code>theorem validated_truncation_bound
+    {lhs rhsTrue rhsComputed zeroTail primeTail archTail : &#8477;}
+    (hlhs   : lhs = rhsTrue)
+    (hsplit : rhsTrue = rhsComputed + (zeroTail + primeTail + archTail)) :
+    |lhs - rhsComputed| &le; |zeroTail| + |primeTail| + |archTail|</code></pre>
+<p class="small" style="margin-bottom:0">
+The proof is one line of algebra (the residual <em>is</em> the sum of the tails) followed by the
+triangle inequality twice. It is deliberately trivial: the substance is entirely in the three tail
+bounds, which are supplied by other lemmas.</p>
+</div>
+
+<h3>4.2 The three tails, one at a time</h3>
+
+<table>
+<thead><tr><th>tail</th><th>how it is bounded</th><th>bound used</th></tr></thead>
+<tbody>
+<tr><td><b>zeros</b></td><td>the finite certified list from Routes A/B, plus a density tail beyond the
+    last certified zero</td><td class="num">1.6&middot;10<sup>&minus;80</sup></td></tr>
+<tr><td><b>primes</b></td><td>exact <code>&Lambda;(n)</code> for <code>n &le; 2000</code>; the tail by
+    partial summation, controlled by Chebyshev&rsquo;s bound <code>&psi;(x) &le; (log 4 + 4)x</code></td>
+    <td class="num">1.2&middot;10<sup>&minus;8</sup></td></tr>
+<tr><td><b>archimedean</b></td><td>composite Simpson on <code>[0,30]</code> with the sharp panel error
+    <code>(2H)<sup>5</sup>/2880&middot;sup|G<sup>(4)</sup>|</code>, the derivative budgets coming from
+    the polygamma series</td><td class="num">1.6&middot;10<sup>&minus;8</sup></td></tr>
+</tbody>
+</table>
+
+<p>
+The prime tail is where Mathlib contributes a ready-made inequality:
+</p>
+<pre><code>theorem prime_tail_input (x : &#8477;) (hx : 0 &le; x) :
+    Chebyshev.psi x &le; (Real.log 4 + 4) * x :=
+  Chebyshev.psi_le_const_mul_self hx</code></pre>
+<p>
+i.e. the elementary estimate <code>&psi;(x) = &sum;<sub>n&le;x</sub>&Lambda;(n) &le; (log 4 + 4)x</code>,
+which substitutes the density guess <code>&psi;(x) &asymp; x</code> of a numerical script by a proved
+one.
+</p>
+
+<figure>
+  <img src="figures/route-c.svg"
+       alt="A segmented bar showing the total budget 2.79e-8 split into prime 1.2e-8, archimedean 1.6e-8 and a negligible zero tail, with the measured residual 9.079e-9 marked inside.">
+  <figcaption><b>Figure 3 &mdash; Route C.</b> The three proved tails add to a budget of
+  <code>2.79&middot;10<sup>&minus;8</sup></code>; the measured residual
+  <code>9.079&middot;10<sup>&minus;9</sup></code> (red) lies inside it. Because each segment is an
+  <em>inequality</em> rather than a numerical error, the containment is a theorem: the explicit formula
+  balances to <code>10<sup>&minus;8</sup></code> rigorously, not just apparently.</figcaption>
+</figure>
+
+<h3>4.3 The result</h3>
+
+<div class="box res">
+<h4>Route C verdict</h4>
+<p style="margin:0">
+<code>RHS &minus; LHS = &minus;9.07873&middot;10<sup>&minus;9</sup></code> against a budget of
+<code>2.794&middot;10<sup>&minus;8</sup></code>, so <code>|residual| &le; budget</code>. The test
+function is <code>g(u) = e<sup>&minus;u&sup2;/2</sup>cos(14u)/&radic;(2&pi;)</code>, chosen with a
+rational centre so that the kernel is exact. Log: <code>rigorous/route_c_assembly.log</code>.
+</p>
+</div>
+
+<div class="box why">
+<h4>Why an interval inclusion is stronger than a small number</h4>
+<p style="margin-bottom:0">
+A floating-point residual of <code>10<sup>&minus;9</sup></code> might be <code>10<sup>&minus;9</sup></code>
+of genuine disagreement, or an artefact of rounding. An <em>interval</em> enclosing each tail, summed
+by the triangle inequality, produces a bound that no rounding error can violate: the statement
+&ldquo;<code>|residual| &le; 2.794&middot;10<sup>&minus;8</sup></code>&rdquo; is true of the exact
+mathematical objects, whatever the machine did. This is the difference between checking a computation
+and proving one.</p>
+</div>
+
+<h3>4.4 Route C&rsquo;s inputs are all proved or certified</h3>
+<p>
+Route C itself has no cited ingredient: the error assembly is a Lean theorem
+(<code>validated_truncation_bound</code>), the prime tail is Mathlib&rsquo;s Chebyshev bound
+(<code>prime_tail_input</code>), the archimedean tail rests on the machine-checked Simpson panel error
+and the polygamma budget, and the zero tail is the certified list. One ingredient <em>used to</em> be
+cited and no longer is, and it is worth recording where it lived, because the primer initially
+attributed it here: the Route&nbsp;B quadrature needed a curvature bound
+<code>sup|f&prime;| &lt; 30</code> on the <code>I&#8323;</code> path, cited as
+<code>|&zeta;&prime;/&zeta;| &le; A log t</code> with <code>A = 1</code>. That citation has been
+removed &mdash; the curvature is now <em>enclosed per step</em> by the engine&rsquo;s rigorous local
+Taylor enclosure <code>zeta_local_box</code> &mdash; so the <code>T = 15</code> count is unconditional.
+See §3.4.
+</p>
+
+<!-- ===================================================================== -->
+<h2 id="s5">5. How the three routes interlock</h2>
+
+<figure>
+  <img src="figures/routes.svg"
+       alt="Three boxes for Routes A, B, C; A feeds B; B closes a Turing window; C evaluates the explicit formula and needs the zero list as input.">
+  <figcaption><b>Figure 4 &mdash; the three routes and what each buys.</b> Route A supplies
+  certificates of individual zeros; Route B consumes them together with a rigorous count to close a
+  window; Route C evaluates the explicit formula and consumes the certified zero list as one of its
+  inputs. The bottom-left box is the honest outcome of the combination: a closed finite window, not a
+  proof of RH.</figcaption>
+</figure>
+
+<p>
+Read the figure as a dependency graph:
+</p>
+<ul>
+  <li><b>A &rarr; B.</b> Route B is useless without certificates to feed the subset hypothesis
+      <code>certified &sube; zeros</code>. Conversely a certificate alone is useless for exhaustiveness.</li>
+  <li><b>B &rarr; C.</b> The zero tail of the explicit formula is evaluated from the certified zero
+      list; without Route B&rsquo;s window one could not claim the list is complete over the range used.</li>
+  <li><b>C is independent in method.</b> Route C shares only the interval engine
+      (<code>rigorous/ivmath.py</code>, <code>eta_interval.py</code>) and the archimedean budget. Its
+      logic (triangle inequality + tail bounds) has nothing to do with zeros.</li>
+  <li><b>The shared substrate</b> is the interval engine: every &ldquo;enclosed&rdquo; claim in the
+      table above is a call into <code>rigorous/</code>, validated against <code>mpmath</code> by
+      containment (<code>check_engine.py</code>, <code>0 fail(s)</code>).</li>
+</ul>
+
+<p>
+There is also a shared <em>analytic</em> substrate, and it grew during this round. Route B needed the
+argument principle; Route C needed the archimedean derivative budget. Both are now theorems of the
+Lean development rather than citations:
+</p>
+<table>
+<thead><tr><th>substrate</th><th>module</th><th>what it replaced</th></tr></thead>
+<tbody>
+<tr><td>rectangle argument principle, general form</td><td><code>ArgumentPrinciple</code> + <code>Weierstrass</code> + <code>RouteBGeneral</code></td>
+    <td>the hypothesis <code>hAP</code></td></tr>
+<tr><td>reality and entireness of <code>&xi;</code></td><td><code>XiEntire</code></td>
+    <td>&ldquo;not present in Mathlib&rdquo; for <code>&xi;(conj s)</code></td></tr>
+<tr><td>single-panel Simpson error, sharp constant</td><td><code>SimpsonPanel</code></td><td>the quadrature hypothesis</td></tr>
+<tr><td>polygamma (Gauss&ndash;Hurwitz) series and budget</td><td><code>GammaProduct</code> + <code>PolygammaSeries</code></td>
+    <td>the cited <code>&Vert;&Psi;<sup>(k)</sup>&Vert;</code> estimate</td></tr>
+</tbody>
+</table>
+
+<!-- ===================================================================== -->
+<h2 id="s6">6. Ledger: proved, certified, cited</h2>
+
+<p>
+The distinction matters and is the project&rsquo;s discipline: <span class="status s-proved">PROVED</span>
+means machine-checked in Lean with no <code>sorry</code> and no extra axiom;
+<span class="status s-num">CERTIFIED</span> means an interval computation validated against
+<code>mpmath</code> by containment; <span class="status s-cited">CITED</span> means a classical
+theorem used without formalisation.
+</p>
+
+<table>
+<thead><tr><th>claim</th><th>status</th><th>evidence</th></tr></thead>
+<tbody>
+<tr><td>Route A logic, increasing and decreasing</td><td><span class="status s-proved">PROVED</span></td><td><code>exists_unique_root_of_sign_change[_neg]</code></td></tr>
+<tr><td>enclosure form of Route A</td><td><span class="status s-proved">PROVED</span></td><td><code>certified_root_of_enclosures</code></td></tr>
+<tr><td><code>&gamma;<sub>1</sub>&hellip;&gamma;<sub>15</sub></code> unique simple on-line</td><td><span class="status s-num">CERTIFIED</span></td><td><code>certify_unique15.log</code> (15/15); also 5- and 10-zero logs</td></tr>
+<tr><td>Turing reduction (cardinality squeeze)</td><td><span class="status s-proved">PROVED</span></td><td><code>turing_reduction</code>, <code>all_zeros_are_certified</code></td></tr>
+<tr><td>winding number <code>&oint;(s&minus;a)<sup>&minus;1</sup> = 2&pi;i</code></td><td><span class="status s-proved">PROVED</span></td><td><code>rectBoundary_inv_of_mem</code></td></tr>
+<tr><td>general argument principle for the rectangle</td><td><span class="status s-thm">PROVED (new)</span></td><td><code>argument_principle_general</code></td></tr>
+<tr><td>Route B reduction, general <code>f</code> and at <code>&xi;</code></td><td><span class="status s-thm">PROVED (new)</span></td><td><code>routeB_reduction_general</code>, <code>xi_routeB_general</code></td></tr>
+<tr><td><code>N(3) = 0</code>, <code>N(15) = 1</code>, <code>N(33) = 5</code></td><td><span class="status s-num">CERTIFIED</span></td><td><code>certify_count.log</code>, <code>certify_count15_uncond.log</code>, <code>certify_count33_par.log</code></td></tr>
+<tr><td>Turing windows <code>(&frac12;,15)</code> and <code>(&frac12;,33)</code> closed</td><td><span class="status s-num">CERTIFIED</span> + <span class="status s-proved">PROVED</span></td><td>count + <code>all_zeros_are_certified</code></td></tr>
+<tr><td>Route C error assembly</td><td><span class="status s-proved">PROVED</span></td><td><code>validated_truncation_bound</code></td></tr>
+<tr><td>prime tail via Chebyshev</td><td><span class="status s-proved">PROVED</span></td><td><code>prime_tail_input</code> (Mathlib)</td></tr>
+<tr><td>archimedean budget <code>&Vert;&Psi;<sup>(k)</sup>&Vert; &le; psiSeriesBound k</code>, <code>k &ge; 1</code></td><td><span class="status s-thm">PROVED (new)</span></td><td><code>Rh45.archimedean_deriv_bound</code></td></tr>
+<tr><td>Simpson panel error bound</td><td><span class="status s-thm">PROVED (new)</span></td><td><code>Rh45.simpsonPanelEstimate</code></td></tr>
+<tr><td>Route C assembly <code>|residual| &le; 2.794&middot;10<sup>&minus;8</sup></code></td><td><span class="status s-num">VALIDATED</span></td><td><code>route_c_assembly.log</code></td></tr>
+<tr><td><code>sup|f&prime;| &lt; 30</code> on the <code>I&#8323;</code> path</td><td><span class="status s-proved">REMOVED</span></td><td>superseded by per-step enclosed <code>Lf</code> (<code>T1</code>, 2026-10-11)</td></tr>
+<tr><td>Riemann Hypothesis</td><td><span class="status s-open">OPEN</span></td><td>not addressed by any route</td></tr>
+</tbody>
+</table>
+
+<h3>Open items</h3>
+<ol>
+  <li><s>Make the <code>T = 15</code> count unconditional</s> &mdash; <strong>closed</strong>
+      (<code>T1</code>): the cited <code>Lf = 30</code> is replaced by a per-step enclosure via
+      <code>zeta_local_box</code>; <code>certify_count15_uncond.py</code> runs with
+      <code>Lf_const=None</code> and certifies <code>N(15) = 1</code>. The routing was re-verified
+      here: <code>scan_i3_boxes.py 15 24 40</code> re-evaluated all 372 <code>I&#8323;</code> boxes and
+      reported <code>0 failing box(es)</code> (exit&nbsp;0, log
+      <code>rigorous/scan_i3_boxes_T15_s24_verify.log</code>). See
+      <a href="../../publish/006-explicit-formula-routes-abc/rigorous/T1_BLOCKER.md"><code>rigorous/T1_BLOCKER.md</code></a>.</li>
+  <li><s>Extend the Turing windows</s> &mdash; <strong>closed to <code>T = 33</code></strong>
+      (<code>T2</code>): <code>certify_count33_par.py</code> is unconditional and gives
+      <code>N(33) = 5</code>, so <code>(&frac12;,33)</code> is closed. Pushing further (<code>T = 50</code>,
+      needing <code>&gamma;<sub>6</sub>&hellip;&gamma;<sub>10</sub></code> and <code>K &asymp; 200</code>)
+      is the live extension; the cost grows like <code>T &middot; K / steps</code>.</li>
+  <li><s>Route A beyond <code>&gamma;<sub>5</sub></code></s> &mdash; <strong>closed to
+      <code>&gamma;<sub>15</sub></code></strong>: <code>certify_unique15.log</code> is
+      <code>15 / 15</code> (<code>K</code> ladder 90/100/140/180). Each new zero needed a bracket with an
+      enclosed sign change and an enclosed one-signed <code>Z&prime;</code> at a larger
+      <code>K</code> &mdash; <code>&gamma;<sub>7</sub></code> already fails at <code>K = 100</code> and
+      succeeds at <code>K = 140</code>, <code>&gamma;<sub>13</sub></code> needs <code>K = 180</code>.</li>
+</ol>
+<p class="small">
+Honest reading: the run certifies three finite windows (<code>T = 3, 15, 33</code>) and one validated
+explicit-formula evaluation. It does not prove RH, and no finite amount of this work can.
+</p>
+
+<div class="box why">
+<h4>Follow-up: do the routes generalise beyond <code>&zeta;</code>?</h4>
+<p style="margin-bottom:0">
+Answered in <a href="../011/index.html">round 011</a>. Short version: the theorem <em>cores</em> are
+already general in the Lean (<code>&forall; f</code>, <code>&forall; Finset &alpha;</code>), so the work
+is instantiation — a functional equation, conjugation reality, an interval evaluator, and an explicit
+formula per object. The closest second object is the Dirichlet <code>L</code>-function: Mathlib has its
+functional equation, round 011 proves the normalisation that puts it in Route&nbsp;B's shape, and one
+substantive Mathlib gap remains (conjugation reality, for which this round's
+<code>completedRiemannZeta&#8320;_conj</code> is a template). The all-zeros generalisation is
+impossible by construction — that is RH.
+</p>
+</div>
+
+<!-- ===================================================================== -->
+<h2 id="s7">7. Reproduction</h2>
+
+<pre><code># Lean: the certification logic (13/13, 0 sorry, 0 axiom)
+cd research/twin-prime-parity/010/lean &amp;&amp; ./check.sh --all
+./check.sh Rh45/Routes.lean            # Routes A, B, C logic
+./check.sh Rh45/RouteBGeneral.lean     # the general Route B reduction
+
+# the axiom footprint
+import Rh45
+#print axioms Rh45Routes.exists_unique_root_of_sign_change
+#print axioms Rh45Routes.turing_reduction
+#print axioms Rh45Routes.validated_truncation_bound
+#print axioms Rh45Routes.prime_tail_input
+#print axioms Rh45RouteBAnalytic.routeB_reduction_general
+#print axioms Rh45RouteBAnalytic.xi_routeB_general
+#  all: [propext, Classical.choice, Quot.sound]
+
+# numerics: the interval engine and the certificates
+cd research/twin-prime-parity/010/rigorous
+python3 check_engine.py                # containment vs mpmath, 0 fail(s)
+python3 certify_unique.py              # Route A: gamma_1..gamma_5 (add an argument for more)
+python3 certify_count15_uncond.py      # Route B, UNCONDITIONAL: N(15) = 1   (~2.7 h)
+python3 certify_count_par.py 33 40 100 8   # Route B, UNCONDITIONAL: N(33) = 5 (~2.6 h)
+python3 route_c_assembly.py            # Route C: the validated residual</code></pre>
+
+<!-- ===================================================================== -->
+<h2 id="s8">8. Glossary and references</h2>
+
+<h3>Glossary</h3>
+<table>
+<tbody>
+<tr><td><code>&zeta;</code></td><td>the Riemann zeta function.</td></tr>
+<tr><td><code>&xi;</code></td><td><code>&frac12;s(s&minus;1)&pi;<sup>&minus;s/2</sup>&Gamma;(s/2)&zeta;(s)</code>, entire, <code>&xi;(1&minus;s)=&xi;(s)</code>; same non-trivial zeros as <code>&zeta;</code>.</td></tr>
+<tr><td><code>Z</code>, <code>&theta;</code></td><td>Riemann&ndash;Siegel: <code>Z(t) = e<sup>i&theta;(t)</sup>&zeta;(&frac12;+it)</code> is real for real <code>t</code>.</td></tr>
+<tr><td><code>N(T)</code></td><td>number of zeros <code>&rho;</code> of <code>&xi;</code> with <code>0 &lt; Im &rho; &le; T</code>, counted with multiplicity.</td></tr>
+<tr><td><code>I&#8323;</code></td><td>integral of <code>&xi;&prime;/&xi;</code> over the three-segment path through the right half of the rectangle.</td></tr>
+<tr><td><code>&Lambda;</code>, <code>&psi;</code></td><td>von Mangoldt function; Chebyshev function <code>&psi;(x) = &sum;<sub>n&le;x</sub>&Lambda;(n)</code>.</td></tr>
+<tr><td><code>&Psi;</code>, <code>&phi;</code></td><td>archimedean factor <code>&minus;log&pi; + Re &psi;(&frac14;+it/2)</code>; test function of the explicit formula.</td></tr>
+<tr><td>Turing window</td><td>a range of <code>T</code> over which <code>N(T)</code> is known exactly and matched by certified on-line zeros.</td></tr>
+<tr><td>enclosure / interval arithmetic</td><td>a guaranteed interval containing a true value; a sign decided from an enclosure is a theorem.</td></tr>
+</tbody>
+</table>
+
+<h3>References</h3>
+<ol class="refs">
+<li>B. Riemann, <em>&Uuml;ber die Anzahl der Primzahlen unter einer gegebenen Gr&ouml;&szlig;e</em> (1859) &mdash; the zeta function, the functional equation, the zero count.</li>
+<li>A. M. Turing, <em>Some calculations of the Riemann zeta-function</em>, Proc. London Math. Soc. <strong>3</strong> (1953) 99&ndash;117 &mdash; the method of §3, and the reason a count must be rigorous.</li>
+<li>H. M. Edwards, <em>Riemann&rsquo;s Zeta Function</em>, Academic Press 1974 &mdash; Riemann&ndash;Siegel <code>Z</code>, the explicit formula, the argument principle route to <code>N(T)</code>.</li>
+<li>E. C. Titchmarsh, <em>The Theory of the Riemann Zeta-Function</em>, 2nd ed., OUP 1986 &mdash; explicit formula, <code>N(T)</code>, zero-free regions.</li>
+<li>S. C. Trudgian, <em>An improved upper bound for the error in the zero-counting formulae&hellip;</em>, Math. Comp. <strong>84</strong> (2015) &mdash; the modern constants behind the cited curvature bound.</li>
+<li>R. P. Brent, <em>On the zeros of the Riemann zeta function in the critical strip</em>, Math. Comp. <strong>33</strong> (1979) &mdash; the classical use of Turing&rsquo;s method at scale.</li>
+<li>Lean / Mathlib: <code>intermediate_value_Icc</code>, <code>strictMonoOn_of_deriv_pos</code>,
+    <code>Finset.eq_of_subset_of_card_le</code>, <code>Chebyshev.psi_le_const_mul_self</code>,
+    <code>Complex.integral_boundary_rect_eq_zero_of_differentiableOn</code>,
+    <code>TendstoLocallyUniformlyOn.deriv</code>: the library lemmas the routes are built on.</li>
+<li>This round: <a href="index.html">the round&rsquo;s paper</a>, <a href="audit.html">audit.html</a>,
+    <a href="notes/routes-a-b-c-status.md">notes/routes-a-b-c-status.md</a> (the technical ledger this
+    primer follows), <a href="polygamma.html">polygamma.html</a> (the archimedean budget),
+    <a href="von-mangoldt-sieve.html">von-mangoldt-sieve.html</a> (the defect fixed in Route C).</li>
+</ol>
+
+<footer>
+  <p><strong>Routes A, B, C &mdash; a pedagogical guide.</strong> Companion to the round
+  <code>research/twin-prime-parity/010/</code>; figures generated by
+  <code>lib/routes_figs.py</code> (SVG, no plotting dependency). Lean&nbsp;4 + Mathlib,
+  <code>./check.sh --all</code> 13/13 green, <code>0 sorry</code>, <code>0 axiom</code>.</p>
+  <p class="small">Three windows (<code>N(3)=0</code>, <code>N(15)=1</code>, <code>N(33)=5</code>) and one
+  validated explicit-formula evaluation are certified; the <code>T = 15</code> and <code>T = 33</code>
+  counts are <strong>unconditional</strong> (no cited <code>|&zeta;&prime;/&zeta;|</code> bound). RH is
+  not addressed by any route.</p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonic–categorical Hilbert–Pólya — research programme</title>
+<style>
+  :root { --ink:#1a202c; --muted:#555; --line:#d8d8d8; --soft:#f3f5f7; --accent:#1a5fb4; }
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, "Times New Roman", serif; max-width: 980px; margin: 2.2rem auto;
+         padding: 0 1.3rem; line-height: 1.65; color: var(--ink); background: #fcfcfb; }
+  h1 { font-size: 2rem; line-height: 1.15; margin-bottom: .3rem; }
+  h2 { margin-top: 2.4rem; border-bottom: 1px solid var(--line); padding-bottom: .25rem; font-size: 1.35rem; }
+  h3 { margin-top: 1.7rem; font-size: 1.08rem; }
+  p, li { font-size: 1rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: #f1f3f5; padding: .08rem .22rem; border-radius: 3px; font-size: .92em; }
+  pre { background: var(--soft); border: 1px solid var(--line); padding: .8rem 1rem; overflow-x: auto; border-radius: 6px; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .9rem; }
+  th, td { border: 1px solid var(--line); padding: .4rem .5rem; text-align: left; vertical-align: top; }
+  th { background: var(--soft); }
+  .sub { color: var(--muted); font-size: 1.05rem; font-style: italic; margin-top: 0; }
+  .top { background: var(--soft); border: 1px solid #dde3ea; padding: 1rem 1.2rem; border-radius: 8px; }
+  .muted { color: var(--muted); font-size: .94rem; }
+  .tag { display: inline-block; font-size: .78rem; padding: .05rem .35rem; border-radius: 3px; background: #fff3cd; color: #664d03; }
+  .tag.theorem { background: #d1e7dd; color: #0f5132; }
+  .tag.computation { background: #cfe2ff; color: #084298; }
+  .tag.open { background: #f8d7da; color: #842029; }
+  .footer { margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Harmonic–categorical Hilbert–Pólya</h1>
+<p class="sub">A reconstructed research programme: finite operator core, exact computation, archived claim</p>
+
+<div class="top">
+  <p><strong>Status.</strong> The archived manuscript claims a complete Hilbert–Pólya proof of the Riemann Hypothesis. That claim is <strong>not</strong> promoted here. This folder reconstructs the finite operator/spectral algebra the manuscript writes down, proves seven small facts in Lean, and tests seven exact computations. The global proof and RH remain archived.</p>
+  <p class="muted">Inventory: <a href="../../scraps.html">Scraps</a> item 14 · <a href="../README.md">Topic index</a> · Source: <a href="../../archive/maths/rh/research/harmonic-categorical-hilbert-polya/rh-proof.md"><code>rh-proof.md</code></a> (<a href="../../archive/maths/rh/research/harmonic-categorical-hilbert-polya/rh-proof.tex">TeX</a>, <a href="../../archive/maths/rh/research/harmonic-categorical-hilbert-polya/rh-proof.pdf">PDF</a>).</p>
+</div>
+
+<h2>Provenance and status</h2>
+<p>The archived manuscript is titled <em>“A Rigorous Proof of the Riemann Hypothesis via the Harmonic–Categorical Hilbert–Pólya Operator”</em> (V. Geere et al., dated 2026). It combines a greedy harmonic expansion of the sine function, a transfer operator on the Hardy space, finite-dimensional Hermitian truncations <code>H_k</code>, an eigenvalue–determinant correspondence for <code>Δ_k(t) = det(I − A_k(t))</code>, a Fredholm determinant identity, and a Hurwitz limit.</p>
+<p>The archive also contains build artefacts (<code>aux</code>, <code>fls</code>, <code>log</code>, <code>out</code>, <code>synctex</code>, <code>toc</code>) and a <code>geo/</code> folder. The manuscript is 195 lines; several key steps cite companion papers that are not present. The topic overlaps inventory item 17 (Harmonic Sine Transform) and item 26 (greedy-harmonic Hilbert–Pólya), and must not be treated as an independent confirmation of either.</p>
+<p><strong>What this reconstruction does.</strong> It extracts the finite operator/spectral algebra that the manuscript actually writes down, proving a small genuine core in Lean 4/Mathlib. It does <em>not</em> formalise the infinite transfer operator, the Fredholm determinant, the Hurwitz limit, or RH.</p>
+
+<h2>What the source claims</h2>
+<ul>
+  <li><strong>Lemma 4.1</strong> — the eigenvalues of the Hermitian matrix <code>H_k</code> coincide, with multiplicity, with the real zeros of <code>Δ_k(t) = det(I − A_k(t))</code>.</li>
+  <li><strong>Theorem 5.1</strong> — <code>L_s</code> is trace class for <code>Re s &gt; 1</code> and <code>det(I − L_s) = ζ(s)/ζ(2s) · e^{P(s)}</code>, with a regularised extension for <code>Re s &gt; 1/2</code>.</li>
+  <li><strong>Proposition 6.1</strong> — <code>Δ_k → Δ</code> uniformly on compact subsets of <code>ℝ</code>.</li>
+  <li><strong>§7 / Theorem 7.1</strong> — all zeros of <code>Δ</code> are real, hence RH.</li>
+</ul>
+
+<h3>Known gaps in the source argument</h3>
+<ol>
+  <li><strong>Category mismatch in Lemma 4.1.</strong> <code>H_k</code> is defined at <code>t = 0</code>; its eigenvalues are fixed numbers, while the zeros of <code>Δ_k(t)</code> are parameter values. The identification needs a spectral-flow construction that the manuscript only cites (absent note [3]).</li>
+  <li><strong>Polar decomposition.</strong> <code>A_k(t)</code> is not assumed invertible; a polar decomposition generally gives a partial isometry, not a unitary. The continuous branch of <code>log U_k</code> and its differentiability are asserted, not proved.</li>
+  <li><strong>Determinant identity.</strong> Theorem 5.1 delegates the entire factor and its zero-free property to absent companion papers [6,7].</li>
+  <li><strong>Uniform convergence.</strong> Proposition 6.1 relies on estimates in absent companion paper [9]; no explicit truncation bound is given.</li>
+  <li><strong>Hurwitz passage.</strong> The argument controls limits of the real zero sets <code>Z_k</code>; it does not by itself exclude complex zeros of the limit <code>Δ</code>.</li>
+  <li><strong>Final implication.</strong> The step from real zeros of <code>Δ</code> to RH depends on the unproved identity (6) and the cancellation of the <code>ζ(1+2it)</code> pole.</li>
+</ol>
+
+<h2>Reconstructed objects and notation</h2>
+<p>The reconstruction uses a finite <code>j</code>-series truncation and a real transfer parameter. The structural identities are field-independent; the Python layer also evaluates the complex critical-line parameter <code>s = 1/2 + it</code>.</p>
+<table>
+  <thead><tr><th>Object</th><th>Definition</th></tr></thead>
+  <tbody>
+    <tr><td>Truncation index</td><td><code>k ∈ ℕ</code>, dimension <code>d_k = k + 1</code></td></tr>
+    <tr><td>Transfer parameter</td><td><code>s ∈ ℝ</code> in Lean; <code>s ∈ ℂ</code> in the Python critical-line check</td></tr>
+    <tr><td><code>j</code>-series truncation</td><td><code>N ∈ ℕ</code>, sum over <code>j = 0, …, N−1</code></td></tr>
+    <tr><td>Truncated weight</td><td><code>c_{s,r}(N) = Σ_{j=0}^{N−1} (j+1)/(j+2)^{s+1+r}</code></td></tr>
+    <tr><td>Matrix entry</td><td><code>A_k(s,N)_{m,n} = binom(n,m) · c_{s,n−m}(N)</code> for <code>m ≤ n</code>, else <code>0</code></td></tr>
+    <tr><td>Truncated operator</td><td><code>A_k(s,N)</code>, a <code>(k+1) × (k+1)</code> real matrix</td></tr>
+    <tr><td>Finite determinant</td><td><code>Δ_k(s,N) = det(I − A_k(s,N))</code></td></tr>
+    <tr><td>Hermitian discriminant</td><td><code>disc₂(a,b,d) = (a−d)² + 4b²</code> for <code>[[a,b],[b,d]]</code></td></tr>
+    <tr><td>Source Hamiltonian</td><td><code>H_k = i d/dt log U_k(t)|_{t=0}</code> — <strong>not defined here</strong></td></tr>
+  </tbody>
+</table>
+<p>Lean names: <code>HCHP.weight</code>, <code>HCHP.entry</code>, <code>HCHP.A</code>, <code>HCHP.disc2</code>.</p>
+
+<h2>Theorem ledger</h2>
+<p>Every <span class="tag theorem">Theorem</span> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every <span class="tag computation">Computation</span> row is covered by <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. Source claims and open items are not theorems.</p>
+<table>
+  <thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+  <tbody>
+    <tr><td>T1</td><td><span class="tag theorem">Theorem</span></td><td><code>0 &lt; c_{s,r}(N)</code> for <code>N &gt; 0</code></td><td><code>HCHP.weight_pos</code></td></tr>
+    <tr><td>T2</td><td><span class="tag theorem">Theorem</span></td><td><code>n &lt; m → A_k(s,N)_{m,n} = 0</code></td><td><code>HCHP.entry_eq_zero_of_lt</code></td></tr>
+    <tr><td>T3</td><td><span class="tag theorem">Theorem</span></td><td><code>A_k(s,N)</code> is upper triangular</td><td><code>HCHP.A_upperTriangular</code></td></tr>
+    <tr><td>T4</td><td><span class="tag theorem">Theorem</span></td><td>Every diagonal entry equals <code>c_{s,0}(N)</code></td><td><code>HCHP.A_diag</code></td></tr>
+    <tr><td>T5</td><td><span class="tag theorem">Theorem</span></td><td><code>det A_k = c_{s,0}(N)^{k+1}</code></td><td><code>HCHP.det_A</code></td></tr>
+    <tr><td>T6</td><td><span class="tag theorem">Theorem</span></td><td><code>det(I − A_k) = (1 − c_{s,0}(N))^{k+1}</code></td><td><code>HCHP.det_one_sub_A</code></td></tr>
+    <tr><td>T7</td><td><span class="tag theorem">Theorem</span></td><td>The characteristic polynomial of a real symmetric <code>2 × 2</code> matrix splits over <code>ℝ</code> with roots <code>(a+d ± √disc₂)/2</code></td><td><code>HCHP.hermitian2_charpoly_splits</code></td></tr>
+    <tr><td>C1</td><td><span class="tag computation">Computation</span></td><td>Exact weights, including the empty sum <code>N = 0</code></td><td><code>test_weight_exact_values_and_empty_sum</code></td></tr>
+    <tr><td>C2</td><td><span class="tag computation">Computation</span></td><td><code>entry</code> reproduces source (2) and vanishes below the diagonal</td><td><code>test_entry_matches_source_formula_and_below_diagonal</code></td></tr>
+    <tr><td>C3</td><td><span class="tag computation">Computation</span></td><td>Triangularity, constant diagonal, and <code>tr A_k = (k+1)c</code></td><td><code>test_matrix_A_upper_triangular_and_constant_diagonal</code></td></tr>
+    <tr><td>C4</td><td><span class="tag computation">Computation</span></td><td><code>det A_k = c^{k+1}</code> and <code>det(I − A_k) = (1−c)^{k+1}</code> for exact rational <code>s</code></td><td><code>test_det_A_and_det_one_minus_A_closed_forms</code></td></tr>
+    <tr><td>C5</td><td><span class="tag computation">Computation</span></td><td>Real symmetric <code>2 × 2</code>: non-negative discriminant, real roots, <code>tr = a+d</code>, <code>det = ad − b²</code></td><td><code>test_symmetric_2x2_real_spectrum</code></td></tr>
+    <tr><td>C6</td><td><span class="tag computation">Computation</span></td><td>Critical-line parameter <code>s = 1/2 + it</code> preserves triangularity, diagonal, and trace</td><td><code>test_source_critical_line_parameter</code></td></tr>
+    <tr><td>C7</td><td><span class="tag computation">Computation</span></td><td>Edge cases: <code>N = 0</code>, <code>k = 0</code>, invalid indices</td><td><code>test_edge_cases_and_invalid_inputs</code></td></tr>
+  </tbody>
+</table>
+<p>“All theorems are proved” means every Theorem row has a Lean declaration and every Computation row has a test. It does <strong>not</strong> mean the source's RH claim is proved.</p>
+
+<h2>Source claims (not promoted)</h2>
+<table>
+  <thead><tr><th>#</th><th>Kind</th><th>Claim</th><th>Archived status</th><th>Reconstruction note</th></tr></thead>
+  <tbody>
+    <tr><td>S1</td><td><span class="tag">Source claim</span></td><td>Lemma 4.1: eigenvalues of <code>H_k</code> = real zeros of <code>Δ_k</code>, with multiplicity</td><td>Archived claim; proof sketch</td><td>Not formalised. The finite determinant is computed (T6), but <code>H_k</code> and the spectral-flow correspondence are not defined.</td></tr>
+    <tr><td>S2</td><td><span class="tag">Source claim</span></td><td>Theorem 5.1: <code>det(I − L_s) = ζ(s)/ζ(2s) e^{P(s)}</code> and its regularised extension</td><td>Archived claim; companion papers absent</td><td>Not formalised. No trace-class operator, Fredholm determinant, or entire factor is constructed here.</td></tr>
+    <tr><td>S3</td><td><span class="tag">Source claim</span></td><td>Proposition 6.1: <code>Δ_k → Δ</code> uniformly on compact sets</td><td>Archived claim; error estimates absent</td><td>Not formalised. The finite determinants are exact; no convergence statement is proved.</td></tr>
+    <tr><td>S4</td><td><span class="tag">Source claim</span></td><td><code>H_k</code> is Hermitian because <code>U_k(t)</code> is unitary</td><td>Archived claim; sketch</td><td>Only the <code>2 × 2</code> real-symmetric spectral fact (T7) is formalised. Differentiable polar decomposition and the logarithm branch are missing.</td></tr>
+    <tr><td>S5</td><td><span class="tag">Source claim</span></td><td>§7: all zeros of <code>Δ</code> are real, hence all zeros of <code>ζ</code> lie on the critical line</td><td>Archived claim; gap noted above</td><td>Not formalised. RH is <strong>not</strong> a theorem in this folder.</td></tr>
+    <tr><td>S6</td><td><span class="tag">Source claim</span></td><td>Theorem 7.1: the Riemann Hypothesis</td><td>Archived claim, withdrawn from promotion</td><td>Kept only as the source's headline claim. The global proof and RH remain archived.</td></tr>
+    <tr><td>S7</td><td><span class="tag">Source claim</span></td><td><code>L_s</code> is trace class for <code>Re s &gt; 1</code>, Hilbert–Schmidt for <code>Re s &gt; 1/2</code>; meromorphic continuation</td><td>Archived claim</td><td>Not formalised; only finite truncations are computed.</td></tr>
+  </tbody>
+</table>
+
+<h2>Open items and conjectures</h2>
+<table>
+  <thead><tr><th>#</th><th>Kind</th><th>Statement</th></tr></thead>
+  <tbody>
+    <tr><td>O1</td><td><span class="tag open">Open / conjecture</span></td><td>Precise spectral-flow theorem relating eigenvalues of a finite Hermitian <code>H_k</code> to zeros of <code>Δ_k(t)</code>, with correct multiplicities and without assuming invertibility of <code>A_k(t)</code>.</td></tr>
+    <tr><td>O2</td><td><span class="tag open">Open / conjecture</span></td><td>Construct <code>L_s</code> on <code>H²(𝔻)</code> and prove the Fredholm determinant identity, including the entire factor and its zero-free property in the critical strip.</td></tr>
+    <tr><td>O3</td><td><span class="tag open">Open / conjecture</span></td><td>Prove uniform Hilbert–Schmidt convergence <code>‖A_k(t) − L_{1/2+it}‖_{S₂} → 0</code> on compact <code>t</code>-intervals with explicit error bounds.</td></tr>
+    <tr><td>O4</td><td><span class="tag open">Open / conjecture</span></td><td>Repair the Hurwitz argument to control all complex zeros of the limit <code>Δ</code>, not only limits of the real sets <code>Z_k</code>.</td></tr>
+    <tr><td>O5</td><td><span class="tag open">Open / conjecture</span></td><td>Establish differentiability of <code>t ↦ U_k(t)</code>, a continuous branch of <code>log U_k</code>, and hence the Hermitian nature of <code>H_k</code>.</td></tr>
+    <tr><td>O6</td><td><span class="tag open">Open / conjecture</span></td><td>Prove the analytic continuation and regularised determinant theory needed to reach the critical line.</td></tr>
+    <tr><td>O7</td><td><span class="tag open">Open / conjecture</span></td><td>The Riemann Hypothesis itself. The archived manuscript claims it; this reconstruction does not.</td></tr>
+  </tbody>
+</table>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> is an exact <code>sympy</code> layer with no import side effects. It provides <code>weight</code>, <code>entry</code>, <code>matrix_A</code>, <code>is_upper_triangular</code>, <code>diag_constant</code>, <code>det_A</code>, <code>det_one_minus_A</code>, <code>discriminant_2x2</code>, <code>charpoly_2x2</code>, <code>eigenvalues_2x2</code>, and <code>realise_symmetric_2x2</code>. All arithmetic is exact rational/algebraic; the critical-line check uses the exact complex parameter <code>s = 1/2 + i/3</code>. <code>mpmath</code> is not needed.</p>
+<pre><code>cd the-final-letter/topics/harmonic-categorical-hilbert-polya
+python3 -m pytest -q tests</code></pre>
+<p>Recorded result: <strong>7 passed</strong> (about 10 s).</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens namespace <code>HCHP</code>, and proves T1–T7. It uses a real transfer parameter and a finite <code>j</code>-series truncation; the complex analytic statements of the source are outside its scope.</p>
+<pre><code>cd the-final-letter/topics/harmonic-categorical-hilbert-polya
+./lean/check.sh</code></pre>
+<p>The script delegates to <a href="../tools/check-lean.sh"><code>../tools/check-lean.sh</code></a>, using the local Mathlib at <code>~/lean/mathlib4</code> (Lean <code>v4.35.0-rc2</code>). Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a>.</p>
+<p>Not formalised: <code>L_s</code>, trace-class/Fredholm theory, polar decomposition and logarithm, <code>H_k</code>, uniform convergence, Hurwitz’s theorem, and RH. See <a href="lean/README.md"><code>lean/README.md</code></a>.</p>
+
+<h2>Relation to the rest of the programme</h2>
+<ul>
+  <li><a href="../../scraps.html">Scraps inventory</a> — item 14 (archived claim), overlaps at items 17 and 26.</li>
+  <li><a href="../README.md">Topic index</a> — all reconstructed topics.</li>
+  <li><a href="../greedy-harmonic-decomposition/README.md">Greedy harmonic decomposition</a> — the finite greedy/angle layer used by the source's §2.</li>
+  <li><a href="../PROGRAMME-STANDARD.md">Programme standard</a> — the ledger rules followed here.</li>
+  <li><a href="../../index.html">The Final Letter</a>.</li>
+</ul>
+
+<p class="footer muted"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body>
+</html>

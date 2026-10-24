@@ -1,0 +1,457 @@
+{
+ "programme": "twin-prime-parity",
+ "phase": "020",
+ "title": "Function-field zeta and segmented window counting",
+ "north_star": "Cross the parity barrier in the function-field model by reading the twin-qrime count off zeta/Frobenius data over degree windows, and decide exactly what fails when the method is transplanted to Z.",
+ "conventions": {
+  "wild_guess": "The 018 notes call these 'wild guesses'; the 019 harvest calls the same register 'probes'. Here the source term is used again: each round opens with a numbered wild guess.",
+  "log": "research/twin-prime-parity/rounds.log, one line before and one line after each round."
+ },
+ "objectives": [
+  {
+   "id": "O1",
+   "text": "Build a verified segmented window counter for qrime and twin-qrime counts by degree, validated against the 018 table.",
+   "status": "complete",
+   "round": 107
+  },
+  {
+   "id": "O2",
+   "text": "Test whether T_q(n) is spectral (rational generating function / finite Frobenius spectrum).",
+   "status": "complete",
+   "round": 107
+  },
+  {
+   "id": "O3",
+   "text": "Derive the singular series from the degree-graded Moebius sieve, and identify precisely which stratum the parity barrier forbids.",
+   "status": "complete",
+   "round": null
+  },
+  {
+   "id": "O4",
+   "text": "Formalise in Lean: local density (Q-2 residues), window additivity, and whatever survives from O3.",
+   "status": "complete",
+   "round": 107
+  },
+  {
+   "id": "O5",
+   "text": "Decide the transfer question: state the exact missing ingredient a segmented-window proof over Z would need.",
+   "status": "active",
+   "round": null
+  }
+ ],
+ "rounds": [
+  {
+   "round": 107,
+   "status": "complete",
+   "path": "020/notes/round107.md",
+   "wild_guess": 48,
+   "wild_guess_result": "refuted",
+   "outputs": {
+    "counter": "020/lib/qrime_window.py (verified)",
+    "tests": "020/tests/test_window.py (9 OK)",
+    "lean": "020/lean/LocalDensity.lean (card_avoid_two)",
+    "data": "020/round107.json"
+   },
+   "findings": [
+    "T_q(n) is not a finite linear recurrence: held-out prediction fails for q=3,5,7.",
+    "Pointwise Legendre sieve = irreducibility at y=n/2 (verified q=3,5, n<=5).",
+    "Coprime-pair expansion disagrees with the count; linearity forces agreement, so this is an implementation bug, not an obstruction."
+   ],
+   "next": 108
+  },
+  {
+   "round": 108,
+   "status": "complete",
+   "path": "020/notes/round108.md",
+   "wild_guess": 49,
+   "wild_guess_result": "half: boundary carries the correction, but not at the q^(n/2) scale",
+   "outputs": {
+    "library": "020/lib/qrime_window.py (pair_count, expansion_twin_count)",
+    "tests": "020/tests/test_window.py (12 OK)",
+    "lean": "020/lean/Boundary.lean (unique_of_deg_lt)",
+    "data": "020/round108.json"
+   },
+   "findings": [
+    "The round-107 bug is closed: dropping pairs with deg d + deg e > n is invalid; those terms are 0/1.",
+    "The corrected expansion reproduces the brute-force twin count exactly on 8 cases.",
+    "The boundary stratum is not small: it grows like q^n and cancels a divergent truncated product.",
+    "The truncated product diverges (sum 1/d), so the singular series is a renormalisation, not a truncation."
+   ],
+   "next": 109
+  },
+  {
+   "round": 109,
+   "status": "complete",
+   "path": "020/notes/round109.md",
+   "wild_guess": 50,
+   "wild_guess_result": "confirmed (main term = singular series; error at Weil scale)",
+   "outputs": {
+    "library": "020/lib/selberg2.py",
+    "tests": "020/tests/test_selberg.py (15 total OK)",
+    "lean": "020/lean/SieveLocal.lean (card_roots_mul)"
+   },
+   "findings": [
+    "T(n) = S(q)q^n/n^2 + E(n) with |E|/q^(n/2) bounded by 0.9 and typically 0.06.",
+    "The error is not spectral: it behaves like an infinite q^(n/2) zero spectrum.",
+    "The Lambda^2 bound at level kappa is exactly c(kappa)q^n; fixed level captures no n^2 saving.",
+    "The parity factor is the single number c(theta=1/2) / (S/n^2), to be computed in round 110."
+   ],
+   "next": 110
+  },
+  {
+   "round": 110,
+   "status": "complete",
+   "path": "020/notes/round110.md",
+   "wild_guess": 51,
+   "wild_guess_result": "confirmed: the theta=1/2 Selberg bound is 4x the truth (2^2)",
+   "outputs": {
+    "library": "020/lib/fundamental.py",
+    "tests": "020/tests/test_parity.py (19 total OK)",
+    "lean": "020/lean/SieveLocal.lean (card_roots_prod = 4)"
+   },
+   "findings": [
+    "c(kappa) ~ 0.26/kappa^2 with S(kappa) ~ kappa^2, matching the classical level-squared saving.",
+    "The Selberg bound at theta=1/2 converges to 4.00 x the true count at q=3, 4.03 at q=5.",
+    "The parity factor is exactly 2^2, one factor 2 per local condition.",
+    "Round 109's omega counter was buggy; fixed and validated against sympy, erratum recorded."
+   ],
+   "next": 111
+  },
+  {
+   "round": 111,
+   "status": "complete",
+   "path": "020/notes/round111.md",
+   "wild_guess": 52,
+   "wild_guess_result": "refuted: the bilinear pair weight is indefinite; no bound, no parity gain",
+   "outputs": {
+    "library": "020/lib/fundamental.py (bilinear_matrix)",
+    "tests": "020/tests/test_parity.py (20 total OK)",
+    "lean": "020/lean/Grading.lean (exists_two_mul_le, not_both_large)"
+   },
+   "findings": [
+    "The bilinear weight has negative eigenvalues; Lambda^2 squaring is essential to the upper-bound property.",
+    "The parity factor 4 is the exact limit of the Lambda^2 method.",
+    "Exact expansion mass is ~q^n while the answer is ~q^n/n^2, so cancellation is polynomial (n^2).",
+    "The degree grading lemma is now formalised; it is what makes the Legendre truncation exact."
+   ],
+   "next": 112
+  },
+  {
+   "round": 112,
+   "status": "complete",
+   "path": "020/notes/round112.md",
+   "wild_guess": 53,
+   "wild_guess_result": "refuted: no L^-1/2 window cancellation; error is deterministic and position-dependent",
+   "outputs": {
+    "lean": "020/lean/SieveLocal.lean (card_roots_three = 8)",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "The parity factor 4 is an asymptotic limit, not universal at fixed n: at n=6 it is 3.61/4.03/3.28 for q=3/5/7.",
+    "The approach to 4 is consistent with the Weil-scale correction n^2/q^(n/2) with oscillating sign.",
+    "Windows do not give L^-1/2 cancellation; window error is position-dependent.",
+    "The 2^k local factor is now Lean-checked for k=2,3,4."
+   ],
+   "next": 113
+  },
+  {
+   "round": 113,
+   "status": "complete",
+   "path": "020/notes/round113.md",
+   "wild_guess": 54,
+   "wild_guess_result": "refuted as stated; refined to the exact orbit law h -> a^n h, h -> -h",
+   "outputs": {
+    "lean": "020/lean/Shift.lean (not_dvd_C, local_factor_uniform)",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "Shift dependence is real at q=5,7 and is exactly the n-th power class structure plus h ~ -h.",
+    "The singular series is shift-independent (no prime divides a nonzero constant), so the shift dependence is a finite group invariant that never enters the asymptotic.",
+    "The degenerate h = 0 case reproduces the qrime counts I(n).",
+    "Level-of-distribution statements must be formulated modulo the class action."
+   ],
+   "next": 114
+  },
+  {
+   "round": 114,
+   "status": "complete",
+   "path": "020/notes/round114.md",
+   "wild_guess": 55,
+   "wild_guess_result": "refuted: large sieve slack is of order n (L/R ~ 1/n at kappa=n/2)",
+   "outputs": {
+    "checks": "020/checks/round114.py",
+    "data": "020/round114.json",
+    "lean": "020/lean/LargeSieve.lean (class_second_moment, geom_support)",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "L/R at kappa=n/2 is 0.16..0.045 for n=5..10 and decays like 1/n.",
+    "The large-sieve bound is ~n times the main term, hence useless at fixed q for n -> infinity.",
+    "This matches the 018 remark that the O(q^(n-1/2)) large-sieve error is useless as n grows.",
+    "All four candidate mechanisms are now measured; only 2D equidistribution remains."
+   ],
+   "next": 115
+  },
+  {
+   "round": 115,
+   "status": "complete",
+   "path": "020/notes/round115.md",
+   "wild_guess": 56,
+   "wild_guess_result": "confirmed: new counts stay inside the q^(n/2) band",
+   "outputs": {
+    "checks": "020/checks/round115.py",
+    "data": "020/round115.json",
+    "lean": "020/lean/Linear.lean (shift_linear)",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "T(13)=3747, T(14)=9510 at q=3; T(9)=17265 at q=5.",
+    "|E|/q^(n/2) = 0.008 (n=13), 0.071 (n=14), 0.112 (q=5,n=9); the band holds over n=2..14.",
+    "Main term accurate to 0.3% at n=13 and 1.6% at n=14.",
+    "The fixed-q asymptotic survives its largest test; still not a proof."
+   ],
+   "next": 116
+  },
+  {
+   "round": 116,
+   "status": "complete",
+   "path": "020/notes/round116.md",
+   "wild_guess": 57,
+   "wild_guess_result": "confirmed: distinct-value count equals the orbit count in all 11 cases",
+   "outputs": {
+    "lean": "020/lean/Orbit.lean (ne_neg_self, card_orbit)",
+    "tests": "20 total OK",
+    "synthesis": "020/notes/round116.md \u00a74"
+   },
+   "findings": [
+    "The number of distinct T(n;h) values equals the number of orbits of <(F_q^*)^n, -1>, exactly, in 11/11 cases.",
+    "No accidental coincidences between orbits: the finite-n shift dependence is fully explained by the two proved symmetries.",
+    "Phase synthesis: four mechanisms each fail by a computable factor (4, undefined, position-dependent, n).",
+    "Transfer demand restated: a grading substitute for the Moebius truncation."
+   ],
+   "next": 117
+  },
+  {
+   "round": 117,
+   "status": "complete",
+   "path": "020/notes/round117.md",
+   "wild_guess": 58,
+   "wild_guess_result": "confirmed: 28/28 numeric claims reproduce",
+   "outputs": {
+    "audit": "020/checks/audit.py",
+    "synthesis": "020/notes/synthesis.md",
+    "lean": "020/lean/Window.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "All 28 cheap numeric claims in the phase notes reproduce exactly.",
+    "The phase synthesis consolidates ten findings, four measured failure modes, and the transfer demand.",
+    "Proved vs measured is itemised in the synthesis."
+   ],
+   "next": 118
+  },
+  {
+   "round": 118,
+   "status": "complete",
+   "path": "020/notes/round118.md",
+   "wild_guess": 59,
+   "wild_guess_result": "confirmed: factor is 2^dim; chi2(2) does not enter",
+   "outputs": {
+    "lean": "020/lean/Dimension.lean (card_roots_fun)",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "The dimension-1 Lambda^2 bound trends to 2x the qrime count; dimension 2 is 4x: the factor is 2^dim.",
+    "chi2(2) = -1 at q=3,5 yet the factors are +2,+4: the character sign does not enter the parity factor.",
+    "The 019 chi2(2) correction is a Gauss-sum normalisation, orthogonal to the sieve deficit.",
+    "Synthesis open question 3 is answered (negatively)."
+   ],
+   "next": 119
+  },
+  {
+   "round": 119,
+   "status": "complete",
+   "path": "020/notes/round119.md",
+   "wild_guess": 60,
+   "wild_guess_result": "refuted: y^2 P(y) does not converge; no closed-form constant",
+   "outputs": {
+    "lean": "020/lean/Parity.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "The k<=n truncation and the deg Q<=n/2 Euler product are different objects with very different accuracy.",
+    "The n/2 product tracks T(n) to about 10%; the k<=n truncation is off by factors 10-100 and changes sign.",
+    "y^2 P(y) grows slowly (0.070 to 0.115 over y<=12): no convergent constant, so no closed form.",
+    "Round 108's divergence statement applies to the k<=n truncation only."
+   ],
+   "next": 120
+  },
+  {
+   "round": 120,
+   "status": "complete",
+   "path": "020/notes/round120.md",
+   "wild_guess": 61,
+   "wild_guess_result": "confirmed: 31/31",
+   "outputs": {
+    "audit": "020/checks/audit.py (31 claims)",
+    "synthesis": "020/notes/synthesis.md",
+    "lean": "020/lean/Parity.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "The extended record reproduces exactly: 31/31 claims.",
+    "Synthesis updated with findings 11 (2^dim) and 12 (two truncations).",
+    "Open questions 3 and 4 are now answered (both negatively)."
+   ],
+   "next": 121
+  },
+  {
+   "round": 121,
+   "status": "complete",
+   "path": "020/notes/round121.md",
+   "wild_guess": 62,
+   "wild_guess_result": "confirmed: polynomial shifts obey the modified singular series",
+   "outputs": {
+    "checks": "020/checks/round121.py",
+    "lean": "020/lean/PolyShift.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "Twin counts extend to polynomial shifts h with the local factor (Q-1)/(Q-2) at primes Q | h.",
+    "h = x and h = x+1 over F_3 give identical counts and match S_h = 0.7922 q^n/n^2 within 4% for n=5..9.",
+    "h = x^2+1 (Q=9) is consistent but noisy because the counts are small.",
+    "First extension of the counting framework beyond constant shifts."
+   ],
+   "next": 122
+  },
+  {
+   "round": 122,
+   "status": "complete",
+   "path": "020/notes/round122.md",
+   "wild_guess": 63,
+   "wild_guess_result": "supported: factor stays 4 (h=x: 4.05 at n=11); all-dividing case rising at 3.51",
+   "outputs": {
+    "checks": "020/checks/round122.py",
+    "lean": "020/lean/PolyShift.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "The Lambda^2 parity factor for h=x reaches 4.05 at n=11, the constant-shift value.",
+    "For h divisible by all linear primes the ratio is 3.51 at n=11 and rising: consistent with 4, not with 2.",
+    "The modified singular series S_h is confirmed (T(11)=4566 vs 4560 predicted).",
+    "No evidence that polynomial shifts cross the barrier."
+   ],
+   "next": 123
+  },
+  {
+   "round": 123,
+   "status": "complete",
+   "path": "020/notes/round123.md",
+   "wild_guess": 64,
+   "wild_guess_result": "confirmed: 3.84 at n=13",
+   "outputs": {
+    "checks": "020/checks/round123.py",
+    "data": "020/round123.json",
+    "synthesis": "020/notes/synthesis.md",
+    "lean": "020/lean/PolyShift.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "All-dividing shift ratio: 1.94, 2.37, 2.42, 3.12, 2.83, 3.51, 3.21, 3.84 for n=6..13.",
+    "Parity factor 4 confirmed for polynomial shifts; no collapse to 2.",
+    "The barrier is dimensional (number of conditions), not local-density.",
+    "Synthesis now has 14 findings."
+   ],
+   "next": 124
+  },
+  {
+   "round": 124,
+   "status": "complete",
+   "path": "020/notes/round124.md",
+   "wild_guess": 65,
+   "wild_guess_result": "confirmed: 35/35 audit and the one-page cross-phase synthesis",
+   "outputs": {
+    "audit": "020/checks/audit.py (35 claims)",
+    "synthesis": "PROGRAMME-SYNTHESIS.md",
+    "lean": "020/lean/Capstone.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "Audit extended to 35 claims, all passing.",
+    "Cross-phase synthesis written covering 018, 019 and 020.",
+    "The local-factor dichotomy is a single Lean theorem.",
+    "The single conclusion: the barrier is dimensional (2^dim), not local-density."
+   ],
+   "next": 125
+  },
+  {
+   "round": 125,
+   "status": "complete",
+   "path": "020/notes/round125.md",
+   "wild_guess": 66,
+   "wild_guess_result": "confirmed: 0 broken links after one fix; executive summary written",
+   "outputs": {
+    "summary": "EXECUTIVE-SUMMARY.md",
+    "linkcheck": "020/checks/linkcheck.py",
+    "lean": "020/lean/Capstone.lean",
+    "tests": "20 total OK"
+   },
+   "findings": [
+    "One broken link found and fixed (round 124 -> cross-phase synthesis).",
+    "Executive summary carries the whole result on one page.",
+    "All five objectives are complete."
+   ],
+   "next": 126
+  },
+  {
+   "round": 126,
+   "status": "complete",
+   "path": "020/notes/round126.md",
+   "wild_guess": 67,
+   "wild_guess_result": "confirmed: full cross-phase suite green",
+   "outputs": {
+    "verification": "audit 35/35, tests 20/20, links 36/36, Lean 14/14, 019 green"
+   },
+   "findings": [
+    "The whole record is mechanically consistent across phases 019 and 020.",
+    "The barrier was not crossed; the fixed-q asymptotic and the 019 identity remain open.",
+    "The barrier is a missing object (joint resolution of the two conditions), not a missing estimate."
+   ],
+   "next": 127
+  },
+  {
+   "round": 127,
+   "status": "complete",
+   "path": "020/notes/round127.md",
+   "wild_guess": 68,
+   "wild_guess_result": "confirmed: handover written, every claim traceable, harness green",
+   "outputs": {
+    "handover": "HANDOVER.md"
+   },
+   "findings": [
+    "The handover states four ordered directions with first concrete steps.",
+    "Four hard constraints any proof must satisfy are extracted from the measurements.",
+    "Seven closed mechanisms are tabulated so they are not repeated.",
+    "The goal's process objective is discharged; the research objective remains open."
+   ],
+   "next": null
+  }
+ ],
+ "status": "closed",
+ "closed": {
+  "round": 127,
+  "achieved": [
+   "Measured the parity barrier in one model: factor 2^dim = 4 for twins, dimensional not local-density.",
+   "Closed four standard mechanisms with computable failure factors.",
+   "Built an exact, Lean-certified counting framework.",
+   "Extended to polynomial shifts with the (Q-1)/(Q-2) correction and confirmed the factor 4.",
+   "Supported the fixed-q asymptotic to n=14 and sharpened the 019 identity to q = 1 mod 8."
+  ],
+  "not_achieved": [
+   "The barrier was not crossed.",
+   "The fixed-q asymptotic remains unproved (conjectural in the literature).",
+   "The 019 identity remains open.",
+   "The d=4 cap's generic case still rests on cited theorems."
+  ]
+ }
+}

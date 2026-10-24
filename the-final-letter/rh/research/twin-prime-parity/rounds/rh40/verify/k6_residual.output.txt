@@ -1,0 +1,281 @@
+
+==============================================================================
+§1  the correct u-map   (u = 1/r, q = ceil(u), s = q - u)
+==============================================================================
+  claimed in the brief:  u_{k+1} = u^2/(u - floor(u) + 1)
+  derived here:          u_{k+1} = u q/(q - u) = q^2/s - q
+  also exact:            s_{k+1} = 1 - {q^2/s},  q = u + s
+
+  dps = 400; every deviation below is measured against 1/r' where
+  r' is produced by the *squaring* form of the map.
+
+  target       steps     max |u_map - 1/r_next|     max |brief - 1/r_next|  max |u-(q-s)|/u
+  1/pi             7               7.98804e-202                   0.785165     6.918e-202
+  log 2            8               8.35307e-202                   0.935315     7.072e-202
+  sqrt2-1          8               1.24745e-201                   0.925123     6.304e-202
+  e-2              8               6.80321e-202                   0.985998     5.708e-202
+  sqrt3-1          8               1.24434e-201                    0.96827     6.997e-202
+  log2/log10       7               7.26238e-202                   0.934974     3.035e-202
+
+  => the derived map is exact to the working precision; the brief's
+     candidate is off by a relative error of order q (not a typo-level
+     discrepancy).  Note also q = u + s and u_{k+1} = u_k q_k/s_k.
+
+==============================================================================
+§2  the map induced on the fractional part
+==============================================================================
+  exact:  f_{k+1} = { q_k^2/(1 - f_k) },   s_{k+1} = 1 - { q_k^2/s_k }
+  the Gauss map on the fractional part would be f_{k+1} = { 1/f_k }.
+
+  target         max|s-map - s_next|   max|f-map - f_next|   max|gauss - f_next|
+  1/pi                     3.51e-154             3.51e-154                0.5767
+  log 2                   3.174e-133            3.174e-133                0.4358
+  sqrt2-1                 7.597e-113            7.597e-113                0.6371
+  e-2                     1.136e-122            1.284e-122                0.7748
+  sqrt3-1                 1.857e-141            1.857e-141                0.8495
+  log2/log10              1.015e-145            1.015e-145                0.6325
+
+  => the induced map is a SKEW PRODUCT over the escaping integer q_k;
+     it is not the Gauss map.  ({1/f} happens to agree once, for
+     f = sqrt2-1, because that is the Gauss map's fixed point.)
+
+  The correct conditional density of s_k given the digits q_0..q_k is
+  (cylinder lemma, proof in the module docstring)
+        mu_q(s) = q(q-1)/(q-s)^2 = 1 + (2s-1)/q + O(1/q^2).
+  It is asymptotically LEBESGUE.  The Gauss-Kuzmin density, which the
+  previous session floated and killed, is a different function:
+
+         q    mu_q(0.01)    mu_q(0.25)     mu_q(0.5)    mu_q(0.75)    mu_q(0.99)   sup|h1-1|      1/q^2
+         2   0.887247707   0.936914966   0.994900412    1.06049494    1.13209918     0.132099       0.25
+         3   0.947492551    0.97202919   0.998975596    1.02745696    1.05636819    0.0563682 0.1111111111
+         4   0.969988047   0.984305068   0.999674923    1.01553223    1.03123568    0.0312357     0.0625
+        10   0.995115681   0.997497964   0.999991667    1.00249787    1.00491567   0.00491567       0.01
+        30   0.999455749   0.999722197   0.999999897    1.00027775    1.00054464  0.000544638 0.001111111111
+       100   0.999951002      0.999975   0.999999999      1.000025      1.000049   4.90016e-5     0.0001
+      1000    0.99999951    0.99999975           1.0    1.00000025    1.00000049       4.9e-7     1.0e-6
+  Gauss-Kuzmin 1/((1+s)ln2) at the same points:    1.42841093    1.15415603   0.961796694   0.824397166   0.724972382
+
+  and the exact conditional mean of log s (the quantity that drives
+  the average), with h(q) - (-1) shown against 1/(2q):
+
+           q           E[log s | q]            -1 + 1/(2q)       h(q)+1
+           2  -0.693147180559945309                  -0.75   0.30685282
+           4  -0.863046217355342782                 -0.875   0.13695378
+          10  -0.948244640920436711                  -0.95  0.051755359
+         100  -0.994983249496642677                 -0.995 0.0050167505
+     1000000  -0.999999499999833333             -0.9999995 5.0000017e-7
+
+  int_0^1 log(1-f) df = -1.0
+  => the integral -1 is right as the *typical* value, and it is right
+     for a reason that has nothing to do with Gauss-Kuzmin: mu_q -> Lebesgue.
+
+==============================================================================
+§3  the correction term sum_k [log c_k - log(1-f_k)] converges
+==============================================================================
+  log c_k = log(1-f_k) - log(1 + s_k r_k),  0 <= log(1+s_k r_k) <= r_k,
+  and sum_k r_k = sum_k R_k <= sum_k 1/(q_k-1) < infinity.
+
+  1/pi:  partial sums of log(1+s_k r_k)
+     k= 0 q_k=                           4 r_k=     0.31831  partial=0.24156447527
+     k= 1 q_k=                          15 r_k=   0.0683099  partial=0.265913899961
+     k= 2 q_k=                         609 r_k=  0.00164322  partial=0.26663432632
+     k= 3 q_k=                      845029 r_k=  1.18339e-6  partial=0.266635162921
+     k= 4 q_k=               1010073215739 r_k= 9.90027e-13  partial=0.266635162922
+     k= 5 q_k=   1300459886313272270974271 r_k= 7.68959e-25  partial=0.266635162922
+     k= 6 q_k=1939680952094609786557359582286462958434022504402 r_k= 5.15549e-49  partial=0.266635162922
+     => converged value 0.266635162922;  Cesaro mean = 0.03809073756 -> 0
+
+  log 2:  partial sums of log(1+s_k r_k)
+     k= 0 q_k=                           2 r_k=    0.693147  partial=0.326634259978
+     k= 1 q_k=                           6 r_k=    0.193147  partial=0.474090942077
+     k= 2 q_k=                          38 r_k=   0.0264805  partial=0.480330960548
+     k= 3 q_k=                        6071 r_k= 0.000164724  partial=0.480372911026
+     k= 4 q_k=                   144715221 r_k=  6.91012e-9  partial=0.480372913495
+     k= 5 q_k=           58600453312405245 r_k= 1.70647e-17  partial=0.480372913495
+     k= 6 q_k=28261174043083404192255923187258021 r_k= 3.53842e-35  partial=0.480372913495
+     k= 7 q_k=1350299665604204277005894785275782053022737307184211775676631561245153 r_k= 7.40576e-70  partial=0.480372913495
+     => converged value 0.480372913495;  Cesaro mean = 0.06004661419 -> 0
+
+  sqrt2-1:  partial sums of log(1+s_k r_k)
+     k= 0 q_k=                           3 r_k=    0.414214  partial=0.217238701649
+     k= 1 q_k=                          13 r_k=   0.0808802  partial=0.267402186683
+     k= 2 q_k=                         253 r_k=  0.00395715  partial=0.26856100052
+     k= 3 q_k=                      218201 r_k=  4.58295e-6  partial=0.268564558707
+     k= 4 q_k=                 61323543802 r_k=  1.6307e-11  partial=0.268564558717
+     k= 5 q_k=      5704059172637470075854 r_k= 1.75314e-22  partial=0.268564558717
+     k= 6 q_k=178059816815203395552917056787722451335939040 r_k= 5.61609e-45  partial=0.268564558717
+     => converged value 0.268564558717;  Cesaro mean = 0.03836636553 -> 0
+
+  e-2:  partial sums of log(1+s_k r_k)
+     k= 0 q_k=                           2 r_k=    0.718282  partial=0.362253912356
+     k= 1 q_k=                           5 r_k=    0.218282  partial=0.449723564759
+     k= 2 q_k=                          55 r_k=   0.0182818  partial=0.455209057145
+     k= 3 q_k=                        9999 r_k=  0.00010001  partial=0.455211819134
+     k= 4 q_k=                  3620211523 r_k= 2.76227e-10  partial=0.455211819274
+     k= 5 q_k=        25838201785967533906 r_k= 3.87024e-20  partial=0.455211819274
+     k= 6 q_k=3408847366605453091140558218322023440765 r_k= 2.93354e-40  partial=0.455211819274
+     => converged value 0.455211819274;  Cesaro mean = 0.0650302599 -> 0
+
+  consequence: (1/K) sum log c_k and (1/K) sum log(1-f_k) have the
+  same limit (or the same failure to converge).  The rest of the
+  problem is entirely about sum_k log s_k.
+
+==============================================================================
+§4  REFUTATION: the limit is NOT independent of x
+==============================================================================
+  For each s* in (0,1] take q_0 = 4, q_{k+1} = floor(q_k^2/s*), and
+  x = sum_k 1/q_k.  By Sylvester's criterion (docstring (B)) the digits
+  of x are exactly q_k; by construction s_k -> s*.  Hence
+  (1/K) sum log c_k -> log s*.  The limits therefore fill (-inf, 0].
+
+  s* = 0.9:  q_0..q_4 = [4, 17, 321, 114490, 14564400111]
+      k=0  s_k = 0.7943326742196865218468   running mean over 1 = -0.230252920321
+      k=1  s_k =  0.857305988680856388858   running mean over 2 = -0.192106649065
+      k=2  s_k = 0.8974907259348305628751   running mean over 3 = -0.164121930008
+      k=3  s_k = 0.8999929252643957463178   running mean over 4 = -0.149433541632
+      k=4  s_k = 0.8999999999443849390482   running mean over 5 = -0.14061893645
+      k=5  s_k = 0.8999999999999999999966   running mean over 6 = -0.134742532984
+      k=6  s_k =                      0.9   running mean over 7 = -0.130545101938
+      running mean over K=14: -0.117952808798   log s* = -0.105360515658
+      Sylvester inequalities hold: True;  ceil(1/R_k) = q_k and R_k < 1/(q_k-1) for k<5: True
+      forward iteration from x (dps=1200=1200) reproduces the prescribed q_k: True  (9 precision-stable digits of 11; digits [4, 17, 321, 114490, 14564400111, 235690833992552013690]...)
+
+  s* = 0.5:  q_0..q_4 = [4, 32, 2048, 8388608, 140737488355328]
+      k=0  s_k =  0.450608087609725322976   running mean over 1 = -0.79715730261
+      k=1  s_k = 0.4924260350655158212068   running mean over 2 = -0.752784157434
+      k=2  s_k = 0.4998779892703240053744   running mean over 3 = -0.732986515555
+      k=3  s_k =  0.499999970197681165018   running mean over 4 = -0.723026696707
+      k=4  s_k = 0.4999999999999982236432   running mean over 5 = -0.717050793478
+      k=5  s_k =                      0.5   running mean over 6 = -0.713066857991
+      k=6  s_k =                      0.5   running mean over 7 = -0.710221189787
+      running mean over K=14: -0.701684185173   log s* = -0.69314718056
+      Sylvester inequalities hold: True;  ceil(1/R_k) = q_k and R_k < 1/(q_k-1) for k<5: True
+      forward iteration from x (dps=1200=1200) reproduces the prescribed q_k: True  (9 precision-stable digits of 11; digits [4, 32, 2048, 8388608, 140737488355328, 39614081257132168796771975168]...)
+
+  s* = 0.25:  q_0..q_4 = [4, 64, 16384, 1073741824, 4611686018427387904]
+      k=0  s_k = 0.2361589840182991364627   running mean over 1 = -1.44325003967
+      k=1  s_k = 0.2490310224225229000971   running mean over 2 = -1.41671392095
+      k=2  s_k = 0.2499961854191470323459   running mean over 3 = -1.40657915382
+      k=3  s_k = 0.2499999999417923391136   running mean over 4 = -1.4015079557
+      k=4  s_k = 0.2499999999999999999864   running mean over 5 = -1.39846523679
+      k=5  s_k =                     0.25   running mean over 6 = -1.39643675751
+      k=6  s_k =                     0.25   running mean over 7 = -1.39498784374
+      running mean over K=14: -1.39064110243   log s* = -1.38629436112
+      Sylvester inequalities hold: True;  ceil(1/R_k) = q_k and R_k < 1/(q_k-1) for k<5: True
+      forward iteration from x (dps=1200=1200) reproduces the prescribed q_k: True  (8 precision-stable digits of 10; digits [4, 64, 16384, 1073741824, 4611686018427387904, 85070591730234615865843651857942052864]...)
+
+  s* = 0.05:  q_0..q_4 = [4, 320, 2048000, 83886080000000, 140737488355328000000000000000]
+      k=0  s_k = 0.04939033682438199469374   running mean over 1 = -3.00800048477
+      k=1  s_k = 0.04999218994083416459151   running mean over 2 = -3.00194448585
+      k=2  s_k = 0.04999999877929693460464   running mean over 3 = -2.99987375656
+      k=3  s_k = 0.04999999999999997019768   running mean over 4 = -2.99883838581
+      k=4  s_k =                     0.05   running mean over 5 = -2.99821716336
+      k=5  s_k =                     0.05   running mean over 6 = -2.99780301506
+      k=6  s_k =                     0.05   running mean over 7 = -2.99750719484
+      running mean over K=14: -2.9966197342   log s* = -2.99573227355
+      Sylvester inequalities hold: True;  ceil(1/R_k) = q_k and R_k < 1/(q_k-1) for k<5: True
+      forward iteration from x (dps=1200=1200) reproduces the prescribed q_k: True  (8 precision-stable digits of 10; digits [4, 320, 2048000, 83886080000000, 140737488355328000000000000000, 396140812571321687967719751680000000000000000000000000000000]...)
+
+  s* = 1:  q_0..q_4 = [4, 16, 256, 65536, 4294967296]
+      k=0  s_k = 0.8396585836052940661367   running mean over 1 = -0.174759917856
+      k=1  s_k =  0.944635936073196545851   running mean over 2 = -0.115857798203
+      k=2  s_k = 0.9961240896900916003884   running mean over 3 = -0.0785330125073
+      k=3  s_k = 0.9999847416765881293835   running mean over 4 = -0.0589035739904
+      k=4  s_k = 0.9999999997671693564546   running mean over 5 = -0.0471228592389
+      k=5  s_k = 0.9999999999999999999458   running mean over 6 = -0.0392690493657
+      k=6  s_k =                      1.0   running mean over 7 = -0.0336591851706
+      running mean over K=14: -0.0168295925853   log s* = 0.0
+      Sylvester inequalities hold: True;  ceil(1/R_k) = q_k and R_k < 1/(q_k-1) for k<5: True
+      forward iteration from x (dps=1200=1200) reproduces the prescribed q_k: True  (9 precision-stable digits of 11; digits [4, 16, 256, 65536, 4294967296, 18446744073709551616]...)
+
+  => x with s* = 1/2 gives limit log(1/2) = -0.69314718056 != -1.
+     x with s* = 1 gives limit 0 (i.e. sum log c_k CONVERGES there).
+     So 'a limit independent of x' is false, and so is 'a limit for
+     every x' and so is 'sum log c_k is bounded' as a universal claim.
+
+  Oscillating family.  Same construction with prescribed targets
+  s*_k in {1/2, 1}: block m has length 2^m, target 1/2 for m even and
+  1 for m odd.  Since |s_k - s*_k| <= C/q_k and sum 1/q_k < infinity,
+  the Cesaro means of log s_k and of log s*_k coincide, so it is
+  enough to average the targets:
+       K = end of block   running mean of log s*_k
+                      2                        0.0
+                      6            -0.462098120373
+                     14            -0.198042051589
+                     30            -0.462098120373
+                     62            -0.223595864697
+                    126            -0.462098120373
+                    254            -0.229229776248
+                    510            -0.462098120373
+                   1022            -0.230596909384
+                   2046            -0.462098120373
+                   4094            -0.230936188149
+     => two distinct subsequential limits, (2/3)log(1/2) = -0.462098120373 at even block ends and (1/3)log(1/2) = -0.231049060187
+        at odd block ends: for some irrational x the running average
+        does not converge at all, so even 'the limit exists' fails.
+
+==============================================================================
+§5  the true statement: -1 for a.e. x  (L^1 PROVED, a.e. CONJECTURE)
+==============================================================================
+  Sylvester sequence 2,3,7,43,1807,... bounds the greedy digits from
+  below, so sum_k 1/q_k <= sum_k 1/S_k = 1 exactly (telescoping).
+  Partial sum of the first 8 terms = 1.0;  tail < 1/(S_9-1) ~ 1e-38.
+
+  By the exact conditional law (docstring (D)):  E[log s_k] = -1
+  + (1/2)E[1/q_k] + O(E[1/q_k^2]), and sum_k E[1/q_k] <= 1.  Hence
+  E[(1/K) sum log s_k] = -1 + O(1/K): L^1 convergence to -1, proved.
+  The a.e. version is reduced in docstring (H) to the expanding-map
+  correlation lemma, which is stated but not proved here.
+
+  Orbit evidence for generic x.  The exact conditional mean of
+  log s_k is -1 + 1/(2q_k) + O(1/q_k^2) (section 2), so the sum is
+  -K + O(1): the running mean sits at -1 with fluctuations of order
+  1/sqrt(K).  Crucially the individual log s_k are O(1) throughout --
+  they do not decay, so the sum cannot converge.
+
+  1/pi         dps=3200    steps= 11  mean log s_k =  -0.60059643  sum log s_k =   -6.6065607  (=-K-4.0(1) at K=11)
+               last four log s_k, all O(1): ['-0.9795', '-0.3041', '-0.9798', '-0.6309']
+  log 2        dps=3200    steps= 11  mean log s_k =  -0.70139733  sum log s_k =   -7.7153707  (=-K-4.0(1) at K=11)
+               last four log s_k, all O(1): ['-0.1308', '-0.04911', '-0.04968', '-0.234']
+  sqrt2-1      dps=3200    steps= 11  mean log s_k =   -0.7432539  sum log s_k =   -8.1757929  (=-K-4.0(1) at K=11)
+               last four log s_k, all O(1): ['-0.2244', '-0.5995', '-0.1127', '-0.6839']
+  e-2          dps=3200    steps= 11  mean log s_k =   -1.2178983  sum log s_k =   -13.396881  (=-K-4.0(1) at K=11)
+               last four log s_k, all O(1): ['-1.739', '-1.246', '-0.9277', '-0.5309']
+  sqrt3-1      dps=3200    steps= 11  mean log s_k =  -0.84759292  sum log s_k =   -9.3235221  (=-K-4.0(1) at K=11)
+               last four log s_k, all O(1): ['-0.6137', '-0.6645', '-0.2777', '-0.05624']
+
+==============================================================================
+§6  the section 6.5 protocol is unachievable  (reconfirms I5/I6)
+==============================================================================
+  dps -> usable steps for x = 1/pi, against 2 + log2(dps).
+  'raw' is where the fixed-precision iteration stops; 'stable' keeps
+  only steps whose digits survive halving the precision.
+
+       dps   raw  stable  2+log2(dps)   mean log s_k (stable)
+        60     7       7         7.91             -0.44729235
+       120     8       6         8.91             -0.45379748
+       200     9       6         9.64             -0.45379748
+       400    10       7        10.64             -0.53032058
+       800    11       9        11.64             -0.55509968
+      1600    12      10        12.64             -0.59756828
+      3200    13      11        13.64             -0.60059643
+     10000    14      12        15.29              -0.8962461
+
+  40-50 steps would need 2^38-2^48 decimal digits.  The only route
+  to a deep orbit is to prescribe the digits in advance, as in §4.
+
+==============================================================================
+SUMMARY
+==============================================================================
+  u-map (verified):        u' = u ceil(u)/(ceil(u) - u);  brief's
+                           u^2/(u-floor(u)+1) is refuted.
+  fractional-part map:     s' = 1 - {q^2/s},  f' = {q^2/(1-f)}; a skew
+                           product, NOT Gauss; invariant density ->
+                           Lebesgue, not Gauss-Kuzmin.
+  correction term:         PROVED convergent; the problem is sum log s_k.
+  K6 as posed:             REFUTED.  Explicit irrational x realise the
+                           limit log s* for every s* in (0,1]; another
+                           family has no limit at all.
+  replaced by:             (1/K) sum log c_k -> -1 in L^1 (PROVED), and
+                           a.e. (CONJECTURE modulo the stated
+                           expanding-map correlation lemma).

@@ -1,0 +1,229 @@
+
+==============================================================================
+rh46 INDEPENDENT AUDIT -- two-point Liouville correlation S(x)
+==============================================================================
+XMAX = 10^8 ; lambda built up to 100000002 ; t=0.0s
+numpy 2.5.0 ; mpmath 1.3.0
+
+==============================================================================
+2. INDEPENDENT lambda(n) = (-1)^Omega(n)
+==============================================================================
+[PASS] LAM1 :: segmented Omega-by-trial-division lambda equals per-integer trial-division factorization on [1,20000] (exact, tol=0)
+        compared 20000 integers by two unrelated algorithms; mismatches = 0
+  segmented sieve      : 100000002 values in 7.3s
+  additive prime-power : 100000002 values in 8.3s
+[PASS] LAM2 :: additive prime-power sieve (Omega = sum_{p^k|n} 1) equals the segmented trial-division sieve on ALL of [1,10^8+2] (exact, tol=0)
+        compared 100000001 values; mismatches = 0
+[PASS] LAM3 :: pure-python factorization matches the sieve at 23 integers, including 10^7-2 .. 10^7+2 and 10^8-3 .. 10^8+2 (exact, tol=0)
+        checked n = [9999998, 9999999, 10000000, 10000001, 10000002, 99999999, 100000000], ...; mismatches = 0
+  spot values (raw factorization): lambda(9999999)=+1, lambda(10000000)=+1, lambda(10000001)=+1, lambda(10000002)=+1
+  informative: sum_{n<=1e8} lambda(n) = -3884
+
+==============================================================================
+3. S(x) = sum_{n<=x} lambda(n)lambda(n+2) -- independent recomputation
+==============================================================================
+    x            S(x)          S(x)/x        max_{x'<=x}|S|     H(x)=sum ll/n     L(x)=H/log x
+    1000        -30           -3.000000e-02  30                     -1.364405674   -0.197517952
+    10000       12            1.200000e-03   73                     -1.361351375   -0.147806847
+    100000      258           2.580000e-03   282                    -1.354273381   -0.117630691
+    1000000     68            6.800000e-05   689                    -1.356117295   -0.098159043
+    10000000    1246          1.246000e-04   3059                   -1.356313384   -0.084148488
+    100000000   4632          4.632000e-05   6454                   -1.356395954   -0.073634410
+  global max over x<=1e8 : |S| = 6454 at x = 66967578
+  global max over x<=1e7 : |S| = 3059 at x = 8572105
+  all S values are exact integers (tol = 0); S(10^7) triple-checked below.
+[PASS] S0.flat :: streaming chunked scan equals a flat single-array cumsum at every decade and in max|S| and its argmax (exact, tol=0)
+        flat S(10^3..10^8) = [-30, 12, 258, 68, 1246, 4632] ; flat max|S| = 6454 at x=66967578 vs streamed 6454 at x=66967578
+[PASS] S1 :: reconnaissance values S(10^3,10^4,10^5,10^6) = -30,12,258,68 reproduced exactly
+        mine {1000: -30, 10000: 12, 100000: 258, 1000000: 68} | recon {1000: -30, 10000: 12, 100000: 258, 1000000: 68}
+[FAIL] S2.crosscheck :: reconnaissance S(10^7) = 1244 reproduced under the stated definition S(x) = sum_{n<=x}
+        mine = 1246 (streamed; flat cumsum = 1246; sieve = 2 independent algorithms) vs recon 1244, difference +2.
+        recon's 1244 equals sum_{n<=x-2} = 1244: it drops the last two terms n = 10^7-1, 10^7, whose products are both +1 (lambda(10^7-1)=+1, lambda(10^7+1)=+1, lambda(10^7)=+1, lambda(10^7+2)=+1 -- raw factorization, LAM3).
+        No single convention reproduces the recon row: sum_{n<=x} matches 4/5 (S(10^7)=1246) but sum_{n<=x-2} matches only 2/5 (it gives S(10^5)=256 there, not the recon value 258).
+        Signature: a streaming boundary slip at the final block, not a lambda error -- recon's max|S| and all other S values agree to the digit.
+[PASS] S3 :: reconnaissance max|S| = 3059 at x = 8572105 (for x <= 10^7) reproduced exactly
+        mine over x<=1e7: max|S| = 3059 at x = 8572105  (M(10^7) = 3059 from the prefix-max table); over the larger range x<=1e8 the max is 6454 at x=66967578
+[PASS] B1.trivial :: trivial bound |S(x)| <= x holds at every computed x (|S(x)| <= #{n<=x} = x)
+        max over checkpoints of |S(x)|/x = 3.000000e-02 at x = 1000
+
+==============================================================================
+4. (B) GROWTH OF max|S(x)|
+==============================================================================
+  M(x) = max_{x'<=x}|S(x')| at x = 10^3..10^8:
+      x=1000        M(x)=30       M/sqrt(x)=0.9487   M/x=3.000e-02
+      x=10000       M(x)=73       M/sqrt(x)=0.7300   M/x=7.300e-03
+      x=100000      M(x)=282      M/sqrt(x)=0.8918   M/x=2.820e-03
+      x=1000000     M(x)=689      M/sqrt(x)=0.6890   M/x=6.890e-04
+      x=10000000    M(x)=3059     M/sqrt(x)=0.9673   M/x=3.059e-04
+      x=100000000   M(x)=6454     M/sqrt(x)=0.6454   M/x=6.454e-05
+  least-squares fit  log M(x) = log C + theta log x :
+      theta = 0.4834 +- 0.0186      C = 0.9896      R^2 = 0.9941
+  local exponents between consecutive decades: 0.386, 0.587, 0.388, 0.647, 0.324
+  heuristic i.i.d. +-1 walk scale sqrt(2 x log log x) (law of iterated log):
+      x=1000000     sqrt(2x loglog x) =     2292    observed M(x) =    689    ratio 0.30
+      x=10000000    sqrt(2x loglog x) =     7456    observed M(x) =   3059    ratio 0.41
+      x=100000000   sqrt(2x loglog x) =    24139    observed M(x) =   6454    ratio 0.27
+[PASS] B2 :: observed max|S| is CONSISTENT with square-root cancellation M(x) = x^{1/2+o(1)}
+        theta = 0.4834 +- 0.0186 (R^2 = 0.9941); local exponents range 0.324..0.647, so the exponent is NOT resolved by six noisy prefix-maxima.
+        max over the decade grid of M(x)/sqrt(x) = 0.9673 -- below the i.i.d.-walk LIL scale by a factor 3.74, i.e. consistent with (and numerically better than) square-root cancellation.  This is evidence, not a proof: an upper bound for all x is not implied by finitely many values.
+[PASS] B3 :: growth is sublinear on the computed range: M(x)/x decreases over the decades and M(10^8)/10^8 < 1e-3
+        M(10^3)/10^3 = 3.000e-02 ; M(10^8)/10^8 = 6.454e-05
+
+  NOTE on the 'RH-conditional x^{1/2+eps}' reading of (B).  The auditing parent
+  has WITHDRAWN that reading and I do not certify any derivation of it.  The
+  reason is structural: lambda(n)lambda(n+2) is NOT multiplicative (the shift
+  destroys multiplicativity), so the Dirichlet-series / Perron / Euler-product
+  route that handles sum_{n<=x} lambda(n) does not apply here, and no standard
+  theorem derives O(x^{1/2+eps}) for this correlation from RH.  Recorded as
+  WITHDRAWN / unverified: B2 above asserts only heuristic consistency.
+[PASS] B4 :: (B) is certified only as |S(x)| <= x (exact) plus the B2/B3 consistency evidence; the 'RH-conditional x^{1/2+eps}' derivation is recorded as WITHDRAWN / unverified by this audit
+        no derivation asserted; square-root growth remains a heuristic expectation
+
+==============================================================================
+5. (C) LOGARITHMIC AVERAGE L(x) = (1/log x) sum_{n<=x} lambda(n)lambda(n+h)/n
+==============================================================================
+  h = 1
+      x             H(x) = sum ll(n)/n        L(x) = H(x)/log x
+      10000         -0.834370060            -0.090590578
+      100000        -0.838263749            -0.072810664
+      200000        -0.841902452            -0.068974065
+      500000        -0.840997374            -0.064088865
+      1000000       -0.842852148            -0.061007673
+      2000000       -0.842264322            -0.058052532
+      5000000       -0.842243030            -0.054602648
+      10000000      -0.842416285            -0.052265249
+      20000000      -0.842526319            -0.050116837
+      50000000      -0.842389252            -0.047518695
+      100000000     -0.842488505            -0.045736014
+  h = 2
+      x             H(x) = sum ll(n)/n        L(x) = H(x)/log x
+      10000         -1.361351375            -0.147806847
+      100000        -1.354273381            -0.117630691
+      200000        -1.353740061            -0.110907095
+      500000        -1.357075705            -0.103417019
+      1000000       -1.356117295            -0.098159043
+      2000000       -1.356959125            -0.093527544
+      5000000       -1.356434072            -0.087937673
+      10000000      -1.356313384            -0.084148488
+      20000000      -1.356353541            -0.080681337
+      50000000      -1.356465333            -0.076517431
+      100000000     -1.356395954            -0.073634410
+  h=1: fit |L(x)| = C (log x)^{-theta} over x = 10^5..10^8 :  theta = 0.9931 +- 0.0026,  C = 0.8264,  R^2 = 0.99994
+      |H(x)| lies in [0.838264, 0.842852];  H(10^8) = -0.842488505
+[PASS] L1.mono :: h=1: |L(x)| decreases strictly toward 0 over the whole grid x = 10^4..10^8
+        |L(10^4)| = 0.090590578 -> |L(10^8)| = 0.045736014 (factor 2.0), decreasing at every one of the 10 grid steps
+[PASS] L1.fit :: h=1: |L(x)| = C (log x)^{-theta} with theta = 1, the signature of H(x) = O(1) (hence a fortiori = o(log x))
+        theta = 0.9931 +- 0.0026, C = 0.8264 vs |H(10^8)| = 0.842489, R^2 = 0.99994
+[PASS] L1.H :: h=1: H(x) is bounded and settles (drift <= 0.01 for x >= 10^5), so L(x) = O(1/log x) = o(1)
+        max |H(x) - H(10^8)| for x >= 10^5 = 0.004225 ; this is much stronger than the theorem's H(x) = o(log x)
+  h=2: fit |L(x)| = C (log x)^{-theta} over x = 10^5..10^8 :  theta = 0.9968 +- 0.0014,  C = 1.3444,  R^2 = 0.99998
+      |H(x)| lies in [1.353740, 1.357076];  H(10^8) = -1.356395954
+[PASS] L2.mono :: h=2: |L(x)| decreases strictly toward 0 over the whole grid x = 10^4..10^8
+        |L(10^4)| = 0.147806847 -> |L(10^8)| = 0.073634410 (factor 2.0), decreasing at every one of the 10 grid steps
+[PASS] L2.fit :: h=2: |L(x)| = C (log x)^{-theta} with theta = 1, the signature of H(x) = O(1) (hence a fortiori = o(log x))
+        theta = 0.9968 +- 0.0014, C = 1.3444 vs |H(10^8)| = 1.356396, R^2 = 0.99998
+[PASS] L2.H :: h=2: H(x) is bounded and settles (drift <= 0.01 for x >= 10^5), so L(x) = O(1/log x) = o(1)
+        max |H(x) - H(10^8)| for x >= 10^5 = 0.002656 ; this is much stronger than the theorem's H(x) = o(log x)
+[PASS] L5.prec :: float64 harmonic sums agree with an mpmath 40-digit evaluation at x = 10^4 to within the a-priori bound 1e-13 (tol = 1e-13)
+        h=2: float64 -1.361351374656020 vs mpmath -1.3613513746560202462   |diff| = 0.000e+00
+        h=1: float64 -0.834370059711170 vs mpmath -0.83437005971116958554   |diff| = 1.110e-16
+        bound: nblocks * ceil(log2 B) * eps * sum|w| + eps|H| < 1e-13
+
+  NOTE on (C).  Tao (Forum Math. Pi 2016, arXiv:1509.05422) proves the
+  logarithmically averaged two-point Chowla conjecture
+      sum_{x/w(x)<n<=x} lambda(a1 n+b1)lambda(a2 n+b2)/n = o(log w(x))
+  for any fixed a1 b2 - a2 b1 != 0 and any w(x)->infinity; h=1 and h=2 both
+  satisfy the determinant condition.  Taking w(x)=x gives sum_{n<=x} ll/n =
+  o(log x), i.e. L(x) = o(1) -- UNCONDITIONAL.  The numerics above only
+  confirm consistency on [1,10^8]; no finite computation proves o(1).
+[PASS] C1.status :: (C) is an unconditional theorem in the literature (Tao 2016, arXiv:1509.05422, fixed shift, log-averaged), and its hypothesis (a1 b2 - a2 b1 != 0) does cover both h=1 and h=2
+        hypothesis check: h=2 -> a=(1,0),b=(1,2), det = 1*2-1*0 = 2 != 0 ; h=1 -> det = 1*1-1*0 = 1 != 0.
+        the theorem is a literature fact not re-derived here; L1-L5 verify the numerical signature on [1,10^8]
+
+==============================================================================
+6. (D) WITNESS: same lambda on a prefix, different correlation asymptotics
+==============================================================================
+[PASS] D1 :: witness (X=10^4): S'(x) = S(x) EXACTLY for every x <= X-2 = 9998 (tol=0)
+        compared all 9998 prefixes x = 1..9998 by streaming; differing prefixes = 0; max |difference| = 0.
+        The first divergence is at x = 10000: the terms with n = X-1 or n = X pair lambda(n) with lambda'(n+2) = 1, so agreement can fail from x = X-1 onward depending on the boundary values lambda(X+1), lambda(X+2).
+  closed form (case analysis for n<=X-2, n=X-1, n=X, n>=X+1):
+      S'(x) = S(x)               for x <= X-2
+      S'(x) = S(X-2) + B + (x-X) for x >= X,   S(X-2) = 12,  B = lambda(X-1)+lambda(X) = +2
+[PASS] D2 :: that closed form is exact at every checkpoint x = 10^4..10^8 (tol=0); for x <= X-2 = 9998 agreement with S is D1
+        predicted [14, 90014, 990014, 9990014, 99990014]
+        computed  [14, 90014, 990014, 9990014, 99990014]
+      x          S(x)        S'(x)        S'(x)/x       S(x)/x
+      1000       -30         -30          -0.030000      -3.000e-02
+      10000      12          14           0.001400      1.200e-03
+      100000     258         90014        0.900140      2.580e-03
+      1000000    68          990014       0.990014      6.800e-05
+      10000000   1246        9990014      0.999001      1.246e-04
+      100000000  4632        99990014     0.999900      4.632e-05
+[PASS] D3 :: the correlations diverge: S'(x)/x -> 1 (linear term, slope exactly 1) while S(x)/x <= 3.1e-2 on the computed range
+        at x=10^8: S'/x = 0.999900 vs S/x = 4.632e-05, divergence factor 21587.
+        The witness is NOT multiplicative: forcing lambda'(n)lambda'(n+2)=+1 beyond X pins each parity chain, so lambda' is constant on each parity class there. A completely multiplicative witness would be far harder -- it cannot be constructed this way -- so (D) holds for arbitrary +-1 functions, which is the correct reading of the prefix-indeterminacy claim.
+[PASS] D4 :: flip-set bound: for ANY flip set A, |S_A(x)-S(x)| <= 2*#{n<=x+2 : n in A}; verified for A = {n > X, n = 0 mod 1000} at every x <= 10^8 (tol=0)
+        max slack = 0 (<= 0 confirms the bound); differing prefixes = 99456071.
+        With density delta = 1/1000 this permits |Delta| <= 2*delta*x = 0.002x, i.e. a modification of POSITIVE density is needed to move S(x)/x.
+        Consequence: the brief's suggested 'lambda' = lambda except on a SPARSE set' cannot produce a linear term -- if |A cap [1,x]| = o(x) then the correlation moves by o(x) only.  D1-D3 therefore use density 1/2, the minimal honest construction.
+[PASS] A1 :: no prefix computation can settle (A): lambda'' = lambda on [1,10^8] and 1 beyond satisfies S''(x) = S(x) for all x <= 10^8-2 while S''(x)/x -> 1
+        verified over all 99999998 prefixes x <= 10^8-2 by streaming: differing = 0, max |difference| = 0.
+        Yet S''(10^8) = 4634 vs S(10^8) = 4632, and by the D1-D3 mechanism S''(x) = S(10^8-2)+B+(x-10^8) -> slope 1, so S''(x)/x -> 1.
+        => the ENTIRE range computed here is equally consistent with S(x) = o(x) and with S(x) ~ x; a finite check only certifies |S(x)| <= M(x0) at the computed x0 (here M(10^8) = 6454), and nothing beyond.
+
+==============================================================================
+7. (A) LOGICAL STATUS AND TRIVIAL BOUNDS
+==============================================================================
+  (A) S(x) = o(x) is a limit statement.  A finite computation yields at best
+      |S(x)| <= M(x0) at the finitely many computed x <= x0 (M(10^8) = 6454),
+      and by A1 that same data is equally consistent with S(x) ~ x.  Hence:
+        * NO finite computation can PROVE o(x);
+        * a finite computation CAN REFUTE it, by exhibiting one x with
+          |S(x)| >= c*x, c > 0 fixed.  No such x occurs here: the largest
+          |S(x)|/x over x <= 10^8 is 3.000e-02 (at x=10^3, for x=10^8 it is 4.632e-05),
+          so the computation finds no refutation -- and cannot.
+[PASS] A2 :: trivial bound |sum_{n<=x} lambda(n)lambda(n+1)| <= x-2 by direct enumeration for every x in [2,10^7] (tol=0)
+        violations: x in [1] ; x=1 is the degenerate exception (x-2 = -1 < |S(1)| = 1).
+        max |sum_{n<=x} lambda(n)lambda(n+1)| = 2716 at x = 9754862, i.e. |.|/x = 2.784e-04: the trivial term-count bound |.| <= x is never approached.
+[PASS] A3 :: (A) status: S(x) = o(x) is OPEN; the round's refusal to claim a proof is CORRECT and is exactly what A1 demonstrates
+        no computation, however far, changes this; the only unconditional content audited here is the logarithmic average (C)
+
+==============================================================================
+SUMMARY
+==============================================================================
+  [PASS] LAM1
+  [PASS] LAM2
+  [PASS] LAM3
+  [PASS] S0.flat
+  [PASS] S1
+  [FAIL] S2.crosscheck
+  [PASS] S3
+  [PASS] B1.trivial
+  [PASS] B2
+  [PASS] B3
+  [PASS] B4
+  [PASS] L1.mono
+  [PASS] L1.fit
+  [PASS] L1.H
+  [PASS] L2.mono
+  [PASS] L2.fit
+  [PASS] L2.H
+  [PASS] L5.prec
+  [PASS] C1.status
+  [PASS] D1
+  [PASS] D2
+  [PASS] D3
+  [PASS] D4
+  [PASS] A1
+  [PASS] A2
+  [PASS] A3
+
+  key independent numbers (exact integers unless stated):
+    S(10^3..10^8)  = -30, 12, 258, 68, 1246, 4632
+    max|S| x<=10^7 = 3059 at x=8572105 ; max|S| x<=10^8 = 6454 at x=66967578
+    max|S|/sqrt(x) at x=10^8 = 0.6454
+    L(10^5..10^8), h=2 (float64, |err|<1e-13): -0.117631, -0.098159, -0.084148, -0.073634
+    L(10^5..10^8), h=1                       : -0.072811, -0.061008, -0.052265, -0.045736
+
+FINAL: 25/26 checks pass   (t=32.5s)
+log written to /Users/victor/workspace/rh/rh46/verify/independent_check.log

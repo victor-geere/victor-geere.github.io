@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh20 — two ladders</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.cardbox { fill: none; stroke: var(--muted); stroke-width: 1.1; }
+.ln1 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>Two ladders</h1>
+  <p class="sub">Ordered: two incommensurable meshes — the question rh19 §6 ranked first. rh8's incommensurability says two meshes with irrational ratio share no null but zero, so a pair should see every zero, and (L) at two meshes might carry the whole statement. Answered: <b>no</b>, and the reason is a theorem with a constant. For every mesh at once, |B<sub>Δ</sub>(γ)|² ≤ c₀/γ² with c₀ = 2.100246 — a bound with no Δ in it, and attained. A pair fixes <i>deletion</i>, the failure mode that cost rh19 a factor 35 at Δ*: the low-zero weight floor rises 2,857× at a golden pair. Nothing fixes <i>starvation</i>: above γ = 2384 no mesh whatsoever reaches even that floor. Along the way the obvious guess — that a good pair needs a badly approximable ratio — turned out to be false, and what replaces it is smaller and sharper: four specific zeros.</p>
+  <p class="meta">docs/rh20 · continues <a href="rh18.html">rh18</a>–<a href="rh19.html">rh19</a> · figures computed, not sketched · 2026-08-03</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> rh19 §6 left three successors and ranked two incommensurable meshes first: each mesh is blind on its own notch ladder r ∈ (2π/Δ)ℤ, at Δ* = 2π/γ₁ that blindness deleted the first zero and cost a factor 35 in the certified margin, and rh8's incommensurability says two meshes with irrational ratio share no null but zero. <b>Computable incommensurability</b> (§2): every mesh a computer can hold is rational, so exact incommensurability is unavailable; what replaces it is the height of the first <i>exact</i> joint notch, r = 2πq/Δ₁ for θ = p/q in lowest terms. θ = 1/2 puts it at 52.4 and θ = 2/3 at 78.5 — both inside R₀ = 600 — while a four-decimal second mesh puts it at 6.28&#215;10<sup>4</sup>, a hundred times beyond. <b>What a pair buys</b> (§3): the weight floor over the first 40 zeros rises from 1.294&#215;10<sup>&#8722;10</sup> at Δ = 0.24 alone to 3.696&#215;10<sup>&#8722;7</sup> at the golden pair (2,857×) and 9.230&#215;10<sup>&#8722;7</sup> at the optimum θ* = 0.581214 (7,134×). But the guess behind the question is false: θ = 3/5 is as simple a rational as there is and gains 2,857×, while θ = 1/2 and 3/4 gain exactly nothing. The real criterion is arithmetic and finite — on the 17.0% of ratios where a pair gains under 10×, the failure is always one of exactly four zeros (52.970, 79.337, 103.726, 105.447) that Δ = 0.24 already starves, each landing within 0.0425 of a notch of <i>both</i> meshes. <b>The other side</b> (§4): by rh18's identity at arbitrary nodes, Δ₁ℤ ∪ Δ₂ℤ is itself a legitimate test set, and six of them are certified positive definite by 60-digit Cholesky. Reduced mod Δ₁ the union is one orbit, so its gaps take at most three values — and what separates a good pair from a bad one is not their count but their <i>balance</i>: 2.6 at the golden pair against 2,644 at a near-rational, with pivots 4.99&#215;10<sup>&#8722;6</sup> and 2.76&#215;10<sup>&#8722;9</sup> tracking it exactly. <b>The ceiling</b> (§5): writing x = γΔ/2, B<sub>Δ</sub>(γ) = (2/γ)·sin²x/x, whose maximum sits at the root of tan x = 2x — so |B<sub>Δ</sub>(γ)|² ≤ c₀/γ² with c₀ = 2.100246 certified below 2.100246463, attained to 99.9999% of the bound, and containing no Δ at all. No family of meshes, however large, can lift a zero above that line. Above γ = 2384 nothing reaches even one pair's floor. So (L) at two meshes does not give (W), and adding meshes cannot change it. §6 audits the bill: 38 named checks in 29 seconds.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">Incommensurability, for meshes that are all rational</a></li>
+  <li><a href="#s3">What a pair buys, and where it buys nothing</a></li>
+  <li><a href="#s4">The other side of the same ratio</a></li>
+  <li><a href="#s5">The ceiling, and the answer</a></li>
+  <li><a href="#s6">The bill, audited</a></li>
+  <li><a href="#s7">Dictionary additions and references</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>rh19 §6, listing what it owed, in order of how tractable it looked: <i>"(i) Two incommensurable meshes. §4 shows each mesh is blind on its own notch ladder r ∈ (2π/Δ)ℤ, and Δ* shows what total blindness costs. rh8's incommensurability says two meshes with irrational ratio share no null but zero — so (L) at two such meshes may already carry the whole statement. The obstacle is quantitative: detection needs the surviving weight to be large enough, not merely nonzero, and §4's dips show the weights vary by orders. Testing whether a pair of meshes can jointly bound every low-zero weight from below is the cheapest next question, and a negative answer would be as informative as a positive one."</i></p>
+<p>The answer is negative, and it is more informative than expected, because the obstacle turns out not to be the one named. rh19 guessed the problem was <i>quantitative</i> — that the surviving weights might be too small. They are not: a pair lifts the floor by three orders. The problem is <i>structural</i>, and it was visible all along in the shape of B: the hat's transform decays, and no arrangement of lattices can slow it down. §5 states that as a theorem with a certified constant. §§2–4 measure exactly what a pair <i>is</i> worth on the way there, and find that the received wisdom about which pairs are good is wrong.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · Incommensurability, for meshes that are all rational</h2>
+<p>rh8's statement is about irrational ratios. No computer holds one. Every mesh in this arc has been an exact decimal, so every ratio θ = Δ₂/Δ₁ is rational, and two rational meshes always share notches: writing θ = p/q in lowest terms, the ladders N(Δ₁) = (2π/Δ₁)ℤ and N(Δ₂) coincide first at</p>
+
+<div class="eq"><span class="tag">(1)</span>
+r<sub>joint</sub> &nbsp;=&nbsp; 2πq/Δ₁,
+</div>
+
+<p>and nowhere below it. So incommensurability is not a property one can compute with; what one can compute with is <b>whether r<sub>joint</sub> lies above the horizon</b> — above the R₀ at which the archimedean integral is cut, and above the heights of the zeros that carry weight. That condition is cheap. At θ = 1/2 the first joint notch is at 52.4 and at θ = 2/3 it is 78.5, both inside R₀ = 600: those pairs are not incommensurable enough at any horizon, and §3 shows they buy nothing. A second mesh specified to four decimals — Δ₂ = 0.1483 against Δ₁ = 0.24, θ = 1483/2400 — puts it at 6.28&#215;10<sup>4</sup>, and each further decimal multiplies that by ten. Rationality is not the obstacle; small denominators are.</p>
+<p>This is the first thing the question needed and did not have: a version of "incommensurable" that a certificate can check. The rest of the document uses it.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · What a pair buys, and where it buys nothing</h2>
+<p>The quantity to watch is the weight the kernel gives each zero. rh14 wrote E<sub>Δ</sub>(v) = Σ<sub>γ</sub>|B<sub>Δ</sub>(γ)|²cos(γv) on RH, so a zero at height γ enters the mesh's arithmetic with weight |B<sub>Δ</sub>(γ)|², and at a notch that weight is zero — the mesh cannot hear it. For a pair, the zero is heard if <i>either</i> mesh hears it, so the object is</p>
+
+<div class="eq"><span class="tag">(2)</span>
+F(Δ₁, Δ₂) &nbsp;=&nbsp; min<sub>j ≤ 40</sub> max( |B<sub>Δ₁</sub>(γ<sub>j</sub>)|², |B<sub>Δ₂</sub>(γ<sub>j</sub>)|² ).
+</div>
+
+<p>At Δ = 0.24 alone, F = 1.294&#215;10<sup>&#8722;10</sup>; at Δ* = 0.444521 — rh19's catastrophe, where the first notch lands on the first zero — it is 4.563&#215;10<sup>&#8722;67</sup>, which is zero to every precision that will ever matter. Adding a second mesh at the golden ratio raises it to 3.696&#215;10<sup>&#8722;7</sup>, a factor 2,857; the best ratio in [0.3, 1] is θ* = 0.581214, giving 9.230&#215;10<sup>&#8722;7</sup>, a factor 7,134. So rh19's worry was misplaced: the surviving weight is not marginal, it is three orders up.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 494" role="img" aria-label="Top: the notch ladders of the two meshes and the first forty zeros; four zeros sit close to a notch of the coarse mesh and are starved by it. Bottom: the weight each zero receives, from the single mesh and from the pair; the pair lifts the four starved zeros by three orders.">
+<text x="360.0" y="21" class="ftitle">two ladders, and the four zeros one mesh cannot hear</text>
+<text x="50" y="60" class="flab end c1">&#916;&#8321;</text>
+<text x="50" y="88" class="flab end c2">&#916;&#8322;</text>
+<text x="50" y="116" class="flab end">&#947;</text>
+<line x1="56" y1="56" x2="690" y2="56" class="grid"/>
+<line x1="56" y1="84" x2="690" y2="84" class="grid"/>
+<line x1="166.7" y1="47" x2="166.7" y2="65" class="ln1"/>
+<line x1="277.3" y1="47" x2="277.3" y2="65" class="ln1"/>
+<line x1="388.0" y1="47" x2="388.0" y2="65" class="ln1"/>
+<line x1="498.6" y1="47" x2="498.6" y2="65" class="ln1"/>
+<line x1="609.3" y1="47" x2="609.3" y2="65" class="ln1"/>
+<line x1="235.1" y1="75" x2="235.1" y2="93" class="ln2"/>
+<line x1="414.2" y1="75" x2="414.2" y2="93" class="ln2"/>
+<line x1="593.2" y1="75" x2="593.2" y2="93" class="ln2"/>
+<line x1="115.7" y1="106" x2="115.7" y2="118" class="lnm"/>
+<line x1="144.9" y1="106" x2="144.9" y2="118" class="lnm"/>
+<line x1="161.7" y1="106" x2="161.7" y2="118" class="lnm"/>
+<line x1="184.6" y1="106" x2="184.6" y2="118" class="lnm"/>
+<line x1="195.2" y1="106" x2="195.2" y2="118" class="lnm"/>
+<line x1="214.9" y1="106" x2="214.9" y2="118" class="lnm"/>
+<line x1="228.9" y1="106" x2="228.9" y2="118" class="lnm"/>
+<line x1="239.1" y1="106" x2="239.1" y2="118" class="lnm"/>
+<line x1="258.9" y1="106" x2="258.9" y2="118" class="lnm"/>
+<line x1="266.4" y1="106" x2="266.4" y2="118" class="lnm"/>
+<line x1="279.9" y1="102" x2="279.9" y2="122" class="ln1"/>
+<line x1="294.6" y1="106" x2="294.6" y2="118" class="lnm"/>
+<line x1="306.8" y1="106" x2="306.8" y2="118" class="lnm"/>
+<line x1="313.1" y1="106" x2="313.1" y2="118" class="lnm"/>
+<line x1="331.2" y1="106" x2="331.2" y2="118" class="lnm"/>
+<line x1="339.5" y1="106" x2="339.5" y2="118" class="lnm"/>
+<line x1="349.9" y1="106" x2="349.9" y2="118" class="lnm"/>
+<line x1="360.6" y1="106" x2="360.6" y2="118" class="lnm"/>
+<line x1="376.0" y1="106" x2="376.0" y2="118" class="lnm"/>
+<line x1="382.1" y1="106" x2="382.1" y2="118" class="lnm"/>
+<line x1="391.3" y1="102" x2="391.3" y2="122" class="ln1"/>
+<line x1="406.4" y1="106" x2="406.4" y2="118" class="lnm"/>
+<line x1="414.1" y1="106" x2="414.1" y2="118" class="lnm"/>
+<line x1="425.5" y1="106" x2="425.5" y2="118" class="lnm"/>
+<line x1="431.4" y1="106" x2="431.4" y2="118" class="lnm"/>
+<line x1="446.9" y1="106" x2="446.9" y2="118" class="lnm"/>
+<line x1="456.1" y1="106" x2="456.1" y2="118" class="lnm"/>
+<line x1="461.2" y1="106" x2="461.2" y2="118" class="lnm"/>
+<line x1="473.7" y1="106" x2="473.7" y2="118" class="lnm"/>
+<line x1="484.2" y1="106" x2="484.2" y2="118" class="lnm"/>
+<line x1="494.4" y1="102" x2="494.4" y2="122" class="ln1"/>
+<line x1="501.7" y1="102" x2="501.7" y2="122" class="ln1"/>
+<line x1="509.0" y1="106" x2="509.0" y2="118" class="lnm"/>
+<line x1="525.3" y1="106" x2="525.3" y2="118" class="lnm"/>
+<line x1="528.9" y1="106" x2="528.9" y2="118" class="lnm"/>
+<line x1="539.2" y1="106" x2="539.2" y2="118" class="lnm"/>
+<line x1="547.3" y1="106" x2="547.3" y2="118" class="lnm"/>
+<line x1="558.1" y1="106" x2="558.1" y2="118" class="lnm"/>
+<line x1="569.0" y1="106" x2="569.0" y2="118" class="lnm"/>
+<line x1="575.7" y1="106" x2="575.7" y2="118" class="lnm"/>
+<text x="279.9" y="136" class="flab st c1" transform="rotate(34 279.9 136)">53.0</text>
+<text x="391.3" y="154" class="flab st c1" transform="rotate(34 391.3 154)">79.3</text>
+<text x="494.4" y="136" class="flab st c1" transform="rotate(34 494.4 136)">103.7</text>
+<text x="501.7" y="154" class="flab st c1" transform="rotate(34 501.7 154)">105.4</text>
+<text x="56" y="38" class="flab st">notches 2&#960;k/&#916; &#8212; <tspan class="c1">&#916;&#8321; = 0.24</tspan> every 26.18, <tspan class="c2">&#916;&#8322; = 0.1483</tspan> every 42.37</text>
+<line x1="56" y1="378.4" x2="690" y2="378.4" class="grid"/>
+<text x="50" y="381.9" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="56" y1="354.3" x2="690" y2="354.3" class="grid"/>
+<text x="50" y="357.8" class="flab end">10&#8315;&#8313;</text>
+<line x1="56" y1="330.2" x2="690" y2="330.2" class="grid"/>
+<text x="50" y="333.7" class="flab end">10&#8315;&#8312;</text>
+<line x1="56" y1="306.1" x2="690" y2="306.1" class="grid"/>
+<text x="50" y="309.6" class="flab end">10&#8315;&#8311;</text>
+<line x1="56" y1="282.0" x2="690" y2="282.0" class="grid"/>
+<text x="50" y="285.5" class="flab end">10&#8315;&#8310;</text>
+<line x1="56" y1="257.9" x2="690" y2="257.9" class="grid"/>
+<text x="50" y="261.4" class="flab end">10&#8315;&#8309;</text>
+<line x1="56" y1="233.8" x2="690" y2="233.8" class="grid"/>
+<text x="50" y="237.3" class="flab end">10&#8315;&#8308;</text>
+<line x1="56" y1="209.7" x2="690" y2="209.7" class="grid"/>
+<text x="50" y="213.2" class="flab end">10&#8315;&#179;</text>
+<line x1="56" y1="185.6" x2="690" y2="185.6" class="grid"/>
+<text x="50" y="189.1" class="flab end">10&#8315;&#178;</text>
+<text x="56.0" y="403" class="flab st">0</text>
+<text x="182.8" y="403" class="flab st">30</text>
+<text x="309.6" y="403" class="flab st">60</text>
+<text x="436.4" y="403" class="flab st">90</text>
+<text x="563.2" y="403" class="flab st">120</text>
+<text x="690.0" y="403" class="flab st">150</text>
+<line x1="56" y1="388" x2="690" y2="388" class="axis"/>
+<line x1="56" y1="176" x2="56" y2="388" class="axis"/>
+<path d="M115.7 189.8L144.9 228.8L161.7 295.6L184.6 251.6L195.2 238.3L214.9 231.2L228.9 234.7L239.1 241.5L258.9 269.7L266.4 291.8L279.9 354.1L294.6 278.9L306.8 261.9L313.1 257.3L331.2 253.4L339.5 255.4L349.9 261.4L360.6 272.5L376.0 305.6L382.1 335.4L391.3 359.9L406.4 292.4L414.1 280.7L425.5 271.3L431.4 268.8L446.9 268.3L456.1 271.8L461.2 275.2L473.7 288.9L484.2 310.5L494.4 361.9L501.7 375.7L509.0 326.1L525.3 291.4L528.9 287.7L539.2 280.7L547.3 278.4L558.1 278.8L569.0 283.4L575.7 288.5" class="lnm"/>
+<line x1="115.7" y1="189.8" x2="115.7" y2="185.4" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="115.7" cy="189.8" r="2.4" class="hm1"/>
+<circle cx="115.7" cy="185.4" r="2.4" class="hm2"/>
+<line x1="144.9" y1="228.8" x2="144.9" y2="196.0" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="144.9" cy="228.8" r="2.4" class="hm1"/>
+<circle cx="144.9" cy="196.0" r="2.4" class="hm2"/>
+<line x1="161.7" y1="295.6" x2="161.7" y2="204.9" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="161.7" cy="295.6" r="2.4" class="hm1"/>
+<circle cx="161.7" cy="204.9" r="2.4" class="hm2"/>
+<line x1="184.6" y1="251.6" x2="184.6" y2="222.1" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="184.6" cy="251.6" r="2.4" class="hm1"/>
+<circle cx="184.6" cy="222.1" r="2.4" class="hm2"/>
+<line x1="195.2" y1="238.3" x2="195.2" y2="233.2" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="195.2" cy="238.3" r="2.4" class="hm1"/>
+<circle cx="195.2" cy="233.2" r="2.4" class="hm2"/>
+<line x1="214.9" y1="231.2" x2="214.9" y2="231.2" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="214.9" cy="231.2" r="2.4" class="hm1"/>
+<circle cx="214.9" cy="231.2" r="2.4" class="hm2"/>
+<line x1="228.9" y1="234.7" x2="228.9" y2="234.7" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="228.9" cy="234.7" r="2.4" class="hm1"/>
+<circle cx="228.9" cy="234.7" r="2.4" class="hm2"/>
+<line x1="239.1" y1="241.5" x2="239.1" y2="241.5" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="239.1" cy="241.5" r="2.4" class="hm1"/>
+<circle cx="239.1" cy="241.5" r="2.4" class="hm2"/>
+<line x1="258.9" y1="269.7" x2="258.9" y2="268.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="258.9" cy="269.7" r="2.4" class="hm1"/>
+<circle cx="258.9" cy="268.3" r="2.4" class="hm2"/>
+<line x1="266.4" y1="291.8" x2="266.4" y2="259.2" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="266.4" cy="291.8" r="2.4" class="hm1"/>
+<circle cx="266.4" cy="259.2" r="2.4" class="hm2"/>
+<line x1="279.9" y1="354.1" x2="279.9" y2="249.1" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="279.9" cy="354.1" r="2.4" class="hm1"/>
+<circle cx="279.9" cy="249.1" r="2.4" class="hm2"/>
+<line x1="294.6" y1="278.9" x2="294.6" y2="243.4" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="294.6" cy="278.9" r="2.4" class="hm1"/>
+<circle cx="294.6" cy="243.4" r="2.4" class="hm2"/>
+<line x1="306.8" y1="261.9" x2="306.8" y2="241.5" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="306.8" cy="261.9" r="2.4" class="hm1"/>
+<circle cx="306.8" cy="241.5" r="2.4" class="hm2"/>
+<line x1="313.1" y1="257.3" x2="313.1" y2="241.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="313.1" cy="257.3" r="2.4" class="hm1"/>
+<circle cx="313.1" cy="241.3" r="2.4" class="hm2"/>
+<line x1="331.2" y1="253.4" x2="331.2" y2="243.6" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="331.2" cy="253.4" r="2.4" class="hm1"/>
+<circle cx="331.2" cy="243.6" r="2.4" class="hm2"/>
+<line x1="339.5" y1="255.4" x2="339.5" y2="246.0" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="339.5" cy="255.4" r="2.4" class="hm1"/>
+<circle cx="339.5" cy="246.0" r="2.4" class="hm2"/>
+<line x1="349.9" y1="261.4" x2="349.9" y2="250.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="349.9" cy="261.4" r="2.4" class="hm1"/>
+<circle cx="349.9" cy="250.3" r="2.4" class="hm2"/>
+<line x1="360.6" y1="272.5" x2="360.6" y2="256.5" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="360.6" cy="272.5" r="2.4" class="hm1"/>
+<circle cx="360.6" cy="256.5" r="2.4" class="hm2"/>
+<line x1="376.0" y1="305.6" x2="376.0" y2="269.5" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="376.0" cy="305.6" r="2.4" class="hm1"/>
+<circle cx="376.0" cy="269.5" r="2.4" class="hm2"/>
+<line x1="382.1" y1="335.4" x2="382.1" y2="276.7" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="382.1" cy="335.4" r="2.4" class="hm1"/>
+<circle cx="382.1" cy="276.7" r="2.4" class="hm2"/>
+<line x1="391.3" y1="359.9" x2="391.3" y2="291.0" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="391.3" cy="359.9" r="2.4" class="hm1"/>
+<circle cx="391.3" cy="291.0" r="2.4" class="hm2"/>
+<line x1="406.4" y1="292.4" x2="406.4" y2="292.4" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="406.4" cy="292.4" r="2.4" class="hm1"/>
+<circle cx="406.4" cy="292.4" r="2.4" class="hm2"/>
+<line x1="414.1" y1="280.7" x2="414.1" y2="280.7" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="414.1" cy="280.7" r="2.4" class="hm1"/>
+<circle cx="414.1" cy="280.7" r="2.4" class="hm2"/>
+<line x1="425.5" y1="271.3" x2="425.5" y2="271.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="425.5" cy="271.3" r="2.4" class="hm1"/>
+<circle cx="425.5" cy="271.3" r="2.4" class="hm2"/>
+<line x1="431.4" y1="268.8" x2="431.4" y2="268.8" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="431.4" cy="268.8" r="2.4" class="hm1"/>
+<circle cx="431.4" cy="268.8" r="2.4" class="hm2"/>
+<line x1="446.9" y1="268.3" x2="446.9" y2="268.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="446.9" cy="268.3" r="2.4" class="hm1"/>
+<circle cx="446.9" cy="268.3" r="2.4" class="hm2"/>
+<line x1="456.1" y1="271.8" x2="456.1" y2="271.8" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="456.1" cy="271.8" r="2.4" class="hm1"/>
+<circle cx="456.1" cy="271.8" r="2.4" class="hm2"/>
+<line x1="461.2" y1="275.2" x2="461.2" y2="272.4" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="461.2" cy="275.2" r="2.4" class="hm1"/>
+<circle cx="461.2" cy="272.4" r="2.4" class="hm2"/>
+<line x1="473.7" y1="288.9" x2="473.7" y2="266.8" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="473.7" cy="288.9" r="2.4" class="hm1"/>
+<circle cx="473.7" cy="266.8" r="2.4" class="hm2"/>
+<line x1="484.2" y1="310.5" x2="484.2" y2="264.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="484.2" cy="310.5" r="2.4" class="hm1"/>
+<circle cx="484.2" cy="264.3" r="2.4" class="hm2"/>
+<line x1="494.4" y1="361.9" x2="494.4" y2="263.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="494.4" cy="361.9" r="2.4" class="hm1"/>
+<circle cx="494.4" cy="263.3" r="2.4" class="hm2"/>
+<line x1="501.7" y1="375.7" x2="501.7" y2="263.5" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="501.7" cy="375.7" r="2.4" class="hm1"/>
+<circle cx="501.7" cy="263.5" r="2.4" class="hm2"/>
+<line x1="509.0" y1="326.1" x2="509.0" y2="264.3" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="509.0" cy="326.1" r="2.4" class="hm1"/>
+<circle cx="509.0" cy="264.3" r="2.4" class="hm2"/>
+<line x1="525.3" y1="291.4" x2="525.3" y2="268.7" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="525.3" cy="291.4" r="2.4" class="hm1"/>
+<circle cx="525.3" cy="268.7" r="2.4" class="hm2"/>
+<line x1="528.9" y1="287.7" x2="528.9" y2="270.2" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="528.9" cy="287.7" r="2.4" class="hm1"/>
+<circle cx="528.9" cy="270.2" r="2.4" class="hm2"/>
+<line x1="539.2" y1="280.7" x2="539.2" y2="275.5" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="539.2" cy="280.7" r="2.4" class="hm1"/>
+<circle cx="539.2" cy="275.5" r="2.4" class="hm2"/>
+<line x1="547.3" y1="278.4" x2="547.3" y2="278.4" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="547.3" cy="278.4" r="2.4" class="hm1"/>
+<circle cx="547.3" cy="278.4" r="2.4" class="hm2"/>
+<line x1="558.1" y1="278.8" x2="558.1" y2="278.8" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="558.1" cy="278.8" r="2.4" class="hm1"/>
+<circle cx="558.1" cy="278.8" r="2.4" class="hm2"/>
+<line x1="569.0" y1="283.4" x2="569.0" y2="283.4" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="569.0" cy="283.4" r="2.4" class="hm1"/>
+<circle cx="569.0" cy="283.4" r="2.4" class="hm2"/>
+<line x1="575.7" y1="288.5" x2="575.7" y2="288.5" class="lnm" stroke-dasharray="2 2"/>
+<circle cx="575.7" cy="288.5" r="2.4" class="hm1"/>
+<circle cx="575.7" cy="288.5" r="2.4" class="hm2"/>
+<line x1="56" y1="375.7" x2="690" y2="375.7" class="ln1" stroke-dasharray="5 3"/>
+<text x="62" y="369.7" class="flab st c1">single-mesh floor 1.29&#215;10&#8315;&#185;&#8304;</text>
+<line x1="56" y1="292.4" x2="690" y2="292.4" class="ln2" stroke-dasharray="5 3"/>
+<text x="62" y="286.4" class="flab st c2">pair floor 3.70&#215;10&#8315;&#8311; &#8212; 2857&#215;</text>
+<text x="349" y="419" class="flab st">height &#947;</text>
+<text x="26" y="464" class="flab st">Filled <tspan class="c1">&#9679;</tspan> is the weight the single mesh gives each zero; <tspan class="c2">&#9679;</tspan> is the weight the pair gives it. Only four zeros move,</text>
+<text x="26" y="482" class="flab st">and they are exactly the four that set the floor. Everything else the coarse mesh already heard.</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 · Two ladders, and the four zeros one mesh cannot hear.</b> Top: the notch ladders of Δ₁ = 0.24 (every 26.180) and Δ₂ = 0.1483 (every 42.368) against the first forty zeros; the four highlighted zeros sit close to a Δ₁ notch. Bottom: the weight each zero receives — from the single mesh, and from the pair. Only four zeros move, and they are exactly the four that set the floor.</figcaption>
+</figure>
+
+<p><b>The guess that fails.</b> The natural expectation, and the one rh8's incommensurability suggests, is that a good pair needs a badly approximable θ — the golden ratio being the champion. That is false, and the scan says so flatly: θ = 3/5 is as simple a rational as exists, its Diophantine quality q‖qθ‖ is exactly zero, and it gains 2,857× — the same as 1/φ. Meanwhile θ = 1/2 gains 1.0× and θ = 3/4 gains 1.0×: nothing at all. Diophantine quality is not the criterion.</p>
+<p><b>What the criterion is.</b> The floor at a single mesh is set by one zero. At Δ = 0.24 it is zero #32 at γ = 105.447, whose weight is 1.294&#215;10<sup>&#8722;10</sup> because 2π/Δ = 26.180 and 4.0278 of those notch spacings reaches it. A second mesh rescues that zero unless it too has a notch there — and the same holds for the next few starved zeros. So the failures are indexed by a <i>finite list</i>. Scanning 6000 ratios: 1,020 of them (17.0%) gain less than 10×, and at every single one the responsible zero is one of exactly four — 52.970, 79.337, 103.726, 105.447 — each sitting within 0.0425 of a notch of <i>both</i> meshes, in units of the notch spacing. The set of bad pairs is arithmetic and finite, not Diophantine; it is a property of where four particular zeros happen to lie.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 492" role="img" aria-label="The gain a second mesh buys, scanned over the ratio theta. It reaches seven thousand times at theta star, and collapses to one on seventeen percent of the range. The simple rational three fifths gains as much as the golden ratio, so Diophantine quality is not the criterion.">
+<text x="360.0" y="21" class="ftitle">what a second mesh buys, and the 17% of ratios where it buys nothing</text>
+<line x1="56" y1="357.3" x2="690" y2="357.3" class="grid"/>
+<text x="50" y="360.8" class="flab end">10&#8304;&#215;</text>
+<line x1="56" y1="283.6" x2="690" y2="283.6" class="grid"/>
+<text x="50" y="287.1" class="flab end">10&#185;&#215;</text>
+<line x1="56" y1="210.0" x2="690" y2="210.0" class="grid"/>
+<text x="50" y="213.5" class="flab end">10&#178;&#215;</text>
+<line x1="56" y1="136.4" x2="690" y2="136.4" class="grid"/>
+<text x="50" y="139.9" class="flab end">10&#179;&#215;</text>
+<line x1="56" y1="62.7" x2="690" y2="62.7" class="grid"/>
+<text x="50" y="66.2" class="flab end">10&#8308;&#215;</text>
+<text x="56.0" y="387" class="flab st">0.3</text>
+<text x="146.6" y="387" class="flab st">0.4</text>
+<text x="237.1" y="387" class="flab st">0.5</text>
+<text x="327.7" y="387" class="flab st">0.6</text>
+<text x="418.3" y="387" class="flab st">0.7</text>
+<text x="508.9" y="387" class="flab st">0.8</text>
+<text x="599.4" y="387" class="flab st">0.9</text>
+<text x="690.0" y="387" class="flab st">1</text>
+<line x1="56" y1="372" x2="690" y2="372" class="axis"/>
+<line x1="56" y1="48" x2="56" y2="372" class="axis"/>
+<path d="M56.0 102.8L56.5 102.8L57.1 102.8L57.6 102.8L58.1 104.4L58.6 107.2L59.2 110.0L59.7 112.9L60.2 115.9L60.8 119.0L61.3 122.1L61.8 125.3L62.3 128.6L62.9 131.9L63.4 135.4L63.9 138.9L64.5 142.6L65.0 146.3L65.5 150.1L66.0 154.1L66.6 158.2L67.1 162.4L67.6 166.8L68.2 171.3L68.7 176.0L69.2 180.8L69.7 185.8L70.3 191.1L70.8 196.5L71.3 202.2L71.9 208.1L72.4 214.3L72.9 220.8L73.4 227.7L74.0 235.0L74.5 242.6L75.0 250.8L75.6 259.5L76.1 268.8L76.6 278.8L77.1 289.7L77.7 301.5L78.2 309.0L78.7 309.0L79.3 309.0L79.8 309.0L80.3 309.0L80.8 309.0L81.4 309.0L81.9 309.0L82.4 309.0L82.9 309.0L83.5 309.0L84.0 309.0L84.5 309.0L85.1 309.0L85.6 309.0L86.1 309.0L86.6 309.0L87.2 309.0L87.7 309.0L88.2 309.0L88.8 301.2L89.3 289.8L89.8 279.4L90.3 269.7L90.9 260.8L91.4 252.5L91.9 244.7L92.5 237.3L93.0 234.3L93.5 234.3L94.0 234.3L94.6 234.3L95.1 234.3L95.6 234.3L96.2 234.3L96.7 234.3L97.2 234.3L97.7 234.3L98.3 234.3L98.8 234.3L99.3 234.3L99.9 234.3L100.4 234.3L100.9 234.3L101.4 232.6L102.0 226.0L102.5 219.8L103.0 213.8L103.6 208.1L104.1 202.7L104.6 197.5L105.1 192.6L105.7 187.8L106.2 183.2L106.7 178.8L107.3 174.5L107.8 170.4L108.3 166.4L108.8 162.6L109.4 158.8L109.9 155.2L110.4 151.7L111.0 148.3L111.5 145.0L112.0 143.1L112.5 143.1L113.1 143.1L113.6 143.1L114.1 143.1L114.7 143.1L115.2 143.1L115.7 143.1L116.2 143.1L116.8 143.1L117.3 143.1L117.8 143.1L118.4 140.0L118.9 136.9L119.4 133.9L119.9 131.0L120.5 128.2L121.0 125.5L121.5 122.8L122.1 120.1L122.6 117.6L123.1 115.1L123.6 112.6L124.2 110.2L124.7 107.9L125.2 105.6L125.8 103.3L126.3 101.1L126.8 98.9L127.3 96.8L127.9 94.7L128.4 92.7L128.9 90.7L129.5 88.7L130.0 86.8L130.5 84.9L131.0 83.1L131.6 81.2L132.1 79.4L132.6 77.7L133.1 76.7L133.7 78.5L134.2 80.2L134.7 82.0L135.3 83.8L135.8 85.7L136.3 87.5L136.8 89.5L137.4 90.7L137.9 90.7L138.4 90.7L139.0 90.7L139.5 90.7L140.0 90.7L140.5 90.7L141.1 90.7L141.6 90.7L142.1 90.7L142.7 90.7L143.2 90.7L143.7 90.7L144.2 90.7L144.8 90.7L145.3 90.7L145.8 90.7L146.4 90.7L146.9 90.7L147.4 90.7L147.9 90.7L148.5 90.7L149.0 90.7L149.5 90.7L150.1 90.7L150.6 90.7L151.1 90.7L151.6 90.7L152.2 90.7L152.7 90.7L153.2 90.7L153.8 90.7L154.3 90.7L154.8 90.7L155.3 90.7L155.9 90.7L156.4 90.7L156.9 90.7L157.5 90.7L158.0 90.7L158.5 90.7L159.0 90.7L159.6 90.7L160.1 90.7L160.6 90.7L161.2 90.7L161.7 90.7L162.2 90.7L162.7 90.7L163.3 90.7L163.8 90.7L164.3 90.7L164.9 90.7L165.4 90.7L165.9 90.7L166.4 90.7L167.0 90.7L167.5 90.7L168.0 90.7L168.6 90.7L169.1 90.7L169.6 90.7L170.1 90.7L170.7 90.7L171.2 90.7L171.7 90.7L172.3 90.7L172.8 90.7L173.3 90.7L173.8 90.7L174.4 90.7L174.9 90.7L175.4 90.7L176.0 90.7L176.5 90.7L177.0 90.9L177.5 92.8L178.1 94.7L178.6 96.7L179.1 98.7L179.7 99.7L180.2 99.7L180.7 99.7L181.2 99.7L181.8 99.7L182.3 99.7L182.8 99.7L183.3 99.7L183.9 99.7L184.4 99.7L184.9 99.7L185.5 99.7L186.0 99.7L186.5 99.7L187.0 99.7L187.6 99.7L188.1 99.7L188.6 99.7L189.2 99.7L189.7 99.7L190.2 99.7L190.7 99.7L191.3 99.7L191.8 99.7L192.3 99.7L192.9 99.7L193.4 99.7L193.9 99.7L194.4 100.5L195.0 102.6L195.5 104.7L196.0 106.8L196.6 108.9L197.1 111.1L197.6 113.4L198.1 115.7L198.7 118.0L199.2 120.4L199.7 122.8L200.3 125.3L200.8 127.8L201.3 130.4L201.8 133.1L202.4 135.8L202.9 138.5L203.4 141.4L204.0 144.3L204.5 147.2L205.0 150.3L205.5 153.4L206.1 156.6L206.6 159.9L207.1 163.3L207.7 166.8L208.2 170.3L208.7 174.0L209.2 177.8L209.8 181.7L210.3 185.8L210.8 189.9L211.4 194.2L211.9 198.7L212.4 203.3L212.9 205.7L213.5 205.7L214.0 205.7L214.5 205.7L215.1 205.7L215.6 205.7L216.1 205.7L216.6 205.7L217.2 205.7L217.7 205.7L218.2 209.7L218.8 214.8L219.3 220.1L219.8 225.6L220.3 231.4L220.9 237.5L221.4 243.8L221.9 250.4L222.5 257.5L223.0 264.9L223.5 272.7L224.0 281.1L224.6 290.0L225.1 291.5L225.6 291.5L226.2 291.5L226.7 291.5L227.2 300.4L227.7 310.8L228.3 322.0L228.8 334.4L229.3 348.1L229.9 357.3L230.4 357.3L230.9 357.3L231.4 357.3L232.0 357.3L232.5 357.3L233.0 357.3L233.5 357.3L234.1 357.3L234.6 357.3L235.1 357.3L235.7 357.3L236.2 357.3L236.7 357.3L237.2 357.3L237.8 357.3L238.3 357.3L238.8 346.4L239.4 333.2L239.9 321.2L240.4 315.2L240.9 315.2L241.5 315.2L242.0 315.2L242.5 315.2L243.1 315.2L243.6 315.2L244.1 315.2L244.6 315.2L245.2 315.2L245.7 315.2L246.2 315.2L246.8 315.2L247.3 315.2L247.8 312.6L248.3 302.4L248.9 293.1L249.4 284.3L249.9 276.2L250.5 268.5L251.0 261.3L251.5 254.5L252.0 248.1L252.6 241.9L253.1 236.1L253.6 230.5L254.2 225.2L254.7 220.1L255.2 215.2L255.7 210.5L256.3 206.0L256.8 201.6L257.3 197.4L257.9 193.4L258.4 189.5L258.9 185.7L259.4 182.0L260.0 178.4L260.5 175.0L261.0 171.6L261.6 168.4L262.1 165.2L262.6 162.1L263.1 159.1L263.7 158.2L264.2 158.2L264.7 158.2L265.3 158.2L265.8 158.2L266.3 158.2L266.8 158.2L267.4 158.2L267.9 158.2L268.4 158.2L269.0 158.2L269.5 158.2L270.0 158.2L270.5 158.2L271.1 158.2L271.6 158.2L272.1 158.2L272.7 158.2L273.2 158.2L273.7 158.2L274.2 158.2L274.8 156.3L275.3 153.5L275.8 150.7L276.4 148.0L276.9 145.4L277.4 142.9L277.9 140.4L278.5 137.9L279.0 135.5L279.5 133.2L280.1 130.9L280.6 128.7L281.1 126.5L281.6 124.4L282.2 122.3L282.7 120.2L283.2 118.2L283.8 116.2L284.3 114.3L284.8 112.4L285.3 110.5L285.9 108.7L286.4 106.9L286.9 105.1L287.4 103.4L288.0 101.7L288.5 100.8L289.0 100.8L289.6 100.8L290.1 100.8L290.6 100.8L291.1 100.8L291.7 100.8L292.2 100.8L292.7 100.8L293.3 100.8L293.8 100.8L294.3 100.8L294.8 100.8L295.4 100.8L295.9 100.4L296.4 98.6L297.0 96.8L297.5 95.1L298.0 93.3L298.5 92.0L299.1 92.0L299.6 92.0L300.1 92.0L300.7 92.0L301.2 92.0L301.7 92.0L302.2 92.0L302.8 92.0L303.3 92.0L303.8 90.7L304.4 89.3L304.9 87.8L305.4 86.4L305.9 85.0L306.5 83.6L307.0 82.3L307.5 80.9L308.1 79.6L308.6 78.3L309.1 77.1L309.6 75.8L310.2 74.6L310.7 73.5L311.2 75.0L311.8 76.4L312.3 77.9L312.8 79.4L313.3 80.9L313.9 82.4L314.4 84.0L314.9 85.5L315.5 87.1L316.0 88.8L316.5 90.4L317.0 92.1L317.6 93.8L318.1 95.5L318.6 97.2L319.2 99.0L319.7 100.8L320.2 102.6L320.7 102.8L321.3 102.8L321.8 102.8L322.3 102.8L322.9 102.8L323.4 102.8L323.9 102.8L324.4 102.8L325.0 102.8L325.5 102.8L326.0 102.8L326.6 102.8L327.1 102.8L327.6 102.8L328.1 102.8L328.7 102.8L329.2 102.8L329.7 102.8L330.3 102.8L330.8 102.8L331.3 102.8L331.8 102.8L332.4 102.8L332.9 102.8L333.4 102.8L333.9 102.8L334.5 102.8L335.0 102.8L335.5 102.8L336.1 102.8L336.6 102.8L337.1 102.8L337.6 102.8L338.2 102.8L338.7 102.8L339.2 102.8L339.8 102.8L340.3 102.8L340.8 102.8L341.3 102.8L341.9 102.8L342.4 102.8L342.9 102.8L343.5 102.8L344.0 102.8L344.5 102.8L345.0 102.8L345.6 103.9L346.1 105.8L346.6 107.6L347.2 109.5L347.7 111.5L348.2 113.4L348.7 115.4L349.3 117.4L349.8 119.5L350.3 121.6L350.9 123.7L351.4 125.9L351.9 128.1L352.4 130.4L353.0 132.7L353.5 135.0L354.0 137.4L354.6 139.8L355.1 142.3L355.6 144.8L356.1 147.4L356.7 150.0L357.2 152.7L357.7 155.4L358.3 158.3L358.8 161.1L359.3 164.1L359.8 167.1L360.4 170.2L360.9 173.3L361.4 176.6L362.0 179.9L362.5 183.3L363.0 186.9L363.5 190.5L364.1 194.2L364.6 198.0L365.1 202.0L365.7 206.1L366.2 210.3L366.7 214.7L367.2 219.2L367.8 223.8L368.3 228.7L368.8 233.7L369.4 239.0L369.9 244.5L370.4 250.2L370.9 256.2L371.5 262.5L372.0 269.1L372.5 276.0L373.1 283.4L373.6 291.2L374.1 299.5L374.6 308.3L375.2 309.0L375.7 309.0L376.2 309.0L376.8 309.0L377.3 309.0L377.8 309.0L378.3 309.0L378.9 309.0L379.4 309.0L379.9 309.0L380.5 309.0L381.0 309.0L381.5 309.0L382.0 309.0L382.6 309.0L383.1 309.0L383.6 309.0L384.1 309.0L384.7 309.0L385.2 309.0L385.7 309.0L386.3 309.0L386.8 309.0L387.3 309.0L387.8 309.0L388.4 309.0L388.9 309.0L389.4 309.0L390.0 300.8L390.5 292.6L391.0 285.0L391.5 277.8L392.1 270.9L392.6 264.5L393.1 258.3L393.7 252.4L394.2 246.8L394.7 241.5L395.2 236.4L395.8 234.3L396.3 234.3L396.8 234.3L397.4 234.3L397.9 234.3L398.4 234.3L398.9 234.3L399.5 234.3L400.0 234.3L400.5 234.3L401.1 234.3L401.6 234.3L402.1 234.3L402.6 234.3L403.2 234.3L403.7 234.3L404.2 234.3L404.8 234.3L405.3 234.3L405.8 234.3L406.3 234.3L406.9 234.3L407.4 234.3L407.9 234.3L408.5 234.3L409.0 234.3L409.5 234.3L410.0 234.3L410.6 234.3L411.1 234.3L411.6 234.3L412.2 234.3L412.7 233.9L413.2 229.1L413.7 224.5L414.3 220.1L414.8 215.9L415.3 211.7L415.9 207.7L416.4 203.9L416.9 200.1L417.4 196.5L418.0 193.0L418.5 189.6L419.0 186.3L419.6 183.0L420.1 179.9L420.6 176.8L421.1 173.8L421.7 170.9L422.2 168.1L422.7 165.3L423.3 162.6L423.8 163.7L424.3 166.5L424.8 169.3L425.4 172.2L425.9 175.2L426.4 178.2L427.0 181.3L427.5 184.5L428.0 187.8L428.5 191.2L429.1 194.7L429.6 198.2L430.1 201.9L430.7 205.7L431.2 205.7L431.7 205.7L432.2 205.7L432.8 205.7L433.3 205.7L433.8 205.7L434.3 205.7L434.9 205.7L435.4 205.7L435.9 205.7L436.5 205.7L437.0 205.7L437.5 205.7L438.0 205.7L438.6 205.7L439.1 205.7L439.6 205.7L440.2 205.7L440.7 205.7L441.2 205.7L441.7 208.7L442.3 212.6L442.8 216.7L443.3 221.0L443.9 225.4L444.4 230.0L444.9 234.7L445.4 239.6L446.0 244.8L446.5 250.1L447.0 255.7L447.6 261.5L448.1 267.6L448.6 274.0L449.1 280.8L449.7 287.9L450.2 295.5L450.7 303.5L451.3 312.1L451.8 321.3L452.3 331.2L452.8 342.0L453.4 353.7L453.9 357.3L454.4 357.3L455.0 357.3L455.5 357.3L456.0 357.3L456.5 357.3L457.1 357.3L457.6 357.3L458.1 357.3L458.7 357.3L459.2 357.3L459.7 357.3L460.2 357.3L460.8 357.3L461.3 357.3L461.8 357.3L462.4 357.3L462.9 357.3L463.4 357.3L463.9 357.3L464.5 353.3L465.0 341.8L465.5 331.2L466.1 321.5L466.6 315.2L467.1 315.2L467.6 315.2L468.2 315.2L468.7 315.2L469.2 315.2L469.8 315.2L470.3 315.2L470.8 315.2L471.3 315.2L471.9 315.2L472.4 315.2L472.9 315.2L473.5 315.2L474.0 315.2L474.5 315.2L475.0 315.2L475.6 315.2L476.1 315.2L476.6 315.2L477.2 315.2L477.7 315.1L478.2 306.6L478.7 298.6L479.3 291.2L479.8 284.1L480.3 277.4L480.9 271.1L481.4 265.0L481.9 259.3L482.4 253.8L483.0 248.5L483.5 243.5L484.0 238.6L484.5 234.0L485.1 229.5L485.6 225.2L486.1 221.0L486.7 217.0L487.2 213.1L487.7 209.4L488.2 205.7L488.8 202.2L489.3 198.7L489.8 195.4L490.4 192.1L490.9 189.0L491.4 185.9L491.9 182.9L492.5 180.0L493.0 177.2L493.5 174.4L494.1 171.7L494.6 169.1L495.1 166.5L495.6 164.0L496.2 161.5L496.7 159.1L497.2 158.2L497.8 158.2L498.3 158.2L498.8 158.2L499.3 158.2L499.9 158.2L500.4 158.2L500.9 158.2L501.5 158.2L502.0 158.2L502.5 158.2L503.0 158.2L503.6 158.2L504.1 158.2L504.6 158.2L505.2 158.2L505.7 158.2L506.2 158.2L506.7 158.2L507.3 158.2L507.8 158.2L508.3 158.2L508.9 158.2L509.4 158.2L509.9 158.2L510.4 158.2L511.0 158.2L511.5 158.2L512.0 158.2L512.6 158.2L513.1 158.2L513.6 157.7L514.1 155.4L514.7 153.2L515.2 150.9L515.7 148.8L516.3 146.7L516.8 144.6L517.3 142.6L517.8 140.6L518.4 138.6L518.9 136.7L519.4 134.8L520.0 133.0L520.5 131.2L521.0 129.4L521.5 127.6L522.1 125.9L522.6 124.2L523.1 122.6L523.7 121.0L524.2 119.4L524.7 117.8L525.2 116.2L525.8 114.7L526.3 113.2L526.8 111.7L527.4 110.3L527.9 108.9L528.4 107.5L528.9 106.1L529.5 104.7L530.0 103.4L530.5 102.1L531.1 100.8L531.6 99.5L532.1 98.3L532.6 97.0L533.2 95.8L533.7 94.6L534.2 93.5L534.7 92.3L535.3 92.0L535.8 92.0L536.3 92.0L536.9 92.0L537.4 92.0L537.9 92.0L538.4 92.0L539.0 92.0L539.5 92.0L540.0 92.0L540.6 92.0L541.1 92.0L541.6 92.0L542.1 92.0L542.7 92.0L543.2 92.0L543.7 92.0L544.3 92.0L544.8 92.0L545.3 92.0L545.8 92.0L546.4 92.0L546.9 92.0L547.4 92.0L548.0 92.0L548.5 92.0L549.0 92.0L549.5 92.0L550.1 92.0L550.6 92.0L551.1 92.0L551.7 92.0L552.2 92.0L552.7 92.0L553.2 91.5L553.8 90.7L554.3 90.7L554.8 90.7L555.4 90.7L555.9 90.7L556.4 90.7L556.9 90.7L557.5 90.7L558.0 90.7L558.5 90.7L559.1 90.7L559.6 90.7L560.1 90.7L560.6 90.7L561.2 90.7L561.7 90.7L562.2 90.7L562.8 90.7L563.3 90.7L563.8 90.7L564.3 90.7L564.9 90.7L565.4 90.7L565.9 90.7L566.5 90.7L567.0 90.7L567.5 90.7L568.0 90.7L568.6 90.7L569.1 90.7L569.6 90.7L570.2 90.7L570.7 90.7L571.2 90.7L571.7 90.7L572.3 90.7L572.8 90.7L573.3 90.7L573.9 90.7L574.4 90.7L574.9 90.7L575.4 90.7L576.0 90.7L576.5 90.7L577.0 90.7L577.6 90.7L578.1 90.7L578.6 90.7L579.1 90.7L579.7 90.7L580.2 90.7L580.7 90.7L581.3 90.7L581.8 90.7L582.3 90.7L582.8 90.7L583.4 90.7L583.9 90.7L584.4 90.7L584.9 90.7L585.5 90.7L586.0 90.7L586.5 90.9L587.1 92.0L587.6 93.1L588.1 94.2L588.6 95.4L589.2 96.5L589.7 97.7L590.2 98.9L590.8 99.7L591.3 99.7L591.8 99.7L592.3 99.7L592.9 99.7L593.4 99.7L593.9 99.7L594.5 99.7L595.0 99.7L595.5 99.7L596.0 99.7L596.6 101.0L597.1 102.4L597.6 102.8L598.2 102.8L598.7 102.8L599.2 102.8L599.7 102.8L600.3 102.8L600.8 102.8L601.3 102.8L601.9 102.8L602.4 102.8L602.9 102.8L603.4 102.8L604.0 102.8L604.5 102.8L605.0 102.8L605.6 102.8L606.1 102.8L606.6 102.8L607.1 102.8L607.7 102.8L608.2 102.8L608.7 102.8L609.3 102.8L609.8 102.8L610.3 102.8L610.8 102.8L611.4 102.8L611.9 102.8L612.4 102.8L613.0 102.8L613.5 102.8L614.0 102.8L614.5 102.8L615.1 102.8L615.6 102.8L616.1 102.8L616.7 102.8L617.2 102.8L617.7 102.8L618.2 102.8L618.8 102.8L619.3 102.8L619.8 102.8L620.4 102.8L620.9 102.8L621.4 102.8L621.9 102.8L622.5 103.9L623.0 105.2L623.5 106.5L624.1 107.8L624.6 109.2L625.1 110.5L625.6 111.9L626.2 113.3L626.7 114.7L627.2 116.1L627.8 117.6L628.3 119.1L628.8 120.6L629.3 122.1L629.9 123.7L630.4 125.3L630.9 126.9L631.5 128.5L632.0 130.2L632.5 131.9L633.0 133.6L633.6 135.3L634.1 137.1L634.6 138.9L635.1 140.8L635.7 142.7L636.2 144.6L636.7 146.5L637.3 148.5L637.8 150.5L638.3 152.6L638.8 154.7L639.4 156.8L639.9 159.0L640.4 161.2L641.0 163.5L641.5 165.8L642.0 168.2L642.5 170.6L643.1 173.1L643.6 175.6L644.1 178.2L644.7 180.8L645.2 183.5L645.7 186.3L646.2 189.1L646.8 192.0L647.3 195.0L647.8 198.0L648.4 201.2L648.9 204.4L649.4 205.7L649.9 205.7L650.5 205.7L651.0 205.7L651.5 205.7L652.1 205.7L652.6 205.7L653.1 205.7L653.6 205.7L654.2 205.7L654.7 205.7L655.2 205.7L655.8 205.7L656.3 205.7L656.8 205.7L657.3 205.7L657.9 205.7L658.4 205.7L658.9 205.7L659.5 205.7L660.0 209.2L660.5 212.7L661.0 216.3L661.6 220.0L662.1 223.9L662.6 227.8L663.2 231.9L663.7 236.1L664.2 240.4L664.7 244.9L665.3 249.6L665.8 254.5L666.3 259.5L666.9 264.7L667.4 270.2L667.9 275.9L668.4 281.8L669.0 288.1L669.5 291.5L670.0 291.5L670.6 291.5L671.1 298.1L671.6 305.2L672.1 309.0L672.7 309.0L673.2 309.0L673.7 309.0L674.3 309.0L674.8 309.9L675.3 317.7L675.8 326.0L676.4 334.8L676.9 344.3L677.4 354.6L678.0 357.3L678.5 357.3L679.0 357.3L679.5 357.3L680.1 357.3L680.6 357.3L681.1 357.3L681.7 357.3L682.2 357.3L682.7 357.3L683.2 357.3L683.8 357.3L684.3 357.3L684.8 357.3L685.4 357.3L685.9 357.3L686.4 357.3L686.9 357.3L687.5 357.3L688.0 357.3L688.5 357.3L689.0 357.3L689.6 357.3" class="ln1"/>
+<line x1="56" y1="283.6" x2="690" y2="283.6" class="lnm" stroke-dasharray="4 3"/>
+<text x="60" y="277.6" class="flab st">gain 10&#215; &#8212; below this line, 17.0% of the range</text>
+<circle cx="237.1" cy="357.3" r="3.4" class="hm2"/>
+<text x="237.1" y="373.3" class="flab st c2">1/2</text>
+<circle cx="388.1" cy="309.0" r="3.4" class="hm2"/>
+<text x="388.1" y="325.0" class="flab st c2">2/3</text>
+<circle cx="463.6" cy="357.3" r="3.4" class="hm2"/>
+<text x="463.6" y="373.3" class="flab st c2">3/4</text>
+<circle cx="327.7" cy="102.8" r="3.4" class="hm2"/>
+<text x="311.7" y="120.8" class="flab st c2">3/5</text>
+<circle cx="344.0" cy="102.8" r="3.4" class="hm2"/>
+<text x="350.0" y="92.8" class="flab st c2">1/&#966;</text>
+<circle cx="310.7" cy="73.5" r="3.4" class="hm2"/>
+<text x="304.7" y="63.5" class="flab st c2">&#952;*</text>
+<text x="331" y="403" class="flab st">ratio &#952; = &#916;&#8322;/&#916;&#8321;</text>
+<text x="26" y="430" class="flab st">The obvious guess &#8212; that a good pair needs a badly approximable &#952; &#8212; is false.</text>
+<text x="26" y="448" class="flab st"><tspan class="c2">3/5</tspan> is as simple a rational as there is and gains 2857&#215;, the same as <tspan class="c2">1/&#966;</tspan>;</text>
+<text x="26" y="466" class="flab st"><tspan class="c2">1/2</tspan> and <tspan class="c2">3/4</tspan> gain nothing. Every failure is one of the four starved zeros</text>
+<text x="26" y="484" class="flab st">landing within 0.042 of a notch of both meshes &#8212; arithmetic and finite, not Diophantine.</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 · The scan.</b> The gain a second mesh buys, over θ ∈ [0.3, 1]. The peak is 7,134× at θ*. Below the 10× line lies 17.0% of the range, and every point of it is one of the four starved zeros landing in a notch of both meshes. The marked simple rational 3/5 gains as much as 1/φ; 1/2 and 3/4 gain nothing.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · The other side of the same ratio</h2>
+<p>rh18's identity holds at arbitrary real nodes with a single hat width, so a pair supplies more than two separate statements: the union Δ₁ℤ ∪ Δ₂ℤ is itself a legitimate node set, and 𝒲(g⋆ǧ) on hat-splines over that set is a Gram form to be certified. Six of them are, by 60-digit Cholesky, at half-support 11.52 — the certificates are in Figure 4.</p>
+<p>Their conditioning is governed by the node gaps, and here the arithmetic of θ <i>does</i> enter, through the classical three-distance theorem. Reduced modulo Δ₁ the union is a single orbit {mθ mod 1}, so its gaps take at most three values — verified in exact rational arithmetic at all six pairs. What separates them is not the count but the <b>balance</b>. The golden pair's three distances are 2.20 + 3.50 + 5.70 (×10⁻³), a ratio of 2.6; a near-rational's are 0.03 + 79.30 + 79.33, a ratio of 2,644. And the certified pivots track the balance exactly: 4.99&#215;10<sup>&#8722;6</sup> for the golden pair against 2.76&#215;10<sup>&#8722;9</sup> for the near-rational, a factor of 1,810.</p>
+<p>So the two sides of a pair pull in the same direction after all, but for a different reason than the question supposed. A near-rational θ is bad on the weight side because its ladders overlap, and bad on the conditioning side because its orbit has one tiny gap. The golden ratio is optimal on the second — the most balanced three distances there are — and merely good on the first. The pair that is best on both at once, out of the six certified, is the golden one.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · The ceiling, and the answer</h2>
+<p>Everything above measures what a pair is worth on a finite list of zeros. The question asked something else: whether a pair carries the <i>statement</i>. It does not, and one line of algebra shows why. Write x = γΔ/2. Then</p>
+
+<div class="eq"><span class="tag">(3)</span>
+B<sub>Δ</sub>(γ) &nbsp;=&nbsp; Δ·sinc²(γΔ/2) &nbsp;=&nbsp; (2/γ)·sin²(x)/x &nbsp;&nbsp;⟹&nbsp;&nbsp; |B<sub>Δ</sub>(γ)|² &nbsp;≤&nbsp; c₀/γ², &nbsp;&nbsp; c₀ = 4·max<sub>x</sub>(sin²x/x)².
+</div>
+
+<p>The maximum sits at the root of tan x = 2x, at x* = 1.165561, giving <b>c₀ = 2.100246</b> — certified below 2.100246463 by the interval kit, and attained: over 120 meshes × 2000 heights the largest measured |B|²γ² is 2.100245, which is 99.9999% of the bound. The bound contains no Δ. It is a property of the hat, not of any lattice.</p>
+
+<div class="box thm"><span class="lbl">The answer</span>
+<p><b>Ceiling.</b> For every Δ &gt; 0 and every γ ≠ 0, |B<sub>Δ</sub>(γ)|² ≤ c₀/γ² with c₀ = 2.100246. Hence for <i>any</i> family of meshes 𝔉, however large, max<sub>Δ∈𝔉</sub>|B<sub>Δ</sub>(γ)|² ≤ c₀/γ².</p>
+<p><b>Consequence.</b> A pair fixes deletion — the failure mode of rh19 §4 — and nothing fixes starvation. Above γ = 2384 no mesh at all gives a zero even the weight one golden pair guarantees below it; above γ = 14,492 nothing gives weight 10⁻⁸. So (L) at two meshes does not give (W), and enlarging the family cannot change that: the deficiency is not in the lattice, it is in the hat.</p>
+</div>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 478" role="img" aria-label="The universal weight ceiling: for every mesh at once, the weight a zero at height gamma can receive is at most c zero over gamma squared, with c zero equal to 2.1002. The envelopes of individual meshes touch it and never cross. Above gamma 2384 no mesh reaches the golden pair floor.">
+<text x="360.0" y="21" class="ftitle">the ceiling: |B<tspan dy="-4" font-size="9">&#916;</tspan><tspan dy="4"></tspan>(&#947;)|&#178; &#8804; c&#8320;/&#947;&#178; for every mesh at once, c&#8320; = 2.100246</text>
+<line x1="62" y1="321.8" x2="690" y2="321.8" class="grid"/>
+<text x="56" y="325.3" class="flab end">10&#8315;&#8313;</text>
+<line x1="62" y1="265.0" x2="690" y2="265.0" class="grid"/>
+<text x="56" y="268.5" class="flab end">10&#8315;&#8311;</text>
+<line x1="62" y1="208.2" x2="690" y2="208.2" class="grid"/>
+<text x="56" y="211.7" class="flab end">10&#8315;&#8309;</text>
+<line x1="62" y1="151.4" x2="690" y2="151.4" class="grid"/>
+<text x="56" y="154.9" class="flab end">10&#8315;&#179;</text>
+<line x1="62" y1="94.6" x2="690" y2="94.6" class="grid"/>
+<text x="56" y="98.1" class="flab end">10&#8315;&#185;</text>
+<line x1="62.0" y1="52" x2="62.0" y2="336" class="grid"/>
+<text x="62.0" y="351" class="flab st">10&#185;</text>
+<line x1="271.3" y1="52" x2="271.3" y2="336" class="grid"/>
+<text x="271.3" y="351" class="flab st">10&#178;</text>
+<line x1="480.7" y1="52" x2="480.7" y2="336" class="grid"/>
+<text x="480.7" y="351" class="flab st">10&#179;</text>
+<line x1="690.0" y1="52" x2="690.0" y2="336" class="grid"/>
+<text x="690.0" y="351" class="flab st">10&#8308;</text>
+<line x1="62" y1="336" x2="690" y2="336" class="axis"/>
+<line x1="62" y1="52" x2="62" y2="336" class="axis"/>
+<path d="M62.0 113.8L63.3 114.2L64.5 114.5L65.8 114.9L67.0 115.2L68.3 115.6L69.5 115.9L70.8 116.2L72.0 116.6L73.3 116.9L74.6 117.3L75.8 117.6L77.1 117.9L78.3 118.3L79.6 118.6L80.8 119.0L82.1 119.3L83.4 119.6L84.6 120.0L85.9 120.3L87.1 120.7L88.4 121.0L89.6 121.3L90.9 121.7L92.1 122.0L93.4 122.4L94.7 122.7L95.9 123.0L97.2 123.4L98.4 123.7L99.7 124.1L100.9 124.4L102.2 124.8L103.4 125.1L104.7 125.4L106.0 125.8L107.2 126.1L108.5 126.5L109.7 126.8L111.0 127.1L112.2 127.5L113.5 127.8L114.8 128.2L116.0 128.5L117.3 128.8L118.5 129.2L119.8 129.5L121.0 129.9L122.3 130.2L123.5 130.5L124.8 130.9L126.1 131.2L127.3 131.6L128.6 131.9L129.8 132.3L131.1 132.6L132.3 132.9L133.6 133.3L134.8 133.6L136.1 134.0L137.4 134.3L138.6 134.6L139.9 135.0L141.1 135.3L142.4 135.7L143.6 136.0L144.9 136.3L146.2 136.7L147.4 137.0L148.7 137.4L149.9 137.7L151.2 138.0L152.4 138.4L153.7 138.7L154.9 139.1L156.2 139.4L157.5 139.7L158.7 140.1L160.0 140.4L161.2 140.8L162.5 141.1L163.7 141.5L165.0 141.8L166.2 142.1L167.5 142.5L168.8 142.8L170.0 143.2L171.3 143.5L172.5 143.8L173.8 144.2L175.0 144.5L176.3 144.9L177.6 145.2L178.8 145.5L180.1 145.9L181.3 146.2L182.6 146.6L183.8 146.9L185.1 147.2L186.3 147.6L187.6 147.9L188.9 148.3L190.1 148.6L191.4 148.9L192.6 149.3L193.9 149.6L195.1 150.0L196.4 150.3L197.6 150.7L198.9 151.0L200.2 151.3L201.4 151.7L202.7 152.0L203.9 152.4L205.2 152.7L206.4 153.0L207.7 153.4L209.0 153.7L210.2 154.1L211.5 154.4L212.7 154.7L214.0 155.1L215.2 155.4L216.5 155.8L217.7 156.1L219.0 156.4L220.3 156.8L221.5 157.1L222.8 157.5L224.0 157.8L225.3 158.2L226.5 158.5L227.8 158.8L229.0 159.2L230.3 159.5L231.6 159.9L232.8 160.2L234.1 160.5L235.3 160.9L236.6 161.2L237.8 161.6L239.1 161.9L240.4 162.2L241.6 162.6L242.9 162.9L244.1 163.3L245.4 163.6L246.6 163.9L247.9 164.3L249.1 164.6L250.4 165.0L251.7 165.3L252.9 165.6L254.2 166.0L255.4 166.3L256.7 166.7L257.9 167.0L259.2 167.4L260.4 167.7L261.7 168.0L263.0 168.4L264.2 168.7L265.5 169.1L266.7 169.4L268.0 169.7L269.2 170.1L270.5 170.4L271.8 170.8L273.0 171.1L274.3 171.4L275.5 171.8L276.8 172.1L278.0 172.5L279.3 172.8L280.5 173.1L281.8 173.5L283.1 173.8L284.3 174.2L285.6 174.5L286.8 174.9L288.1 175.2L289.3 175.5L290.6 175.9L291.8 176.2L293.1 176.6L294.4 176.9L295.6 177.2L296.9 177.6L298.1 177.9L299.4 178.3L300.6 178.6L301.9 178.9L303.2 179.3L304.4 179.6L305.7 180.0L306.9 180.3L308.2 180.6L309.4 181.0L310.7 181.3L311.9 181.7L313.2 182.0L314.5 182.3L315.7 182.7L317.0 183.0L318.2 183.4L319.5 183.7L320.7 184.1L322.0 184.4L323.2 184.7L324.5 185.1L325.8 185.4L327.0 185.8L328.3 186.1L329.5 186.4L330.8 186.8L332.0 187.1L333.3 187.5L334.6 187.8L335.8 188.1L337.1 188.5L338.3 188.8L339.6 189.2L340.8 189.5L342.1 189.8L343.3 190.2L344.6 190.5L345.9 190.9L347.1 191.2L348.4 191.5L349.6 191.9L350.9 192.2L352.1 192.6L353.4 192.9L354.6 193.3L355.9 193.6L357.2 193.9L358.4 194.3L359.7 194.6L360.9 195.0L362.2 195.3L363.4 195.6L364.7 196.0L366.0 196.3L367.2 196.7L368.5 197.0L369.7 197.3L371.0 197.7L372.2 198.0L373.5 198.4L374.7 198.7L376.0 199.0L377.3 199.4L378.5 199.7L379.8 200.1L381.0 200.4L382.3 200.8L383.5 201.1L384.8 201.4L386.0 201.8L387.3 202.1L388.6 202.5L389.8 202.8L391.1 203.1L392.3 203.5L393.6 203.8L394.8 204.2L396.1 204.5L397.4 204.8L398.6 205.2L399.9 205.5L401.1 205.9L402.4 206.2L403.6 206.5L404.9 206.9L406.1 207.2L407.4 207.6L408.7 207.9L409.9 208.2L411.2 208.6L412.4 208.9L413.7 209.3L414.9 209.6L416.2 210.0L417.4 210.3L418.7 210.6L420.0 211.0L421.2 211.3L422.5 211.7L423.7 212.0L425.0 212.3L426.2 212.7L427.5 213.0L428.8 213.4L430.0 213.7L431.3 214.0L432.5 214.4L433.8 214.7L435.0 215.1L436.3 215.4L437.5 215.7L438.8 216.1L440.1 216.4L441.3 216.8L442.6 217.1L443.8 217.5L445.1 217.8L446.3 218.1L447.6 218.5L448.8 218.8L450.1 219.2L451.4 219.5L452.6 219.8L453.9 220.2L455.1 220.5L456.4 220.9L457.6 221.2L458.9 221.5L460.2 221.9L461.4 222.2L462.7 222.6L463.9 222.9L465.2 223.2L466.4 223.6L467.7 223.9L468.9 224.3L470.2 224.6L471.5 224.9L472.7 225.3L474.0 225.6L475.2 226.0L476.5 226.3L477.7 226.7L479.0 227.0L480.2 227.3L481.5 227.7L482.8 228.0L484.0 228.4L485.3 228.7L486.5 229.0L487.8 229.4L489.0 229.7L490.3 230.1L491.6 230.4L492.8 230.7L494.1 231.1L495.3 231.4L496.6 231.8L497.8 232.1L499.1 232.4L500.3 232.8L501.6 233.1L502.9 233.5L504.1 233.8L505.4 234.1L506.6 234.5L507.9 234.8L509.1 235.2L510.4 235.5L511.6 235.9L512.9 236.2L514.2 236.5L515.4 236.9L516.7 237.2L517.9 237.6L519.2 237.9L520.4 238.2L521.7 238.6L523.0 238.9L524.2 239.3L525.5 239.6L526.7 239.9L528.0 240.3L529.2 240.6L530.5 241.0L531.7 241.3L533.0 241.6L534.3 242.0L535.5 242.3L536.8 242.7L538.0 243.0L539.3 243.4L540.5 243.7L541.8 244.0L543.0 244.4L544.3 244.7L545.6 245.1L546.8 245.4L548.1 245.7L549.3 246.1L550.6 246.4L551.8 246.8L553.1 247.1L554.4 247.4L555.6 247.8L556.9 248.1L558.1 248.5L559.4 248.8L560.6 249.1L561.9 249.5L563.1 249.8L564.4 250.2L565.7 250.5L566.9 250.8L568.2 251.2L569.4 251.5L570.7 251.9L571.9 252.2L573.2 252.6L574.4 252.9L575.7 253.2L577.0 253.6L578.2 253.9L579.5 254.3L580.7 254.6L582.0 254.9L583.2 255.3L584.5 255.6L585.8 256.0L587.0 256.3L588.3 256.6L589.5 257.0L590.8 257.3L592.0 257.7L593.3 258.0L594.5 258.3L595.8 258.7L597.1 259.0L598.3 259.4L599.6 259.7L600.8 260.1L602.1 260.4L603.3 260.7L604.6 261.1L605.8 261.4L607.1 261.8L608.4 262.1L609.6 262.4L610.9 262.8L612.1 263.1L613.4 263.5L614.6 263.8L615.9 264.1L617.2 264.5L618.4 264.8L619.7 265.2L620.9 265.5L622.2 265.8L623.4 266.2L624.7 266.5L625.9 266.9L627.2 267.2L628.5 267.5L629.7 267.9L631.0 268.2L632.2 268.6L633.5 268.9L634.7 269.3L636.0 269.6L637.2 269.9L638.5 270.3L639.8 270.6L641.0 271.0L642.3 271.3L643.5 271.6L644.8 272.0L646.0 272.3L647.3 272.7L648.6 273.0L649.8 273.3L651.1 273.7L652.3 274.0L653.6 274.4L654.8 274.7L656.1 275.0L657.3 275.4L658.6 275.7L659.9 276.1L661.1 276.4L662.4 276.7L663.6 277.1L664.9 277.4L666.1 277.8L667.4 278.1L668.6 278.5L669.9 278.8L671.2 279.1L672.4 279.5L673.7 279.8L674.9 280.2L676.2 280.5L677.4 280.8L678.7 281.2L680.0 281.5L681.2 281.9L682.5 282.2L683.7 282.5L685.0 282.9L686.2 283.2L687.5 283.6L688.7 283.9L690.0 284.2" class="ln1"/>
+<path d="M62.0 113.9L63.3 114.2L64.5 114.6L65.8 115.0L67.0 115.4L68.3 115.8L69.5 116.3L70.8 116.7L72.0 117.2L73.3 117.6L74.6 118.1L75.8 118.6L77.1 119.2L78.3 119.7L79.6 120.3L80.8 120.8L82.1 121.4L83.4 122.1L84.6 122.7L85.9 123.4L87.1 124.0L88.4 124.7L89.6 125.5L90.9 126.2L92.1 127.0L93.4 127.8L94.7 128.7L95.9 129.5L97.2 130.4L98.4 131.4L99.7 132.3L100.9 133.4L102.2 134.4L103.4 135.5L104.7 136.6L106.0 137.8L107.2 139.0L108.5 140.3L109.7 141.7L111.0 143.1L112.2 144.5L113.5 146.0L114.8 147.6L116.0 149.3L117.3 151.0L118.5 152.8L119.8 154.8L121.0 156.8L122.3 158.9L123.5 161.2L124.8 163.5L126.1 166.0L127.3 168.7L128.6 171.6L129.8 174.6L131.1 177.9L132.3 181.4L133.6 185.1L134.8 189.3L136.1 193.8L137.4 198.7L138.6 204.2L139.9 210.4L141.1 217.4L142.4 225.6L143.6 235.4L144.9 247.6L146.2 263.6L147.4 287.1L148.7 332.8L149.9 335.9L151.2 298.8L152.4 271.6L153.7 254.5L154.9 242.0L156.2 232.3L157.5 224.4L158.7 217.7L160.0 212.1L161.2 207.1L162.5 202.8L163.7 199.0L165.0 195.7L166.2 192.7L167.5 190.0L168.8 187.7L170.0 185.6L171.3 183.8L172.5 182.2L173.8 180.8L175.0 179.7L176.3 178.7L177.6 177.9L178.8 177.4L180.1 177.0L181.3 176.8L182.6 176.7L183.8 176.9L185.1 177.3L186.3 177.9L187.6 178.7L188.9 179.7L190.1 180.9L191.4 182.4L192.6 184.1L193.9 186.2L195.1 188.5L196.4 191.2L197.6 194.3L198.9 197.8L200.2 201.9L201.4 206.5L202.7 211.9L203.9 218.2L205.2 225.6L206.4 234.6L207.7 245.9L209.0 260.8L210.2 282.3L211.5 321.4L212.7 335.9L214.0 305.5L215.2 275.5L216.5 257.5L217.7 244.8L219.0 235.2L220.3 227.6L221.5 221.5L222.8 216.5L224.0 212.5L225.3 209.3L226.5 206.8L227.8 204.9L229.0 203.6L230.3 202.9L231.6 202.7L232.8 203.1L234.1 204.1L235.3 205.7L236.6 207.9L237.8 210.9L239.1 214.8L240.4 219.6L241.6 225.7L242.9 233.3L244.1 243.0L245.4 255.8L246.6 274.1L247.9 304.2L249.1 335.9L250.4 322.9L251.7 284.3L252.9 263.7L254.2 250.0L255.4 240.2L256.7 233.0L257.9 227.6L259.2 223.7L260.4 221.2L261.7 219.8L263.0 219.5L264.2 220.4L265.5 222.4L266.7 225.8L268.0 230.7L269.2 237.4L270.5 246.7L271.8 259.5L273.0 278.6L274.3 312.3L275.5 335.9L276.8 313.5L278.0 280.3L279.3 261.9L280.5 249.9L281.8 241.8L283.1 236.4L284.3 233.2L285.6 232.0L286.8 232.6L288.1 235.2L289.3 240.0L290.6 247.4L291.8 258.6L293.1 275.8L294.4 305.6L295.6 335.9L296.9 321.6L298.1 284.5L299.4 265.4L300.6 253.7L301.9 246.6L303.2 242.8L304.4 242.0L305.7 243.9L306.9 249.0L308.2 258.0L309.4 272.7L310.7 298.3L311.9 335.9L313.2 334.6L314.5 290.2L315.7 269.7L317.0 258.1L318.2 252.0L319.5 250.2L320.7 252.3L322.0 258.8L323.2 271.1L324.5 293.5L325.8 335.9L327.0 335.9L328.3 295.3L329.5 273.5L330.8 262.3L332.0 257.6L333.3 258.3L334.6 264.5L335.8 278.2L337.1 305.6L338.3 335.9L339.6 323.2L340.8 287.1L342.1 270.9L343.3 264.1L344.6 264.4L345.9 271.9L347.1 289.4L348.4 330.5L349.6 335.9L350.9 302.4L352.1 279.4L353.4 270.1L354.6 269.8L355.9 278.6L357.2 300.9L358.4 335.9L359.7 333.2L360.9 292.4L362.2 277.1L363.4 274.1L364.7 281.8L366.0 305.0L367.2 335.9L368.5 326.8L369.7 291.2L371.0 279.3L372.2 280.7L373.5 296.5L374.7 335.9L376.0 335.9L377.3 299.0L378.5 283.8L379.8 284.9L381.0 303.1L382.3 335.9L383.5 333.1L384.8 295.4L386.0 286.3L387.3 295.1L388.6 332.7L389.8 335.9L391.1 305.0L392.3 290.1L393.6 296.6L394.8 333.3L396.1 335.9L397.4 305.7L398.6 293.1L399.9 304.8L401.1 335.9L402.4 335.7L403.6 300.1L404.9 298.8L406.1 329.9L407.4 335.9L408.7 309.0L409.9 299.6L411.2 322.9L412.4 335.9L413.7 313.8L414.9 302.3L416.2 327.7L417.4 335.9L418.7 312.2L420.0 306.6L421.2 335.9L422.5 335.9L423.7 308.3L425.0 318.2L426.2 335.9L427.5 321.2L428.8 311.0L430.0 335.9L431.3 335.9L432.5 311.5L433.8 335.9L435.0 335.9L436.3 314.3L437.5 334.6L438.8 335.9L440.1 316.6L441.3 335.9L442.6 335.9L443.8 317.8L445.1 335.9L446.3 335.9L447.6 320.2L448.8 335.9L450.1 332.4L451.4 329.2L452.6 335.9L453.9 323.8L455.1 335.9L456.4 335.9L457.6 330.8L458.9 335.9L460.2 326.6L461.4 335.9L462.7 334.8L463.9 335.9L465.2 335.9L466.4 335.9L467.7 335.9L468.9 332.7L470.2 335.9L471.5 332.7L472.7 335.9L474.0 334.0L475.2 335.9L476.5 335.4L477.7 335.9L479.0 335.9L480.2 335.9L481.5 335.9L482.8 335.9L484.0 335.9L485.3 335.9L486.5 335.9L487.8 335.9L489.0 335.9L490.3 335.9L491.6 335.9L492.8 335.9L494.1 335.9L495.3 335.9L496.6 335.9L497.8 335.9L499.1 335.9L500.3 335.9L501.6 335.9L502.9 335.9L504.1 335.9L505.4 335.9L506.6 335.9L507.9 335.9L509.1 335.9L510.4 335.9L511.6 335.9L512.9 335.9L514.2 335.9L515.4 335.9L516.7 335.9L517.9 335.9L519.2 335.9L520.4 335.9L521.7 335.9L523.0 335.9L524.2 335.9L525.5 335.9L526.7 335.9L528.0 335.9L529.2 335.9L530.5 335.9L531.7 335.9L533.0 335.9L534.3 335.9L535.5 335.9L536.8 335.9L538.0 335.9L539.3 335.9L540.5 335.9L541.8 335.9L543.0 335.9L544.3 335.9L545.6 335.9L546.8 335.9L548.1 335.9L549.3 335.9L550.6 335.9L551.8 335.9L553.1 335.9L554.4 335.9L555.6 335.9L556.9 335.9L558.1 335.9L559.4 335.9L560.6 335.9L561.9 335.9L563.1 335.9L564.4 335.9L565.7 335.9L566.9 335.9L568.2 335.9L569.4 335.9L570.7 335.9L571.9 335.9L573.2 335.9L574.4 335.9L575.7 335.9L577.0 335.9L578.2 335.9L579.5 335.9L580.7 335.9L582.0 335.9L583.2 335.9L584.5 335.9L585.8 335.9L587.0 335.9L588.3 335.9L589.5 335.9L590.8 335.9L592.0 335.9L593.3 335.9L594.5 335.9L595.8 335.9L597.1 335.9L598.3 335.9L599.6 335.9L600.8 335.9L602.1 335.9L603.3 335.9L604.6 335.9L605.8 335.9L607.1 335.9L608.4 335.9L609.6 335.9L610.9 335.9L612.1 335.9L613.4 335.9L614.6 335.9L615.9 335.9L617.2 335.9L618.4 335.9L619.7 335.9L620.9 335.9L622.2 335.9L623.4 335.9L624.7 335.9L625.9 335.9L627.2 335.9L628.5 335.9L629.7 335.9L631.0 335.9L632.2 335.9L633.5 335.9L634.7 335.9L636.0 335.9L637.2 335.9L638.5 335.9L639.8 335.9L641.0 335.9L642.3 335.9L643.5 335.9L644.8 335.9L646.0 335.9L647.3 335.9L648.6 335.9L649.8 335.9L651.1 335.9L652.3 335.9L653.6 335.9L654.8 335.9L656.1 335.9L657.3 335.9L658.6 335.9L659.9 335.9L661.1 335.9L662.4 335.9L663.6 335.9L664.9 335.9L666.1 335.9L667.4 335.9L668.6 335.9L669.9 335.9L671.2 335.9L672.4 335.9L673.7 335.9L674.9 335.9L676.2 335.9L677.4 335.9L678.7 335.9L680.0 335.9L681.2 335.9L682.5 335.9L683.7 335.9L685.0 335.9L686.2 335.9L687.5 335.9L688.7 335.9L690.0 335.9" class="ln2" stroke-dasharray="3 2"/>
+<path d="M62.0 136.3L63.3 136.4L64.5 136.4L65.8 136.4L67.0 136.4L68.3 136.5L69.5 136.5L70.8 136.5L72.0 136.5L73.3 136.6L74.6 136.6L75.8 136.6L77.1 136.6L78.3 136.7L79.6 136.7L80.8 136.7L82.1 136.8L83.4 136.8L84.6 136.8L85.9 136.9L87.1 136.9L88.4 136.9L89.6 137.0L90.9 137.0L92.1 137.0L93.4 137.1L94.7 137.1L95.9 137.2L97.2 137.2L98.4 137.3L99.7 137.3L100.9 137.4L102.2 137.4L103.4 137.5L104.7 137.5L106.0 137.6L107.2 137.6L108.5 137.7L109.7 137.7L111.0 137.8L112.2 137.9L113.5 137.9L114.8 138.0L116.0 138.1L117.3 138.1L118.5 138.2L119.8 138.3L121.0 138.3L122.3 138.4L123.5 138.5L124.8 138.6L126.1 138.7L127.3 138.8L128.6 138.8L129.8 138.9L131.1 139.0L132.3 139.1L133.6 139.2L134.8 139.3L136.1 139.4L137.4 139.5L138.6 139.7L139.9 139.8L141.1 139.9L142.4 140.0L143.6 140.1L144.9 140.3L146.2 140.4L147.4 140.5L148.7 140.7L149.9 140.8L151.2 141.0L152.4 141.1L153.7 141.3L154.9 141.5L156.2 141.6L157.5 141.8L158.7 142.0L160.0 142.2L161.2 142.4L162.5 142.5L163.7 142.7L165.0 143.0L166.2 143.2L167.5 143.4L168.8 143.6L170.0 143.8L171.3 144.1L172.5 144.3L173.8 144.6L175.0 144.8L176.3 145.1L177.6 145.4L178.8 145.7L180.1 146.0L181.3 146.3L182.6 146.6L183.8 146.9L185.1 147.2L186.3 147.6L187.6 147.9L188.9 148.3L190.1 148.7L191.4 149.1L192.6 149.5L193.9 149.9L195.1 150.3L196.4 150.8L197.6 151.2L198.9 151.7L200.2 152.2L201.4 152.7L202.7 153.2L203.9 153.7L205.2 154.3L206.4 154.8L207.7 155.4L209.0 156.0L210.2 156.7L211.5 157.3L212.7 158.0L214.0 158.7L215.2 159.4L216.5 160.2L217.7 160.9L219.0 161.7L220.3 162.6L221.5 163.4L222.8 164.3L224.0 165.2L225.3 166.2L226.5 167.2L227.8 168.2L229.0 169.3L230.3 170.4L231.6 171.6L232.8 172.8L234.1 174.1L235.3 175.4L236.6 176.8L237.8 178.2L239.1 179.7L240.4 181.3L241.6 182.9L242.9 184.6L244.1 186.4L245.4 188.3L246.6 190.3L247.9 192.4L249.1 194.6L250.4 196.9L251.7 199.4L252.9 202.0L254.2 204.8L255.4 207.7L256.7 210.9L257.9 214.3L259.2 218.0L260.4 222.0L261.7 226.4L263.0 231.1L264.2 236.4L265.5 242.4L266.7 249.1L268.0 256.9L269.2 266.1L270.5 277.3L271.8 291.7L273.0 311.9L274.3 335.9L275.5 335.9L276.8 335.9L278.0 313.5L279.3 293.9L280.5 280.1L281.8 269.6L283.1 261.1L284.3 254.1L285.6 248.1L286.8 242.9L288.1 238.4L289.3 234.5L290.6 231.0L291.8 227.9L293.1 225.1L294.4 222.7L295.6 220.5L296.9 218.6L298.1 216.9L299.4 215.5L300.6 214.2L301.9 213.2L303.2 212.4L304.4 211.7L305.7 211.3L306.9 211.0L308.2 210.9L309.4 211.0L310.7 211.3L311.9 211.9L313.2 212.6L314.5 213.5L315.7 214.6L317.0 216.0L318.2 217.7L319.5 219.6L320.7 221.9L322.0 224.4L323.2 227.4L324.5 230.7L325.8 234.6L327.0 239.0L328.3 244.1L329.5 250.1L330.8 257.1L332.0 265.5L333.3 275.9L334.6 289.3L335.8 308.0L337.1 335.9L338.3 335.9L339.6 335.9L340.8 318.0L342.1 297.1L343.3 282.9L344.6 272.4L345.9 264.2L347.1 257.6L348.4 252.3L349.6 248.0L350.9 244.5L352.1 241.7L353.4 239.6L354.6 238.2L355.9 237.2L357.2 236.9L358.4 237.1L359.7 237.9L360.9 239.3L362.2 241.3L363.4 244.0L364.7 247.6L366.0 252.0L367.2 257.6L368.5 264.6L369.7 273.5L371.0 285.2L372.2 301.2L373.5 325.8L374.7 335.9L376.0 335.9L377.3 328.5L378.5 303.9L379.8 288.4L381.0 277.4L382.3 269.4L383.5 263.5L384.8 259.1L386.0 256.1L387.3 254.3L388.6 253.7L389.8 254.2L391.1 255.8L392.3 258.7L393.6 263.0L394.8 269.1L396.1 277.4L397.4 288.8L398.6 305.3L399.9 332.1L401.1 335.9L402.4 335.9L403.6 323.3L404.9 301.5L406.1 287.7L407.4 278.4L408.7 272.2L409.9 268.3L411.2 266.4L412.4 266.4L413.7 268.3L414.9 272.3L416.2 278.7L417.4 288.5L418.7 303.2L420.0 327.2L421.2 335.9L422.5 335.9L423.7 328.2L425.0 305.0L426.2 291.3L427.5 282.8L428.8 278.0L430.0 276.1L431.3 277.1L432.5 281.1L433.8 288.6L435.0 301.0L436.3 321.8L437.5 335.9L438.8 335.9L440.1 335.2L441.3 309.6L442.6 295.6L443.8 287.8L445.1 284.6L446.3 285.3L447.6 290.2L448.8 300.2L450.1 318.3L451.4 335.9L452.6 335.9L453.9 335.9L455.1 313.6L456.4 299.5L457.6 292.8L458.9 291.6L460.2 295.9L461.4 306.6L462.7 327.9L463.9 335.9L465.2 335.9L466.4 330.2L467.7 309.4L468.9 299.8L470.2 297.8L471.5 302.6L472.7 316.1L474.0 335.9L475.2 335.9L476.5 335.9L477.7 319.5L479.0 306.4L480.2 303.2L481.5 308.6L482.8 325.2L484.0 335.9L485.3 335.9L486.5 335.9L487.8 314.9L489.0 308.2L490.3 312.0L491.6 328.7L492.8 335.9L494.1 335.9L495.3 333.7L496.6 315.9L497.8 313.0L499.1 323.2L500.3 335.9L501.6 335.9L502.9 335.9L504.1 321.2L505.4 317.0L506.6 328.5L507.9 335.9L509.1 335.9L510.4 335.9L511.6 321.5L512.9 324.1L514.2 335.9L515.4 335.9L516.7 335.9L517.9 326.8L519.2 326.2L520.4 335.9L521.7 335.9L523.0 335.9L524.2 328.8L525.5 332.0L526.7 335.9L528.0 335.9L529.2 335.9L530.5 330.5L531.7 335.9L533.0 335.9L534.3 335.9L535.5 333.6L536.8 335.9L538.0 335.9L539.3 335.9L540.5 335.9L541.8 335.9L543.0 335.9L544.3 335.9L545.6 335.9L546.8 335.9L548.1 335.9L549.3 335.9L550.6 335.9L551.8 335.9L553.1 335.9L554.4 335.9L555.6 335.9L556.9 335.9L558.1 335.9L559.4 335.9L560.6 335.9L561.9 335.9L563.1 335.9L564.4 335.9L565.7 335.9L566.9 335.9L568.2 335.9L569.4 335.9L570.7 335.9L571.9 335.9L573.2 335.9L574.4 335.9L575.7 335.9L577.0 335.9L578.2 335.9L579.5 335.9L580.7 335.9L582.0 335.9L583.2 335.9L584.5 335.9L585.8 335.9L587.0 335.9L588.3 335.9L589.5 335.9L590.8 335.9L592.0 335.9L593.3 335.9L594.5 335.9L595.8 335.9L597.1 335.9L598.3 335.9L599.6 335.9L600.8 335.9L602.1 335.9L603.3 335.9L604.6 335.9L605.8 335.9L607.1 335.9L608.4 335.9L609.6 335.9L610.9 335.9L612.1 335.9L613.4 335.9L614.6 335.9L615.9 335.9L617.2 335.9L618.4 335.9L619.7 335.9L620.9 335.9L622.2 335.9L623.4 335.9L624.7 335.9L625.9 335.9L627.2 335.9L628.5 335.9L629.7 335.9L631.0 335.9L632.2 335.9L633.5 335.9L634.7 335.9L636.0 335.9L637.2 335.9L638.5 335.9L639.8 335.9L641.0 335.9L642.3 335.9L643.5 335.9L644.8 335.9L646.0 335.9L647.3 335.9L648.6 335.9L649.8 335.9L651.1 335.9L652.3 335.9L653.6 335.9L654.8 335.9L656.1 335.9L657.3 335.9L658.6 335.9L659.9 335.9L661.1 335.9L662.4 335.9L663.6 335.9L664.9 335.9L666.1 335.9L667.4 335.9L668.6 335.9L669.9 335.9L671.2 335.9L672.4 335.9L673.7 335.9L674.9 335.9L676.2 335.9L677.4 335.9L678.7 335.9L680.0 335.9L681.2 335.9L682.5 335.9L683.7 335.9L685.0 335.9L686.2 335.9L687.5 335.9L688.7 335.9L690.0 335.9" class="lnm" stroke-dasharray="3 2"/>
+<path d="M62.0 144.1L63.3 144.2L64.5 144.6L65.8 145.1L67.0 145.8L68.3 146.7L69.5 147.9L70.8 149.3L72.0 150.9L73.3 152.9L74.6 155.1L75.8 157.7L77.1 160.6L78.3 164.0L79.6 167.9L80.8 172.3L82.1 177.4L83.4 183.4L84.6 190.4L85.9 198.9L87.1 209.3L88.4 222.8L89.6 241.6L90.9 272.4L92.1 335.9L93.4 289.1L94.7 250.8L95.9 230.1L97.2 216.0L98.4 205.5L99.7 197.3L100.9 190.7L102.2 185.4L103.4 181.1L104.7 177.7L106.0 174.9L107.2 172.8L108.5 171.3L109.7 170.4L111.0 170.1L112.2 170.3L113.5 171.1L114.8 172.5L116.0 174.5L117.3 177.3L118.5 180.8L119.8 185.3L121.0 190.9L122.3 198.0L123.5 206.9L124.8 218.6L126.1 234.6L127.3 259.5L128.6 313.2L129.8 315.4L131.1 261.2L132.3 236.8L133.6 221.4L134.8 210.5L136.1 202.5L137.4 196.6L138.6 192.3L139.9 189.3L141.1 187.5L142.4 186.9L143.6 187.4L144.9 189.0L146.2 191.9L147.4 196.3L148.7 202.4L149.9 210.7L151.2 222.2L152.4 238.8L153.7 265.9L154.9 334.2L156.2 300.4L157.5 256.1L158.7 234.4L160.0 220.7L161.2 211.5L162.5 205.3L163.7 201.5L165.0 199.6L166.2 199.6L167.5 201.5L168.8 205.5L170.0 212.0L171.3 221.8L172.5 236.6L173.8 260.9L175.0 315.7L176.3 313.0L177.6 261.0L178.8 238.0L180.1 224.4L181.3 215.9L182.6 211.1L183.8 209.3L185.1 210.3L186.3 214.3L187.6 221.9L188.9 234.4L190.1 255.4L191.4 299.0L192.6 335.9L193.9 267.8L195.1 242.5L196.4 228.6L197.6 220.9L198.9 217.7L200.2 218.5L201.4 223.5L202.7 233.6L203.9 251.9L205.2 288.9L206.4 335.9L207.7 274.1L209.0 246.5L210.2 232.5L211.5 225.9L212.7 224.9L214.0 229.2L215.2 240.1L216.5 261.6L217.7 313.9L219.0 315.1L220.3 263.0L221.5 242.4L222.8 232.9L224.0 231.0L225.3 235.9L226.5 249.6L227.8 279.6L229.0 335.9L230.3 283.1L231.6 252.4L232.8 239.5L234.1 236.4L235.3 242.0L236.6 258.8L237.8 301.3L239.1 333.0L240.4 268.8L241.6 248.0L242.9 241.3L244.1 245.3L245.4 262.3L246.6 309.5L247.9 320.5L249.1 266.4L250.4 249.0L251.7 246.2L252.9 256.7L254.2 289.2L255.4 335.9L256.7 276.7L257.9 254.2L259.2 250.3L260.4 262.0L261.7 302.4L263.0 331.8L264.2 270.6L265.5 254.6L266.7 257.5L268.0 282.3L269.2 335.9L270.5 284.0L271.8 259.8L273.0 259.5L274.3 283.0L275.5 335.9L276.8 284.2L278.0 261.8L279.3 265.4L280.5 300.9L281.8 335.9L283.1 274.0L284.3 263.8L285.6 281.7L286.8 335.9L288.1 287.7L289.3 266.7L290.6 277.9L291.8 335.9L293.1 294.7L294.4 269.6L295.6 281.3L296.9 335.9L298.1 290.9L299.4 271.8L300.6 293.4L301.9 335.9L303.2 281.6L304.4 277.5L305.7 331.3L306.9 305.1L308.2 276.7L309.4 299.5L310.7 335.9L311.9 281.6L313.2 290.0L314.5 335.9L315.7 287.4L317.0 288.1L318.2 335.9L319.5 290.5L320.7 290.3L322.0 335.9L323.2 290.1L324.5 296.8L325.8 335.9L327.0 288.1L328.3 312.8L329.5 321.9L330.8 289.4L332.0 335.9L333.3 298.8L334.6 302.8L335.8 335.9L337.1 292.3L338.3 335.9L339.6 299.9L340.8 313.9L342.1 322.7L343.3 299.7L344.6 335.9L345.9 297.1L347.1 335.9L348.4 299.8L349.6 335.9L350.9 304.7L352.1 335.9L353.4 309.2L354.6 331.4L355.9 311.5L357.2 333.5L358.4 311.2L359.7 335.9L360.9 309.1L362.2 335.9L363.4 307.2L364.7 335.9L366.0 308.7L367.2 335.9L368.5 319.0L369.7 323.8L371.0 335.9L372.2 311.8L373.5 335.9L374.7 320.6L376.0 324.3L377.3 335.9L378.5 315.8L379.8 335.9L381.0 335.9L382.3 317.1L383.5 335.9L384.8 335.9L386.0 320.8L387.3 330.7L388.6 335.9L389.8 335.2L391.1 321.9L392.3 335.9L393.6 335.9L394.8 335.9L396.1 324.3L397.4 335.9L398.6 335.9L399.9 335.9L401.1 335.9L402.4 328.2L403.6 331.7L404.9 335.9L406.1 335.9L407.4 335.9L408.7 335.9L409.9 335.9L411.2 335.9L412.4 335.9L413.7 334.7L414.9 334.6L416.2 335.3L417.4 335.9L418.7 335.9L420.0 335.9L421.2 335.9L422.5 335.9L423.7 335.9L425.0 335.9L426.2 335.9L427.5 335.9L428.8 335.9L430.0 335.9L431.3 335.9L432.5 335.9L433.8 335.9L435.0 335.9L436.3 335.9L437.5 335.9L438.8 335.9L440.1 335.9L441.3 335.9L442.6 335.9L443.8 335.9L445.1 335.9L446.3 335.9L447.6 335.9L448.8 335.9L450.1 335.9L451.4 335.9L452.6 335.9L453.9 335.9L455.1 335.9L456.4 335.9L457.6 335.9L458.9 335.9L460.2 335.9L461.4 335.9L462.7 335.9L463.9 335.9L465.2 335.9L466.4 335.9L467.7 335.9L468.9 335.9L470.2 335.9L471.5 335.9L472.7 335.9L474.0 335.9L475.2 335.9L476.5 335.9L477.7 335.9L479.0 335.9L480.2 335.9L481.5 335.9L482.8 335.9L484.0 335.9L485.3 335.9L486.5 335.9L487.8 335.9L489.0 335.9L490.3 335.9L491.6 335.9L492.8 335.9L494.1 335.9L495.3 335.9L496.6 335.9L497.8 335.9L499.1 335.9L500.3 335.9L501.6 335.9L502.9 335.9L504.1 335.9L505.4 335.9L506.6 335.9L507.9 335.9L509.1 335.9L510.4 335.9L511.6 335.9L512.9 335.9L514.2 335.9L515.4 335.9L516.7 335.9L517.9 335.9L519.2 335.9L520.4 335.9L521.7 335.9L523.0 335.9L524.2 335.9L525.5 335.9L526.7 335.9L528.0 335.9L529.2 335.9L530.5 335.9L531.7 335.9L533.0 335.9L534.3 335.9L535.5 335.9L536.8 335.9L538.0 335.9L539.3 335.9L540.5 335.9L541.8 335.9L543.0 335.9L544.3 335.9L545.6 335.9L546.8 335.9L548.1 335.9L549.3 335.9L550.6 335.9L551.8 335.9L553.1 335.9L554.4 335.9L555.6 335.9L556.9 335.9L558.1 335.9L559.4 335.9L560.6 335.9L561.9 335.9L563.1 335.9L564.4 335.9L565.7 335.9L566.9 335.9L568.2 335.9L569.4 335.9L570.7 335.9L571.9 335.9L573.2 335.9L574.4 335.9L575.7 335.9L577.0 335.9L578.2 335.9L579.5 335.9L580.7 335.9L582.0 335.9L583.2 335.9L584.5 335.9L585.8 335.9L587.0 335.9L588.3 335.9L589.5 335.9L590.8 335.9L592.0 335.9L593.3 335.9L594.5 335.9L595.8 335.9L597.1 335.9L598.3 335.9L599.6 335.9L600.8 335.9L602.1 335.9L603.3 335.9L604.6 335.9L605.8 335.9L607.1 335.9L608.4 335.9L609.6 335.9L610.9 335.9L612.1 335.9L613.4 335.9L614.6 335.9L615.9 335.9L617.2 335.9L618.4 335.9L619.7 335.9L620.9 335.9L622.2 335.9L623.4 335.9L624.7 335.9L625.9 335.9L627.2 335.9L628.5 335.9L629.7 335.9L631.0 335.9L632.2 335.9L633.5 335.9L634.7 335.9L636.0 335.9L637.2 335.9L638.5 335.9L639.8 335.9L641.0 335.9L642.3 335.9L643.5 335.9L644.8 335.9L646.0 335.9L647.3 335.9L648.6 335.9L649.8 335.9L651.1 335.9L652.3 335.9L653.6 335.9L654.8 335.9L656.1 335.9L657.3 335.9L658.6 335.9L659.9 335.9L661.1 335.9L662.4 335.9L663.6 335.9L664.9 335.9L666.1 335.9L667.4 335.9L668.6 335.9L669.9 335.9L671.2 335.9L672.4 335.9L673.7 335.9L674.9 335.9L676.2 335.9L677.4 335.9L678.7 335.9L680.0 335.9L681.2 335.9L682.5 335.9L683.7 335.9L685.0 335.9L686.2 335.9L687.5 335.9L688.7 335.9L690.0 335.9" class="lnm" stroke-dasharray="3 2"/>
+<text x="497.2" y="222.9" class="flab end c1">c&#8320;/&#947;&#178;</text>
+<text x="125.0" y="178.0" class="flab st c2">&#916; = 0.24</text>
+<line x1="559.6" y1="52" x2="559.6" y2="336" class="lnm" stroke-dasharray="5 3"/>
+<line x1="62" y1="248.9" x2="559.6" y2="248.9" class="lnm" stroke-dasharray="5 3"/>
+<text x="553.6" y="68" class="flab end">&#947; = 2384</text>
+<text x="551.6" y="240.9" class="flab end">the golden pair&#8217;s floor 3.70&#215;10&#8315;&#8311;</text>
+<text x="352" y="367" class="flab st">height &#947;</text>
+<text x="26" y="414" class="flab st">Writing x = &#947;&#916;/2, B<tspan dy="-4" font-size="9">&#916;</tspan><tspan dy="4"></tspan>(&#947;) = (2/&#947;)&#8901;sin&#178;x/x, whose maximum sits at the root of tan x = 2x.</text>
+<text x="26" y="432" class="flab st">The bound has no &#916; in it. So no family of meshes, however large, can give a zero above &#947; = 2384</text>
+<text x="26" y="450" class="flab st">even the weight one pair guarantees below it. A pair fixes deletion; nothing fixes starvation,</text>
+<text x="26" y="468" class="flab st">because starvation belongs to the hat and not to the lattice.</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 · The ceiling.</b> c₀/γ² against height, with the envelopes of individual meshes touching it and never crossing. The marked height γ = 2384 is where the ceiling falls below the golden pair's own floor: beyond it, no mesh reaches what one pair guarantees below it.</figcaption>
+</figure>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 486" role="img" aria-label="A card listing the six certified union node sets with their ratio, size, minimum gap, three distances, weight gain and Cholesky pivot; beneath it the answer to rh19 question.">
+<text x="360.0" y="21" class="ftitle">six union node sets, certified &#8212; and the answer</text>
+<rect x="26" y="30" width="668" height="196" class="cardbox"/>
+<text x="38" y="50" class="flab st">&#952; = &#916;&#8322;/&#916;&#8321;</text>
+<text x="104" y="50" class="flab st">n</text>
+<text x="140" y="50" class="flab st">min gap</text>
+<text x="212" y="50" class="flab st">3 distances &#215;10&#8315;&#179;</text>
+<text x="332" y="50" class="flab st">balance</text>
+<text x="392" y="50" class="flab st">gain</text>
+<text x="458" y="50" class="flab st">pivot</text>
+<text x="566" y="50" class="flab st">1st joint notch</text>
+<line x1="34" y1="57" x2="686" y2="57" class="axis"/>
+<text x="38" y="73" class="flab st">0.5000</text>
+<text x="104" y="73" class="flab st">97</text>
+<text x="140" y="73" class="flab st">0.12000</text>
+<text x="212" y="73" class="flab st">120.0</text>
+<text x="332" y="73" class="flab st">1.0</text>
+<text x="392" y="73" class="flab st">1&#215;</text>
+<text x="458" y="73" class="flab st">6.39&#215;10&#8315;&#8310;</text>
+<text x="566" y="73" class="flab st">5.2&#215;10&#185;</text>
+<text x="38" y="94" class="flab st">0.6667</text>
+<text x="104" y="94" class="flab st">97</text>
+<text x="140" y="94" class="flab st">0.08000</text>
+<text x="212" y="94" class="flab st">80.0</text>
+<text x="332" y="94" class="flab st">1.0</text>
+<text x="392" y="94" class="flab st">5&#215;</text>
+<text x="458" y="94" class="flab st">7.17&#215;10&#8315;&#8310;</text>
+<text x="566" y="94" class="flab st">7.9&#215;10&#185;</text>
+<text x="38" y="115" class="flab st">0.7000</text>
+<text x="104" y="115" class="flab st">111</text>
+<text x="140" y="115" class="flab st">0.02400</text>
+<text x="212" y="115" class="flab st">24.0</text>
+<text x="332" y="115" class="flab st">1.0</text>
+<text x="392" y="115" class="flab st">181&#215;</text>
+<text x="458" y="115" class="flab st">4.61&#215;10&#8315;&#8310;</text>
+<text x="566" y="115" class="flab st">2.6&#215;10&#178;</text>
+<text x="38" y="136" class="flab st">0.5813</text>
+<text x="104" y="136" class="flab st">131</text>
+<text x="140" y="136" class="flab st">0.00150</text>
+<text x="212" y="136" class="flab st">1.5 + 3.0 + 4.5</text>
+<text x="332" y="136" class="flab st">3.0</text>
+<text x="392" y="136" class="flab st">7,114&#215;</text>
+<text x="458" y="136" class="flab st">1.78&#215;10&#8315;&#8310;</text>
+<text x="566" y="136" class="flab st">4.2&#215;10&#179;</text>
+<text x="38" y="157" class="flab st c1">0.6179</text>
+<text x="104" y="157" class="flab st c1">126</text>
+<text x="140" y="157" class="flab st c1">0.00220</text>
+<text x="212" y="157" class="flab st c1">2.2 + 3.5 + 5.7</text>
+<text x="332" y="157" class="flab st c1">2.6</text>
+<text x="392" y="157" class="flab st c1">2,857&#215;</text>
+<text x="458" y="157" class="flab st c1">4.99&#215;10&#8315;&#8310;</text>
+<text x="566" y="157" class="flab st c1">6.3&#215;10&#8308;</text>
+<text x="38" y="178" class="flab st">0.6667</text>
+<text x="104" y="178" class="flab st">120</text>
+<text x="140" y="178" class="flab st">0.00003</text>
+<text x="212" y="178" class="flab st">0.0 + 79.3 + 79.3</text>
+<text x="332" y="178" class="flab st">2644.3</text>
+<text x="392" y="178" class="flab st">5&#215;</text>
+<text x="458" y="178" class="flab st">2.76&#215;10&#8315;&#8313;</text>
+<text x="566" y="178" class="flab st">6.3&#215;10&#8309;</text>
+<text x="38" y="203" class="flab st"><tspan class="c1">&#966;</tspan>: the golden pair &#8212; the most balanced three distances, and the best pivot of any pair that gains at all.</text>
+<rect x="26" y="268" width="328" height="128" class="cardbox"/>
+<rect x="366" y="268" width="328" height="128" class="cardbox"/>
+<text x="42" y="288" class="flab st c2">what a pair fixes</text>
+<text x="42" y="308" class="flab st">deletion: the failure mode that cost rh19</text>
+<text x="42" y="323" class="flab st">a factor 35 at &#916;* = 2&#960;/&#947;&#8321;.</text>
+<text x="42" y="338" class="flab st">the low-zero weight floor rises from</text>
+<text x="42" y="353" class="flab st">1.29&#215;10&#8315;&#185;&#8304; to 3.70&#215;10&#8315;&#8311;,</text>
+<text x="42" y="368" class="flab st">a factor 2857 &#8212; and the union</text>
+<text x="42" y="383" class="flab st">sections stay positive definite.</text>
+<text x="382" y="288" class="flab st c1">what no family fixes</text>
+<text x="382" y="308" class="flab st">starvation. |B<tspan dy='-3' font-size='9'>&#916;</tspan><tspan dy='3'></tspan>(&#947;)|&#178; &#8804; c&#8320;/&#947;&#178; holds for</text>
+<text x="382" y="323" class="flab st">every mesh at once, c&#8320; = 2.1002,</text>
+<text x="382" y="338" class="flab st">and it is attained. Above &#947; = 2384 no mesh</text>
+<text x="382" y="353" class="flab st">reaches even the pair&#8217;s own floor.</text>
+<text x="382" y="368" class="flab st">So (L) at two meshes does NOT give (W),</text>
+<text x="382" y="383" class="flab st">and adding meshes cannot change it.</text>
+<text x="26" y="440" class="flab st">Hypotheses: Weil&#8217;s criterion (cited) for the RH face; IEEE-754 and libmpdec. The ceiling is elementary,</text>
+<text x="26" y="456" class="flab st">its constant certified (c&#8320; &#8804; 2.100246463). rh8&#8217;s incommensurability is qualitative and does not</text>
+<text x="26" y="472" class="flab st">transfer: a pair&#8217;s worth is set by four specific zeros, not by the arithmetic of &#952;. 38 checks, 29 s. Not proved: RH.</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 · Six certified union node sets, and the answer.</b> Ratio, size, minimum gap, the three distances mod Δ₁ and their balance, the weight gain, the Cholesky pivot, and the first exact joint notch. Beneath: what a pair fixes and what no family fixes.</figcaption>
+</figure>
+
+<p><b>Hypotheses, in full.</b> Weil's criterion, cited, for the RH face of rh18's equivalence. IEEE-754 and libmpdec behaving as specified, for the interval-certified c₀ and the 60-digit Cholesky pivots. The ceiling (3) itself is elementary: one substitution and one stationary point, and its constant carries a certified enclosure.</p>
+<p><b>Not proved: RH.</b> Nothing here is a step toward it; the document closes a route rather than opening one. That is worth saying plainly — rh19 ranked this question first because it looked like the cheapest way to strengthen (L), and the honest result is that it is not a way at all.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The bill, audited</h2>
+<p>38 named checks in 29 seconds. The regression rebuilds rh19's Δ = 0.24 section and its minimum Schur pivot 1.6641&#215;10<sup>&#8722;5</sup> before any new claim; rh19's Δ* catastrophe is reproduced at 4.563&#215;10<sup>&#8722;67</sup>; the ceiling constant carries both a float value and a certified enclosure, and is checked against 240,000 measured (Δ, r) pairs; the three-distance count is verified in exact rational arithmetic; all six union sections are asserted positive definite; and the two negative results — that Diophantine quality is not the criterion, and that every failure is one of four zeros — each carry their own assertion.</p>
+<p><b>Against the order.</b> "Testing whether a pair of meshes can jointly bound every low-zero weight from below" — done, and the answer is that it can, by 2,857× at a golden pair, on 83.0% of ratios. "A negative answer would be as informative as a positive one" — the negative answer is (3), and it is stronger than the question: it rules out not just pairs but every family, and it does so with a constant rather than an asymptotic.</p>
+<p><b>What is left.</b> rh19's other two successors are untouched and are now the whole list. (ii) <b>A tighter row radius</b>: rh19's ceiling on the certified horizon moves by the log of whatever the arithmetic improves; the two-double logarithm bought a factor 22, a triple-double would buy the next few units of v. Known price, pure engineering. (iii) <b>The floor's decay rate</b>: −0.528, −0.601, −0.639 at Δ = 0.24, 0.12, 0.06 — the rate itself depends on the mesh and nothing explains why. It sits with rh15's σ²v² ≈ 3.9×10⁻³ and rh16's D* as a measured constant of the construction with no derivation behind it, and a derivation would predict rh19's ceiling instead of fitting it.</p>
+<p>One new item, and it is the only place (3) leaves room. The ceiling is a statement about <i>this</i> hat. A different window — one whose transform decays more slowly, or not at all on the relevant range — would have a different ceiling, and the arc has never varied the hat. rh12 optimised a window for a different purpose; whether a window exists whose transform holds the high zeros without destroying the sandbox that makes the comb finite is the question (3) actually raises.</p>
+</section>
+
+<section id="s7">
+<h2 class="prose" style="max-width:46rem">7 · Dictionary additions and references</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>term</th><th>in this arc</th><th>standard name</th></tr>
+<tr><td>the notch ladder</td><td>N(Δ) = (2π/Δ)ℤ, where B<sub>Δ</sub> vanishes</td><td>the zero set of a sinc² transform</td></tr>
+<tr><td>the first joint notch</td><td>2πq/Δ₁ for θ = p/q in lowest terms</td><td>the common period of two lattices</td></tr>
+<tr><td>deletion</td><td>a zero landing in a notch, weight → 0</td><td>—</td></tr>
+<tr><td>starvation</td><td>a zero above the reach of any hat, weight ≤ c₀/γ²</td><td>transform decay</td></tr>
+<tr><td>the ceiling c₀</td><td>4·max(sin²x/x)² = 2.100246</td><td>—</td></tr>
+<tr><td>balance</td><td>max/min of the three distances mod Δ₁</td><td>the three-distance (Steinhaus) theorem</td></tr>
+</table>
+</div>
+<div class="prose refs">
+<p><b>References.</b> A. Weil, <i>Sur les "formules explicites" de la théorie des nombres premiers</i> (1952) — the criterion, cited for the RH face. S. Bochner, <i>Vorlesungen über Fouriersche Integrale</i> (1932). V. T. Sós, <i>On the distribution mod 1 of the sequence nα</i> (1958) and S. Świerczkowski (1959) — the three-distance theorem used in §4. A. Ya. Khinchin, <i>Continued Fractions</i> (1964) — the Diophantine quality q‖qθ‖ that §3 shows is <i>not</i> the criterion, and §4 shows is. A. Hurwitz (1891) — the constant 1/√5 for the golden ratio. R. E. Moore, <i>Interval Analysis</i> (1966) and S. M. Rump, <i>Verification methods</i> (2010) — the interval machinery inherited from rh17. NIST DLMF §5 — the digamma asymptotics behind ψ̃.</p>
+</div>
+</section>
+
+
+</div>
+</body>
+</html>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stereographic projection from the north pole</title>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)'], ['$', '$']],
+    displayMath: [['\\[', '\\]'], ['$$', '$$']],
+    processEscapes: true
+  },
+  options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root {
+    --text:#e8eef5; --muted:#9aa8b8; --accent:#8ec5ff; --panel:#0b1220ee;
+    --border:#243044;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:#05070c; color:var(--text);
+    font-family:"Latin Modern Roman","Computer Modern","Times New Roman",Times,serif; }
+  canvas { display:block; }
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:4;
+    display:flex; flex-wrap:wrap; gap:1.2rem; align-items:center;
+    padding:0.7rem 1.2rem; background:linear-gradient(180deg,#05070cf0,#05070c00);
+    font-size:0.92rem;
+  }
+  nav a { color:var(--accent); text-decoration:none; font-weight:500; }
+  nav a:hover { text-decoration:underline; }
+  nav a.current { color:var(--muted); pointer-events:none; }
+  #hud {
+    position:fixed; top:3.2rem; right:0.8rem; width:min(420px, calc(100vw - 1.4rem));
+    max-height:calc(100vh - 4.2rem); overflow:auto; z-index:3;
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:1rem 1.1rem 1.2rem; backdrop-filter:blur(10px);
+  }
+  h1 { font-size:1.22rem; margin:0 0 0.25rem; color:#dcecff; font-weight:700; }
+  .sub { color:var(--muted); font-style:italic; margin:0 0 0.9rem; font-size:0.95rem; }
+  h2 { font-size:1.02rem; margin:1rem 0 0.4rem; color:#bcd3ea; border-bottom:1px solid var(--border); padding-bottom:0.25rem; }
+  p, li { font-size:0.92rem; line-height:1.5; color:#d5deea; }
+  p { margin:0.45rem 0; text-align:left; }
+  a { color:var(--accent); }
+  .readout {
+    font-family:ui-monospace,monospace; font-size:0.82rem; background:#070b14;
+    border:1px solid var(--border); border-radius:6px; padding:0.55rem 0.7rem; margin:0.6rem 0;
+    color:#c7e0a6;
+  }
+  .readout div { display:flex; justify-content:space-between; gap:0.8rem; margin:0.15rem 0; }
+  .readout span.k { color:#8aa0b8; }
+  .controls { display:grid; grid-template-columns:108px 1fr 52px; gap:0.28rem 0.5rem; align-items:center; margin:0.6rem 0; }
+  .controls label { font-size:0.82rem; color:var(--muted); }
+  .controls input[type=range] { width:100%; }
+  .controls .val { font-family:ui-monospace,monospace; font-size:0.78rem; color:#cfe3ff; text-align:right; }
+  .toggles { display:flex; flex-wrap:wrap; gap:0.45rem 0.9rem; margin:0.4rem 0 0.7rem; font-size:0.84rem; }
+  .toggles label { color:#c5d4e4; display:flex; gap:0.35rem; align-items:center; cursor:pointer; }
+  .note { font-size:0.84rem; color:var(--muted); }
+  .lemma {
+    border-left:3px solid #3d7ab5; background:#0e1624; padding:0.55rem 0.75rem; margin:0.55rem 0;
+    font-size:0.86rem;
+  }
+  #hint { position:fixed; left:1rem; bottom:0.8rem; z-index:3; color:#7d8ea3; font-size:0.82rem; }
+  @media (max-width:820px) {
+    #hud { position:relative; top:auto; right:auto; width:auto; max-height:none; margin:3.4rem 0.6rem 0; }
+    #hint { position:relative; left:auto; bottom:auto; padding:0.4rem 1rem 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a href="publication.html">Publication</a>
+  <a href="gaps.html">Gaps</a>
+  <a href="maths/nested_spheres_RH.html">Nested Spheres</a>
+  <a href="maths/continuous_cone_RH_solution.html">Continuous Cone</a>
+  <a href="viz.html">Visualisation</a>
+  <a href="projection.html" class="current">Projection</a>
+  <a href="tensor.html">Tensor</a>
+</nav>
+
+<div id="hud">
+  <h1>Stereographic projection</h1>
+  <p class="sub">from the north pole onto the equatorial plane \(\mathbb{C}\)</p>
+
+  <div class="controls">
+    <label for="theta">colatitude \(\theta\)</label>
+    <input id="theta" type="range" min="0.18" max="3.05" step="0.01" value="1.20">
+    <div class="val" id="thetaVal">1.20</div>
+    <label for="phi">longitude \(\varphi\)</label>
+    <input id="phi" type="range" min="0" max="6.28" step="0.01" value="0.70">
+    <div class="val" id="phiVal">0.70</div>
+    <label for="flatten">flatten</label>
+    <input id="flatten" type="range" min="0" max="1" step="0.01" value="0">
+    <div class="val" id="flattenVal">0.00</div>
+    <label for="meridians">meridians</label>
+    <input id="meridians" type="range" min="4" max="24" step="1" value="12">
+    <div class="val" id="meridiansVal">12</div>
+    <label for="parallels">parallels</label>
+    <input id="parallels" type="range" min="2" max="16" step="1" value="6">
+    <div class="val" id="parallelsVal">6</div>
+    <label for="extent">plane clip</label>
+    <input id="extent" type="range" min="2" max="12" step="0.5" value="5">
+    <div class="val" id="extentVal">5.0</div>
+  </div>
+  <div class="toggles">
+    <label><input id="showSphere" type="checkbox" checked> sphere</label>
+    <label><input id="showMesh" type="checkbox" checked> mesh</label>
+    <label><input id="showGrid" type="checkbox" checked> lat–long</label>
+    <label><input id="showPlane" type="checkbox" checked> plane \(\mathbb{C}\)</label>
+    <label><input id="showRays" type="checkbox" checked> projection rays</label>
+    <label><input id="showPoint" type="checkbox" checked> moving point</label>
+    <label><input id="showLoxo" type="checkbox" checked> loxodrome</label>
+    <label><input id="showTilt" type="checkbox" checked> tilted great circle</label>
+    <label><input id="spin" type="checkbox"> rotate</label>
+  </div>
+
+  <div class="readout" id="out"></div>
+
+  <h2>The chart</h2>
+  <p>The unit sphere \(S^2\subset\mathbb{R}^3\) has north pole \(N=(0,0,1)\). A ray from \(N\) through a point \(P=(x,y,z)\neq N\) meets the equatorial plane \(z=0\) at \(\pi_N(P)\). Identify that plane with \(\mathbb{C}\) by \(u+iv\).</p>
+  <div class="lemma">
+    \[
+    \pi_N(x,y,z)=\frac{x+iy}{1-z},\qquad
+    \pi_N^{-1}(w)=\Bigl(\frac{2w}{1+\lvert w\rvert^2},\;\frac{\lvert w\rvert^2-1}{1+\lvert w\rvert^2}\Bigr)
+    \]
+    in \(\mathbb{C}\times\mathbb{R}\). The south pole \(S=(0,0,-1)\) is the origin. The north pole is the point at infinity.
+  </div>
+  <p>Stereographic projection is conformal and sends circles to circles or lines. Meridians (great circles through \(N\)) become straight lines through \(0\). Parallels become concentric circles. A rhumb line, meeting meridians at constant bearing, becomes a logarithmic spiral.</p>
+  <p class="note">The nested-spheres globe in <a href="viz.html">viz.html</a> is the same \(S^2\) fibre, hinged at the origin. Flattening it from the north pole is this chart. The flatten slider moves points along the projecting rays. Publication Lemma&nbsp;4.8: the round metric pulls back to the Marty speed \(\lvert\partial_t\eta\rvert/(1+\lvert\eta\rvert^2)\). Euclidean-small in \(\mathbb{C}\) is not a visit to the south pole if \(\lvert\eta\rvert\to\infty\) (the lift tends to \(N\)).</p>
+  <p class="note"><a href="publication.html">publication.html</a> · <a href="maths/nested_spheres_RH.html">nested spheres</a> · <a href="viz.html">visualisation</a></p>
+</div>
+<div id="hint">drag to orbit · \(N\) at \((0,1,0)\) · plane \(y=0\) is \(\mathbb{C}\)</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x05070c, 1);
+document.body.appendChild(renderer.domElement);
+Object.assign(renderer.domElement.style, { position:'fixed', inset:'0', zIndex:'0' });
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.02, 400);
+camera.position.set(4.6, 2.8, 5.4);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.target.set(0, 0.15, 0);
+controls.minDistance = 0.4;
+controls.maxDistance = 40;
+
+scene.add(new THREE.AmbientLight(0x6a7c96, 0.55));
+const key = new THREE.DirectionalLight(0xe8f2ff, 1.15);
+key.position.set(4, 6, 3);
+scene.add(key);
+scene.add(new THREE.PointLight(0x3df0c0, 1.1, 40).translateX(-3).translateY(2).translateZ(-2));
+scene.add(new THREE.PointLight(0xffb347, 0.55, 40).translateX(2).translateY(-1).translateZ(3));
+
+const root = new THREE.Group();
+scene.add(root);
+
+function mathToThree(x, y, z) {
+  return new THREE.Vector3(x, z, y);
+}
+
+function spherePoint(theta, phi) {
+  const st = Math.sin(theta), ct = Math.cos(theta);
+  return { x: st * Math.cos(phi), y: st * Math.sin(phi), z: ct };
+}
+
+function stereo(p) {
+  const d = 1 - p.z;
+  if (Math.abs(d) < 1e-8) return { u: Infinity, v: Infinity, r: Infinity };
+  return { u: p.x / d, v: p.y / d, r: Math.hypot(p.x, p.y) / d };
+}
+
+function inverseStereo(u, v) {
+  const r2 = u * u + v * v;
+  const den = 1 + r2;
+  return { x: 2 * u / den, y: 2 * v / den, z: (r2 - 1) / den };
+}
+
+function lerpRay(p, t) {
+  const s = stereo(p);
+  if (!isFinite(s.r)) return mathToThree(p.x, p.y, p.z);
+  const q = { x: s.u, y: s.v, z: 0 };
+  return mathToThree(
+    p.x + t * (q.x - p.x),
+    p.y + t * (q.y - p.y),
+    p.z + t * (q.z - p.z)
+  );
+}
+
+function lineFrom(pts, color, opacity = 0.95) {
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  return new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity }));
+}
+
+function makeLabel(text, color = '#dcecff', scaleX = 0.7) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = color;
+  ctx.font = 'bold 36px "Times New Roman", Times, serif';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 8, 32);
+  const tex = new THREE.CanvasTexture(canvas);
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+  spr.scale.set(scaleX, scaleX * 0.25, 1);
+  spr.center.set(0, 0.5);
+  return spr;
+}
+
+function clipPlane(u, v, R) {
+  const r = Math.hypot(u, v);
+  if (r <= R) return { u, v, ok: true };
+  return { u: u * R / r, v: v * R / r, ok: false };
+}
+
+const staticGroup = new THREE.Group();
+const gridGroup = new THREE.Group();
+const curveGroup = new THREE.Group();
+const pointGroup = new THREE.Group();
+root.add(staticGroup, gridGroup, curveGroup, pointGroup);
+
+function buildStatic() {
+  staticGroup.clear();
+  const sphere = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 48, 32),
+    new THREE.MeshPhongMaterial({
+      color: 0x1b3a5a, transparent: true, opacity: 0.18,
+      side: THREE.DoubleSide, depthWrite: false
+    })
+  );
+  sphere.name = 'sphereBody';
+  staticGroup.add(sphere);
+
+  const mesh = new THREE.LineSegments(
+    new THREE.WireframeGeometry(new THREE.SphereGeometry(1.002, 24, 16)),
+    new THREE.LineBasicMaterial({ color: 0x4a6a88, transparent: true, opacity: 0.28 })
+  );
+  mesh.name = 'sphereMesh';
+  staticGroup.add(mesh);
+
+  const north = new THREE.Mesh(
+    new THREE.SphereGeometry(0.045, 16, 12),
+    new THREE.MeshBasicMaterial({ color: 0xfff6c2 })
+  );
+  north.position.copy(mathToThree(0, 0, 1));
+  staticGroup.add(north);
+  const nLab = makeLabel('N', '#fff6c2', 0.45);
+  nLab.position.copy(mathToThree(0, 0, 1.14));
+  staticGroup.add(nLab);
+
+  const south = new THREE.Mesh(
+    new THREE.SphereGeometry(0.038, 14, 12),
+    new THREE.MeshBasicMaterial({ color: 0x7ed957 })
+  );
+  south.position.copy(mathToThree(0, 0, -1));
+  staticGroup.add(south);
+  const sLab = makeLabel('S → 0', '#7ed957', 0.7);
+  sLab.position.copy(mathToThree(0.12, 0, -1.12));
+  staticGroup.add(sLab);
+
+  const zAxis = lineFrom([mathToThree(0, 0, -1.35), mathToThree(0, 0, 1.35)], 0x8aa0b8, 0.55);
+  staticGroup.add(zAxis);
+}
+
+function buildPlane(R) {
+  const old = staticGroup.getObjectByName('plane');
+  if (old) staticGroup.remove(old);
+  const plane = new THREE.Group();
+  plane.name = 'plane';
+
+  const disc = new THREE.Mesh(
+    new THREE.CircleGeometry(R, 64),
+    new THREE.MeshBasicMaterial({
+      color: 0x102033, transparent: true, opacity: 0.35,
+      side: THREE.DoubleSide, depthWrite: false
+    })
+  );
+  disc.rotation.x = -Math.PI / 2;
+  plane.add(disc);
+
+  const rim = [];
+  for (let i = 0; i <= 64; i++) {
+    const a = 2 * Math.PI * i / 64;
+    rim.push(mathToThree(R * Math.cos(a), R * Math.sin(a), 0));
+  }
+  plane.add(lineFrom(rim, 0x3d7ab5, 0.7));
+
+  for (let k = -Math.floor(R); k <= Math.floor(R); k++) {
+    if (k === 0) continue;
+    plane.add(lineFrom([mathToThree(k, -R, 0), mathToThree(k, R, 0)], 0x243044, 0.35));
+    plane.add(lineFrom([mathToThree(-R, k, 0), mathToThree(R, k, 0)], 0x243044, 0.35));
+  }
+  plane.add(lineFrom([mathToThree(-R, 0, 0), mathToThree(R, 0, 0)], 0x8ec5ff, 0.7));
+  plane.add(lineFrom([mathToThree(0, -R, 0), mathToThree(0, R, 0)], 0x8ec5ff, 0.7));
+
+  const uLab = makeLabel('u', '#8ec5ff', 0.4);
+  uLab.position.copy(mathToThree(R + 0.15, 0, 0.02));
+  plane.add(uLab);
+  const vLab = makeLabel('v', '#8ec5ff', 0.4);
+  vLab.position.copy(mathToThree(0.08, R + 0.05, 0.02));
+  plane.add(vLab);
+  const infLab = makeLabel('∞ ← N', '#fff6c2', 0.75);
+  infLab.position.copy(mathToThree(R * 0.72, R * 0.72, 0.04));
+  plane.add(infLab);
+
+  staticGroup.add(plane);
+}
+
+function buildGrid(nMer, nPar, R, flatten) {
+  gridGroup.clear();
+  const thetaMin = 0.22;
+  const thetaMax = Math.PI - 0.05;
+
+  for (let i = 0; i < nMer; i++) {
+    const phi = 2 * Math.PI * i / nMer;
+    const sph = [], pln = [];
+    const segs = 64;
+    for (let j = 0; j <= segs; j++) {
+      const th = thetaMin + (thetaMax - thetaMin) * j / segs;
+      const p = spherePoint(th, phi);
+      sph.push(lerpRay(p, flatten));
+      const s = stereo(p);
+      const c = clipPlane(s.u, s.v, R);
+      if (c.ok) pln.push(mathToThree(c.u, c.v, 0.002));
+    }
+    gridGroup.add(lineFrom(sph, 0x5dade2, 0.55));
+    if (pln.length > 1) gridGroup.add(lineFrom(pln, 0x5dade2, 0.35));
+  }
+
+  for (let i = 1; i <= nPar; i++) {
+    const th = thetaMin + (thetaMax - thetaMin) * i / (nPar + 1);
+    const sph = [], pln = [];
+    const segs = 96;
+    for (let j = 0; j <= segs; j++) {
+      const phi = 2 * Math.PI * j / segs;
+      const p = spherePoint(th, phi);
+      sph.push(lerpRay(p, flatten));
+      const s = stereo(p);
+      const c = clipPlane(s.u, s.v, R);
+      if (c.ok) pln.push(mathToThree(c.u, c.v, 0.002));
+    }
+    gridGroup.add(lineFrom(sph, 0xf5a623, 0.5));
+    if (pln.length > 2) gridGroup.add(lineFrom(pln, 0xf5a623, 0.32));
+  }
+}
+
+function buildCurves(R, flatten) {
+  curveGroup.clear();
+  const loxo = [], loxoP = [];
+  const c = 0.55;
+  for (let j = 0; j <= 220; j++) {
+    const th = 0.28 + 2.55 * j / 220;
+    const phi = c * Math.log(Math.tan(th / 2) + 1e-6) * 4 + 0.4;
+    const p = spherePoint(th, phi);
+    loxo.push(lerpRay(p, flatten));
+    const s = stereo(p);
+    const cl = clipPlane(s.u, s.v, R);
+    if (cl.ok) loxoP.push(mathToThree(cl.u, cl.v, 0.004));
+  }
+  const loxoL = lineFrom(loxo, 0xc084fc, 0.95);
+  loxoL.userData.kind = 'loxo';
+  curveGroup.add(loxoL);
+  if (loxoP.length > 2) {
+    const loxoPL = lineFrom(loxoP, 0xc084fc, 0.7);
+    loxoPL.userData.kind = 'loxo';
+    curveGroup.add(loxoPL);
+  }
+
+  const tilt = [], tiltP = [];
+  const alpha = 0.72;
+  for (let j = 0; j <= 128; j++) {
+    const a = 2 * Math.PI * j / 128;
+    const x = Math.cos(a);
+    const y = Math.sin(a) * Math.cos(alpha);
+    const z = Math.sin(a) * Math.sin(alpha);
+    const p = { x, y, z };
+    if (p.z > 0.94) continue;
+    tilt.push(lerpRay(p, flatten));
+    const s = stereo(p);
+    const cl = clipPlane(s.u, s.v, R);
+    if (cl.ok) tiltP.push(mathToThree(cl.u, cl.v, 0.004));
+  }
+  const tiltL = lineFrom(tilt, 0x7ed957, 0.95);
+  tiltL.userData.kind = 'tilt';
+  curveGroup.add(tiltL);
+  if (tiltP.length > 2) {
+    const tiltPL = lineFrom(tiltP, 0x7ed957, 0.7);
+    tiltPL.userData.kind = 'tilt';
+    curveGroup.add(tiltPL);
+  }
+}
+
+function buildPoint(theta, phi, R, flatten) {
+  pointGroup.clear();
+  const p = spherePoint(theta, phi);
+  const s = stereo(p);
+  const along = lerpRay(p, flatten);
+
+  const rayPts = [mathToThree(0, 0, 1)];
+  if (isFinite(s.r) && s.r < R * 1.4) {
+    rayPts.push(mathToThree(s.u, s.v, 0));
+  } else if (isFinite(s.r)) {
+    const cl = clipPlane(s.u, s.v, R * 1.05);
+    rayPts.push(mathToThree(cl.u, cl.v, 0));
+  }
+  pointGroup.add(lineFrom(rayPts, 0xff6b6b, 0.9));
+
+  const pDot = new THREE.Mesh(
+    new THREE.SphereGeometry(0.048, 16, 12),
+    new THREE.MeshBasicMaterial({ color: 0xffc857 })
+  );
+  pDot.position.copy(along);
+  pointGroup.add(pDot);
+
+  if (isFinite(s.r)) {
+    const cl = clipPlane(s.u, s.v, R);
+    const qDot = new THREE.Mesh(
+      new THREE.SphereGeometry(0.04, 14, 12),
+      new THREE.MeshBasicMaterial({ color: 0xff5d73 })
+    );
+    qDot.position.copy(mathToThree(cl.u, cl.v, 0.01));
+    pointGroup.add(qDot);
+  }
+}
+
+const ui = {
+  theta: document.getElementById('theta'),
+  phi: document.getElementById('phi'),
+  flatten: document.getElementById('flatten'),
+  meridians: document.getElementById('meridians'),
+  parallels: document.getElementById('parallels'),
+  extent: document.getElementById('extent'),
+  showSphere: document.getElementById('showSphere'),
+  showMesh: document.getElementById('showMesh'),
+  showGrid: document.getElementById('showGrid'),
+  showPlane: document.getElementById('showPlane'),
+  showRays: document.getElementById('showRays'),
+  showPoint: document.getElementById('showPoint'),
+  showLoxo: document.getElementById('showLoxo'),
+  showTilt: document.getElementById('showTilt'),
+  spin: document.getElementById('spin')
+};
+
+function syncLabels() {
+  document.getElementById('thetaVal').textContent = Number(ui.theta.value).toFixed(2);
+  document.getElementById('phiVal').textContent = Number(ui.phi.value).toFixed(2);
+  document.getElementById('flattenVal').textContent = Number(ui.flatten.value).toFixed(2);
+  document.getElementById('meridiansVal').textContent = ui.meridians.value;
+  document.getElementById('parallelsVal').textContent = ui.parallels.value;
+  document.getElementById('extentVal').textContent = Number(ui.extent.value).toFixed(1);
+}
+
+function rebuild() {
+  const theta = +ui.theta.value;
+  const phi = +ui.phi.value;
+  const flatten = +ui.flatten.value;
+  const R = +ui.extent.value;
+  const p = spherePoint(theta, phi);
+  const s = stereo(p);
+
+  buildPlane(R);
+  buildGrid(+ui.meridians.value, +ui.parallels.value, R, flatten);
+  buildCurves(R, flatten);
+  buildPoint(theta, phi, R, flatten);
+
+  staticGroup.getObjectByName('sphereBody').visible = ui.showSphere.checked;
+  staticGroup.getObjectByName('sphereMesh').visible = ui.showMesh.checked;
+  staticGroup.getObjectByName('plane').visible = ui.showPlane.checked;
+  gridGroup.visible = ui.showGrid.checked;
+  pointGroup.visible = ui.showPoint.checked;
+  pointGroup.children.forEach(ch => {
+    if (ch.type === 'Line') ch.visible = ui.showRays.checked;
+  });
+  curveGroup.children.forEach(ch => {
+    ch.visible = ch.userData.kind === 'loxo' ? ui.showLoxo.checked : ui.showTilt.checked;
+  });
+
+  const w = isFinite(s.r) ? `${s.u.toFixed(3)} + ${s.v.toFixed(3)} i` : '∞';
+  const rr = isFinite(s.r) ? s.r.toFixed(3) : '∞';
+  document.getElementById('out').innerHTML =
+    `<div><span class="k">P = (sin θ cos φ, sin θ sin φ, cos θ)</span><span>${p.x.toFixed(3)}, ${p.y.toFixed(3)}, ${p.z.toFixed(3)}</span></div>` +
+    `<div><span class="k">θ, φ</span><span>${theta.toFixed(2)}, ${phi.toFixed(2)}</span></div>` +
+    `<div><span class="k">π_N(P) ∈ ℂ</span><span>${w}</span></div>` +
+    `<div><span class="k">|π_N(P)| = cot(θ/2)</span><span>${rr}</span></div>` +
+    `<div><span class="k">flatten along ray</span><span>${flatten.toFixed(2)}</span></div>`;
+}
+
+buildStatic();
+syncLabels();
+rebuild();
+
+['theta','phi','flatten','meridians','parallels','extent','showSphere','showMesh','showGrid','showPlane','showRays','showPoint','showLoxo','showTilt'].forEach(id => {
+  ui[id].addEventListener('input', () => { syncLabels(); rebuild(); });
+});
+ui.spin.addEventListener('input', syncLabels);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (ui.spin.checked) root.rotation.y += 0.003;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

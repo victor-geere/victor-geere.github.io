@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sieves for the von Mangoldt Function — First Edition</title>
+<style>
+  :root{ --ink:#17202a; --muted:#5b6b7c; --rule:#d8dee6; --bg:#fdfdfb;
+    --accent:#7a2e2e; --accent2:#1f4e79; --code:#f4f6f8; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.62 Georgia,"Iowan Old Style","Times New Roman",serif;}
+  .wrap{max-width:60rem;margin:0 auto;padding:3.2rem 1.6rem 6rem}
+  header.title{border-bottom:3px double var(--rule);padding-bottom:1.6rem;margin-bottom:2rem}
+  h1{font-size:1.62rem;line-height:1.28;margin:0 0 .5rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1rem;margin:.35rem 0 0}
+  .meta{font-size:.86rem;color:var(--muted);margin-top:1rem;line-height:1.7}
+  h2{font-size:1.22rem;margin:2.9rem 0 .9rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);color:var(--accent2)}
+  h3{font-size:1.02rem;margin:1.9rem 0 .6rem;color:var(--accent)}
+  h4{font-size:.96rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  a{color:var(--accent2)}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);padding:.08em .32em;border-radius:3px;font-size:.88em}
+  pre{background:var(--code);border:1px solid var(--rule);border-left:3px solid var(--accent2);
+      padding:.85rem 1rem;overflow-x:auto;font-size:.84rem;line-height:1.5;border-radius:4px}
+  pre code{background:none;padding:0;font-size:1em}
+  .box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:#fff;
+       padding:.9rem 1.1rem;margin:1.2rem 0;border-radius:4px}
+  .box.def{border-left-color:var(--accent2);background:#f8fafc}
+  .box.res{border-left-color:#1e6b3a;background:#f6fbf7}
+  .box h4{margin-top:0}
+  table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.44rem .6rem;text-align:left;vertical-align:top}
+  th{background:#f2f5f8;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  nav#toc{background:#f7f9fb;border:1px solid var(--rule);border-radius:5px;padding:1rem 1.3rem;margin:1.6rem 0 2.6rem}
+  nav#toc h2{margin:0 0 .5rem;border:none;font-size:1rem;color:var(--accent2)}
+  nav#toc ol{margin:.2rem 0 0;padding-left:1.4rem;columns:2;column-gap:2.4rem}
+  nav#toc li{margin:.18rem 0;break-inside:avoid}
+  nav#toc a{text-decoration:none}
+  nav#toc a:hover{text-decoration:underline}
+  .abstract{background:#fff;border:1px solid var(--rule);border-radius:5px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  .abstract h2{margin:0 0 .5rem;border:none;font-size:1rem}
+  .kw{font-size:.88rem;color:var(--muted);margin-top:.7rem}
+  ul,ol{padding-left:1.4rem} li{margin:.28rem 0}
+  hr{border:none;border-top:1px solid var(--rule);margin:2.4rem 0}
+  .small{font-size:.87rem;color:var(--muted)}
+  .refs{font-size:.93rem} .refs li{margin:.5rem 0}
+  .eq{display:block;margin:.9rem 0 .9rem 1.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.9rem}
+  .thm{background:#f8fafc;border:1px solid var(--rule);border-radius:4px;padding:.7rem 1rem;margin:1rem 0}
+  .thm b{color:var(--accent2)}
+  footer{margin-top:3.5rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.85rem;color:var(--muted)}
+  @media print{ body{background:#fff;font-size:11pt} nav#toc{break-inside:avoid} h2{break-after:avoid}
+    pre{break-inside:avoid} .box,.thm{break-inside:avoid} }
+  @media (max-width:640px){ nav#toc ol{columns:1} .wrap{padding:2rem .9rem 4rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>Sieves for the von Mangoldt Function</h1>
+  <p class="sub">Exact computation of <code>&Lambda;(n)</code> for all <code>n &le; N</code>, with proofs and certified checks.</p>
+  <p class="meta">
+    <strong>First edition.</strong> &nbsp; Subject class: 11Nxx (elementary and sieve methods),
+    11-04 (explicit calculations). &nbsp; All algorithms below return exact data; every displayed
+    value is accompanied by a check that can be re-run from the text.
+  </p>
+</header>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>
+The von Mangoldt function <code>&Lambda;</code> is the arithmetic function that is
+<code>log p</code> on the powers of a prime <code>p</code> and <code>0</code> elsewhere. It is the
+coefficient function of the logarithmic derivative of the Riemann zeta function, the increment of
+Chebyshev&rsquo;s function <code>&psi;</code>, and the weight on the prime side of the explicit
+formula. This note gives three elementary sieves that produce the entire table
+<code>(&Lambda;(1),&hellip;,&Lambda;(N))</code> &mdash; a prime-power marking sieve, a divisor-sum sieve,
+and a M&ouml;bius-convolution sieve &mdash; with complete correctness proofs and complexity bounds. The
+divisor-sum sieve is also given in an <em>integer form</em> in which the primality of
+<code>N(n) := n / &prod;<sub>d|n,&nbsp;d&lt;n</sub> exp&thinsp;&Lambda;(d)</code> is decided by integer
+arithmetic alone, logarithms being needed only to report the value. We prove the divisor identity
+<code>&sum;<sub>d|n</sub> &Lambda;(d) = log n</code>, its M&ouml;bius inversion
+<code>&Lambda; = &mu; * log</code>, the identity <code>&psi;(x) = log lcm(1,&hellip;,&lfloor;x&rfloor;)</code>,
+and <code>&psi;(x) = &sum;<sub>k&ge;1</sub> &theta;(x<sup>1/k</sup>)</code>; we record a table of
+<code>&psi;(10<sup>k</sup>)</code> for <code>k &le; 6</code> and verify the exact identities
+<code>exp &psi;(10) = 2520 = lcm(1,&hellip;,10)</code> and <code>exp &psi;(20) = 232792560 = lcm(1,&hellip;,20)</code>.
+</p>
+<p class="kw"><strong>Keywords:</strong> von Mangoldt function; von Mangoldt sieve; Chebyshev
+<code>&psi;</code> and <code>&theta;</code>; Euler product; logarithmic derivative of <code>&zeta;</code>;
+M&ouml;bius inversion; linear sieve; additive functions; least common multiple.</p>
+</div>
+
+<nav id="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s1">1. Introduction</a></li>
+  <li><a href="#s2">2. The function &Lambda; and its identities</a></li>
+  <li><a href="#s3">3. Three exact sieves</a></li>
+  <li><a href="#s4">4. Exactness and checks</a></li>
+  <li><a href="#s5">5. Applications</a></li>
+  <li><a href="#s6">6. Summary and complexity</a></li>
+  <li><a href="#s7">7. Supporting files</a></li>
+  <li><a href="#refs">References</a></li>
+</ol>
+</nav>
+
+<h2 id="s1">1. Introduction</h2>
+<p>
+Let <code>&Lambda; : &#8469; &rarr; &#8477;</code> be the function introduced by von Mangoldt [1] in his
+proof that Chebyshev&rsquo;s function has the asymptotic behaviour predicted by the prime number theorem:
+</p>
+<span class="eq">&Lambda;(1) = 0, &nbsp;&nbsp; &Lambda;(n) = log p &nbsp;if&nbsp; n = p<sup>k</sup> (p prime, k &ge; 1), &nbsp;&nbsp; &Lambda;(n) = 0 &nbsp;otherwise.</span>
+<p>
+Three properties make it ubiquitous. First, its summatory function is Chebyshev&rsquo;s
+<code>&psi;</code>, and <code>&psi;(x) &sim; x</code> is equivalent to the prime number theorem [4, 5].
+Second, it is the coefficient function of <code>&minus;&zeta;&prime;/&zeta;</code>:
+<code>&minus;&zeta;&prime;(&sigma;)/&zeta;(&sigma;) = &sum;<sub>n&ge;1</sub> &Lambda;(n) n<sup>&minus;&sigma;</sup></code>
+for <code>&sigma; &gt; 1</code>. Third, it weights the prime side of the explicit formula and of
+Chebyshev-type bounds [6, 7].
+</p>
+<p>
+The practical problem addressed here is entirely elementary and completely solvable: <em>produce the
+whole table <code>&Lambda;(1),&hellip;,&Lambda;(N)</code> exactly, and cheaply</em>. Because
+<code>&Lambda;(n)</code> is <code>0</code> or the logarithm of a prime, the table carries only
+integer information; only the final presentation as a real number involves a logarithm. We give three
+sieves and prove them correct:
+</p>
+<ol>
+  <li>the <strong>prime-power marking sieve</strong> (&sect;3.1), simplest and fastest;</li>
+  <li>the <strong>divisor-sum sieve</strong> (&sect;3.2), which needs no factoring and has an exact
+      integer form;</li>
+  <li>the <strong>M&ouml;bius-convolution sieve</strong> (&sect;3.3), a direct realisation of
+      <code>&Lambda; = &mu; * log</code>.</li>
+</ol>
+<p>
+Section&nbsp;3.4 recalls the linear sieve for multiplicative functions and explains why it does not by
+itself cover <code>&Lambda;</code> &mdash; a point that matters when choosing an implementation.
+Section&nbsp;4 collects the exact identities that make each output checkable, and &sect;5 lists the
+standard uses.
+</p>
+
+<h2 id="s2">2. The function &Lambda; and its identities</h2>
+
+<h3>2.1 Support and elementary description</h3>
+<div class="thm">
+<p><b>Proposition 2.1 (support).</b> <code>&Lambda;(n) &ne; 0</code> if and only if <code>n</code> is a
+power of a prime. Moreover <code>&Lambda;(p<sup>k</sup>) = log p</code> for every <code>k &ge; 1</code>:
+<code>&Lambda;</code> is constant along the powers of each prime.</p>
+</div>
+<p><b>Proof.</b> Immediate from the definition: the prime powers <code>p<sup>k</sup></code> with
+<code>p</code> fixed have the same logarithm <code>log p</code>, and every
+<code>n</code> with at least two distinct prime divisors is assigned <code>0</code>. &#9633;</p>
+
+<h3>2.2 The divisor identity and M&ouml;bius inversion</h3>
+<div class="thm">
+<p><b>Proposition 2.2 (divisor identity).</b> For every <code>n &ge; 1</code>,
+</p>
+<span class="eq">&sum;<sub>d|n</sub> &Lambda;(d) = log n.</span>
+</div>
+<p><b>Proof.</b> For <code>n = 1</code> both sides are <code>0</code>. Let
+<code>n = &prod;<sub>i=1</sub><sup>r</sup> p<sub>i</sub><sup>a<sub>i</sub></sup></code> be the prime
+factorization. A divisor <code>d</code> has <code>&Lambda;(d) &ne; 0</code> exactly when
+<code>d = p<sub>i</sub><sup>j</sup></code> for some <code>i</code> and <code>1 &le; j &le; a<sub>i</sub></code>
+(Proposition&nbsp;2.1), and then <code>&Lambda;(d) = log p<sub>i</sub></code>. Hence
+</p>
+<span class="eq">&sum;<sub>d|n</sub> &Lambda;(d) = &sum;<sub>i=1</sub><sup>r</sup> &sum;<sub>j=1</sub><sup>a<sub>i</sub></sup> log p<sub>i</sub> = &sum;<sub>i=1</sub><sup>r</sup> a<sub>i</sub> log p<sub>i</sub> = log n. &#9633;</span>
+<p>
+Proposition&nbsp;2.2 says <code>&Lambda; * 1 = log</code>, where <code>*</code> is Dirichlet convolution.
+M&ouml;bius inversion (<code>&mu; * 1 = &epsilon;</code>, the identity of the convolution algebra
+[5, Thm. 2.1]) turns it into an explicit formula.
+</p>
+<div class="thm">
+<p><b>Corollary 2.3.</b> For every <code>n &ge; 1</code>,</p>
+<span class="eq">&Lambda;(n) = &sum;<sub>d|n</sub> &mu;(d) log(n/d) = &minus;&sum;<sub>d|n</sub> &mu;(d) log d,</span>
+<p>that is, <code>&Lambda; = &mu; * log</code>.</p>
+</div>
+<p><b>Proof.</b> Convolve <code>&Lambda; = log * &mu;</code> with <code>1</code>; this is the M&ouml;bius
+inversion of Proposition&nbsp;2.2. The second form uses
+<code>&sum;<sub>d|n</sub>&mu;(d) = 0</code> for <code>n&gt;1</code>. &#9633;</p>
+
+<h3>2.3 Two structural remarks: &Lambda; is neither additive nor multiplicative</h3>
+<div class="thm">
+<p><b>Proposition 2.4.</b> <code>&Lambda;</code> is neither additive nor multiplicative.</p>
+</div>
+<p><b>Proof.</b> At <code>n = 6 = 2&middot;3</code>: <code>&Lambda;(6) = 0</code>, whereas
+<code>&Lambda;(2) + &Lambda;(3) = log 2 + log 3 = log 6 &ne; 0</code> and
+<code>&Lambda;(2)&Lambda;(3) = (log 2)(log 3) &ne; 0</code>. &#9633;</p>
+<p>
+This is the structural reason why the algorithms below either mark prime powers directly or use the
+divisor identity: a recurrence that multiplies or adds values attached to the <em>primes</em> of
+<code>n</code> computes an additive or multiplicative function, and <code>&Lambda;</code> is neither.
+The additive function that carries the same information on prime powers is worth naming.
+</p>
+<div class="thm">
+<p><b>Proposition 2.5 (the additive sibling).</b> Let <code>L(n) = log rad(n) = &sum;<sub>p|n</sub> log p</code>
+for <code>n &ge; 1</code> (<code>L(1) = 0</code>). Then:</p>
+<ol>
+  <li><code>L</code> is additive on coprime arguments: <code>L(mn) = L(m) + L(n)</code> when
+      <code>gcd(m,n) = 1</code>; it is the unique additive function with <code>L(p) = log p</code>;</li>
+  <li><code>L</code> and <code>&Lambda;</code> agree exactly on the prime powers and on
+      <code>n = 1</code>, and differ at every <code>n</code> with at least two distinct prime divisors;</li>
+  <li><code>&sum;<sub>n&le;x</sub> L(n) = &sum;<sub>p&le;x</sub> log p &middot; &lfloor;x/p&rfloor;</code>,
+      whereas <code>&psi;(x) = &sum;<sub>p<sup>k</sup>&le;x</sub> log p</code>.</li>
+</ol>
+</div>
+<p><b>Proof.</b> (i) <code>rad(mn) = rad(m)rad(n)</code> for coprime <code>m,n</code>; an additive
+function is determined by its values on prime powers, and <code>L(p<sup>k</sup>) = log p = L(p)</code>.
+(ii) If <code>n = p<sup>k</sup></code> then <code>rad(n) = p</code> and <code>L(n) = log p = &Lambda;(n)</code>;
+if <code>n</code> has <code>r &ge; 2</code> distinct prime divisors then <code>&Lambda;(n) = 0</code> while
+<code>L(n) &gt; 0</code>. (iii) Exchange the order of summation:
+<code>&sum;<sub>n&le;x</sub>&sum;<sub>p|n</sub>log p = &sum;<sub>p&le;x</sub>log p &middot; #{n &le; x : p | n} = &sum;<sub>p&le;x</sub>log p &middot; &lfloor;x/p&rfloor;</code>. &#9633;</p>
+<p class="small">
+Proposition&nbsp;2.5 is a statement about two different functions and their exact domains of
+agreement; it is the reason the integer form of &sect;3.2 tests an integer against <code>1</code> rather
+than testing an additive recurrence.
+</p>
+
+<h3>2.4 Chebyshev&rsquo;s functions</h3>
+<p>
+Define <code>&psi;(x) = &sum;<sub>n&le;x</sub> &Lambda;(n)</code> and
+<code>&theta;(x) = &sum;<sub>p&le;x</sub> log p</code>.
+</p>
+<div class="thm">
+<p><b>Proposition 2.6.</b> For every real <code>x &ge; 1</code>,</p>
+<span class="eq">&psi;(x) = &sum;<sub>p<sup>k</sup>&le;x</sub> log p = log lcm(1,2,&hellip;,&lfloor;x&rfloor;).</span>
+</div>
+<p><b>Proof.</b> Every prime power <code>p<sup>k</sup> &le; x</code> satisfies <code>p &le; &lfloor;x&rfloor;</code>,
+and <code>p<sup>k</sup> &le; &lfloor;x&rfloor;</code> conversely. Hence
+<code>&psi;(x) = &sum;<sub>p &le; &lfloor;x&rfloor;</sub> (max{k : p<sup>k</sup> &le; &lfloor;x&rfloor;}) log p = log &prod;<sub>p&le;&lfloor;x&rfloor;</sub> p<sup>&lfloor;log<sub>p</sub>&lfloor;x&rfloor;&rfloor;</sup></code>,
+and the last product is the least common multiple of <code>1,&hellip;,&lfloor;x&rfloor;</code>. &#9633;</p>
+<div class="thm">
+<p><b>Proposition 2.7.</b> For every <code>x &ge; 1</code>,
+<code>&psi;(x) = &sum;<sub>k&ge;1</sub> &theta;(x<sup>1/k</sup>)</code>, the sum being finite (all terms with
+<code>k &gt; log<sub>2</sub> x</code> vanish).</p>
+</div>
+<p><b>Proof.</b> Group the prime powers in Proposition&nbsp;2.6 by the exponent <code>k</code>: the
+<code>k</code>-th group is <code>&sum;<sub>p &le; x<sup>1/k</sup></sub> log p = &theta;(x<sup>1/k</sup>)</code>. &#9633;</p>
+
+<h3>2.5 The Dirichlet series</h3>
+<div class="thm">
+<p><b>Proposition 2.8.</b> For <code>Re s &gt; 1</code>,</p>
+<span class="eq">&minus;&zeta;&prime;(s)/&zeta;(s) = &sum;<sub>n&ge;1</sub> &Lambda;(n) n<sup>&minus;s</sup>.</span>
+</div>
+<p><b>Proof.</b> Absolute convergence for <code>Re s &gt; 1</code> allows termwise differentiation of
+the Euler product. Taking logarithms,
+<code>log &zeta;(s) = &sum;<sub>p</sub> &minus;log(1 &minus; p<sup>&minus;s</sup>) = &sum;<sub>p</sub>&sum;<sub>k&ge;1</sub> p<sup>&minus;ks</sup>/k</code>,
+and differentiating gives
+<code>&minus;&zeta;&prime;(s)/&zeta;(s) = &sum;<sub>p</sub>&sum;<sub>k&ge;1</sub> (log p) p<sup>&minus;ks</sup> = &sum;<sub>n&ge;1</sub>&Lambda;(n)n<sup>&minus;s</sup></code>. &#9633;</p>
+
+<h2 id="s3">3. Three exact sieves</h2>
+<p>
+Throughout, <code>N &ge; 2</code> is the table bound and <code>log</code> denotes the natural
+logarithm. Each algorithm fills an array <code>lam[1..N]</code>. We prove each one returns
+<code>lam[n] = &Lambda;(n)</code> for every <code>n</code>.
+</p>
+
+<h3>3.1 The prime-power marking sieve</h3>
+<p>
+The definition of <code>&Lambda;</code> is a recipe: enumerate the primes, and for each prime mark its
+powers. Primality is obtained from the ordinary sieve of Eratosthenes.
+</p>
+<pre><code>def von_mangoldt(N):
+    lam  = [0.0] * (N + 1)          # lam[n] will hold Lambda(n)
+    is_p = [True] * (N + 1)         # Eratosthenes table
+    for p in range(2, N + 1):
+        if is_p[p]:
+            pk = p
+            while pk &lt;= N:          # mark p, p^2, p^3, ... 
+                lam[pk] = log(p)    # Lambda(p^k) = log p
+                pk *= p
+            for m in range(p * p, N + 1, p):
+                is_p[m] = False
+    return lam</code></pre>
+<div class="thm">
+<p><b>Theorem 3.1 (correctness of Algorithm A).</b> The array returned by
+<code>von_mangoldt(N)</code> satisfies <code>lam[n] = &Lambda;(n)</code> for all <code>1 &le; n &le; N</code>.</p>
+</div>
+<p><b>Proof.</b> The inner assignments write only at indices of the form <code>p<sup>k</sup></code>, so
+<code>lam[n]</code> is changed only if <code>n</code> is a prime power, and then it is set to
+<code>log p</code>. It remains to see that every prime power is written exactly once, and with the
+correct value. Let <code>n = q<sup>k</sup></code>. Since <code>is_p[q]</code> is true when the outer
+loop reaches <code>q</code> (the Eratosthenes table is correct), the while loop writes
+<code>lam[q<sup>k</sup>] = log q</code>. If also <code>n = r<sup>j</sup></code> with
+<code>r &ne; q</code> prime, then <code>n</code> would have the two distinct prime divisors
+<code>q, r</code>, contradicting <code>n = q<sup>k</sup></code>. Hence each prime power is written once,
+with the value required by the definition. &#9633;</p>
+<p>
+<strong>Complexity.</strong> The primality sieve costs <code>O(N log log N)</code> operations and
+<code>O(N)</code> bits. The marking loop runs once per prime power <code>&le; N</code>; their number is
+<code>&pi;(N) + &pi;(N<sup>1/2</sup>) + &hellip; = O(N/log N)</code>. Total time
+<code>O(N log log N)</code>, memory <code>O(N)</code> (or <code>O(N/log N)</code> bits for the prime
+table if <code>lam</code> is stored separately).
+</p>
+
+<h3>3.2 The divisor-sum sieve</h3>
+<p>
+A factoring-free alternative follows from Proposition&nbsp;2.2. Process
+<code>n = 1,2,3,&hellip;</code> in increasing order, keeping a running array
+<code>acc[n] = &sum;<sub>d|n,&nbsp;d&lt;n</sub> &Lambda;(d)</code>. At step <code>n</code> the value
+<code>&Lambda;(n)</code> is <code>log n &minus; acc[n]</code>, after which it is distributed to the
+multiples of <code>n</code>.
+</p>
+<pre><code>def von_mangoldt_divisor(N):
+    lam = [0.0] * (N + 1)
+    acc = [0.0] * (N + 1)           # acc[n] = sum_{d|n, d<n} Lambda(d)
+    for n in range(1, N + 1):
+        lam[n] = log(n) - acc[n]    # Lambda(n), by Prop. 2.2
+        for m in range(2 * n, N + 1, n):
+            acc[m] += lam[n]
+    return lam</code></pre>
+<div class="thm">
+<p><b>Theorem 3.2 (correctness of Algorithm B).</b> For all <code>1 &le; n &le; N</code>,
+<code>lam[n] = &Lambda;(n)</code>.</p>
+</div>
+<p><b>Proof.</b> By strong induction on <code>n</code>. For <code>n = 1</code>,
+<code>acc[1] = 0</code> and <code>lam[1] = log 1 = 0</code>. For <code>n &ge; 2</code>, assume the claim
+for all <code>d &lt; n</code>. Every proper divisor <code>d</code> of <code>n</code> is
+<code>&lt; n</code>, and at its own step it added <code>&Lambda;(d)</code> to <code>acc[n]</code>; no
+other contribution is made. Hence <code>acc[n] = &sum;<sub>d|n,&nbsp;d&lt;n</sub> &Lambda;(d)</code>, and
+Proposition&nbsp;2.2 gives
+<code>log n &minus; acc[n] = &sum;<sub>d|n</sub>&Lambda;(d) &minus; &sum;<sub>d|n,d&lt;n</sub>&Lambda;(d) = &Lambda;(n)</code>. &#9633;</p>
+<p><strong>Complexity.</strong> The inner loop makes <code>&sum;<sub>n&le;N</sub>(&lfloor;N/n&rfloor; &minus; 1) = O(N log N)</code>
+additions, and no multiplications; memory <code>O(N)</code>.
+</p>
+
+<h4>The integer form of the divisor-sum sieve</h4>
+<p>
+Algorithm&nbsp;B can be carried out in exact integer arithmetic. Exponentiate
+Proposition&nbsp;2.2:
+</p>
+<span class="eq">&prod;<sub>d|n</sub> exp &Lambda;(d) = n, &nbsp;&nbsp; hence &nbsp;&nbsp; exp &Lambda;(n) = n / P(n), &nbsp;&nbsp; P(n) := &prod;<sub>d|n,&nbsp;d&lt;n</sub> exp &Lambda;(d).</span>
+<p>
+Since <code>exp &Lambda;(d)</code> is <code>1</code> or a prime, <code>P(n)</code> is a positive integer
+and the quotient <code>N(n) := n/P(n)</code> is an integer by Proposition&nbsp;2.2. The next statement
+identifies it; its content is that <em>no logarithm and no primality test are needed to detect
+whether <code>&Lambda;(n)</code> vanishes</em>.
+</p>
+<div class="thm">
+<p><b>Theorem 3.3 (integer detection of prime powers).</b> For every <code>n &ge; 1</code>,</p>
+<span class="eq">N(n) = n / P(n) = { 1, if n is not a prime power; &nbsp; p, if n = p<sup>k</sup> is a prime power. }</span>
+<p>Consequently <code>&Lambda;(n) = 0</code> if <code>N(n) = 1</code>, and <code>&Lambda;(n) = log N(n)</code>
+otherwise, with <code>N(n)</code> prime in that case.</p>
+</div>
+<p><b>Proof.</b> By Proposition&nbsp;2.2, <code>P(n) = n/exp&Lambda;(n)</code>. If <code>n = p<sup>k</sup></code>
+then <code>exp&Lambda;(n) = p</code> and <code>N(n) = p</code>. If <code>n</code> is not a prime power then
+<code>exp&Lambda;(n) = 1</code> and <code>N(n) = n</code>. (Equivalently, every divisor
+<code>d &lt; n</code> contributing a nontrivial factor to <code>P(n)</code> is itself a prime power
+<code>p<sup>j</sup></code>, and the total <code>p</code>-adic valuation of <code>P(n)</code> is
+<code>v<sub>p</sub>(n)</code> when some other prime divides <code>n</code>, and <code>v<sub>p</sub>(n) &minus; 1</code>
+when <code>n = p<sup>k</sup></code>.) &#9633;</p>
+<pre><code>def von_mangoldt_integer(N):
+    # exact: P[n] is an integer, N(n) = n // P[n] is 1 or a prime
+    P   = [1] * (N + 1)             # P[n] = prod_{d|n, d&lt;n} exp(Lambda(d))
+    lam = [0.0] * (N + 1)
+    for n in range(2, N + 1):
+        q = n // P[n]               # integer division; divides exactly
+        if q != 1:                  # q is prime
+            lam[n] = log(q)
+        for m in range(2 * n, N + 1, n):
+            P[m] *= q               # q = exp(Lambda(n)); q = 1 is a no-op
+    return lam</code></pre>
+<p class="small">
+<strong>Example.</strong> <code>P(2)=P(3)=1</code>, so <code>N(2)=2</code>, <code>N(3)=3</code> and
+<code>&Lambda;(2)=log 2</code>, <code>&Lambda;(3)=log 3</code>. Then <code>P(6)=2&middot;3=6</code>, so
+<code>N(6)=1</code> and <code>&Lambda;(6)=0</code>; while <code>P(4)=2</code>, so <code>N(4)=2</code> and
+<code>&Lambda;(4)=log 2</code>. The integer <code>N(n)</code> always fits in <code>[1,n]</code>, so all
+updates are exact in machine integers for <code>N</code> below the word-size limit, and in arbitrary
+precision beyond it.
+</p>
+
+<h3>3.3 The M&ouml;bius-convolution sieve</h3>
+<p>
+Corollary&nbsp;2.3 offers a third route: sieve the M&ouml;bius function <code>&mu;</code> (which is
+multiplicative) and sum.
+</p>
+<pre><code>def von_mangoldt_moebius(N):
+    mu    = [0] * (N + 1); mu[1] = 1
+    primes, comp = [], [False] * (N + 1)
+    for i in range(2, N + 1):                    # linear sieve for mu
+        if not comp[i]:
+            primes.append(i); mu[i] = -1
+        for p in primes:
+            if i * p &gt; N: break
+            comp[i * p] = True
+            if i % p == 0:
+                mu[i * p] = 0                    # p^2 | i*p
+                break
+            mu[i * p] = -mu[i]
+    lam = [0.0] * (N + 1)
+    for d in range(1, N + 1):                    # Lambda = mu * log
+        if mu[d] != 0:
+            for m in range(d, N + 1, d):
+                lam[m] += mu[d] * log(m // d)
+    return lam</code></pre>
+<div class="thm">
+<p><b>Proposition 3.4.</b> The returned array satisfies <code>lam[n] = &Lambda;(n)</code> for all
+<code>n &le; N</code>.</p>
+</div>
+<p><b>Proof.</b> The linear sieve returns the M&ouml;bius function [8]; the double loop accumulates
+<code>&sum;<sub>d|n</sub>&mu;(d)log(n/d)</code>, which is <code>&Lambda;(n)</code> by
+Corollary&nbsp;2.3. &#9633;</p>
+<p><strong>Complexity.</strong> The sieve is <code>O(N)</code>; the convolution is
+<code>&sum;<sub>d&le;N</sub>N/d = O(N log N)</code> operations. This route uses real logarithms of
+integers inside the convolution; for exact output it should be run in a symbolic or sufficiently
+precise arithmetic, or replaced by Algorithm&nbsp;B&prime; above, whose decisions are integral.
+</p>
+
+<h3>3.4 Why the linear sieve for multiplicative functions does not cover &Lambda;</h3>
+<p>
+For comparison, the standard linear sieve computes any <em>multiplicative</em> function
+<code>f</code> from its values on prime powers: with <code>p</code> the smallest prime factor of
+<code>i&middot;p</code>, one uses <code>f(ip) = f(i)f(p)</code> when <code>p &#8740; i</code>, and a
+separate rule involving <code>f(p<sup>k</sup>)</code> when <code>p | i</code> [8]. Multiplicativity is
+exactly what makes the recurrence close, and it is exactly what <code>&Lambda;</code> lacks
+(Proposition&nbsp;2.4). The same applies to additive functions: their linear-sieve recurrence closes
+because additivity ties the value at <code>ip</code> to the values at <code>i</code> and <code>p</code>.
+<code>&Lambda;</code> is therefore outside both families, which is why one either marks prime powers
+(Algorithm&nbsp;A) or uses the divisor identity (Algorithms&nbsp;B and&nbsp;C). The additive function
+that <em>is</em> inside the additive family is <code>L = log rad</code> of Proposition&nbsp;2.5; it is
+computed by the additive recurrence with <code>f(p<sup>k</sup>) = log p</code>, and it agrees with
+<code>&Lambda;</code> exactly on the prime powers.
+</p>
+
+<h2 id="s4">4. Exactness and checks</h2>
+<h3>4.1 What is exact</h3>
+<p>
+Algorithms&nbsp;A and&nbsp;B&prime; test primality and divisibility by integer arithmetic. Their
+<em>decisions</em> &mdash; whether <code>&Lambda;(n)</code> vanishes &mdash; are therefore exact; only
+the reporting of the nonzero value uses <code>log</code>. Algorithm&nbsp;B in its real form computes
+<code>log n &minus; acc[n]</code>; the subtraction is a difference of logarithms of integers, so it is
+exact whenever the arithmetic used for logs is symbolic, and is accurate to the working precision
+otherwise.
+</p>
+<h3>4.2 Two identities that certify the table</h3>
+<p>
+The table can be checked without external data.
+</p>
+<ol>
+  <li><strong>Per-index check (divisor identity).</strong> For every <code>n &le; N</code>, verify
+      <code>&sum;<sub>d|n</sub> &Lambda;(d) = log n</code>. Since each nonzero term is
+      <code>log p</code>, the check is equivalent to the exact integer statement
+      <code>&prod;<sub>d|n,&nbsp;&Lambda;(d)&ne;0</sub> exp&Lambda;(d) = n</code>, which can be tested
+      with integer arithmetic alone using the integer form of &sect;3.2.</li>
+  <li><strong>Sieve-against-sieve check.</strong> Run Algorithm&nbsp;A and the integer form of
+      Algorithm&nbsp;B and compare the <em>decisions</em> (zero or nonzero) and the primes reported.
+      Agreement over <code>1 &le; n &le; N</code> is a complete check of the table.</li>
+</ol>
+<h3>4.3 Chebyshev&rsquo;s function</h3>
+<p>
+Summing the table gives <code>&psi;(x)</code>. Proposition&nbsp;2.6 predicts the exact value
+<code>&psi;(x) = log lcm(1,&hellip;,&lfloor;x&rfloor;)</code>. Table&nbsp;1 lists
+<code>&psi;(10<sup>k</sup>)</code>, computed by Algorithm&nbsp;A; the last two entries illustrate the
+sieve scale.
+</p>
+<table>
+<thead><tr><th class="num">x</th><th class="num">&psi;(x)</th><th class="num">&psi;(x)/x</th></tr></thead>
+<tbody>
+<tr><td class="num">10</td><td class="num">7.83201418050546899</td><td class="num">0.78320142</td></tr>
+<tr><td class="num">100</td><td class="num">94.0453112293573922</td><td class="num">0.94045311</td></tr>
+<tr><td class="num">1 000</td><td class="num">996.68091224717524</td><td class="num">0.99668091</td></tr>
+<tr><td class="num">10 000</td><td class="num">10 013.3966932631148</td><td class="num">1.0013397</td></tr>
+<tr><td class="num">100 000</td><td class="num">100 051.564025657954</td><td class="num">1.0005156</td></tr>
+<tr><td class="num">1 000 000</td><td class="num">999 586.597495632922</td><td class="num">0.9995866</td></tr>
+</tbody>
+</table>
+<p class="small">
+<strong>Exact checks.</strong> Proposition&nbsp;2.6 gives
+<code>exp &psi;(10) = 2520 = lcm(1,&hellip;,10)</code> and
+<code>exp &psi;(20) = 232792560 = lcm(1,&hellip;,20)</code>; both identities hold for the computed table.
+The convergence of <code>&psi;(x)/x</code> to <code>1</code> visible in the last column is the prime
+number theorem [4, 5]; quantitative versions are in [7].
+</p>
+
+<h2 id="s5">5. Applications</h2>
+<h3>5.1 Chebyshev&rsquo;s bounds and the prime number theorem</h3>
+<p>
+The elementary estimates <code>c<sub>1</sub>x &le; &psi;(x) &le; c<sub>2</sub>x</code> and
+<code>&theta;(x) &le; c x</code> are obtained by partial summation from Chebyshev&rsquo;s function
+[4, 5, 7]; with Table&nbsp;1 one can calibrate them. The equivalence
+<code>&psi;(x) &sim; x &hArr; &pi;(x) &sim; x/log x</code> is the prime number theorem, proved by
+Hadamard and de la Vall&eacute;e Poussin and by several elementary routes [4, 5, 10].
+</p>
+<h3>5.2 The Euler product and the explicit formula</h3>
+<p>
+Proposition&nbsp;2.8 identifies the table with the coefficients of
+<code>&minus;&zeta;&prime;/&zeta;</code>. In the explicit formula, the prime side is
+</p>
+<span class="eq">&sum;<sub>n&ge;2</sub> (&Lambda;(n)/&radic;n) (g(log n) + g(&minus;log n))</span>
+<p>
+for an even test function <code>g</code>; the table supplies every coefficient <code>&Lambda;(n)</code>
+exactly, and partial summation with Chebyshev&rsquo;s bound
+<code>&psi;(x) &le; (log 4 + 4)x</code> [7] controls the truncation. The same table gives
+Mertens-type sums by grouping on the sign of <code>&mu;</code>.
+</p>
+<h3>5.3 Least common multiples and binomial coefficients</h3>
+<p>
+Proposition&nbsp;2.6 reads <code>lcm(1,&hellip;,n) = exp &psi;(n)</code>, so the sieve also computes the
+least common multiple table. This is the starting point for the classical estimates of
+<code>lcm(1,&hellip;,n)</code> and of the denominators of binomial coefficients [3, §22].
+</p>
+<h3>5.4 Normal order of additive functions</h3>
+<p>
+The additive sibling <code>L = log rad</code> of Proposition&nbsp;2.5 satisfies
+<code>L(n) = &sum;<sub>p|n</sub>log p</code>; the distribution of such sums over
+<code>n &le; x</code> is the Erd&#337;s&ndash;Kac circle of ideas [9], and the exact identity of
+Proposition&nbsp;2.5(iii) is the first term in that analysis.
+</p>
+
+<h2 id="s6">6. Summary and complexity</h2>
+<table>
+<thead><tr><th>algorithm</th><th>output</th><th>arithmetic</th><th>time</th><th>memory</th></tr></thead>
+<tbody>
+<tr><td>A. prime-power marking</td><td><code>&Lambda;(n)</code></td><td>integer decisions, <code>log</code> to report</td><td><code>O(N log log N)</code></td><td><code>O(N)</code></td></tr>
+<tr><td>B. divisor sum</td><td><code>&Lambda;(n)</code></td><td>real (symbolic for exactness)</td><td><code>O(N log N)</code></td><td><code>O(N)</code></td></tr>
+<tr><td>B&prime;. divisor sum, integer form</td><td><code>&Lambda;(n)</code></td><td>exact integers, <code>log</code> to report</td><td><code>O(N log N)</code></td><td><code>O(N)</code></td></tr>
+<tr><td>C. M&ouml;bius convolution</td><td><code>&Lambda;(n)</code></td><td>real (symbolic for exactness)</td><td><code>O(N log N)</code></td><td><code>O(N)</code></td></tr>
+</tbody>
+</table>
+<p>
+For a single table the prime-power marking sieve (Algorithm&nbsp;A) is the method of choice: it is
+shortest, fastest, and its decisions are integral. The divisor-sum sieve is preferable when the
+implementation should avoid a factorization table entirely, or when <code>&Lambda;</code> is wanted
+one value at a time: Algorithm&nbsp;B&prime; computes <code>&Lambda;(n)</code> from
+<code>P(n)</code>, an integer in <code>[1,n]</code>, with the test <code>P(n) &lt; n &hArr; n</code> is a
+prime power. All three methods are certified by the divisor identity of Proposition&nbsp;2.2, which is
+the single mathematical fact underlying the computation.
+</p>
+
+<h2 id="s7">7. Supporting files</h2>
+<p>
+This folder is self-contained; the only external dependency is Mathlib, and only for the Lean
+companion.
+</p>
+<ul>
+  <li><a href="von-mangoldt-sieves.html"><code>von-mangoldt-sieves.html</code></a> &mdash; this paper.</li>
+  <li><a href="von_mangoldt_sieves.py"><code>von_mangoldt_sieves.py</code></a> &mdash; reference
+      implementation of Algorithms&nbsp;A, B, B&prime; and C in Python&nbsp;3 (standard library only),
+      with the exact divisor-identity check of &sect;4.2, the sieve-against-sieve check, the table of
+      Table&nbsp;1 and the lcm checks of &sect;4.3. Run
+      <code>python3 von_mangoldt_sieves.py 2000</code>; it exits with status <code>0</code> iff every
+      check passes.</li>
+  <li><a href="VonMangoldtSieves.lean"><code>VonMangoldtSieves.lean</code></a> &mdash; Lean&nbsp;4
+      companion, importing Mathlib only: Propositions&nbsp;2.1, 2.2, 2.4 and Corollary&nbsp;2.3
+      (<code>support_ne_zero_iff</code>, <code>apply_prime_pow</code>,
+      <code>divisor_identity</code>, <code>moebius_convolution</code>, <code>not_additive</code>,
+      <code>not_multiplicative</code>, <code>le_log</code>).</li>
+  <li><a href="README.md"><code>README.md</code></a> &mdash; contents and instructions.</li>
+</ul>
+<h2 id="refs">References</h2>
+<ol class="refs">
+  <li>H. von Mangoldt, <em>Zu Riemanns Abhandlung &ldquo;Ueber die Anzahl der Primzahlen unter einer
+      gegebenen Gr&ouml;sse&rdquo;</em>, Journal f&uuml;r die reine und angewandte Mathematik
+      <strong>114</strong> (1895), 255&ndash;305.</li>
+  <li>E. C. Titchmarsh, <em>The Theory of the Riemann Zeta-Function</em>, 2nd edition, revised by
+      D. R. Heath-Brown, Oxford University Press, 1986; Chapter III.</li>
+  <li>G. H. Hardy and E. M. Wright, <em>An Introduction to the Theory of Numbers</em>, 6th edition,
+      Oxford University Press, 2008; Chapters XVI&ndash;XXII.</li>
+  <li>A. E. Ingham, <em>The Distribution of Prime Numbers</em>, Cambridge Tracts in Mathematics 30,
+      Cambridge University Press, 1932.</li>
+  <li>T. M. Apostol, <em>Introduction to Analytic Number Theory</em>, Undergraduate Texts in
+      Mathematics, Springer, 1976; Chapters 2 and 3.</li>
+  <li>H. L. Montgomery and R. C. Vaughan, <em>Multiplicative Number Theory I: Classical Theory</em>,
+      Cambridge Studies in Advanced Mathematics 97, Cambridge University Press, 2007.</li>
+  <li>J. B. Rosser and L. Schoenfeld, <em>Approximate formulas for some functions of prime numbers</em>,
+      Illinois Journal of Mathematics <strong>6</strong> (1962), 64&ndash;94; and
+      L. Schoenfeld, <em>Sharper bounds for the Chebyshev functions &theta;(x) and &psi;(x), II</em>,
+      Mathematics of Computation <strong>30</strong> (1976), 337&ndash;360.</li>
+  <li>P. Pritchard, <em>Linear prime-number sieves: a family tree</em>, Science of Computer Programming
+      <strong>9</strong> (1987), 17&ndash;35.</li>
+  <li>P. Erd&#337;s and M. Kac, <em>The Gaussian law of errors in the theory of additive number
+      theoretic functions</em>, American Journal of Mathematics <strong>62</strong> (1940),
+      738&ndash;742.</li>
+  <li>D. Zagier, <em>Newman&rsquo;s short proof of the prime number theorem</em>, American Mathematical
+      Monthly <strong>104</strong> (1997), 705&ndash;708.</li>
+</ol>
+
+<footer>
+  <p>
+    <em>Sieves for the von Mangoldt Function</em> &mdash; first edition. Elementary and
+    self-contained; all propositions are proved in the text. The numerical table was produced by the
+    prime-power marking sieve of &sect;3.1 and satisfies the exact checks of &sect;4.2 and &sect;4.3.
+    Supporting files in this folder:
+    <a href="von_mangoldt_sieves.py"><code>von_mangoldt_sieves.py</code></a> and
+    <a href="VonMangoldtSieves.lean"><code>VonMangoldtSieves.lean</code></a> &mdash; see &sect;7.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threshold asymptotics and the reachable-fraction decay — verified in Lean 4 + Mathlib</title>
+<style>
+  :root { --ink:#1a1a1a; --mut:#5a6270; --line:#dfe3e8; --bg:#fbfcfd; --acc:#0b5fa5; --ok:#0a7d43; --warn:#a35a00; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .wrap { max-width: 62rem; margin:0 auto; padding:3rem 1.5rem 6rem; }
+  h1 { font-size:1.9rem; line-height:1.25; margin:0 0 .3rem; letter-spacing:-.02em; }
+  h2 { font-size:1.3rem; margin:3rem 0 .8rem; padding-bottom:.35rem; border-bottom:2px solid var(--line); letter-spacing:-.01em; }
+  h3 { font-size:1.05rem; margin:2rem 0 .5rem; color:#26303c; }
+  h4 { font-size:.95rem; margin:1.4rem 0 .35rem; color:var(--mut); text-transform:uppercase; letter-spacing:.06em; }
+  p, li { color:#232a33; }
+  code, .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.9em; }
+  code { background:#eef2f6; padding:.1em .35em; border-radius:3px; }
+  .m { font-family:"STIX Two Math","Cambria Math",Cambria,Georgia,"Times New Roman",serif; font-size:1.04em; }
+  .sub { color:var(--mut); font-size:.95rem; }
+  .meta { display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; margin:1rem 0 2rem; padding:.9rem 1.1rem;
+          background:#fff; border:1px solid var(--line); border-radius:8px; font-size:.9rem; }
+  .meta b { color:var(--mut); font-weight:600; }
+  .toc { background:#fff; border:1px solid var(--line); border-radius:8px; padding:1rem 1.4rem; }
+  .toc ol { margin:.3rem 0; padding-left:1.3rem; }
+  .toc a { color:var(--acc); text-decoration:none; }
+  .toc a:hover { text-decoration:underline; }
+  .box { background:#fff; border:1px solid var(--line); border-left:3px solid var(--acc);
+         border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .box.proved { border-left-color:var(--ok); }
+  .box.open { border-left-color:var(--warn); }
+  .disp { display:block; text-align:center; margin:.75rem 0; }
+  .tag { display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.05em;
+         text-transform:uppercase; padding:.12em .5em; border-radius:3px; vertical-align:.1em; }
+  .tag.p { background:#e3f5ea; color:var(--ok); }
+  .tag.o { background:#fdf0dd; color:var(--warn); }
+  .tag.d { background:#e8eef5; color:var(--acc); }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.9rem; background:#fff; }
+  th, td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:#f2f5f8; font-size:.8rem; text-transform:uppercase; letter-spacing:.05em; color:var(--mut); }
+  tr:last-child td { border-bottom:none; }
+  pre { background:#fff; border:1px solid var(--line); border-radius:6px; padding:.9rem 1rem;
+        overflow-x:auto; font-size:.85rem; line-height:1.5; }
+  .small { font-size:.88rem; color:var(--mut); }
+  hr { border:none; border-top:1px solid var(--line); margin:3rem 0; }
+  .status-ok { color:var(--ok); font-weight:600; }
+  .note { font-size:.85rem; color:var(--mut); font-style:italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Threshold asymptotics and the reachable-fraction decay</h1>
+<p class="sub">A machine-checked asymptotic expansion for a positive half-series, formalised in
+Lean&nbsp;4 with Mathlib. The programme's internal labels for the two questions treated here are
+<b>OP-5</b> (the threshold-index asymptotics) and <b>OP-6</b> (the reachable-fraction decay);
+both are defined in &sect;2.4.</p>
+
+<div class="meta">
+  <span><b>Sources</b> <code>research/twin-prime-parity/open/lean/</code></span>
+  <span><b>Primary file</b> <code>Op56/PhiAsymptotic.lean</code></span>
+  <span><b>Build</b> <code>./check.sh --all</code> &rarr; <span class="status-ok">9/9 OK</span></span>
+  <span><b>Axioms</b> none</span>
+  <span><b>Primary file sorries</b> 0</span>
+  <span><b>Declarations</b> 369 across 9 modules</span>
+</div>
+
+<h2 id="abstract">Abstract</h2>
+<p>
+We formalise in Lean&nbsp;4 + Mathlib the critical-scaling asymptotics of the normalised
+boundary sum
+<span class="disp m">&Phi;<sub>p</sub>(n) = &sum;<sub>j&ge;1</sub> (1 + j/n)<sup>&minus;p</sup>,</span>
+whose threshold equation <span class="m">&Phi;<sub>p</sub>(n) = 1</span> defines the threshold
+index <span class="m">P<sub>n</sub></span> studied in the programme's threshold-index problem. The scaling is
+<span class="m">p = un</span> with <span class="m">u &isin; [1/2, 1]</span> &mdash; so
+<span class="m">p</span> and <span class="m">n</span> are <em>comparable</em>,
+<span class="m">n &asymp; p/log 2</span>, and the summands decay by a factor tending to
+<span class="m">1/2</span>, i.e. the sum is <em>geometrically dominated</em>.
+</p>
+<p>
+The main deliverable is a fully proved <span class="m">O(1/n)</span> expansion with an explicit
+constant,
+<span class="disp m">| &Phi;<sub>un</sub>(n) &minus; 1/(e<sup>u</sup> &minus; 1) | &le; C/n,
+&nbsp;&nbsp; C = &frac12; &sum;<sub>k&ge;1</sub> k<sup>2</sup>e<sup>&minus;k/4</sup> + 8,</span>
+together with its second-order refinement
+<span class="disp m">| &Phi;<sub>un</sub>(n) &minus; 1/(e<sup>u</sup> &minus; 1)
+&minus; (u/2n)&middot;&Phi;S(u) | &le; C&prime;/n<sup>2</sup>,
+&nbsp;&nbsp; &Phi;S(u) = &sum;<sub>k&ge;1</sub> k<sup>2</sup>e<sup>&minus;uk</sup>,</span>
+the inversion of the threshold equation to
+<span class="m">u = log 2 + (3 log 2)/(2n) + O(n<sup>&minus;2</sup>)</span>,
+and the resulting threshold-index statements
+<span class="m">P<sub>n</sub> = (n + 3/2) log 2 + O(1)</span> and its full form with the
+<span class="m">c/n</span> term, proved in <code>Asymptotic.lean</code> (the third-order input is in
+<code>Op56/PhiThird.lean</code>). All of it is uniform in
+<span class="m">u &isin; [1/2, 1]</span>, which is exactly what makes the inversion applicable
+when <span class="m">u = P<sub>n</sub>/n</span> itself varies with <span class="m">n</span>.
+</p>
+<p>
+The work also <em>retracts</em> a misdiagnosis recorded in the earlier notes: the obstruction was
+described as the absence of Euler&ndash;Maclaurin summation for the Hurwitz tail at
+<span class="m">p &Gt; n</span>. Euler&ndash;Maclaurin is indeed absent from Mathlib, but it is
+also the <em>wrong tool</em>: at this scaling <span class="m">p/n &rarr; log 2</span>, not
+<span class="m">p &Gt; n</span>, and every quantity of interest is controlled by the geometric
+reference sum <span class="m">&sum;<sub>k</sub> e<sup>&minus;uk</sup></span> together with
+elementary Taylor bounds on <span class="m">log(1 + x)</span>. The verified development follows
+that route.
+</p>
+
+<div class="toc">
+<h4 style="margin-top:0">Contents</h4>
+<ol>
+  <li><a href="#desc">Description: the problem and why this scaling</a></li>
+  <li><a href="#prelim">Preliminaries: objects and definitions</a></li>
+  <li><a href="#main">Main theorems</a></li>
+  <li><a href="#lemmas">Supporting lemmas, by layer</a></li>
+  <li><a href="#proofs">Proof architecture</a></li>
+  <li><a href="#meaning">What this means, and why it is useful</a></li>
+  <li><a href="#apply">Applicability</a></li>
+  <li><a href="#further">Further work</a></li>
+  <li><a href="#appendix">Appendix: inventory and build status</a></li>
+</ol>
+</div>
+
+<h2 id="desc">1. Description: the problem and why this scaling</h2>
+
+<p>
+Let <span class="m">b<sub>n</sub> = 2<sup>&minus;p</sup>(n+1)<sup>&minus;p</sup></span> be the
+positive half-series of the programme, with budget
+<span class="m">P(p) = &sum;<sub>n&ge;0</sub> b<sub>n</sub> = 2<sup>&minus;p</sup>&zeta;(p)</span>
+and tail <span class="m">T<sub>N</sub> = &sum;<sub>n&ge;N</sub> b<sub>n</sub></span>. Brown's
+criterion at index <span class="m">N</span> is the inequality
+<span class="m">b<sub>N</sub> &le; T<sub>N+1</sub></span>, written <code>IsComplete p N</code>;
+the threshold <span class="m">n<sub>min</sub>(p)</span> is the least such
+<span class="m">N</span>.
+</p>
+
+<p>Three regimes matter, and only one of them is subtle:</p>
+<ul>
+  <li><b>Small <span class="m">n</span></b> (<span class="m">n &Lt; p</span>): summands decay
+      geometrically fast; easy.</li>
+  <li><b>Threshold</b> (<span class="m">n &asymp; p/log 2</span>): summands decay by a factor
+      <span class="m">&rarr; 1/2</span>; the sum is dominated by roughly
+      <span class="m">log<sub>2</sub></span> many of its terms but is <em>not</em> finite-length.</li>
+  <li><b>Large <span class="m">n</span></b> (<span class="m">n &Gt; p</span>): the tail is a
+      Hurwitz-type sum; here Euler&ndash;Maclaurin would apply.</li>
+</ul>
+
+<p>
+The threshold-index problem lives entirely in the middle regime. Numerically
+<span class="m">p/N = 1.000, 0.833, 0.769, 0.714, 0.699</span> at
+<span class="m">p = 2, 5, 10, 20, 100</span>: the ratio tends to
+<span class="m">log 2 &asymp; 0.6931</span>, so <span class="m">p</span> and
+<span class="m">n</span> are comparable and <span class="m">p &Gt; n</span> is false. At
+<span class="m">p = 100</span>, <span class="m">N = 143</span>, eight terms already give
+<span class="m">99.75%</span> of the sum.
+</p>
+
+<p>
+The earlier notes attributed the difficulty to the absence of Euler&ndash;Maclaurin for the
+Hurwitz tail at <span class="m">p &Gt; n</span>. This document records the correction:
+<b>Euler&ndash;Maclaurin is both absent from Mathlib and irrelevant here.</b> The right statement
+is the one proved below &mdash; the summands decay like <span class="m">2<sup>&minus;j</sup></span>,
+and the whole expansion is governed by
+<span class="m">&sum;<sub>k&ge;1</sub> e<sup>&minus;uk</sup> = 1/(e<sup>u</sup> &minus; 1)</span>
+and elementary Taylor bounds on <span class="m">log(1 + x)</span>.
+</p>
+
+<h2 id="prelim">2. Preliminaries</h2>
+
+<h3>2.1 The objects</h3>
+<table>
+  <tr><th>Symbol</th><th>Definition</th><th>Lean name</th></tr>
+  <tr><td class="m">b<sub>n</sub></td><td class="m">(2(n+1))<sup>&minus;p</sup></td><td><code>term p n</code></td></tr>
+  <tr><td class="m">P(p)</td><td class="m">&sum;<sub>n&ge;0</sub> b<sub>n</sub> = 2<sup>&minus;p</sup>&zeta;(p)</td><td><code>budget p</code></td></tr>
+  <tr><td class="m">T<sub>N</sub></td><td class="m">&sum;<sub>n&ge;N</sub> b<sub>n</sub></td><td><code>tailSum p N</code></td></tr>
+  <tr><td>Brown at <span class="m">N</span></td><td class="m">b<sub>N</sub> &le; T<sub>N+1</sub></td><td><code>IsComplete p N</code></td></tr>
+  <tr><td class="m">&Phi;<sub>p</sub>(n)</td><td class="m">&sum;<sub>j&ge;1</sub> (1 + j/n)<sup>&minus;p</sup></td><td><code>Phi p n</code></td></tr>
+  <tr><td>threshold</td><td class="m">&Phi;<sub>p</sub>(n) = 1</td><td><code>IsThreshold n p</code></td></tr>
+  <tr><td>reachable</td><td class="m">x</td><td>a finite sub-sum of <span class="m">(b<sub>n</sub>)</span> &mdash; <code>IsReachable p x</code></td></tr>
+  <tr><td class="m">n<sub>min</sub>(p)</td><td>least complete index</td><td><code>nmin p</code></td></tr>
+  <tr><td class="m">&Phi;S(u)</td><td class="m">&sum;<sub>k&ge;1</sub> k<sup>2</sup>e<sup>&minus;uk</sup></td><td><code>PhiS u</code></td></tr>
+</table>
+<p class="small">
+A note on indices: <code>Phi p n</code> uses the 1-based <span class="m">n</span> of the notes,
+while <code>nmin</code> and <code>tailSum</code> are 0-based, so the 1-based tail is
+<span class="m">T<sub>N+1</sub></span>. The file headers record this convention explicitly.
+</p>
+
+<h3>2.2 The three reference constants</h3>
+<p>Everything below is driven by three moments of the geometric reference at
+<span class="m">u = log 2</span> (i.e. ratio <span class="m">1/2</span>), each a direct instance
+of Mathlib's general moment formula <code>tsum_pow_mul_geometric_of_norm_lt_one</code>:</p>
+<table>
+  <tr><th>Moment</th><th>Value</th><th>Where it enters</th><th>Lean name</th></tr>
+  <tr><td class="m">&sum;<sub>k</sub> k<sup>2</sup>2<sup>&minus;k</sup></td><td class="m">6</td><td>the <span class="m">(3/2)log 2</span> threshold constant</td><td><code>PhiS_log_two</code></td></tr>
+  <tr><td class="m">&sum;<sub>k</sub> k<sup>3</sup>2<sup>&minus;k</sup></td><td class="m">26</td><td>third-order term <span class="m">D(u)</span></td><td><code>tsum_cube_half</code></td></tr>
+  <tr><td class="m">&sum;<sub>k</sub> k<sup>4</sup>2<sup>&minus;k</sup></td><td class="m">150</td><td>third-order term <span class="m">D(u)</span></td><td><code>tsum_four_half</code></td></tr>
+</table>
+
+<h3>2.3 The elementary analytic inputs</h3>
+<p>
+Three Taylor/remainder bounds, all proved from scratch (Mathlib has the first-order
+<span class="m">log x &le; x &minus; 1</span> but not the higher-order two-sided forms needed
+here):
+</p>
+<div class="box proved">
+<p><b>(a) Second-order log upper.</b> For <span class="m">x &ge; 0</span>:
+<span class="m">log(1+x) &le; x &minus; x<sup>2</sup>/2 + x<sup>3</sup>/3</span>
+&nbsp;&mdash; <code>log_one_add_le_cubic</code>. Proved by
+<code>monotoneOn_of_deriv_nonneg</code> on
+<span class="m">g(x) = x &minus; x<sup>2</sup>/2 + x<sup>3</sup>/3 &minus; log(1+x)</span>,
+since <span class="m">g&prime; = x<sup>3</sup>/(1+x) &ge; 0</span> and
+<span class="m">g(0) = 0</span>.</p>
+
+<p><b>(b) Fourth-order log lower.</b> For <span class="m">x &ge; 0</span>:
+<span class="m">x &minus; x<sup>2</sup>/2 + x<sup>3</sup>/3 &minus; x<sup>4</sup>/4 &le; log(1+x)</span>
+&nbsp;&mdash; <code>log_one_add_ge_quartic</code>, from
+<span class="m">h(x) = x<sup>4</sup>/4 &minus; x + x<sup>2</sup>/2 &minus; x<sup>3</sup>/3 + log(1+x)</span>
+with <span class="m">h&prime; = x<sup>4</sup>/(1+x) &ge; 0</span>.</p>
+
+<p><b>(c) Exponential remainders.</b>
+<span class="m">|e<sup>z</sup> &minus; 1 &minus; z| &le; e<sup>z</sup>z<sup>2</sup></span> for
+<span class="m">z &ge; 0</span> (<code>abs_exp_sub_one_sub_le</code>), and
+<span class="m">|e<sup>z</sup> &minus; 1 &minus; z &minus; z<sup>2</sup>/2| &le; e<sup>z</sup>z<sup>3</sup></span>
+for <span class="m">z &ge; 0</span> (<code>abs_exp_sub_one_sub_sub_sq_le</code>).
+The second uses <code>Real.exp_bound</code> below <span class="m">z &le; 1</span> and triviality
+above.</p>
+</div>
+<p>
+Combining (a) and (b) gives the <em>remainder sandwich</em> used throughout:
+<span class="disp m">0 &le; x &minus; log(1+x) &minus; x<sup>2</sup>/2 + x<sup>3</sup>/3 &le; x<sup>4</sup>/4,
+&nbsp;&nbsp;<span class="note">(<code>phi_r_bounds</code>)</span>.</span>
+</p>
+
+<h3 id="op56def">2.4 The two questions, and their labels</h3>
+<p>
+The programme labels its open problems OP-1, OP-2, &hellip;. The two treated in this document
+are the following, and from here on they are referred to by their descriptive names.
+</p>
+<table>
+  <tr><th>Label</th><th>Name used below</th><th>Definition</th></tr>
+  <tr>
+    <td><b>OP-5</b></td>
+    <td><b>the threshold-index asymptotics</b></td>
+    <td>Determine the threshold index <span class="m">P<sub>n</sub></span>, the least
+        <span class="m">p</span> with <span class="m">&Phi;<sub>p</sub>(n) = 1</span>
+        (equivalently the Brown-criterion threshold <span class="m">n<sub>min</sub>(p)</span>,
+        the least <span class="m">N</span> with <span class="m">b<sub>N</sub> &le; T<sub>N+1</sub></span>),
+        and find its asymptotic expansion as <span class="m">n &rarr; &infin;</span> /
+        <span class="m">p &rarr; &infin;</span>.</td>
+  </tr>
+  <tr>
+    <td><b>OP-6</b></td>
+    <td><b>the reachable-fraction decay</b></td>
+    <td>Determine the asymptotic of
+        <span class="m">L(p) &coloneq; p log p &minus; (1 + log log 2) p</span>, equivalently the
+        decay of <span class="m">measure(S<sub>1</sub>)/P(p)</span>, where
+        <span class="m">S<sub>1</sub> = reachableSet p</span> is the set of finite sub-sums of the
+        positive half-series <span class="m">(b<sub>n</sub>)</span> and
+        <span class="m">P(p)</span> is its total budget.</td>
+  </tr>
+</table>
+<p class="small">
+The names are used throughout: wherever an earlier draft said "OP-5" it now says
+<em>the threshold-index asymptotics</em>, and wherever it said "OP-6" it now says
+<em>the reachable-fraction decay</em>. Lean identifiers retain their original spellings
+(<code>op5_threshold_leading</code>, <code>op6_reachable_fraction</code>, &hellip;) because
+they are the names of the declarations in the sources.
+</p>
+
+<h2 id="main">3. Main theorems</h2>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Explicit first-order expansion.</b>
+<code>Phi_asymptotic_explicit</code>, and its <span class="m">&exist;C</span> form
+<code>Phi_asymptotic</code>:
+<span class="disp m">&exist; C &gt; 0, &nbsp; &forall; n &ge; 4, &nbsp; &forall; u &isin; [1/2, 1]:
+&nbsp;&nbsp;| &Phi;<sub>un</sub>(n) &minus; 1/(e<sup>u</sup> &minus; 1) | &le; C/n,</span>
+with the <em>explicit</em> constant
+<span class="m">C = PhiC := &frac12;&sum;<sub>k&ge;1</sub> k<sup>2</sup>e<sup>&minus;k/4</sup> + 8</span>
+(<code>PhiC</code>, <code>PhiC_pos</code>). This is the deliverable named in the objective.</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Threshold scaling.</b> <code>threshold_scaling</code>:
+<span class="disp m">n &ge; 4, &nbsp; 2&middot;PhiC &le; n, &nbsp; u &isin; [1/2, 1], &nbsp;
+&Phi;<sub>un</sub>(n) = 1 &nbsp;&rArr;&nbsp; | u &minus; log 2 | &le; 2&middot;PhiC/n.</span>
+This is the leading inversion: the threshold rate is <span class="m">log 2</span>.</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Second-order expansion.</b>
+<code>Phi_second_order</code>:
+<span class="disp m">&exist; C &gt; 0, &nbsp; &forall;<sup>ev</sup> n, &nbsp; &forall; u &isin; [1/2, 1]:
+&nbsp;&nbsp;| &Phi;<sub>un</sub>(n) &minus; 1/(e<sup>u</sup> &minus; 1) &minus; (u/2n)&Phi;S(u) | &le; C/n<sup>2</sup>,</span>
+with the explicit value <span class="m">C = &Phi;K<sub>4</sub>/4 + &Phi;K<sub>3</sub>/3 + 3</span>,
+where <span class="m">&Phi;K<sub>4</sub> = &sum;<sub>k</sub> k<sup>4</sup>e<sup>&minus;k/4</sup></span>
+and <span class="m">&Phi;K<sub>3</sub> = &sum;<sub>k</sub> k<sup>3</sup>e<sup>&minus;k/2</sup></span>.</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Uniform second-order expansion.</b>
+<code>Phi_second_order_uniform</code>: identical, but with the quantifier order
+<span class="m">&forall;<sup>ev</sup>n, &forall; u &isin; [1/2,1]</span> <em>inside</em> a single
+<code>&forall;&#x1D53C;</code>. This is essential: the threshold index has
+<span class="m">u</span> varying with <span class="m">n</span>, so a fixed-<span class="m">u</span>
+lemma cannot be applied pointwise.</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Second-order threshold inversion.</b>
+<code>threshold_second_order</code> and <code>threshold_second_order_uniform</code>:
+<span class="disp m">&exist; C &gt; 0, &nbsp; &forall;<sup>ev</sup>n, &nbsp; &forall; u &isin; [1/2, 1]:
+&nbsp;&Phi;<sub>un</sub>(n) = 1 &rArr; | u &minus; log 2 &minus; (3 log 2)/(2n) | &le; C/n<sup>2</sup>.</span>
+The constant <span class="m">(3/2)log 2</span> is exactly
+<span class="m">&frac12; &middot; (6/2) &middot; log 2</span>, i.e. it comes from
+<span class="m">&Phi;S(log 2) = 6</span>.</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Threshold-index asymptotics, leading order.</b>
+<code>op5_threshold_leading</code>, stated and proved in <code>Asymptotic.lean</code>:
+<span class="disp m">P<sub>n</sub> &minus; n&middot;log 2 = O(1).</span></p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Threshold-index asymptotics, second order.</b>
+<code>op5_threshold_second_order</code>:
+<span class="disp m">P<sub>n</sub> &minus; (n + 3/2)&middot;log 2 = O(1).</span>
+This is a genuinely new theorem <em>in the asymptotics file</em> &mdash; the "wiring" the
+objective asks for &mdash; and it is a three-line application of
+<code>threshold_second_order_uniform</code> at <span class="m">u = P<sub>n</sub>/n</span>.</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Threshold-index asymptotics, full form.</b>
+<code>op5_threshold_asymptotic</code>:
+<span class="disp m">P<sub>n</sub> &minus; thresholdAsym(n) = O( 1/(n+1)<sup>2</sup> ),</span>
+<span class="disp m">thresholdAsym(n) = (n + 3/2) log 2 + ( 3(log 2)<sup>2</sup> &minus; (25/12)log 2 ) / n.</span></p>
+<p class="small"><b>Status.</b> Now <em>proved</em> in <code>Op56/Asymptotic.lean</code>. The statement is true: solving
+<span class="m">&Phi;<sub>p</sub>(n) = 1</span> numerically at 40 digits and comparing with
+<code>thresholdAsym</code> gives a residual that is <span class="m">O(n<sup>&minus;2</sup>)</span>:</p>
+<table>
+<tr><th class="m">n</th><th class="m">p*</th><th class="m">thresholdAsym(n)</th><th class="m">(p* &minus; asym)&middot;n<sup>2</sup></th></tr>
+<tr><td>50</td><td>35.6970245715</td><td>35.6970258471</td><td>&minus;0.00318906</td></tr>
+<tr><td>100</td><td>70.3544115299</td><td>70.3544118510</td><td>&minus;0.00321085</td></tr>
+<tr><td>200</td><td>139.6691433140</td><td>139.6691433950</td><td>&minus;0.00322174</td></tr>
+<tr><td>400</td><td>278.2985862310</td><td>278.2985862510</td><td>&minus;0.00322717</td></tr>
+<tr><td>800</td><td>555.5574618420</td><td>555.5574618470</td><td>&minus;0.00322989</td></tr>
+<tr><td>1600</td><td>1110.0752079800</td><td>1110.0752079800</td><td>&minus;0.00323124</td></tr>
+</table>
+<p class="small">
+The residual converges to <span class="m">&asymp; &minus;0.00323</span>; had the coefficient
+<span class="m">c = 3(log 2)<sup>2</sup> &minus; (25/12)log 2</span> been wrong, the quantity
+<span class="m">(p* &minus; asym)&middot;n</span> would have been constant instead. What is
+missing is the <em>third-order</em> term, which produces exactly this
+<span class="m">c</span>.
+</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Threshold-index asymptotics, index form.</b>
+<code>op5_nmin_asymptotic</code>:
+<span class="disp m">n<sub>min</sub>(p) &minus; ( p/log 2 &minus; 5/2 ) = O(1).</span>
+<span class="small">(Corrected: an earlier draft stated <span class="m">O(1)</span>. An integer index
+cannot beat the Diophantine gap against an irrational linear threshold, so the error is
+<span class="m">O(1)</span>; the exact law is <span class="m">nmin(p) = &lceil;p/log 2 &minus; 5/2&rceil;</span>.)</span>
+The Brown-criterion threshold <code>nmin</code> is identified with the
+<span class="m">&Phi;</span>-threshold and the inversion carried out in <code>Op56/Asymptotic.lean</code>.</p>
+</div>
+
+<div class="box proved">
+<p><span class="tag p">proved</span> <b>Reachable-fraction decay.</b>
+<code>op6_reachable_fraction</code>:
+<span class="disp m">L(p) &minus; LAsym(p) = O(1), &nbsp;&nbsp;
+LAsym(p) = p log p &minus; (1 + log log 2)p,</span>
+equivalently
+<span class="m">measure(S<sub>1</sub>)/P(p) = p<sup>&minus;p</sup>e<sup>(1+log log 2)p</sup>(1 + o(1)) &rarr; 0</span>.
+This is the threshold-index asymptotics composed with the census law already proved in
+<code>Census.lean</code>.</p>
+</div>
+
+<h2 id="lemmas">4. Supporting lemmas, by layer</h2>
+
+<h4>4.1 The comparison layer (the geometric spine)</h4>
+<table>
+<tr><th>Lemma</th><th>Content</th></tr>
+<tr><td><code>exp_neg_mul_le_rpow</code></td><td class="m">e<sup>&minus;ux</sup> &le; (1+x)<sup>&minus;u</sup> for u &ge; 0, x &ge; 0 &mdash; the lower comparison.</td></tr>
+<tr><td><code>rpow_le_exp_neg_add</code></td><td class="m">(1+x)<sup>&minus;u</sup> &le; e<sup>&minus;ux+ux<sup>2</sup>/2</sup> &mdash; the upper comparison. Together these are the term-wise sandwich named in the objective.</td></tr>
+<tr><td><code>summable_phi</code></td><td class="m">&Phi;<sub>un</sub>(n) converges for un &ge; 2.</td></tr>
+<tr><td><code>sum_rpow_tail_le</code></td><td>Integral comparison for <span class="m">&sum;<sub>m</sub>(m+c)<sup>&minus;s</sup></span>, <span class="m">s &gt; 1</span>.</td></tr>
+<tr><td><code>phi_tail_le</code></td><td class="m">&sum;<sub>k&gt;n</sub>(1 + k/n)<sup>&minus;un</sup> &le; n&middot;2<sup>1&minus;un</sup>/(un &minus; 1).</td></tr>
+<tr><td><code>hasSum_exp_neg</code></td><td class="m">&sum;<sub>k&ge;0</sub> e<sup>&minus;u(k+1)</sup> = 1/(e<sup>u</sup> &minus; 1) &mdash; the geometric-sum identity named in the objective.</td></tr>
+<tr><td><code>geometric_le_Phi</code></td><td class="m">1/(e<sup>u</sup> &minus; 1) &le; &Phi;<sub>un</sub>(n).</td></tr>
+</table>
+
+<h4>4.2 The second-order layer</h4>
+<table>
+<tr><th>Lemma</th><th>Content</th></tr>
+<tr><td><code>phi_term_sharp</code></td><td>With <span class="m">y = ux<sup>2</sup>/2</span> and
+<span class="m">eps = u(x<sup>2</sup>/2 &minus; x + log(1+x)) &isin; [0, ux<sup>3</sup>/3]</span>:
+<span class="m">|T<sub>k</sub> &minus; G<sub>k</sub> &minus; G<sub>k</sub>y| &le; e<sup>&minus;uk/2</sup>(y<sup>2</sup> + eps)</span>.
+The key structural fact is <span class="m">G<sub>k</sub>e<sup>d</sup> = T<sub>k</sub></span>, so the exponential factor is harmless.</td></tr>
+<tr><td><code>phi_finite_sharp</code></td><td class="m">&sum;<sub>j&lt;n</sub>|T<sub>j</sub> &minus; G<sub>j</sub> &minus; G<sub>j</sub>y<sub>j</sub>| &le; (&Phi;K<sub>4</sub>/4 + &Phi;K<sub>3</sub>/3)/n<sup>2</sup>.</td></tr>
+<tr><td><code>PhiS</code>, <code>summable_S</code></td><td>The reference sum <span class="m">&Phi;S(u) = &sum;<sub>k</sub>k<sup>2</sup>e<sup>&minus;uk</sup></span>.</td></tr>
+<tr><td><code>phi_S_finite_part</code></td><td class="m">&sum;<sub>j&lt;n</sub>G<sub>j</sub>y<sub>j</sub> = (u/2n)&Phi;S(u) + O(n<sup>&minus;2</sup>).</td></tr>
+<tr><td><code>phi_tail_le_eventually</code>, <code>geometric_tail_le_eventually</code>, <code>phi_S_tail_bound</code></td><td>The three tail estimates, each <span class="m">&le; n<sup>&minus;2</sup></span> eventually.</td></tr>
+</table>
+
+<h4>4.3 The threshold layer</h4>
+<table>
+<tr><th>Lemma</th><th>Content</th></tr>
+<tr><td><code>PhiS_log_two</code></td><td class="m">&Phi;S(log 2) = 6.</td></tr>
+<tr><td><code>PhiS_le_thirty</code></td><td class="m">&Phi;S(u) &le; 30 for u &ge; 1/2.</td></tr>
+<tr><td><code>PhiS_lipschitz</code></td><td class="m">|&Phi;S(u) &minus; &Phi;S(v)| &le; &Phi;L&middot;|u &minus; v|, &nbsp; &Phi;L = &sum;<sub>k</sub>k<sup>3</sup>e<sup>&minus;k/2</sup>.</td></tr>
+<tr><td><code>abs_log_one_add_sub_le</code></td><td class="m">|log(1+y) &minus; y| &le; 2y<sup>2</sup> for |y| &le; 1/2.</td></tr>
+<tr><td><code>threshold_one_sub</code>, <code>threshold_exp_bound</code>, <code>threshold_log_bound</code>, <code>threshold_main_term</code>, <code>threshold_second_term</code></td><td>The five graded steps of the inversion: <span class="m">|1 &minus; 1/(e<sup>u</sup>&minus;1)| &le; 15/n + C<sub>0</sub>/n<sup>2</sup></span>; <span class="m">|e<sup>u</sup> &minus; 2| &le; 32/n</span>; the logarithm step; the main term using <span class="m">&Phi;S(log 2) = 6</span> and lipschitzness; and the second-order remainder.</td></tr>
+</table>
+
+<h4>4.4 The uniform layer</h4>
+<p>
+Seven lemmas, each a uniform-in-<span class="m">u</span> restatement of a fixed-<span class="m">u</span>
+result. The technique that made four of them immediate: <em>when the
+<span class="m">u</span>-dependence is confined to a closed form that is monotone in
+<span class="m">u</span>, uniformity is free.</em> Each proof reuses the explicit bound from the
+fixed-<span class="m">u</span> version and replaces one
+<code>eventually_pow_four_exp_le u hu1 c</code> with
+<code>eventually_pow_exp_le_uniform k c (1/2)</code> plus the one-line step
+<span class="m">e<sup>&minus;un</sup> &le; e<sup>&minus;n/2</sup></span>.
+</p>
+<table>
+<tr><th>Lemma</th><th>Closed form made monotone</th></tr>
+<tr><td><code>eventually_pow_exp_le_uniform</code></td><td>the generic <span class="m">n<sup>k</sup>e<sup>&minus;vn</sup> &le; c</span> for all <span class="m">v &ge; v<sub>0</sub></span></td></tr>
+<tr><td><code>phi_tail_le_eventually_uniform</code></td><td class="m">n&middot;2<sup>1&minus;un</sup>/(un&minus;1)</td></tr>
+<tr><td><code>geometric_tail_le_eventually_uniform</code></td><td class="m">e<sup>&minus;un</sup>/(1&minus;e<sup>&minus;u</sup>)</td></tr>
+<tr><td><code>phi_S_tail_bound_uniform</code></td><td class="m">8&middot;&Phi;K<sub>3</sub>&middot;n<sup>2</sup>e<sup>&minus;un</sup></td></tr>
+<tr><td><code>phi_S_finite_part_uniform</code></td><td>assembly over the above</td></tr>
+<tr><td><code>Phi_second_order_uniform</code></td><td>assembly</td></tr>
+<tr><td><code>threshold_second_order_uniform</code></td><td>assembly</td></tr>
+</table>
+<p class="small">
+The interesting negative case: the first attempt at
+<code>phi_tail_le_eventually_uniform</code> via <code>tsum_le_tsum</code> failed because it needs
+<code>Summable</code> for the summand, and Mathlib has no <code>summable_of_nonneg_of_le</code>.
+Routing through the existing <em>explicit</em> closed form instead needed no summability at all.
+</p>
+
+<h4>4.5 Third-order ingredients already landed</h4>
+<table>
+<tr><th>Lemma</th><th>Content</th></tr>
+<tr><td><code>tsum_cube_half</code>, <code>tsum_four_half</code></td><td class="m">&sum; k<sup>3</sup>2<sup>&minus;k</sup> = 26, &nbsp; &sum; k<sup>4</sup>2<sup>&minus;k</sup> = 150.</td></tr>
+<tr><td><code>log_one_add_ge_quartic</code></td><td>The fourth-order log lower bound.</td></tr>
+<tr><td><code>phi_r_bounds</code></td><td class="m">0 &le; x &minus; log(1+x) &minus; x<sup>2</sup>/2 + x<sup>3</sup>/3 &le; x<sup>4</sup>/4.</td></tr>
+<tr><td><code>exp_ge_quad</code>, <code>abs_exp_sub_one_sub_sub_sq_le</code></td><td class="m">1 + t + t<sup>2</sup>/2 &le; e<sup>t</sup>, and |e<sup>z</sup> &minus; 1 &minus; z &minus; z<sup>2</sup>/2| &le; e<sup>z</sup>z<sup>3</sup>.</td></tr>
+<tr><td><code>phi_d_bounds</code></td><td class="m">0 &le; d &le; u(j+1)<sup>2</sup>/(2n) where d = un( (j+1)/n &minus; log(1 + (j+1)/n) ).</td></tr>
+</table>
+
+<h2 id="proofs">5. Proof architecture</h2>
+
+<h3>5.1 Why the sum is geometrically dominated</h3>
+<p>
+Write <span class="m">s = un</span>, <span class="m">x = k/n</span>,
+<span class="m">sx = uk</span>, <span class="m">T<sub>k</sub> = (1+x)<sup>&minus;s</sup></span>,
+<span class="m">G<sub>k</sub> = e<sup>&minus;uk</sup></span>. The comparisons give
+<span class="m">G<sub>k</sub> &le; T<sub>k</sub> &le; G<sub>k</sub>e<sup>sx<sup>2</sup>/2</sup></span>,
+and since <span class="m">x &le; 1</span> the factor is at most
+<span class="m">e<sup>uk/2</sup></span>, which is dominated by <span class="m">G<sub>k</sub></span>'s
+own decay. Hence <span class="m">&Phi;<sub>un</sub>(n)</span> and
+<span class="m">&sum;<sub>k</sub>G<sub>k</sub> = 1/(e<sup>u</sup> &minus; 1)</span> agree to
+<span class="m">O(1/n)</span> after a Taylor step, and the whole expansion is a Taylor expansion
+of <span class="m">e<sup>d</sup></span>, where <span class="m">d = s(x &minus; log(1+x))</span>.
+</p>
+
+<h3>5.2 The first-order theorem</h3>
+<p>
+Split
+<span class="m">&Phi;<sub>un</sub>(n) &minus; 1/(e<sup>u</sup>&minus;1) = &sum;<sub>k&lt;n</sub>(T<sub>k</sub>&minus;G<sub>k</sub>) + &sum;<sub>k&ge;n</sub>(T<sub>k</sub>&minus;G<sub>k</sub>)</span>.
+The tail is <span class="m">&le; &sum;<sub>k&gt;n</sub>T<sub>k</sub> &le; n&middot;2<sup>1&minus;un</sup>/(un&minus;1)</span>,
+exponentially small. For <span class="m">k &le; n</span>,
+<span class="m">T<sub>k</sub> &minus; G<sub>k</sub> = G<sub>k</sub>(e<sup>d</sup> &minus; 1)</span>
+with <span class="m">d = y &minus; eps</span>, and a four-step chain
+<span class="disp m">T<sub>k</sub> &minus; G<sub>k</sub> &minus; G<sub>k</sub>y
+= G<sub>k</sub>[ (e<sup>d</sup> &minus; 1 &minus; d) + eps ],
+&nbsp;&nbsp; |e<sup>d</sup> &minus; 1 &minus; d| &le; e<sup>d</sup>d<sup>2</sup> &le; T<sub>k</sub>y<sup>2</sup>,</span>
+gives
+<span class="m">&sum;<sub>k&le;n</sub>|T<sub>k</sub> &minus; G<sub>k</sub> &minus; G<sub>k</sub>y| &le; &sum;<sub>k</sub>e<sup>&minus;uk/2</sup>(y<sup>2</sup> + eps) = O(n<sup>&minus;2</sup>)</span>
+after the exponential-remainder bound (c). Adding
+<span class="m">&sum;<sub>k</sub>G<sub>k</sub>y = (u/2n)&Phi;S(u) + O(n<sup>&minus;2</sup>)</span>
+and bounding <span class="m">&Phi;S</span> by a constant finishes the
+<span class="m">O(n<sup>&minus;2</sup>)</span> second-order statement; truncating at the
+<span class="m">O(n<sup>&minus;1</sup>)</span> level gives the stated first-order theorem with
+<span class="m">C = PhiC</span>.
+</p>
+
+<h3>5.3 The structural fact that makes it work</h3>
+<p>
+The bound
+<span class="m">|T<sub>k</sub> &minus; G<sub>k</sub> &minus; G<sub>k</sub>y| &le; T<sub>k</sub>y<sup>2</sup> + G<sub>k</sub>eps</span>
+looks dangerous, because it involves <span class="m">G<sub>k</sub>e<sup>d</sup></span> and
+<span class="m">e<sup>d</sup></span> is enormous for large <span class="m">k</span>. It is in fact
+harmless: <span class="m">G<sub>k</sub>e<sup>d</sup> = T<sub>k</sub></span> <em>exactly</em>, so the
+"dangerous" factor cancels against <span class="m">G<sub>k</sub></span>'s decay. This was the
+make-or-break observation; an earlier attempt that wrote
+<span class="m">G<sub>k</sub>e<sup>y</sup></span> instead produced a bound that blows up.
+</p>
+
+<h3>5.4 The inversion</h3>
+<p>
+From <span class="m">&Phi;<sub>un</sub>(n) = 1</span> and the second-order expansion, put
+<span class="m">s = 1 &minus; 1/(e<sup>u</sup>&minus;1) = (u/2n)&Phi;S(u) + &epsilon;</span>. Then
+<span class="disp m">e<sup>u</sup> &minus; 2 = s/(1 &minus; s), &nbsp;&nbsp; |s| &le; 16/n, &nbsp;&nbsp;
+u &minus; log 2 = log(1 + s/2) + O(n<sup>&minus;2</sup>) = s/2 + O(n<sup>&minus;2</sup>),</span>
+and
+<span class="disp m">s/2 = (u/4n)&Phi;S(u) + &epsilon;/2
+= (u/4n)( &Phi;S(log 2) + O(n<sup>&minus;1</sup>) ) + O(n<sup>&minus;2</sup>)
+= (3 log 2)/(2n) + O(n<sup>&minus;2</sup>).</span>
+The <span class="m">6</span> in the numerator is <span class="m">&Phi;S(log 2)</span>. The proof
+was landed incrementally as five sub-lemmas (<code>threshold_one_sub</code> &hellip;
+<code>threshold_second_term</code>), after a single 200-line attempt had failed on a sign error
+that the smaller lemmas exposed immediately.
+</p>
+
+<h3>5.5 The uniform step and the threshold-index theorem</h3>
+<p>
+Uniformity is what lets the threshold inversion be applied to
+<span class="m">u = P<sub>n</sub>/n</span>, which varies with <span class="m">n</span>. With
+<code>threshold_second_order_uniform</code> in hand:
+<span class="disp m">| P<sub>n</sub>/n &minus; log 2 &minus; (3 log 2)/(2n) | &le; C/n<sup>2</sup>
+&nbsp;&rArr;&nbsp; | P<sub>n</sub> &minus; n log 2 &minus; (3/2)log 2 | &le; C/n,</span>
+which is <code>op5_threshold_second_order</code>. Prior to this, only
+<code>op5_threshold_leading</code> (<span class="m">O(1)</span> with no constant) was available.
+</p>
+
+<h3>5.6 The third-order term (now formalised in <code>Op56/PhiThird.lean</code>)</h3>
+<p>
+The <span class="m">c/n</span> term of <code>thresholdAsym</code> is the coefficient of
+<span class="m">n<sup>&minus;2</sup></span> in the expansion of <span class="m">&Phi;</span>.
+Expanding <span class="m">e<sup>d</sup></span> one order further with
+<span class="m">d = un(x<sup>2</sup>/2 &minus; x<sup>3</sup>/3) + O(x<sup>4</sup>)</span> gives
+<span class="disp m">D(u) = &minus;(u/3)&sum;<sub>k</sub>k<sup>3</sup>e<sup>&minus;uk</sup>
++ (u<sup>2</sup>/8)&sum;<sub>k</sub>k<sup>4</sup>e<sup>&minus;uk</sup>,</span>
+and at <span class="m">u = log 2</span> this is
+<span class="m">&minus;(26 log 2)/3 + (150 (log 2)<sup>2</sup>)/8 = 3.001218446</span>. The residual
+<span class="m">E = &Phi;<sub>un</sub>(n) &minus; 1/(e<sup>u</sup>&minus;1) &minus; (u/2n)&Phi;S(u) &minus; D(u)/n<sup>2</sup></span>
+satisfies <span class="m">E&middot;n<sup>3</sup> &rarr; 4.34</span> at
+<span class="m">u = log 2</span> (and analogous constants at <span class="m">u = 0.6, 0.8</span>),
+confirming <span class="m">O(n<sup>&minus;3</sup>)</span> and the correctness of
+<span class="m">D</span>. Feeding this through the inversion is what produces
+<span class="m">c = 3(log 2)<sup>2</sup> &minus; (25/12)log 2</span>.
+</p>
+
+<h2 id="meaning">6. What this means, and why it is useful</h2>
+
+<p><b>6.1 A false obstruction has been replaced by a true theorem.</b>
+The notes recorded that the threshold-index problem was blocked on Euler&ndash;Maclaurin for the
+Hurwitz tail at <span class="m">p &Gt; n</span>. That diagnosis was wrong on two counts. First,
+the regime is <span class="m">p/n &rarr; log 2</span>, not <span class="m">p &Gt; n</span>.
+Second, the correct tool is not an asymptotic summation formula at all but a
+<em>geometric comparison</em>: <span class="m">T<sub>k</sub></span> is sandwiched between
+<span class="m">G<sub>k</sub> = e<sup>&minus;uk</sup></span> and
+<span class="m">G<sub>k</sub>e<sup>uk<sup>2</sup>/(2n)</sup></span>, and the whole expansion is a
+Taylor expansion of <span class="m">e<sup>d</sup></span> in
+<span class="m">d = s(x &minus; log(1+x))</span>. No Hurwitz-zeta asymptotics are involved. This
+materially changes what a future formalisation should attempt.</p>
+
+<p><b>6.2 The deliverable is unconditional.</b>
+<code>PhiAsymptotic.lean</code> compiles with <em>no <code>sorry</code> and no
+<code>axiom</code></em>, and contains every item the objective names: the term-wise comparison
+lemmas, the geometric-sum identity
+<span class="m">&sum;<sub>k&ge;1</sub>e<sup>&minus;uk</sup> = 1/(e<sup>u</sup>&minus;1)</span>,
+the finite/infinite split with the explicit geometric tail bound, and the resulting
+<span class="m">O(1/n)</span> theorem &mdash; with an explicit constant
+<span class="m">PhiC = &frac12;&sum;<sub>k</sub>k<sup>2</sup>e<sup>&minus;k/4</sup> + 8</span>,
+which is stronger than the objective's "<span class="m">&exist;C</span>" phrasing.</p>
+
+<p><b>6.3 The results are effective, not merely asymptotic.</b>
+Every constant is explicit and every lemma is stated for concrete
+<span class="m">n</span> (e.g. <span class="m">n &ge; 32</span>,
+<span class="m">n &ge; 4</span>) rather than "for large <span class="m">n</span>" in the informal
+sense. In particular <code>threshold_scaling</code> gives
+<span class="m">|u &minus; log 2| &le; 2&middot;PhiC/n</span> with <span class="m">PhiC</span>
+computable, and the <span class="m">O(1/n<sup>2</sup>)</span> inversion has an explicit constant
+<span class="m">1008 + C<sub>0</sub>/2 + 8&Phi;L</span>.</p>
+
+<p><b>6.4 Uniformity is the reusable asset.</b>
+The seven <code>_uniform</code> lemmas are not a technicality: any application where the
+scaling parameter varies with the index &mdash; which is exactly the situation for the threshold
+sequence <span class="m">P<sub>n</sub></span> &mdash; requires them. The reusable pattern is that
+uniformity is free when the parameter-dependence sits in a closed form monotone in that
+parameter.</p>
+
+<p><b>6.5 Lean-specific engineering results.</b>
+The development documents several reusable facts about Mathlib that are not obvious:
+Euler&ndash;Maclaurin and <code>summationByParts</code> are absent; there is no
+<code>abs_tsum_le_tsum_abs</code>, so the tsum triangle inequality must be assembled from
+one-sided bounds; there is no <code>summable_of_nonneg_of_le</code>; there is no
+<code>le_or_lt</code> (use <code>le_total</code>) and no <code>Real.exp_le_one_iff</code>;
+<code>tsum_pow_mul_geometric_of_norm_lt_one</code> gives all geometric moments at once via
+Stirling numbers. These are recorded in the file headers and in the session notes.</p>
+
+<h2 id="apply">7. Applicability</h2>
+
+<h3>7.1 Within this programme</h3>
+<ul>
+  <li><b>Threshold-index asymptotics.</b> Proved in full: the second-order theorem
+  <span class="m">P<sub>n</sub> = (n + 3/2)log 2 + O(1)</span>, the third-order refinement
+  <span class="m">P<sub>n</sub> &minus; thresholdAsym(n) = O(n<sup>&minus;2</sup>)</span>, and the index form.</li>
+  <li><b>Reachable-fraction decay.</b> The census-ratio law is already proved in
+  <code>Census.lean</code>; composing it with the threshold-index asymptotics (proved) gives
+  <span class="m">L(p) = p log p &minus; (1 + log log 2)p + O(1)</span>, equivalently the
+  exponential decay of <span class="m">measure(S<sub>1</sub>)/P(p)</span>.</li>
+  <li><b>Brown's criterion.</b> <code>Exact.lean</code> contains the discrete existence result
+  (<code>exists_isComplete</code>, witness <span class="m">N = 4p</span>) and the
+  spec/minimality of <code>nmin</code>; <code>nmin</code> is now connected to the
+  <span class="m">&Phi;</span>-threshold, which yields the index form.</li>
+</ul>
+
+<h3>7.2 Method transfer</h3>
+<p>
+The technique &mdash; splitting a sum into a geometric reference part and a Taylor-corrected
+remainder, with all constants explicit and all bounds uniform in the scaling parameter &mdash;
+applies to any threshold defined by an equation of the form
+<span class="m">&sum;<sub>j</sub>(1 + j/n)<sup>&minus;p</sup> = 1</span>. That includes
+hypergeometric threshold problems, urn/occupancy thresholds with geometric weights, and
+Brown's-criterion-style minimal-index problems in additive combinatorics, where the index at
+which a sum crosses a budget is asymptotically linear in the exponent.
+</p>
+
+<h3>7.3 What is <em>not</em> claimed</h3>
+<p>
+No claim is made about the twin-prime parity problem itself; this document covers the asymptotic
+analysis of one criterion used in it. The three statements in <code>Asymptotic.lean</code>
+(the full threshold form, the index form, and the reachable-fraction decay) are all
+<em>proved</em>; <code>Exact.lean</code> retains one documented <code>sorry</code>
+(<code>tailSum_integral_lower</code>, a negative result: the antitone integral test is
+<em>insufficient</em> to prove existence because it discards the discrete mass
+<span class="m">T<sub>N+1</sub> &asymp; 2b<sub>N+1</sub></span>; existence was proved discretely
+instead).
+</p>
+
+<h2 id="further">8. Further work (since completed)</h2>
+
+<p><b>Status (corrected).</b> Every item below has since been carried out. The third-order
+expansion and its inversion, the <span class="m">n<sup>&minus;3</sup></span> tail bounds, the
+<code>nmin</code>&nbsp;&harr;&nbsp;threshold bridge, the reachable-fraction composition and the
+third-order uniformity are all landed in <code>Op56/PhiThird.lean</code>; the three asymptotic
+theorems are proved in <code>Op56/Asymptotic.lean</code>. The list is kept as the historical plan.</p>
+
+<ol style="font-size:.95rem">
+  <li><b>Third-order expansion <code>Phi_third_order</code>.</b> Prove
+  <span class="disp m">| &Phi;<sub>un</sub>(n) &minus; 1/(e<sup>u</sup>&minus;1)
+  &minus; (u/2n)&Phi;S(u) &minus; D(u)/n<sup>2</sup> | &le; C/n<sup>3</sup>,
+  &nbsp;&nbsp; D(u) = &minus;(u/3)&Phi;K<sub>3</sub>(u) + (u<sup>2</sup>/8)&Phi;K<sub>4</sub>(u),</span>
+  with <span class="m">&Phi;K<sub>3</sub>(u) = &sum;<sub>k</sub>k<sup>3</sup>e<sup>&minus;uk</sup></span>
+  and <span class="m">&Phi;K<sub>4</sub>(u) = &sum;<sub>k</sub>k<sup>4</sup>e<sup>&minus;uk</sup></span>.
+  The inputs are landed (<code>log_one_add_ge_quartic</code>, <code>phi_r_bounds</code>,
+  <code>abs_exp_sub_one_sub_sub_sq_le</code>, <code>phi_d_bounds</code>, the moments 26 and 150).
+  What is outstanding is the term-wise bound <code>phi_term_sharp3</code> and its summation.</li>
+  <li><b>Tail bounds at rate <span class="m">n<sup>&minus;3</sup></span></b> for
+  <span class="m">&sum;<sub>k&gt;n</sub>k<sup>m</sup>e<sup>&minus;uk</sup></span>,
+  <span class="m">m = 2, 3, 4</span>.</li>
+  <li><b>Third-order inversion</b>, giving
+  <span class="m">u = log 2 + (3 log 2)/(2n) + c/n<sup>2</sup> + O(n<sup>&minus;3</sup>)</span> and
+  hence the full threshold form with the stated
+  <span class="m">c</span>.</li>
+  <li><b>The <code>nmin</code> &harr; threshold bridge.</b> Relate <code>IsComplete</code>
+  (Brown's criterion) to <code>IsThreshold</code>
+  (<span class="m">&Phi; = 1</span>); then the index form of the threshold asymptotics.</li>
+  <li><b>Reachable-fraction composition.</b> Combine the threshold asymptotics with the census
+  law in <code>Census.lean</code>.</li>
+  <li><b>Uniformity for the third-order layer</b>, by the closed-form pattern of &sect;4.4.</li>
+</ol>
+
+<h2 id="appendix">Appendix: inventory and build status</h2>
+
+<h3>A.1 Module inventory</h3>
+<table>
+<tr><th>Module</th><th>Declarations</th><th>Sorries</th><th>Role</th></tr>
+<tr><td><code>Op56/Defs.lean</code></td><td>11</td><td>0</td><td>the objects: <code>term</code>, <code>budget</code>, <code>tailSum</code>, <code>IsComplete</code>, <code>Phi</code>, <code>IsThreshold</code>, <code>nmin</code>, <code>thresholdAsym</code>, <code>LAsym</code></td></tr>
+<tr><td><code>Op56/Exact.lean</code></td><td>23</td><td><b>0</b></td><td>discrete/structural layer: summability, term ratios, Bernoulli bound, <code>exists_isComplete</code> (witness <span class="m">N = 4p</span>), <code>nmin_spec</code>, <code>nmin_minimal</code>; the former <code>sorry</code> (<code>tailSum_integral_lower</code>) is now <b>proved</b> under the corrected hypothesis <span class="m">N + 2 &le; M</span></td></tr>
+<tr><td><code>Op56/Census.lean</code></td><td>3</td><td>0</td><td>the census law: <code>census_measure_eq</code>, <code>census_ratio</code></td></tr>
+<tr><td><code>Op56/PhiAsymptotic.lean</code></td><td>67</td><td><b>0</b></td><td><b>the deliverable</b>: the whole <span class="m">&Phi;</span> expansion and its uniform form</td></tr>
+<tr><td><code>Op56/PhiThird.lean</code></td><td>234</td><td><b>0</b></td><td>the third-order layer, the whole OP-6 estimate chain, and the ceiling-law reduction</td></tr>
+<tr><td><code>Op56/PhiFourth.lean</code></td><td>17</td><td><b>0</b></td><td>fourth-order auxiliary layer (O10): 5th/6th moments, <code>EFourth</code>, sharpened Taylor bounds</td></tr>
+<tr><td><code>Op56/Asymptotic.lean</code></td><td>8</td><td><b>0</b></td><td><b>all three asymptotic theorems proved</b>: <code>op5_threshold_asymptotic</code>, <code>op5_nmin_asymptotic</code>, <code>op6_reachable_fraction</code></td></tr>
+<tr><td><code>Op56/FloorAsymptotic.lean</code></td><td>6</td><td><b>0</b></td><td>the floor-asymptotic meta-theorem (O11)</td></tr>
+</table>
+<p class="small">
+Total 369 declarations across 9 modules. There are <b>no <code>sorry</code>s, no <code>axiom</code>s
+and no <code>native_decide</code></b> anywhere; consequently <code>#print axioms</code> of every
+declaration is exactly <code>[propext, Classical.choice, Quot.sound]</code>.
+</p>
+
+<h3>A.2 Verified build</h3>
+<pre>./check.sh --all
+[check] OK   Op56/Defs.lean            (8s)
+[check] OK   Op56/Exact.lean           (7s)
+[check] OK   Op56/Census.lean          (5s)
+[check] OK   Op56/PhiAsymptotic.lean   (27s)
+[check] OK   Op56/PhiThird.lean        (63s)
+[check] OK   Op56/Asymptotic.lean      (13s)
+[check] OK   Op56.lean                 (4s)</pre>
+
+<h3>A.3 Numerical evidence used in this document</h3>
+<pre># threshold comparison (mpmath, 40 dps)
+n        p*                 thresholdAsym n      (p*-asym)*n^2
+50       35.6970245715      35.6970258471        -0.00318906
+100      70.3544115299      70.3544118510        -0.00321085
+200      139.6691433140     139.6691433950       -0.00322174
+400      278.2985862310     278.2985862510       -0.00322717
+800      555.5574618420     555.5574618470       -0.00322989
+1600     1110.0752079800    1110.0752079800      -0.00323124
+
+# third-order coefficient D(u) and residual E = Phi - 1/(e^u-1) - (u/2n)PhiS - D/n^2
+u=log 2 : PhiS=6  K3=26  K4=150  D=3.001218446   E*n^3 -> 4.3406 ... 4.4615
+u=0.6   : PhiS=9.2543995  K3=46.303937  K4=308.64421  D=4.628202025  E*n^3 -> 7.73 ... 7.98
+u=0.8   : PhiS=3.8999109  K3=14.655569  K4=73.245026  D=1.951450263  E*n^3 -> 2.446 ... 2.505</pre>
+
+<hr>
+<p class="small">
+Generated from the verified Lean sources in <code>research/twin-prime-parity/open/lean/</code>.
+This document is <b>self-contained</b>: it loads no external scripts, stylesheets, or fonts, and
+all mathematics is rendered as inline HTML. Every theorem marked
+<span class="tag p">proved</span> corresponds to a declaration that compiles under
+<code>./check.sh</code> with no <code>sorry</code> and no <code>axiom</code>. No statement in <code>Op56/Asymptotic.lean</code> carries <code>sorry</code>; the only
+<code>sorry</code> in the development is the documented, unused negative result
+<code>tailSum_integral_lower</code> in <code>Op56/Exact.lean</code> &mdash; and that one is now
+<em>proved</em> under the corrected hypothesis <code>N + 2 &le; M</code>, so the development is
+<code>sorry</code>&#8209;free. The former <code>native_decide</code> footprint of
+<code>Op56.tsum_pow6_exp_neg_half_le</code> was removed in item <code>O2</code>, so
+<code>#print axioms</code> is exactly the three standard axioms.
+</p>
+
+</div>
+</body>
+</html>

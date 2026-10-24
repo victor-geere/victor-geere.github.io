@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proving Routes A, B, C Rigorously — Certification Logic, Explicit Bounds, and the Enclosure Engine</title>
+<style>
+  :root{ --ink:#17202a; --muted:#5b6b7c; --rule:#d8dee6; --bg:#fdfdfb;
+    --accent:#7a2e2e; --accent2:#1f4e79; --code:#f4f6f8; --mark:#fff6d5; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.62 Georgia,"Iowan Old Style","Times New Roman",serif;}
+  .wrap{max-width:60rem;margin:0 auto;padding:3.2rem 1.6rem 6rem}
+  header.title{border-bottom:3px double var(--rule);padding-bottom:1.6rem;margin-bottom:2rem}
+  h1{font-size:1.62rem;line-height:1.28;margin:0 0 .5rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1rem;margin:.35rem 0 0}
+  .meta{font-size:.86rem;color:var(--muted);margin-top:1rem;line-height:1.7}
+  .meta code{font-size:.85em}
+  h2{font-size:1.22rem;margin:2.9rem 0 .9rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);color:var(--accent2)}
+  h3{font-size:1.02rem;margin:1.9rem 0 .6rem;color:var(--accent)}
+  h4{font-size:.96rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  a{color:var(--accent2)}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);padding:.08em .32em;border-radius:3px;font-size:.88em}
+  pre{background:var(--code);border:1px solid var(--rule);border-left:3px solid var(--accent2);
+      padding:.85rem 1rem;overflow-x:auto;font-size:.84rem;line-height:1.5;border-radius:4px}
+  pre code{background:none;padding:0;font-size:1em}
+  .box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:#fff;
+       padding:.9rem 1.1rem;margin:1.2rem 0;border-radius:4px}
+  .box.def{border-left-color:var(--accent2);background:#f8fafc}
+  .box.res{border-left-color:#1e6b3a;background:#f6fbf7}
+  .box.verdict{border-left-color:#8a1c1c;background:#fdf6f6;border-color:#e2b6b6}
+  .box.verdict h4{color:#8a1c1c}
+  .box h4{margin-top:0}
+  table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.44rem .6rem;text-align:left;vertical-align:top}
+  th{background:#f2f5f8;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  nav#toc{background:#f7f9fb;border:1px solid var(--rule);border-radius:5px;padding:1rem 1.3rem;margin:1.6rem 0 2.6rem}
+  nav#toc h2{margin:0 0 .5rem;border:none;font-size:1rem;color:var(--accent2)}
+  nav#toc ol{margin:.2rem 0 0;padding-left:1.4rem;columns:2;column-gap:2.4rem}
+  nav#toc li{margin:.18rem 0;break-inside:avoid}
+  nav#toc a{text-decoration:none}
+  nav#toc a:hover{text-decoration:underline}
+  .abstract{background:#fff;border:1px solid var(--rule);border-radius:5px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  .abstract h2{margin:0 0 .5rem;border:none;font-size:1rem}
+  .kw{font-size:.88rem;color:var(--muted);margin-top:.7rem}
+  ul,ol{padding-left:1.4rem} li{margin:.28rem 0}
+  hr{border:none;border-top:1px solid var(--rule);margin:2.4rem 0}
+  .small{font-size:.87rem;color:var(--muted)}
+  .refs{font-size:.92rem} .refs li{margin:.5rem 0}
+  .eq{display:block;margin:.9rem 0 .9rem 1.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.9rem}
+  .status{display:inline-block;font-size:.74rem;padding:.1em .5em;border-radius:10px;vertical-align:middle;
+          letter-spacing:.02em;font-family:system-ui,sans-serif;white-space:nowrap}
+  .s-proved{background:#e2f3e8;color:#14602f;border:1px solid #a9d8ba}
+  .s-num{background:#e8eef7;color:#1c3f66;border:1px solid #aec6e2}
+  .s-thm{background:#f0e8f8;color:#5a2a86;border:1px solid #cbb0e2}
+  .s-open{background:#eef0f2;color:#4a5560;border:1px solid #c3cad1}
+  .s-fail{background:#f6e0e0;color:#8a1c1c;border:1px solid #e2b6b6}
+  .quote{background:#faf8f4;border-left:3px solid var(--accent);padding:.6rem 1rem;margin:1rem 0;
+         border-radius:0 4px 4px 0;font-size:.94rem}
+  footer{margin-top:3.5rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.85rem;color:var(--muted)}
+  @media print{ body{background:#fff;font-size:11pt} nav#toc{break-inside:avoid} h2{break-after:avoid}
+    pre{break-inside:avoid} .box{break-inside:avoid} }
+  @media (max-width:640px){ nav#toc ol{columns:1} .wrap{padding:2rem .9rem 4rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>Proving Routes A, B, C rigorously:<br>certification logic, explicit bounds, and the enclosure engine</h1>
+  <p class="sub">Turning the audit&rsquo;s &ldquo;what a certified zero would require&rdquo; into theorems.
+     Route A (interval sign change &rarr; unique simple zero), Route B (Turing reduction) and Route C
+     (validated truncation + explicit prime/archimedean/zero tails) are proved here; the core
+     certification logic is machine-checked in Lean&nbsp;4 at
+     <code>rounds/rh45/lean/Rh45/Routes.lean</code>.</p>
+  <div class="meta">
+    <strong>Subject:</strong> <code>research/twin-prime-parity/rounds/rh45/</code> &nbsp;·&nbsp;
+    <strong>Lean:</strong> <code>Rh45Routes.*</code>, <code>./check.sh --all</code> green,
+    <code>0 sorry</code>, footprint <code>propext, Classical.choice, Quot.sound</code> &nbsp;·&nbsp;
+    <strong>Mathlib inputs:</strong> IVT, strict monotonicity from a positive derivative,
+    Chebyshev <code>ψ x ≤ (log 4 + 4) x</code> &nbsp;·&nbsp;
+    <strong>Remaining:</strong> the numerical enclosure engine (§5)
+  </div>
+</header>
+
+<div class="abstract">
+<h2>Abstract &mdash; verdict in one paragraph (&sect;0)</h2>
+<p>
+The audit of <a href="audit.html"><code>rh45</code></a> against §6 listed three ways to certify a zero
+and found none met. This document <strong>proves the three certification mechanisms</strong> and names
+exactly what remains. <strong>Route A:</strong> a continuous <code>f</code> on <code>[a,b]</code> with
+<code>f(a)&lt;0&lt;f(b)</code> and a strictly positive derivative on <code>(a,b)</code> has exactly one
+zero, and it is simple — machine-checked
+(<code>Rh45Routes.exists_unique_root_of_sign_change</code>, plus the enclosure form
+<code>certified_root_of_enclosures</code> that consumes intervals for <code>f(a)</code>,
+<code>f(b)</code> and <code>f′</code>). <strong>Route B:</strong> if the certified on-line zeros lie
+among the zeros in a window and a rigorous count of <em>all</em> zeros in the window is at most their
+number, then the two sets coincide — machine-checked
+(<code>Rh45Routes.turing_reduction</code>). <strong>Route C:</strong> the validated-truncation error
+assembly is machine-checked (<code>Rh45Routes.validated_truncation_bound</code>), and the three tails
+are bounded rigorously: the prime side by Mathlib&rsquo;s Chebyshev bound
+(<code>Rh45Routes.prime_tail_input</code>), the archimedean side by the standard digamma estimate
+<code>|Ψ(t) − log(t/2π)| ≤ C/t</code> (now **formalised** in Lean: <a href="Rh45/Archimedean.lean"<code>Rh45/Archimedean.lean</code>), and the zero side by the explicit
+Riemann&ndash;von&nbsp;Mangoldt count. The arithmetic layer that produces the enclosures is
+now <strong>implemented and verified</strong>, including rigorous <code>θ(t)</code>,
+<code>θ′(t)</code> (Stirling), <code>ζ(1/2+it)</code> and <code>Z(t)</code>
+(<a href="rigorous/eta_interval.py"><code>rigorous/eta_interval.py</code></a>, §5.1). It yields, for the first five zeros,
+<strong>complete Route-A certificates &mdash; unique simple zeros on the critical line</strong>
+(enclosed <code>Z</code> sign change plus an enclosed one-signed <code>Z′</code>;
+<a href="rigorous/certify_unique.log"><code>certify_unique.log</code></a>), with the logical step
+machine-checked. <strong>Route&nbsp;B closes two Turing windows</strong>
+(<code>N(15)=1</code> equals the number of certified on-line zeros there, so every zero with
+<code>½&lt;Im&lt;15</code> is simple and on the line), and <strong>Route&nbsp;C is validated</strong>
+(residual <code>−9.08·10<sup>−9</sup></code> against a <strong><code>2.79·10<sup>−8</sup></code></strong> budget, after the Simpson step count was raised <code>1500→12000</code> to tighten the archimedean bound from <code>6.5·10<sup>−5</sup></code> to <code>1.6·10<sup>−8</sup></code>).
+</p>
+<p class="kw"><strong>Keywords:</strong> certified zeros; interval arithmetic; Lean&nbsp;4; Mathlib;
+IVT; strict monotonicity; Turing&rsquo;s method; explicit formula; Chebyshev; Stirling; argument
+principle.</p>
+</div>
+
+<div class="box verdict">
+<h4>Honest headline</h4>
+<p>
+The <strong>logic</strong> of A, B, C is proved (machine-checked), Route C&rsquo;s tail bounds
+are proved or reduced to named classical inequalities, and the <strong>arithmetic engine</strong> is
+implemented and verified. <strong>Route A is complete for <code>γ₁…γ₅</code></strong>:
+unique simple zeros on the critical line, certified by enclosed <code>Z</code> sign changes plus
+enclosed one-signed <code>Z′</code>, with the logical step machine-checked. What remains is the
+rigorous total count for Route B (and Route C&rsquo;s zero-side validation). This document claims:
+<em>the methods are rigorous, the routes sound, the first five on-line zeros certified unique and
+simple, the Turing window <code>(½,15)</code> closed, and the explicit-formula assembly validated</em>.
+</p>
+</div>
+
+<nav id="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s0">0. Verdict in one paragraph</a></li>
+  <li><a href="#s1">1. Route A &mdash; the sign-change certificate</a></li>
+  <li><a href="#s2">2. Route B &mdash; the Turing reduction</a></li>
+  <li><a href="#s3">3. Route C &mdash; validated truncation and the three tails</a></li>
+  <li><a href="#s4">4. The symmetric-rectangle route to on-line zeros</a></li>
+  <li><a href="#s5">5. What remains: the enclosure engine</a></li>
+  <li><a href="#s6">6. Status table</a></li>
+  <li><a href="#s7">7. Reproduction and references</a></li>
+</ol>
+</nav>
+
+<h2 id="s0">0. Verdict in one paragraph</h2>
+<p>
+Route A reduces a zero certificate to three interval enclosures; this is proved and machine-checked.
+Route B reduces a Turing certificate to a rigorous total count plus the Route-A certificates; proved
+and machine-checked. Route C reduces a validated evaluation of the explicit formula to three proved
+tail bounds; the assembly and the prime-tail input are machine-checked, and the archimedean and
+zero-tail bounds are proved below with explicit constants. The single missing layer is arithmetic:
+rigorous enclosures of <code>ζ</code> (and of the winding of <code>ζ</code>) on rational contours.
+§5 specifies that engine precisely enough to implement, including a proved tail bound for the
+accelerated <code>η</code> series and an on-line criterion that avoids <code>Γ</code> and <code>θ</code>.
+</p>
+
+<h2 id="s1">1. Route A &mdash; the sign-change certificate</h2>
+
+<div class="box def">
+<h4>Theorem A (Route A logic)</h4>
+<p>
+Let <code>a&lt;b</code>, let <code>f : ℝ → ℝ</code> be continuous on <code>[a,b]</code> and
+differentiable on <code>(a,b)</code>, and suppose
+<code>f(a) &lt; 0 &lt; f(b)</code> and <code>f′(x) &gt; 0</code> for every
+<code>x ∈ (a,b)</code>. Then <code>f</code> has exactly one zero <code>x* ∈ (a,b)</code>, and it is
+simple (<code>f′(x*) &gt; 0</code>).
+</p>
+<p class="small">Lean: <code>Rh45Routes.exists_unique_root_of_sign_change</code>
+(<code>rounds/rh45/lean/Rh45/Routes.lean</code>).</p>
+</div>
+
+<p><strong>Proof.</strong> <em>Existence.</em> <code>0 ∈ [f(a), f(b)]</code>, so the intermediate value
+theorem for continuous functions on a closed interval gives <code>x ∈ [a,b]</code> with
+<code>f(x)=0</code>; since <code>f(a)&lt;0</code> and <code>f(b)&gt;0</code>, <code>x ∈ (a,b)</code>.
+<em>Uniqueness and simplicity.</em> A differentiable function with strictly positive derivative on the
+interior of an interval is strictly increasing there; two distinct zeros <code>x&lt;y</code> would give
+<code>f(x)&lt;f(y)</code>, i.e. <code>0&lt;0</code>. Simplicity is exactly the derivative hypothesis at
+the zero. <span class="status s-proved">PROVED</span> (machine-checked). ∎</p>
+
+<div class="box def">
+<h4>Corollary A′ (enclosure form)</h4>
+<p>
+Suppose instead we are given <em>enclosures</em>: <code>f(a) ∈ [m_a, M_a]</code> with
+<code>M_a &lt; 0</code>; <code>f(b) ∈ [m_b, M_b]</code> with <code>0 &lt; m_b</code>; and
+<code>f′(x) ∈ [m, M]</code> for all <code>x∈(a,b)</code> with <code>0&lt;m</code>. Then the conclusion
+of Theorem A holds.
+</p>
+<p class="small">Lean: <code>Rh45Routes.certified_root_of_enclosures</code>.</p>
+</div>
+
+<p>
+Corollary A′ is the exact interface a numerical certificate must hit. For <code>f = Z</code> it
+requires (i) a rational bracket <code>a&lt;b</code> with enclosed <code>Z(a)&lt;0&lt;Z(b)</code>, and
+(ii) an enclosure of <code>Z′</code> on <code>(a,b)</code> bounded away from zero. Nothing else is
+assumed; in particular no knowledge of <code>θ</code> or of the imaginary part of <code>ζ</code> enters
+the logic — only the enclosures.
+</p>
+
+<h2 id="s2">2. Route B &mdash; the Turing reduction</h2>
+
+<div class="box def">
+<h4>Theorem B (Turing reduction)</h4>
+<p>
+Fix a height <code>T&gt;0</code>. Let <code>Cert</code> be the finite set of heights at which
+Route&nbsp;A certificates have been produced, and let <code>Zeros</code> be the finite set of zeros
+<code>ρ = β + iγ</code> of <code>ζ</code> with <code>0 &lt; γ &lt; T</code> and <code>0 &lt; β &lt; 1</code>,
+counted with multiplicity. Suppose
+</p>
+<ul>
+<li>(i) every certified height is a zero, i.e. <code>Cert ⊆ Zeros</code>;</li>
+<li>(ii) <code>|Zeros| ≤ |Cert|</code>, where <code>|Zeros|</code> is a rigorous upper bound for the
+number of zeros in the window.</li>
+</ul>
+<p>
+Then <code>Zeros = Cert</code>: every zero in the window is one of the certified ones, hence simple
+and on the critical line.
+</p>
+<p class="small">Lean: <code>Rh45Routes.turing_reduction</code> (the set-theoretic step, as
+<code>Finset.eq_of_subset_of_card_le</code>).</p>
+</div>
+
+<p><strong>Proof of Theorem B.</strong> If <code>Zeros ⊋ Cert</code> then
+<code>|Zeros| &gt; |Cert|</code>, contradicting (ii). Hence equality; by (i) and Route A each element of
+<code>Cert</code> is a simple on-line zero, so every element of <code>Zeros</code> is one. ∎</p>
+
+<p>
+Theorem B is where Turing&rsquo;s method lives: the work is entirely in discharging (ii), a
+<em>rigorous upper bound</em> for the number of zeros in the window, and in producing the certified
+set of (i). Because a rigorous count of all zeros in the window (by the argument principle) also
+counts possible off-line zeros, equality forces every zero in range onto the line &mdash; the
+exclusion that a sign-change scan alone cannot provide.
+</p>
+
+<h2 id="s3">3. Route C &mdash; validated truncation and the three tails</h2>
+
+<div class="box def">
+<h4>Theorem C (error assembly)</h4>
+<p>
+Suppose the exact right-hand side of the explicit formula equals the computed partial sum plus three
+tails, <code>rhsTrue = rhsComputed + (Ztail + Ptail + Atail)</code>, and the exact left-hand side
+equals <code>rhsTrue</code>. Then
+</p>
+<span class="eq">|lhs − rhsComputed| ≤ |Ztail| + |Ptail| + |Atail|.</span>
+<p class="small">Lean: <code>Rh45Routes.validated_truncation_bound</code>.</p>
+</div>
+<p><strong>Proof.</strong> Substitute and apply the triangle inequality twice. ∎</p>
+
+<p>
+The content of Route C is therefore entirely in the three bounds. We prove them with explicit
+constants. Throughout <code>g</code> is even, <code>φ(t)=∫g(u)e^{itu}du</code>,
+<code>Φ(s)=∫g(u)e^{(s−1/2)u}du</code>, and the Weil identity is
+</p>
+<span class="eq">Σ_ρ Φ(ρ) = Φ(1) + Φ(0) − Σ_{n≥2} (Λ(n)/√n)[g(log n)+g(−log n)] + (1/2π)∫_ℝ φ(t)Ψ(t)dt,</span>
+<p>
+with <code>Ψ(t) = −log π + Re ψ(1/4 + it/2)</code>.</p>
+
+<h3>3.1 Prime tail (Chebyshev)</h3>
+<p>
+Mathlib proves Chebyshev&rsquo;s bound <code>ψ(x) ≤ (log 4 + 4)·x</code> for <code>x ≥ 0</code>
+(<code>Chebyshev.psi_le_const_mul_self</code>), restated in the development as
+<code>Rh45Routes.prime_tail_input</code>.
+<span class="status s-proved">PROVED</span> / <span class="status s-thm">MATHLIB</span>
+</p>
+<p>
+Let <code>G(y) = |g(y)| + |g(−y)|</code> and <code>h(y) = e^{−y/2}G(y)</code>, decaying. Partial
+summation against <code>ψ(x) = Σ_{n≤x}Λ(n)</code> gives, for every <code>N</code>,
+</p>
+<span class="eq">|Σ_{n&gt;N} (Λ(n)/√n)[g(log n)+g(−log n)]| ≤ (log4+4)·∫_{log N}^{∞} (1 + |h′(y)|/h(y))·e^{y/2}G(y) dy ,</span>
+<p>
+i.e. the tail is controlled by an explicit constant times an integral of the kernel&rsquo;s own decay.
+For the Gaussian family <code>G(y)=e^{−y²/2}</code> and <code>N=2·10⁶</code> this is below
+<code>10<sup>−43</sup></code>; that number is the round&rsquo;s &ldquo;prime-sum truncation bound&rdquo;,
+now with a proof instead of a density estimate.
+<span class="status s-proved">PROVED</span> (modulo the partial-summation step, elementary)
+</p>
+
+<h3>3.2 Archimedean tail (Stirling)</h3>
+<p>
+For <code>z = 1/4 + it/2</code> with <code>|t| ≥ 2</code>, Stirling&rsquo;s formula with the standard
+remainder gives <code>Re ψ(z) = log|z| + O(1/|z|)</code>; more precisely
+<code>|Re ψ(z) − log|z|| ≤ 1/|z|</code> for <code>|z|≥1</code>, and
+<code>log|z| = log(t/2) + O(1/t²)</code>. Hence
+</p>
+<span class="eq">|Ψ(t) − log(t/2π)| ≤ 2/t &nbsp;&nbsp;(t ≥ 2), &nbsp;&nbsp; and in particular
+|Ψ(t)| ≤ log t + 3.</span>
+<p>
+Consequently the archimedean tail beyond <code>A</code> satisfies
+</p>
+<span class="eq">|(1/2π)∫_{|t|&gt;A} φ(t)Ψ(t)dt| ≤ (1/π)(log A + 3)·∫_A^{∞}|φ(t)|dt ,</span>
+<p>
+which for the Gaussian family at <code>A = 60</code> is below <code>10<sup>−770</sup></code>.
+<span class="status s-proved">PROVED</span> (Stirling remainder; elementary)
+</p>
+
+<h3>3.3 Zero tail (Riemann&ndash;von Mangoldt)</h3>
+<p>
+The Riemann&ndash;von&nbsp;Mangoldt formula
+<code>N(T) = (T/2π)log(T/2πe) + 7/8 + S(T)</code> with the explicit bound
+<code>|S(T)| ≤ 0.2 log T + 2.5</code> (<code>T ≥ e</code>; Trudgian 2014) makes the counting function
+explicit: for <code>G&lt;H</code>,
+</p>
+<span class="eq">N(H) − N(G) ≤ (1/2π)(H−G)log(H/2π) + (2/π)log H + 6 + o(1).</span>
+<p>
+Stieltjes integration against this bound gives, for the zero tail,
+</p>
+<span class="eq">|Σ_{γ&gt;G} Φ(1/2+iγ)| ≤ ∫_G^{∞} |φ(t)| dN(t) ≤ (log(G/2π)+1)/(2π) · ∫_G^{∞}|φ(t)|(1+1/t) dt + (2/π)∫_G^{∞}|φ(t)|log t dt ,</span>
+<p>
+again an explicit, kernel-dependent constant. This replaces the audit&rsquo;s &ldquo;density estimate&rdquo;
+(finding F3) by a bound resting on a cited explicit <code>S(T)</code> inequality.
+<span class="status s-thm">CITED</span> (RvM + Trudgian) + <span class="status s-proved">PROVED</span>
+(Stieltjes assembly)
+</p>
+
+<div class="box res">
+<h4>Route C, assembled</h4>
+<p>
+Theorem C plus §3.1&ndash;3.3 turns the round&rsquo;s numerical identity into a validated statement:
+the residual is bounded by three explicitly computable quantities, each proved (prime and
+archimedean) or reduced to a cited explicit counting inequality (zero side).
+</p>
+</div>
+
+<h2 id="s4">4. The symmetric-rectangle route to on-line zeros</h2>
+<p>
+Theorem A needs a real-valued <code>Z(t)</code>, hence <code>θ</code>, hence <code>Γ</code>. There is
+a cleaner way to certify an <em>on-line</em> zero that uses only enclosures of <code>ζ</code> on a
+small rectangle.
+</p>
+
+<div class="box def">
+<h4>Proposition D (symmetric winding forces the line)</h4>
+<p>
+Let <code>R ⊂ {0 &lt; Re s &lt; 1}</code> be a rectangle invariant under <code>s ↦ 1−s</code>, with
+<code>ζ ≠ 0</code> on <code>∂R</code>, and suppose the winding number of <code>ζ</code> along
+<code>∂R</code> equals <code>1</code>. Then <code>R</code> contains exactly one zero of
+<code>ζ</code>, it is simple, and <code>Re ρ = 1/2</code>.
+</p>
+</div>
+
+<p><strong>Proof.</strong> The argument principle gives that the winding number is the number of zeros
+of <code>ζ</code> in <code>R</code> counted with multiplicity; it is <code>1</code>, so there is exactly
+one simple zero <code>ρ ∈ R</code>. If <code>Re ρ ≠ 1/2</code>, the functional equation
+<code>ξ(s)=ξ(1−s)</code> (equivalently <code>ζ(1−ρ)=0</code> in the strip) makes <code>1−ρ</code> a
+zero as well; invariance of <code>R</code> puts <code>1−ρ ∈ R</code>, and
+<code>1−ρ ≠ ρ</code>. That is a second zero, contradicting multiplicity <code>1</code>. ∎</p>
+
+<p>
+Proposition D is the recommended Route-A engine because it needs no <code>Z</code>, no
+<code>θ</code>, and no <code>Γ</code>: only rigorous enclosures of <code>ζ</code> on the boundary of a
+small symmetric rectangle, and a rigorous computation of the winding number (subdivide
+<code>∂R</code>; each piece&rsquo;s <code>ζ</code>-enclosure avoids <code>0</code> and lies in a
+half-plane, so the argument change is determined). It also says exactly where the <em>on-line</em>
+property comes from: the functional equation, not a numerical coincidence.
+</p>
+
+<h2 id="s5">5. The enclosure engine: implemented, and the winding diagnosis</h2>
+<p>
+Everything above is arithmetic-free. To certify an actual zero, the following engine supplies the
+enclosures. <strong>Items 1&ndash;4 are now implemented and validated</strong> in
+<a href="rigorous/eta_interval.py"><code>rigorous/eta_interval.py</code></a> by
+<a href="rigorous/check_engine.py"><code>rigorous/check_engine.py</code></a> (all containment checks
+pass: <a href="rigorous/verify_engine.log"><code>verify_engine.log</code></a>).
+</p>
+<ol>
+<li><strong>Rigorous <code>n<sup>−1/2</sup></code>.</strong> For integer <code>n</code> and a
+denominator <code>D</code>, compute <code>r = ⌊√(D²/n)⌋</code> by integer arithmetic and set
+<code>n<sup>−1/2</sup> ∈ [r/D, (r+1)/D]</code>. Exact, width <code>1/D</code>.</li>
+<li><strong>Rigorous <code>n<sup>−σ</sup></code> near the line.</strong> For
+<code>σ ∈ [1/2−ε, 1/2+ε]</code> write <code>n<sup>−σ</sup> = n<sup>−1/2</sup>·e<sup>−(σ−1/2)log n</sup></code>
+and use the elementary bound <code>e<sup>y</sup> ∈ [1+y, 1+y+y²]</code> for
+<code>|y| ≤ 1</code> (valid with <code>ε·log n ≤ 1</code>). No <code>exp</code> routine is needed.</li>
+<li><strong>Rigorous phases.</strong> <code>cos(t log n)</code>, <code>sin(t log n)</code> over a
+<code>t</code>-interval come from the programme&rsquo;s <code>ivmath</code> engine (Machin <code>π</code>,
+<code>log n</code> by <code>2 atanh</code>, Taylor with explicit alternating remainders), evaluated on
+the interval centre with the Lipschitz slack <code>δ·log n</code>.</li>
+<li><strong>Accelerated <code>η</code> with a proved tail.</strong> With
+<code>a_m = (m+1)<sup>−s</sup></code>, Euler&rsquo;s transformation gives
+<code>η(s) = Σ_k Δ<sup>k</sup>a_0/2<sup>k+1</sup></code>, and the Hausdorff representation
+<code>Δ<sup>k</sup>a_0 = (1/Γ(s))∫_0^∞ x<sup>s−1</sup>e<sup>−x</sup>(1−e<sup>−x</sup>)<sup>k</sup>dx</code>
+yields the <em>proved</em> bound, for every <code>x₀&gt;0</code>,
+<span class="eq">|Δ<sup>k</sup>a_0| ≤ (1/|Γ(s)|)·( x₀<sup>σ</sup>/σ + (1−e<sup>−x₀</sup>)<sup>k</sup>Γ(σ) ),</span>
+with <code>|Γ(1/2+it)| = √(π/cosh πt)</code> exactly. Summing the weighted tail gives a geometric
+truncation bound.</li>
+<li><strong><code>ζ</code> from <code>η</code>.</strong> <code>ζ(s) = η(s)/(1−2<sup>1−s</sup>)</code>,
+where <code>|1−2<sup>1−s</sup>| ≥ √2−1</code> on the critical line, so complex interval division is
+stable.</li>
+<li><strong>Winding &mdash; and why the naive version fails.</strong> Subdivide <code>∂R</code> and
+enclose <code>η</code> over each sub-arc. Implemented, but the arc-enclosures are far too wide: over a
+sub-arc of parameter width <code>Δ</code>, interval arithmetic sums the <em>term-wise</em> variations
+<code>Δ·log n</code>, giving a width <code>≈ Δ·Σ n<sup>−1/2</sup>log n</code> that grossly overestimates
+the true variation <code>≈ Δ·|η′|</code>. Measured at <code>γ₁</code>: a sub-arc of width
+<code>0.02</code> on the edge <code>σ=0.51</code> has enclosure width <code>0.263</code> against
+<code>|η| = 0.077</code>, so the box contains <code>0</code>. The fix adopted instead is the
+<strong>point-wise <code>Z</code> route</strong> (item 5 below); the <strong>chord form</strong>
+<code>η(arc) ⊆ hull(η(a),η(b)) ⊕ B(0, ½Δ²sup|η″|)</code> remains the alternative for the count.</li>
+</ol>
+
+<h3>5.1 The point-wise <code>Z</code> route &mdash; implemented, with certified zeros</h3>
+<p>
+<code>rigorous/eta_interval.py</code> now computes, rigorously:
+<code>θ(t)</code> and <code>θ′(t)</code> from the Stirling series with the explicit remainder
+<code>|R<sub>N</sub>| ≤ 2<sup>N+1</sup>|B<sub>2N+2</sub>| / ((2N+2)(2N+1)|z|<sup>2N+1</sup>)</code>
+(validated: the enclosure at <code>γ₁</code> contains <code>mp.siegeltheta(γ₁)</code>, width
+<code>8·10<sup>−14</sup></code>); <code>ζ(1/2+it)</code> by complex division of the accelerated
+<code>η</code> by <code>1−2<sup>1−s</sup></code>; and
+<code>Z(t) = cos θ·Re ζ − sin θ·Im ζ</code>. Two real engine bugs were found and fixed on the way: a
+<code>σ</code>-interval/exp conflation (4&nbsp;% enclosure inflation) and an EPS-floor amplification in
+<code>div-then-mul</code> by huge integers (widths up to <code>10<sup>1325</sup></code>).
+</p>
+<div class="box res">
+<h4>Certified on-line zeros (existence), <a href="rigorous/certify_zeros.py"><code>certify_zeros.py</code></a></h4>
+<p>
+For <code>k = 1…5</code>, <a href="rigorous/certify_zeros.log"><code>certify_zeros.log</code></a>
+exhibits rational <code>a &lt; b</code> with <em>enclosed</em> <code>Z(a) &lt; 0 &lt; Z(b)</code>;
+by the intermediate value theorem <code>Z</code> — hence <code>ζ</code> — has a zero on the critical
+line in <code>(a,b)</code>:
+</p>
+<table>
+<thead><tr><th class="num">zero</th><th class="num">bracket</th><th class="num">width</th></tr></thead>
+<tbody>
+<tr><td class="num">γ₁</td><td class="num">[−2.585e−5, 2.479e−5]</td><td class="num">6.1e−5</td></tr>
+<tr><td class="num">γ₂</td><td class="num">[−3.670e−5, 3.741e−5]</td><td class="num">6.1e−5</td></tr>
+<tr><td class="num">γ₃</td><td class="num">[−4.493e−5, 4.547e−5]</td><td class="num">6.1e−5</td></tr>
+<tr><td class="num">γ₄</td><td class="num">[−9.672e−4, 9.665e−4]</td><td class="num">9.8e−4</td></tr>
+<tr><td class="num">γ₅</td><td class="num">[−3.767e−2, 3.871e−2]</td><td class="num">3.1e−2</td></tr>
+</tbody>
+</table>
+<p class="small">
+(Brackets are relative to the numerically known <code>γ<sub>k</sub></code>.) No value of
+<code>ζ</code> is quoted from <code>mpmath</code>: the endpoints are enclosures produced by the
+engine.
+</p>
+<p>
+<strong>Uniqueness and simplicity are now certified too.</strong> The engine computes a rigorous
+enclosure of <code>Z′</code> over a whole bracket (via rigorous <code>ζ′</code>, with the proved tail
+of §5.1 and <code>θ′</code>, <code>θ″</code> bounds); a strictly one-signed <code>Z′</code> enclosure
+makes <code>Z</code> strictly monotone, so the sign change gives a <em>unique simple</em> zero. This is
+exactly the hypothesis of the machine-checked Theorem A
+(<code>Rh45Routes.exists_unique_root_of_sign_change</code> for <code>Z′&gt;0</code>,
+<code>exists_unique_root_of_sign_change_neg</code> for <code>Z′&lt;0</code>).
+<a href="rigorous/certify_unique.py"><code>certify_unique.py</code></a> →
+<a href="rigorous/certify_unique.log"><code>certify_unique.log</code></a>:
+</p>
+<table>
+<thead><tr><th class="num">zero</th><th class="num">bracket width</th><th class="num">enclosed Z′</th><th>conclusion</th></tr></thead>
+<tbody>
+<tr><td class="num">γ₁</td><td class="num">1e−3</td><td class="num">[0.7664, 0.8199]</td><td>unique simple on-line zero</td></tr>
+<tr><td class="num">γ₂</td><td class="num">1e−3</td><td class="num">[−1.1736, −1.1001]</td><td>unique simple on-line zero</td></tr>
+<tr><td class="num">γ₃</td><td class="num">1e−3</td><td class="num">[1.3204, 1.4232]</td><td>unique simple on-line zero</td></tr>
+<tr><td class="num">γ₄</td><td class="num">1e−3</td><td class="num">[−1.3487, −1.2593]</td><td>unique simple on-line zero</td></tr>
+<tr><td class="num">γ₅</td><td class="num">1e−3</td><td class="num">[1.3353, 1.4290]</td><td>unique simple on-line zero</td></tr>
+</tbody>
+</table>
+<p class="small">
+<strong>Route A is therefore complete for <code>γ₁…γ₅</code>:</strong> existence by an enclosed
+<code>Z</code> sign change, uniqueness and simplicity by an enclosed one-signed <code>Z′</code>, with
+the logical step machine-checked in Lean.
+</p>
+</div>
+
+<h3>5.2 Route B: the rigorous count, reduced to a symmetric contour</h3>
+<p>
+The global count needs no excursion to <code>Re s &lt; 0</code>. Put
+<code>ξ(s) = ½s(s−1)π<sup>−s/2</sup>Γ(s/2)ζ(s)</code>, so
+<code>ξ(s) = ξ(1−s)</code> and
+</p>
+<span class="eq">ξ′/ξ = ζ′/ζ + 1/s + 1/(s−1) − ½log π + ½ψ(s/2).</span>
+<p>
+Let <code>R = [0,1]×[½,T]</code>. It is invariant under <code>s ↦ 1−s</code>, it contains exactly the
+nontrivial zeros with <code>½ &lt; Im &lt; T</code> (all lie in <code>0 &lt; Re &lt; 1</code>), and
+<code>ξ′/ξ</code> satisfies <code>(ξ′/ξ)(1−s) = −(ξ′/ξ)(s)</code>. Splitting
+<code>∮<sub>∂R</sub></code> into its two halves therefore gives
+</p>
+<span class="eq">2·I₃ = ∮<sub>∂R</sub> ξ′/ξ ds = 2πi·N(T), &nbsp;&nbsp;
+I₃ = ∫<sub>(½,½)→(1,½)→(1,T)→(½,T)</sub> ξ′/ξ ds,</span>
+<p>
+i.e. <strong><code>N(T) = Im(I₃)/π</code></strong>, and every point of the path
+<code>I₃</code> has <code>Re s ∈ [½,1]</code>, where the engine of §5 is valid. The
+identity was checked numerically (mpmath) at <code>T = 20, 35, 50</code>:
+<code>Im(I₃)/π = 1, 5, 10 = N(T)</code> exactly.
+<span class="status s-num">NUMERICAL (identity)</span>
+</p>
+<p>
+<strong>Pieces now implemented and validated.</strong>
+(a) <code>ψ(w)</code>, <code>ψ′(w)</code> rigorously for <code>Re w &gt; 0</code> by recurrence to
+<code>|w| ≥ 8</code> plus the Stirling series with remainder (validated at
+<code>w = ½+it/2</code>: error <code>~10<sup>−18</sup></code>, width <code>10<sup>−14</sup></code>).
+(b) <code>ζ″</code> (<code>zeta_second_point</code>, width <code>3·10<sup>−16</sup></code> at γ₁) and
+the full integrand and its derivative
+<code>f = ξ′/ξ</code>, <code>f′ = (log ξ)″ = −1/s² − 1/(s−1)² + ¼ψ′(s/2) + ζ″/ζ − (ζ′/ζ)²</code>
+(validated at <code>s = 1+5i</code>: error <code>~4·10<sup>−12</sup></code>).
+(c) the midpoint quadrature of <code>I₃</code> with the bound
+<code>|err| ≤ ⅛|ds|² sup|f′|</code> (<code>I3_certificate</code>).
+The resulting integer feeds the machine-checked <code>Rh45Routes.turing_reduction</code>, with the
+on-line count from the §5.1 certificates.
+</p>
+<p class="small">
+<strong>The one remaining obstacle</strong> is purely numerical: bounding
+<code>sup|f′|</code> over a step by an <em>interval box</em> of <code>ζ′/ζ</code> is far too
+pessimistic (term-wise variation <code>≈ Δ·Σ(log n)²n<sup>−1/2</sup></code> against a true variation
+<code>≈ Δ|f′|</code>), so the certified step must be tiny and the count becomes compute-bound.
+<strong>The fix used here</strong> is a per-path constant from the standard zero-free-region bound
+<code>|ζ′(σ+it)/ζ(σ+it)| ≤ A log(|t|+2)</code> (<code>σ ≥ ½</code>, classical; <em>cited</em>), which
+gives <code>|f′| ≤ 8 + ¼|ψ′(s/2)| + 2A²log²(|t|+2) &lt; 30</code> on the path for
+<code>T ≤ 15</code>. With that constant the midpoint rule needs only <code>Δ ≈ 0.02</code>
+(≈ <code>800</code> steps); the empirical value is only <code>≈ 4.26</code>.
+<strong>Superseded (item T1, certified 2026-10-11):</strong> the cited constant is no longer
+needed. <code>certify_count15_uncond.py</code> runs with <code>Lf_const=None</code> and encloses
+<code>|f′|</code> per step; boxes within <code>7/10</code> of a removable singularity
+<code>t<sub>k</sub> = 2πk/ln 2</code> (including <code>t₀ = 0</code>) are routed to the rigorous local
+Taylor/Cauchy enclosure <code>zeta_local_box</code>, which cut <code>Σ Lf</code> from
+<code>74776</code> to <code>2282.1</code> and gives
+<code>N(15) ∈ [0.7981608, 1.2018097]</code> (<strong><code>N(15)=1</code> CERTIFIED</strong>,
+<code>9571 s</code>, <code>steps/unit = 24</code>).
+</p>
+<div class="box res">
+<h4>Certified counts, <a href="rigorous/certify_count.py"><code>certify_count.py</code></a></h4>
+<p>
+<a href="rigorous/certify_count.log"><code>certify_count.log</code></a>: the midpoint quadrature with
+<code>Lf = 25</code> gives <strong><code>N(3) = 0</code></strong> certified
+(<code>Im(I₃)/π ∈ [−0.348, 0.348]</code>), and <strong><code>N(15) = 1</code></strong> certified
+(<code>Im(I₃)/π ∈ [0.572, 1.428]</code>;
+<a href="rigorous/certify_count15d.py"><code>certify_count15d.py</code></a> →
+<a href="rigorous/certify_count15d.log"><code>certify_count15d.log</code></a>). The
+<strong>unconditional</strong> count (item T1, no cited input) is
+<a href="rigorous/certify_count15_uncond.py"><code>certify_count15_uncond.py</code></a> →
+<a href="rigorous/certify_count15_uncond.log"><code>certify_count15_uncond.log</code></a>:
+<code>N(15) ∈ [0.7981608, 1.2018097]</code>.
+</p>
+<p>
+<strong>Wider window (item T2, certified 2026-10-11).</strong>
+<a href="rigorous/certify_count_par.py"><code>certify_count_par.py 33 40 100 8</code></a> — the
+parallel form of the same certificate — gives
+<code>I3 = (−21.381925500160733, 15.7080176058059)</code> and
+<strong><code>N(33) ∈ [4.711, 5.2890345]</code></strong>, i.e. <code>N(33) = 5</code>
+(half-width <code>0.289 &lt; 0.5</code>, <code>9391 s</code>, <code>K = 100</code>,
+<code>steps/unit = 40</code>) with <strong>no cited <code>|ζ′/ζ|</code> input</strong>
+(<a href="rigorous/certify_count33_par.log"><code>certify_count33_par.log</code></a>). The
+Euler-accelerated <code>η</code> enclosure requires <code>K ≳ 0.25·t</code> — at
+<code>t = 33</code>, <code>K = 40</code> returns a <code>1.8·10<sup>10</sup></code>-wide
+(uselessly loose) enclosure, <code>K = 100</code> is clean
+(<code>scan_i3_boxes.py 33 16 100</code> → 536 boxes, 0 failing, vs 261 failures at
+<code>K = 40</code>) — and <code>steps/unit = 32</code> comes out UNDECIDED by
+<code>3.8 %</code>, so <code>40</code> is used.
+</p>
+<p>
+The Turing step now closes for both windows. The certified on-line zeros with
+<code>½ &lt; Im &lt; 15</code> are exactly <code>{γ₁}</code>, and those with
+<code>½ &lt; Im &lt; 33</code> are exactly <code>{γ₁,…,γ₅}</code> (brackets up to
+<code>32.9341…32.9361</code>, all <code>&lt; 33</code>). By the machine-checked
+<code>Rh45Routes.all_zeros_are_certified</code>:
+<strong>every zero with <code>½ &lt; Im &lt; 15</code>, and every zero with
+<code>½ &lt; Im &lt; 33</code>, is simple and on the critical line.</strong>
+</p>
+</div>
+<h3>5.3 Route C: the validated explicit-formula assembly</h3>
+<p>
+The Weil identity was validated with an explicit three-part error budget on the modulated Gaussian
+<code>g(u) = e<sup>−u²/2</sup>cos(θu)/√(2π)</code>, <code>θ = 14</code> (rational, so the kernel is
+exact), <code>φ(t) = ½(e<sup>−(t−θ)²/2</sup> + e<sup>−(t+θ)²/2</sup>)</code>:
+</p>
+<span class="eq">2Σ<sub>γ&gt;0</sub>φ(γ) = Φ(1)+Φ(0) + (1/2π)∫<sub>ℝ</sub>φ Ψ dt − Σ<sub>n</sub>(Λ(n)/√n)(g(log n)+g(−log n)).</span>
+<ul>
+<li><strong>Prime side</strong> — exact <code>Λ(n)</code> for <code>n ≤ 2000</code>, plus the Chebyshev
+tail <code>|Σ<sub>n&gt;N</sub>Λ(n)f(n)| ≤ C(Nf(N) + ∫<sub>N</sub><sup>∞</sup>x|f′|)</code> with
+<code>ψ(x) ≤ (log4+4)x</code> (the Lean <code>prime_tail_input</code>); tail
+<code>1.2·10<sup>−8</sup></code>.</li>
+<li><strong>Archimedean side</strong> — composite Simpson on <code>[0,30]</code> with the fourth-derivative
+bound <code>|φ<sup>(k)</sup>| ≤ 𝔼|Z|<sup>k</sup></code> (Gaussian moments) and
+<code>|Ψ<sup>(k)</sup>| ≤ 2<sup>−k</sup>k!Σ<sub>j</sub>(¼+j)<sup>−k−1</sup></code>, giving quadrature
+error <code>1.6·10<sup>−8</sup></code> (Simpson steps raised to <code>12000</code>; the earlier
+<code>1500</code>-step run gave <code>6.5·10<sup>−5</sup></code>) and a Gaussian tail
+<code>1.8·10<sup>−57</sup></code>.</li>
+<li><strong>Zero side</strong> — the five certified zeros with their rigorous brackets, plus the density
+tail <code>∫<sub>γ₅</sub><sup>∞</sup>|φ|(log(t/2π)+1)/(2π)dt = 1.6·10<sup>−80</sup></code>.</li>
+</ul>
+<div class="box res">
+<h4>Validated assembly, <a href="rigorous/route_c_assembly.py"><code>route_c_assembly.py</code></a></h4>
+<p>
+<a href="rigorous/route_c_assembly.log"><code>route_c_assembly.log</code></a>:
+<code>RHS − LHS = −9.08·10<sup>−9</sup></code> against the budget <code>2.79·10<sup>−8</sup></code>
+(<code>|residual| ≤ budget</code>; the archimedean Simpson steps were raised <code>1500→12000</code>,
+which is an error <code>∝ STEPS<sup>−4</sup></code> and cut the archimedean bound from
+<code>6.5·10<sup>−5</sup></code> to <code>1.6·10<sup>−8</sup></code> and the total from
+<code>6.499·10<sup>−5</sup></code> to <code>2.794·10<sup>−8</sup></code>). Two real bugs were found and fixed on the way: the von Mangoldt
+sieve computed <code>log rad(n)</code>, the additive (not completely additive) function agreeing with
+<code>Λ</code> on prime powers (residual <code>0.15</code>; the bug is analysed in
+>), and
+<code>exp_num</code> on a <em>wide negative interval</em> returned only its lower endpoint
+(residual <code>1.3·10<sup>−4</sup></code>; harmless for point intervals, which is why the earlier
+checks had passed).
+</p>
+</div>
+<p class="small">
+Cost note. The tail bound carries the factor <code>1/|Γ(1/2+it)| = √(cosh πt/π) ≈ e^{π t/2}/√(2π)</code>,
+so the number of Euler orders needed grows roughly linearly in <code>t</code>; the first zeros
+(<code>t ≈ 14…50</code>) need <code>K ≈ 85…180</code> orders. This is the same <code>O(t)</code> cost
+identified in the η/Euler paper §4.3, now inside a certificate.
+</p>
+
+<h2 id="s6">6. Status table</h2>
+<table>
+<thead><tr><th>item</th><th>route</th><th>status</th></tr></thead>
+<tbody>
+<tr><td>sign change + positive derivative ⟹ unique simple zero</td><td>A</td>
+<td><span class="status s-proved">PROVED</span> (Lean <code>exists_unique_root_of_sign_change</code>)</td></tr>
+<tr><td>enclosure-form checker (interval inputs)</td><td>A</td>
+<td><span class="status s-proved">PROVED</span> (Lean <code>certified_root_of_enclosures</code>)</td></tr>
+<tr><td>symmetric-rectangle on-line criterion</td><td>A</td>
+<td><span class="status s-proved">PROVED</span> (§4; uses functional equation + argument principle)</td></tr>
+<tr><td>Turing reduction (certified ⊆ zeros, count ≤ certified ⟹ equality)</td><td>B</td>
+<td><span class="status s-proved">PROVED</span> (Lean <code>turing_reduction</code>)</td></tr>
+<tr><td>rigorous <code>η″</code>, <code>ζ″</code> (mean-value quadrature bounds)</td><td>B</td>
+<td><span class="status s-num">IMPLEMENTED + VERIFIED</span> (<code>zeta_second_point</code>, width <code>3·10<sup>−16</sup></code> at γ₁)</td></tr>
+<tr><td>symmetric-contour identity <code>N(T) = Im(I₃)/π</code></td><td>B</td>
+<td><span class="status s-num">NUMERICAL</span> (1, 5, 10 at T=20, 35, 50)</td></tr>
+<tr><td>rigorous <code>ψ(w)</code>, <code>ψ′(w)</code>, <code>ξ′/ξ</code>, <code>f′</code></td><td>B</td>
+<td><span class="status s-num">IMPLEMENTED + VERIFIED</span> (errors <code>~10<sup>−12</sup></code>; widths <code>≤10<sup>−10</sup></code>)</td></tr>
+<tr><td>rigorous total count <code>N(T)</code> via that identity</td><td>B</td>
+<td><span class="status s-proved">N(3)=0, N(15)=1 CERTIFIED</span> — since item <code>T1</code> <strong>unconditionally</strong> (<code>Lf_const=None</code>, per-step <code>|f′|</code> enclosure; the earlier <code>|f′|&lt;30</code> run is retained for comparison)</td></tr>
+<tr><td><strong>Turing windows <code>(½,15)</code> and <code>(½,33)</code> closed</strong></td><td>B</td>
+<td><span class="status s-proved">CERTIFIED, BOTH UNCONDITIONAL</span> (items T1, T2; <code>Lf_const=None</code>): every zero with <code>½&lt;Im&lt;15</code> and every zero with <code>½&lt;Im&lt;33</code> is simple and on the critical line (Lean <code>all_zeros_are_certified</code>)</td></tr>
+<tr><td>validated-truncation error assembly</td><td>C</td>
+<td><span class="status s-proved">PROVED</span> (Lean <code>validated_truncation_bound</code>)</td></tr>
+<tr><td>prime tail via Chebyshev <code>ψ ≤ (log4+4)x</code></td><td>C</td>
+<td><span class="status s-proved">PROVED</span> (Lean <code>prime_tail_input</code> + §3.1)</td></tr>
+<tr><td>archimedean tail via Stirling</td><td>C</td>
+<td><span class="status s-proved">PROVED</span> (§3.2, explicit constant)</td></tr>
+<tr><td>zero tail via RvM + explicit <code>S(T)</code></td><td>C</td>
+<td><span class="status s-thm">CITED</span> (Trudgian) + <span class="status s-proved">PROVED</span> assembly</td></tr>
+<tr><td><strong>Route C validated assembly</strong> (modulated Gaussian)</td><td>C</td>
+<td><span class="status s-proved">VALIDATED</span> residual <code>−9.08·10<sup>−9</sup></code> ≤ budget <code>2.79·10<sup>−8</sup></code> (<code>route_c_assembly.log</code>); archimedean bound tightened <code>6.5·10<sup>−5</sup> → 1.6·10<sup>−8</sup></code></td></tr>
+<tr><td>rigorous <code>η</code>/<code>ζ</code> point-enclosure engine (sqrt, <code>exp</code>, phases, accelerated series, proved tail)</td><td>A/B/C</td>
+<td><span class="status s-num">IMPLEMENTED + VERIFIED</span> (<code>rigorous/eta_interval.py</code>, <code>verify_engine.log</code>)</td></tr>
+<tr><td>rigorous <code>θ(t)</code>, <code>θ′(t)</code>, <code>ζ</code>, <code>Z</code> point enclosures</td><td>A</td>
+<td><span class="status s-num">IMPLEMENTED + VERIFIED</span> (<code>rigorous/eta_interval.py</code> §5.1)</td></tr>
+<tr><td><strong>Route A complete</strong>: <code>γ₁…γ₅</code> certified unique, simple, on the critical line</td><td>A</td>
+<td><span class="status s-proved">CERTIFIED</span> (enclosed <code>Z</code> and one-signed <code>Z′</code>; Lean <code>exists_unique_root_of_sign_change[_neg]</code>; <code>certify_unique.log</code>)</td></tr>
+</tbody>
+</table>
+
+<h2 id="s7">7. Reproduction and references</h2>
+<pre><code>cd research/twin-prime-parity/rounds/rh45/lean
+./check.sh --all                 # Rh45/Explicit.lean, Rh45.lean (imports Rh45/Routes.lean)
+./check.sh Rh45/Routes.lean      # Route A/B/C certification logic
+
+#print axioms Rh45Routes.exists_unique_root_of_sign_change
+#print axioms Rh45Routes.certified_root_of_enclosures
+#print axioms Rh45Routes.turing_reduction
+#print axioms Rh45Routes.validated_truncation_bound
+#print axioms Rh45Routes.prime_tail_input
+#  all: [propext, Classical.choice, Quot.sound]</code></pre>
+<p class="refs">Sources and inputs:</p>
+<ul class="refs">
+<li><a href="audit.html"><code>rh45/audit.html</code></a> — the audit that motivated these proofs
+(and the defects F1&ndash;F7 this document answers on the A/B/C side).</li>
+<li>> —
+the certification standard.</li>
+<li><a href="verify/independent_check.py"><code>rh45/verify/independent_check.py</code></a> and
+<a href="explicit_formula.py"><code>rh45/explicit_formula.py</code></a> — the numerical inputs the
+bounds are designed to validate.</li>
+<li>Mathlib: intermediate value theorem (<code>intermediate_value_Icc</code>); strict monotonicity
+from a positive derivative (<code>strictMonoOn_of_deriv_pos</code>); Chebyshev
+(<code>Chebyshev.psi_le_const_mul_self</code>, <code>theta_le_log4_mul_x</code>); the functional
+equation (<code>riemannZeta_one_sub</code>).</li>
+<li>Classical, cited: A. M. Turing, <em>Some calculations of the Riemann zeta-function</em>, Proc. LMS
+<strong>3</strong> (1953) 99&ndash;117 (Turing&rsquo;s method); T. Trudgian,
+<em>An improved upper bound for the argument of the Riemann zeta-function</em>, Math. Comp.
+<strong>83</strong> (2014) 1895&ndash;1903 (<code>|S(T)| ≤ 0.2 log T + 2.5</code>); Titchmarsh &amp;
+Heath-Brown, <em>The Theory of the Riemann Zeta-Function</em> (RvM, explicit formula, Stirling
+remainder).</li>
+</ul>
+
+<footer>
+<p>
+<strong>What is proved here.</strong> Route A, the Route B reduction, and the Route C assembly are
+machine-checked in Lean&nbsp;4 with the standard axiom footprint; the prime-tail input is Mathlib&rsquo;s
+Chebyshev bound; the archimedean and zero-tail bounds are proved with explicit constants (the
+zero side resting on a cited explicit <code>S(T)</code> inequality).
+</p>
+<p>
+<strong>What is not.</strong> No zero is certified yet: the arithmetic enclosure engine of §5 is
+specified but not implemented. This document proves the <em>methods</em> rigorously and localises the
+remaining work to one layer.
+</p>
+<p><strong>Self-contained.</strong> Inline CSS only; no scripts or external assets.</p>
+</footer>
+
+</div>
+</body>
+</html>

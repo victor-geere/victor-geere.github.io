@@ -1,0 +1,138 @@
+==============================================================================
+OP-19  the log-indicator barrier: numerical part (finite-range only)
+==============================================================================
+sieve bound            N = 1000000000
+block size                 16777216
+arcs I=[0,theta)       theta in {pi/2, pi, 3pi/2}
+twisted sanity t           1, 2, 3.14159, 7.3, 33
+exact int64 sums of int8 lambda; float64 log only for the indicator
+
+------------------------------------------------------------------------------
+S0  sieve correctness (independent smallest-prime-factor reference)
+------------------------------------------------------------------------------
+  [PASS] S0.sieve.matches.reference         (-1)^Omega equals the spf recurrence for every n <= 20000, in blocks of 977
+  primes <= sqrt(N): 3401
+
+------------------------------------------------------------------------------
+S1  scan [1, N], accumulate C_I exactly, track prefix maxima
+------------------------------------------------------------------------------
+  report points: 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
+  block   10/60  n<=167772160  (45.3s)
+  block   20/60  n<=335544320  (94.2s)
+  block   30/60  n<=503316480  (146.4s)
+  block   40/60  n<=671088640  (197.2s)
+  block   50/60  n<=838860800  (245.7s)
+  block   60/60  n<=1000000000  (295.9s)
+  scan done in 295.9s
+
+  checks:
+  [PASS] S1.integer_sums_finite             all C_I values are exact int64 sums of int8 products (-1,0,+1)
+  [PASS] S1.trivial_bound                   |C_I(x)| <= x at every reported point (trivial bound)
+  [PASS] S1.prefix_max_monotone             prefix maxima are non-decreasing along the reported points
+  [PASS] S1.boundary_mpmath                 12 point(s) within 1e-09 of an arc endpoint re-checked at 60 dps; float64 classification agrees
+  [PASS] S1.spot_python_lambda              last 1000 values of the sieve equal a trial-division Omega computation (sum 20)
+
+------------------------------------------------------------------------------
+S2  results at x = 10^k (C exact, M = max_{x'<=x}|C|)
+------------------------------------------------------------------------------
+
+  I = [0, pi/2)   (frac = 0.250000)
+           x           C_I(x)   M=prefixmax|C|            C/x      M/sqrt(x)
+          10                0                1   0.000000e+00       0.316228
+         100                0                1   0.000000e+00       0.100000
+        1000               -1               15  -1.000000e-03       0.474342
+       10000              -24               35  -2.400000e-03       0.350000
+      100000              -24               35  -2.400000e-04       0.110680
+     1000000             -377             1100  -3.770000e-04       1.100000
+    10000000             -969             1100  -9.690000e-05       0.347851
+   100000000             -969             1100  -9.690000e-06       0.110000
+  1000000000           -22904            26830  -2.290400e-05       0.848439
+  fit  log M = alpha*log x + b      : alpha = 0.5514 +- 0.0650   (x >= 100, 8 points)
+  fit  last 4 points only           : alpha = 0.4162 +- 0.2403
+  fit  |C_I(x)| (not max)           : alpha = 0.6127 +- 0.0576
+  local exponents log10(M_{k+1}/M_k): 0.000 1.176 0.368 0.000 1.497 0.000 0.000 1.387
+
+  I = [0, pi)   (frac = 0.500000)
+           x           C_I(x)   M=prefixmax|C|            C/x      M/sqrt(x)
+          10                0                2   0.000000e+00       0.632456
+         100               -3                4  -3.000000e-02       0.400000
+        1000               -4               18  -4.000000e-03       0.569210
+       10000              -84              118  -8.400000e-03       1.180000
+      100000              -41              118  -4.100000e-04       0.373149
+     1000000             -394             1117  -3.940000e-04       1.117000
+    10000000             -449             2796  -4.490000e-05       0.884173
+   100000000             -449             2796  -4.490000e-06       0.279600
+  1000000000           -21790            26310  -2.179000e-05       0.831995
+  fit  log M = alpha*log x + b      : alpha = 0.5093 +- 0.0391   (x >= 100, 8 points)
+  fit  last 4 points only           : alpha = 0.4116 +- 0.1330
+  fit  |C_I(x)| (not max)           : alpha = 0.4815 +- 0.0711
+  local exponents log10(M_{k+1}/M_k): 0.301 0.653 0.817 0.000 0.976 0.398 0.000 0.974
+
+  I = [0, 3pi/2)   (frac = 0.750000)
+           x           C_I(x)   M=prefixmax|C|            C/x      M/sqrt(x)
+          10                0                2   0.000000e+00       0.632456
+         100               -2               10  -2.000000e-02       1.000000
+        1000               -8               22  -8.000000e-03       0.695701
+       10000              -88              122  -8.800000e-03       1.220000
+      100000             -285              301  -2.850000e-03       0.951846
+     1000000             -638             1361  -6.380000e-04       1.361000
+    10000000             -950             3569  -9.500000e-05       1.128617
+   100000000            -5603             7353  -5.603000e-05       0.735300
+  1000000000           -26944            31464  -2.694400e-05       0.994979
+  fit  log M = alpha*log x + b      : alpha = 0.5019 +- 0.0168   (x >= 100, 8 points)
+  fit  last 4 points only           : alpha = 0.4406 +- 0.0450
+  fit  |C_I(x)| (not max)           : alpha = 0.5546 +- 0.0379
+  local exponents log10(M_{k+1}/M_k): 0.699 0.342 0.744 0.392 0.655 0.419 0.314 0.631
+
+------------------------------------------------------------------------------
+S2b  sanity checks
+------------------------------------------------------------------------------
+           x    sum lam / x   #{lam=1} / x
+          10   0.000000e+00       0.500000
+         100  -2.000000e-02       0.490000
+        1000  -1.400000e-02       0.493000
+       10000  -9.400000e-03       0.495300
+      100000  -2.880000e-03       0.498560
+     1000000  -5.300000e-04       0.499735
+    10000000  -8.420000e-05       0.499958
+   100000000  -3.884000e-05       0.499981
+  1000000000  -2.521600e-05       0.499987
+
+  |sum_{n<=x} lambda(n) n^{it}| / x
+           x             t=1             t=2       t=3.14159           t=7.3            t=33
+          10       1.029e-01       2.604e-01       2.079e-01       2.196e-01       2.792e-01
+         100       4.558e-02       3.308e-02       2.361e-02       4.720e-02       7.846e-02
+        1000       7.405e-03       5.302e-03       4.447e-03       9.313e-03       3.471e-02
+       10000       4.933e-03       3.309e-03       3.234e-03       3.806e-03       1.084e-02
+      100000       1.469e-03       1.061e-03       9.565e-04       1.234e-03       3.787e-03
+     1000000       2.975e-04       2.389e-04       2.340e-04       3.358e-04       1.574e-03
+    10000000       1.276e-04       1.355e-04       1.409e-04       1.789e-04       4.326e-04
+   100000000       3.035e-05       2.904e-05       2.954e-05       3.917e-05       1.262e-04
+  1000000000       1.109e-05       5.920e-06       4.321e-06       8.639e-06       4.854e-05
+
+------------------------------------------------------------------------------
+S3  consistency checks and verdict (no asymptotic claim)
+------------------------------------------------------------------------------
+  [PASS] S2.sanity_sum_lambda_small         |sum_{n<=N} lambda(n)|/N = 2.5216e-05 (< 0.05, consistent with o(x))
+  [PASS] S2.sanity_plus_half                #{n<=N: lambda(n)=1}/N = 0.499987 (within 0.01 of 1/2)
+  [PASS] S2.sanity_twisted_small            |sum lambda(n) n^{it}|/N < 0.05 for t = 1, 2, 3.14159, 7.3, 33
+
+  theta = pi/2   alpha_full = 0.5514 +- 0.0650 ; alpha_last4 = 0.4162 ; M/sqrt(x) last ratio = 7.7131 ; |C_I(N)|/N = 2.290e-05
+      -> SQUARE-ROOT BRANCH (alpha ~ 1/2): M = x^{1/2+o(1)}-like over this range; such a bound is still o(x), so this is evidence FOR P1 on this arc, not against it
+  theta = pi     alpha_full = 0.5093 +- 0.0391 ; alpha_last4 = 0.4116 ; M/sqrt(x) last ratio = 2.9757 ; |C_I(N)|/N = 2.179e-05
+      -> SQUARE-ROOT BRANCH (alpha ~ 1/2): M = x^{1/2+o(1)}-like over this range; such a bound is still o(x), so this is evidence FOR P1 on this arc, not against it
+  theta = 3pi/2  alpha_full = 0.5019 +- 0.0168 ; alpha_last4 = 0.4406 ; M/sqrt(x) last ratio = 1.3532 ; |C_I(N)|/N = 2.694e-05
+      -> SQUARE-ROOT BRANCH (alpha ~ 1/2): M = x^{1/2+o(1)}-like over this range; such a bound is still o(x), so this is evidence FOR P1 on this arc, not against it
+
+  HONEST READING.  The register's stated rule (alpha ~ 1/2 => against P1) is
+  logically reversed: x^{1/2+o(1)} = o(x), so square-root cancellation supports
+  P1 rather than refuting it.  The only genuine finite-range refutation of P1
+  would be an arc with |C_I(x)|/x bounded below on the tested range, and no arc
+  here shows that.  Conversely, finite prefix data cannot establish o(x) either
+  (a finitely supported perturbation of lambda has identical data and different
+  asymptotics).  No asymptotic statement is claimed.
+  Runtime 296.3s
+
+==============================================================================
+SUMMARY: 9/9 checks passed -> PASS
+==============================================================================

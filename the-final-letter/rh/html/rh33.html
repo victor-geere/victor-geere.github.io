@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh33 — the loss</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh33 · the loss</h1>
+<p class="sub">rh32 ordered one analytic step: prove that an atomic
+measure with no wide empty arc dominates its own smoothed density, with a
+loss controlled by the gaps. This document runs it and the step fails —
+not for want of effort, but because the hypothesis is about the wrong
+thing. Two measures on the same atoms, whose emptiest arcs are equally
+full at every width a gap statistic can resolve, differ by a factor
+1.49 in the constant. What does control the loss is the
+measure&#8217;s Toeplitz moments; and those, for the wrapped zeta
+ordinates, are the explicit formula. Verified here against
+the arc&#8217;s own certified rows to 8.4&#215;10&#8315;&#185;&#8310; and against
+22,491 zero ordinates to 7.2&#215;10&#8315;&#8312; of the mass, they are a sum over
+prime powers.</p>
+<p class="meta">54 named checks, 47 s · four computed
+figures · the thirty-third in the series, after <a href="rh32.html">rh32</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> The crystal of
+&#167;&#167;2&#8211;5 is synthetic — equispaced atoms, no arithmetic input
+— so the loss identity, the jitter law and the counterexample are
+unconditional elementary linear algebra. The zeta-side measures are
+rh29&#8217;s and are conditional on RH: wrapped ordinates
+&#947;&#183;&#916; mod 2&#960; with window weights. &#167;6 uses the
+full 22,491-ordinate table (&#947; &#8804; 20000) rather than the
+4,308-ordinate cut (&#947; &#8804; 4800) the arc has used since rh29,
+because the identity it checks is sharp enough to see the difference.
+Per rh30 &#167;10 (c), renewed by rh31 &#167;8 (c) and rh32 &#167;8 (c),
+this document adds no new certificates — the certified set stays at nine.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · order</a>
+<a href="#s2">2 · the loss constant</a>
+<a href="#s3">3 · the crystal is not fragile</a>
+<a href="#s4">4 · the refutation</a>
+<a href="#s5">5 · what the loss is made of</a>
+<a href="#s6">6 · the moments are a prime sum</a>
+<a href="#s7">7 · conjunction</a>
+<a href="#s8">8 · what this leaves</a>
+</nav>
+
+<section id="s1">
+<h2>1 · Where this stands</h2>
+
+<p>rh32 left three successors. (a) The quadrature lemma: <em>&#8220;for
+mirrored atomic measures whose emptiness profile stays above depth q at all
+widths beyond K kernel units, prove the atom sum dominates a smoothed
+density on degree-n forms with loss a function of (q, K) alone.&#8221;</em>
+(b) The texture inside the safe zone: find the two-parameter law, or show
+by construction that no low-dimensional statistic can. (c) No new
+certificates.</p>
+
+<p>This document runs (a) and (b) with one engine, because they are the
+same question asked twice — <em>does a low-dimensional gap statistic
+decide the loss?</em> — and the answer is no, with a construction so
+simple it is embarrassing that rh32 proposed the hypothesis. Leave the
+atoms exactly where the crystal puts them and modulate their
+<em>weights</em> at a frequency just below the polynomial degree. Every
+arc wider than one kernel width averages the modulation away, so the
+emptiness profile hardly moves; the Toeplitz matrix resolves precisely
+that frequency, so the loss constant falls to &#189;. A thinned arc with
+the <em>same</em> profile floor keeps 0.817. And the ordering
+reverses outright: a measure whose emptiest arc holds 78% of its
+fair mass loses more than one whose emptiest arc holds 60%. No
+monotone function of the profile can bound the loss.</p>
+
+<p>What replaces the hypothesis is better than what it was reaching for.
+The loss is a function of the measure&#8217;s Toeplitz moments — it has
+to be, since the matrix is built from nothing else — and for the wrapped
+ordinates those moments are not a model of anything. They are the
+arc&#8217;s certified row: pole plus archimedean integral minus the prime
+comb, the object rh17 built and every document since rh19 has bounded.
+&#167;6 checks that both ways to the same digit. The consequence for the
+programme is stated in &#167;7 and it is not comfortable: the quadrature
+step rh32 asked for was never an inequality waiting to be proved. It was
+an identity the arc had held since rh17, and the geometry of rh29&#8211;rh32
+was a picture of the matrix rather than a route to its smallest
+eigenvalue.</p>
+</section>
+
+<section id="s2">
+<h2>2 · The loss constant</h2>
+
+<p>Fix a mirrored atomic measure &#956; — atoms at &#177;t<sub>j</sub> with
+weights w<sub>j</sub> — and a degree n. Its Toeplitz matrix is
+T<sub>n</sub>[j][k] = E(j &#8722; k) with E(k) = &#8721;<sub>j</sub>
+w<sub>j</sub> e<sup>ikt<sub>j</sub></sup> summed over all atoms, and the
+number this document is about is</p>
+
+<div class="cardbox">
+&#961;(&#956;) = &#955;<sub>min</sub>(T<sub>n</sub>) / mass = the largest c
+with &#8721;<sub>j</sub> w<sub>j</sub> |p(t<sub>j</sub>)|<sup>2</sup>
+&#8805; c &#183; mass &#183; &#8214;p&#8214;<sup>2</sup> for every
+trigonometric polynomial p of degree &lt; n.
+</div>
+
+<p>This is the one-sided Marcinkiewicz&#8211;Zygmund constant: the exact
+quantity rh32 &#167;8 (a) proposed to bound below. It is 1 when the atoms
+integrate degree-n polynomials exactly, which is rh32 &#167;2&#8217;s
+identity — on the mirrored crystal T<sub>n</sub> = mass &#183; I, and
+&#961; = 1 to 9.9&#215;10&#8315;&#185;&#8309;. Puncture the crystal and &#961; is rh32&#8217;s
+death curve in new clothes: &#961; = c(K)&#183;C<sub>n</sub>/mass, checked
+against rh32&#8217;s stored numbers at K = 1.5, 2.1 and 3.1 and equal to
+the last bit. Everything below is a measurement of &#961;.</p>
+</section>
+
+<section id="s3">
+<h2>3 · The crystal is not fragile</h2>
+
+<p>Before attacking the lemma it is worth knowing whether the crystal's
+exactness is a knife edge. Jitter each atom independently by up to
+&#945; of a spacing and measure &#961;. The classical expectation is
+Kadec&#8217;s quarter — perturb a lattice by less than a quarter of its
+spacing and the exponentials stay a Riesz basis; beyond it, no
+guarantee.</p>
+
+<p>Nothing happens at a quarter. &#961; falls in a straight line from 1,
+reaching 0.978 at &#945; = &#188; and 0.957 at &#945; = 0.49,
+where neighbouring atoms are nearly on top of each other, and the fall is
+linear to 0.3% of the total loss across the whole range. Three
+seeds agree to 0.0021. A destroyed lattice costs 4.3% of the
+constant.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 454" role="img" aria-label="Left: the loss constant rho against jitter amplitude alpha for three crystal grids, each a straight line falling from 1 with no cliff at Kadec’s one quarter. Right: the loss per unit jitter against n over M on log axes for eleven grids, collapsing onto one curve once M is large.">
+<text x="370.0" y="21" class="ftitle">exact quadrature degrades gracefully</text>
+<line x1="58" y1="268" x2="340" y2="268" class="axis"/>
+<line x1="58" y1="58" x2="58" y2="268" class="axis"/>
+<line x1="58" y1="235.2" x2="340" y2="235.2" class="grid"/>
+<text x="52" y="238.7" class="flab end">0.75</text>
+<line x1="58" y1="169.6" x2="340" y2="169.6" class="grid"/>
+<text x="52" y="173.1" class="flab end">0.85</text>
+<line x1="58" y1="103.9" x2="340" y2="103.9" class="grid"/>
+<text x="52" y="107.4" class="flab end">0.95</text>
+<line x1="58" y1="71.1" x2="340" y2="71.1" class="grid"/>
+<text x="52" y="74.6" class="flab end">1</text>
+<text x="58.0" y="285.0" class="flab mid">0</text>
+<text x="199.0" y="285.0" class="flab mid">0.25</text>
+<text x="340.0" y="285.0" class="flab mid">0.5</text>
+<text x="199.0" y="304.0" class="flab mid">jitter &#945;, in spacings</text>
+<text x="52" y="46" class="flab end">&#961;</text>
+<line x1="199.0" y1="58" x2="199.0" y2="268" class="hl"/>
+<text x="205.0" y="71" class="flab st c4">Kadec &#188;</text>
+<path d="M58.0 71.1L86.2 80.2L114.4 89.2L142.6 98.1L170.8 106.9L199.0 115.7L227.2 124.3L255.4 132.8L283.6 141.2L311.8 149.5L334.4 156.0" class="ln4"/>
+<text x="341.4" y="160.0" class="flab st hm4">M = 300, n = 120</text>
+<path d="M58.0 71.1L86.2 74.0L114.4 76.9L142.6 79.8L170.8 82.7L199.0 85.6L227.2 88.5L255.4 91.4L283.6 94.4L311.8 97.3L334.4 99.7" class="ln0"/>
+<text x="341.4" y="103.7" class="flab st hm1">M = 300, n = 60</text>
+<path d="M58.0 71.1L86.2 72.3L114.4 73.4L142.6 74.6L170.8 75.8L199.0 76.9L227.2 78.1L255.4 79.2L283.6 80.4L311.8 81.6L334.4 82.5" class="ln1"/>
+<text x="341.4" y="86.5" class="flab st hm3">M = 600, n = 60</text>
+<line x1="452" y1="268" x2="700" y2="268" class="axis"/>
+<line x1="452" y1="58" x2="452" y2="268" class="axis"/>
+<line x1="452" y1="248.6" x2="700" y2="248.6" class="grid"/>
+<text x="446" y="252.1" class="flab end">10&#8315;&#178;</text>
+<line x1="452" y1="127.3" x2="700" y2="127.3" class="grid"/>
+<text x="446" y="130.8" class="flab end">10&#8315;&#185;</text>
+<text x="478.0" y="285.0" class="flab mid">0.05</text>
+<text x="543.3" y="285.0" class="flab mid">0.1</text>
+<text x="608.7" y="285.0" class="flab mid">0.2</text>
+<text x="674.0" y="285.0" class="flab mid">0.4</text>
+<text x="576.0" y="304.0" class="flab mid">n<tspan	class="sb"	dy="3"></tspan><tspan	dy="-3"></tspan>/M</text>
+<text x="454" y="46" class="flab st">loss per &#945;</text>
+<path d="M478.0 249.8L543.3 181.8L608.7 120.9L674.0 76.2" class="lnm lnd"/>
+<circle cx="543.3" cy="194.2" r="3.2" class="hmo"/>
+<circle cx="608.7" cy="143.5" r="3.2" class="hmo"/>
+<circle cx="674.0" cy="77.8" r="3.2" class="hmo"/>
+<circle cx="543.3" cy="189.8" r="3.2" class="hmo"/>
+<circle cx="608.7" cy="133.6" r="3.2" class="hmo"/>
+<circle cx="674.0" cy="76.2" r="3.2" class="hmo"/>
+<circle cx="478.0" cy="249.8" r="5.0" class="hm1"/>
+<circle cx="543.3" cy="182.1" r="5.0" class="hm1"/>
+<circle cx="608.7" cy="120.8" r="5.0" class="hm1"/>
+<circle cx="543.3" cy="181.8" r="5.0" class="hm1"/>
+<circle cx="608.7" cy="120.9" r="5.0" class="hm1"/>
+<text x="511.1" y="207.8" class="flab mid c4">1.86</text>
+<text x="576.4" y="143.4" class="flab mid c4">1.67</text>
+<text x="641.7" y="90.5" class="flab mid c4">1.22</text>
+<circle cx="466" cy="64" r="5" class="hm1"/>
+<text x="478" y="68" class="flab st">M &#8805; 600</text>
+<circle cx="466" cy="82" r="3.2" class="hmo"/>
+<text x="478" y="86" class="flab st">M = 150, 300</text>
+<text x="30" y="330" class="flab st">Left: jitter every crystal atom by up to &#945; of a spacing. &#961; falls in a straight line &#8212; 0.978 at Kadec&#8217;s quarter,</text>
+<text x="30" y="348" class="flab st">0.957 at &#945; = 0.49, where neighbours nearly collide &#8212; and the whole curve is linear to 0.3% of the total loss. There</text>
+<text x="30" y="366" class="flab st">is no threshold. Right: the slope of that line, per unit &#945;, against n<tspan	class="sb"	dy="3"></tspan><tspan	dy="-3"></tspan>/M. Once M reaches 600 the eleven grids</text>
+<text x="30" y="384" class="flab st">collapse onto one curve (0.6% at n<tspan	class="sb"	dy="3"></tspan><tspan	dy="-3"></tspan>/M = 0.1, 0.3% at 0.2); the smaller grids sit up to 35% below it. The curve is</text>
+<text x="30" y="402" class="flab st">not a power &#8212; the numbers in red are its local exponents, sliding from 1.86 to 1.22, so the tidy guess n<tspan	class="sb"	dy="3"></tspan><tspan	dy="-3"></tspan>/M to</text>
+<text x="30" y="420" class="flab st">the 3/2 is an average over the range and not a law.</text>
+</svg></div>
+<figcaption>Left: no threshold anywhere. Right: the loss per unit jitter
+against n/M, collapsing once M is large — and not a power.</figcaption>
+</figure>
+
+<p>The slope of that line depends on the grid only through n/M — the
+inverse of the oversampling — once M is large enough: at n/M = 0.1 the
+(M = 600, n = 60) and (M = 1200, n = 120) grids agree to 0.6%, and at
+n/M = 0.2 the (600, 120) and (1200, 240) grids agree to 0.3%. The
+smaller grids sit below the limit — M = 150 is 35% under at the
+same n/M — so the drift with M is finite size and not a second variable.
+The collapsed curve is not a power: its local exponent slides from
+1.86 between n/M = 0.05 and 0.1, through 1.67, to
+1.22 between 0.2 and 0.4. The tidy guess (n/M)<sup>3/2</sup> is an
+average over that range, not a law.</p>
+
+<p>The reading is that <em>oversampling</em> is what protects the
+constant, and it protects it robustly: positions can be wrong by half a
+spacing and the loss is a few percent, provided there are enough atoms per
+kernel width. That is a good sign for a lemma with gap hypotheses — and
+&#167;4 is where it stops being one.</p>
+</section>
+
+<section id="s4">
+<h2>4 · The refutation</h2>
+
+<p>Leave the atoms where they are. Modulate the weights:</p>
+
+<div class="cardbox">
+w<sub>j</sub> = 1 + &#949;&#183;cos((n &#8722; 1)&#183;t<sub>j</sub>) on the
+crystal &#8658; &#961; = 1 &#8722; &#949;/2, exactly.
+</div>
+
+<p>Exactly: 0.550 at &#949; = 0.9 and 0.500 at &#949; = 1, to
+machine zero. The mechanism is transparent — the modulation is a single
+Fourier mode, it lands on the single Toeplitz moment E(n &#8722; 1), and
+&#961; = 1 &#8722; max|E|/mass for a rank-two perturbation of the
+identity.</p>
+
+<p>Now look at what the emptiness profile sees. Write q<sub>1</sub> for the
+profile floor beyond one kernel width: the least share of its fair mass
+that any arc wider than 2&#960;/n holds. This is exactly the quantity
+rh32 &#167;8 (a) proposed to price the loss with. For the modulated
+crystal at &#949; = 0.9, q<sub>1</sub> = 0.803 — because one period of
+the modulation fits inside one kernel width, so every arc the profile
+looks at averages it away.</p>
+
+<p>Now the control — and it is exactly the construction rh32 &#167;8 (b)
+asked for by name. Take the same crystal and thin the atoms in a
+<em>half</em>-kernel-width arc to half density. Its floor comes out at
+q<sub>1</sub> = 0.803 as well, matching the modulated measure&#8217;s
+to 5.9&#215;10&#8315;&#8308; — three digits. At that identical floor the two losses
+differ by a factor 1.49: the thinned arc keeps
+&#961; = 0.817, the modulation 0.550.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 630" role="img" aria-label="Top: two measures on the same 300 crystal atoms, shown over the same window eight kernel widths wide — one with weights modulated at frequency 59, one with a half-kernel-width arc thinned to half density. Bottom: their emptiness profiles, which share a floor of 0.803, against losses that differ by a factor 1.49.">
+<text x="370.0" y="21" class="ftitle">the same floor, and half again the loss</text>
+<text x="58" y="44" class="flab st hm1">w = 1 + 0.9 cos(59t) on the crystal &#8212; &#961; = 0.550, floor 0.803</text>
+<path d="M62.0 118.0V100.8M70.0 118.0V85.9M78.1 118.0V72.8M86.1 118.0V66.2M94.1 118.0V68.7M102.1 118.0V79.3M110.2 118.0V94.1M118.2 118.0V107.6M126.2 118.0V114.8M134.2 118.0V113.1M142.3 118.0V103.1M150.3 118.0V88.4M158.3 118.0V74.6M166.3 118.0V66.7M174.4 118.0V67.7M182.4 118.0V77.1M190.4 118.0V91.5M198.4 118.0V105.6M206.5 118.0V114.2M214.5 118.0V114.0M222.5 118.0V105.2M230.5 118.0V91.0M238.6 118.0V76.7M246.6 118.0V67.5M254.6 118.0V66.9M262.6 118.0V75.0M270.7 118.0V89.0M278.7 118.0V103.5M286.7 118.0V113.3M294.7 118.0V114.7M302.8 118.0V107.2M310.8 118.0V93.6M318.8 118.0V78.9M326.8 118.0V68.5M334.9 118.0V66.3M342.9 118.0V73.1M350.9 118.0V86.4M358.9 118.0V101.2M367.0 118.0V112.2M375.0 118.0V115.1M383.0 118.0V109.0M391.0 118.0V96.1M399.1 118.0V81.2M407.1 118.0V69.8M415.1 118.0V66.0M423.1 118.0V71.4M431.2 118.0V83.9M439.2 118.0V98.9M447.2 118.0V110.8M455.2 118.0V115.3M463.3 118.0V110.6M471.3 118.0V98.6M479.3 118.0V83.6M487.3 118.0V71.2M495.4 118.0V66.0M503.4 118.0V69.9M511.4 118.0V81.4M519.4 118.0V96.4M527.5 118.0V109.2M535.5 118.0V115.1M543.5 118.0V112.0M551.5 118.0V101.0M559.6 118.0V86.1M567.6 118.0V72.9M575.6 118.0V66.3M583.6 118.0V68.6M591.7 118.0V79.1M599.7 118.0V93.8M607.7 118.0V107.4M615.7 118.0V114.8M623.8 118.0V113.2M631.8 118.0V103.3M639.8 118.0V88.7M647.8 118.0V74.8M655.9 118.0V66.8M663.9 118.0V67.6M671.9 118.0V76.9M679.9 118.0V91.3M688.0 118.0V105.4M696.0 118.0V114.1" class="stem" fill="none"/>
+<line x1="58" y1="118" x2="700" y2="118" class="axis"/>
+<text x="58" y="152" class="flab st hm3">a half-kernel-width arc thinned to half density &#8212; &#961; = 0.817, floor 0.803</text>
+<path d="M62.0 210.0V184.0M70.0 210.0V184.0M78.1 210.0V184.0M86.1 210.0V184.0M94.1 210.0V184.0M102.1 210.0V184.0M110.2 210.0V184.0M118.2 210.0V184.0M126.2 210.0V184.0M134.2 210.0V184.0M142.3 210.0V184.0M150.3 210.0V184.0M158.3 210.0V184.0M166.3 210.0V184.0M174.4 210.0V184.0M182.4 210.0V184.0M190.4 210.0V184.0M198.4 210.0V184.0M206.5 210.0V184.0M214.5 210.0V184.0M222.5 210.0V184.0M230.5 210.0V184.0M238.6 210.0V184.0M246.6 210.0V184.0M254.6 210.0V184.0M262.6 210.0V184.0M270.7 210.0V184.0M278.7 210.0V184.0M286.7 210.0V184.0M294.7 210.0V184.0M302.8 210.0V184.0M310.8 210.0V184.0M318.8 210.0V184.0M326.8 210.0V184.0M334.9 210.0V184.0M342.9 210.0V184.0M350.9 210.0V184.0M358.9 210.0V184.0M367.0 210.0V184.0M375.0 210.0V184.0M383.0 210.0V184.0M391.0 210.0V184.0M399.1 210.0V184.0M407.1 210.0V184.0M415.1 210.0V184.0M423.1 210.0V184.0M431.2 210.0V184.0M439.2 210.0V184.0M447.2 210.0V184.0M455.2 210.0V184.0M463.3 210.0V184.0M471.3 210.0V184.0M479.3 210.0V184.0M487.3 210.0V184.0M495.4 210.0V184.0M503.4 210.0V184.0M511.4 210.0V184.0M519.4 210.0V184.0M527.5 210.0V184.0M535.5 210.0V184.0M543.5 210.0V184.0M551.5 210.0V184.0M559.6 210.0V184.0M567.6 210.0V184.0M575.6 210.0V184.0M583.6 210.0V184.0M591.7 210.0V184.0M599.7 210.0V184.0M607.7 210.0V184.0M615.7 210.0V184.0M623.8 210.0V184.0M631.8 210.0V184.0M639.8 210.0V184.0M647.8 210.0V184.0M655.9 210.0V184.0M663.9 210.0V184.0M671.9 210.0V184.0M679.9 210.0V184.0M696.0 210.0V184.0" class="stem" fill="none"/>
+<line x1="58" y1="210" x2="700" y2="210" class="axis"/>
+<rect x="659.9" y="174.0" width="40.1" height="37" class="bar hm4" fill-opacity="0.18"/>
+<text x="652.9" y="170.0" class="flab end c4">the thinned arc</text>
+<text x="700.0" y="227.0" class="flab mid">&#960;</text>
+<text x="539.5" y="227.0" class="flab mid">&#960;&#8722;2w</text>
+<text x="379.0" y="227.0" class="flab mid">&#960;&#8722;4w</text>
+<text x="218.5" y="227.0" class="flab mid">&#960;&#8722;6w</text>
+<text x="58.0" y="227.0" class="flab mid">&#960;&#8722;8w</text>
+<text x="379.0" y="246.0" class="flab mid">one window, eight kernel widths w = 2&#960;/n wide</text>
+<line x1="58" y1="462" x2="420" y2="462" class="axis"/>
+<line x1="58" y1="282" x2="58" y2="462" class="axis"/>
+<line x1="58" y1="462.0" x2="420" y2="462.0" class="grid"/>
+<text x="52" y="465.5" class="flab end">0</text>
+<line x1="58" y1="417.0" x2="420" y2="417.0" class="grid"/>
+<text x="52" y="420.5" class="flab end">0.25</text>
+<line x1="58" y1="372.0" x2="420" y2="372.0" class="grid"/>
+<text x="52" y="375.5" class="flab end">0.5</text>
+<line x1="58" y1="327.0" x2="420" y2="327.0" class="grid"/>
+<text x="52" y="330.5" class="flab end">0.75</text>
+<line x1="58" y1="282.0" x2="420" y2="282.0" class="grid"/>
+<text x="52" y="285.5" class="flab end">1</text>
+<text x="58.0" y="479.0" class="flab mid">0.5</text>
+<text x="178.7" y="479.0" class="flab mid">1</text>
+<text x="299.3" y="479.0" class="flab mid">2</text>
+<text x="420.0" y="479.0" class="flab mid">4</text>
+<text x="239.0" y="498.0" class="flab mid">arc width, in kernel widths</text>
+<text x="62" y="272" class="flab st">share of fair mass held by the emptiest arc of that width</text>
+<line x1="178.7" y1="282" x2="178.7" y2="462" class="hl"/>
+<line x1="178.7" y1="317.4" x2="420" y2="317.4" class="rule"/>
+<text x="417.0" y="310.4" class="flab end c4">q<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan> = 0.803, both</text>
+<path d="M58.0 388.5L128.6 353.0L178.7 284.8L217.5 312.0L249.3 317.4L299.3 284.8L338.2 303.1L369.9 284.8L420.0 284.8" class="ln0"/>
+<path d="M58.0 353.6L128.6 341.6L178.7 317.5L217.5 317.5L249.3 305.5L299.3 299.5L338.2 295.8L369.9 293.4L420.0 290.4" class="ln1"/>
+<text x="452" y="286" class="flab st">The floor q<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan> is the least share of</text>
+<text x="452" y="303" class="flab st">its fair mass that any arc WIDER than</text>
+<text x="452" y="320" class="flab st">one kernel width holds &#8212; the quantity</text>
+<text x="452" y="337" class="flab st">rh32 &#167;8 (a) proposed to price the loss</text>
+<text x="452" y="354" class="flab st">with. Both measures put it at 0.803,</text>
+<text x="452" y="371" class="flab st">agreeing to 5.9&#215;10&#8315;&#8308;. Their losses are</text>
+<text x="452" y="388" class="flab st">0.450 and 0.183. One period of the</text>
+<text x="452" y="405" class="flab st">modulation fits inside one kernel</text>
+<text x="452" y="422" class="flab st">width, so every arc the profile looks</text>
+<text x="452" y="439" class="flab st">at averages it away &#8212; while a</text>
+<text x="452" y="456" class="flab st">polynomial of degree n resolves exactly</text>
+<text x="452" y="473" class="flab st">that frequency.</text>
+<text x="30" y="524" class="flab st">Both measures live on the crystal&#8217;s 300 atoms and both are mirrored. This is the construction rh32 &#167;8 (b) asked for</text>
+<text x="30" y="542" class="flab st">by name. It also reverses the ordering: the strongest pair in the set has a measure whose emptiest arc holds 78% of</text>
+<text x="30" y="560" class="flab st">its fair mass losing more than one whose emptiest arc holds 60% (&#961; = 0.500 against 0.704). Across the 32 constructed</text>
+<text x="30" y="578" class="flab st">configurations, 37 of the 446 ordered pairs have the fuller measure losing more, and inside the band 0.35 &#8804; q<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan> &#8804;</text>
+<text x="30" y="596" class="flab st">0.85 the losses spread over a factor 1.75. No monotone function of the emptiness profile bounds &#961; from below.</text>
+</svg></div>
+<figcaption>Two measures on the same atoms, with the same profile floor
+and half again the loss.</figcaption>
+</figure>
+
+<p>That pair alone answers (b): no function of the profile floor, monotone
+or not, can be the loss. And the <em>ordering</em> reverses too. The
+strongest pair in the constructed set is a modulated measure whose
+emptiest arc beyond one kernel width holds 78% of its fair mass
+losing more than a thinned one whose emptiest arc holds 60% —
+&#961; = 0.500 against 0.704, a factor 1.41 the wrong
+way. That kills (a): no <em>monotone</em> f can satisfy &#961; &#8805;
+f(q<sub>1</sub>). Across the whole constructed set — thirty-two measures:
+weights modulated at three frequencies and six depths, one arc thinned at
+five widths and four densities, two jittered lattices — 37 of the
+446 ordered pairs whose floors differ by at least 0.05 have the
+fuller measure losing more, and within the band 0.35 &#8804;
+q<sub>1</sub> &#8804; 0.85 the losses spread over a factor
+1.75.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 492" role="img" aria-label="Scatter of the loss constant rho against the emptiness-profile floor for thirty-two constructed measures. The modulated family runs almost vertically, so the profile does not order the loss.">
+<text x="370.0" y="21" class="ftitle">the profile does not order the loss</text>
+<line x1="66" y1="306" x2="690" y2="306" class="axis"/>
+<line x1="66" y1="62" x2="66" y2="306" class="axis"/>
+<line x1="66" y1="306.0" x2="690" y2="306.0" class="grid"/>
+<text x="60" y="309.5" class="flab end">0</text>
+<text x="66.0" y="323.0" class="flab mid">0</text>
+<line x1="66" y1="245.0" x2="690" y2="245.0" class="grid"/>
+<text x="60" y="248.5" class="flab end">0.25</text>
+<text x="222.0" y="323.0" class="flab mid">0.25</text>
+<line x1="66" y1="184.0" x2="690" y2="184.0" class="grid"/>
+<text x="60" y="187.5" class="flab end">0.5</text>
+<text x="378.0" y="323.0" class="flab mid">0.5</text>
+<line x1="66" y1="123.0" x2="690" y2="123.0" class="grid"/>
+<text x="60" y="126.5" class="flab end">0.75</text>
+<text x="534.0" y="323.0" class="flab mid">0.75</text>
+<line x1="66" y1="62.0" x2="690" y2="62.0" class="grid"/>
+<text x="60" y="65.5" class="flab end">1</text>
+<text x="690.0" y="323.0" class="flab mid">1</text>
+<text x="378.0" y="342.0" class="flab mid">emptiness-profile floor q<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan> beyond one kernel width</text>
+<text x="68" y="50" class="flab st">&#961;</text>
+<line x1="284.4" y1="62" x2="284.4" y2="306" class="lnm lnd"/>
+<line x1="596.4" y1="62" x2="596.4" y2="306" class="lnm lnd"/>
+<text x="440.4" y="300.0" class="flab mid">losses inside this band spread over a factor 1.75</text>
+<line x1="567.2" y1="171.8" x2="567.2" y2="106.7" class="rule"/>
+<text x="575.2" y="143.2" class="flab st c4">a factor 1.49</text>
+<path d="M442.9 134.2L553.6 184.0" class="lnm lnd"/>
+<text x="543.6" y="200.0" class="flab end">fuller floor, bigger loss</text>
+<circle cx="656.2" cy="74.2" r="5" class="hm1"/>
+<circle cx="638.6" cy="98.6" r="5" class="hm1"/>
+<circle cx="621.1" cy="123.0" r="5" class="hm1"/>
+<circle cx="594.5" cy="147.4" r="5" class="hm1"/>
+<circle cx="567.2" cy="171.8" r="5" class="hm1"/>
+<circle cx="553.6" cy="184.0" r="5" class="hm1"/>
+<circle cx="490.6" cy="123.0" r="5" class="hm1"/>
+<circle cx="331.0" cy="171.8" r="5" class="hm1"/>
+<circle cx="595.5" cy="123.0" r="5" class="hm1"/>
+<circle cx="519.9" cy="171.8" r="5" class="hm1"/>
+<circle cx="442.9" cy="154.7" r="5" class="hm3"/>
+<circle cx="442.9" cy="154.7" r="5" class="hm3"/>
+<circle cx="566.9" cy="106.7" r="5" class="hm3"/>
+<circle cx="566.9" cy="106.7" r="5" class="hm3"/>
+<circle cx="66.0" cy="252.6" r="5" class="hm3"/>
+<circle cx="192.5" cy="207.2" r="5" class="hm3"/>
+<circle cx="318.1" cy="174.0" r="5" class="hm3"/>
+<circle cx="442.9" cy="134.2" r="5" class="hm3"/>
+<circle cx="66.0" cy="292.6" r="5" class="hm3"/>
+<circle cx="218.8" cy="219.3" r="5" class="hm3"/>
+<circle cx="369.6" cy="166.0" r="5" class="hm3"/>
+<circle cx="518.3" cy="105.0" r="5" class="hm3"/>
+<circle cx="66.0" cy="301.3" r="5" class="hm3"/>
+<circle cx="168.6" cy="246.7" r="5" class="hm3"/>
+<circle cx="370.6" cy="169.5" r="5" class="hm3"/>
+<circle cx="469.4" cy="126.3" r="5" class="hm3"/>
+<circle cx="66.0" cy="305.7" r="5" class="hm3"/>
+<circle cx="131.0" cy="258.2" r="5" class="hm3"/>
+<circle cx="322.4" cy="190.9" r="5" class="hm3"/>
+<circle cx="508.7" cy="120.0" r="5" class="hm3"/>
+<circle cx="627.6" cy="66.3" r="5" class="hm2"/>
+<circle cx="615.1" cy="72.4" r="5" class="hm2"/>
+<circle cx="272" cy="72" r="5" class="hm1"/>
+<text x="284" y="76" class="flab st">modulated weights</text>
+<circle cx="272" cy="92" r="5" class="hm3"/>
+<text x="284" y="96" class="flab st">thinned arc</text>
+<circle cx="272" cy="112" r="5" class="hm2"/>
+<text x="284" y="116" class="flab st">jittered atoms</text>
+<text x="30" y="368" class="flab st">Thirty-two measures on the crystal&#8217;s atoms: weights modulated at three frequencies and six depths, one arc thinned</text>
+<text x="30" y="386" class="flab st">at five widths and four densities, and two jittered lattices. If rh32 &#167;8 (a) held with any monotone f, this cloud</text>
+<text x="30" y="404" class="flab st">would lie above an increasing curve. It does not lie along a curve at all: the modulated family runs almost</text>
+<text x="30" y="422" class="flab st">vertically, dropping &#961; from 0.95 to 0.50 while its floor moves only from 0.95 to 0.78, and the red bar marks two</text>
+<text x="30" y="440" class="flab st">measures at the SAME floor whose losses differ by half again. The floor measures how empty the measure looks at</text>
+<text x="30" y="458" class="flab st">kernel scale; &#961; measures what a degree-n polynomial can do with it, and those are different questions.</text>
+</svg></div>
+<figcaption>The cloud does not lie along a curve. The modulated family
+runs almost vertically: &#961; from 0.95 to 0.50 while the floor moves
+from 0.95 to 0.78.</figcaption>
+</figure>
+
+<p>rh32 &#167;8 (b) called this the cheaper outcome —
+<em>&#8220;build two measures with identical (K, depth) profiles and
+measurably different ratios&#8221;</em> — and it is, but it generalises
+past the safe zone it was asked about: the profile is a statement about
+how empty the
+measure looks at kernel scale, and &#961; is a statement about what a
+degree-n polynomial can do with it. A polynomial of degree n resolves
+frequency n &#8722; 1; an arc of width 2&#960;/n does not. Any statistic
+built from arc masses is blind in exactly the band where the matrix is
+most sensitive.</p>
+</section>
+
+<section id="s5">
+<h2>5 · What the loss is made of</h2>
+
+<p>The honest replacement is immediate and almost tautological:
+T<sub>n</sub> is built from the moments E(0)&#8230;E(n &#8722; 1) and
+nothing else, so &#961; is a function of the moments. For the modulated
+crystal that function is one line — &#961; = 1 &#8722; max|E|/mass, verified
+to machine zero — because only one moment is on.</p>
+
+<p>It is worth saying plainly why this does not immediately give a
+theorem. The elementary bound in the moments is
+&#961; &#8805; 1 &#8722; 2&#8721;<sub>k&#8805;1</sub>|E(k)|/mass, and on
+the living material at mesh &#916; = 0.12, n = 61 that sum is
+1.87 — the bound reads &#961; &#8805; &#8722;2.7 and says nothing,
+while the measured &#961; is 0.514. The moments are large and they
+cancel. Any true statement about the loss has to know their signs, not
+just their sizes. That is the real difficulty, and it was never the
+difficulty rh32 named.</p>
+</section>
+
+<section id="s6">
+<h2>6 · The moments are a prime sum</h2>
+
+<p>Here the two halves of the arc meet. For a window
+&#293;(r) = &#219;<sub>c</sub>(r)&#183;A(r) with autocorrelation
+C<sub>h</sub> = the inverse transform of &#293;<sup>2</sup>, the explicit
+formula gives, for every v,</p>
+
+<div class="cardbox">
+E(v) = 2&#183;&#293;(i/2)<sup>2</sup>&#183;cosh(v/2) + arch(v) &#8722;
+&#8721;<sub>m&#8805;2</sub> &#923;(m)&#183;m<sup>&#8722;1/2</sup>
+[C<sub>h</sub>(ln m &#8722; v) + C<sub>h</sub>(ln m + v)]
+</div>
+
+<p>and the left-hand side at v = k&#916; is precisely the Toeplitz moment
+of the wrapped-ordinate measure, E(k&#916;) = 2&#8721;<sub>&#947;</sub>
+&#293;(&#947;)<sup>2</sup> cos(k&#916;&#947;). Two checks, from opposite
+directions:</p>
+
+<ul>
+<li>Built from the primes, the row reproduces rh17&#8217;s
+<em>certified</em> row (&#916; = 0.06, M = 1, n = 199) to 8.4&#215;10&#8315;&#185;&#8310; — so
+the assembly here is the arc&#8217;s own, not a re-derivation that might
+differ by a convention.</li>
+<li>Built from the zeros — all 22,491 ordinates below 20000 — it agrees
+with the prime-side row to 7.2&#215;10&#8315;&#8312; of the mass at mesh 0.12,
+1.4&#215;10&#8315;&#8311; at 0.06 and 5.7&#215;10&#8315;&#8313; at 0.24, the coarsest support the arc
+has certified. The loss constants agree to six digits.</li>
+</ul>
+
+<p>So the wrapped measure of rh29&#8211;rh32 is not a model of the
+certified row. It <em>is</em> the certified row, evaluated on the other
+side of the explicit formula. And the arithmetic is visible in the
+moments: the six largest at mesh 0.12 each sit within 0.0109 in log
+of a prime power, on a grid whose spacing is 0.12 — k = 20 &#8596; 11, 28 &#8596; 29, 30 &#8596; 37, 34 &#8596; 59, 39 &#8596; 107, 53 &#8596; 577. The
+largest of all, |E|/mass = 0.146, sits at k = 20, where
+e<sup>2.4</sup> = 11.02.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 490" role="img" aria-label="Left: the Toeplitz moments of the wrapped zeta ordinates at mesh 0.12, as bars against k, with the six tallest labelled by the prime power nearest to e to the k Delta. Right: the loss constant rebuilt from the heaviest J prime powers, which overshoots at twenty and recovers by eighty.">
+<text x="370.0" y="21" class="ftitle">the moments are a prime sum</text>
+<line x1="58" y1="286" x2="440" y2="286" class="axis"/>
+<line x1="58" y1="92" x2="58" y2="286" class="axis"/>
+<line x1="58" y1="234.8" x2="440" y2="234.8" class="grid"/>
+<text x="52" y="238.3" class="flab end">0.05</text>
+<line x1="58" y1="183.7" x2="440" y2="183.7" class="grid"/>
+<text x="52" y="187.2" class="flab end">0.10</text>
+<line x1="58" y1="132.5" x2="440" y2="132.5" class="grid"/>
+<text x="52" y="136.0" class="flab end">0.15</text>
+<text x="61.2" y="303.0" class="flab mid">1</text>
+<text x="182.2" y="303.0" class="flab mid">20</text>
+<text x="309.5" y="303.0" class="flab mid">40</text>
+<text x="436.8" y="303.0" class="flab mid">60</text>
+<text x="249.0" y="322.0" class="flab mid">moment index k</text>
+<text x="60" y="48" class="flab st">|E<tspan	class="sb"	dy="3">k</tspan><tspan	dy="-3"></tspan>| / mass</text>
+<rect x="58.8" y="266.3" width="4.8" height="19.7" class="bar hm1"/>
+<rect x="65.1" y="285.3" width="4.8" height="0.7" class="bar hm1"/>
+<rect x="71.5" y="285.7" width="4.8" height="0.6" class="bar hm1"/>
+<rect x="77.9" y="285.5" width="4.8" height="0.6" class="bar hm1"/>
+<rect x="84.2" y="271.8" width="4.8" height="14.2" class="bar hm1"/>
+<rect x="90.6" y="273.2" width="4.8" height="12.8" class="bar hm1"/>
+<rect x="97.0" y="285.2" width="4.8" height="0.8" class="bar hm1"/>
+<rect x="103.3" y="285.9" width="4.8" height="0.6" class="bar hm1"/>
+<rect x="109.7" y="256.2" width="4.8" height="29.8" class="bar hm1"/>
+<rect x="116.1" y="282.4" width="4.8" height="3.6" class="bar hm1"/>
+<rect x="122.4" y="272.2" width="4.8" height="13.8" class="bar hm1"/>
+<rect x="128.8" y="270.1" width="4.8" height="15.9" class="bar hm1"/>
+<rect x="135.2" y="280.6" width="4.8" height="5.4" class="bar hm1"/>
+<rect x="141.5" y="283.2" width="4.8" height="2.8" class="bar hm1"/>
+<rect x="147.9" y="285.6" width="4.8" height="0.6" class="bar hm1"/>
+<rect x="154.3" y="270.4" width="4.8" height="15.6" class="bar hm1"/>
+<rect x="160.7" y="260.9" width="4.8" height="25.1" class="bar hm1"/>
+<rect x="167.0" y="277.5" width="4.8" height="8.5" class="bar hm1"/>
+<rect x="173.4" y="273.1" width="4.8" height="12.9" class="bar hm1"/>
+<rect x="179.8" y="136.8" width="4.8" height="149.2" class="bar hm4"/>
+<rect x="186.1" y="253.2" width="4.8" height="32.8" class="bar hm1"/>
+<rect x="192.5" y="248.6" width="4.8" height="37.4" class="bar hm1"/>
+<rect x="198.8" y="246.7" width="4.8" height="39.3" class="bar hm1"/>
+<rect x="205.2" y="285.0" width="4.8" height="1.0" class="bar hm1"/>
+<rect x="211.6" y="265.9" width="4.8" height="20.1" class="bar hm1"/>
+<rect x="217.9" y="278.5" width="4.8" height="7.5" class="bar hm1"/>
+<rect x="224.3" y="257.2" width="4.8" height="28.8" class="bar hm1"/>
+<rect x="230.7" y="190.1" width="4.8" height="95.9" class="bar hm4"/>
+<rect x="237.0" y="246.0" width="4.8" height="40.0" class="bar hm1"/>
+<rect x="243.4" y="204.2" width="4.8" height="81.8" class="bar hm4"/>
+<rect x="249.8" y="228.2" width="4.8" height="57.8" class="bar hm1"/>
+<rect x="256.2" y="207.4" width="4.8" height="78.6" class="bar hm1"/>
+<rect x="262.5" y="219.6" width="4.8" height="66.4" class="bar hm1"/>
+<rect x="268.9" y="201.5" width="4.8" height="84.5" class="bar hm4"/>
+<rect x="275.2" y="266.5" width="4.8" height="19.5" class="bar hm1"/>
+<rect x="281.6" y="256.9" width="4.8" height="29.1" class="bar hm1"/>
+<rect x="288.0" y="281.5" width="4.8" height="4.5" class="bar hm1"/>
+<rect x="294.4" y="267.5" width="4.8" height="18.5" class="bar hm1"/>
+<rect x="300.7" y="175.6" width="4.8" height="110.4" class="bar hm4"/>
+<rect x="307.1" y="244.9" width="4.8" height="41.1" class="bar hm1"/>
+<rect x="313.5" y="211.2" width="4.8" height="74.8" class="bar hm1"/>
+<rect x="319.8" y="251.4" width="4.8" height="34.6" class="bar hm1"/>
+<rect x="326.2" y="243.0" width="4.8" height="43.0" class="bar hm1"/>
+<rect x="332.6" y="254.0" width="4.8" height="32.0" class="bar hm1"/>
+<rect x="338.9" y="245.5" width="4.8" height="40.5" class="bar hm1"/>
+<rect x="345.3" y="272.1" width="4.8" height="13.9" class="bar hm1"/>
+<rect x="351.7" y="212.2" width="4.8" height="73.8" class="bar hm1"/>
+<rect x="358.0" y="231.2" width="4.8" height="54.8" class="bar hm1"/>
+<rect x="364.4" y="281.2" width="4.8" height="4.8" class="bar hm1"/>
+<rect x="370.8" y="281.4" width="4.8" height="4.6" class="bar hm1"/>
+<rect x="377.1" y="284.9" width="4.8" height="1.1" class="bar hm1"/>
+<rect x="383.5" y="260.7" width="4.8" height="25.3" class="bar hm1"/>
+<rect x="389.9" y="189.4" width="4.8" height="96.6" class="bar hm4"/>
+<rect x="396.2" y="281.6" width="4.8" height="4.4" class="bar hm1"/>
+<rect x="402.6" y="253.2" width="4.8" height="32.8" class="bar hm1"/>
+<rect x="409.0" y="257.1" width="4.8" height="28.9" class="bar hm1"/>
+<rect x="415.3" y="252.7" width="4.8" height="33.3" class="bar hm1"/>
+<rect x="421.7" y="284.4" width="4.8" height="1.6" class="bar hm1"/>
+<rect x="428.1" y="244.4" width="4.8" height="41.6" class="bar hm1"/>
+<rect x="434.4" y="246.9" width="4.8" height="39.1" class="bar hm1"/>
+<line x1="182.2" y1="132.8" x2="182.2" y2="74.0" class="gearln"/>
+<text x="182.2" y="70.0" class="flab mid c4">11</text>
+<line x1="233.1" y1="186.1" x2="233.1" y2="91.0" class="gearln"/>
+<text x="233.1" y="87.0" class="flab mid c4">29</text>
+<line x1="245.8" y1="200.2" x2="245.8" y2="74.0" class="gearln"/>
+<text x="245.8" y="70.0" class="flab mid c4">37</text>
+<line x1="271.3" y1="197.5" x2="271.3" y2="91.0" class="gearln"/>
+<text x="271.3" y="87.0" class="flab mid c4">59</text>
+<line x1="303.1" y1="171.6" x2="303.1" y2="74.0" class="gearln"/>
+<text x="303.1" y="70.0" class="flab mid c4">107</text>
+<line x1="392.2" y1="185.4" x2="392.2" y2="91.0" class="gearln"/>
+<text x="392.2" y="87.0" class="flab mid c4">577</text>
+<line x1="540" y1="286" x2="700" y2="286" class="axis"/>
+<line x1="540" y1="92" x2="540" y2="286" class="axis"/>
+<line x1="540" y1="271.4" x2="700" y2="271.4" class="grid"/>
+<text x="534" y="274.9" class="flab end">0.45</text>
+<line x1="540" y1="222.9" x2="700" y2="222.9" class="grid"/>
+<text x="534" y="226.4" class="flab end">0.55</text>
+<line x1="540" y1="174.4" x2="700" y2="174.4" class="grid"/>
+<text x="534" y="177.9" class="flab end">0.65</text>
+<line x1="540" y1="126.0" x2="700" y2="126.0" class="grid"/>
+<text x="534" y="129.5" class="flab end">0.75</text>
+<text x="540.0" y="303.0" class="flab mid">0</text>
+<text x="620.0" y="303.0" class="flab mid">8</text>
+<text x="646.7" y="303.0" class="flab mid">20</text>
+<text x="673.3" y="303.0" class="flab mid">40</text>
+<text x="700.0" y="303.0" class="flab mid">80</text>
+<text x="620.0" y="322.0" class="flab mid">prime powers kept</text>
+<text x="534" y="80" class="flab end">&#961;</text>
+<path d="M540.0 119.9L566.7 150.0L593.3 171.2L620.0 213.8L646.7 267.7L673.3 254.5L700.0 235.7" class="ln0"/>
+<circle cx="540.0" cy="119.9" r="3.6" class="hm1"/>
+<circle cx="566.7" cy="150.0" r="3.6" class="hm1"/>
+<circle cx="593.3" cy="171.2" r="3.6" class="hm1"/>
+<circle cx="620.0" cy="213.8" r="3.6" class="hm1"/>
+<circle cx="646.7" cy="267.7" r="3.6" class="hm1"/>
+<circle cx="673.3" cy="254.5" r="3.6" class="hm1"/>
+<circle cx="700.0" cy="235.7" r="3.6" class="hm1"/>
+<line x1="540" y1="240.5" x2="700" y2="240.5" class="rule"/>
+<text x="544" y="233.5" class="flab st c4">the true &#961;</text>
+<text x="30" y="348" class="flab st">Left: the Toeplitz moments of the wrapped-ordinate measure at mesh &#916; = 0.12, n = 61. Each is an explicit-formula</text>
+<text x="30" y="366" class="flab st">evaluation &#8212; pole plus archimedean integral minus the prime comb of the window&#8217;s own autocorrelation &#8212; and rebuilt</text>
+<text x="30" y="384" class="flab st">from the primes it matches the sum over 22490 ordinates to 7.2&#215;10&#8315;&#8312; of the mass. The six tallest are marked with the</text>
+<text x="30" y="402" class="flab st">prime power nearest to exp(k&#916;), each within 0.011 in log on a grid of spacing 0.12. Right: &#961; rebuilt from the</text>
+<text x="30" y="420" class="flab st">heaviest J prime powers only. With none it reads 0.762, the archimedean part alone; twenty carry it down past the</text>
+<text x="30" y="438" class="flab st">truth to 0.458; the next sixty bring it back. The loss is a cancellation across the whole comb, not the work of a</text>
+<text x="30" y="456" class="flab st">few primes.</text>
+</svg></div>
+<figcaption>Left: the moment spectrum, with the prime power nearest
+e<sup>k&#916;</sup> on the six tallest. Right: rebuilding &#961; from the
+heaviest J prime powers only.</figcaption>
+</figure>
+
+<p>The tempting next sentence — <em>so a handful of primes decides the
+certificate</em> — is false, and the right panel is the disproof. Switch
+the comb off entirely and the row still has &#961; = 0.762, the
+archimedean part alone. The twenty heaviest prime powers carry it
+<em>past</em> the truth, down to 0.458. The next sixty bring it back to
+0.524. The loss is a cancellation across the whole comb, in the same
+way &#167;5 found the moments cancelling — which is the same phenomenon
+seen twice, since the moments are the comb.</p>
+</section>
+
+<section id="s7">
+<h2>7 · Where this leaves the conjunction</h2>
+
+<p>rh32 ended with a two-parameter conjecture and one analytic gap, and
+called the gap &#8220;smaller and sharper than anything previously called
+the missing lemma&#8221;. Both parts need correcting.</p>
+
+<p>The gap as stated does not exist, in two different senses. Its
+hypothesis class is wrong (&#167;4): gap statistics are blind at the
+frequency that matters. And its conclusion was never needed (&#167;6):
+the quantity it wanted to bound below by a domination inequality is
+<em>equal</em>, by the explicit formula, to the row the arc has been
+computing since rh17. There is no quadrature step between the atoms and
+the primes. There is an identity, and it has been in the code for
+fourteen documents.</p>
+
+<p>What is actually left is what was left before rh29: a lower bound for
+&#955;<sub>min</sub> of the Toeplitz matrix of the prime comb, for a
+support &#916; and a degree n beyond the certified nine. rh29&#8211;rh32
+did not move that, and this document&#8217;s honest verdict on its own
+three predecessors is that they measured, explained and mapped an object
+they could not reach — the void law of rh32 is true, sharp and
+unconditional, and it prices the loss for measures the zeros never
+build. The programme&#8217;s own diagnosis from rh30 stands and gets
+sharper: <strong>as a route to RH this arc is a certified-computation
+programme, and the only thing that extends it is more certified
+computation.</strong></p>
+
+<p>One thing is genuinely new, and it is small but real. The arc now knows
+<em>where</em> in the row the difficulty lives. &#167;6&#8217;s moment
+spectrum says the certificate at (&#916;, n) is decided by prime powers m
+with |ln m &#8722; k&#916;| &lt; 2&#916;, k &lt; n — the comb sampled at the
+grid points — and &#167;5 says what is needed is control of their signed
+sum, not their size. That is a Chebyshev-type question about prime powers
+in short intervals of the log scale, weighted by a fixed even window. It
+is not a new tool and this document does not have it. But it is the first
+time the arc&#8217;s floor question has been reduced to a statement with
+no zeros in it at all.</p>
+</section>
+
+<section id="s8">
+<h2>8 · What this document leaves</h2>
+
+<dl class="dict">
+<dt>(a) the signed comb</dt>
+<dd>&#167;5&#8217;s obstruction, stated as a target: for the arc&#8217;s
+windows, bound &#955;<sub>min</sub> of the Toeplitz matrix whose row is
+the signed prime comb, using the <em>cancellation</em> and not the
+triangle inequality. The elementary bound is off by a factor of five at
+&#916; = 0.12 and the certified computation is exact; between them is
+everything. Concretely: is there a Fejér- or Riesz-type kernel identity
+that makes the comb row&#8217;s quadratic form a sum of squares plus a
+small remainder? The arc has a positive-definite generator
+(rh25&#8217;s U<sub>c</sub>) and never asked this question of the
+<em>row</em>.</dd>
+<dt>(b) the moment hypothesis, if anyone still wants a lemma</dt>
+<dd>&#167;4 kills gap hypotheses but not all hypotheses. The honest
+replacement to try is a bound on &#961; in terms of the measure&#8217;s
+normalised moments at frequencies near n, since that is where &#167;4&#8217;s
+counterexample lives and where &#167;3&#8217;s jitter law says the damage
+accumulates. The failure branch, again named in advance: a family with
+uniformly small individual moments and &#961; &#8594; 0, which would show
+that even the moments have to be read jointly.</dd>
+<dt>(c) the certified set stays closed</dt>
+<dd>Standing order, renewed a fourth time — and after &#167;7 it should be
+read differently. It is no longer idling until a lemma arrives; on this
+document&#8217;s reading no lemma is coming, and the only way the
+certified set grows is by paying for it. The next document that moves the
+conjunction will be one that certifies a point, not one that explains
+one.</dd>
+</dl>
+
+<p class="foot">54 named checks in 47 s. Four computed
+SVG figures, light and dark verified. Anchors and CSS classes audited
+against rh4&#8211;rh32. No new certificates. Previous:
+<a href="rh32.html">rh32 · where certificates die</a>.</p>
+</section>
+
+
+</div>
+</body>
+</html>

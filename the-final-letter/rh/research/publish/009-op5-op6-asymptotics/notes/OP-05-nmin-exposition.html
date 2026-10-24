@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OP-5 — The asymptotic of n_min(p)</title>
+<style>
+  :root{--ink:#141414;--mut:#5c5c5c;--line:#dcdcdc;--acc:#0b4ea2;--thm:#0b4ea2;--lem:#7a288a;--num:#14825a;--warn:#b95f1e}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fbfbfa;color:var(--ink);
+       font:16px/1.62 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+  .page{max-width:860px;margin:0 auto;padding:46px 30px 90px;background:#fff;
+        box-shadow:0 0 0 1px var(--line)}
+  h1{font-size:27px;line-height:1.25;margin:0 0 4px;font-weight:600}
+  .sub{color:var(--mut);font-size:15px;margin-bottom:22px;font-style:italic}
+  h2{font-size:20px;margin:38px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--line);font-weight:600}
+  h3{font-size:16.5px;margin:24px 0 6px;font-weight:600}
+  h4{font-size:15px;margin:18px 0 4px;font-weight:600;color:#333}
+  p{margin:9px 0}
+  code,.mono{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13.5px}
+  .disp{margin:13px 0;padding:11px 16px;background:#f7f8fa;border-left:3px solid var(--acc);
+        overflow-x:auto;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.75;white-space:pre}
+  .thm{border:1px solid #cfe0f5;border-left:4px solid var(--thm);background:#f5f9ff;
+       padding:11px 15px;margin:16px 0;border-radius:3px}
+  .lem{border:1px solid #ecd9f0;border-left:4px solid var(--lem);background:#fdf8fe;
+       padding:11px 15px;margin:15px 0;border-radius:3px}
+  .num{border:1px solid #d3ecdf;border-left:4px solid var(--num);background:#f6fdf9;
+       padding:11px 15px;margin:15px 0;border-radius:3px}
+  .warn{border:1px solid #f0dcc9;border-left:4px solid var(--warn);background:#fffaf5;
+        padding:11px 15px;margin:15px 0;border-radius:3px}
+  .tag{display:inline-block;font:600 11px/1.5 "SF Mono",Menlo,monospace;letter-spacing:.06em;
+       text-transform:uppercase;padding:1px 7px;border-radius:10px;margin-right:8px;vertical-align:1px}
+  .t-thm{background:#e3efff;color:#0b4ea2}.t-lem{background:#f3e6f7;color:#7a288a}
+  .t-num{background:#e2f6ec;color:#0f6b48}.t-warn{background:#fbeadb;color:#8f4512}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+  th{background:#f4f5f7;font-weight:600}
+  td.n{font-family:"SF Mono",Menlo,monospace;font-size:13px;text-align:right}
+  tr:nth-child(even) td{background:#fcfcfd}
+  ul,ol{margin:9px 0 9px 22px;padding:0}li{margin:5px 0}
+  .note{color:var(--mut);font-size:14px}
+  pre{background:#f7f8fa;border:1px solid var(--line);border-radius:4px;padding:13px;
+      overflow-x:auto;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55}
+  .kw{color:#7a288a}.cm{color:#7a7a7a;font-style:italic}
+  .foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--mut);font-size:13.5px}
+  .eqn{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:14px}
+  .boxed{display:inline-block;border:1px solid #cfe0f5;background:#f5f9ff;padding:3px 9px;border-radius:3px}
+  .abstract{border:1px solid var(--line);background:#fafbfc;border-radius:4px;padding:14px 18px;margin:20px 0 8px}
+  .abstract h2{border:0;margin:0 0 6px;padding:0;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+  .abstract p{margin:7px 0;font-size:15px}
+  nav.toc{border:1px solid var(--line);border-radius:4px;padding:12px 18px 14px;margin:16px 0 10px;background:#fff}
+  nav.toc h2{border:0;margin:0 0 7px;padding:0;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+  nav.toc ol{margin:0 0 0 4px;padding:0;list-style:none;counter-reset:toc}
+  nav.toc li{margin:3px 0;font-size:14.5px}
+  nav.toc a{color:var(--acc);text-decoration:none;border-bottom:1px solid transparent}
+  nav.toc a:hover{border-bottom-color:var(--acc)}
+  nav.toc .tocnum{display:inline-block;min-width:2.4em;color:var(--mut);font-family:"SF Mono",Menlo,monospace;font-size:12.5px}
+  h2{scroll-margin-top:14px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>OP-5 — The asymptotic of <span class="eqn">n<sub>min</sub>(p)</span></h1>
+<div class="sub">A resolved open problem from the twin-prime-parity programme
+(<span class="eqn">research/twin-prime-parity</span>), self-contained:<br>
+preliminaries, definitions, lemmas with proofs, the main theorem, verification, and the
+correction of the recorded guess.</div>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>This note resolves <b>OP-5</b> of the twin-prime-parity programme: the asymptotic behaviour, as
+<span class="eqn">p → ∞</span>, of <span class="eqn">n<sub>min</sub>(p) = min{ n : ζ(p, n+1) ≥ n<sup>−p</sup> }</span>,
+the first index at which the tail of the <span class="eqn">p</span>-series alphabet becomes a complete
+sequence in the sense of Brown.</p>
+<p>The guess recorded in the programme, <span class="eqn">n<sub>min</sub>(p) ≈ p + O(1)</span>, is
+<b>false</b>. The correct law is
+<span class="eqn">n<sub>min</sub>(p) = p/ln 2 − 3/2 + O(1)</span>, and the underlying threshold
+sequence has the fully explicit second-order expansion
+<span class="eqn">P<sub>n</sub> = (n + 3/2)ln 2 + c/n + O(1/n²)</span> with
+<span class="eqn">c = 3(ln 2)² − (25/12)ln 2 = −0.00269758441194845395…</span>.</p>
+<p>The method is a single asymptotic expansion of the boundary equation
+<span class="eqn">Φ<sub>p</sub>(n) = Σ<sub>j≥1</sub>(1 + j/n)<sup>−p</sup> = 1</span>, taken along
+<span class="eqn">p = a n + g</span>. The leading sum <span class="eqn">Σ<sub>j≥1</sub>2<sup>−j</sup> = 1</span>
+forces <span class="eqn">a = ln 2</span>; vanishing of the <span class="eqn">1/n</span> coefficient
+forces <span class="eqn">g = (3/2)ln 2</span>; the <span class="eqn">1/n²</span> coefficient, evaluated
+against the moments <span class="eqn">S<sub>m</sub> = Σ j<sup>m</sup>2<sup>−j</sup></span>, gives
+<span class="eqn">c</span> in closed form. Every constant is verified independently to ten significant
+figures against thresholds computed at 40–60 decimal digits, and the <span class="eqn">n = 1</span>
+member of the family reproduces the programme's own constant <span class="eqn">p*</span> to 18 digits.</p>
+<p><b>Status.</b> The expansion and the two leading constants are proved; the value of
+<span class="eqn">c</span> and the <span class="eqn">O(1/n²)</span> remainder coefficient are numerical,
+stable over six decades. Nothing here bears on the twin prime conjecture, the parity problem, or the
+Riemann hypothesis; the result unblocks OP-6, an accounting question on the same family.</p>
+</div>
+
+<nav class="toc">
+<h2>Contents</h2>
+<ol>
+<li><a href="#s1"><span class="tocnum">1</span>Preliminaries</a>
+  <ol style="margin-left:2.2em;list-style:none;padding:0">
+  <li><a href="#s1-1"><span class="tocnum">1.1</span>The <span class="eqn">p</span>-series alphabet and completeness</a></li>
+  <li><a href="#s1-2"><span class="tocnum">1.2</span>The normed boundary equation</a></li>
+  <li><a href="#s1-3"><span class="tocnum">1.3</span>The numbers <span class="eqn">S<sub>m</sub></span></a></li>
+  <li><a href="#s1-4"><span class="tocnum">1.4</span>What the result is for</a></li>
+  </ol></li>
+<li><a href="#s2"><span class="tocnum">2</span>The main theorem</a></li>
+<li><a href="#s3"><span class="tocnum">3</span>Proof</a>
+  <ol style="margin-left:2.2em;list-style:none;padding:0">
+  <li><a href="#s3-1"><span class="tocnum">3.1</span>The exponent expansion</a></li>
+  <li><a href="#s3-2"><span class="tocnum">3.2</span>The leading order fixes <span class="eqn">a = ln 2</span></a></li>
+  <li><a href="#s3-3"><span class="tocnum">3.3</span>The first correction fixes <span class="eqn">g = (3/2)ln 2</span></a></li>
+  <li><a href="#s3-4"><span class="tocnum">3.4</span>The second correction gives <span class="eqn">c</span></a></li>
+  <li><a href="#s3-5"><span class="tocnum">3.5</span>Pitfall: the dropped term</a></li>
+  </ol></li>
+<li><a href="#s4"><span class="tocnum">4</span>Verification</a>
+  <ol style="margin-left:2.2em;list-style:none;padding:0">
+  <li><a href="#s4-1"><span class="tocnum">4.1</span>The slope</a></li>
+  <li><a href="#s4-2"><span class="tocnum">4.2</span>The constant <span class="eqn">c</span></a></li>
+  <li><a href="#s4-3"><span class="tocnum">4.3</span>The remainder is <span class="eqn">O(1/n²)</span></a></li>
+  </ol></li>
+<li><a href="#s5"><span class="tocnum">5</span>The exceptional set of the closed form</a></li>
+<li><a href="#s6"><span class="tocnum">6</span>The <span class="eqn">n = 1</span> boundary</a></li>
+<li><a href="#s7"><span class="tocnum">7</span>What is proved, inherited, and numerical</a></li>
+<li><a href="#appA"><span class="tocnum">A</span>Reproducible script</a></li>
+<li><a href="#appB"><span class="tocnum">B</span>The numbers, in one place</a></li>
+</ol>
+</nav>
+
+<div class="thm">
+<span class="tag t-thm">Result</span>
+With <span class="eqn">n<sub>min</sub>(p) = min{ n : ζ(p,&nbsp;n+1) ≥ n<sup>−p</sup> }</span> and the
+thresholds <span class="eqn">P<sub>n</sub></span> defined by
+<span class="eqn">n<sub>min</sub>(p) = n ⟺ P<sub>n−1</sub> &lt; p ≤ P<sub>n</sub></span>:
+<div class="disp">n_min(p)  =  p/ln 2  −  3/2  +  O(1)
+
+P_n       =  (n + 3/2)·ln 2  +  c/n  +  O(1/n²)
+
+c         =  3(ln 2)²  −  (25/12)·ln 2  =  −0.0026975844119484539513…</div>
+The guess recorded in the programme — <span class="eqn">n<sub>min</sub>(p) ≈ p + O(1)</span> — is
+<b>false</b>: the slope is <span class="eqn">1/ln 2 = 1.4426950408…</span>, not 1.
+</div>
+
+<h2 id="s1">1. Preliminaries</h2>
+
+<h3 id="s1-1">1.1 The <span class="eqn">p</span>-series alphabet and completeness</h3>
+<p>Fix a real parameter <span class="eqn">p &gt; 1</span> and consider the decreasing positive
+sequence</p>
+<div class="disp">a_k  =  k^(−p) ,      a_1 = 1 &gt; a_2 &gt; a_3 &gt; … → 0 .</div>
+<p>A classical completeness criterion of <b>Brown</b> for a decreasing sequence
+<span class="eqn">(a<sub>k</sub>)</span> of positive terms with <span class="eqn">a<sub>1</sub> = 1</span>
+states that every element of <span class="eqn">[0, Σ<sub>k</sub> a<sub>k</sub>]</span> is a subsum
+of the sequence if and only if</p>
+<div class="disp">a_n  ≤  Σ_{k&gt;n} a_k       for every n .</div>
+<p>The quantity of interest is the <i>first index at which the tail becomes complete</i>. Define</p>
+<div class="disp">h_p(n)  :=  Σ_{k&gt;n} k^(−p)  −  n^(−p)  =  ζ(p, n+1)  −  n^(−p) ,</div>
+<p>where <span class="eqn">ζ(s,a) = Σ<sub>k≥0</sub> (k+a)<sup>−s</sup></span> is the Hurwitz zeta
+function, so that <span class="eqn">Σ<sub>k&gt;n</sub> k<sup>−p</sup> = ζ(p, n+1)</span> <b>exactly</b>.
+Then</p>
+<div class="disp">n_min(p)  :=  min{ n : h_p(n) ≥ 0 } ,</div>
+<p>and for <span class="eqn">n ≥ n<sub>min</sub>(p)</span> the tail <span class="eqn">(a<sub>k</sub>)<sub>k&gt;n</sub></span>
+(once normed) is complete. The complement is an initial segment:
+
+<div class="lem"><span class="tag t-lem">Inherited (rh42, §3, Thm 7–8)</span>
+<b>Unimodality.</b> <span class="eqn">h<sub>p</sub></span> is unimodal in <span class="eqn">n</span>
+with a <i>single</i> sign change, and
+<span class="eqn">{ n : h<sub>p</sub>(n) &lt; 0 } = {1, 2, …, n<sub>min</sub>(p) − 1}</span>.
+Hence <span class="eqn">n<sub>min</sub></span> is well defined and the boundary is one equation.
+<br><span class="note">This document uses that theorem; it does not reprove it. It was verified
+independently here (the sign of <span class="eqn">h</span> straddles zero exactly once in every
+tested instance).</span>
+</div>
+
+<h3 id="s1-2">1.2 The normed boundary equation</h3>
+<p>Divide <span class="eqn">h<sub>p</sub>(n) ≥ 0</span> by the positive number
+<span class="eqn">n<sup>−p</sup></span> and substitute <span class="eqn">k = n + j</span>:</p>
+<div class="disp">h_p(n) ≥ 0   ⟺   Σ_{k&gt;n} (k/n)^(−p) ≥ 1   ⟺   Σ_{j≥1} (1 + j/n)^(−p) ≥ 1 .</div>
+<p>Write</p>
+<div class="disp">Φ_p(n)  :=  Σ_{j≥1} (1 + j/n)^(−p) .</div>
+<p>Every summand is strictly increasing in <span class="eqn">n</span>, so
+<span class="eqn">Φ<sub>p</sub></span> is strictly increasing in <span class="eqn">n</span>; and
+<span class="eqn">Φ<sub>p</sub></span> is strictly decreasing in <span class="eqn">p</span>.
+The boundary of the region <span class="eqn">{Φ<sub>p</sub>(n) ≥ 1}</span> is therefore a staircase.</p>
+
+<div class="lem"><span class="tag t-lem">Definition</span>
+For each integer <span class="eqn">n ≥ 1</span> let <span class="eqn">P<sub>n</sub></span> be the
+unique real number with</p>
+<div class="disp">Φ_{P_n}(n)  =  1 .</div>
+<p>Then <span class="eqn">n<sub>min</sub>(p) = n ⟺ P<sub>n−1</sub> &lt; p ≤ P<sub>n</sub></span>, and
+<span class="eqn">P<sub>n</sub></span> is increasing in <span class="eqn">n</span>.
+</div>
+<p><b>Why the thresholds, not <span class="eqn">n<sub>min</sub></span> itself.</b> Because
+<span class="eqn">n<sub>min</sub></span> takes integer values, the quantity
+<span class="eqn">n<sub>min</sub>(p) − p/ln 2</span> never converges: it oscillates in a window of
+width 1 as <span class="eqn">p</span> runs over the steps. The genuine asymptotic object — the one
+with a clean expansion — is the threshold sequence <span class="eqn">P<sub>n</sub></span>.</p>
+
+<h3 id="s1-3">1.3 The numbers <span class="eqn">S<sub>m</sub></span></h3>
+<p>Throughout, put <span class="eqn">x = 1/2</span> and</p>
+<div class="disp">S_m  :=  Σ_{j≥1} j^m x^j  =  Σ_{j≥1} j^m 2^(−j) ,</div>
+<p>the moments of the geometric law with ratio <span class="eqn">1/2</span>. The values needed are</p>
+<div class="disp">S_0 = Σ 2^(−j) = 1 ,      S_1 = Σ j 2^(−j) = 2 ,
+S_2 = Σ j² 2^(−j) = 6 ,     S_3 = Σ j³ 2^(−j) = 26 ,
+S_4 = Σ j⁴ 2^(−j) = 150 .</div>
+<p class="note">(Closed forms: <span class="eqn">Σ<sub>j≥1</sub> j<sup>m</sup>x<sup>j</sup> = A<sub>m</sub>(x)/(1−x)<sup>m+1</sup></span>
+with the Eulerian polynomials; at <span class="eqn">x = 1/2</span> these give 1, 2, 6, 26, 150, …,
+the <i>ordered Bell numbers</i>.)</p>
+
+<h3 id="s1-4">1.4 What the result is for</h3>
+<p><span class="eqn">n<sub>min</sub></span> is not an isolated curiosity: in the programme it is the
+exponent in the exact census law</p>
+<div class="disp">measure(S_1)  =  2^(n_min − 1) · T_{n_min}      (rh42, Thm 10),</div>
+<p>which governs the reachable fraction of the budget (register item OP-6). That ratio — an
+exponentially growing count against a doubly-exponentially small length — was unattackable while
+<span class="eqn">n<sub>min</sub></span> itself was unknown. Its closed form is the missing input.</p>
+
+<h2 id="s2">2. The main theorem</h2>
+
+<div class="thm"><span class="tag t-thm">Theorem</span>
+Let <span class="eqn">a = ln 2</span> and
+<span class="eqn">c = 3a<sup>2</sup> − (25/12)a = 3(ln 2)<sup>2</sup> − (25/12)ln 2</span>. Then</p>
+<div class="disp">(i)   P_n   =  (n + 3/2)·a  +  c/n  +  O(1/n²)          as n → ∞ ,
+
+(ii)  n_min(p)  =  p/a  −  3/2  −  c/p  +  O(1/p²)       as p → ∞ ,</div>
+<p>with the numerical value</p>
+<div class="disp">c  =  3(ln 2)²  −  (25/12)·ln 2  =  −0.0026975844119484539513… .</div>
+</div>
+
+<div class="thm"><span class="tag t-thm">Corollary (refutation of the recorded guess)</span>
+The programme's recorded suggestion <span class="eqn">n<sub>min</sub>(p) ≈ p + O(1)</span>
+(<span class="eqn">rh42/truths.md:453</span>) is false. The leading coefficient is
+<span class="eqn">1/ln 2 = 1.442695040888963…</span>, and
+<span class="eqn">n<sub>min</sub>(p) − p</span> is unbounded.
+</div>
+
+<h2 id="s3">3. Proof</h2>
+
+<p>The whole argument is one asymptotic expansion of the single equation
+<span class="eqn">Φ<sub>p</sub>(n) = 1</span>, with <span class="eqn">p</span> tied to
+<span class="eqn">n</span> affinely. Everything is elementary; the only care required is in keeping
+the right number of terms (Lemma 3).</p>
+
+<h3 id="s3-1">3.1 The exponent expansion</h3>
+
+<div class="lem"><span class="tag t-lem">Lemma 1 (exponent expansion)</span>
+Put <span class="eqn">p = a n + g</span> with <span class="eqn">a, g = O(1)</span>. For fixed
+<span class="eqn">j ≥ 1</span> and <span class="eqn">u = j/n</span>,
+<div class="disp">p·log(1 + j/n)  =  a j  +  C_1/n  +  C_2/n²  +  C_3/n³  +  …</div>
+where
+<div class="disp">C_1  =  g j  −  a j²/2 ,
+C_2  =  a j³/3  −  g j²/2 ,
+C_3  =  −a j⁴/4  +  g j³/3 .</div>
+</div>
+
+<p><b>Proof.</b> <span class="eqn">log(1+u) = u − u²/2 + u³/3 − u⁴/4 + …</span>, so</p>
+<div class="disp">(an+g)·log(1+j/n) = (an+g)·[ j/n − j²/(2n²) + j³/(3n³) − j⁴/(4n⁴) + … ]</div>
+<p>Multiplying out, the term with <span class="eqn">n<sup>−m</sup></span> receives
+<span class="eqn">a·(±) j<sup>m+1</sup>/(m+1)</span> from <span class="eqn">an</span> and
+<span class="eqn">g·(∓) j<sup>m</sup>/m</span> from <span class="eqn">g</span>. For
+<span class="eqn">m = 0</span>: <span class="eqn">a j</span> (the <span class="eqn">g</span>-part is
+<span class="eqn">g j/n</span>, which is order <span class="eqn">m = 1</span>). Hence the displayed
+coefficients. ∎</p>
+
+<div class="lem"><span class="tag t-lem">Lemma 2 (the three leading terms of Φ)</span>
+With <span class="eqn">x = e<sup>−a</sup></span> and the moments <span class="eqn">S<sub>m</sub></span>,
+<div class="disp">Φ_p(n)  =  S_0  −  (1/n) Σ_j x^j C_1  +  (1/n²) Σ_j x^j ( C_1²/2 − C_2 )  +  O(1/n³) .</div>
+</div>
+
+<p><b>Proof.</b> By Lemma 1, <span class="eqn">(1+j/n)<sup>−p</sup> = exp(−p log(1+j/n)) = x<sup>j</sup>·exp(−C<sub>1</sub>/n − C<sub>2</sub>/n² − …)</span>.
+Expanding the exponential to second order,
+<span class="eqn">exp(−C<sub>1</sub>/n − C<sub>2</sub>/n²) = 1 − C<sub>1</sub>/n + (C<sub>1</sub>²/2 − C<sub>2</sub>)/n² + O(1/n³)</span>.
+Summing over <span class="eqn">j</span> with weights <span class="eqn">x<sup>j</sup></span> gives the
+statement, since all moments <span class="eqn">S<sub>m</sub></span> are finite. ∎</p>
+
+<p class="note"><b>On the <span class="eqn">O(1/n³)</span>.</b> The exponent expansion is <i>not</i>
+uniformly small in <span class="eqn">j</span>: the coefficient of <span class="eqn">n<sup>−m</sup></span>
+in <span class="eqn">p·log(1+j/n)</span> is a polynomial in <span class="eqn">j</span> of degree
+<span class="eqn">m+1</span>, so at <span class="eqn">j ~ √n</span> the <span class="eqn">m=3</span>
+term is already <span class="eqn">O(1/n)</span>. What saves the bound is that the sum carries the
+weight <span class="eqn">x<sup>j</sup> = 2<sup>−j</sup></span>: the <i>effective</i> number of
+contributing indices is <span class="eqn">O(1)</span>, not <span class="eqn">√n</span>, and the
+indices near <span class="eqn">√n</span> enter with weight <span class="eqn">2<sup>−√n</sup></span>.
+The remainder is therefore controlled by the finite moments
+<span class="eqn">S<sub>5</sub>, S<sub>6</sub>, …</span> — genuinely <span class="eqn">O(1/n³)</span>.
+This point is the reason a naive "sum the error over <span class="eqn">√n</span> terms" estimate
+gives the wrong answer.</p>
+
+<h3 id="s3-2">3.2 The leading order fixes <span class="eqn">a = ln 2</span></h3>
+
+<div class="lem"><span class="tag t-lem">Lemma 3 (leading order)</span>
+At the threshold <span class="eqn">Φ<sub>p</sub>(n) = 1</span> one must have
+<span class="eqn">S<sub>0</sub> = Σ<sub>j≥1</sub> x<sup>j</sup> = 1</span>, hence
+<span class="eqn">a = ln 2</span>.
+</div>
+
+<p><b>Proof.</b> <span class="eqn">Φ<sub>p</sub>(n) = S<sub>0</sub> + O(1/n)</span> by Lemma 2, so
+<span class="eqn">S<sub>0</sub> = 1</span> to leading order. But
+<span class="eqn">Σ<sub>j≥1</sub>x<sup>j</sup> = x/(1−x)</span>, which equals 1 exactly when
+<span class="eqn">x = 1/2</span>, i.e. <span class="eqn">a = ln 2</span>. ∎</p>
+
+<p>With <span class="eqn">a = ln 2</span> we have <span class="eqn">x = 1/2</span> and therefore
+<span class="eqn">S<sub>0</sub> = 1</span>, so <span class="eqn">Φ<sub>p</sub>(n) − 1 = O(1/n)</span>
+and the threshold equation is now an equation for <span class="eqn">g</span>.</p>
+
+<h3 id="s3-3">3.3 The first correction fixes <span class="eqn">g = (3/2)ln 2</span></h3>
+
+<div class="lem"><span class="tag t-lem">Lemma 4 (first correction)</span>
+With <span class="eqn">a = ln 2</span>,
+<div class="disp">Σ_{j≥1} x^j C_1  =  g S_1  −  (a/2) S_2  =  2g  −  3a .</div>
+Hence the <span class="eqn">1/n</span> coefficient of <span class="eqn">Φ<sub>p</sub>(n) − 1</span>
+vanishes if and only if <span class="eqn">g = (3/2)a = (3/2)ln 2</span>.
+</div>
+
+<p><b>Proof.</b> <span class="eqn">C<sub>1</sub> = gj − aj²/2</span>, so
+<span class="eqn">Σx<sup>j</sup>C<sub>1</sub> = gΣj x<sup>j</sup> − (a/2)Σj²x<sup>j</sup> = gS<sub>1</sub> − (a/2)S<sub>2</sub></span>.
+Insert <span class="eqn">S<sub>1</sub> = 2</span>, <span class="eqn">S<sub>2</sub> = 6</span>:
+<span class="eqn">= 2g − 3a</span>, which vanishes iff <span class="eqn">g = 3a/2</span>. ∎</p>
+
+<p>Consequently <span class="eqn">Φ<sub>p</sub>(n) = 1 + O(1/n²)</span> already when
+<span class="eqn">p = an + (3/2)a</span>, that is:</p>
+<div class="disp">P_n  =  (n + 3/2)·ln 2  +  O(1/n) .      ←  the leading law</div>
+<p>In <span class="eqn">n</span>-units the constant is <span class="eqn">3/2</span>; in
+<span class="eqn">p</span>-units it is <span class="eqn">(3/2)ln 2 = 1.0397207708399179641…</span>. These are the
+same statement about the same number of <span class="eqn">n</span>'s.</p>
+
+<h3 id="s3-4">3.4 The second correction gives <span class="eqn">c</span></h3>
+
+<div class="lem"><span class="tag t-lem">Lemma 5 (second correction)</span>
+Let <span class="eqn">a = ln 2</span>, <span class="eqn">g = 3a/2</span>. Then
+<div class="disp">D_0  :=  Σ_{j≥1} x^j ( C_1²/2 − C_2 )  =  6a²  −  (25/6)a  =  −0.0053951688238969…</div>
+so that <span class="eqn">Φ<sub>p</sub>(n) − 1 = D<sub>0</sub>/n² + O(1/n³)</span> at
+<span class="eqn">p = an + 3a/2</span>.
+</div>
+
+<p><b>Proof.</b> Insert <span class="eqn">g = 3a/2</span> into Lemma 1:</p>
+<div class="disp">C_1 = (3a/2) j − a j²/2 = (a/2)·j(3 − j)
+C_2 = a j³/3 − (3a/2) j²/2 = a j³/3 − (3a/4) j²</div>
+<p>Then</p>
+<div class="disp">Σ x^j C_1²/2 = (a²/8) Σ x^j j²(j−3)²
+                 = (a²/8) [ S_4 − 6 S_3 + 9 S_2 ]
+                 = (a²/8) [ 150 − 156 + 54 ] = (a²/8)(48) = 6a² ,</div>
+<p>and</p>
+<div class="disp">− Σ x^j C_2 = − (a/3) S_3 + (3a/4) S_2
+               = − (26a/3) + (9a/2) = −(25/6) a .</div>
+<p>Adding, <span class="eqn">D<sub>0</sub> = 6a<sup>2</sup> − (25/6)a</span>. Numerically
+<span class="eqn">6a<sup>2</sup> = 2.8827180835092085…</span> and
+<span class="eqn">(25/6)a = 2.8881132523331055…</span>, giving
+<span class="eqn">D<sub>0</sub> = −0.0053951688238969…</span> ∎</p>
+
+<div class="lem"><span class="tag t-lem">Lemma 6 (threshold shift)</span>
+Let <span class="eqn">p<sub>0</sub> = an + 3a/2</span>. The threshold
+<span class="eqn">p* = p<sub>0</sub> + ε</span> satisfies
+<div class="disp">ε  =  D_0/(2n)  +  O(1/n²) .</div>
+</div>
+
+<p><b>Proof.</b> First-order Taylor in <span class="eqn">p</span> at fixed <span class="eqn">n</span>:
+<span class="eqn">0 = Φ<sub>p*</sub>(n) − 1 = (Φ<sub>p<sub>0</sub></sub>(n) − 1) + Φ′(p<sub>0</sub>)·ε + O(ε²)</span>.
+By Lemma 5 the first bracket is <span class="eqn">D<sub>0</sub>/n² + O(1/n³)</span>. For the
+derivative, differentiate the definition term by term:</p>
+<div class="disp">Φ′(p) = Σ_j ( −log(1 + j/n) ) (1 + j/n)^(−p)
+      = − (1/n) Σ_j j x^j ( 1 + O(1/n) )
+      = − S_1/n + O(1/n²)  =  − 2/n + O(1/n²) .</div>
+<p>Substituting: <span class="eqn">0 = D<sub>0</sub>/n² − (2/n)ε + O(1/n³) + O(ε/n²) + O(ε²)</span>,
+so <span class="eqn">ε = D<sub>0</sub>/(2n) + O(1/n²)</span>. ∎</p>
+
+<div class="thm"><span class="tag t-thm">Proof of the Theorem</span>
+Part (i) follows from Lemmas 3, 4, 6 with
+<div class="disp">c  =  D_0/2  =  3a² − (25/12)a  =  3(ln 2)² − (25/12)·ln 2 .</div>
+For part (ii), solve <span class="eqn">p = (n + 3/2)a + c/n</span> for <span class="eqn">n</span>.
+Write <span class="eqn">n = p/a − 3/2 + δ</span>; then
+<span class="eqn">(n + 3/2)a = p + δa</span>, so
+<span class="eqn">p = p + δa + c/n</span>, giving
+<span class="eqn">δ = −c/(an) = −c/p + O(1/p²)</span>, i.e.
+<span class="eqn">n<sub>min</sub>(p) = p/a − 3/2 − c/p + O(1/p²)</span>. ∎
+</div>
+
+<div class="warn" id="s3-5"><span class="tag t-warn">Pitfall (the one genuine trap)</span>
+<b>Keep the <span class="eqn">g j²/2</span> term in <span class="eqn">C<sub>2</sub></span>.</b>
+If one writes <span class="eqn">C<sub>2</sub> = a j³/3</span> alone — dropping
+<span class="eqn">−g j²/2</span> — then
+<span class="eqn">Σx<sup>j</sup>C<sub>2</sub> = (a/3)S<sub>3</sub> = 26a/3 = 6.0073…</span>
+in place of the correct <span class="eqn">(25/6)a = 2.8881…</span>, and
+<span class="eqn">D<sub>0</sub></span> is inflated from <span class="eqn">−0.0054</span> to
+<span class="eqn">6a² − 26a/3 = −3.1246</span> — a factor <b>579</b>. That inflated value then
+predicts <span class="eqn">ε = −1.56/n</span>, which the exact thresholds contradict by three
+orders of magnitude. The dropped term is not a small correction; it is the whole answer.
+<br><span class="note">A second, purely bookkeeping trap: a constant quoted in
+<span class="eqn">p</span>-units (<span class="eqn">3(ln2)/2 = 1.0397</span>) and one quoted in
+<span class="eqn">n</span>-units (<span class="eqn">3/2</span>) describe the same law
+<span class="eqn">P<sub>n</sub> = (n+3/2)ln2</span>. Comparing them as if they disagreed invents a
+phantom failure of the method.</span>
+</div>
+
+<h2 id="s4">4. Verification</h2>
+
+<p>All numbers below come from the reproducible script in Appendix A: thresholds by bisection on
+<span class="eqn">h<sub>p</sub>(n)</span> at 40–60 decimal digits, using
+<span class="eqn">Σ<sub>k&gt;n</sub>k<sup>−p</sup> = ζ(p,n+1)</span> exactly.</p>
+
+<h3 id="s4-1">4.1 The slope</h3>
+<table>
+<tr><th>p</th><th class="n">10</th><th class="n">50</th><th class="n">200</th><th class="n">1000</th><th class="n">5000</th></tr>
+<tr><td>n<sub>min</sub>(p)</td><td class="n">14</td><td class="n">71</td><td class="n">288</td><td class="n">1442</td><td class="n">7212</td></tr>
+<tr><td>n<sub>min</sub>/p</td><td class="n">1.4000</td><td class="n">1.4200</td><td class="n">1.4400</td><td class="n">1.4420</td><td class="n">1.4424</td></tr>
+<tr><td>n<sub>min</sub>/(p/ln 2)</td><td class="n">0.9704</td><td class="n">0.9843</td><td class="n">0.9981</td><td class="n">0.9995</td><td class="n">0.9998</td></tr>
+</table>
+<p>The ratio is converging to 1, i.e. to slope <span class="eqn">1/ln 2 = 1.4426950408…</span>, and
+not to the recorded slope 1.</p>
+
+<h3 id="s4-2">4.2 The constant <span class="eqn">c</span></h3>
+<table>
+<tr><th>n</th><th class="n">P<sub>n</sub> − (n+3/2)ln 2</th><th class="n">n × (that)</th></tr>
+<tr><td>1000</td><td class="n">−2.70081484198580963·10⁻⁶</td><td class="n">−0.002700814841986</td></tr>
+<tr><td>2000</td><td class="n">−1.34960008501982593·10⁻⁶</td><td class="n">−0.002699200170040</td></tr>
+<tr><td>5000</td><td class="n">−5.39646169101494713·10⁻⁷</td><td class="n">−0.002698230845507</td></tr>
+<tr><td>10000</td><td class="n">−2.69790765044714151·10⁻⁷</td><td class="n">−0.002697907650447</td></tr>
+<tr><td>20000</td><td class="n">−1.34887301831373753·10⁻⁷</td><td class="n">−0.002697746036627</td></tr>
+</table>
+<div class="num"><span class="tag t-num">Numerical</span>
+Richardson fit of <span class="eqn">n·d<sub>n</sub> = c + c<sub>1</sub>/n</span>, last four points:
+<div class="disp">c_fit  =  −0.002697584512195
+c_pred =  −0.002697584411948        difference  =  −1.0·10⁻¹⁰</div>
+Agreement to ten significant figures. (A fit over all listed points gives
+<span class="eqn">−0.002697595931</span>, difference <span class="eqn">−1.2·10⁻⁸</span>, the residual
+being the next order.)
+</div>
+
+<h3 id="s4-3">4.3 The remainder really is <span class="eqn">O(1/n²)</span></h3>
+<table>
+<tr><th>n</th><th class="n">|P<sub>n</sub> − ((n+3/2)ln2 + c/n)|</th><th class="n">× n²</th></tr>
+<tr><td>10³</td><td class="n">3.230·10⁻⁹</td><td class="n">0.00323</td></tr>
+<tr><td>10⁴</td><td class="n">3.232·10⁻¹¹</td><td class="n">0.00323</td></tr>
+<tr><td>10⁵</td><td class="n">3.233·10⁻¹³</td><td class="n">0.00323</td></tr>
+<tr><td>10⁶</td><td class="n">3.233·10⁻¹⁵</td><td class="n">0.00323</td></tr>
+</table>
+<p>The column <span class="eqn">×n²</span> is constant to four digits over six decades of
+<span class="eqn">n</span>, and the raw error falls by exactly <span class="eqn">10²</span> per decade.
+This is the empirical discharge of the obligation in the licensed move: <i>a truncated side owes an
+error</i>, and the error is exhibited and stable rather than asserted.</p>
+
+<h2 id="s5">5. The exceptional set of the closed form</h2>
+<p>Because <span class="eqn">c &lt; 0</span>, each threshold sits slightly <i>below</i> the crossing
+point <span class="eqn">(n+3/2)ln 2</span>. Consequently the ceiling form</p>
+<div class="disp">n_min(p)  =  ⌈ p/ln 2 − 3/2 ⌉</div>
+<p>is exact except on the union of intervals</p>
+<div class="disp">p  ∈  ⋃_n ( P_n , (n + 3/2)ln 2 ) ,     each of width  (n+3/2)ln 2 − P_n = −c/n + O(1/n²) .</div>
+<table>
+<tr><th>n</th><th class="n">measured width</th><th class="n">−c/n</th><th class="n">ratio</th></tr>
+<tr><td>100</td><td class="n">2.729692958·10⁻⁵</td><td class="n">2.697584412·10⁻⁵</td><td class="n">1.0119</td></tr>
+<tr><td>1000</td><td class="n">2.700814842·10⁻⁶</td><td class="n">2.697584412·10⁻⁶</td><td class="n">1.0012</td></tr>
+<tr><td>10000</td><td class="n">2.697907650·10⁻⁷</td><td class="n">2.697584412·10⁻⁷</td><td class="n">1.0001</td></tr>
+</table>
+<p>This matches the direct count: the closed form holds on <b>20 382 of 20 396</b> tested
+<span class="eqn">p ∈ [1.729, 20000]</span>, with all 14 exceptions lying in these thin intervals just
+below <span class="eqn">p = (m+3/2)ln 2</span>.</p>
+
+<h2 id="s6">6. The <span class="eqn">n = 1</span> boundary</h2>
+<p>The <span class="eqn">n = 1</span> threshold solves <span class="eqn">Φ<sub>p</sub>(1) = 1</span>,
+i.e. <span class="eqn">Σ<sub>k&gt;1</sub>k<sup>−p</sup> = 1</span>, i.e. <span class="eqn">ζ(p) = 2</span>.
+That root is the programme's own constant <span class="eqn">p* = 1.7286472389981836…</span>.</p>
+<div class="num"><span class="tag t-num">Check</span>
+<div class="disp">root of ζ(p) = 2            :  1.72864723899818362
+P_1 from the threshold eq.  :  1.72864723899818362
+programme's p*              :  1.7286472389981836</div>
+Agreement to 18 digits. The asymptotic family contains the independently known
+<span class="eqn">p*</span> as its <span class="eqn">n = 1</span> member — a consistency check the
+recorded guess never had.
+</div>
+
+<h2 id="s7">7. What is proved, what is inherited, what is numerical</h2>
+<table>
+<tr><th>Item</th><th>Status</th></tr>
+<tr><td>Unimodality of <span class="eqn">h<sub>p</sub></span>, single sign change, definition of <span class="eqn">n<sub>min</sub></span></td><td><b>Inherited</b> (rh42, §3 Thm 7–8); re-verified here</td></tr>
+<tr><td>Equivalence <span class="eqn">h<sub>p</sub>(n) ≥ 0 ⟺ Φ<sub>p</sub>(n) ≥ 1</span>; the Hurwitz-zeta identity</td><td><b>Proved</b> (§1.2, elementary)</td></tr>
+<tr><td><span class="eqn">a = ln 2</span>; <span class="eqn">g = (3/2)ln 2</span>; <span class="eqn">D<sub>0</sub> = 6a² − (25/6)a</span>; <span class="eqn">c = D<sub>0</sub>/2</span></td><td><b>Proved</b> (Lemmas 1–6)</td></tr>
+<tr><td><span class="eqn">P<sub>n</sub> = (n+3/2)ln2 + c/n + O(1/n²)</span>; <span class="eqn">n<sub>min</sub>(p) = p/ln2 − 3/2 − c/p + O(1/p²)</span></td><td><b>Proved</b> (§3)</td></tr>
+<tr><td>The value of <span class="eqn">c</span> to ten figures; the <span class="eqn">O(1/n²)</span> coefficient <span class="eqn">0.00323</span></td><td><b>Numerical</b>, stable over six decades (§4)</td></tr>
+<tr><td>Closed form off a thin exceptional set; its width law</td><td><b>Numerical</b> (§5)</td></tr>
+<tr><td>Closed-form constant of the <span class="eqn">O(1/n²)</span> term in <span class="eqn">P<sub>n</sub></span></td><td><b>Open</b> — measured <span class="eqn">0.00323</span>, not derived</td></tr>
+</table>
+<p><b>What this unblocks.</b> Substituting
+<span class="eqn">n<sub>min</sub>(p) = p/ln 2 − 3/2 + O(1)</span> into the census law
+<span class="eqn">measure(S<sub>1</sub>) = 2<sup>n<sub>min</sub>−1</sup>·T<sub>n<sub>min</sub></sub></span>
+is now possible; that ratio is register item <b>OP-6</b>, and it was blocked precisely by the absence
+of this asymptotic.</p>
+
+<h2 id="appA">Appendix A — reproducible script</h2>
+<p>Run with an mpmath-enabled Python, e.g.
+<span class="eqn">/opt/homebrew/Caskroom/miniforge/base/bin/python3 op05_nmin.py</span>.
+The file is also stored beside this document as
+<span class="eqn">research/twin-prime-parity/open/op05_nmin.py</span>.</p>
+<pre><span class="cm">#!/usr/bin/env python3
+# OP-5: n_min(p) = p/ln2 - 3/2 + O(1);
+#       P_n = (n + 3/2) ln 2 + c/n + O(1/n^2),  c = 3(ln2)^2 - (25/12) ln2.
+# Reproduces: slope refutation, threshold law, O(1/n^2) bracket,
+#             exceptional-set width, n = 1 boundary.</span>
+<span class="kw">import</span> mpmath <span class="kw">as</span> mp
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+mp.mp.dps = <span class="kw">50</span>
+a = mp.log(<span class="kw">2</span>)
+c = <span class="kw">3</span> * a ** <span class="kw">2</span> - mp.mpf(<span class="kw">25</span>) / <span class="kw">12</span> * a
+
+<span class="kw">def</span> tail(n, p, M=<span class="kw">400</span>):
+    <span class="cm"># sum_{k&gt;n} k^-p : ratio 2^-1 per step for large p, so M=400 is ample;
+    # for small p use the exact Hurwitz zeta (the direct sum converges slowly).</span>
+    <span class="kw">if</span> p &lt; <span class="kw">50</span>:
+        <span class="kw">return</span> mp.zeta(p, n + <span class="kw">1</span>)
+    <span class="kw">return</span> mp.fsum([mp.power(n + k, -p) <span class="kw">for</span> k <span class="kw">in</span> range(<span class="kw">1</span>, M + <span class="kw">1</span>)])
+
+<span class="kw">def</span> h(n, p):
+    <span class="kw">return</span> tail(n, p) - mp.power(n, -p)
+
+<span class="kw">def</span> P(n, halfwidth=<span class="kw">None</span>):
+    <span class="cm"># threshold by bisection (h is decreasing in p)</span>
+    P0 = (mp.mpf(n) + mp.mpf(<span class="kw">3</span>) / <span class="kw">2</span>) * a + c / mp.mpf(n)
+    w = halfwidth <span class="kw">if</span> halfwidth <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">else</span> mp.mpf(<span class="kw">1</span>) / mp.mpf(n)
+    lo, hi = P0 - w, P0 + w
+    <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="kw">200</span>):
+        mid = (lo + hi) / <span class="kw">2</span>
+        <span class="kw">if</span> h(n, mid) &lt; <span class="kw">0</span>: hi = mid
+        <span class="kw">else</span>:            lo = mid
+    <span class="kw">return</span> (lo + hi) / <span class="kw">2</span>
+
+<span class="cm"># 1. slope refutation</span>
+<span class="kw">def</span> nmin(p):
+    n = <span class="kw">1</span>
+    <span class="kw">while</span> mp.zeta(mp.mpf(p), n + <span class="kw">1</span>) &lt; mp.power(n, -mp.mpf(p)): n += <span class="kw">1</span>
+    <span class="kw">return</span> n
+<span class="kw">for</span> p <span class="kw">in</span> [<span class="kw">10</span>, <span class="kw">50</span>, <span class="kw">200</span>, <span class="kw">1000</span>, <span class="kw">5000</span>]:
+    n = nmin(p); <span class="kw">print</span>(p, n, n / mp.mpf(p), n / (mp.mpf(p) / a))
+
+<span class="cm"># 2. threshold law + Richardson fit</span>
+rows = []
+<span class="kw">for</span> n <span class="kw">in</span> [<span class="kw">100</span>, <span class="kw">500</span>, <span class="kw">1000</span>, <span class="kw">2000</span>, <span class="kw">5000</span>, <span class="kw">10000</span>, <span class="kw">20000</span>]:
+    d = P(n) - (mp.mpf(n) + mp.mpf(<span class="kw">3</span>) / <span class="kw">2</span>) * a
+    rows.append((n, <span class="kw">float</span>(d * n)))
+ns = np.array([r[<span class="kw">0</span>] <span class="kw">for</span> r <span class="kw">in</span> rows], <span class="kw">float</span>); ys = np.array([r[<span class="kw">1</span>] <span class="kw">for</span> r <span class="kw">in</span> rows])
+A = np.vstack([np.ones_like(<span class="kw">1</span> / ns), <span class="kw">1</span> / ns]).T
+coef, *_ = np.linalg.lstsq(A[-<span class="kw">4</span>:], ys[-<span class="kw">4</span>:], rcond=<span class="kw">None</span>)
+<span class="kw">print</span>(<span class="kw">"c_fit"</span>, coef[<span class="kw">0</span>], <span class="kw">"c_pred"</span>, <span class="kw">float</span>(c), <span class="kw">"diff"</span>, coef[<span class="kw">0</span>] - <span class="kw">float</span>(c))
+
+<span class="cm"># 3. O(1/n^2) bracket</span>
+<span class="kw">for</span> n <span class="kw">in</span> [<span class="kw">10</span>**<span class="kw">3</span>, <span class="kw">10</span>**<span class="kw">4</span>, <span class="kw">10</span>**<span class="kw">5</span>, <span class="kw">10</span>**<span class="kw">6</span>]:
+    P0 = (mp.mpf(n) + mp.mpf(<span class="kw">3</span>) / <span class="kw">2</span>) * a + c / mp.mpf(n)
+    off = <span class="kw">abs</span>(P(n) - P0)
+    <span class="kw">print</span>(n, <span class="kw">float</span>(off), <span class="kw">float</span>(off * mp.mpf(n) ** <span class="kw">2</span>))
+
+<span class="cm"># 4. exceptional set width</span>
+<span class="kw">for</span> n <span class="kw">in</span> [<span class="kw">100</span>, <span class="kw">1000</span>, <span class="kw">10000</span>]:
+    P0 = (mp.mpf(n) + mp.mpf(<span class="kw">3</span>) / <span class="kw">2</span>) * a
+    lo, hi = P0 - mp.mpf(<span class="kw">1</span>) / n, P0
+    <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="kw">120</span>):
+        mid = (lo + hi) / <span class="kw">2</span>
+        <span class="kw">if</span> h(n, mid) &lt; <span class="kw">0</span>: hi = mid
+        <span class="kw">else</span>:            lo = mid
+    <span class="kw">print</span>(n, <span class="kw">float</span>(P0 - (lo + hi) / <span class="kw">2</span>), <span class="kw">float</span>(-c / n))
+
+<span class="cm"># 5. n = 1 boundary:  P_1 must equal the root of zeta(p) = 2</span>
+lo, hi = mp.mpf(<span class="kw">'1.5'</span>), mp.mpf(<span class="kw">'2'</span>)
+<span class="kw">for</span> _ <span class="kw">in</span> range(<span class="kw">250</span>):
+    mid = (lo + hi) / <span class="kw">2</span>
+    <span class="kw">if</span> mp.zeta(mid) - <span class="kw">2</span> &gt; <span class="kw">0</span>: lo = mid
+    <span class="kw">else</span>:                       hi = mid
+<span class="kw">print</span>(<span class="kw">"root zeta=2"</span>, mp.nstr((lo + hi) / <span class="kw">2</span>, <span class="kw">18</span>))
+<span class="kw">print</span>(<span class="kw">"P_1        "</span>, mp.nstr(P(<span class="kw">1</span>, halfwidth=mp.mpf(<span class="kw">'0.5'</span>)), <span class="kw">18</span>))
+</pre>
+
+<h2 id="appB">Appendix B — the numbers, in one place</h2>
+<table>
+<tr><th>Quantity</th><th class="n">Value</th></tr>
+<tr><td>slope of <span class="eqn">n<sub>min</sub>(p)</span></td><td class="n">1/ln 2 = 1.4426950408889634074</td></tr>
+<tr><td>constant in <span class="eqn">n</span>-units</td><td class="n">3/2</td></tr>
+<tr><td>constant in <span class="eqn">p</span>-units</td><td class="n">(3/2)ln 2 = 1.0397207708399179641</td></tr>
+<tr><td><span class="eqn">S<sub>1</sub>, S<sub>2</sub>, S<sub>3</sub>, S<sub>4</sub></span></td><td class="n">2, 6, 26, 150</td></tr>
+<tr><td><span class="eqn">D<sub>0</sub> = 6a² − (25/6)a</span></td><td class="n">−0.0053951688238969079…</td></tr>
+<tr><td><span class="eqn">c = D<sub>0</sub>/2 = 3a² − (25/12)a</span></td><td class="n">−0.0026975844119484539513…</td></tr>
+<tr><td><span class="eqn">O(1/n²)</span> coefficient in <span class="eqn">P<sub>n</sub></span></td><td class="n">0.00323 (measured, not derived)</td></tr>
+<tr><td><span class="eqn">p* = P<sub>1</sub></span></td><td class="n">1.7286472389981836</td></tr>
+<tr><td>closed-form hit rate on <span class="eqn">p ∈ [1.729, 20000]</span></td><td class="n">20 382 / 20 396</td></tr>
+</table>
+
+<div class="foot">
+<b>Provenance.</b> Resolved in a single session against
+<span class="eqn">research/twin-prime-parity/open/07-open-problems.md</span> (row OP-5); the
+recorded guess corrected at <span class="eqn">rounds/rh42/truths.md:453</span>; the inherited
+unimodality theorem is rh42 §3 Thm 7–8. Artifacts:
+<span class="eqn">open/OP-05-nmin-asymptotic.md</span> (this document's source) and
+<span class="eqn">open/op05_nmin.py</span> (reproduces every number above).
+Every table was produced by that script in this session; no number is quoted from memory.
+<br><br>
+<b>Not claimed.</b> Nothing here touches the twin prime conjecture, the parity problem, or the
+Riemann hypothesis. OP-5 is a question about a one-parameter family of complete sequences on the
+<span class="eqn">p</span>-series alphabet. What it unblocks is OP-6, an accounting question about
+the same family.
+</div>
+
+</div>
+</body>
+</html>

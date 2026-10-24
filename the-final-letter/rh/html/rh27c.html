@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh27c — a ceiling that survives</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>A ceiling that survives</h1>
+  <p class="sub">rh25 §4 proved there is no ceiling on E<sub>h</sub>(0)/C<sub>h</sub>(0) over all windows of a fixed support, and named the mechanism exactly: the archimedean weight is (1/π)∫|ĥ|²ψ̃ with ψ̃(r) growing like ln r, and nothing else in the kernel grows at all, so pushing the window's energy up to frequency r₀ sends the diagonal to ψ̃(r₀) and off to infinity. rh25 §6(b) asked for a bound that survives that. It exists, it is three lines, and it is sharp. <b>(a)</b> ψ̃(r) ≤ ln((2+r)/2π) for every r ≥ 0, with the gap closing like 2/r — so the constant cannot be improved. <b>(b)</b> |ĥ(r)|²dr/(π‖h‖²) is a probability measure with second moment ‖h′‖²/‖h‖², and ln(2+r) is concave, so Jensen turns the lemma into λ<sub>min</sub>/C<sub>h</sub>(0) ≤ ln((2+‖h′‖/‖h‖)/2π) + 4 sinh Δ′ + G(2Δ′). Family-free: every real even window of compact support with h′ ∈ L². <b>(c)</b> Along rh25's own extremal sequence the slack closes to 0.00008, and all five of rh24's and rh25's M-family ceilings are recovered from this one bound at each family's own band edge, to within 0.8%. <b>(d)</b> And it makes a prediction: the ceiling grows like ln(1/Δ′) where rh27b measured Δ′<sup>−1.7111</sup>, so that power law cannot survive past Δ′ = 0.03. Two new searches say it was already gone by 0.06. The exponents are 0.2776 and 0.1349 against rh27b's 1.7225 and 1.6998.</p>
+  <p class="meta">docs/rh27c · continues <a href="rh24.html">rh24</a>, <a href="rh25.html">rh25</a>, <a href="rh27b.html">rh27b</a> · figures computed, not sketched · 2026-08-03</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <b>(a) The lemma</b> (§2). ψ̃(r) = Re ψ(¼ + ir/2) − ln π satisfies ψ̃(r) ≤ ln((2+r)/2π) for all r ≥ 0. The tail from Binet's integral: |Re ψ(z) − ln|z|| ≤ 1/(3r) at z = ¼ + ir/2, and Re(1/2z) &gt; 0 is discarded in the safe direction; the head on [0, 1] from monotonicity of ψ̃, which is a sum of positive terms in the series' r-derivative. The constant is sharp: the gap is negative at every finite r and closes like −2/r, so nothing smaller than ln(1/2π) works. It also explains a constant rh17 reported and did not derive — ψ̃(r) = ln(r/2π) + O(r<sup>−2</sup>), so r₊ is 2π to the accuracy of that remainder, and rh17's measured 6.289836 sits 0.0067 above it. <b>(b) The ceiling</b> (§3). Plancherel makes |ĥ(r)|²dr/(π‖h‖²) a probability measure on [0, ∞) with second moment ‖h′‖²/‖h‖²; ln(2+r) is concave; Jensen gives arch(0)/C<sub>h</sub>(0) ≤ ln((2 + ‖h′‖/‖h‖)/2π). Cauchy–Schwarz on the support gives pole(0)/C<sub>h</sub>(0) ≤ 4 sinh Δ′, and |C<sub>h</sub>| ≤ C<sub>h</sub>(0) gives the comb G(2Δ′) — which is <i>zero</i> at every support ≤ 0.34, since ln 2 = 0.693 is the nearest prime power. With λ<sub>min</sub> ≤ E<sub>h</sub>(0) the chain closes. <b>(c) Sharp, and it subsumes</b> (§4). Along h = √2 cos(r₀t)φ<sub>Δ</sub>(t) — the very sequence rh25 used to prove no ceiling exists — the slack runs 0.0106 at r₀ = 200 down to 0.00008 at 25000. rh24's and rh25's family ceilings, proved one family at a time, are all this bound at πM/Δ, to within 0.8%; which is also why they rose by ln 2 per doubling of M and never converged. On the arc's own searched windows the Jensen step costs between 0.23 and 0.53 nats and is the only lossy link in the chain. <b>(d) The prediction, and the test</b> (§5). rh27b measured λ<sub>min</sub>/C<sub>h</sub>(0) ∝ Δ′<sup>−1.7111</sup> over [0.12, 0.48] and called it the obstruction. The ceiling forbids that past Δ′ = 0.03. Searches at 0.06 and 0.03 — twelve more windows, all provably notch-free — give exponents 0.2776 and 0.1349. At 0.03 the power law wanted 10.30; the measurement is 1.2794. <b>The conjunction</b> (§6). A ceiling is an upper bound and does not move it. What it does move is the reading of rh27b: the kernel is still not scale-invariant, so the support axis is still a second infinity, but −1.7111 was a local slope, not an exponent. 45 named checks in 1069 seconds.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">(a) The lemma, and how little room is in it</a></li>
+  <li><a href="#s3">(b) The ceiling</a></li>
+  <li><a href="#s4">(c) Sharp, and it subsumes the family ceilings</a></li>
+  <li><a href="#s5">(d) The prediction, and the test</a></li>
+  <li><a href="#s6">The conjunction, and what this does and does not do</a></li>
+  <li><a href="#s7">The bill, and what is left</a></li>
+  <li><a href="#s8">Dictionary additions and references</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>rh25 §6(b) is the item, and it has been open for two documents: "§4 kills the min–max ceiling over the whole space, and it says exactly why: the archimedean logarithm, unopposed at high frequency. Any bound that survives must penalise frequency — a Sobolev norm on h, or a bound on ‖h′‖₂, or the family index itself. The M-family ceiling is the crudest such penalty and it is already a theorem; a ceiling in terms of ‖h′‖₂ would apply to every window at once and would be the first bound in the arc that is not family-bound. §4 gives the mechanism it would have to beat."</p>
+
+<p>rh27b added a second reason to want one. Its scale-free comparison of supports — λ<sub>min</sub>/C<sub>h</sub>(0) — is only as good as the family it is taken over, and its headline exponent was measured on two dyadic steps of one family. A bound that holds for every window would say whether that exponent could possibly be what it looked like. It could not, and §5 is that argument carried out and then tested.</p>
+
+<p><b>The ground.</b> A new sieve pass, because the two new supports need their own comb rows: 4,930,376 prime powers below 84,731,671. It is <i>smaller</i> than rh27b's by a factor 2.73, because the comb must reach e<sup>18+2Δ′</sup> and the narrow end asks for less. Twelve rows — three supports × four shapes — from one pass, and a gear-mass histogram at w = 2·0.03/768 so that every node of every support here is an exact multiple of it. Before anything is built on it, the new stream is checked to reproduce rh27b's comb row for row at the shared support Δ′ = 0.12, and the search there is checked to return rh27b's own optimum exactly.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · (a) The lemma, and how little room is in it</h2>
+<p>Everything in this document rests on one inequality:</p>
+
+<div class="eq"><span class="tag">(1)</span>
+ψ̃(r) = Re ψ(¼ + ir/2) − ln π &nbsp;≤&nbsp; ln((2 + r)/2π) &nbsp;&nbsp; for every r ≥ 0.
+</div>
+
+<p>Two things make it worth stating rather than assuming. It is <b>concave</b> on the right, which is what lets Jensen through in §3; and it is <b>tight</b>, which is what makes the resulting ceiling sharp rather than merely finite.</p>
+
+<p><b>The tail, r ≥ 1.</b> Binet's second formula gives, for Re z &gt; 0,</p>
+
+<div class="eq"><span class="tag">(2)</span>
+ψ(z) = ln z − 1/(2z) − 2∫<sub>0</sub><sup>∞</sup> t dt/((t² + z²)(e<sup>2πt</sup> − 1)).
+</div>
+
+<p>At z = ¼ + ir/2 the denominator satisfies |t² + z²| ≥ |Im z²| = r/4 for every t ≥ 0, and 2∫<sub>0</sub><sup>∞</sup> t dt/(e<sup>2πt</sup> − 1) = Γ(2)ζ(2)/(2π)² = 1/12 exactly, so the integral term is at most 1/(3r) in modulus. Re(1/2z) = (1/8)/(1/16 + r²/4) is positive and is discarded in the safe direction. Hence ψ̃(r) ≤ ½ln(1/16 + r²/4) − ln π + 1/(3r), and comparing that with the right-hand side of (1) leaves a margin of ln(2(2+r)/√(1+4r²)) − 1/(3r), which is 0.6537 at r = 1 and then shrinks like (5/3)/r — the 2/r the majorant's own +2 supplies, less the 1/(3r) Binet costs. Positive throughout, checked out to r = 1.6×10<sup>5</sup>.</p>
+
+<p><b>The head, 0 ≤ r ≤ 1.</b> The same estimate turns negative below r ≈ 0.24, so the head is done separately, and it is easy because ψ̃ is <i>increasing</i>: differentiating the series Re ψ(x+iy) = −γ + Σ<sub>n≥0</sub>[1/(n+1) − (n+x)/((n+x)² + y²)] in r gives Σ<sub>n≥0</sub> (n+¼)(r/2)/((n+¼)² + r²/4)², every term positive. So on a panel [a, b] the left side is at most ψ̃(b) and the right at least ln((2+a)/2π), and 4000 panels give sup(ψ̃ − ln((2+r)/2π)) ≤ -1.2858 on [0, 1]. There is a factor of e<sup>1.28</sup> of room down there; the inequality is nowhere near tight at the low end.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 382" role="img" aria-label="Left: the archimedean density psi-tilde against its majorant, the logarithm of (2+r) over 2 pi, on a logarithmic frequency axis. Right: the gap between them, which is negative everywhere and closes like 2 over r.">
+<text x="360.0" y="21" class="ftitle">the lemma, and how little room is in it</text>
+<line x1="78" y1="242.0" x2="336" y2="242.0" class="grid"/>
+<text x="72" y="245.5" class="flab end">-6</text>
+<line x1="78" y1="212.0" x2="336" y2="212.0" class="grid"/>
+<text x="72" y="215.5" class="flab end">-3</text>
+<line x1="78" y1="182.0" x2="336" y2="182.0" class="axis"/>
+<text x="72" y="185.5" class="flab end">0</text>
+<line x1="78" y1="152.0" x2="336" y2="152.0" class="grid"/>
+<text x="72" y="155.5" class="flab end">3</text>
+<line x1="78" y1="122.0" x2="336" y2="122.0" class="grid"/>
+<text x="72" y="125.5" class="flab end">6</text>
+<line x1="78" y1="92.0" x2="336" y2="92.0" class="grid"/>
+<text x="72" y="95.5" class="flab end">9</text>
+<line x1="78" y1="62.0" x2="336" y2="62.0" class="grid"/>
+<text x="72" y="65.5" class="flab end">12</text>
+<text x="102.4" y="260" class="flab mid">1</text>
+<text x="195.9" y="260" class="flab mid">100</text>
+<text x="289.3" y="260" class="flab mid">10&#8308;</text>
+<line x1="78" y1="58" x2="78" y2="244" class="axis"/>
+<path d="M78.0 225.0L78.5 224.6L79.0 224.2L79.5 223.7L80.1 223.3L80.6 222.8L81.1 222.4L81.6 221.9L82.1 221.5L82.6 221.0L83.2 220.5L83.7 220.0L84.2 219.5L84.7 219.0L85.2 218.5L85.7 218.0L86.3 217.5L86.8 216.9L87.3 216.4L87.8 215.9L88.3 215.4L88.8 214.8L89.4 214.3L89.9 213.8L90.4 213.2L90.9 212.7L91.4 212.2L91.9 211.7L92.4 211.2L93.0 210.6L93.5 210.1L94.0 209.6L94.5 209.1L95.0 208.6L95.5 208.1L96.1 207.7L96.6 207.2L97.1 206.7L97.6 206.2L98.1 205.8L98.6 205.3L99.2 204.9L99.7 204.4L100.2 204.0L100.7 203.6L101.2 203.2L101.7 202.8L102.3 202.4L102.8 202.0L103.3 201.6L103.8 201.2L104.3 200.9L104.8 200.5L105.3 200.1L105.9 199.8L106.4 199.5L106.9 199.1L107.4 198.8L107.9 198.5L108.4 198.1L109.0 197.8L109.5 197.5L110.0 197.2L110.5 196.9L111.0 196.6L111.5 196.3L112.1 196.0L112.6 195.7L113.1 195.4L113.6 195.2L114.1 194.9L114.6 194.6L115.2 194.3L115.7 194.0L116.2 193.8L116.7 193.5L117.2 193.2L117.7 193.0L118.2 192.7L118.8 192.4L119.3 192.2L119.8 191.9L120.3 191.7L120.8 191.4L121.3 191.1L121.9 190.9L122.4 190.6L122.9 190.4L123.4 190.1L123.9 189.8L124.4 189.6L125.0 189.3L125.5 189.1L126.0 188.8L126.5 188.6L127.0 188.3L127.5 188.0L128.1 187.8L128.6 187.5L129.1 187.3L129.6 187.0L130.1 186.8L130.6 186.5L131.1 186.2L131.7 186.0L132.2 185.7L132.7 185.5L133.2 185.2L133.7 185.0L134.2 184.7L134.8 184.5L135.3 184.2L135.8 183.9L136.3 183.7L136.8 183.4L137.3 183.2L137.9 182.9L138.4 182.7L138.9 182.4L139.4 182.2L139.9 181.9L140.4 181.7L141.0 181.4L141.5 181.1L142.0 180.9L142.5 180.6L143.0 180.4L143.5 180.1L144.0 179.9L144.6 179.6L145.1 179.4L145.6 179.1L146.1 178.9L146.6 178.6L147.1 178.3L147.7 178.1L148.2 177.8L148.7 177.6L149.2 177.3L149.7 177.1L150.2 176.8L150.8 176.6L151.3 176.3L151.8 176.1L152.3 175.8L152.8 175.5L153.3 175.3L153.9 175.0L154.4 174.8L154.9 174.5L155.4 174.3L155.9 174.0L156.4 173.8L156.9 173.5L157.5 173.3L158.0 173.0L158.5 172.7L159.0 172.5L159.5 172.2L160.0 172.0L160.6 171.7L161.1 171.5L161.6 171.2L162.1 171.0L162.6 170.7L163.1 170.5L163.7 170.2L164.2 169.9L164.7 169.7L165.2 169.4L165.7 169.2L166.2 168.9L166.8 168.7L167.3 168.4L167.8 168.2L168.3 167.9L168.8 167.7L169.3 167.4L169.8 167.1L170.4 166.9L170.9 166.6L171.4 166.4L171.9 166.1L172.4 165.9L172.9 165.6L173.5 165.4L174.0 165.1L174.5 164.9L175.0 164.6L175.5 164.3L176.0 164.1L176.6 163.8L177.1 163.6L177.6 163.3L178.1 163.1L178.6 162.8L179.1 162.6L179.7 162.3L180.2 162.1L180.7 161.8L181.2 161.6L181.7 161.3L182.2 161.0L182.7 160.8L183.3 160.5L183.8 160.3L184.3 160.0L184.8 159.8L185.3 159.5L185.8 159.3L186.4 159.0L186.9 158.8L187.4 158.5L187.9 158.2L188.4 158.0L188.9 157.7L189.5 157.5L190.0 157.2L190.5 157.0L191.0 156.7L191.5 156.5L192.0 156.2L192.6 156.0L193.1 155.7L193.6 155.4L194.1 155.2L194.6 154.9L195.1 154.7L195.6 154.4L196.2 154.2L196.7 153.9L197.2 153.7L197.7 153.4L198.2 153.2L198.7 152.9L199.3 152.6L199.8 152.4L200.3 152.1L200.8 151.9L201.3 151.6L201.8 151.4L202.4 151.1L202.9 150.9L203.4 150.6L203.9 150.4L204.4 150.1L204.9 149.9L205.5 149.6L206.0 149.3L206.5 149.1L207.0 148.8L207.5 148.6L208.0 148.3L208.5 148.1L209.1 147.8L209.6 147.6L210.1 147.3L210.6 147.1L211.1 146.8L211.6 146.5L212.2 146.3L212.7 146.0L213.2 145.8L213.7 145.5L214.2 145.3L214.7 145.0L215.3 144.8L215.8 144.5L216.3 144.3L216.8 144.0L217.3 143.7L217.8 143.5L218.4 143.2L218.9 143.0L219.4 142.7L219.9 142.5L220.4 142.2L220.9 142.0L221.4 141.7L222.0 141.5L222.5 141.2L223.0 140.9L223.5 140.7L224.0 140.4L224.5 140.2L225.1 139.9L225.6 139.7L226.1 139.4L226.6 139.2L227.1 138.9L227.6 138.7L228.2 138.4L228.7 138.2L229.2 137.9L229.7 137.6L230.2 137.4L230.7 137.1L231.3 136.9L231.8 136.6L232.3 136.4L232.8 136.1L233.3 135.9L233.8 135.6L234.3 135.4L234.9 135.1L235.4 134.8L235.9 134.6L236.4 134.3L236.9 134.1L237.4 133.8L238.0 133.6L238.5 133.3L239.0 133.1L239.5 132.8L240.0 132.6L240.5 132.3L241.1 132.0L241.6 131.8L242.1 131.5L242.6 131.3L243.1 131.0L243.6 130.8L244.2 130.5L244.7 130.3L245.2 130.0L245.7 129.8L246.2 129.5L246.7 129.2L247.2 129.0L247.8 128.7L248.3 128.5L248.8 128.2L249.3 128.0L249.8 127.7L250.3 127.5L250.9 127.2L251.4 127.0L251.9 126.7L252.4 126.5L252.9 126.2L253.4 125.9L254.0 125.7L254.5 125.4L255.0 125.2L255.5 124.9L256.0 124.7L256.5 124.4L257.1 124.2L257.6 123.9L258.1 123.7L258.6 123.4L259.1 123.1L259.6 122.9L260.1 122.6L260.7 122.4L261.2 122.1L261.7 121.9L262.2 121.6L262.7 121.4L263.2 121.1L263.8 120.9L264.3 120.6L264.8 120.3L265.3 120.1L265.8 119.8L266.3 119.6L266.9 119.3L267.4 119.1L267.9 118.8L268.4 118.6L268.9 118.3L269.4 118.1L270.0 117.8L270.5 117.6L271.0 117.3L271.5 117.0L272.0 116.8L272.5 116.5L273.0 116.3L273.6 116.0L274.1 115.8L274.6 115.5L275.1 115.3L275.6 115.0L276.1 114.8L276.7 114.5L277.2 114.2L277.7 114.0L278.2 113.7L278.7 113.5L279.2 113.2L279.8 113.0L280.3 112.7L280.8 112.5L281.3 112.2L281.8 112.0L282.3 111.7L282.9 111.4L283.4 111.2L283.9 110.9L284.4 110.7L284.9 110.4L285.4 110.2L285.9 109.9L286.5 109.7L287.0 109.4L287.5 109.2L288.0 108.9L288.5 108.6L289.0 108.4L289.6 108.1L290.1 107.9L290.6 107.6L291.1 107.4L291.6 107.1L292.1 106.9L292.7 106.6L293.2 106.4L293.7 106.1L294.2 105.9L294.7 105.6L295.2 105.3L295.8 105.1L296.3 104.8L296.8 104.6L297.3 104.3L297.8 104.1L298.3 103.8L298.8 103.6L299.4 103.3L299.9 103.1L300.4 102.8L300.9 102.5L301.4 102.3L301.9 102.0L302.5 101.8L303.0 101.5L303.5 101.3L304.0 101.0L304.5 100.8L305.0 100.5L305.6 100.3L306.1 100.0L306.6 99.7L307.1 99.5L307.6 99.2L308.1 99.0L308.7 98.7L309.2 98.5L309.7 98.2L310.2 98.0L310.7 97.7L311.2 97.5L311.7 97.2L312.3 96.9L312.8 96.7L313.3 96.4L313.8 96.2L314.3 95.9L314.8 95.7L315.4 95.4L315.9 95.2L316.4 94.9L316.9 94.7L317.4 94.4L317.9 94.2L318.5 93.9L319.0 93.6L319.5 93.4L320.0 93.1L320.5 92.9L321.0 92.6L321.6 92.4L322.1 92.1L322.6 91.9L323.1 91.6L323.6 91.4L324.1 91.1L324.6 90.8L325.2 90.6L325.7 90.3L326.2 90.1L326.7 89.8L327.2 89.6L327.7 89.3L328.3 89.1L328.8 88.8L329.3 88.6L329.8 88.3L330.3 88.0L330.8 87.8L331.4 87.5L331.9 87.3L332.4 87.0L332.9 86.8L333.4 86.5L333.9 86.3L334.5 86.0L335.0 85.8L335.5 85.5L336.0 85.2" class="ln0"/>
+<path d="M78.0 192.0L78.5 192.0L79.0 192.0L79.5 191.9L80.1 191.9L80.6 191.9L81.1 191.8L81.6 191.8L82.1 191.8L82.6 191.7L83.2 191.7L83.7 191.6L84.2 191.6L84.7 191.6L85.2 191.5L85.7 191.5L86.3 191.4L86.8 191.4L87.3 191.3L87.8 191.3L88.3 191.2L88.8 191.2L89.4 191.1L89.9 191.1L90.4 191.0L90.9 191.0L91.4 190.9L91.9 190.8L92.4 190.8L93.0 190.7L93.5 190.7L94.0 190.6L94.5 190.5L95.0 190.5L95.5 190.4L96.1 190.3L96.6 190.3L97.1 190.2L97.6 190.1L98.1 190.1L98.6 190.0L99.2 189.9L99.7 189.8L100.2 189.7L100.7 189.7L101.2 189.6L101.7 189.5L102.3 189.4L102.8 189.3L103.3 189.2L103.8 189.2L104.3 189.1L104.8 189.0L105.3 188.9L105.9 188.8L106.4 188.7L106.9 188.6L107.4 188.5L107.9 188.4L108.4 188.3L109.0 188.2L109.5 188.1L110.0 188.0L110.5 187.9L111.0 187.8L111.5 187.7L112.1 187.5L112.6 187.4L113.1 187.3L113.6 187.2L114.1 187.1L114.6 187.0L115.2 186.8L115.7 186.7L116.2 186.6L116.7 186.5L117.2 186.3L117.7 186.2L118.2 186.1L118.8 185.9L119.3 185.8L119.8 185.7L120.3 185.5L120.8 185.4L121.3 185.2L121.9 185.1L122.4 185.0L122.9 184.8L123.4 184.7L123.9 184.5L124.4 184.4L125.0 184.2L125.5 184.1L126.0 183.9L126.5 183.7L127.0 183.6L127.5 183.4L128.1 183.3L128.6 183.1L129.1 182.9L129.6 182.8L130.1 182.6L130.6 182.4L131.1 182.3L131.7 182.1L132.2 181.9L132.7 181.7L133.2 181.6L133.7 181.4L134.2 181.2L134.8 181.0L135.3 180.8L135.8 180.7L136.3 180.5L136.8 180.3L137.3 180.1L137.9 179.9L138.4 179.7L138.9 179.5L139.4 179.4L139.9 179.2L140.4 179.0L141.0 178.8L141.5 178.6L142.0 178.4L142.5 178.2L143.0 178.0L143.5 177.8L144.0 177.6L144.6 177.4L145.1 177.2L145.6 177.0L146.1 176.8L146.6 176.6L147.1 176.3L147.7 176.1L148.2 175.9L148.7 175.7L149.2 175.5L149.7 175.3L150.2 175.1L150.8 174.9L151.3 174.6L151.8 174.4L152.3 174.2L152.8 174.0L153.3 173.8L153.9 173.6L154.4 173.3L154.9 173.1L155.4 172.9L155.9 172.7L156.4 172.5L156.9 172.2L157.5 172.0L158.0 171.8L158.5 171.6L159.0 171.3L159.5 171.1L160.0 170.9L160.6 170.6L161.1 170.4L161.6 170.2L162.1 170.0L162.6 169.7L163.1 169.5L163.7 169.3L164.2 169.0L164.7 168.8L165.2 168.6L165.7 168.3L166.2 168.1L166.8 167.9L167.3 167.6L167.8 167.4L168.3 167.2L168.8 166.9L169.3 166.7L169.8 166.5L170.4 166.2L170.9 166.0L171.4 165.7L171.9 165.5L172.4 165.3L172.9 165.0L173.5 164.8L174.0 164.5L174.5 164.3L175.0 164.1L175.5 163.8L176.0 163.6L176.6 163.3L177.1 163.1L177.6 162.9L178.1 162.6L178.6 162.4L179.1 162.1L179.7 161.9L180.2 161.6L180.7 161.4L181.2 161.1L181.7 160.9L182.2 160.7L182.7 160.4L183.3 160.2L183.8 159.9L184.3 159.7L184.8 159.4L185.3 159.2L185.8 158.9L186.4 158.7L186.9 158.4L187.4 158.2L187.9 158.0L188.4 157.7L188.9 157.5L189.5 157.2L190.0 157.0L190.5 156.7L191.0 156.5L191.5 156.2L192.0 156.0L192.6 155.7L193.1 155.5L193.6 155.2L194.1 155.0L194.6 154.7L195.1 154.5L195.6 154.2L196.2 154.0L196.7 153.7L197.2 153.5L197.7 153.2L198.2 153.0L198.7 152.7L199.3 152.5L199.8 152.2L200.3 152.0L200.8 151.7L201.3 151.5L201.8 151.2L202.4 151.0L202.9 150.7L203.4 150.5L203.9 150.2L204.4 150.0L204.9 149.7L205.5 149.5L206.0 149.2L206.5 149.0L207.0 148.7L207.5 148.5L208.0 148.2L208.5 148.0L209.1 147.7L209.6 147.5L210.1 147.2L210.6 147.0L211.1 146.7L211.6 146.5L212.2 146.2L212.7 145.9L213.2 145.7L213.7 145.4L214.2 145.2L214.7 144.9L215.3 144.7L215.8 144.4L216.3 144.2L216.8 143.9L217.3 143.7L217.8 143.4L218.4 143.2L218.9 142.9L219.4 142.7L219.9 142.4L220.4 142.2L220.9 141.9L221.4 141.7L222.0 141.4L222.5 141.2L223.0 140.9L223.5 140.6L224.0 140.4L224.5 140.1L225.1 139.9L225.6 139.6L226.1 139.4L226.6 139.1L227.1 138.9L227.6 138.6L228.2 138.4L228.7 138.1L229.2 137.9L229.7 137.6L230.2 137.4L230.7 137.1L231.3 136.8L231.8 136.6L232.3 136.3L232.8 136.1L233.3 135.8L233.8 135.6L234.3 135.3L234.9 135.1L235.4 134.8L235.9 134.6L236.4 134.3L236.9 134.1L237.4 133.8L238.0 133.5L238.5 133.3L239.0 133.0L239.5 132.8L240.0 132.5L240.5 132.3L241.1 132.0L241.6 131.8L242.1 131.5L242.6 131.3L243.1 131.0L243.6 130.8L244.2 130.5L244.7 130.2L245.2 130.0L245.7 129.7L246.2 129.5L246.7 129.2L247.2 129.0L247.8 128.7L248.3 128.5L248.8 128.2L249.3 128.0L249.8 127.7L250.3 127.5L250.9 127.2L251.4 126.9L251.9 126.7L252.4 126.4L252.9 126.2L253.4 125.9L254.0 125.7L254.5 125.4L255.0 125.2L255.5 124.9L256.0 124.7L256.5 124.4L257.1 124.2L257.6 123.9L258.1 123.6L258.6 123.4L259.1 123.1L259.6 122.9L260.1 122.6L260.7 122.4L261.2 122.1L261.7 121.9L262.2 121.6L262.7 121.4L263.2 121.1L263.8 120.8L264.3 120.6L264.8 120.3L265.3 120.1L265.8 119.8L266.3 119.6L266.9 119.3L267.4 119.1L267.9 118.8L268.4 118.6L268.9 118.3L269.4 118.1L270.0 117.8L270.5 117.5L271.0 117.3L271.5 117.0L272.0 116.8L272.5 116.5L273.0 116.3L273.6 116.0L274.1 115.8L274.6 115.5L275.1 115.3L275.6 115.0L276.1 114.7L276.7 114.5L277.2 114.2L277.7 114.0L278.2 113.7L278.7 113.5L279.2 113.2L279.8 113.0L280.3 112.7L280.8 112.5L281.3 112.2L281.8 112.0L282.3 111.7L282.9 111.4L283.4 111.2L283.9 110.9L284.4 110.7L284.9 110.4L285.4 110.2L285.9 109.9L286.5 109.7L287.0 109.4L287.5 109.2L288.0 108.9L288.5 108.6L289.0 108.4L289.6 108.1L290.1 107.9L290.6 107.6L291.1 107.4L291.6 107.1L292.1 106.9L292.7 106.6L293.2 106.4L293.7 106.1L294.2 105.8L294.7 105.6L295.2 105.3L295.8 105.1L296.3 104.8L296.8 104.6L297.3 104.3L297.8 104.1L298.3 103.8L298.8 103.6L299.4 103.3L299.9 103.1L300.4 102.8L300.9 102.5L301.4 102.3L301.9 102.0L302.5 101.8L303.0 101.5L303.5 101.3L304.0 101.0L304.5 100.8L305.0 100.5L305.6 100.3L306.1 100.0L306.6 99.7L307.1 99.5L307.6 99.2L308.1 99.0L308.7 98.7L309.2 98.5L309.7 98.2L310.2 98.0L310.7 97.7L311.2 97.5L311.7 97.2L312.3 96.9L312.8 96.7L313.3 96.4L313.8 96.2L314.3 95.9L314.8 95.7L315.4 95.4L315.9 95.2L316.4 94.9L316.9 94.7L317.4 94.4L317.9 94.2L318.5 93.9L319.0 93.6L319.5 93.4L320.0 93.1L320.5 92.9L321.0 92.6L321.6 92.4L322.1 92.1L322.6 91.9L323.1 91.6L323.6 91.4L324.1 91.1L324.6 90.8L325.2 90.6L325.7 90.3L326.2 90.1L326.7 89.8L327.2 89.6L327.7 89.3L328.3 89.1L328.8 88.8L329.3 88.6L329.8 88.3L330.3 88.0L330.8 87.8L331.4 87.5L331.9 87.3L332.4 87.0L332.9 86.8L333.4 86.5L333.9 86.3L334.5 86.0L335.0 85.8L335.5 85.5L336.0 85.2" class="ln1"/>
+<line x1="139.7" y1="58" x2="139.7" y2="244" class="rule"/>
+<text x="145" y="71" class="flab st c4">r&#8330; = 6.2898 = 2&#960; + 0.0067</text>
+<text x="265" y="90" class="flab mid hm3">ln((2+r)/2&#960;)</text>
+<text x="185" y="204" class="flab mid hm1">&#968;&#771;(r)</text>
+<text x="26" y="45" class="flab st">the archimedean density, and its majorant</text>
+<text x="207" y="278" class="flab mid">r</text>
+<line x1="432" y1="228.5" x2="700" y2="228.5" class="grid"/>
+<text x="426" y="232.0" class="flab end">10&#8315;&#8310;</text>
+<line x1="432" y1="176.8" x2="700" y2="176.8" class="grid"/>
+<text x="426" y="180.3" class="flab end">10&#8315;&#8308;</text>
+<line x1="432" y1="125.2" x2="700" y2="125.2" class="grid"/>
+<text x="426" y="128.7" class="flab end">10&#8315;&#178;</text>
+<line x1="432" y1="73.5" x2="700" y2="73.5" class="grid"/>
+<text x="426" y="77.0" class="flab end">10&#8304;</text>
+<text x="432.0" y="260" class="flab mid">1</text>
+<text x="566.0" y="260" class="flab mid">1000</text>
+<text x="700.0" y="260" class="flab mid">10&#8310;</text>
+<line x1="432" y1="244" x2="700" y2="244" class="axis"/>
+<line x1="432" y1="58" x2="432" y2="244" class="axis"/>
+<path d="M432.0 70.7L432.7 71.0L433.3 71.4L434.0 71.8L434.7 72.1L435.4 72.5L436.0 72.8L436.7 73.2L437.4 73.5L438.0 73.8L438.7 74.2L439.4 74.5L440.0 74.8L440.7 75.1L441.4 75.5L442.1 75.8L442.7 76.1L443.4 76.4L444.1 76.7L444.7 77.0L445.4 77.3L446.1 77.6L446.7 77.9L447.4 78.2L448.1 78.5L448.8 78.8L449.4 79.1L450.1 79.5L450.8 79.8L451.4 80.1L452.1 80.4L452.8 80.7L453.4 81.0L454.1 81.3L454.8 81.6L455.4 81.9L456.1 82.2L456.8 82.6L457.5 82.9L458.1 83.2L458.8 83.5L459.5 83.8L460.1 84.2L460.8 84.5L461.5 84.8L462.1 85.1L462.8 85.5L463.5 85.8L464.2 86.1L464.8 86.5L465.5 86.8L466.2 87.1L466.8 87.5L467.5 87.8L468.2 88.2L468.9 88.5L469.5 88.8L470.2 89.2L470.9 89.5L471.5 89.9L472.2 90.2L472.9 90.6L473.5 90.9L474.2 91.3L474.9 91.6L475.6 92.0L476.2 92.3L476.9 92.7L477.6 93.0L478.2 93.4L478.9 93.8L479.6 94.1L480.2 94.5L480.9 94.8L481.6 95.2L482.2 95.6L482.9 95.9L483.6 96.3L484.3 96.7L484.9 97.0L485.6 97.4L486.3 97.7L486.9 98.1L487.6 98.5L488.3 98.8L488.9 99.2L489.6 99.6L490.3 100.0L491.0 100.3L491.6 100.7L492.3 101.1L493.0 101.4L493.6 101.8L494.3 102.2L495.0 102.6L495.6 102.9L496.3 103.3L497.0 103.7L497.7 104.1L498.3 104.4L499.0 104.8L499.7 105.2L500.3 105.6L501.0 105.9L501.7 106.3L502.4 106.7L503.0 107.1L503.7 107.5L504.4 107.8L505.0 108.2L505.7 108.6L506.4 109.0L507.0 109.3L507.7 109.7L508.4 110.1L509.1 110.5L509.7 110.9L510.4 111.3L511.1 111.6L511.7 112.0L512.4 112.4L513.1 112.8L513.7 113.2L514.4 113.5L515.1 113.9L515.8 114.3L516.4 114.7L517.1 115.1L517.8 115.5L518.4 115.8L519.1 116.2L519.8 116.6L520.4 117.0L521.1 117.4L521.8 117.8L522.5 118.1L523.1 118.5L523.8 118.9L524.5 119.3L525.1 119.7L525.8 120.1L526.5 120.4L527.1 120.8L527.8 121.2L528.5 121.6L529.1 122.0L529.8 122.4L530.5 122.8L531.2 123.1L531.8 123.5L532.5 123.9L533.2 124.3L533.8 124.7L534.5 125.1L535.2 125.5L535.9 125.8L536.5 126.2L537.2 126.6L537.9 127.0L538.5 127.4L539.2 127.8L539.9 128.2L540.5 128.5L541.2 128.9L541.9 129.3L542.5 129.7L543.2 130.1L543.9 130.5L544.6 130.9L545.2 131.2L545.9 131.6L546.6 132.0L547.2 132.4L547.9 132.8L548.6 133.2L549.2 133.6L549.9 133.9L550.6 134.3L551.3 134.7L551.9 135.1L552.6 135.5L553.3 135.9L553.9 136.3L554.6 136.7L555.3 137.0L556.0 137.4L556.6 137.8L557.3 138.2L558.0 138.6L558.6 139.0L559.3 139.4L560.0 139.8L560.6 140.1L561.3 140.5L562.0 140.9L562.6 141.3L563.3 141.7L564.0 142.1L564.7 142.5L565.3 142.8L566.0 143.2L566.7 143.6L567.3 144.0L568.0 144.4L568.7 144.8L569.4 145.2L570.0 145.6L570.7 145.9L571.4 146.3L572.0 146.7L572.7 147.1L573.4 147.5L574.0 147.9L574.7 148.3L575.4 148.7L576.0 149.0L576.7 149.4L577.4 149.8L578.1 150.2L578.7 150.6L579.4 151.0L580.1 151.4L580.7 151.8L581.4 152.1L582.1 152.5L582.8 152.9L583.4 153.3L584.1 153.7L584.8 154.1L585.4 154.5L586.1 154.9L586.8 155.2L587.4 155.6L588.1 156.0L588.8 156.4L589.5 156.8L590.1 157.2L590.8 157.6L591.5 158.0L592.1 158.3L592.8 158.7L593.5 159.1L594.1 159.5L594.8 159.9L595.5 160.3L596.1 160.7L596.8 161.1L597.5 161.4L598.2 161.8L598.8 162.2L599.5 162.6L600.2 163.0L600.8 163.4L601.5 163.8L602.2 164.2L602.9 164.5L603.5 164.9L604.2 165.3L604.9 165.7L605.5 166.1L606.2 166.5L606.9 166.9L607.5 167.2L608.2 167.6L608.9 168.0L609.5 168.4L610.2 168.8L610.9 169.2L611.6 169.6L612.2 170.0L612.9 170.3L613.6 170.7L614.2 171.1L614.9 171.5L615.6 171.9L616.2 172.3L616.9 172.7L617.6 173.1L618.3 173.4L618.9 173.8L619.6 174.2L620.3 174.6L620.9 175.0L621.6 175.4L622.3 175.8L623.0 176.2L623.6 176.5L624.3 176.9L625.0 177.3L625.6 177.7L626.3 178.1L627.0 178.5L627.6 178.9L628.3 179.3L629.0 179.6L629.7 180.0L630.3 180.4L631.0 180.8L631.7 181.2L632.3 181.6L633.0 182.0L633.7 182.4L634.3 182.7L635.0 183.1L635.7 183.5L636.3 183.9L637.0 184.3L637.7 184.7L638.4 185.1L639.0 185.5L639.7 185.8L640.4 186.2L641.0 186.6L641.7 187.0L642.4 187.4L643.0 187.8L643.7 188.2L644.4 188.6L645.1 188.9L645.7 189.3L646.4 189.7L647.1 190.1L647.7 190.5L648.4 190.9L649.1 191.3L649.8 191.7L650.4 192.0L651.1 192.4L651.8 192.8L652.4 193.2L653.1 193.6L653.8 194.0L654.4 194.4L655.1 194.8L655.8 195.1L656.5 195.5L657.1 195.9L657.8 196.3L658.5 196.7L659.1 197.1L659.8 197.5L660.5 197.9L661.1 198.2L661.8 198.6L662.5 199.0L663.2 199.4L663.8 199.8L664.5 200.2L665.2 200.6L665.8 201.0L666.5 201.3L667.2 201.7L667.8 202.1L668.5 202.5L669.2 202.9L669.8 203.3L670.5 203.7L671.2 204.1L671.9 204.4L672.5 204.8L673.2 205.2L673.9 205.6L674.5 206.0L675.2 206.4L675.9 206.8L676.5 207.2L677.2 207.5L677.9 207.9L678.6 208.3L679.2 208.7L679.9 209.1L680.6 209.5L681.2 209.9L681.9 210.3L682.6 210.6L683.2 211.0L683.9 211.4L684.6 211.8L685.3 212.2L685.9 212.6L686.6 213.0L687.3 213.4L687.9 213.7L688.6 214.1L689.3 214.5L690.0 214.9L690.6 215.3L691.3 215.7L692.0 216.1L692.6 216.5L693.3 216.8L694.0 217.2L694.6 217.6L695.3 218.0L696.0 218.4L696.7 218.8L697.3 219.2L698.0 219.6L698.7 219.9L699.3 220.3L700.0 220.7" class="ln0"/>
+<path d="M432.0 65.7L432.7 66.1L433.3 66.5L434.0 66.9L434.7 67.3L435.4 67.7L436.0 68.0L436.7 68.4L437.4 68.8L438.0 69.2L438.7 69.6L439.4 70.0L440.0 70.4L440.7 70.8L441.4 71.1L442.1 71.5L442.7 71.9L443.4 72.3L444.1 72.7L444.7 73.1L445.4 73.5L446.1 73.9L446.7 74.2L447.4 74.6L448.1 75.0L448.8 75.4L449.4 75.8L450.1 76.2L450.8 76.6L451.4 77.0L452.1 77.3L452.8 77.7L453.4 78.1L454.1 78.5L454.8 78.9L455.4 79.3L456.1 79.7L456.8 80.1L457.5 80.4L458.1 80.8L458.8 81.2L459.5 81.6L460.1 82.0L460.8 82.4L461.5 82.8L462.1 83.2L462.8 83.5L463.5 83.9L464.2 84.3L464.8 84.7L465.5 85.1L466.2 85.5L466.8 85.9L467.5 86.3L468.2 86.6L468.9 87.0L469.5 87.4L470.2 87.8L470.9 88.2L471.5 88.6L472.2 89.0L472.9 89.4L473.5 89.7L474.2 90.1L474.9 90.5L475.6 90.9L476.2 91.3L476.9 91.7L477.6 92.1L478.2 92.5L478.9 92.8L479.6 93.2L480.2 93.6L480.9 94.0L481.6 94.4L482.2 94.8L482.9 95.2L483.6 95.6L484.3 95.9L484.9 96.3L485.6 96.7L486.3 97.1L486.9 97.5L487.6 97.9L488.3 98.3L488.9 98.7L489.6 99.0L490.3 99.4L491.0 99.8L491.6 100.2L492.3 100.6L493.0 101.0L493.6 101.4L494.3 101.8L495.0 102.1L495.6 102.5L496.3 102.9L497.0 103.3L497.7 103.7L498.3 104.1L499.0 104.5L499.7 104.9L500.3 105.2L501.0 105.6L501.7 106.0L502.4 106.4L503.0 106.8L503.7 107.2L504.4 107.6L505.0 108.0L505.7 108.3L506.4 108.7L507.0 109.1L507.7 109.5L508.4 109.9L509.1 110.3L509.7 110.7L510.4 111.1L511.1 111.4L511.7 111.8L512.4 112.2L513.1 112.6L513.7 113.0L514.4 113.4L515.1 113.8L515.8 114.2L516.4 114.5L517.1 114.9L517.8 115.3L518.4 115.7L519.1 116.1L519.8 116.5L520.4 116.9L521.1 117.3L521.8 117.6L522.5 118.0L523.1 118.4L523.8 118.8L524.5 119.2L525.1 119.6L525.8 120.0L526.5 120.4L527.1 120.7L527.8 121.1L528.5 121.5L529.1 121.9L529.8 122.3L530.5 122.7L531.2 123.1L531.8 123.5L532.5 123.8L533.2 124.2L533.8 124.6L534.5 125.0L535.2 125.4L535.9 125.8L536.5 126.2L537.2 126.6L537.9 126.9L538.5 127.3L539.2 127.7L539.9 128.1L540.5 128.5L541.2 128.9L541.9 129.3L542.5 129.7L543.2 130.0L543.9 130.4L544.6 130.8L545.2 131.2L545.9 131.6L546.6 132.0L547.2 132.4L547.9 132.8L548.6 133.1L549.2 133.5L549.9 133.9L550.6 134.3L551.3 134.7L551.9 135.1L552.6 135.5L553.3 135.9L553.9 136.2L554.6 136.6L555.3 137.0L556.0 137.4L556.6 137.8L557.3 138.2L558.0 138.6L558.6 139.0L559.3 139.3L560.0 139.7L560.6 140.1L561.3 140.5L562.0 140.9L562.6 141.3L563.3 141.7L564.0 142.1L564.7 142.4L565.3 142.8L566.0 143.2L566.7 143.6L567.3 144.0L568.0 144.4L568.7 144.8L569.4 145.2L570.0 145.5L570.7 145.9L571.4 146.3L572.0 146.7L572.7 147.1L573.4 147.5L574.0 147.9L574.7 148.3L575.4 148.6L576.0 149.0L576.7 149.4L577.4 149.8L578.1 150.2L578.7 150.6L579.4 151.0L580.1 151.4L580.7 151.7L581.4 152.1L582.1 152.5L582.8 152.9L583.4 153.3L584.1 153.7L584.8 154.1L585.4 154.5L586.1 154.8L586.8 155.2L587.4 155.6L588.1 156.0L588.8 156.4L589.5 156.8L590.1 157.2L590.8 157.6L591.5 157.9L592.1 158.3L592.8 158.7L593.5 159.1L594.1 159.5L594.8 159.9L595.5 160.3L596.1 160.7L596.8 161.0L597.5 161.4L598.2 161.8L598.8 162.2L599.5 162.6L600.2 163.0L600.8 163.4L601.5 163.8L602.2 164.1L602.9 164.5L603.5 164.9L604.2 165.3L604.9 165.7L605.5 166.1L606.2 166.5L606.9 166.9L607.5 167.2L608.2 167.6L608.9 168.0L609.5 168.4L610.2 168.8L610.9 169.2L611.6 169.6L612.2 170.0L612.9 170.3L613.6 170.7L614.2 171.1L614.9 171.5L615.6 171.9L616.2 172.3L616.9 172.7L617.6 173.1L618.3 173.4L618.9 173.8L619.6 174.2L620.3 174.6L620.9 175.0L621.6 175.4L622.3 175.8L623.0 176.2L623.6 176.5L624.3 176.9L625.0 177.3L625.6 177.7L626.3 178.1L627.0 178.5L627.6 178.9L628.3 179.3L629.0 179.6L629.7 180.0L630.3 180.4L631.0 180.8L631.7 181.2L632.3 181.6L633.0 182.0L633.7 182.4L634.3 182.7L635.0 183.1L635.7 183.5L636.3 183.9L637.0 184.3L637.7 184.7L638.4 185.1L639.0 185.5L639.7 185.8L640.4 186.2L641.0 186.6L641.7 187.0L642.4 187.4L643.0 187.8L643.7 188.2L644.4 188.6L645.1 188.9L645.7 189.3L646.4 189.7L647.1 190.1L647.7 190.5L648.4 190.9L649.1 191.3L649.8 191.7L650.4 192.0L651.1 192.4L651.8 192.8L652.4 193.2L653.1 193.6L653.8 194.0L654.4 194.4L655.1 194.8L655.8 195.1L656.5 195.5L657.1 195.9L657.8 196.3L658.5 196.7L659.1 197.1L659.8 197.5L660.5 197.9L661.1 198.2L661.8 198.6L662.5 199.0L663.2 199.4L663.8 199.8L664.5 200.2L665.2 200.6L665.8 201.0L666.5 201.3L667.2 201.7L667.8 202.1L668.5 202.5L669.2 202.9L669.8 203.3L670.5 203.7L671.2 204.1L671.9 204.4L672.5 204.8L673.2 205.2L673.9 205.6L674.5 206.0L675.2 206.4L675.9 206.8L676.5 207.2L677.2 207.5L677.9 207.9L678.6 208.3L679.2 208.7L679.9 209.1L680.6 209.5L681.2 209.9L681.9 210.3L682.6 210.6L683.2 211.0L683.9 211.4L684.6 211.8L685.3 212.2L685.9 212.6L686.6 213.0L687.3 213.4L687.9 213.7L688.6 214.1L689.3 214.5L690.0 214.9L690.6 215.3L691.3 215.7L692.0 216.1L692.6 216.5L693.3 216.8L694.0 217.2L694.6 217.6L695.3 218.0L696.0 218.4L696.7 218.8L697.3 219.2L698.0 219.6L698.7 219.9L699.3 220.3L700.0 220.7" class="lnm lnd"/>
+<text x="543" y="121" class="flab mid hmo">2/r</text>
+<text x="402" y="45" class="flab st">|&#968;&#771;(r) &#8722; ln((2+r)/2&#960;)|, and it is negative throughout</text>
+<text x="566" y="278" class="flab mid">r</text>
+<text x="26" y="300" class="flab st">&#968;&#771;(r) = Re &#968;(&#188; + ir/2) &#8722; ln &#960; is what multiplies |&#293;|&#178; in the archimedean term, and it grows like ln r &#8212; which is</text>
+<text x="26" y="318" class="flab st">why rh25 §4 could send the diagonal to infinity by moving the window&#8217;s energy up in frequency. The majorant is</text>
+<text x="26" y="336" class="flab st">exact enough to lose nothing: the gap is negative at every finite r and closes like 2/r, so ln(1/2&#960;) is the</text>
+<text x="26" y="354" class="flab st">smallest constant that works. It also explains rh17&#8217;s L1: &#968;&#771; crosses zero essentially where ln(r/2&#960;) does, which</text>
+<text x="26" y="372" class="flab st">is 2&#960;, and the measured r&#8330; sits 0.0067 above it.</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 · The lemma, and how little room is in it.</b> Left: ψ̃ and its majorant on a logarithmic frequency axis, with r₊ marked. Right: the gap, negative at every finite r, closing exactly like 2/r. The constant ln(1/2π) is therefore the smallest that works.</figcaption>
+</figure>
+
+<p><b>Where rh17's constant came from.</b> rh17 §1 established L1 by locating the zero of ψ̃ numerically at r₊ = 6.289836 and remarked that it sat "a whisker above 2π". The lemma says why. ψ̃(r) = ln(r/2π) + O(r<sup>−2</sup>) — that is the same asymptotic, with the +2 dropped — so its zero <i>is</i> 2π to the accuracy of that remainder, and the whisker is 0.0067. A constant the arc has carried since rh17 as a measured number is a consequence of the asymptotic it never wrote down.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · (b) The ceiling</h2>
+<p>Let h be real, even, supported in [−Δ′, Δ′], with h′ ∈ L². Write C<sub>h</sub> = h ⋆ h, so C<sub>h</sub>(0) = ‖h‖² and Ĉ<sub>h</sub> = |ĥ|² ≥ 0. The kernel's diagonal is E<sub>h</sub>(0) = pole(0) + arch(0) − comb(0), and each of the three is bounded separately.</p>
+
+<p><b>The arch, by Jensen.</b> Plancherel with ĥ(r) = ∫h(t)e<sup>−irt</sup>dt and h even gives ∫<sub>0</sub><sup>∞</sup>|ĥ|²dr = π‖h‖² and ∫<sub>0</sub><sup>∞</sup>r²|ĥ|²dr = π‖h′‖². So</p>
+
+<div class="eq"><span class="tag">(3)</span>
+dμ(r) = |ĥ(r)|² dr / (π‖h‖²)
+</div>
+
+<p>is a probability measure on [0, ∞), and arch(0)/C<sub>h</sub>(0) is exactly 𝔼<sub>μ</sub>[ψ̃] — not an estimate of it, the same number. Now apply (1), then Jensen to the concave ln(2+·), then Cauchy–Schwarz to replace the first moment by the second:</p>
+
+<div class="eq"><span class="tag">(4)</span>
+𝔼<sub>μ</sub>[ψ̃] ≤ 𝔼<sub>μ</sub>[ln(2+r)] − ln 2π ≤ ln(2 + 𝔼<sub>μ</sub>[r]) − ln 2π ≤ ln((2 + ‖h′‖/‖h‖)/2π).
+</div>
+
+<p><b>The pole, by Cauchy–Schwarz.</b> pole(0) = 2ĥ(i/2)² and ĥ(i/2) = ∫h(t)e<sup>t/2</sup>dt ≤ ‖h‖·(∫<sub>−Δ′</sub><sup>Δ′</sup>e<sup>t</sup>dt)<sup>½</sup>, so pole(0)/C<sub>h</sub>(0) ≤ 4 sinh Δ′. Uniform in h, and it vanishes with the support.</p>
+
+<p><b>The comb, by the gear mass.</b> |C<sub>h</sub>(x)| ≤ C<sub>h</sub>(0) for every x, and C<sub>h</sub> is supported in [−2Δ′, 2Δ′], so |comb(0)|/C<sub>h</sub>(0) ≤ G(2Δ′) = Σ<sub>|ln m| ≤ 2Δ′</sub> Λ(m)m<sup>−½</sup>. rh25 (9) observed that this is <i>zero</i> whenever 2Δ′ &lt; ln 2 = 0.693, because the nearest prime power to 1 is 2. Every support this arc has used except 0.48 is inside that, so at Δ, Δ/2 and everything narrower the diagonal is pole plus arch exactly.</p>
+
+<p>Putting the three together with the elementary λ<sub>min</sub>(T<sub>h</sub>) ≤ E<sub>h</sub>(0) — the smallest eigenvalue of a Toeplitz section is at most any diagonal entry:</p>
+
+<div class="eq"><span class="tag">(5)</span>
+λ<sub>min</sub>(T<sub>h</sub>)/C<sub>h</sub>(0) &nbsp;≤&nbsp; E<sub>h</sub>(0)/C<sub>h</sub>(0) &nbsp;≤&nbsp; ln((2 + ‖h′‖<sub>2</sub>/‖h‖<sub>2</sub>)/2π) + 4 sinh Δ′ + G(2Δ′),
+</div>
+
+<p>for every real even h of half-support Δ′ with h′ ∈ L², at every section size, on every lattice. That is the first bound in this arc that names no family, no mesh, no M and no generator.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 432" role="img" aria-label="For each of five window supports, a column showing the certified eigenvalue, the section diagonal above it, the Jensen ceiling above that, and the pole allowance on top, so the slack in the bound can be read off in pieces.">
+<text x="360.0" y="21" class="ftitle">where the slack lives</text>
+<line x1="92" y1="268.0" x2="536" y2="268.0" class="axis"/>
+<text x="86" y="271.5" class="flab end">0</text>
+<line x1="92" y1="230.9" x2="536" y2="230.9" class="grid"/>
+<text x="86" y="234.4" class="flab end">1</text>
+<line x1="92" y1="193.7" x2="536" y2="193.7" class="grid"/>
+<text x="86" y="197.2" class="flab end">2</text>
+<line x1="92" y1="156.6" x2="536" y2="156.6" class="grid"/>
+<text x="86" y="160.1" class="flab end">3</text>
+<line x1="92" y1="119.4" x2="536" y2="119.4" class="grid"/>
+<text x="86" y="122.9" class="flab end">4</text>
+<line x1="92" y1="82.3" x2="536" y2="82.3" class="grid"/>
+<text x="86" y="85.8" class="flab end">5</text>
+<line x1="92" y1="60" x2="92" y2="268" class="axis"/>
+<rect x="121.4" y="264.1" width="30" height="3.9" class="bar hm1" fill-opacity="0.85"/>
+<rect x="121.4" y="173.4" width="30" height="90.7" class="bar hmo" fill-opacity="0.42"/>
+<rect x="121.4" y="166.0" width="30" height="7.4" class="bar hm3" fill-opacity="0.42"/>
+<rect x="121.4" y="73.7" width="30" height="92.3" class="bar hm4" fill-opacity="0.42"/>
+<text x="136" y="284" class="flab mid">0.48</text>
+<text x="136" y="257" class="flab mid hm1">0.10</text>
+<rect x="210.2" y="254.6" width="30" height="13.4" class="bar hm1" fill-opacity="0.85"/>
+<rect x="210.2" y="152.2" width="30" height="102.4" class="bar hmo" fill-opacity="0.42"/>
+<rect x="210.2" y="144.8" width="30" height="7.4" class="bar hm3" fill-opacity="0.42"/>
+<rect x="210.2" y="108.8" width="30" height="36.0" class="bar hm4" fill-opacity="0.42"/>
+<text x="225" y="284" class="flab mid">0.24</text>
+<text x="225" y="248" class="flab mid hm1">0.36</text>
+<rect x="299.0" y="228.3" width="30" height="39.7" class="bar hm1" fill-opacity="0.85"/>
+<rect x="299.0" y="128.5" width="30" height="99.8" class="bar hmo" fill-opacity="0.42"/>
+<rect x="299.0" y="118.2" width="30" height="10.3" class="bar hm3" fill-opacity="0.42"/>
+<rect x="299.0" y="100.3" width="30" height="17.9" class="bar hm4" fill-opacity="0.42"/>
+<text x="314" y="284" class="flab mid">0.12</text>
+<text x="314" y="221" class="flab mid hm1">1.07</text>
+<rect x="387.8" y="223.3" width="30" height="44.7" class="bar hm1" fill-opacity="0.85"/>
+<rect x="387.8" y="104.2" width="30" height="119.1" class="bar hmo" fill-opacity="0.42"/>
+<rect x="387.8" y="92.1" width="30" height="12.1" class="bar hm3" fill-opacity="0.42"/>
+<rect x="387.8" y="83.2" width="30" height="8.9" class="bar hm4" fill-opacity="0.42"/>
+<text x="403" y="284" class="flab mid">0.06</text>
+<text x="403" y="216" class="flab mid hm1">1.20</text>
+<rect x="476.6" y="214.9" width="30" height="53.1" class="bar hm1" fill-opacity="0.85"/>
+<rect x="476.6" y="90.3" width="30" height="124.6" class="bar hmo" fill-opacity="0.42"/>
+<rect x="476.6" y="71.9" width="30" height="18.4" class="bar hm3" fill-opacity="0.42"/>
+<rect x="476.6" y="67.5" width="30" height="4.5" class="bar hm4" fill-opacity="0.42"/>
+<text x="492" y="284" class="flab mid">0.03</text>
+<text x="492" y="208" class="flab mid hm1">1.43</text>
+<text x="314" y="304" class="flab mid">window half-support &#916;&#8242;</text>
+<text x="52" y="47" class="flab st">in units of C&#8341;(0)</text>
+<rect x="552" y="68" width="13" height="11" class="bar hm1" fill-opacity="0.85"/>
+<text x="570" y="78" class="flab st hm1">&#955;&#8344;&#7522;&#8345;, certified</text>
+<rect x="552" y="90" width="13" height="11" class="bar hmo" fill-opacity="0.42"/>
+<text x="570" y="100" class="flab st hmo">its own diagonal, E&#8341;(0)</text>
+<rect x="552" y="112" width="13" height="11" class="bar hm3" fill-opacity="0.42"/>
+<text x="570" y="122" class="flab st hm3">+ the Jensen step</text>
+<rect x="552" y="134" width="13" height="11" class="bar hm4" fill-opacity="0.42"/>
+<text x="570" y="144" class="flab st hm4">+ pole and comb</text>
+<text x="26" y="332" class="flab st">The bound is a chain, and only one link is lossy. &#955;&#8344;&#7522;&#8345; &#8804; E&#8341;(0) is elementary; E&#8341;(0) = arch + pole exactly</text>
+<text x="26" y="350" class="flab st">wherever 2&#916;&#8242; &lt; ln 2 leaves the comb empty at v = 0, which is every support here but 0.48 &#8212; that is why 0.48&#8217;s</text>
+<text x="26" y="368" class="flab st">fourth band is so much taller, it is carrying G(2&#916;&#8242;) as well. The pole allowance is Cauchy&#8211;Schwarz and vanishes</text>
+<text x="26" y="386" class="flab st">with the support. The Jensen step costs between 0.23 and 0.53 nats across the twelve windows searched here.</text>
+<text x="26" y="404" class="flab st">Everything else in the gap is the distance from a section&#8217;s smallest eigenvalue to its own diagonal, and that is</text>
+<text x="26" y="422" class="flab st">not the bound&#8217;s fault.</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 · Where the slack lives.</b> The chain of (5), column by column at five supports, in units of C<sub>h</sub>(0). Only the Jensen step is lossy — between 0.23 and 0.53 nats. The pole allowance vanishes with the support, and the largest gap is not the bound's at all: it is the distance from a section's smallest eigenvalue to its own diagonal.</figcaption>
+</figure>
+
+<p><b>Reading the columns.</b> The gap between the certified eigenvalue and the ceiling is large at the wide end and closes at the narrow one, and almost none of that is the bound's doing. At Δ′ = 0.48 the eigenvalue is 0.041 of the diagonal; at 0.12 it is 0.285. The Jensen step, isolated, costs 0.23–0.53 nats across the twelve windows searched here and drifts up slowly as the support narrows, because a narrower window spreads |ĥ|² over more decades and ln is more concave over a wider spread. The pole allowance runs 0.481, 0.240, 0.120 and is on its way to nothing.</p>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · (c) Sharp, and it subsumes the family ceilings</h2>
+<p>A finite bound on a quantity rh25 proved unbounded is not by itself interesting — it is bought entirely by the ‖h′‖₂ in it, and a wasteful bound would buy it too. What makes (5) worth having is that it gives up nothing.</p>
+
+<p><b>Against rh25's own witness.</b> rh25 §4 proved there is no ceiling with an explicit sequence: h = √2 cos(r₀t)φ<sub>Δ</sub>(t), for which E<sub>h</sub>(0)/C<sub>h</sub>(0) equals ψ̃(r₀) "to 0.05% at r₀ = 200, 10³, 5×10³ and 2.5×10⁴". Evaluate (4) on that same sequence and the slack is 0.0106, 0.00202, 0.0004, 0.00008 — closing to zero, and closing like 2/r₀, which is the lemma's own gap and not a second loss. The bound is not the right slope with a constant to spare. It is the right value.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 374" role="img" aria-label="Left: along the extremal sequence rh25 used to prove no ceiling exists, the new ceiling and the actual value coincide, the slack closing to zero. Right: the five M-family ceilings rh24 and rh25 published, each recovered from the single new bound at that family band edge.">
+<text x="360.0" y="21" class="ftitle">sharp, and it subsumes the family ceilings</text>
+<line x1="78" y1="233.0" x2="340" y2="233.0" class="grid"/>
+<text x="72" y="236.5" class="flab end">3</text>
+<line x1="78" y1="203.4" x2="340" y2="203.4" class="grid"/>
+<text x="72" y="206.9" class="flab end">4</text>
+<line x1="78" y1="173.7" x2="340" y2="173.7" class="grid"/>
+<text x="72" y="177.2" class="flab end">5</text>
+<line x1="78" y1="144.0" x2="340" y2="144.0" class="grid"/>
+<text x="72" y="147.5" class="flab end">6</text>
+<line x1="78" y1="114.4" x2="340" y2="114.4" class="grid"/>
+<text x="72" y="117.9" class="flab end">7</text>
+<line x1="78" y1="84.7" x2="340" y2="84.7" class="grid"/>
+<text x="72" y="88.2" class="flab end">8</text>
+<text x="78.0" y="252" class="flab mid">100</text>
+<text x="175.1" y="252" class="flab mid">1000</text>
+<text x="272.1" y="252" class="flab mid">10&#8308;</text>
+<line x1="78" y1="236" x2="340" y2="236" class="axis"/>
+<line x1="78" y1="58" x2="78" y2="236" class="axis"/>
+<path d="M78.0 239.3L78.9 238.7L79.7 238.1L80.6 237.5L81.5 236.9L82.4 236.3L83.2 235.7L84.1 235.1L85.0 234.5L85.9 233.9L86.7 233.3L87.6 232.7L88.5 232.1L89.4 231.5L90.2 230.9L91.1 230.3L92.0 229.7L92.8 229.1L93.7 228.5L94.6 227.9L95.5 227.3L96.3 226.6L97.2 226.0L98.1 225.4L99.0 224.8L99.8 224.2L100.7 223.6L101.6 223.0L102.5 222.4L103.3 221.8L104.2 221.2L105.1 220.6L105.9 220.0L106.8 219.4L107.7 218.8L108.6 218.1L109.4 217.5L110.3 216.9L111.2 216.3L112.1 215.7L112.9 215.1L113.8 214.5L114.7 213.9L115.6 213.3L116.4 212.7L117.3 212.0L118.2 211.4L119.0 210.8L119.9 210.2L120.8 209.6L121.7 209.0L122.5 208.4L123.4 207.8L124.3 207.2L125.2 206.6L126.0 205.9L126.9 205.3L127.8 204.7L128.7 204.1L129.5 203.5L130.4 202.9L131.3 202.3L132.1 201.7L133.0 201.1L133.9 200.4L134.8 199.8L135.6 199.2L136.5 198.6L137.4 198.0L138.3 197.4L139.1 196.8L140.0 196.2L140.9 195.6L141.8 194.9L142.6 194.3L143.5 193.7L144.4 193.1L145.2 192.5L146.1 191.9L147.0 191.3L147.9 190.7L148.7 190.0L149.6 189.4L150.5 188.8L151.4 188.2L152.2 187.6L153.1 187.0L154.0 186.4L154.9 185.8L155.7 185.1L156.6 184.5L157.5 183.9L158.3 183.3L159.2 182.7L160.1 182.1L161.0 181.5L161.8 180.9L162.7 180.2L163.6 179.6L164.5 179.0L165.3 178.4L166.2 177.8L167.1 177.2L168.0 176.6L168.8 176.0L169.7 175.3L170.6 174.7L171.4 174.1L172.3 173.5L173.2 172.9L174.1 172.3L174.9 171.7L175.8 171.0L176.7 170.4L177.6 169.8L178.4 169.2L179.3 168.6L180.2 168.0L181.1 167.4L181.9 166.8L182.8 166.1L183.7 165.5L184.5 164.9L185.4 164.3L186.3 163.7L187.2 163.1L188.0 162.5L188.9 161.8L189.8 161.2L190.7 160.6L191.5 160.0L192.4 159.4L193.3 158.8L194.2 158.2L195.0 157.5L195.9 156.9L196.8 156.3L197.6 155.7L198.5 155.1L199.4 154.5L200.3 153.9L201.1 153.3L202.0 152.6L202.9 152.0L203.8 151.4L204.6 150.8L205.5 150.2L206.4 149.6L207.3 149.0L208.1 148.3L209.0 147.7L209.9 147.1L210.7 146.5L211.6 145.9L212.5 145.3L213.4 144.7L214.2 144.0L215.1 143.4L216.0 142.8L216.9 142.2L217.7 141.6L218.6 141.0L219.5 140.4L220.4 139.7L221.2 139.1L222.1 138.5L223.0 137.9L223.8 137.3L224.7 136.7L225.6 136.1L226.5 135.4L227.3 134.8L228.2 134.2L229.1 133.6L230.0 133.0L230.8 132.4L231.7 131.8L232.6 131.1L233.5 130.5L234.3 129.9L235.2 129.3L236.1 128.7L236.9 128.1L237.8 127.5L238.7 126.8L239.6 126.2L240.4 125.6L241.3 125.0L242.2 124.4L243.1 123.8L243.9 123.2L244.8 122.5L245.7 121.9L246.6 121.3L247.4 120.7L248.3 120.1L249.2 119.5L250.0 118.9L250.9 118.2L251.8 117.6L252.7 117.0L253.5 116.4L254.4 115.8L255.3 115.2L256.2 114.6L257.0 113.9L257.9 113.3L258.8 112.7L259.7 112.1L260.5 111.5L261.4 110.9L262.3 110.3L263.1 109.6L264.0 109.0L264.9 108.4L265.8 107.8L266.6 107.2L267.5 106.6L268.4 106.0L269.3 105.3L270.1 104.7L271.0 104.1L271.9 103.5L272.8 102.9L273.6 102.3L274.5 101.7L275.4 101.0L276.2 100.4L277.1 99.8L278.0 99.2L278.9 98.6L279.7 98.0L280.6 97.4L281.5 96.7L282.4 96.1L283.2 95.5L284.1 94.9L285.0 94.3L285.9 93.7L286.7 93.1L287.6 92.4L288.5 91.8L289.3 91.2L290.2 90.6L291.1 90.0L292.0 89.4L292.8 88.8L293.7 88.1L294.6 87.5L295.5 86.9L296.3 86.3L297.2 85.7L298.1 85.1L299.0 84.5L299.8 83.8L300.7 83.2L301.6 82.6L302.4 82.0L303.3 81.4L304.2 80.8L305.1 80.1L305.9 79.5L306.8 78.9L307.7 78.3L308.6 77.7L309.4 77.1L310.3 76.5L311.2 75.8L312.1 75.2L312.9 74.6L313.8 74.0L314.7 73.4L315.5 72.8L316.4 72.2L317.3 71.5L318.2 70.9L319.0 70.3L319.9 69.7L320.8 69.1L321.7 68.5L322.5 67.9L323.4 67.2L324.3 66.6L325.2 66.0L326.0 65.4L326.9 64.8L327.8 64.2L328.6 63.6L329.5 62.9L330.4 62.3L331.3 61.7L332.1 61.1L333.0 60.5L333.9 59.9L334.8 59.3L335.6 58.6L336.5 58.0L337.4 57.4L338.3 56.8L339.1 56.2L340.0 55.6" class="ln1" stroke-width="5" stroke-opacity="0.42"/>
+<path d="M78.0 239.9L78.9 239.3L79.7 238.7L80.6 238.1L81.5 237.5L82.4 236.9L83.2 236.2L84.1 235.6L85.0 235.0L85.9 234.4L86.7 233.8L87.6 233.2L88.5 232.6L89.4 231.9L90.2 231.3L91.1 230.7L92.0 230.1L92.8 229.5L93.7 228.9L94.6 228.3L95.5 227.6L96.3 227.0L97.2 226.4L98.1 225.8L99.0 225.2L99.8 224.6L100.7 224.0L101.6 223.3L102.5 222.7L103.3 222.1L104.2 221.5L105.1 220.9L105.9 220.3L106.8 219.7L107.7 219.0L108.6 218.4L109.4 217.8L110.3 217.2L111.2 216.6L112.1 216.0L112.9 215.4L113.8 214.7L114.7 214.1L115.6 213.5L116.4 212.9L117.3 212.3L118.2 211.7L119.0 211.1L119.9 210.4L120.8 209.8L121.7 209.2L122.5 208.6L123.4 208.0L124.3 207.4L125.2 206.8L126.0 206.1L126.9 205.5L127.8 204.9L128.7 204.3L129.5 203.7L130.4 203.1L131.3 202.4L132.1 201.8L133.0 201.2L133.9 200.6L134.8 200.0L135.6 199.4L136.5 198.8L137.4 198.1L138.3 197.5L139.1 196.9L140.0 196.3L140.9 195.7L141.8 195.1L142.6 194.5L143.5 193.8L144.4 193.2L145.2 192.6L146.1 192.0L147.0 191.4L147.9 190.8L148.7 190.2L149.6 189.5L150.5 188.9L151.4 188.3L152.2 187.7L153.1 187.1L154.0 186.5L154.9 185.9L155.7 185.2L156.6 184.6L157.5 184.0L158.3 183.4L159.2 182.8L160.1 182.2L161.0 181.6L161.8 180.9L162.7 180.3L163.6 179.7L164.5 179.1L165.3 178.5L166.2 177.9L167.1 177.3L168.0 176.6L168.8 176.0L169.7 175.4L170.6 174.8L171.4 174.2L172.3 173.6L173.2 173.0L174.1 172.3L174.9 171.7L175.8 171.1L176.7 170.5L177.6 169.9L178.4 169.3L179.3 168.6L180.2 168.0L181.1 167.4L181.9 166.8L182.8 166.2L183.7 165.6L184.5 165.0L185.4 164.3L186.3 163.7L187.2 163.1L188.0 162.5L188.9 161.9L189.8 161.3L190.7 160.7L191.5 160.0L192.4 159.4L193.3 158.8L194.2 158.2L195.0 157.6L195.9 157.0L196.8 156.4L197.6 155.7L198.5 155.1L199.4 154.5L200.3 153.9L201.1 153.3L202.0 152.7L202.9 152.1L203.8 151.4L204.6 150.8L205.5 150.2L206.4 149.6L207.3 149.0L208.1 148.4L209.0 147.8L209.9 147.1L210.7 146.5L211.6 145.9L212.5 145.3L213.4 144.7L214.2 144.1L215.1 143.5L216.0 142.8L216.9 142.2L217.7 141.6L218.6 141.0L219.5 140.4L220.4 139.8L221.2 139.1L222.1 138.5L223.0 137.9L223.8 137.3L224.7 136.7L225.6 136.1L226.5 135.5L227.3 134.8L228.2 134.2L229.1 133.6L230.0 133.0L230.8 132.4L231.7 131.8L232.6 131.2L233.5 130.5L234.3 129.9L235.2 129.3L236.1 128.7L236.9 128.1L237.8 127.5L238.7 126.9L239.6 126.2L240.4 125.6L241.3 125.0L242.2 124.4L243.1 123.8L243.9 123.2L244.8 122.6L245.7 121.9L246.6 121.3L247.4 120.7L248.3 120.1L249.2 119.5L250.0 118.9L250.9 118.3L251.8 117.6L252.7 117.0L253.5 116.4L254.4 115.8L255.3 115.2L256.2 114.6L257.0 114.0L257.9 113.3L258.8 112.7L259.7 112.1L260.5 111.5L261.4 110.9L262.3 110.3L263.1 109.7L264.0 109.0L264.9 108.4L265.8 107.8L266.6 107.2L267.5 106.6L268.4 106.0L269.3 105.3L270.1 104.7L271.0 104.1L271.9 103.5L272.8 102.9L273.6 102.3L274.5 101.7L275.4 101.0L276.2 100.4L277.1 99.8L278.0 99.2L278.9 98.6L279.7 98.0L280.6 97.4L281.5 96.7L282.4 96.1L283.2 95.5L284.1 94.9L285.0 94.3L285.9 93.7L286.7 93.1L287.6 92.4L288.5 91.8L289.3 91.2L290.2 90.6L291.1 90.0L292.0 89.4L292.8 88.8L293.7 88.1L294.6 87.5L295.5 86.9L296.3 86.3L297.2 85.7L298.1 85.1L299.0 84.5L299.8 83.8L300.7 83.2L301.6 82.6L302.4 82.0L303.3 81.4L304.2 80.8L305.1 80.2L305.9 79.5L306.8 78.9L307.7 78.3L308.6 77.7L309.4 77.1L310.3 76.5L311.2 75.9L312.1 75.2L312.9 74.6L313.8 74.0L314.7 73.4L315.5 72.8L316.4 72.2L317.3 71.5L318.2 70.9L319.0 70.3L319.9 69.7L320.8 69.1L321.7 68.5L322.5 67.9L323.4 67.2L324.3 66.6L325.2 66.0L326.0 65.4L326.9 64.8L327.8 64.2L328.6 63.6L329.5 62.9L330.4 62.3L331.3 61.7L332.1 61.1L333.0 60.5L333.9 59.9L334.8 59.3L335.6 58.6L336.5 58.0L337.4 57.4L338.3 56.8L339.1 56.2L340.0 55.6" class="ln0 lnd"/>
+<circle cx="107.2" cy="219.4" r="4.2" class="hm1"/>
+<circle cx="175.1" cy="171.6" r="4.2" class="hm1"/>
+<circle cx="242.9" cy="123.9" r="4.2" class="hm1"/>
+<circle cx="310.8" cy="76.1" r="4.2" class="hm1"/>
+<text x="84" y="71" class="flab st hm1">slack: 0.0106 &#8594; 0.00008</text>
+<text x="336" y="210" class="flab end hm3">the ceiling (bold)</text>
+<text x="336" y="228" class="flab end hm1">the actual value (dashed)</text>
+<text x="38" y="45" class="flab st">E&#8341;(0) / C&#8341;(0) along rh25&#8217;s sequence</text>
+<text x="209" y="270" class="flab mid">r&#8320;, the frequency the energy is put at</text>
+<line x1="436" y1="210.2" x2="700" y2="210.2" class="grid"/>
+<text x="430" y="213.7" class="flab end">3</text>
+<line x1="436" y1="158.6" x2="700" y2="158.6" class="grid"/>
+<text x="430" y="162.1" class="flab end">4</text>
+<line x1="436" y1="107.0" x2="700" y2="107.0" class="grid"/>
+<text x="430" y="110.5" class="flab end">5</text>
+<line x1="436" y1="236" x2="700" y2="236" class="axis"/>
+<line x1="436" y1="58" x2="436" y2="236" class="axis"/>
+<text x="436.0" y="252" class="flab mid">8</text>
+<text x="502.0" y="252" class="flab mid">16</text>
+<text x="568.0" y="252" class="flab mid">32</text>
+<text x="634.0" y="252" class="flab mid">64</text>
+<text x="700.0" y="252" class="flab mid">128</text>
+<path d="M436.0 218.9L437.3 218.2L438.6 217.4L440.0 216.7L441.3 216.0L442.6 215.3L443.9 214.6L445.2 213.9L446.6 213.2L447.9 212.5L449.2 211.8L450.5 211.1L451.8 210.4L453.2 209.7L454.5 209.0L455.8 208.3L457.1 207.6L458.4 206.9L459.8 206.2L461.1 205.5L462.4 204.8L463.7 204.1L465.0 203.4L466.4 202.7L467.7 202.0L469.0 201.3L470.3 200.6L471.6 199.8L473.0 199.1L474.3 198.4L475.6 197.7L476.9 197.0L478.2 196.3L479.6 195.6L480.9 194.9L482.2 194.2L483.5 193.5L484.8 192.8L486.2 192.1L487.5 191.4L488.8 190.7L490.1 189.9L491.4 189.2L492.8 188.5L494.1 187.8L495.4 187.1L496.7 186.4L498.0 185.7L499.4 185.0L500.7 184.3L502.0 183.6L503.3 182.9L504.6 182.2L506.0 181.5L507.3 180.7L508.6 180.0L509.9 179.3L511.2 178.6L512.6 177.9L513.9 177.2L515.2 176.5L516.5 175.8L517.8 175.1L519.2 174.4L520.5 173.6L521.8 172.9L523.1 172.2L524.4 171.5L525.8 170.8L527.1 170.1L528.4 169.4L529.7 168.7L531.0 168.0L532.4 167.3L533.7 166.5L535.0 165.8L536.3 165.1L537.6 164.4L539.0 163.7L540.3 163.0L541.6 162.3L542.9 161.6L544.2 160.9L545.6 160.2L546.9 159.4L548.2 158.7L549.5 158.0L550.8 157.3L552.2 156.6L553.5 155.9L554.8 155.2L556.1 154.5L557.4 153.8L558.8 153.0L560.1 152.3L561.4 151.6L562.7 150.9L564.0 150.2L565.4 149.5L566.7 148.8L568.0 148.1L569.3 147.3L570.6 146.6L572.0 145.9L573.3 145.2L574.6 144.5L575.9 143.8L577.2 143.1L578.6 142.4L579.9 141.7L581.2 140.9L582.5 140.2L583.8 139.5L585.2 138.8L586.5 138.1L587.8 137.4L589.1 136.7L590.4 136.0L591.8 135.2L593.1 134.5L594.4 133.8L595.7 133.1L597.0 132.4L598.4 131.7L599.7 131.0L601.0 130.2L602.3 129.5L603.6 128.8L605.0 128.1L606.3 127.4L607.6 126.7L608.9 126.0L610.2 125.3L611.6 124.5L612.9 123.8L614.2 123.1L615.5 122.4L616.8 121.7L618.2 121.0L619.5 120.3L620.8 119.6L622.1 118.8L623.4 118.1L624.8 117.4L626.1 116.7L627.4 116.0L628.7 115.3L630.0 114.6L631.4 113.8L632.7 113.1L634.0 112.4L635.3 111.7L636.6 111.0L638.0 110.3L639.3 109.6L640.6 108.9L641.9 108.1L643.2 107.4L644.6 106.7L645.9 106.0L647.2 105.3L648.5 104.6L649.8 103.9L651.2 103.1L652.5 102.4L653.8 101.7L655.1 101.0L656.4 100.3L657.8 99.6L659.1 98.9L660.4 98.1L661.7 97.4L663.0 96.7L664.4 96.0L665.7 95.3L667.0 94.6L668.3 93.9L669.6 93.1L671.0 92.4L672.3 91.7L673.6 91.0L674.9 90.3L676.2 89.6L677.6 88.9L678.9 88.1L680.2 87.4L681.5 86.7L682.8 86.0L684.2 85.3L685.5 84.6L686.8 83.9L688.1 83.1L689.4 82.4L690.8 81.7L692.1 81.0L693.4 80.3L694.7 79.6L696.0 78.9L697.4 78.1L698.7 77.4L700.0 76.7" class="ln1"/>
+<circle cx="436.0" cy="220.1" r="4.6" class="hm1"/>
+<circle cx="502.0" cy="183.6" r="4.6" class="hm1"/>
+<circle cx="568.0" cy="147.7" r="4.6" class="hm1"/>
+<circle cx="634.0" cy="112.0" r="4.6" class="hm1"/>
+<circle cx="700.0" cy="76.3" r="4.6" class="hm1"/>
+<text x="696" y="210" class="flab end hm3">the new bound at &#960;M/&#916;</text>
+<text x="696" y="228" class="flab end hm1">rh24 and rh25&#8217;s published ceilings</text>
+<text x="396" y="45" class="flab st">the ceiling for the M-family at &#916; = 0.24</text>
+<text x="568" y="270" class="flab mid">M</text>
+<text x="26" y="292" class="flab st">Left: rh25 §4 proved no ceiling exists by pushing h = &#8730;2 cos(r&#8320;t)&#966;(t) up in frequency; along that same sequence</text>
+<text x="26" y="310" class="flab st">the new bound is not merely the right slope but the right value, the slack running 0.0106 at r&#8320; = 200 down to</text>
+<text x="26" y="328" class="flab st">0.00008 at 25000. Right: the five ceilings rh24 and rh25 proved, one family at a time, are all recovered from</text>
+<text x="26" y="346" class="flab st">this one bound at each family&#8217;s own band edge, to within 0.8% — and that is why they rose by ln 2 per doubling</text>
+<text x="26" y="364" class="flab st">and never converged. They were reading a logarithm along a geometric ladder.</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 · Sharp, and it subsumes.</b> Left: along the sequence rh25 used to prove no ceiling exists, the ceiling and the actual value coincide; the slack under each point. Right: the five M-family ceilings rh24 and rh25 published, each recovered from this single bound at that family's own band edge πM/Δ.</figcaption>
+</figure>
+
+<p><b>Against the arc's own published ceilings.</b> rh24 §3 computed a ceiling for the M-family by a min–max duality, one family at a time, and rh25 §4 extended the ladder: M = 8: 2.809, M = 16: 3.515, M = 32: 4.211, M = 64: 4.904, M = 128: 5.596. Every one of them is (4) evaluated at that family's own band edge πM/Δ, to within 0.8%. Five theorems, proved separately at increasing cost, are five points on one curve. And the observation that raised the question in the first place — that the ceilings "grow along the ladder" by about ln 2 per doubling of M and do not converge — is now not an observation but an identity: they are ln of a quantity that doubles.</p>
+
+<p><b>What that means for the published results.</b> Nothing rh22–rh25 asserted is affected; those ceilings remain theorems about the families they were computed for, and they are now also corollaries. What changes is that the family index was never the essential penalty. It was a proxy for ‖h′‖₂/‖h‖₂, which is what the archimedean term actually sees.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · (d) The prediction, and the test</h2>
+<p>rh27b measured λ<sub>min</sub>/C<sub>h</sub>(0) at three supports with the shape held fixed and found a clean power law, Δ′<sup>−1.7111</sup>, the two dyadic exponents 1.7225 and 1.6998 agreeing to 1.3%. It called that exponent the obstruction — the quantitative content of "the support axis is a second infinity" — and flagged it as "a measured slope over one dyadic range at one depth with one M, not a theorem".</p>
+
+<p><b>The prediction.</b> (5) bounds λ<sub>min</sub>/C<sub>h</sub>(0) by ln((2+S)/2π) + 4 sinh Δ′ with S = ‖h′‖/‖h‖. For a family at fixed M, S is proportional to 1/Δ′ — measured 352, 714, 1230 at the three supports here — so the ceiling grows like <b>ln(1/Δ′)</b>. A power cannot stay under a logarithm. Extrapolating rh27b's law and its ceiling side by side, they cross between Δ′ = 0.06 and 0.03: at 0.06 the law wants 3.15 against a ceiling of 4.98, and at 0.03 it wants 10.30 against 5.40. So the exponent must break by Δ′ = 0.03, whatever the search finds.</p>
+
+<p><b>The test.</b> Twelve more searches, at Δ′ = 0.12 (the anchor), 0.06 and 0.03, four shapes each, all verified notch-free over a whole period, at depth 18 on sections of 301 and 601 nodes. The triangle row, scale-free, across five supports now:</p>
+
+<div class="cardbox">&#916;&#8242; = 0.48 &nbsp;&nbsp; &#955;<sub>min</sub>/C<sub>h</sub>(0) = 0.0897 &nbsp;&#183;&nbsp; &#916;&#8242; = 0.24 &nbsp;&nbsp; &#955;<sub>min</sub>/C<sub>h</sub>(0) = 0.2913 &nbsp;&#183;&nbsp; &#916;&#8242; = 0.12 &nbsp;&nbsp; &#955;<sub>min</sub>/C<sub>h</sub>(0) = 0.9612 &nbsp;&#183;&nbsp; &#916;&#8242; = 0.06 &nbsp;&nbsp; &#955;<sub>min</sub>/C<sub>h</sub>(0) = 1.1652 &nbsp;&#183;&nbsp; &#916;&#8242; = 0.03 &nbsp;&nbsp; &#955;<sub>min</sub>/C<sub>h</sub>(0) = 1.2794</div>
+
+<p>The dyadic exponents, wide end first: 1.6998, 1.7225, then <b>0.2776</b> and <b>0.1349</b>.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 408" role="img" aria-label="The scale-free eigenvalue against window support on logarithmic axes, with rh27b power law extrapolated as a dashed line, the ceiling drawn over it, and the two new measurements falling far below the power law.">
+<text x="360.0" y="21" class="ftitle">a power cannot stay under a logarithm</text>
+<line x1="92" y1="249.4" x2="600" y2="249.4" class="grid"/>
+<text x="86" y="252.9" class="flab end">10&#8315;&#185;</text>
+<line x1="92" y1="165.2" x2="600" y2="165.2" class="grid"/>
+<text x="86" y="168.7" class="flab end">1</text>
+<line x1="92" y1="81.0" x2="600" y2="81.0" class="grid"/>
+<text x="86" y="84.5" class="flab end">10&#185;</text>
+<line x1="92" y1="262" x2="600" y2="262" class="axis"/>
+<line x1="92" y1="60" x2="92" y2="262" class="axis"/>
+<text x="92.0" y="278" class="flab mid">0.48</text>
+<text x="219.0" y="278" class="flab mid">0.24</text>
+<text x="346.0" y="278" class="flab mid">0.12</text>
+<text x="473.0" y="278" class="flab mid">0.06</text>
+<text x="600.0" y="278" class="flab mid">0.03</text>
+<path d="M92.0 253.4L96.2 251.9L100.5 250.5L104.7 249.0L108.9 247.6L113.2 246.1L117.4 244.7L121.6 243.2L125.9 241.8L130.1 240.4L134.3 238.9L138.6 237.5L142.8 236.0L147.0 234.6L151.3 233.1L155.5 231.7L159.7 230.2L164.0 228.8L168.2 227.3L172.4 225.9L176.7 224.5L180.9 223.0L185.1 221.6L189.4 220.1L193.6 218.7L197.8 217.2L202.1 215.8L206.3 214.3L210.5 212.9L214.8 211.5L219.0 210.0L223.2 208.6L227.5 207.1L231.7 205.7L235.9 204.2L240.2 202.8L244.4 201.3L248.6 199.9L252.9 198.4L257.1 197.0L261.3 195.6L265.6 194.1L269.8 192.7L274.0 191.2L278.3 189.8L282.5 188.3L286.7 186.9L291.0 185.4L295.2 184.0L299.4 182.5L303.7 181.1L307.9 179.7L312.1 178.2L316.4 176.8L320.6 175.3L324.8 173.9L329.1 172.4L333.3 171.0L337.5 169.5L341.8 168.1L346.0 166.7L350.2 165.2L354.5 163.8L358.7 162.3L362.9 160.9L367.2 159.4L371.4 158.0L375.6 156.5L379.9 155.1L384.1 153.6L388.3 152.2L392.6 150.8L396.8 149.3L401.0 147.9L405.3 146.4L409.5 145.0L413.7 143.5L418.0 142.1L422.2 140.6L426.4 139.2L430.7 137.8L434.9 136.3L439.1 134.9L443.4 133.4L447.6 132.0L451.8 130.5L456.1 129.1L460.3 127.6L464.5 126.2L468.8 124.7L473.0 123.3L477.2 121.9L481.5 120.4L485.7 119.0L489.9 117.5L494.2 116.1L498.4 114.6L502.6 113.2L506.9 111.7L511.1 110.3L515.3 108.8L519.6 107.4L523.8 106.0L528.0 104.5L532.3 103.1L536.5 101.6L540.7 100.2L545.0 98.7L549.2 97.3L553.4 95.8L557.7 94.4L561.9 93.0L566.1 91.5L570.4 90.1L574.6 88.6L578.8 87.2L583.1 85.7L587.3 84.3L591.5 82.8L595.8 81.4L600.0 79.9" class="ln4 lnd"/>
+<path d="M92.0 105.3L96.2 105.5L100.5 105.7L104.7 105.8L108.9 106.0L113.2 106.2L117.4 106.3L121.6 106.4L125.9 106.6L130.1 106.7L134.3 106.8L138.6 106.9L142.8 107.0L147.0 107.1L151.3 107.2L155.5 111.2L159.7 111.2L164.0 111.3L168.2 111.4L172.4 111.5L176.7 111.5L180.9 111.6L185.1 111.6L189.4 111.6L193.6 111.7L197.8 111.7L202.1 111.7L206.3 111.7L210.5 111.8L214.8 111.8L219.0 111.8L223.2 111.8L227.5 111.8L231.7 111.7L235.9 111.7L240.2 111.7L244.4 111.7L248.6 111.7L252.9 111.6L257.1 111.6L261.3 111.5L265.6 111.5L269.8 111.5L274.0 111.4L278.3 111.4L282.5 111.3L286.7 111.2L291.0 111.2L295.2 111.1L299.4 111.0L303.7 111.0L307.9 110.9L312.1 110.8L316.4 110.7L320.6 110.7L324.8 110.6L329.1 110.5L333.3 110.4L337.5 110.3L341.8 110.2L346.0 110.1L350.2 110.0L354.5 109.9L358.7 109.8L362.9 109.7L367.2 109.6L371.4 109.5L375.6 109.4L379.9 109.3L384.1 109.2L388.3 109.1L392.6 109.0L396.8 108.9L401.0 108.7L405.3 108.6L409.5 108.5L413.7 108.4L418.0 108.3L422.2 108.1L426.4 108.0L430.7 107.9L434.9 107.8L439.1 107.7L443.4 107.5L447.6 107.4L451.8 107.3L456.1 107.2L460.3 107.0L464.5 106.9L468.8 106.8L473.0 106.6L477.2 106.5L481.5 106.4L485.7 106.3L489.9 106.1L494.2 106.0L498.4 105.9L502.6 105.7L506.9 105.6L511.1 105.5L515.3 105.3L519.6 105.2L523.8 105.1L528.0 104.9L532.3 104.8L536.5 104.7L540.7 104.5L545.0 104.4L549.2 104.3L553.4 104.1L557.7 104.0L561.9 103.9L566.1 103.7L570.4 103.6L574.6 103.5L578.8 103.3L583.1 103.2L587.3 103.1L591.5 102.9L595.8 102.8L600.0 102.7" class="ln1"/>
+<path d="M92.0 253.4L219.0 210.3L346.0 166.7L473.0 159.6L600.0 156.2" class="ln0"/>
+<circle cx="92.0" cy="253.4" r="4.4" class="hm1"/>
+<circle cx="219.0" cy="210.3" r="4.4" class="hm1"/>
+<circle cx="346.0" cy="166.7" r="4.4" class="hm1"/>
+<circle cx="473.0" cy="159.6" r="4.4" class="hm1"/>
+<circle cx="600.0" cy="156.2" r="4.4" class="hm1"/>
+<text x="156" y="250" class="flab mid hm1">1.70</text>
+<text x="282" y="206" class="flab mid hm1">1.72</text>
+<text x="410" y="181" class="flab mid hm1">0.28</text>
+<text x="536" y="176" class="flab mid hm1">0.13</text>
+<text x="432" y="139" class="flab end c4">rh27b&#8217;s law, extrapolated</text>
+<text x="608" y="107" class="flab st hm3">the ceiling</text>
+<text x="608" y="160" class="flab st hm1">measured</text>
+<text x="346" y="298" class="flab mid">window half-support &#916;&#8242;, the triangle generator throughout</text>
+<text x="52" y="47" class="flab st">&#955;&#8344;&#7522;&#8345; / C&#8341;(0)</text>
+<text x="26" y="326" class="flab st">rh27b fitted &#916;&#8242;&#8315;&#185;&#183;&#8311;&#185;&#185;&#185; on the two dyadic steps at the wide end, where the exponents were 1.70 and 1.72 and</text>
+<text x="26" y="344" class="flab st">agreed to 1.3%. The ceiling forbids that continuing past &#916;&#8242; = 0.03. The two new searches say it was already gone</text>
+<text x="26" y="362" class="flab st">by 0.06: the exponents are 0.28 and 0.13, and at 0.03 the law would have wanted 10.3 where the measurement gives</text>
+<text x="26" y="380" class="flab st">1.28. What rh27b called an exponent was a local slope; what it called an obstruction is still there, but it is a</text>
+<text x="26" y="398" class="flab st">logarithm.</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 · A power cannot stay under a logarithm.</b> The measured scale-free eigenvalue at five supports, rh27b's law extrapolated from the two wide steps, and the ceiling. The law was fitted where the exponents were 1.6998 and 1.7225; at the next rung they are 0.2776 and 0.1349.</figcaption>
+</figure>
+
+<p><b>What the test says, plainly.</b> The power law is gone, and it did not bend gently towards the crossing the ceiling forced — it broke at the first new rung. At Δ′ = 0.03 rh27b's law wants 10.30 and the measurement gives 1.2794, short by a factor of 8.1. The increments in λ<sub>min</sub>/C<sub>h</sub>(0) per halving run 0.670, 0.204, 0.114 — roughly halving themselves, which is what a bounded sequence looks like and not what a power law does. <b>The bound was sufficient to forbid the law and was not tight about where.</b> That is worth saying in both directions: the prediction was right, and the mechanism that actually stops the growth stops it earlier and harder than the ceiling requires.</p>
+
+<p><b>What saturates, and it is not the ceiling.</b> There is still a factor of 3.8 of unused ceiling at Δ′ = 0.03, so nothing is pressing against (5). What flattens is λ<sub>min</sub>/E<sub>h</sub>(0), the section's smallest eigenvalue as a fraction of its own diagonal. Taking the best window at each of rh27b's supports it climbed 0.041, 0.115, 0.285; taking the fixed triangle shape across the three supports here it is 0.251, 0.273, 0.258 — flat. Those are two different window sequences and not one trend, and that is worth saying rather than eliding: what they agree on is that the climb has stopped, and that it stopped a long way short of the 1 that (5) allows. So what limits the narrow end is not the archimedean ceiling but something about the section's own spectrum, and this document does not know what.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The conjunction, and what this does and does not do</h2>
+<p><b>It does not move the conjunction, and the reason is structural.</b> The arc's target is that E<sub>h</sub> be positive definite on every lattice, at every depth, for every window, which by rh18 §5 is equivalent to RH. (5) is an <i>upper</i> bound. It says how much positivity is available at a given frequency budget; it never says any is present. Every certificate the arc has issued is a lower bound, and no combination of upper bounds produces one. A document that proves a ceiling has not moved towards RH by a single certified point, and the certified set is exactly what rh27b left it: seven points, still measure zero.</p>
+
+<p><b>It does move the reading of rh27b.</b> That is a self-correction of the immediately preceding document and it should be stated without hedging. rh27b's §5 asked whether the support axis is a real second infinity or a gauge direction, answered "real", and quantified the answer as λ<sub>min</sub>/C<sub>h</sub>(0) ∝ Δ′<sup>−1.7111</sup>. The first half stands: the kernel has two scales of its own — ψ̃'s crossing at r₊ and the prime lattice ln p — that do not move with Δ′, so no rescaling carries a certificate from one support to another, and the support axis is a genuine second limit. The second half does not. −1.7111 was a local slope on the wide half of one dyadic range. rh27b said as much in its own §5 and rh27c's §5 is that caveat cashed: the true behaviour is logarithmic, and the arc's own bound forced it.</p>
+
+<p><b>What is genuinely new.</b> Three things, none of them a step towards RH. The lemma is sharp and explains a constant rh17 measured. The ceiling is the arc's first bound that names no family, and it subsumes five that did. And the pair (5) plus a certified floor <i>brackets</i>: at Δ′ = 0.03 the arc now knows that the best window of that support and Sobolev norm has λ<sub>min</sub>/C<sub>h</sub>(0) somewhere in [1.2794, 5.40], where before it knew only the lower end. A bracket is not a proof of anything, but it is the first time the arc has had one.</p>
+
+<p><b>A direction, named and still not attempted.</b> Repeated from rh27a and rh27b rather than quietly dropped, because it has now been carried for three documents. Everything the arc certifies is a statement about a quadratic form; nothing it has produced is a statement about a zero. For a real even window g of compact support, ĝ is entire and ĥ = ĝ², so a hypothetical off-line quadruple at ½ ± σ + iγ contributes 4 Re[ĝ(γ + iσ)²] to the Weil functional — negative exactly when |Im ĝ(γ + iσ)| exceeds |Re ĝ(γ + iσ)|, and directly computable for the arc's actual windows on a (γ, σ) grid. A certified floor bounds what such a contribution could hide behind; closing it into an explicit zero-free region needs an upper bound on the on-line part. §3 is an upper bound, but on the wrong thing — it bounds the diagonal, not the on-line sum — and the two are not the same object. Still the only route in sight, still untried.</p>
+</section>
+
+<section class="prose" id="s7">
+<h2>7 · The bill, and what is left</h2>
+<p>45 named checks in 1069 seconds over a fresh 4,930,376-gear stream. The new stream reproduces rh27b's comb row for row at the shared support and the search there returns rh27b's own optimum exactly; ψ̃'s monotonicity is checked against a central difference; Binet's constant is recomputed rather than cited; the lemma is verified on its head and its tail by separate arguments and its sharpness by the −2/r law; every one of the five family ceilings rh22–rh25 published is recovered; all twelve new windows are verified notch-free over a whole period; and the ceiling is checked to hold at every window in the document.</p>
+
+<p><b>Against the order.</b> rh25 §6(b) is answered, and it turned out to be the easiest of the three rh25 listed rather than the hardest — three inequalities, one of them Jensen. rh25 called it "genuinely analysis rather than computation" and that was right; what it got wrong was the difficulty, which came entirely from not having written ψ̃'s asymptotic down.</p>
+
+<p><b>What this does not do.</b> It does not certify anything: the λ<sub>min</sub> values at the two new supports are float, from the same bundle search rh25 wrote, and no interval certificate is issued for them. It does not extend the certified cross. It bounds the diagonal, which is a crude proxy for the eigenvalue — §5 measures how crude, and at the wide end it is a factor of twenty-four.</p>
+
+<p><b>What is left.</b> Three.</p>
+<p><b>(a) The two new supports, certified.</b> The searches at 0.06 and 0.03 are uncertified, and certifying them is arithmetic of exactly the kind rh27a made cheap — sections of 301 and 601 nodes at depth 18, well inside rh27a's budget with the half-turn split. That would take the certified cross from seven points to nine and put the whole of §5's test on certified footing.</p>
+<p><b>(b) What actually saturates.</b> §5 finds λ<sub>min</sub>/E<sub>h</sub>(0) levelling near 0.258 and does not explain it. The ceiling is not what stops it, and the answer is a statement about the section's spectrum rather than about the window — the first question in the arc that is about T<sub>h</sub> as an operator rather than about h.</p>
+<p><b>(c) The ceiling with the mesh in it.</b> (5) bounds λ<sub>min</sub> by the diagonal, which throws away the whole lattice. A bound that used the off-diagonal structure — the comb's own gear mass at the mesh, which the arc computes anyway — would be tighter by whatever §5 measured as the eigenvalue-to-diagonal gap, and it is the obvious next inequality.</p>
+</section>
+
+<section class="prose" id="s8">
+<h2>8 · Dictionary additions and references</h2>
+<dl class="dict">
+<dt>the lemma</dt><dd>ψ̃(r) ≤ ln((2+r)/2π), with the gap negative at every finite r and closing like −2/r. Concave on the right, which is what admits Jensen; sharp, which is what makes the ceiling sharp. Tail from Binet, head from ψ̃'s monotonicity.</dd>
+<dt>the ceiling</dt><dd>λ<sub>min</sub>/C<sub>h</sub>(0) ≤ ln((2 + ‖h′‖₂/‖h‖₂)/2π) + 4 sinh Δ′ + G(2Δ′). The arc's first bound naming no family, no mesh and no generator. Sharp along rh25 §4's extremal sequence; subsumes rh24's and rh25's M-family ceilings.</dd>
+<dt>the frequency budget</dt><dd>S = ‖h′‖₂/‖h‖₂, the only feature of a window the archimedean term is sensitive to at leading order. rh24's family index M was a proxy for it: for the M-family at support Δ, S ≈ 0.84·πM/Δ.</dd>
+<dt>the empty diagonal</dt><dd>rh25 (9): for 2Δ′ &lt; ln 2 the comb contributes nothing at v = 0, since the nearest prime power to 1 is 2. True at every support in this arc except 0.48, and what makes E<sub>h</sub>(0) = pole + arch an identity rather than an estimate.</dd>
+<dt>a local slope</dt><dd>what rh27b's −1.7111 turned out to be. Measured on two dyadic steps at the wide end of one range; the next two steps give 0.2776 and 0.1349. The obstruction it named is still there and is logarithmic.</dd>
+</dl>
+<p class="refs">rh15 (the density argument P2) · rh17 (the interval kit, L1 and its constant r₊, now derived) · rh18 (the equivalence lattice ⟺ windows ⟺ Bochner ⟺ RH, K<sub>lin</sub>) · rh19 (streaming comb, the v = 18 horizon) · rh21 (the support argument) · rh22–rh24 (the M-family ceilings, here subsumed) · rh25 (§4, the proof that no all-window ceiling exists, and §6(b), the request this answers; the hyperbolic generator and the β search) · rh27a (the certified cut) · rh27b (the second support, and the exponent this document re-reads). Binet's second formula, Jensen's inequality, Plancherel and Cauchy–Schwarz are cited, not reproved; Weil's positivity criterion likewise; IEEE-754, libmpdec and libm's log within one ulp are assumed.</p>
+</section>
+
+
+</div>
+</body>
+</html>

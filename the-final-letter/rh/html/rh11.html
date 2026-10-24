@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh11 — three digs at the base</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.fam-b { stroke: var(--chart-1); stroke-width: 1.7; stroke-dasharray: 6 3; fill: none; stroke-linejoin: round; }
+.fam-h { stroke: var(--chart-2); stroke-width: 1.7; stroke-dasharray: 2 3; fill: none; stroke-linejoin: round; }
+.open-neg { fill: none; stroke: var(--chart-1); stroke-width: 1.4; }
+.scat { stroke: var(--chart-1); stroke-width: 2.4; stroke-linecap: round; fill: none; stroke-opacity: .5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>Three digs at the base</h1>
+  <p class="sub">rh9 ended on an obstruction: the proof that works lives on a surface, and Spec ℤ has no visible second factor. This document takes the three threads rh10 left pointing at that hole — the cone of test functions, the Lehmer-pair hunt, and the field with one element — and digs each one as far as computation honestly reaches.</p>
+  <p class="meta">docs/rh11 · continues <a href="rh4.html">rh4</a>–<a href="rh10.html">rh10</a> · figures computed, not sketched · 2026-07-31</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <a href="rh9.html#s8">rh9 §8</a> located the missing ingredient by name: Weil proved RH for curves on the surface C × C<sub>&#8202;</sub>, using a base field beneath the curve, and Spec ℤ sits over no visible base — no second factor, no H¹, no intersection form. Three computations now price that absence from three sides. <b>The cone</b> (§2): <a href="rh10.html#s1">rh10 §1</a>'s positivity scan is generalised from one Gaussian window to four families — Gaussian, Fejér (f = rect), B-spline (f = tent), Hann (f = cosine arch) — the last three with compactly supported <i>g</i>, so each consults only finitely many gears (the Fejér window at FWHM 1.74 needs exactly 13 of them). The explicit formula is re-verified for all twenty family–width pairs, and the dip-versus-resolution trade-off is measured: at matched resolution the Fejér floor sits ≈ 1.3×10³ above the Gaussian floor — slow tails in <i>h</i> are what lifts the dips — with the 1/<i>r</i>⁴ pair between. Injecting a hypothetical off-line quadruple gives each family a detection threshold: B-spline and Hann see a pair at σ = 0.60 (β* = 0.10), Fejér at 0.65, while the Gaussian never swings negative through β = 0.45 — it reads the pair as <i>more mass</i>, a positive bump indistinguishable from honest zeros. <b>The hunt</b> (§3): the zero table is extended to 1517 ordinates below T = 2000 (audited window-by-window against Riemann–von Mangoldt), and the backward heat flow is run as zero dynamics, validated against rh10's directly-integrated collision to 0.1%. The table's tightest pair, γ₁₄₉₆–γ₁₄₉₇ at gap 0.0975, collides at <b>λ* = −0.00119</b> — three decades past rh10's −0.989 — and all measured collision times obey τ* = gap²/8 to 1%, which is why the march toward the Rodgers–Tao wall at 0 is precisely a hunt for ever-tighter pairs. <b>The base</b> (§4–5): over 𝔽₁, counting is the q → 1 limit, and every limit lands where Tits said — [3]<sub>q</sub> → 3, the q-binomial → the subset count, #GL₃/(q−1)³q³ → 3!, so GL<sub><i>n</i></sub>(𝔽₁) = S<sub><i>n</i></sub>: <a href="rh5.html#s5">rh5 §5</a>'s clock world <i>is</i> the linear algebra of the missing base. Soulé's ζ of P¹ and P² over 𝔽₁, computed as actual limits, come out 1/<i>s</i>(<i>s</i>−1) and 1/<i>s</i>(<i>s</i>−1)(<i>s</i>−2) — the completed ζ's factor from pure counting. And the determinant dream is run at computation's level: ξ rebuilt from its 1517 zeros plus a density tail matches direct ξ to 1.1×10⁻⁸ across σ ∈ [−1.5, 3]; Borger's Frobenius lifts on ℤ are the identity, their congruence exactly Fermat's n<sup>p</sup> ≡ n (mod p); the Bost–Connes gas has partition function ζ(β) and internal energy ∑Λ(n)n<sup>−β</sup> = −ζ′/ζ, verified to 3×10⁻¹¹ — the von Mangoldt weights are the <i>energy</i> of the gear gas. What no dig produces is an H¹ with an intersection form (§6). The obstruction stands, now measured from three sides.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The question under the floor</a></li>
+  <li><a href="#s2">Dig one — the cone: which windows tighten the dips</a></li>
+  <li><a href="#s3">Dig two — the hunt: pushing λ* toward the wall</a></li>
+  <li><a href="#s4">Dig three — counting over 𝔽₁</a></li>
+  <li><a href="#s5">Spec ℤ over 𝔽₁: the determinant dream, computed</a></li>
+  <li><a href="#s6">What the digs bought</a></li>
+  <li><a href="#s7">Dictionary additions</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The question under the floor</h2>
+<p><a href="rh9.html#s8">rh9 §8</a> ended the arc's only proved chapter with a verdict. Over 𝔽<sub><i>q</i></sub>(<i>t</i>) the hypothesis is a theorem because the curve has a base to stand on: Weil's argument runs on the surface C × C, where Frobenius has a graph, the graph has a self-intersection, and the Hodge index theorem makes a quadratic form negative-definite exactly where RH needs it. Spec ℤ, asked the same question, offers no second factor: nothing to cross it with, no H¹ to carry an intersection form, no base field under the arithmetic. The dial that would read <i>proved</i> has no mechanism behind it.</p>
+<p><a href="rh10.html#s6">rh10's scoreboard</a> closed with every instrument reading <i>consistent, margin as computed</i> — and left three threads hanging, each pointing at the same hole. The positivity scan used one window; the criterion quantifies over a whole cone of them, and <i>which</i> windows sharpen the reading is a question about what the pairing can and cannot see. The thermometer's collision at λ* = −0.9885 was the first rung of a ladder that the literature has climbed eleven decades further; what governs the climb is the census of near-degenerate zero pairs — Lehmer's phenomenon. And rh9's own closing pages named a candidate for the base itself: the field with one element, the 𝔽₁ of Tits' remark, under which Spec ℤ would become a curve and ζ a characteristic polynomial. This document digs all three. None of the digs moves the obstruction; each one measures it — that distinction is held to throughout.</p>
+</section>
+
+<p class="kicker">Part I · The cone</p>
+
+<section class="prose" id="s2">
+<h2>2 · Dig one — the cone: which windows tighten the dips</h2>
+<p>The Weil criterion (<a href="rh4.html#s15">rh4 §15</a>'s Axiom 8, built as an instrument in <a href="rh10.html#s1">rh10 §1</a>) is a positivity statement about a <i>cone</i>: for every test function h = |<i>f̂</i>|², the explicit-formula functional must be nonnegative. rh10 took one Gaussian window and found dips of ≈ 2×10⁻⁵ between zeros. The question left standing: is that floor a property of the zeros, or of the window? Four families answer it. Each is h = |<i>f̂</i>|² with g = f⋆f̃ its Fourier partner on the gear side:</p>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>family</th><th>f</th><th>tails of h</th><th>supp g</th><th>gears consulted</th></tr>
+<tr><td>Gaussian (rh10's)</td><td>Gaussian</td><td>e<sup>−r²/2a²</sup></td><td>all of ℝ</td><td>all 4758 in the sieve</td></tr>
+<tr><td>Fejér</td><td>rectangle</td><td>4 sin²(<i>ar</i>)/<i>r</i>² — falls like 1/<i>r</i>²</td><td>[−2a, 2a]</td><td>4 – 73</td></tr>
+<tr><td>B-spline</td><td>tent</td><td>16 sin⁴(<i>ar</i>/2)/<i>r</i>⁴</td><td>[−2a, 2a]</td><td>9 – 332</td></tr>
+<tr><td>Hann</td><td>cosine arch</td><td>[2ω cos <i>ar</i>/(ω²−<i>r</i>²)]², ω = π/2a — 1/<i>r</i>⁴</td><td>[−2a, 2a]</td><td>7 – 153</td></tr>
+</table>
+</div>
+<p>The compactly supported g is the point: a bandlimited window consults <b>finitely many gears</b>. The prime side of the explicit formula truncates exactly at log <i>n</i> ≤ 2a — the Fejér window at FWHM 1.74 asks thirteen gears (2 through 23) and nothing else about arithmetic. For every one of the twenty family–width pairs the Riemann–Weil identity was re-verified with both sides truncated at the same height T = 2000, where their tails cancel against each other because (2π)⁻¹[Re ψ(¼+<i>ir</i>/2) − ln π] <i>is</i> the smooth zero density: agreement between 5×10⁻⁶ (Gaussian) and 5×10⁻⁴ (Fejér, whose 1/<i>r</i>² tails converge slowest), relative to h(0). Then each window was slid across t₀ ∈ [12, 46] using the arithmetic side alone, and the smallest reading between zeros — the dip — was recorded.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 442" role="img" aria-label="Left: dip depth of the Weil positivity scan against window resolution for four test-function families, on a log scale: at equal resolution the slow-tailed Fejer window floor sits about a thousand times above the Gaussian floor, with the B-spline and Hann windows between. Right: the same scans with a hypothetical off-line zero pair injected at sigma 0.8: the three bandlimited families swing clearly negative, the Gaussian only rises">
+<text x="360.0" y="22" class="ftitle">the cone: what a window costs, and what it can see</text>
+<text x="198" y="46" class="ftitle" font-size="12">dip depth per family and width</text>
+<line x1="60" y1="325.4" x2="336" y2="325.4" class="grid"/>
+<text x="54" y="329.4" class="flab end">10&#8315;&#8310;</text>
+<line x1="60" y1="232.9" x2="336" y2="232.9" class="grid"/>
+<text x="54" y="236.9" class="flab end">10&#8315;&#8308;</text>
+<line x1="60" y1="140.3" x2="336" y2="140.3" class="grid"/>
+<text x="54" y="144.3" class="flab end">10&#8315;&#178;</text>
+<line x1="60" y1="330" x2="336" y2="330" class="axis"/>
+<line x1="75.3" y1="330" x2="75.3" y2="334" class="axis"/>
+<text x="75.3" y="346" class="flab">1</text>
+<line x1="126.4" y1="330" x2="126.4" y2="334" class="axis"/>
+<text x="126.4" y="346" class="flab">1.5</text>
+<line x1="177.6" y1="330" x2="177.6" y2="334" class="axis"/>
+<text x="177.6" y="346" class="flab">2</text>
+<line x1="228.7" y1="330" x2="228.7" y2="334" class="axis"/>
+<text x="228.7" y="346" class="flab">2.5</text>
+<line x1="279.8" y1="330" x2="279.8" y2="334" class="axis"/>
+<text x="279.8" y="346" class="flab">3</text>
+<line x1="330.9" y1="330" x2="330.9" y2="334" class="axis"/>
+<text x="330.9" y="346" class="flab">3.5</text>
+<text x="336" y="360" class="flab end">resolution (FWHM of h)</text>
+<path d="M74.7 148.9L108.7 119.8L151.0 116.9L210.3 103.3L289.4 101.1" class="helix2"/>
+<circle cx="74.7" cy="148.9" r="2.5" class="zero"/>
+<circle cx="108.7" cy="119.8" r="2.5" class="zero"/>
+<circle cx="151.0" cy="116.9" r="2.5" class="zero"/>
+<circle cx="210.3" cy="103.3" r="2.5" class="zero"/>
+<circle cx="289.4" cy="101.1" r="2.5" class="zero"/>
+<path d="M81.1 306.1L114.4 277.9L159.4 189.6L214.2 205.6L288.4 102.5" class="fam-b"/>
+<circle cx="81.1" cy="306.1" r="3" class="open-neg"/>
+<circle cx="114.4" cy="277.9" r="2.5" class="digit main"/>
+<circle cx="159.4" cy="189.6" r="2.5" class="digit main"/>
+<circle cx="214.2" cy="205.6" r="2.5" class="digit main"/>
+<circle cx="288.4" cy="102.5" r="2.5" class="digit main"/>
+<path d="M88.8 224.0L126.0 241.6L174.1 182.1L236.6 158.0L320.3 91.7" class="fam-h"/>
+<circle cx="88.8" cy="224.0" r="2.5" class="zero"/>
+<circle cx="126.0" cy="241.6" r="2.5" class="zero"/>
+<circle cx="174.1" cy="182.1" r="2.5" class="zero"/>
+<circle cx="236.6" cy="158.0" r="2.5" class="zero"/>
+<circle cx="320.3" cy="91.7" r="2.5" class="zero"/>
+<path d="M141.8 260.3L177.8 183.6L213.9 138.4L262.0 102.4L322.3 76.5" class="helix thin"/>
+<circle cx="141.8" cy="260.3" r="2.5" class="digit main"/>
+<circle cx="177.8" cy="183.6" r="2.5" class="digit main"/>
+<circle cx="213.9" cy="138.4" r="2.5" class="digit main"/>
+<circle cx="262.0" cy="102.4" r="2.5" class="digit main"/>
+<circle cx="322.3" cy="76.5" r="2.5" class="digit main"/>
+<text x="77.4" y="108.3" class="flab st c2">Fej&#233;r &#8212; 1/r&#178; tails</text>
+<text x="146.9" y="277.5" class="flab st c1">Gaussian</text>
+<text x="77.4" y="188.9" class="flab st">B-spline, Hann &#8212; 1/r&#8308;</text>
+<text x="64" y="66" class="flab st">Fej&#233;r/Gaussian floor at FWHM &#8776; 1.7: 1260&#215;</text>
+<text x="548" y="46" class="ftitle" font-size="12">an off-line pair injected at &#963; = 0.8</text>
+<line x1="396" y1="249.9" x2="700" y2="249.9" class="target"/>
+<text x="391" y="253.9" class="flab end">0</text>
+<text x="391" y="110.9" class="flab end">1</text>
+<line x1="396" y1="330" x2="700" y2="330" class="axis"/>
+<line x1="439.4" y1="330" x2="439.4" y2="334" class="axis"/>
+<text x="439.4" y="346" class="flab">14</text>
+<line x1="526.3" y1="330" x2="526.3" y2="334" class="axis"/>
+<text x="526.3" y="346" class="flab">18</text>
+<line x1="613.1" y1="330" x2="613.1" y2="334" class="axis"/>
+<text x="613.1" y="346" class="flab">22</text>
+<line x1="700.0" y1="330" x2="700.0" y2="334" class="axis"/>
+<text x="700.0" y="346" class="flab">26</text>
+<text x="700" y="360" class="flab end">t&#8320;</text>
+<line x1="517.6" y1="72" x2="517.6" y2="330" class="cross"/>
+<text x="517.6" y="322" class="flab">the pair, at 17.6</text>
+<path d="M396.0 220.6L400.3 205.9L404.7 186.4L409.0 161.8L413.4 132.5L417.7 99.7L422.1 65.1L426.4 64.0L430.7 64.0L435.1 64.0L439.4 64.0L443.8 64.0L448.1 64.0L452.5 64.0L456.8 64.0L461.1 64.0L465.5 64.0L469.8 79.4L474.2 85.3L478.5 76.9L482.9 64.0L487.2 64.0L491.5 64.0L495.9 64.0L500.2 64.0L504.6 64.0L508.9 64.0L513.3 64.0L517.6 64.0L521.9 64.0L526.3 64.0L530.6 64.0L535.0 64.0L539.3 64.0L543.7 64.0L548.0 64.0L552.3 64.0L556.7 71.6L561.0 79.0L565.4 72.3L569.7 64.0L574.1 64.0L578.4 64.0L582.7 64.0L587.1 64.0L591.4 64.0L595.8 64.0L600.1 64.0L604.5 64.0L608.8 64.0L613.1 69.5L617.5 101.5L621.8 129.8L626.2 151.9L630.5 166.2L634.9 171.6L639.2 167.7L643.5 154.8L647.9 133.9L652.2 106.5L656.6 74.9L660.9 64.0L665.3 64.0L669.6 64.0L673.9 64.0L678.3 64.0L682.6 64.0L687.0 64.0L691.3 64.0L695.7 64.0L700.0 74.5" class="helix thin"/>
+<path d="M396.0 250.2L400.3 243.5L404.7 233.3L409.0 230.5L413.4 239.7L417.7 250.7L422.1 241.3L426.4 194.3L430.7 114.1L435.1 64.0L439.4 64.0L443.8 64.0L448.1 64.0L452.5 84.5L456.8 155.7L461.1 213.5L465.5 249.6L469.8 258.5L474.2 239.8L478.5 207.3L482.9 189.5L487.2 211.8L491.5 268.1L495.9 308.6L500.2 264.3L504.6 98.6L508.9 64.0L513.3 64.0L517.6 64.0L521.9 64.0L526.3 64.0L530.6 98.7L535.0 265.6L539.3 309.4L543.7 267.1L548.0 209.3L552.3 187.5L556.7 207.4L561.0 241.5L565.4 259.2L569.7 245.8L574.1 203.1L578.4 139.5L582.7 66.3L587.1 64.0L591.4 64.0L595.8 64.0L600.1 64.0L604.5 132.0L608.8 206.1L613.1 243.0L617.5 244.8L621.8 233.1L626.2 228.4L630.5 234.5L634.9 241.5L639.2 240.3L643.5 233.7L647.9 232.2L652.2 239.0L656.6 240.8L660.9 215.9L665.3 153.0L669.6 66.0L673.9 64.0L678.3 64.0L682.6 64.0L687.0 64.0L691.3 143.0L695.7 207.9L700.0 240.2" class="helix2"/>
+<path d="M396.0 249.4L400.3 249.8L404.7 249.9L409.0 249.9L413.4 249.2L417.7 243.6L422.1 223.5L426.4 178.9L430.7 109.5L435.1 64.0L439.4 64.0L443.8 64.0L448.1 64.0L452.5 82.7L456.8 157.5L461.1 210.2L465.5 236.5L469.8 246.4L474.2 250.1L478.5 250.6L482.9 249.0L487.2 252.0L491.5 263.8L495.9 266.1L500.2 213.3L504.6 65.7L508.9 64.0L513.3 64.0L517.6 64.0L521.9 64.0L526.3 64.0L530.6 65.6L535.0 213.2L539.3 266.1L543.7 263.9L548.0 252.0L552.3 249.0L556.7 250.6L561.0 250.0L565.4 245.3L569.7 232.5L574.1 200.9L578.4 142.6L582.7 65.6L587.1 64.0L591.4 64.0L595.8 64.0L600.1 64.0L604.5 126.0L608.8 190.8L613.1 229.6L617.5 245.5L621.8 249.1L626.2 249.3L630.5 249.4L634.9 249.5L639.2 249.3L643.5 249.2L647.9 249.2L652.2 246.6L656.6 233.5L660.9 199.2L665.3 138.4L669.6 64.0L673.9 64.0L678.3 64.0L682.6 64.0L687.0 64.0L691.3 130.5L695.7 193.9L700.0 231.0" class="fam-b"/>
+<path d="M396.0 249.4L400.3 248.7L404.7 248.6L409.0 249.5L413.4 249.2L417.7 240.9L422.1 215.0L426.4 165.0L430.7 95.3L435.1 64.0L439.4 64.0L443.8 64.0L448.1 64.0L452.5 69.2L456.8 141.2L461.1 199.6L465.5 235.4L469.8 249.2L474.2 247.9L478.5 242.1L482.9 243.7L487.2 258.1L491.5 273.8L495.9 259.0L500.2 177.1L504.6 64.0L508.9 64.0L513.3 64.0L517.6 64.0L521.9 64.0L526.3 64.0L530.6 64.0L535.0 177.2L539.3 259.0L543.7 273.7L548.0 258.0L552.3 243.7L556.7 242.4L561.0 248.0L565.4 247.7L569.7 230.1L574.1 189.0L578.4 126.1L582.7 64.0L587.1 64.0L591.4 64.0L595.8 64.0L600.1 64.0L604.5 111.2L608.8 177.8L613.1 222.4L617.5 243.7L621.8 249.5L626.2 249.3L630.5 248.3L634.9 248.0L639.2 248.1L643.5 249.0L647.9 249.8L652.2 245.6L656.6 227.4L660.9 186.7L665.3 123.2L669.6 64.0L673.9 64.0L678.3 64.0L682.6 64.0L687.0 64.0L691.3 115.4L695.7 180.8L700.0 224.3" class="fam-h"/>
+<text x="402" y="374" class="flab st c1">Gaussian: clipped, peak +4.2 &#8212; sees the pair as +mass</text>
+<line x1="60" y1="394" x2="82" y2="394" class="helix thin"/>
+<text x="87" y="398" class="flab st">Gaussian</text>
+<line x1="179" y1="394" x2="201" y2="394" class="helix2"/>
+<text x="206" y="398" class="flab st">Fej&#233;r (f = rect)</text>
+<line x1="328" y1="394" x2="350" y2="394" class="fam-b"/>
+<text x="355" y="398" class="flab st">B-spline (f = tent)</text>
+<line x1="493" y1="394" x2="515" y2="394" class="fam-h"/>
+<text x="520" y="398" class="flab st">Hann (f = arch)</text>
+<text x="60" y="417" class="flab st">gears consulted: Fej&#233;r 4&#8211;73 &#183; B-spline 9&#8211;332 &#183; Hann 7&#8211;153 &#183; Gaussian all 4758 (g unbounded)</text>
+<text x="60" y="434" class="flab st">open circle: a reading inside the instrument&#8217;s own noise band (|value| plotted)</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the cone, measured.</b> <i>Left:</i> dip depth against resolution (FWHM of h) for the four families, log scale. The floor ordering is the tail ordering: at matched resolution ≈ 1.7 the Fejér floor (3.2×10⁻²) sits ≈ 1.3×10³ above the Gaussian floor (2.6×10⁻⁵), with the two 1/<i>r</i>⁴ families between (B-spline 8.6×10⁻⁴ at 1.82; Hann 6.5×10⁻⁵ at the narrower 1.50). The one open circle is the narrowest B-spline reading, −2.6×10⁻⁶: negative, but inside the instrument's own ±2×10⁻⁴ validation band — a reading of the detector's floor, not the zeros'. <i>Right:</i> the same scans with a hypothetical off-line quadruple injected at σ = 0.8, height 17.6, via the analytic continuation of h. The three bandlimited families swing decisively negative (Fejér to −0.42); the Gaussian is clipped at the frame — it rises to +4.2. Detection thresholds β*, minimised over each family's widths: B-spline and Hann 0.10, Fejér 0.15, Gaussian none through 0.45.</figcaption>
+</figure>
+<p>Three findings, in order of weight. <b>First: the dips are the window's, not the zeros'.</b> Slow tails in h leak mass from every far zero into the gap under inspection; the leakage floor scales with the tail exponent, and the measured ordering — 1/<i>r</i>² worst by three decades, 1/<i>r</i>⁴ intermediate, super-exponential best — is exactly that. "Which families tighten the dips" has a clean answer: <i>fastest h-decay at fixed resolution</i>, with the Gaussian as the ideal and the B-spline/Hann pair the best finite-gear approximations to it, reaching within ≈ 30× of the Gaussian floor on a budget of a few dozen gears. The classical end of this game is the Beurling–Selberg extremal problem — majorize an indicator with a bandlimited function, minimally — and Vaaler's survey is the map of it; our four families are working instances of the trade-off it formalises.</p>
+<p><b>Second: what the cone detects is sign, and only bandlimited windows read it.</b> An off-line zero enters the functional through h evaluated off the real axis — h(γ − t₀ ± iβ) — where h = |<i>f̂</i>|² no longer applies and the value can go negative; that sign structure is the entire content of the criterion. The injected quadruple at σ = ½+β becomes visible to the compact families at β* = 0.10–0.15 <i>somewhere in their width range</i> (which width sees it depends on where the negative lobe, spaced ~1/a, lands relative to the true zeros — the criterion needs the whole cone, not one window). The Gaussian never sees it: its envelope e<sup>−(δ²−β²)/2a²</sup> crushes the sign oscillation cos(δβ/a²) before it turns; the pair registers only as a positive bump of +4.2 at the injection height — <b>four honest zeros' worth of mass, sign unread</b>. A blind instrument with the deepest dips: depth of floor and power of discrimination are different virtues, and the cone needs both.</p>
+<p><b>Third: the sharpness has a price schedule.</b> The Gaussian's 2.6×10⁻⁵ floor at FWHM 1.65 needs every gear in the sieve — its g never cuts off; the finite-gear families pay for their budgets with lifted floors on the schedule Figure 1 tabulates. Between zeros the pairing has essentially nothing to spare (rh10's knife-edge, <a href="rh8.html#s6">rh8 §6</a>'s no-basis-to-diagonalise), and now the schedule says <i>how</i> nothing: no finite battery of windows, however chosen, certifies positivity — but the battery's failure modes are quantifiable, family by family.</p>
+</section>
+
+<p class="kicker">Part II · The hunt</p>
+
+<section class="prose" id="s3">
+<h2>3 · Dig two — the hunt: pushing λ* toward the wall</h2>
+<p><a href="rh10.html#s3">rh10 §3</a> cooled the flow until γ₄ and γ₅ fused: λ* = −0.9885, hence Λ ≥ −0.9885 from that data. The de Bruijn–Newman constant sits in a corridor closed at one end — Λ ≥ 0 (Rodgers–Tao 2018) — with RH ⟺ Λ = 0: the hypothesis is the statement that the corridor has zero width. Improving the computed side means finding zeros that fuse <i>faster</i>, and the governing phenomenon has a name: a <b>Lehmer pair</b>, two zeros so close that an almost-vanishing gap between them is the flow's whole story (Lehmer 1956; formalised, and turned into bounds, by Csordas–Smith–Varga 1994).</p>
+<p>First the table. The Euler–Maclaurin Z-machinery of rh10 was pushed to T = 2000: <b>1517 ordinates</b>, scanned at step 0.05, audited in every 100-window against the Riemann–von Mangoldt count θ(T)/π + 1 (total expected 1516.99, found 1517), first ten matching published values to 10⁻⁷. Then the census: every consecutive gap, normalised by the local mean spacing 2π/ln(t/2π). GUE repulsion makes tight pairs rare — the probability density vanishes like g² at small gap — and the table's three tightest are the hunt's quarry.</p>
+<p>Direct integration of Ξ dies past t ≈ 90 (the e<sup>−πt/4</sup> decay), so the flow is run in its other standard form — as dynamics of the zeros themselves. Under backward heat flow the zeros repel pairwise:</p>
+<div class="eq"><span class="tag">(1)</span>
+<span class="fr"><span class="nu">d<i>x</i><sub>k</sub></span><span class="de">dτ</span></span> = −2
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>j</i>≠<i>k</i></span></span>
+<span class="fr"><span class="nu">1</span><span class="de"><i>x</i><sub>k</sub> − <i>x</i><sub>j</sub></span></span> ,
+&nbsp;&nbsp;τ = −λ,
+</div>
+<p>summed over the table with mirror images at −γ and a density-integral tail beyond it (the picture behind Csordas–Smith–Varga's analysis and Polymath 15's computations). Implementation: an active window of 40 zeros around the target pair integrated by RK4 with adaptive steps, the frozen background field tabulated once and interpolated (error ≲ 2×10⁻⁴ against pair forces of order 1/gap). The model was <b>validated against rh10's direct integral</b> on the same pair it measured: the ODE collides γ₄, γ₅ at λ* = −0.98899, against −0.9885 computed from Ξ itself — agreement to 0.1%, comfortably inside the experiment's stated 8% acceptance. For a tight pair the dynamics reduces to a one-line law: keeping only the mutual term, dg/dτ = −4/g gives τ* = g₀²/8 — the collision time is an eighth of the squared gap.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 442" role="img" aria-label="Left: all 1516 consecutive zero gaps up to height 2000, normalized by the local mean spacing, with the three tightest pairs highlighted. Right: collision time against gap size on a log-log scale: the computed collisions lie on the gap squared over eight law, and below them the cited literature ladder of de Bruijn Newman lower bounds descends to the Rodgers Tao wall at zero">
+<text x="360.0" y="22" class="ftitle">the hunt: tight pairs, and how far down they push &#955;*</text>
+<text x="226" y="46" class="ftitle" font-size="12">all 1516 gaps to T = 2000, in units of the local mean</text>
+<line x1="56" y1="229.2" x2="396" y2="229.2" class="brk"/>
+<text x="394" y="223.2" class="flab end c2">mean spacing</text>
+<line x1="56" y1="356" x2="396" y2="356" class="axis"/>
+<line x1="141.0" y1="356" x2="141.0" y2="360" class="axis"/>
+<text x="141.0" y="372" class="flab">500</text>
+<line x1="226.0" y1="356" x2="226.0" y2="360" class="axis"/>
+<text x="226.0" y="372" class="flab">1000</text>
+<line x1="311.0" y1="356" x2="311.0" y2="360" class="axis"/>
+<text x="311.0" y="372" class="flab">1500</text>
+<line x1="396.0" y1="356" x2="396.0" y2="360" class="axis"/>
+<text x="396.0" y="372" class="flab">2000</text>
+<text x="56" y="372" class="flab st">0</text>
+<text x="396" y="386" class="flab end">zero height t</text>
+<text x="50" y="296.6" class="flab end">0.5</text>
+<text x="50" y="169.8" class="flab end">1.5</text>
+<text x="50" y="106.4" class="flab end">2</text>
+<path class="scat" d="M59.0 213.0h.01M59.9 251.5h.01M60.7 193.9h.01M61.4 274.1h.01M62.0 194.1h.01M62.7 232.8h.01M63.2 263.5h.01M63.8 168.8h.01M64.3 282.8h.01M64.7 220.5h.01M65.3 204.2h.01M65.8 226.0h.01M66.2 288.3h.01M66.7 156.9h.01M67.2 262.6h.01M67.6 237.2h.01M68.0 232.8h.01M68.6 175.1h.01M69.0 283.4h.01M69.3 244.4h.01M69.8 171.6h.01M70.2 260.6h.01M70.6 213.9h.01M71.0 282.3h.01M71.4 157.6h.01M71.9 238.3h.01M72.2 289.1h.01M72.5 192.3h.01M73.0 217.1h.01M73.4 220.3h.01M73.8 258.3h.01M74.1 257.7h.01M74.5 133.6h.01M74.9 307.0h.01M75.2 213.4h.01M75.6 244.1h.01M76.0 204.5h.01M76.4 202.4h.01M76.8 261.6h.01M77.0 277.3h.01M77.4 158.8h.01M77.9 230.4h.01M78.2 263.7h.01M78.5 207.8h.01M78.8 278.3h.01M79.2 147.3h.01M79.6 254.8h.01M79.9 269.0h.01M80.2 230.9h.01M80.6 173.2h.01M80.9 265.6h.01M81.3 188.0h.01M81.6 300.1h.01M81.8 221.0h.01M82.3 156.4h.01M82.7 259.6h.01M82.9 274.5h.01M83.2 203.2h.01M83.6 235.2h.01M83.9 190.9h.01M84.3 247.1h.01M84.6 229.3h.01M84.8 301.6h.01M85.2 122.4h.01M85.6 266.0h.01M85.9 242.6h.01M86.2 225.5h.01M86.5 251.9h.01M86.8 200.6h.01M87.2 174.4h.01M87.5 306.5h.01M87.7 244.5h.01M88.0 205.9h.01M88.4 176.2h.01M88.7 283.3h.01M89.0 204.7h.01M89.3 244.1h.01M89.6 276.8h.01M89.9 129.2h.01M90.3 270.0h.01M90.6 237.0h.01M90.8 271.3h.01M91.1 179.0h.01M91.5 237.9h.01M91.8 206.2h.01M92.1 238.3h.01M92.4 270.6h.01M92.6 240.3h.01M93.0 148.7h.01M93.4 237.8h.01M93.6 304.6h.01M93.9 170.5h.01M94.2 285.5h.01M94.5 179.7h.01M94.8 217.1h.01M95.1 217.0h.01M95.4 302.4h.01M95.6 231.6h.01M96.0 149.1h.01M96.3 264.7h.01M96.6 224.9h.01M96.9 246.2h.01M97.1 225.3h.01M97.4 263.9h.01M97.8 129.2h.01M98.1 284.5h.01M98.3 246.7h.01M98.5 248.8h.01M98.8 202.9h.01M99.2 189.0h.01M99.5 275.6h.01M99.8 188.9h.01M100.1 261.1h.01M100.3 286.1h.01M100.6 147.5h.01M101.0 206.3h.01M101.2 276.1h.01M101.4 257.1h.01M101.7 200.7h.01M102.0 240.3h.01M102.3 206.5h.01M102.7 193.8h.01M102.9 290.0h.01M103.1 218.5h.01M103.4 281.1h.01M103.7 107.9h.01M104.1 298.7h.01M104.3 231.1h.01M104.6 214.9h.01M104.8 260.0h.01M105.1 227.2h.01M105.4 180.6h.01M105.8 223.3h.01M106.0 246.8h.01M106.2 308.8h.01M106.5 168.8h.01M106.8 211.0h.01M107.1 214.8h.01M107.4 274.1h.01M107.6 186.4h.01M107.9 288.3h.01M108.1 239.1h.01M108.5 128.9h.01M108.8 272.9h.01M109.0 256.5h.01M109.2 233.1h.01M109.5 238.3h.01M109.8 177.3h.01M110.1 267.4h.01M110.4 173.0h.01M110.7 277.8h.01M110.9 250.9h.01M111.1 244.9h.01M111.4 150.3h.01M111.8 229.2h.01M112.0 282.5h.01M112.2 234.3h.01M112.5 182.1h.01M112.8 310.6h.01M113.0 144.9h.01M113.4 235.6h.01M113.6 233.8h.01M113.9 260.6h.01M114.1 274.4h.01M114.4 145.5h.01M114.7 219.7h.01M115.0 281.1h.01M115.2 190.4h.01M115.5 267.4h.01M115.7 236.6h.01M116.0 225.1h.01M116.3 150.2h.01M116.6 263.6h.01M116.8 290.6h.01M117.0 209.8h.01M117.3 229.7h.01M117.6 188.9h.01M117.9 240.9h.01M118.1 234.9h.01M118.4 209.8h.01M118.6 275.9h.01M118.8 267.0h.01M119.2 108.1h.01M119.5 289.8h.01M119.7 194.2h.01M119.9 314.9h.01M120.2 181.4h.01M120.5 237.2h.01M120.7 222.5h.01M121.0 193.6h.01M121.3 230.5h.01M121.5 280.8h.01M121.7 242.8h.01M122.0 220.9h.01M122.3 138.6h.01M122.6 290.2h.01M122.8 257.3h.01M123.1 176.0h.01M123.3 289.2h.01M123.5 227.4h.01M123.8 182.9h.01M124.2 200.5h.01M124.4 270.2h.01M124.6 240.5h.01M124.8 280.5h.01M125.1 150.1h.01M125.4 241.0h.01M125.7 223.9h.01M125.9 233.0h.01M126.1 247.0h.01M126.4 207.6h.01M126.6 319.1h.01M126.9 107.8h.01M127.3 231.1h.01M127.4 289.6h.01M127.6 234.4h.01M127.9 216.7h.01M128.1 241.0h.01M128.4 174.0h.01M128.7 277.7h.01M129.0 168.4h.01M129.2 273.0h.01M129.4 284.5h.01M129.6 206.5h.01M130.0 161.8h.01M130.3 234.4h.01M130.5 266.9h.01M130.7 244.9h.01M130.9 204.6h.01M131.2 251.2h.01M131.4 234.5h.01M131.8 137.5h.01M132.0 306.0h.01M132.2 209.0h.01M132.4 271.7h.01M132.6 246.0h.01M133.0 133.0h.01M133.3 270.6h.01M133.5 239.0h.01M133.7 219.7h.01M134.0 216.6h.01M134.2 306.2h.01M134.4 184.6h.01M134.7 183.2h.01M135.0 215.8h.01M135.2 277.9h.01M135.4 280.5h.01M135.6 173.6h.01M135.9 248.2h.01M136.2 179.5h.01M136.5 265.6h.01M136.7 202.0h.01M137.0 253.9h.01M137.2 241.9h.01M137.3 280.2h.01M137.7 103.3h.01M138.0 268.0h.01M138.2 266.9h.01M138.4 208.0h.01M138.6 269.2h.01M138.9 193.4h.01M139.1 243.4h.01M139.4 203.3h.01M139.7 187.4h.01M139.9 299.3h.01M140.1 232.6h.01M140.3 261.6h.01M140.6 166.2h.01M140.9 203.4h.01M141.2 241.6h.01M141.3 296.6h.01M141.6 159.3h.01M141.8 275.0h.01M142.0 263.1h.01M142.3 148.9h.01M142.6 226.2h.01M142.9 240.8h.01M143.1 261.8h.01M143.2 263.1h.01M143.5 199.0h.01M143.8 164.3h.01M144.0 298.6h.01M144.3 189.2h.01M144.5 229.5h.01M144.7 272.9h.01M144.9 221.8h.01M145.2 256.3h.01M145.5 103.5h.01M145.8 311.1h.01M145.9 230.8h.01M146.2 261.1h.01M146.4 192.9h.01M146.6 258.2h.01M146.9 187.0h.01M147.2 229.9h.01M147.4 234.0h.01M147.7 195.7h.01M147.9 318.4h.01M148.0 246.7h.01M148.3 133.2h.01M148.6 237.8h.01M148.9 232.2h.01M149.1 273.0h.01M149.3 214.8h.01M149.5 223.1h.01M149.8 258.5h.01M150.0 201.0h.01M150.3 172.7h.01M150.6 255.8h.01M150.7 295.8h.01M150.9 197.4h.01M151.2 272.2h.01M151.4 145.8h.01M151.8 210.7h.01M151.9 324.7h.01M152.2 156.9h.01M152.4 262.1h.01M152.6 247.6h.01M152.8 253.5h.01M153.1 140.4h.01M153.4 247.2h.01M153.6 221.2h.01M153.8 291.0h.01M154.0 243.7h.01M154.3 168.1h.01M154.5 261.2h.01M154.8 190.7h.01M155.0 238.1h.01M155.3 234.8h.01M155.5 225.8h.01M155.7 286.6h.01M155.9 228.1h.01M156.2 125.0h.01M156.5 258.3h.01M156.7 278.4h.01M156.9 227.2h.01M157.1 195.0h.01M157.3 297.7h.01M157.6 160.2h.01M157.8 259.2h.01M158.1 166.8h.01M158.4 266.0h.01M158.5 259.6h.01M158.7 264.7h.01M158.9 193.1h.01M159.3 168.8h.01M159.5 265.9h.01M159.7 222.2h.01M159.9 269.6h.01M160.2 187.3h.01M160.4 259.2h.01M160.6 273.5h.01M160.9 117.7h.01M161.2 256.8h.01M161.4 255.2h.01M161.6 222.9h.01M161.7 294.3h.01M162.0 180.2h.01M162.3 193.6h.01M162.5 240.0h.01M162.7 257.8h.01M163.0 156.3h.01M163.2 325.1h.01M163.4 224.0h.01M163.6 233.0h.01M163.9 171.9h.01M164.2 181.4h.01M164.4 306.7h.01M164.5 262.5h.01M164.8 191.2h.01M165.0 239.3h.01M165.2 231.5h.01M165.5 196.1h.01M165.8 229.1h.01M166.0 223.8h.01M166.2 260.1h.01M166.4 223.9h.01M166.6 311.9h.01M166.9 76.8h.01M167.2 294.9h.01M167.4 224.0h.01M167.6 238.3h.01M167.8 242.3h.01M168.0 216.3h.01M168.2 257.1h.01M168.5 207.5h.01M168.8 172.8h.01M169.0 252.7h.01M169.2 245.7h.01M169.4 296.4h.01M169.6 183.9h.01M169.8 229.0h.01M170.1 154.8h.01M170.4 300.8h.01M170.5 232.2h.01M170.8 187.7h.01M171.0 253.0h.01M171.2 302.1h.01M171.4 172.5h.01M171.7 152.5h.01M172.0 289.1h.01M172.2 222.5h.01M172.4 265.2h.01M172.5 243.3h.01M172.8 185.7h.01M173.1 222.6h.01M173.3 251.2h.01M173.5 168.5h.01M173.8 287.2h.01M174.0 227.2h.01M174.2 242.8h.01M174.3 270.5h.01M174.6 117.8h.01M175.0 245.2h.01M175.1 260.4h.01M175.3 267.9h.01M175.5 184.0h.01M175.8 252.0h.01M176.0 255.1h.01M176.2 157.3h.01M176.5 264.4h.01M176.7 174.7h.01M177.0 282.5h.01M177.1 274.9h.01M177.3 228.7h.01M177.6 162.1h.01M177.9 225.0h.01M178.1 235.5h.01M178.3 264.7h.01M178.5 197.7h.01M178.7 267.3h.01M178.9 205.8h.01M179.1 287.3h.01M179.4 117.0h.01M179.7 226.6h.01M179.9 322.1h.01M180.0 197.0h.01M180.3 259.9h.01M180.5 221.5h.01M180.7 166.6h.01M181.0 262.2h.01M181.2 232.2h.01M181.4 209.1h.01M181.7 228.1h.01M181.8 292.1h.01M182.0 242.1h.01M182.3 150.1h.01M182.6 216.3h.01M182.8 244.7h.01M183.0 242.7h.01M183.2 301.2h.01M183.4 123.2h.01M183.6 326.0h.01M183.8 170.5h.01M184.1 217.4h.01M184.4 209.4h.01M184.6 266.2h.01M184.8 227.1h.01M184.9 278.8h.01M185.1 222.3h.01M185.5 122.0h.01M185.7 269.5h.01M185.9 286.8h.01M186.1 183.5h.01M186.3 246.4h.01M186.5 252.9h.01M186.7 219.0h.01M187.0 222.3h.01M187.2 172.4h.01M187.5 243.7h.01M187.7 265.6h.01M187.8 263.5h.01M188.0 229.6h.01M188.3 175.4h.01M188.6 240.1h.01M188.8 181.9h.01M189.0 311.2h.01M189.2 191.3h.01M189.5 214.7h.01M189.6 285.6h.01M189.8 257.8h.01M190.1 103.4h.01M190.4 280.6h.01M190.6 200.2h.01M190.8 311.0h.01M190.9 200.3h.01M191.2 246.3h.01M191.4 194.1h.01M191.7 214.8h.01M191.9 263.4h.01M192.1 165.3h.01M192.4 264.2h.01M192.5 287.4h.01M192.7 207.3h.01M192.9 248.3h.01M193.2 131.6h.01M193.5 253.5h.01M193.6 269.3h.01M193.8 247.9h.01M194.0 200.3h.01M194.3 230.9h.01M194.5 275.0h.01M194.7 173.6h.01M195.0 193.6h.01M195.2 275.0h.01M195.4 206.9h.01M195.6 258.5h.01M195.7 308.4h.01M196.0 126.9h.01M196.3 207.1h.01M196.5 270.7h.01M196.7 214.7h.01M196.9 247.9h.01M197.1 212.2h.01M197.3 266.9h.01M197.5 237.3h.01M197.8 193.4h.01M198.1 154.5h.01M198.3 291.5h.01M198.4 267.0h.01M198.6 235.9h.01M198.8 200.8h.01M199.1 256.7h.01M199.3 145.9h.01M199.6 292.7h.01M199.7 218.6h.01M200.0 180.2h.01M200.2 304.8h.01M200.4 220.1h.01M200.5 278.4h.01M200.8 106.6h.01M201.1 263.6h.01M201.3 237.9h.01M201.5 237.3h.01M201.7 274.0h.01M201.9 197.9h.01M202.1 206.5h.01M202.3 280.5h.01M202.6 155.5h.01M202.8 241.6h.01M203.0 231.4h.01M203.2 273.6h.01M203.4 229.8h.01M203.6 258.8h.01M203.9 139.5h.01M204.2 222.4h.01M204.3 265.4h.01M204.5 275.4h.01M204.7 149.1h.01M205.0 294.7h.01M205.1 251.0h.01M205.3 183.9h.01M205.6 211.0h.01M205.9 201.2h.01M206.1 251.9h.01M206.2 279.3h.01M206.4 248.8h.01M206.6 198.2h.01M206.9 193.9h.01M207.1 230.1h.01M207.3 248.3h.01M207.6 198.7h.01M207.8 282.7h.01M208.0 179.2h.01M208.2 304.8h.01M208.3 232.5h.01M208.6 96.7h.01M208.9 292.2h.01M209.1 256.7h.01M209.3 216.4h.01M209.5 270.2h.01M209.7 195.2h.01M209.9 243.0h.01M210.1 172.7h.01M210.4 288.1h.01M210.6 170.0h.01M210.8 250.7h.01M211.0 245.9h.01M211.1 306.5h.01M211.3 164.5h.01M211.6 192.7h.01M211.9 208.1h.01M212.1 254.3h.01M212.3 294.4h.01M212.5 184.1h.01M212.7 220.7h.01M212.9 276.9h.01M213.1 206.2h.01M213.4 176.9h.01M213.6 225.1h.01M213.8 274.1h.01M214.0 234.0h.01M214.2 241.5h.01M214.3 270.9h.01M214.6 100.5h.01M214.9 294.4h.01M215.1 231.5h.01M215.3 224.3h.01M215.5 205.3h.01M215.7 291.7h.01M215.9 204.8h.01M216.1 265.5h.01M216.3 140.0h.01M216.6 240.1h.01M216.8 211.1h.01M217.0 324.3h.01M217.1 227.7h.01M217.4 173.2h.01M217.6 266.7h.01M217.8 184.3h.01M218.1 213.9h.01M218.3 285.1h.01M218.5 168.8h.01M218.7 271.4h.01M218.9 264.2h.01M219.0 250.0h.01M219.3 131.7h.01M219.6 202.4h.01M219.8 316.9h.01M219.9 204.8h.01M220.1 248.8h.01M220.3 227.9h.01M220.6 227.4h.01M220.8 204.6h.01M221.0 259.8h.01M221.3 140.9h.01M221.5 286.0h.01M221.6 264.2h.01M221.8 213.1h.01M222.0 280.8h.01M222.2 167.6h.01M222.5 171.5h.01M222.8 283.6h.01M222.9 243.1h.01M223.1 235.8h.01M223.3 191.6h.01M223.6 259.7h.01M223.7 292.2h.01M223.9 127.7h.01M224.2 230.3h.01M224.4 238.5h.01M224.6 217.7h.01M224.8 306.4h.01M224.9 234.4h.01M225.2 171.9h.01M225.5 222.4h.01M225.7 221.5h.01M225.9 257.4h.01M226.1 196.6h.01M226.3 248.1h.01M226.5 267.6h.01M226.7 211.9h.01M226.9 267.1h.01M227.2 103.7h.01M227.4 275.1h.01M227.6 252.4h.01M227.7 277.8h.01M228.0 167.3h.01M228.2 289.5h.01M228.4 188.7h.01M228.6 215.4h.01M228.8 232.2h.01M229.0 218.5h.01M229.3 221.8h.01M229.5 252.8h.01M229.6 291.6h.01M229.8 218.2h.01M230.1 111.3h.01M230.3 310.5h.01M230.5 175.0h.01M230.7 288.0h.01M230.9 243.0h.01M231.1 184.2h.01M231.3 259.7h.01M231.5 255.1h.01M231.7 170.7h.01M232.0 192.9h.01M232.2 270.6h.01M232.4 246.5h.01M232.6 254.0h.01M232.7 233.7h.01M233.0 216.0h.01M233.2 149.5h.01M233.5 264.1h.01M233.6 294.9h.01M233.8 151.4h.01M234.1 263.4h.01M234.2 256.2h.01M234.4 248.3h.01M234.6 192.8h.01M234.9 183.5h.01M235.2 197.3h.01M235.3 333.1h.01M235.5 181.6h.01M235.7 313.5h.01M235.9 145.6h.01M236.1 251.9h.01M236.3 215.1h.01M236.6 209.6h.01M236.8 236.3h.01M237.0 247.2h.01M237.2 217.1h.01M237.4 257.0h.01M237.5 296.8h.01M237.8 92.2h.01M238.1 243.6h.01M238.3 260.0h.01M238.4 249.5h.01M238.6 233.8h.01M238.8 198.4h.01M239.0 287.8h.01M239.2 177.1h.01M239.5 235.3h.01M239.7 214.6h.01M240.0 170.9h.01M240.1 320.4h.01M240.2 263.7h.01M240.4 203.8h.01M240.7 224.6h.01M240.9 164.2h.01M241.2 247.9h.01M241.4 244.9h.01M241.5 266.0h.01M241.7 177.8h.01M242.0 268.2h.01M242.1 236.4h.01M242.3 255.1h.01M242.6 101.9h.01M242.8 301.8h.01M243.0 229.5h.01M243.2 224.2h.01M243.4 281.7h.01M243.5 232.9h.01M243.8 159.4h.01M244.1 235.3h.01M244.2 251.6h.01M244.4 211.5h.01M244.7 221.8h.01M244.9 251.6h.01M245.0 252.7h.01M245.2 255.2h.01M245.4 181.7h.01M245.7 176.0h.01M246.0 232.8h.01M246.1 280.9h.01M246.2 273.5h.01M246.5 180.0h.01M246.7 219.7h.01M246.9 288.8h.01M247.1 124.3h.01M247.3 309.0h.01M247.5 157.6h.01M247.8 275.1h.01M247.9 219.9h.01M248.1 286.6h.01M248.3 240.4h.01M248.5 124.0h.01M248.8 232.6h.01M249.0 285.1h.01M249.2 212.6h.01M249.4 227.8h.01M249.6 267.8h.01M249.8 174.5h.01M250.0 299.4h.01M250.2 188.3h.01M250.4 154.0h.01M250.7 282.2h.01M250.8 241.3h.01M251.0 258.8h.01M251.2 239.0h.01M251.4 212.3h.01M251.6 189.9h.01M251.9 210.8h.01M252.1 256.4h.01M252.2 271.1h.01M252.5 153.5h.01M252.7 270.7h.01M252.8 296.1h.01M253.0 200.3h.01M253.3 154.2h.01M253.5 241.1h.01M253.7 228.1h.01M253.9 246.8h.01M254.1 299.8h.01M254.2 179.7h.01M254.5 235.5h.01M254.7 186.0h.01M254.9 275.3h.01M255.1 181.2h.01M255.4 231.0h.01M255.5 258.2h.01M255.7 252.3h.01M255.9 206.4h.01M256.1 306.0h.01M256.3 81.9h.01M256.6 255.4h.01M256.8 291.1h.01M256.9 217.0h.01M257.1 236.5h.01M257.4 203.4h.01M257.5 279.9h.01M257.7 200.6h.01M258.0 196.1h.01M258.2 238.9h.01M258.4 195.2h.01M258.6 278.1h.01M258.8 239.0h.01M258.9 299.5h.01M259.1 125.4h.01M259.4 246.1h.01M259.6 184.9h.01M259.8 285.0h.01M260.0 231.3h.01M260.2 220.6h.01M260.4 215.3h.01M260.6 279.9h.01M260.8 236.1h.01M261.0 156.0h.01M261.3 186.1h.01M261.5 301.0h.01M261.6 259.6h.01M261.8 194.8h.01M262.0 282.0h.01M262.2 198.3h.01M262.5 165.7h.01M262.7 271.7h.01M262.8 250.7h.01M263.1 156.7h.01M263.3 296.0h.01M263.4 228.2h.01M263.6 262.9h.01M263.8 222.0h.01M264.1 136.2h.01M264.3 267.0h.01M264.5 209.5h.01M264.7 283.1h.01M264.8 262.7h.01M265.0 165.3h.01M265.3 251.9h.01M265.4 253.0h.01M265.7 169.8h.01M265.9 225.5h.01M266.1 260.5h.01M266.3 187.8h.01M266.5 304.8h.01M266.6 245.8h.01M266.8 214.9h.01M267.1 114.4h.01M267.4 306.9h.01M267.5 215.9h.01M267.7 270.1h.01M267.9 172.7h.01M268.1 282.3h.01M268.3 238.9h.01M268.5 194.5h.01M268.7 250.5h.01M269.0 140.8h.01M269.2 275.0h.01M269.3 251.6h.01M269.5 273.4h.01M269.7 210.6h.01M269.9 223.6h.01M270.1 188.6h.01M270.4 220.4h.01M270.6 254.9h.01M270.7 236.1h.01M270.9 218.9h.01M271.1 225.2h.01M271.3 246.6h.01M271.5 316.4h.01M271.7 83.1h.01M272.0 247.2h.01M272.2 254.2h.01M272.4 229.8h.01M272.5 255.8h.01M272.7 260.0h.01M272.9 168.3h.01M273.1 257.2h.01M273.4 187.6h.01M273.6 267.7h.01M273.8 176.5h.01M274.0 230.2h.01M274.1 320.1h.01M274.3 192.9h.01M274.5 265.8h.01M274.7 171.8h.01M275.0 167.5h.01M275.2 255.1h.01M275.3 322.4h.01M275.5 191.8h.01M275.8 189.6h.01M275.9 288.9h.01M276.1 221.9h.01M276.3 201.6h.01M276.6 199.5h.01M276.8 232.4h.01M277.0 239.3h.01M277.2 247.8h.01M277.3 264.4h.01M277.5 256.3h.01M277.7 126.8h.01M278.0 236.8h.01M278.2 274.3h.01M278.4 170.6h.01M278.6 309.3h.01M278.7 179.8h.01M279.0 257.9h.01M279.1 241.2h.01M279.3 245.9h.01M279.6 123.1h.01M279.8 263.2h.01M280.0 237.5h.01M280.2 272.2h.01M280.3 249.9h.01M280.5 172.9h.01M280.7 288.0h.01M281.0 143.7h.01M281.2 246.7h.01M281.4 275.6h.01M281.6 177.4h.01M281.8 203.9h.01M282.0 338.6h.01M282.1 223.6h.01M282.3 204.9h.01M282.6 156.5h.01M282.8 239.9h.01M283.0 253.5h.01M283.2 248.4h.01M283.3 248.0h.01M283.5 222.5h.01M283.7 193.3h.01M283.9 275.9h.01M284.1 199.9h.01M284.4 188.5h.01M284.6 213.0h.01M284.8 328.5h.01M284.9 162.3h.01M285.1 302.1h.01M285.3 240.3h.01M285.5 116.4h.01M285.8 256.9h.01M286.0 218.0h.01M286.1 312.3h.01M286.3 161.5h.01M286.5 255.7h.01M286.7 229.5h.01M286.9 281.3h.01M287.1 146.3h.01M287.4 247.5h.01M287.6 179.2h.01M287.8 263.0h.01M287.9 280.3h.01M288.1 256.4h.01M288.3 181.1h.01M288.5 222.8h.01M288.7 208.6h.01M289.0 216.2h.01M289.1 278.5h.01M289.3 191.2h.01M289.5 252.5h.01M289.7 231.2h.01M289.9 262.5h.01M290.0 245.5h.01M290.3 83.4h.01M290.6 305.4h.01M290.7 255.3h.01M290.9 217.6h.01M291.1 252.4h.01M291.3 231.2h.01M291.5 223.2h.01M291.7 174.9h.01M291.9 291.2h.01M292.1 176.9h.01M292.3 231.8h.01M292.5 230.9h.01M292.7 269.8h.01M292.8 270.0h.01M293.0 197.8h.01M293.3 175.0h.01M293.5 215.3h.01M293.7 246.6h.01M293.9 246.7h.01M294.0 291.9h.01M294.3 122.8h.01M294.5 311.3h.01M294.6 243.3h.01M294.8 174.7h.01M295.1 201.2h.01M295.3 241.2h.01M295.5 226.6h.01M295.6 279.1h.01M295.8 221.4h.01M296.0 278.6h.01M296.2 150.8h.01M296.5 165.5h.01M296.7 334.6h.01M296.8 211.6h.01M297.0 181.7h.01M297.2 276.7h.01M297.4 247.3h.01M297.6 199.1h.01M297.8 289.2h.01M298.0 137.0h.01M298.3 201.6h.01M298.5 271.4h.01M298.6 277.2h.01M298.8 221.7h.01M299.0 240.1h.01M299.2 184.3h.01M299.4 264.9h.01M299.6 161.8h.01M299.8 272.4h.01M300.0 234.6h.01M300.2 187.9h.01M300.4 270.5h.01M300.5 252.6h.01M300.7 282.2h.01M300.9 99.6h.01M301.2 251.8h.01M301.4 231.9h.01M301.6 242.9h.01M301.7 272.8h.01M301.9 202.8h.01M302.1 235.5h.01M302.3 228.1h.01M302.5 214.9h.01M302.7 239.4h.01M303.0 147.1h.01M303.2 302.3h.01M303.3 236.7h.01M303.5 262.0h.01M303.7 205.3h.01M303.9 262.1h.01M304.1 103.8h.01M304.4 294.7h.01M304.5 243.8h.01M304.7 243.7h.01M304.9 200.9h.01M305.1 224.8h.01M305.3 288.2h.01M305.4 224.1h.01M305.6 175.1h.01M305.9 177.8h.01M306.1 309.5h.01M306.3 176.4h.01M306.5 276.1h.01M306.6 305.6h.01M306.8 147.9h.01M307.0 208.0h.01M307.2 245.1h.01M307.4 210.7h.01M307.6 245.0h.01M307.8 224.0h.01M308.0 238.2h.01M308.2 233.5h.01M308.4 281.6h.01M308.5 206.7h.01M308.8 141.4h.01M309.1 230.6h.01M309.2 276.7h.01M309.4 278.8h.01M309.5 189.4h.01M309.8 229.0h.01M309.9 265.0h.01M310.1 177.8h.01M310.4 212.8h.01M310.6 280.7h.01M310.8 146.8h.01M311.0 277.4h.01M311.1 271.2h.01M311.3 220.4h.01M311.5 273.7h.01M311.7 116.1h.01M312.0 257.4h.01M312.2 217.3h.01M312.3 262.5h.01M312.5 242.4h.01M312.7 233.1h.01M312.9 186.6h.01M313.1 282.2h.01M313.2 245.3h.01M313.5 121.5h.01M313.7 275.5h.01M313.9 213.9h.01M314.1 279.0h.01M314.2 209.1h.01M314.4 297.0h.01M314.6 175.6h.01M314.9 180.5h.01M315.1 218.7h.01M315.2 300.3h.01M315.4 209.2h.01M315.6 191.0h.01M315.9 245.8h.01M316.0 318.8h.01M316.1 172.9h.01M316.4 222.7h.01M316.6 171.3h.01M316.9 227.8h.01M317.0 275.3h.01M317.2 261.5h.01M317.3 241.7h.01M317.5 172.7h.01M317.7 275.3h.01M318.0 165.9h.01M318.2 272.2h.01M318.4 175.9h.01M318.6 276.5h.01M318.7 216.4h.01M318.9 222.0h.01M319.1 299.4h.01M319.2 237.7h.01M319.5 89.0h.01M319.8 274.5h.01M319.9 274.9h.01M320.1 198.1h.01M320.3 271.0h.01M320.4 217.9h.01M320.7 219.0h.01M320.8 250.9h.01M321.0 195.6h.01M321.3 234.1h.01M321.5 185.3h.01M321.7 247.4h.01M321.8 267.8h.01M322.0 273.9h.01M322.2 205.6h.01M322.4 204.9h.01M322.6 200.2h.01M322.9 190.4h.01M323.0 296.3h.01M323.1 266.9h.01M323.4 137.4h.01M323.6 308.7h.01M323.7 199.1h.01M323.9 297.7h.01M324.1 137.8h.01M324.4 200.4h.01M324.6 260.3h.01M324.7 245.4h.01M324.9 248.2h.01M325.1 237.2h.01M325.2 262.3h.01M325.5 126.3h.01M325.7 276.6h.01M325.9 226.6h.01M326.1 222.6h.01M326.3 191.0h.01M326.5 304.9h.01M326.6 206.0h.01M326.8 250.1h.01M327.0 260.2h.01M327.2 127.9h.01M327.5 218.4h.01M327.7 277.2h.01M327.8 222.0h.01M328.0 308.1h.01M328.2 147.6h.01M328.4 255.0h.01M328.5 262.1h.01M328.8 147.2h.01M329.0 269.7h.01M329.2 214.6h.01M329.4 212.8h.01M329.6 225.4h.01M329.7 328.0h.01M329.8 223.6h.01M330.1 172.2h.01M330.4 173.3h.01M330.6 259.2h.01M330.7 263.8h.01M330.9 206.3h.01M331.1 266.1h.01M331.3 197.5h.01M331.5 263.9h.01M331.6 207.6h.01M331.8 257.5h.01M332.1 126.9h.01M332.3 247.8h.01M332.5 309.7h.01M332.6 204.0h.01M332.8 248.4h.01M333.0 250.2h.01M333.2 183.7h.01M333.4 176.1h.01M333.6 275.8h.01M333.8 243.3h.01M334.0 221.2h.01M334.2 202.1h.01M334.4 254.4h.01M334.5 288.1h.01M334.7 218.8h.01M334.9 122.6h.01M335.2 289.7h.01M335.4 169.3h.01M335.6 292.9h.01M335.7 259.4h.01M335.8 237.9h.01M336.1 171.1h.01M336.3 260.7h.01M336.5 210.0h.01M336.7 208.1h.01M336.9 250.5h.01M337.1 183.4h.01M337.3 297.4h.01M337.4 232.7h.01M337.6 210.7h.01M337.7 305.1h.01M338.0 80.0h.01M338.3 261.5h.01M338.4 246.1h.01M338.6 295.2h.01M338.7 166.9h.01M339.0 253.5h.01M339.1 253.6h.01M339.3 202.5h.01M339.5 229.1h.01M339.7 209.4h.01M340.0 200.8h.01M340.2 250.4h.01M340.3 245.7h.01M340.5 274.4h.01M340.6 247.7h.01M340.8 162.8h.01M341.1 206.2h.01M341.3 250.1h.01M341.5 192.8h.01M341.6 307.9h.01M341.8 208.5h.01M342.0 191.2h.01M342.2 254.6h.01M342.3 312.3h.01M342.5 145.9h.01M342.8 168.8h.01M343.0 259.6h.01M343.2 269.2h.01M343.4 203.8h.01M343.5 303.7h.01M343.7 182.4h.01M343.9 247.1h.01M344.1 151.0h.01M344.4 263.1h.01M344.5 278.3h.01M344.7 142.8h.01M344.9 272.7h.01M345.1 259.5h.01M345.2 242.4h.01M345.4 231.9h.01M345.6 201.3h.01M345.9 133.9h.01M346.1 315.3h.01M346.2 209.4h.01M346.4 288.2h.01M346.6 212.5h.01M346.8 202.5h.01M347.0 240.8h.01M347.1 254.2h.01M347.4 167.9h.01M347.6 230.6h.01M347.8 249.1h.01M348.0 219.6h.01M348.1 245.1h.01M348.3 268.8h.01M348.4 268.4h.01M348.7 90.2h.01M348.9 278.0h.01M349.1 219.9h.01M349.3 253.5h.01M349.4 246.4h.01M349.7 179.1h.01M349.8 301.8h.01M350.0 199.6h.01M350.2 243.7h.01M350.4 195.5h.01M350.6 196.0h.01M350.9 204.6h.01M351.0 305.0h.01M351.1 278.8h.01M351.3 175.8h.01M351.5 255.1h.01M351.7 198.7h.01M352.0 173.3h.01M352.2 277.8h.01M352.3 247.2h.01M352.5 209.0h.01M352.7 199.8h.01M352.9 299.5h.01M353.0 221.3h.01M353.2 267.1h.01M353.4 99.4h.01M353.7 265.7h.01M353.9 254.5h.01M354.0 225.3h.01M354.2 230.8h.01M354.3 309.8h.01M354.5 142.7h.01M354.8 249.4h.01M355.0 213.2h.01M355.2 245.1h.01M355.4 169.5h.01M355.6 282.9h.01M355.7 217.1h.01M355.9 256.8h.01M356.0 264.0h.01M356.2 210.8h.01M356.5 171.7h.01M356.8 168.8h.01M356.9 321.5h.01M357.0 245.7h.01M357.2 229.1h.01M357.4 177.6h.01M357.6 268.8h.01M357.8 278.4h.01M358.0 138.0h.01M358.2 266.5h.01M358.4 183.9h.01M358.6 229.2h.01M358.8 277.3h.01M358.9 232.5h.01M359.1 282.4h.01M359.3 182.4h.01M359.5 158.3h.01M359.7 275.4h.01M359.9 223.1h.01M360.1 238.9h.01M360.3 218.3h.01M360.4 264.2h.01M360.6 200.7h.01M360.8 252.3h.01M361.0 281.5h.01M361.2 95.1h.01M361.5 252.0h.01M361.6 268.0h.01M361.8 232.2h.01M361.9 265.5h.01M362.1 209.3h.01M362.3 242.8h.01M362.5 185.2h.01M362.7 229.5h.01M363.0 197.7h.01M363.1 323.0h.01M363.3 112.0h.01M363.5 309.7h.01M363.6 242.9h.01M363.8 268.6h.01M364.0 179.3h.01M364.2 172.6h.01M364.5 247.5h.01M364.7 199.9h.01M364.8 308.0h.01M364.9 247.1h.01M365.1 178.8h.01M365.4 249.9h.01M365.5 228.1h.01M365.7 227.6h.01M365.9 202.8h.01M366.2 190.4h.01M366.3 275.7h.01M366.5 255.3h.01M366.7 193.9h.01M366.8 309.1h.01M367.0 217.3h.01M367.3 115.1h.01M367.5 235.9h.01M367.6 323.0h.01M367.8 190.1h.01M368.0 222.9h.01M368.2 247.9h.01M368.4 211.7h.01M368.5 292.6h.01M368.7 177.8h.01M368.9 208.9h.01M369.2 195.8h.01M369.4 253.4h.01M369.5 242.7h.01M369.7 280.5h.01M369.8 248.7h.01M370.0 129.2h.01M370.2 311.1h.01M370.4 140.5h.01M370.7 264.3h.01M370.8 247.9h.01M371.0 220.9h.01M371.2 202.6h.01M371.4 271.4h.01M371.5 264.6h.01M371.7 228.7h.01M371.9 126.7h.01M372.2 235.9h.01M372.4 259.7h.01M372.5 270.8h.01M372.7 206.2h.01M372.9 249.3h.01M373.0 239.6h.01M373.2 187.2h.01M373.5 212.5h.01M373.6 284.6h.01M373.8 158.9h.01M374.1 241.7h.01M374.2 238.1h.01M374.4 307.2h.01M374.5 167.1h.01M374.7 309.4h.01M374.9 105.2h.01M375.2 249.4h.01M375.4 225.9h.01M375.5 249.1h.01M375.7 295.1h.01M375.8 159.2h.01M376.1 231.0h.01M376.2 287.3h.01M376.4 218.8h.01M376.6 142.4h.01M376.9 269.1h.01M377.0 226.0h.01M377.2 193.7h.01M377.4 325.6h.01M377.5 233.2h.01M377.7 219.0h.01M377.9 161.2h.01M378.2 224.8h.01M378.3 253.6h.01M378.5 249.1h.01M378.7 204.4h.01M378.9 220.4h.01M379.0 290.8h.01M379.2 203.9h.01M379.4 250.7h.01M379.6 207.9h.01M379.9 123.8h.01M380.1 298.9h.01M380.2 271.2h.01M380.3 229.1h.01M380.5 236.9h.01M380.7 209.8h.01M380.9 244.0h.01M381.1 185.5h.01M381.3 221.0h.01M381.5 274.9h.01M381.7 176.9h.01M381.9 270.8h.01M382.1 189.6h.01M382.2 307.4h.01M382.3 271.8h.01M382.6 106.1h.01M382.9 219.8h.01M383.0 266.5h.01M383.2 220.1h.01M383.4 242.8h.01M383.5 285.7h.01M383.7 171.4h.01M383.9 232.3h.01M384.1 266.9h.01M384.3 182.4h.01M384.5 227.0h.01M384.7 177.9h.01M384.9 299.2h.01M385.0 238.4h.01M385.2 246.3h.01M385.4 229.3h.01M385.5 230.9h.01M385.8 133.1h.01M386.0 258.2h.01M386.2 262.2h.01M386.3 271.0h.01M386.5 149.3h.01M386.7 267.0h.01M386.9 276.5h.01M387.0 204.7h.01M387.2 227.2h.01M387.5 157.7h.01M387.7 264.1h.01M387.9 203.9h.01M388.0 286.7h.01M388.2 243.7h.01M388.3 252.1h.01M388.5 178.5h.01M388.8 186.1h.01M389.0 293.7h.01M389.1 174.4h.01M389.4 247.0h.01M389.5 254.7h.01M389.7 195.2h.01M389.9 270.7h.01M390.0 237.7h.01M390.2 270.2h.01M390.4 83.0h.01M390.7 289.2h.01M390.8 210.2h.01M391.0 292.1h.01M391.1 226.7h.01M391.3 215.4h.01M391.5 220.9h.01M391.7 270.9h.01M391.9 113.1h.01M392.1 344.7h.01M392.3 178.4h.01M392.5 173.7h.01M392.7 293.5h.01M392.8 258.6h.01M393.0 249.8h.01M393.2 209.6h.01M393.4 182.6h.01M393.6 200.3h.01M393.8 226.3h.01M394.0 312.0h.01M394.1 187.5h.01M394.3 265.8h.01M394.5 179.0h.01M394.7 265.0h.01M394.8 263.9h.01M395.0 171.0h.01M395.3 166.8h.01M395.5 286.9h.01M395.6 252.7h.01M395.8 208.7h.01"/>
+<circle cx="392.1" cy="344.7" r="4" class="zero"/>
+<circle cx="282.0" cy="338.6" r="4" class="zero"/>
+<circle cx="296.7" cy="334.6" r="4" class="zero"/>
+<text x="384.1" y="334.7" class="flab end c2">&#947;&#8321;&#8324;&#8329;&#8326;, &#947;&#8321;&#8324;&#8329;&#8327; &#8212; gap 0.0975 (0.0893 of mean)</text>
+<text x="62" y="66" class="flab st">tight pairs are rare by GUE repulsion (P ~ g&#178; near 0) &#8212;</text>
+<text x="62" y="80" class="flab st">the orange three are this table&#8217;s Lehmer-like pairs</text>
+<text x="585" y="46" class="ftitle" font-size="12">|&#955;*| against the gap: the g&#178;/8 law</text>
+<line x1="470" y1="356" x2="700" y2="356" class="axis"/>
+<line x1="502.9" y1="356" x2="502.9" y2="360" class="axis"/>
+<text x="502.9" y="372" class="flab">0.1</text>
+<line x1="563.3" y1="356" x2="563.3" y2="360" class="axis"/>
+<text x="563.3" y="372" class="flab">0.3</text>
+<line x1="629.5" y1="356" x2="629.5" y2="360" class="axis"/>
+<text x="629.5" y="372" class="flab">1</text>
+<line x1="690.0" y1="356" x2="690.0" y2="360" class="axis"/>
+<text x="690.0" y="372" class="flab">3</text>
+<text x="700" y="386" class="flab end">gap</text>
+<text x="464" y="352.9" class="flab end">10&#8315;&#185;&#178;</text>
+<text x="464" y="292.1" class="flab end">10&#8315;&#8313;</text>
+<text x="464" y="231.3" class="flab end">10&#8315;&#8310;</text>
+<text x="464" y="170.4" class="flab end">10&#8315;&#179;</text>
+<text x="464" y="109.6" class="flab end">10&#8304;</text>
+<path d="M474.8 173.5L481.0 171.5L487.3 169.5L493.5 167.5L499.7 165.5L506.0 163.5L512.2 161.5L518.4 159.5L524.7 157.5L530.9 155.5L537.1 153.5L543.4 151.5L549.6 149.5L555.8 147.5L562.1 145.5L568.3 143.5L574.5 141.5L580.8 139.5L587.0 137.5L593.2 135.6L599.5 133.6L605.7 131.6L611.9 129.6L618.2 127.6L624.4 125.6L630.6 123.6L636.9 121.6L643.1 119.6L649.3 117.6L655.6 115.6L661.8 113.6L668.0 111.6L674.3 109.6L680.5 107.6L686.7 105.6L693.0 103.6L699.2 101.6" class="brk"/>
+<text x="571.8" y="134.4" class="flab c2">g&#178;/8</text>
+<circle cx="680.2" cy="105.7" r="3.4" class="digit main"/>
+<circle cx="501.5" cy="164.9" r="3.4" class="digit main"/>
+<circle cx="529.3" cy="155.9" r="3.4" class="digit main"/>
+<circle cx="539.8" cy="152.5" r="3.4" class="digit main"/>
+<text x="673.2" y="109.7" class="flab end c1">&#947;&#8324;,&#947;&#8325; = rh10&#8217;s pair</text>
+<text x="510.5" y="182.9" class="flab st c1">this table&#8217;s best:</text>
+<text x="510.5" y="196.9" class="flab st c1">&#955;* = &#8722;0.00119</text>
+<line x1="470" y1="71.2" x2="484" y2="71.2" class="comb2"/>
+<text x="488" y="74.7" class="flab st">CNV 1988</text>
+<line x1="470" y1="91.4" x2="484" y2="91.4" class="comb2"/>
+<text x="488" y="94.9" class="flab st">te Riele 1991</text>
+<line x1="470" y1="114.0" x2="484" y2="114.0" class="comb2"/>
+<text x="488" y="117.5" class="flab st">NRV 1992</text>
+<line x1="470" y1="214.3" x2="484" y2="214.3" class="comb2"/>
+<text x="488" y="217.8" class="flab st">CSV 1994</text>
+<line x1="470" y1="279.3" x2="484" y2="279.3" class="comb2"/>
+<text x="488" y="282.8" class="flab st">Odlyzko 2000</text>
+<line x1="470" y1="327.4" x2="484" y2="327.4" class="comb2"/>
+<text x="488" y="330.9" class="flab st">SGD 2011</text>
+<line x1="470" y1="356" x2="700" y2="356" class="helix2"/>
+<text x="474" y="351" class="flab st c2">&#923; &#8805; 0 &#8212; Rodgers&#8211;Tao 2018: the wall</text>
+<text x="474" y="62" class="flab st">left ticks: cited bounds, not recomputed</text>
+<line id="pline" class="cross" x1="0" y1="56" x2="0" y2="356" visibility="hidden"/>
+<circle id="pdot" class="crossdot" r="3.5" visibility="hidden"/>
+</svg>
+<div class="ztip" id="ptip"></div>
+</div>
+<figcaption><b>Figure 2 — the gap census and the ladder.</b> <i>Left:</i> all 1516 consecutive gaps to T = 2000 in units of the local mean (hover for pairs and values). GUE repulsion empties the bottom of the plot; the three orange points are the table's Lehmer-like pairs, tightest at γ₁₄₉₆, γ₁₄₉₇ = 1977.174, 1977.271 — gap 0.0975, 0.089 of the local mean. <i>Right:</i> |λ*| against gap, log–log. The four computed collisions (purple) lie on the dashed g²/8 law — measured ratios τ*/(g²/8) = 1.00, 1.01, 1.01 — spanning from the validation pair (γ₄,γ₅; = rh10's experiment) down to λ* = −0.00119. The tick-marked levels are the literature's rigorous ladder, <i>cited, not recomputed</i>: −50 (Csordas–Norfolk–Varga 1988), −5 (te Riele 1991), −0.385 (Norfolk–Ruttan–Varga 1992), −4.379×10⁻⁶ (Csordas–Smith–Varga 1994, from Lehmer's pair near t = 7005), −2.7×10⁻⁹ (Odlyzko 2000), −1.145×10⁻¹¹ (Saouter–Gourdon–Demichel 2011). The orange baseline is the Rodgers–Tao wall: Λ ≥ 0.</figcaption>
+</figure>
+<p>The three tightest pairs in range collide at λ* = −0.00119, −0.00330, −0.00486 — the best is <b>three decades past rh10's reading</b>, and every collision lands on the g²/8 law to 1%. That law is the whole economics of the hunt: the computed bound is set by the tightest pair you have found, quadratically. Lehmer's pair near t = 7005 (gap ≈ 0.0005 of mean spacing) gave CSV 1994 their −4.379×10⁻⁶; nine further decades of the ladder — Odlyzko's −2.7×10⁻⁹, Saouter–Gourdon–Demichel's −1.145×10⁻¹¹ — were bought with ever-rarer pairs at ever-greater height, each rung a Lehmer pair harvested from a larger table. (Our λ* values are measurements of the validated dynamical model; the ladder's entries are rigorous bounds by construction, which is why they are cited beside our points rather than reproduced.)</p>
+<p>Two readings. The optimistic one: the corridor is now [−0.00119, 0] <i>as measured here</i>, and nothing but table size stands between this method and more decades — the small-gap tail of GUE guarantees tighter pairs exist forever. The sober one: that is exactly why computation cannot finish the job. The bound improves quadratically in the rarest gap found, the rarest gap improves only logarithmically in table size, and the wall itself was not reached by climbing — Rodgers–Tao proved Λ ≥ 0 by a global argument about the flow, not by exhibiting pairs. The remaining half, Λ ≤ 0, <i>is</i> RH. The thermometer's needle can be pushed toward the wall from below at documented cost; touching the wall was a theorem, and crossing to it from the other side would be the theorem.</p>
+</section>
+
+<p class="kicker">Part III · The base</p>
+
+<section class="prose" id="s4">
+<h2>4 · Dig three — counting over 𝔽₁</h2>
+<p>The base rh9 asked for has a candidate with a sixty-year pedigree and a paradoxical name: the <b>field with one element</b>, 𝔽₁ — Tits' 1957 observation that the formulas of linear algebra over 𝔽<sub>q</sub> keep making sense at q = 1, where they stop describing vector spaces and start describing <i>sets</i>. There is no field with one element; 𝔽₁ is the name of the limit q → 1, and the limit computes. Everything below is an actual limit evaluated at q = 1+ε with Richardson extrapolation, checked against its exact integer target.</p>
+<p>The q-integer [<i>n</i>]<sub>q</sub> = 1+q+⋯+q<sup><i>n</i>−1</sup> counts the points of P<sup><i>n</i>−1</sup>(𝔽<sub>q</sub>); at q → 1 it is <i>n</i>: <b>projective space over 𝔽₁ is a finite set of points</b> ([3]<sub>q</sub> → 3, verified to 10⁻¹²). The q-binomial [4 2]<sub>q</sub> counts planes in 𝔽<sub>q</sub>⁴; its limit is 6 = the number of 2-element subsets of a 4-element set: <b>Grassmannians over 𝔽₁ are subset lattices</b>. And the group count #GL<sub><i>n</i></sub>(𝔽<sub>q</sub>) = q<sup>n(n−1)/2</sup>(q−1)<sup>n</sup>[<i>n</i>]<sub>q</sub>! (verified as an exact integer identity at q = 2, 3), normalised by its torus-and-unipotent factor, limits to [<i>n</i>]₁! = <i>n</i>! —</p>
+<div class="eq"><span class="tag">(2)</span>
+GL<sub><i>n</i></sub>(𝔽₁) = S<sub><i>n</i></sub> :
+&nbsp;&nbsp;#GL₃/(q−1)³q³ → 3! = 6,&nbsp;&nbsp;#GL₄/(q−1)⁴q⁶ → 4! = 24.
+</div>
+<p>The symmetric group — <a href="rh5.html#s5">rh5 §5</a>'s clock world, the permutation substrate the arc has used since its first factorisation — <b>is the general linear group of the missing base</b>. That identification is not decoration; it is the first hard evidence that "geometry over 𝔽₁" is the right name for structures the arc already possesses.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 404" role="img" aria-label="Left: three counting quantities over the field with q elements, each normalized by its integer target, all converging to exactly one as q goes to one: the projective line count, the Grassmannian count, and the general linear group count whose limit is the symmetric group. Right: Soule's zeta function of the projective plane over F one, computed as a q to one limit at each point, landing exactly on one over s times s minus one times s minus two">
+<text x="360.0" y="22" class="ftitle">F&#8321;: the counting limit q &#8594; 1, and the shape s(s&#8722;1) it produces</text>
+<text x="198" y="46" class="ftitle" font-size="12">counts over F&#8202;<tspan dy="3" font-size="9">q</tspan><tspan dy="-3">, each / its q = 1 target</tspan></text>
+<line x1="60" y1="308.7" x2="336" y2="308.7" class="target"/>
+<text x="54" y="312.7" class="flab end">1</text>
+<text x="54" y="99.9" class="flab end">2</text>
+<line x1="60" y1="330" x2="336" y2="330" class="axis"/>
+<line x1="60.0" y1="330" x2="60.0" y2="334" class="axis"/>
+<text x="60.0" y="346" class="flab">1</text>
+<line x1="198.0" y1="330" x2="198.0" y2="334" class="axis"/>
+<text x="198.0" y="346" class="flab">1.25</text>
+<line x1="336.0" y1="330" x2="336.0" y2="334" class="axis"/>
+<text x="336.0" y="346" class="flab">1.5</text>
+<text x="336" y="360" class="flab end">q</text>
+<path d="M60.0 308.7L73.8 297.8L87.6 286.4L101.4 274.5L115.2 262.1L129.0 249.1L142.8 235.5L156.6 221.3L170.4 206.5L184.2 191.1L198.0 175.0L211.8 158.3L225.6 140.9L239.4 122.7L253.2 103.8L267.0 84.2L280.8 63.8" class="fam-b"/>
+<line x1="68" y1="76" x2="86" y2="76" class="fam-b"/>
+<text x="91" y="80" class="flab st">[4&#8202;2]&#8202;q&#8202;/&#8202;6 &#8212; the 6 subsets</text>
+<path d="M60.0 308.7L73.8 300.6L87.6 292.3L101.4 283.8L115.2 275.0L129.0 266.0L142.8 256.7L156.6 247.2L170.4 237.5L184.2 227.5L198.0 217.3L211.8 206.8L225.6 196.0L239.4 185.0L253.2 173.8L267.0 162.2L280.8 150.4L294.6 138.3L308.4 125.9L322.2 113.3L336.0 100.4" class="helix2"/>
+<line x1="68" y1="91" x2="86" y2="91" class="helix2"/>
+<text x="91" y="95" class="flab st">#GL&#8323;/(q&#8722;1)&#179;q&#179;&#8202;/&#8202;3! &#8212; S&#8323;</text>
+<path d="M60.0 308.7L73.8 303.4L87.6 297.9L101.4 292.4L115.2 286.7L129.0 281.0L142.8 275.2L156.6 269.3L170.4 263.3L184.2 257.2L198.0 251.1L211.8 244.8L225.6 238.5L239.4 232.1L253.2 225.6L267.0 218.9L280.8 212.3L294.6 205.5L308.4 198.6L322.2 191.6L336.0 184.6" class="helix thin"/>
+<line x1="68" y1="106" x2="86" y2="106" class="helix thin"/>
+<text x="91" y="110" class="flab st">[3]&#8202;q&#8202;/&#8202;3 &#8212; 3 points</text>
+<circle cx="60.0" cy="308.7" r="4" class="zero"/>
+<text x="71.0" y="324.7" class="flab st c2">at q = 1: every curve lands on 1 exactly</text>
+<text x="548" y="46" class="ftitle" font-size="12">&#950;&#8202;<tspan dy="3" font-size="9">P&#178;/F&#8321;</tspan><tspan dy="-3">(s) = lim (q&#8722;1)&#179; Z(P&#178;/F&#8202;q, q&#8315;&#738;)</tspan></text>
+<line x1="396" y1="330" x2="700" y2="330" class="axis"/>
+<line x1="446.7" y1="330" x2="446.7" y2="334" class="axis"/>
+<text x="446.7" y="346" class="flab">3</text>
+<line x1="573.3" y1="330" x2="573.3" y2="334" class="axis"/>
+<text x="573.3" y="346" class="flab">4</text>
+<line x1="700.0" y1="330" x2="700.0" y2="334" class="axis"/>
+<text x="700.0" y="346" class="flab">5</text>
+<text x="700" y="360" class="flab end">s</text>
+<line x1="396" y1="269.6" x2="700" y2="269.6" class="grid"/>
+<text x="390" y="273.6" class="flab end">0.1</text>
+<line x1="396" y1="209.3" x2="700" y2="209.3" class="grid"/>
+<text x="390" y="213.3" class="flab end">0.2</text>
+<line x1="396" y1="148.9" x2="700" y2="148.9" class="grid"/>
+<text x="390" y="152.9" class="flab end">0.3</text>
+<line x1="396" y1="88.6" x2="700" y2="88.6" class="grid"/>
+<text x="390" y="92.6" class="flab end">0.4</text>
+<path d="M396.0 88.2L408.7 142.1L421.3 180.3L434.0 208.3L446.7 229.4L459.3 245.7L472.0 258.6L484.7 268.8L497.3 277.2L510.0 284.0L522.7 289.7L535.3 294.5L548.0 298.5L560.7 301.9L573.3 304.9L586.0 307.4L598.7 309.6L611.3 311.5L624.0 313.2L636.7 314.7L649.3 316.0L662.0 317.1L674.7 318.2L687.3 319.1L700.0 319.9" class="helix thin"/>
+<circle cx="396.0" cy="88.2" r="2.6" class="zero"/>
+<circle cx="421.3" cy="180.3" r="2.6" class="zero"/>
+<circle cx="446.7" cy="229.4" r="2.6" class="zero"/>
+<circle cx="472.0" cy="258.6" r="2.6" class="zero"/>
+<circle cx="497.3" cy="277.2" r="2.6" class="zero"/>
+<circle cx="522.7" cy="289.7" r="2.6" class="zero"/>
+<circle cx="548.0" cy="298.5" r="2.6" class="zero"/>
+<circle cx="573.3" cy="304.9" r="2.6" class="zero"/>
+<circle cx="598.7" cy="309.6" r="2.6" class="zero"/>
+<circle cx="624.0" cy="313.2" r="2.6" class="zero"/>
+<circle cx="649.3" cy="316.0" r="2.6" class="zero"/>
+<circle cx="674.7" cy="318.2" r="2.6" class="zero"/>
+<circle cx="700.0" cy="319.9" r="2.6" class="zero"/>
+<text x="465.7" y="130.8" class="flab st"><tspan class="c1">line</tspan>: 1/s(s&#8722;1)(s&#8722;2)</text>
+<text x="465.7" y="155.0" class="flab st"><tspan class="c2">dots</tspan>: the q &#8594; 1 limit, computed</text>
+<text x="465.7" y="179.1" class="flab st">agreement &#8804; 10&#8315;&#8309; at every point</text>
+<text x="400" y="66" class="flab st">the completed &#950;&#8217;s factor s(s&#8722;1) &#8212; from pure counting</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — counting to the base.</b> <i>Left:</i> three counts over 𝔽<sub>q</sub>, each normalised by its integer target, all landing on 1 at q = 1 exactly: [3]<sub>q</sub>/3 (projective plane → 3 points), [4 2]<sub>q</sub>/6 (Grassmannian → 6 subsets), #GL₃/(q−1)³q³·(1/3!) (linear group → symmetric group). <i>Right:</i> Soulé's ζ of P² over 𝔽₁, computed at each s as the limit lim<sub>q→1</sub>(q−1)³ Z(P²/𝔽<sub>q</sub>, q<sup>−s</sup>) with Richardson extrapolation (dots), against 1/s(s−1)(s−2) (line): agreement ≤ 10⁻⁵ everywhere, ≤ 10⁻⁶ at the four spot-checked points.</figcaption>
+</figure>
+<p>Then the decisive computation, due in concept to Soulé (2004): a variety X counted over every 𝔽<sub>q</sub> has a zeta function Z(X/𝔽<sub>q</sub>, q<sup>−s</sup>), and its 𝔽₁-zeta is the normalised limit ζ<sub>X/𝔽₁</sub>(s) = lim<sub>q→1</sub>(q−1)<sup>N(1)</sup> Z(X/𝔽<sub>q</sub>, q<sup>−s</sup>). Computed:</p>
+<div class="eq"><span class="tag">(3)</span>
+ζ<sub>P¹/𝔽₁</sub>(s) = <span class="fr"><span class="nu">1</span><span class="de">s(s−1)</span></span> ,
+&nbsp;&nbsp;
+ζ<sub>P²/𝔽₁</sub>(s) = <span class="fr"><span class="nu">1</span><span class="de">s(s−1)(s−2)</span></span> .
+</div>
+<p>The factor s(s−1) — the polynomial prefactor that completes ζ to ξ, the two poles the arc has carried since rh4 — <b>emerges from pure counting over the one-element field</b>. The completed ζ's shape is what a curve over 𝔽₁ would answer if asked how many points it has. That is the strongest sense in which the base question is well-posed: the language produces, from first principles, the exact objects the analytic theory already needed.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · Spec ℤ over 𝔽₁: the determinant dream, computed</h2>
+<p>If Spec ℤ were honestly a curve over 𝔽₁, three things would follow, in rising order of strength: ζ would be a determinant over its spectrum; Spec ℤ would carry a Frobenius; and the numeral train would be the state space of a system whose symmetries are the arc's. Each has a computable shadow, and all three shadows check out. What does not follow — the fourth thing, the one that proves RH — is the subject of §6.</p>
+<p><b>The determinant.</b> Deninger's dream reads ξ(s) as a regularised determinant det(s − Θ) over a hypothetical cohomology. At computation's level the statement is the Hadamard product: ξ is <i>determined by its zeros</i>,</p>
+<div class="eq"><span class="tag">(4)</span>
+ξ(s) = ξ(0)
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∏</span><span class="lo">γ&gt;0</span></span>
+<span class="nowrap">[ 1 + <span class="fr"><span class="nu">s(s−1)</span><span class="de">¼+γ²</span></span> ]</span> ,
+</div>
+<p>and with the new table the product is testable at scale: 1517 zero factors, the tail beyond T = 2000 supplied by the density integral (the rh10 constant, log-tail s(s−1)·∑<sub>γ&gt;T</sub>1/(¼+γ²) with ∑<sub>γ&gt;T</sub> ≈ 5.38×10⁻⁴). Against direct ξ — Euler–Maclaurin ζ times the Γ-factor — the product agrees to <b>1.1×10⁻⁸ across the whole interval σ ∈ [−1.5, 3]</b>, through both trivial-zero-free flanks and the central point ξ(½) = 0.49712…, and the factor at s = ½+iγ₁ vanishes identically to 10⁻¹². The spectrum <i>is</i> the function, eight digits deep. What is missing is only everything: an operator Θ whose eigenvalues those zeros are, acting on a space with a positive form — the determinant exists, the cohomology it would be the determinant <i>of</i> does not.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 404" role="img" aria-label="Left: the completed xi function on the real interval from minus one point five to three, drawn once from its definition and once as the Hadamard product over the computed zeros: the two computations coincide to a few parts in ten thousand. Right: the Bost Connes internal energy, minus the logarithmic derivative of zeta, against the same quantity computed as a sum of von Mangoldt weights over the gears, diverging at the phase transition at beta equals one">
+<text x="360.0" y="22" class="ftitle">the determinant dream: &#958; IS its spectrum; the gear gas and its energy</text>
+<text x="200" y="46" class="ftitle" font-size="12">&#958;(&#963;): definition vs product over 1517 zeros</text>
+<line x1="64" y1="330" x2="336" y2="330" class="axis"/>
+<line x1="94.2" y1="330" x2="94.2" y2="334" class="axis"/>
+<text x="94.2" y="346" class="flab">-1</text>
+<line x1="154.7" y1="330" x2="154.7" y2="334" class="axis"/>
+<text x="154.7" y="346" class="flab">0</text>
+<line x1="215.1" y1="330" x2="215.1" y2="334" class="axis"/>
+<text x="215.1" y="346" class="flab">1</text>
+<line x1="275.6" y1="330" x2="275.6" y2="334" class="axis"/>
+<text x="275.6" y="346" class="flab">2</text>
+<line x1="336.0" y1="330" x2="336.0" y2="334" class="axis"/>
+<text x="336.0" y="346" class="flab">3</text>
+<text x="336" y="360" class="flab end">&#963;</text>
+<line x1="64" y1="290.1" x2="336" y2="290.1" class="grid"/>
+<text x="58" y="294.1" class="flab end">0.5</text>
+<line x1="64" y1="157.1" x2="336" y2="157.1" class="grid"/>
+<text x="58" y="161.1" class="flab end">0.55</text>
+<line x1="184.9" y1="64" x2="184.9" y2="330" class="cross"/>
+<text x="184.9" y="60" class="flab">&#963; = &#189;</text>
+<path d="M64.0 170.1L70.0 183.1L76.1 195.2L82.1 206.7L88.2 217.4L94.2 227.3L100.3 236.6L106.3 245.2L112.4 253.1L118.4 260.3L124.4 266.9L130.5 272.8L136.5 278.1L142.6 282.7L148.6 286.7L154.7 290.1L160.7 292.9L166.8 295.0L172.8 296.5L178.8 297.5L184.9 297.8L190.9 297.5L197.0 296.5L203.0 295.0L209.1 292.9L215.1 290.1L221.2 286.7L227.2 282.7L233.2 278.1L239.3 272.8L245.3 266.9L251.4 260.3L257.4 253.1L263.5 245.2L269.5 236.6L275.6 227.3L281.6 217.4L287.6 206.7L293.7 195.2L299.7 183.1L305.8 170.1L311.8 156.4L317.9 141.9L323.9 126.6L330.0 110.4L336.0 93.4" class="helix thin"/>
+<circle cx="64.0" cy="170.1" r="2.6" class="zero"/>
+<circle cx="76.1" cy="195.2" r="2.6" class="zero"/>
+<circle cx="88.2" cy="217.4" r="2.6" class="zero"/>
+<circle cx="100.3" cy="236.6" r="2.6" class="zero"/>
+<circle cx="112.4" cy="253.1" r="2.6" class="zero"/>
+<circle cx="124.4" cy="266.9" r="2.6" class="zero"/>
+<circle cx="136.5" cy="278.1" r="2.6" class="zero"/>
+<circle cx="148.6" cy="286.7" r="2.6" class="zero"/>
+<circle cx="160.7" cy="292.9" r="2.6" class="zero"/>
+<circle cx="172.8" cy="296.5" r="2.6" class="zero"/>
+<circle cx="184.9" cy="297.8" r="2.6" class="zero"/>
+<circle cx="197.0" cy="296.5" r="2.6" class="zero"/>
+<circle cx="209.1" cy="292.9" r="2.6" class="zero"/>
+<circle cx="221.2" cy="286.7" r="2.6" class="zero"/>
+<circle cx="233.2" cy="278.1" r="2.6" class="zero"/>
+<circle cx="245.3" cy="266.9" r="2.6" class="zero"/>
+<circle cx="257.4" cy="253.1" r="2.6" class="zero"/>
+<circle cx="269.5" cy="236.6" r="2.6" class="zero"/>
+<circle cx="281.6" cy="217.4" r="2.6" class="zero"/>
+<circle cx="293.7" cy="195.2" r="2.6" class="zero"/>
+<circle cx="305.8" cy="170.1" r="2.6" class="zero"/>
+<circle cx="317.9" cy="141.9" r="2.6" class="zero"/>
+<circle cx="330.0" cy="110.4" r="2.6" class="zero"/>
+<text x="76.1" y="90.6" class="flab st"><tspan class="c1">line</tspan>: &#189;s(s&#8722;1)&#960;<tspan dy="-4" font-size="8.5">&#8722;s/2</tspan><tspan dy="4">&#915;(s/2)&#950;(s)</tspan></text>
+<text x="76.1" y="117.2" class="flab st"><tspan class="c2">dots</tspan>: &#958;(0)&#8901;&#8719;(1 + s(s&#8722;1)/(&#188;+&#947;&#178;))</text>
+<text x="76.1" y="143.8" class="flab st">+ density tail; max dev 1.1&#215;10&#8315;&#8312;</text>
+<text x="192.1" y="311.4" class="flab st">&#958;(0) = &#958;(1) = &#189;</text>
+<text x="551" y="46" class="ftitle" font-size="12">the Gibbs gas: U(&#946;) = &#8722;&#950;&#8242;/&#950;</text>
+<line x1="402" y1="330" x2="700" y2="330" class="axis"/>
+<line x1="402.0" y1="330" x2="402.0" y2="334" class="axis"/>
+<text x="402.0" y="346" class="flab">1</text>
+<line x1="499.7" y1="330" x2="499.7" y2="334" class="axis"/>
+<text x="499.7" y="346" class="flab">2</text>
+<line x1="597.4" y1="330" x2="597.4" y2="334" class="axis"/>
+<text x="597.4" y="346" class="flab">3</text>
+<line x1="695.1" y1="330" x2="695.1" y2="334" class="axis"/>
+<text x="695.1" y="346" class="flab">4</text>
+<text x="700" y="360" class="flab end">&#946; (inverse temperature)</text>
+<line x1="402" y1="266.7" x2="700" y2="266.7" class="grid"/>
+<text x="396" y="270.7" class="flab end">2</text>
+<line x1="402" y1="203.3" x2="700" y2="203.3" class="grid"/>
+<text x="396" y="207.3" class="flab end">4</text>
+<line x1="402" y1="140.0" x2="700" y2="140.0" class="grid"/>
+<text x="396" y="144.0" class="flab end">6</text>
+<line x1="402.0" y1="64" x2="402.0" y2="330" class="helix2"/>
+<text x="406.9" y="66" class="flab st c2">&#946; = 1: the phase transition &#8212;</text>
+<text x="406.9" y="80" class="flab st c2">U &#8594; &#8734;, the pole of &#950;</text>
+<path d="M406.9 64.0L411.8 64.0L416.7 136.3L421.5 188.8L426.4 220.2L431.3 241.1L436.2 255.9L441.1 267.0L446.0 275.5L450.9 282.3L455.7 287.9L460.6 292.4L465.5 296.3L470.4 299.6L475.3 302.4L480.2 304.8L485.0 306.9L489.9 308.8L494.8 310.5L499.7 312.0L509.5 314.5L519.2 316.5L529.0 318.2L538.8 319.7L548.6 320.9L558.3 321.9L568.1 322.8L577.9 323.5L587.6 324.2L597.4 324.8L607.2 325.3L617.0 325.7L626.7 326.1L636.5 326.5L646.3 326.8L656.0 327.1L665.8 327.4L675.6 327.6L685.3 327.8L695.1 328.0" class="helix thin"/>
+<circle cx="499.7" cy="312.0" r="3.4" class="zero"/>
+<circle cx="548.6" cy="320.9" r="3.4" class="zero"/>
+<text x="450.9" y="152.7" class="flab st c2">von Mangoldt weights = the gas&#8217;s energy:</text>
+<text x="450.9" y="178.0" class="flab st"><tspan class="c2">dots</tspan>: &#8721;&#8202;&#923;(n)&#8202;n&#8315;&#946; = &#8722;&#950;&#8242;/&#950; to 3&#215;10&#8315;&#185;&#185;</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 — two shadows of the base.</b> <i>Left:</i> ξ(σ) on [−1.5, 3] computed from its definition (line) and as the zero product (4) with density tail (dots): one curve, two theories, maximum relative deviation 1.1×10⁻⁸. The symmetry about σ = ½ — ξ(s) = ξ(1−s), here ξ(−1.5) = ξ(2.5) to machine precision — is the functional equation read as a picture. <i>Right:</i> the Bost–Connes gas. The internal energy U(β) = −ζ′/ζ(β) (line, computed from ζ), with the gear-side sum ∑Λ(n)n<sup>−β</sup> at β = 2, 2½ (dots) agreeing to 3×10⁻¹¹; the divergence at β = 1 (orange) is the phase transition at ζ's pole.</figcaption>
+</figure>
+<p><b>The Frobenius.</b> Borger's proposal makes "descent to 𝔽₁" precise: an 𝔽₁-structure on a ring is a Λ-ring structure — a coherent family of commuting lifts of all the Frobenii x ↦ x<sup>p</sup>. On ℤ itself the lifts are forced to be the identity map, and the condition that the identity <i>is</i> a p-Frobenius lift is the congruence ψ<sub>p</sub>(n) ≡ n<sup>p</sup> (mod p) — that is, <b>Fermat's little theorem is the statement that Spec ℤ descends to 𝔽₁</b>. Verified on the grid: n<sup>p</sup> ≡ n (mod p) for the first ten primes and n ≤ 200, two thousand congruences, no exception. The reading is quietly remarkable: arithmetic already carries all its Frobenii — the structure Weil's proof leans on exists over ℚ — but they act invisibly, with no cohomology to leave fingerprints on, no graph in a surface to self-intersect.</p>
+<p><b>The gas.</b> Bost–Connes (1995) built a quantum statistical system whose partition function is ζ: states indexed by the numerals, energies log <i>n</i>, so Tr e<sup>−βH</sup> = ∑n<sup>−β</sup> = ζ(β). Its symmetry group is Ẑ<sup>×</sup> — <a href="rh7.html#s5">rh7 §5</a>'s profinite dial, the arc's own symmetry — and its internal energy is</p>
+<div class="eq"><span class="tag">(5)</span>
+U(β) = −<span class="fr"><span class="nu">ζ′</span><span class="de">ζ</span></span>(β)
+= <span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>n</i>≥2</span></span>
+Λ(<i>n</i>)&#8202;<i>n</i><sup>−β</sup> :
+</div>
+<p>the von Mangoldt weights — the gear weights the arc has summed since rh5 — are the <b>energy of the gear gas</b>. Verified both ways at β = 2 and 2½ (prime side summed to 10⁶ with PNT tail): agreement 3×10⁻¹¹. The pole at β = 1 is the system's phase transition — the same divergence that is the infinitude of primes — and below it the Gibbs state melts into the symmetry-broken phase whose structure is class field theory. The numeral train is not <i>like</i> a statistical system; it is one, and its thermodynamics is the prime-counting the arc started from.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · What the digs bought</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>dig</th><th>bought, and verified</th><th>not bought</th></tr>
+<tr><td>the cone (§2)</td><td>the dip floor is the window's tail, priced per family; finite-gear windows that detect off-line pairs at β = 0.10; the Gaussian proved sign-blind</td><td>a finite battery certifying positivity — the cone is infinite-dimensional and stays so</td></tr>
+<tr><td>the hunt (§3)</td><td>λ* = −0.00119 measured by validated dynamics; the g²/8 law to 1%; the ladder's economics made explicit</td><td>the wall: Λ ≥ 0 came from a global theorem, and Λ ≤ 0 <i>is</i> RH — no pair census reaches it</td></tr>
+<tr><td>the base (§4–5)</td><td>GL<sub>n</sub>(𝔽₁) = S<sub>n</sub> computed; s(s−1) from counting; ξ = its spectrum to 10⁻⁸; Frobenius = Fermat; the gear gas with energy ∑Λn<sup>−β</sup></td><td>H¹ with an intersection form — the one object Weil's proof consumes and 𝔽₁ has not produced</td></tr>
+</table>
+</div>
+<p>The pattern across the three digs is the same and is worth stating once, plainly. In every direction the computable shadow of the missing proof exists and behaves exactly as the proof would require: the pairing stays positive as far as any window can read, the flow's corridor narrows to within 10⁻³ of the wall by pure table-work, and the 𝔽₁ grammar generates the completed ζ's shape, the Frobenii, and the right symmetry group on demand. What never materialises is the same object each time, seen from three angles: a finite-dimensional positive geometry — a space for the cone's quadratic form to be diagonal in, a mechanism forcing the corridor shut, an H¹ for Frobenius to act on with a Hodge index. <a href="rh9.html#s8">rh9 §8</a> called it the base. The digs did not find it; they established, with numbers, that everything above it is already in place — the arch is built and self-consistent to eight digits, and it stands on a keystone that is not there.</p>
+</section>
+
+<section id="s7">
+<h2 class="prose" style="max-width:46rem">7 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic number theory</th></tr>
+<tr><td>a window ground to a shape, held to the strip</td><td>a test function h = |<i>f̂</i>|² in the Weil cone; its family fixes the tail law</td></tr>
+<tr><td>bandlimited windows consult finitely many gears</td><td>compact supp g ⇒ the prime sum stops at log n ≤ 2a</td></tr>
+<tr><td>the floor between zeros belongs to the window</td><td>dip depth ≈ tail leakage; ordering 1/r² ≫ 1/r⁴ ≫ Gaussian at fixed FWHM</td></tr>
+<tr><td>a detector that reads mass but not sign</td><td>the Gaussian's blindness: off-line pairs enter as positive bumps</td></tr>
+<tr><td>two gears almost touching</td><td>a Lehmer pair: normalised gap ≪ 1, collision time g²/8</td></tr>
+<tr><td>the thermometer's needle, pushed by rare pairs</td><td>computed λ* ladder → Λ lower bounds; wall Λ ≥ 0 (Rodgers–Tao)</td></tr>
+<tr><td>the clock world is the missing base's linear algebra</td><td>GL<sub>n</sub>(𝔽₁) = S<sub>n</sub>; Grassmannians = subset lattices</td></tr>
+<tr><td>the horn's two poles, counted into existence</td><td>ζ<sub>P<i>n</i>/𝔽₁</sub> = 1/s(s−1)⋯(s−n): the ξ-factor from q → 1</td></tr>
+<tr><td>the spectrum is the instrument</td><td>Hadamard: ξ rebuilt from 1517 zeros + tail to 1.1×10⁻⁸</td></tr>
+<tr><td>Frobenius wears the identity mask</td><td>Borger: Λ-ring lifts on ℤ = id; the congruence is Fermat</td></tr>
+<tr><td>the numeral train as a gas at temperature 1/β</td><td>Bost–Connes: Tr e<sup>−βH</sup> = ζ(β); U = ∑Λ(n)n<sup>−β</sup>; transition at β = 1</td></tr>
+<tr><td>the arch without its keystone</td><td>all criteria computable and consistent; no H¹ with intersection form over ℚ</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<p class="meta" style="margin-bottom:.6rem">Additions to the rh4–rh10 lists, which remain in force.</p>
+<ol>
+<li>J. Tits, <i>Sur les analogues algébriques des groupes semi-simples complexes</i>, Colloque d'algèbre supérieure, Bruxelles (1957) — the 𝔽₁ remark.</li>
+<li>D. H. Lehmer, <i>On the roots of the Riemann zeta-function</i>, Acta Math. 95 (1956) — the near-coincident pair; the phenomenon of §3.</li>
+<li>J. D. Vaaler, <i>Some extremal functions in Fourier analysis</i>, Bull. Amer. Math. Soc. 12 (1985) — the Beurling–Selberg problem behind §2's trade-off.</li>
+<li>G. Csordas, W. Smith, R. S. Varga, <i>Lehmer pairs of zeros, the de Bruijn–Newman constant Λ, and the Riemann hypothesis</i>, Constr. Approx. 10 (1994) — Lehmer pairs formalised; Λ &gt; −4.379×10⁻⁶.</li>
+<li>A. M. Odlyzko, <i>An improved bound for the de Bruijn–Newman constant</i>, Numer. Algorithms 25 (2000) — Λ &gt; −2.7×10⁻⁹.</li>
+<li>Y. Saouter, X. Gourdon, P. Demichel, <i>An improved lower bound for the de Bruijn–Newman constant</i>, Math. Comp. 80 (2011) — Λ &gt; −1.145×10⁻¹¹.</li>
+<li>B. Rodgers, T. Tao, <i>The de Bruijn–Newman constant is non-negative</i>, Forum Math. Pi 8 (2020) — the wall.</li>
+<li>J.-B. Bost, A. Connes, <i>Hecke algebras, type III factors and phase transitions with spontaneous symmetry breaking in number theory</i>, Selecta Math. 1 (1995) — the gas of §5.</li>
+<li>C. Deninger, <i>Some analogies between number theory and dynamical systems on foliated spaces</i>, Doc. Math. ICM I (1998) — the determinant dream.</li>
+<li>C. Soulé, <i>Les variétés sur le corps à un élément</i>, Mosc. Math. J. 4 (2004) — ζ over 𝔽₁; the limits of §4.</li>
+<li>J. Borger, <i>Λ-rings and the field with one element</i>, arXiv:0906.3146 (2009) — descent to 𝔽₁ as Λ-structure; §5's Frobenius.</li>
+<li>A. Connes, C. Consani, <i>Schemes over 𝔽₁ and zeta functions</i>, Compos. Math. 146 (2010) — the wider 𝔽₁ programme.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page was computed for this document and cross-checked against 57 named checks plus the inline assertion suite: the 1517 ordinates re-derived to T = 2000 (first ten to 10⁻⁷ of published values; every 100-window audited against Riemann–von Mangoldt, total 1516.99 against 1517 found; strict monotonicity); the Riemann–Weil identity verified for all twenty family–width pairs with both sides truncated at the same T = 2000 (agreement between 5×10⁻⁶ and 5×10⁻⁴ of h(0) by family, the archimedean far zone integrated against a pretabulated ψ-grid); the closed-form Hann transform against its defining integral; the dip table with the floor-ordering assertions at matched resolution and the no-significantly-negative guard (the one negative reading, −2.6×10⁻⁶, inside its ±2×10⁻⁴ band); detection thresholds by exhaustive (β, width, t₀) search with the Gaussian asserted blind through β = 0.45; the collision ODE validated on (γ₄,γ₅) against rh10's direct integral (−0.98899 vs −0.9885, 0.1%, asserted within 8%), the pair-law ratios τ*/(g²/8) ∈ [0.7, 2.5] asserted and measured at 1.00–1.01, the frozen-background interpolation bounded at 2×10⁻⁴; the q → 1 limits ([5]<sub>q</sub>, [4 2]<sub>q</sub>, [3]<sub>q</sub>!, [4]<sub>q</sub>!) exact to 10⁻¹², #GL against its factorisation at q = 2, 3, Soulé's ζ for P¹ and P² at four points to 10⁻⁶ and along the curve to 10⁻⁵; the Hadamard product against direct ξ at 46 points of [−1.5, 3] with measured maximum deviation 1.1×10⁻⁸ (asserted &lt; 10⁻⁷), the zero factor at ½+iγ₁ vanishing to 10⁻¹², ξ(2) = π/6 to 10⁻¹²; the Fermat grid (10 primes × 200 integers, no exception); and the Bost–Connes energy identity at β = 2, 2½ (prime side to 10⁶ with PNT tail, ζ′ by Richardson differences) to an asserted 2×10⁻⁷ and a measured 3×10⁻¹¹. Literature values on the λ-ladder are cited, never presented as computed. Companion texts: <a href="rh4.html">rh4</a> · <a href="rh5.html">rh5</a> · <a href="rh6.html">rh6</a> · <a href="rh7.html">rh7</a> · <a href="rh8.html">rh8</a> · <a href="rh9.html">rh9</a> · <a href="rh10.html">rh10</a>.
+</div>
+
+
+</div>
+<script>
+(function () {
+  var H = {"p":[[59.0,213.0,"&#947;1,2 &#183; gap 6.887 &#183; 1.13&#215; mean"],[61.4,274.1,"&#947;4,5 &#183; gap 2.510 &#183; 0.65&#215; mean"],[63.2,263.5,"&#947;7,8 &#183; gap 2.408 &#183; 0.73&#215; mean"],[64.7,220.5,"&#947;10,11 &#183; gap 3.196 &#183; 1.07&#215; mean"],[66.2,288.3,"&#947;13,14 &#183; gap 1.485 &#183; 0.53&#215; mean"],[67.6,237.2,"&#947;16,17 &#183; gap 2.467 &#183; 0.94&#215; mean"],[69.0,283.4,"&#947;19,20 &#183; gap 1.440 &#183; 0.57&#215; mean"],[70.2,260.6,"&#947;22,23 &#183; gap 1.825 &#183; 0.75&#215; mean"],[71.4,157.6,"&#947;25,26 &#183; gap 3.683 &#183; 1.56&#215; mean"],[72.5,192.3,"&#947;28,29 &#183; gap 2.961 &#183; 1.29&#215; mean"],[73.8,258.3,"&#947;31,32 &#183; gap 1.721 &#183; 0.77&#215; mean"],[74.9,307.0,"&#947;34,35 &#183; gap 0.845 &#183; 0.39&#215; mean"],[76.0,204.5,"&#947;37,38 &#183; gap 2.564 &#183; 1.20&#215; mean"],[77.0,277.3,"&#947;40,41 &#183; gap 1.310 &#183; 0.62&#215; mean"],[78.2,263.7,"&#947;43,44 &#183; gap 1.509 &#183; 0.73&#215; mean"],[79.2,147.3,"&#947;46,47 &#183; gap 3.360 &#183; 1.65&#215; mean"],[80.2,230.9,"&#947;49,50 &#183; gap 1.988 &#183; 0.99&#215; mean"],[81.3,188.0,"&#947;52,53 &#183; gap 2.631 &#183; 1.32&#215; mean"],[81.6,300.1,"&#947;53,54 &#183; gap 0.872 &#183; 0.44&#215; mean"],[82.3,156.4,"&#947;55,56 &#183; gap 3.088 &#183; 1.57&#215; mean"],[83.2,203.2,"&#947;58,59 &#183; gap 2.339 &#183; 1.21&#215; mean"],[84.3,247.1,"&#947;61,62 &#183; gap 1.647 &#183; 0.86&#215; mean"],[84.8,301.6,"&#947;63,64 &#183; gap 0.818 &#183; 0.43&#215; mean"],[85.2,122.4,"&#947;64,65 &#183; gap 3.500 &#183; 1.84&#215; mean"],[86.2,225.5,"&#947;67,68 &#183; gap 1.936 &#183; 1.03&#215; mean"],[87.2,174.4,"&#947;70,71 &#183; gap 2.667 &#183; 1.43&#215; mean"],[87.5,306.5,"&#947;71,72 &#183; gap 0.724 &#183; 0.39&#215; mean"],[88.0,205.9,"&#947;73,74 &#183; gap 2.187 &#183; 1.18&#215; mean"],[89.0,204.7,"&#947;76,77 &#183; gap 2.186 &#183; 1.19&#215; mean"],[89.9,129.2,"&#947;79,80 &#183; gap 3.249 &#183; 1.79&#215; mean"],[90.8,271.3,"&#947;82,83 &#183; gap 1.205 &#183; 0.67&#215; mean"],[91.8,206.2,"&#947;85,86 &#183; gap 2.114 &#183; 1.18&#215; mean"],[92.6,240.3,"&#947;88,89 &#183; gap 1.623 &#183; 0.91&#215; mean"],[93.6,304.6,"&#947;91,92 &#183; gap 0.716 &#183; 0.41&#215; mean"],[94.5,179.7,"&#947;94,95 &#183; gap 2.438 &#183; 1.39&#215; mean"],[95.4,302.4,"&#947;97,98 &#183; gap 0.737 &#183; 0.42&#215; mean"],[96.3,264.7,"&#947;100,101 &#183; gap 1.246 &#183; 0.72&#215; mean"],[97.1,225.3,"&#947;103,104 &#183; gap 1.774 &#183; 1.03&#215; mean"],[98.1,284.5,"&#947;106,107 &#183; gap 0.965 &#183; 0.56&#215; mean"],[98.8,202.9,"&#947;109,110 &#183; gap 2.055 &#183; 1.21&#215; mean"],[99.8,188.9,"&#947;112,113 &#183; gap 2.230 &#183; 1.32&#215; mean"],[100.6,147.5,"&#947;115,116 &#183; gap 2.769 &#183; 1.64&#215; mean"],[101.4,257.1,"&#947;118,119 &#183; gap 1.307 &#183; 0.78&#215; mean"],[102.3,206.5,"&#947;121,122 &#183; gap 1.966 &#183; 1.18&#215; mean"],[103.1,218.5,"&#947;124,125 &#183; gap 1.799 &#183; 1.08&#215; mean"],[104.1,298.7,"&#947;127,128 &#183; gap 0.746 &#183; 0.45&#215; mean"],[104.8,260.0,"&#947;130,131 &#183; gap 1.244 &#183; 0.76&#215; mean"],[105.8,223.3,"&#947;133,134 &#183; gap 1.712 &#183; 1.05&#215; mean"],[106.2,308.8,"&#947;135,136 &#183; gap 0.608 &#183; 0.37&#215; mean"],[106.5,168.8,"&#947;136,137 &#183; gap 2.406 &#183; 1.48&#215; mean"],[107.4,274.1,"&#947;139,140 &#183; gap 1.047 &#183; 0.65&#215; mean"],[108.1,239.1,"&#947;142,143 &#183; gap 1.491 &#183; 0.92&#215; mean"],[109.0,256.5,"&#947;145,146 &#183; gap 1.263 &#183; 0.78&#215; mean"],[109.8,177.3,"&#947;148,149 &#183; gap 2.259 &#183; 1.41&#215; mean"],[110.7,277.8,"&#947;151,152 &#183; gap 0.984 &#183; 0.62&#215; mean"],[111.4,150.3,"&#947;154,155 &#183; gap 2.581 &#183; 1.62&#215; mean"],[112.2,234.3,"&#947;157,158 &#183; gap 1.521 &#183; 0.96&#215; mean"],[112.8,310.6,"&#947;159,160 &#183; gap 0.566 &#183; 0.36&#215; mean"],[113.0,144.9,"&#947;160,161 &#183; gap 2.631 &#183; 1.67&#215; mean"],[113.9,260.6,"&#947;163,164 &#183; gap 1.184 &#183; 0.75&#215; mean"],[114.7,219.7,"&#947;166,167 &#183; gap 1.686 &#183; 1.08&#215; mean"],[115.5,267.4,"&#947;169,170 &#183; gap 1.092 &#183; 0.70&#215; mean"],[116.3,150.2,"&#947;172,173 &#183; gap 2.529 &#183; 1.62&#215; mean"],[117.0,209.8,"&#947;175,176 &#183; gap 1.791 &#183; 1.15&#215; mean"],[117.9,240.9,"&#947;178,179 &#183; gap 1.405 &#183; 0.91&#215; mean"],[118.6,275.9,"&#947;181,182 &#183; gap 0.975 &#183; 0.63&#215; mean"],[119.5,289.8,"&#947;184,185 &#183; gap 0.803 &#183; 0.52&#215; mean"],[119.9,314.9,"&#947;186,187 &#183; gap 0.498 &#183; 0.32&#215; mean"],[120.2,181.4,"&#947;187,188 &#183; gap 2.113 &#183; 1.38&#215; mean"],[121.0,193.6,"&#947;190,191 &#183; gap 1.959 &#183; 1.28&#215; mean"],[121.7,242.8,"&#947;193,194 &#183; gap 1.362 &#183; 0.89&#215; mean"],[122.6,290.2,"&#947;196,197 &#183; gap 0.789 &#183; 0.52&#215; mean"],[123.3,289.2,"&#947;199,200 &#183; gap 0.799 &#183; 0.53&#215; mean"],[124.2,200.5,"&#947;202,203 &#183; gap 1.854 &#183; 1.23&#215; mean"],[124.8,280.5,"&#947;205,206 &#183; gap 0.898 &#183; 0.60&#215; mean"],[125.7,223.9,"&#947;208,209 &#183; gap 1.567 &#183; 1.04&#215; mean"],[126.4,207.6,"&#947;211,212 &#183; gap 1.756 &#183; 1.17&#215; mean"],[126.6,319.1,"&#947;212,213 &#183; gap 0.436 &#183; 0.29&#215; mean"],[127.3,231.1,"&#947;214,215 &#183; gap 1.474 &#183; 0.99&#215; mean"],[127.9,216.7,"&#947;217,218 &#183; gap 1.640 &#183; 1.10&#215; mean"],[128.7,277.7,"&#947;220,221 &#183; gap 0.919 &#183; 0.62&#215; mean"],[129.4,284.5,"&#947;223,224 &#183; gap 0.837 &#183; 0.56&#215; mean"],[130.3,234.4,"&#947;226,227 &#183; gap 1.421 &#183; 0.96&#215; mean"],[130.9,204.6,"&#947;229,230 &#183; gap 1.765 &#183; 1.19&#215; mean"],[131.8,137.5,"&#947;232,233 &#183; gap 2.541 &#183; 1.72&#215; mean"],[132.0,306.0,"&#947;233,234 &#183; gap 0.581 &#183; 0.39&#215; mean"],[132.4,271.7,"&#947;235,236 &#183; gap 0.978 &#183; 0.67&#215; mean"],[133.3,270.6,"&#947;238,239 &#183; gap 0.988 &#183; 0.67&#215; mean"],[134.0,216.6,"&#947;241,242 &#183; gap 1.609 &#183; 1.10&#215; mean"],[134.2,306.2,"&#947;242,243 &#183; gap 0.575 &#183; 0.39&#215; mean"],[134.7,183.2,"&#947;244,245 &#183; gap 1.992 &#183; 1.36&#215; mean"],[135.4,280.5,"&#947;247,248 &#183; gap 0.869 &#183; 0.60&#215; mean"],[136.2,179.5,"&#947;250,251 &#183; gap 2.026 &#183; 1.39&#215; mean"],[137.0,253.9,"&#947;253,254 &#183; gap 1.169 &#183; 0.81&#215; mean"],[137.7,103.3,"&#947;256,257 &#183; gap 2.888 &#183; 1.99&#215; mean"],[138.4,208.0,"&#947;259,260 &#183; gap 1.688 &#183; 1.17&#215; mean"],[139.1,243.4,"&#947;262,263 &#183; gap 1.281 &#183; 0.89&#215; mean"],[139.9,299.3,"&#947;265,266 &#183; gap 0.644 &#183; 0.45&#215; mean"],[140.6,166.2,"&#947;268,269 &#183; gap 2.151 &#183; 1.50&#215; mean"],[141.3,296.6,"&#947;271,272 &#183; gap 0.672 &#183; 0.47&#215; mean"],[142.0,263.1,"&#947;274,275 &#183; gap 1.049 &#183; 0.73&#215; mean"],[142.9,240.8,"&#947;277,278 &#183; gap 1.298 &#183; 0.91&#215; mean"],[143.5,199.0,"&#947;280,281 &#183; gap 1.766 &#183; 1.24&#215; mean"],[144.0,298.6,"&#947;282,283 &#183; gap 0.645 &#183; 0.45&#215; mean"],[144.3,189.2,"&#947;283,284 &#183; gap 1.872 &#183; 1.32&#215; mean"],[144.9,221.8,"&#947;286,287 &#183; gap 1.504 &#183; 1.06&#215; mean"],[145.8,311.1,"&#947;289,290 &#183; gap 0.503 &#183; 0.35&#215; mean"],[146.4,192.9,"&#947;292,293 &#183; gap 1.821 &#183; 1.29&#215; mean"],[147.2,229.9,"&#947;295,296 &#183; gap 1.405 &#183; 0.99&#215; mean"],[147.9,318.4,"&#947;298,299 &#183; gap 0.418 &#183; 0.30&#215; mean"],[148.6,237.8,"&#947;301,302 &#183; gap 1.313 &#183; 0.93&#215; mean"],[149.3,214.8,"&#947;304,305 &#183; gap 1.566 &#183; 1.11&#215; mean"],[150.0,201.0,"&#947;307,308 &#183; gap 1.715 &#183; 1.22&#215; mean"],[150.7,295.8,"&#947;310,311 &#183; gap 0.665 &#183; 0.47&#215; mean"],[151.4,145.8,"&#947;313,314 &#183; gap 2.318 &#183; 1.66&#215; mean"],[151.9,324.7,"&#947;315,316 &#183; gap 0.345 &#183; 0.25&#215; mean"],[152.2,156.9,"&#947;316,317 &#183; gap 2.193 &#183; 1.57&#215; mean"],[152.8,253.5,"&#947;319,320 &#183; gap 1.127 &#183; 0.81&#215; mean"],[153.6,221.2,"&#947;322,323 &#183; gap 1.479 &#183; 1.06&#215; mean"],[154.3,168.1,"&#947;325,326 &#183; gap 2.060 &#183; 1.48&#215; mean"],[155.0,238.1,"&#947;328,329 &#183; gap 1.290 &#183; 0.93&#215; mean"],[155.7,286.6,"&#947;331,332 &#183; gap 0.758 &#183; 0.55&#215; mean"],[156.5,258.3,"&#947;334,335 &#183; gap 1.065 &#183; 0.77&#215; mean"],[157.1,195.0,"&#947;337,338 &#183; gap 1.753 &#183; 1.27&#215; mean"],[157.3,297.7,"&#947;338,339 &#183; gap 0.635 &#183; 0.46&#215; mean"],[157.8,259.2,"&#947;340,341 &#183; gap 1.053 &#183; 0.76&#215; mean"],[158.5,259.6,"&#947;343,344 &#183; gap 1.046 &#183; 0.76&#215; mean"],[159.3,168.8,"&#947;346,347 &#183; gap 2.030 &#183; 1.48&#215; mean"],[159.9,269.6,"&#947;349,350 &#183; gap 0.935 &#183; 0.68&#215; mean"],[160.6,273.5,"&#947;352,353 &#183; gap 0.892 &#183; 0.65&#215; mean"],[161.4,255.2,"&#947;355,356 &#183; gap 1.088 &#183; 0.80&#215; mean"],[161.7,294.3,"&#947;357,358 &#183; gap 0.666 &#183; 0.49&#215; mean"],[162.0,180.2,"&#947;358,359 &#183; gap 1.895 &#183; 1.39&#215; mean"],[162.7,257.8,"&#947;361,362 &#183; gap 1.058 &#183; 0.77&#215; mean"],[163.2,325.1,"&#947;363,364 &#183; gap 0.332 &#183; 0.24&#215; mean"],[163.4,224.0,"&#947;364,365 &#183; gap 1.419 &#183; 1.04&#215; mean"],[164.2,181.4,"&#947;367,368 &#183; gap 1.873 &#183; 1.38&#215; mean"],[164.4,306.7,"&#947;368,369 &#183; gap 0.528 &#183; 0.39&#215; mean"],[164.8,191.2,"&#947;370,371 &#183; gap 1.767 &#183; 1.30&#215; mean"],[165.5,196.1,"&#947;373,374 &#183; gap 1.712 &#183; 1.26&#215; mean"],[166.2,260.1,"&#947;376,377 &#183; gap 1.025 &#183; 0.76&#215; mean"],[166.6,311.9,"&#947;378,379 &#183; gap 0.471 &#183; 0.35&#215; mean"],[166.9,76.8,"&#947;379,380 &#183; gap 2.981 &#183; 2.20&#215; mean"],[167.2,294.9,"&#947;380,381 &#183; gap 0.652 &#183; 0.48&#215; mean"],[167.6,238.3,"&#947;382,383 &#183; gap 1.255 &#183; 0.93&#215; mean"],[168.2,257.1,"&#947;385,386 &#183; gap 1.053 &#183; 0.78&#215; mean"],[169.0,252.7,"&#947;388,389 &#183; gap 1.098 &#183; 0.81&#215; mean"],[169.4,296.4,"&#947;390,391 &#183; gap 0.633 &#183; 0.47&#215; mean"],[169.6,183.9,"&#947;391,392 &#183; gap 1.827 &#183; 1.36&#215; mean"],[170.4,300.8,"&#947;394,395 &#183; gap 0.585 &#183; 0.44&#215; mean"],[171.0,253.0,"&#947;397,398 &#183; gap 1.091 &#183; 0.81&#215; mean"],[171.2,302.1,"&#947;398,399 &#183; gap 0.570 &#183; 0.42&#215; mean"],[171.7,152.5,"&#947;400,401 &#183; gap 2.153 &#183; 1.61&#215; mean"],[172.4,265.2,"&#947;403,404 &#183; gap 0.959 &#183; 0.72&#215; mean"],[173.1,222.6,"&#947;406,407 &#183; gap 1.407 &#183; 1.05&#215; mean"],[173.8,287.2,"&#947;409,410 &#183; gap 0.725 &#183; 0.54&#215; mean"],[174.3,270.5,"&#947;412,413 &#183; gap 0.900 &#183; 0.67&#215; mean"],[175.1,260.4,"&#947;415,416 &#183; gap 1.005 &#183; 0.75&#215; mean"],[175.8,252.0,"&#947;418,419 &#183; gap 1.092 &#183; 0.82&#215; mean"],[176.5,264.4,"&#947;421,422 &#183; gap 0.961 &#183; 0.72&#215; mean"],[177.1,274.9,"&#947;424,425 &#183; gap 0.849 &#183; 0.64&#215; mean"],[177.9,225.0,"&#947;427,428 &#183; gap 1.370 &#183; 1.03&#215; mean"],[178.5,197.7,"&#947;430,431 &#183; gap 1.654 &#183; 1.25&#215; mean"],[179.1,287.3,"&#947;433,434 &#183; gap 0.717 &#183; 0.54&#215; mean"],[179.9,322.1,"&#947;436,437 &#183; gap 0.353 &#183; 0.27&#215; mean"],[180.5,221.5,"&#947;439,440 &#183; gap 1.401 &#183; 1.06&#215; mean"],[181.2,232.2,"&#947;442,443 &#183; gap 1.288 &#183; 0.98&#215; mean"],[181.8,292.1,"&#947;445,446 &#183; gap 0.664 &#183; 0.50&#215; mean"],[182.6,216.3,"&#947;448,449 &#183; gap 1.450 &#183; 1.10&#215; mean"],[183.2,301.2,"&#947;451,452 &#183; gap 0.568 &#183; 0.43&#215; mean"],[183.6,326.0,"&#947;453,454 &#183; gap 0.310 &#183; 0.24&#215; mean"],[183.8,170.5,"&#947;454,455 &#183; gap 1.921 &#183; 1.46&#215; mean"],[184.6,266.2,"&#947;457,458 &#183; gap 0.929 &#183; 0.71&#215; mean"],[185.1,222.3,"&#947;460,461 &#183; gap 1.382 &#183; 1.05&#215; mean"],[185.9,286.8,"&#947;463,464 &#183; gap 0.715 &#183; 0.55&#215; mean"],[186.5,252.9,"&#947;466,467 &#183; gap 1.063 &#183; 0.81&#215; mean"],[187.2,172.4,"&#947;469,470 &#183; gap 1.891 &#183; 1.45&#215; mean"],[187.8,263.5,"&#947;472,473 &#183; gap 0.952 &#183; 0.73&#215; mean"],[188.6,240.1,"&#947;475,476 &#183; gap 1.192 &#183; 0.91&#215; mean"],[189.0,311.2,"&#947;477,478 &#183; gap 0.460 &#183; 0.35&#215; mean"],[189.2,191.3,"&#947;478,479 &#183; gap 1.691 &#183; 1.30&#215; mean"],[189.8,257.8,"&#947;481,482 &#183; gap 1.007 &#183; 0.77&#215; mean"],[190.6,200.2,"&#947;484,485 &#183; gap 1.596 &#183; 1.23&#215; mean"],[190.8,311.0,"&#947;485,486 &#183; gap 0.461 &#183; 0.35&#215; mean"],[191.2,246.3,"&#947;487,488 &#183; gap 1.123 &#183; 0.86&#215; mean"],[191.9,263.4,"&#947;490,491 &#183; gap 0.947 &#183; 0.73&#215; mean"],[192.5,287.4,"&#947;493,494 &#183; gap 0.701 &#183; 0.54&#215; mean"],[193.2,131.6,"&#947;496,497 &#183; gap 2.290 &#183; 1.77&#215; mean"],[193.8,247.9,"&#947;499,500 &#183; gap 1.103 &#183; 0.85&#215; mean"],[194.5,275.0,"&#947;502,503 &#183; gap 0.825 &#183; 0.64&#215; mean"],[195.2,275.0,"&#947;505,506 &#183; gap 0.824 &#183; 0.64&#215; mean"],[195.7,308.4,"&#947;508,509 &#183; gap 0.484 &#183; 0.38&#215; mean"],[196.5,270.7,"&#947;511,512 &#183; gap 0.867 &#183; 0.67&#215; mean"],[197.1,212.2,"&#947;514,515 &#183; gap 1.459 &#183; 1.13&#215; mean"],[197.8,193.4,"&#947;517,518 &#183; gap 1.648 &#183; 1.28&#215; mean"],[198.4,267.0,"&#947;520,521 &#183; gap 0.902 &#183; 0.70&#215; mean"],[199.1,256.7,"&#947;523,524 &#183; gap 1.005 &#183; 0.78&#215; mean"],[199.6,292.7,"&#947;525,526 &#183; gap 0.640 &#183; 0.50&#215; mean"],[199.7,218.6,"&#947;526,527 &#183; gap 1.389 &#183; 1.08&#215; mean"],[200.2,304.8,"&#947;528,529 &#183; gap 0.518 &#183; 0.40&#215; mean"],[200.4,220.1,"&#947;529,530 &#183; gap 1.373 &#183; 1.07&#215; mean"],[201.1,263.6,"&#947;532,533 &#183; gap 0.932 &#183; 0.73&#215; mean"],[201.7,274.0,"&#947;535,536 &#183; gap 0.827 &#183; 0.65&#215; mean"],[202.3,280.5,"&#947;538,539 &#183; gap 0.760 &#183; 0.60&#215; mean"],[203.0,231.4,"&#947;541,542 &#183; gap 1.254 &#183; 0.98&#215; mean"],[203.6,258.8,"&#947;544,545 &#183; gap 0.977 &#183; 0.77&#215; mean"],[204.3,265.4,"&#947;547,548 &#183; gap 0.910 &#183; 0.71&#215; mean"],[205.0,294.7,"&#947;550,551 &#183; gap 0.616 &#183; 0.48&#215; mean"],[205.6,211.0,"&#947;553,554 &#183; gap 1.454 &#183; 1.14&#215; mean"],[206.2,279.3,"&#947;556,557 &#183; gap 0.768 &#183; 0.60&#215; mean"],[206.9,193.9,"&#947;559,560 &#183; gap 1.623 &#183; 1.28&#215; mean"],[207.6,198.7,"&#947;562,563 &#183; gap 1.573 &#183; 1.24&#215; mean"],[208.2,304.8,"&#947;565,566 &#183; gap 0.512 &#183; 0.40&#215; mean"],[208.9,292.2,"&#947;568,569 &#183; gap 0.637 &#183; 0.50&#215; mean"],[209.5,270.2,"&#947;571,572 &#183; gap 0.857 &#183; 0.68&#215; mean"],[210.1,172.7,"&#947;574,575 &#183; gap 1.827 &#183; 1.45&#215; mean"],[210.8,250.7,"&#947;577,578 &#183; gap 1.049 &#183; 0.83&#215; mean"],[211.1,306.5,"&#947;579,580 &#183; gap 0.493 &#183; 0.39&#215; mean"],[211.3,164.5,"&#947;580,581 &#183; gap 1.906 &#183; 1.51&#215; mean"],[212.1,254.3,"&#947;583,584 &#183; gap 1.011 &#183; 0.80&#215; mean"],[212.3,294.4,"&#947;584,585 &#183; gap 0.612 &#183; 0.49&#215; mean"],[212.7,220.7,"&#947;586,587 &#183; gap 1.344 &#183; 1.07&#215; mean"],[213.4,176.9,"&#947;589,590 &#183; gap 1.778 &#183; 1.41&#215; mean"],[214.0,234.0,"&#947;592,593 &#183; gap 1.210 &#183; 0.96&#215; mean"],[214.6,100.5,"&#947;595,596 &#183; gap 2.533 &#183; 2.02&#215; mean"],[214.9,294.4,"&#947;596,597 &#183; gap 0.610 &#183; 0.49&#215; mean"],[215.3,224.3,"&#947;598,599 &#183; gap 1.304 &#183; 1.04&#215; mean"],[215.9,204.8,"&#947;601,602 &#183; gap 1.496 &#183; 1.19&#215; mean"],[216.6,240.1,"&#947;604,605 &#183; gap 1.145 &#183; 0.91&#215; mean"],[217.0,324.3,"&#947;606,607 &#183; gap 0.313 &#183; 0.25&#215; mean"],[217.1,227.7,"&#947;607,608 &#183; gap 1.268 &#183; 1.01&#215; mean"],[217.8,184.3,"&#947;610,611 &#183; gap 1.695 &#183; 1.35&#215; mean"],[218.5,168.8,"&#947;613,614 &#183; gap 1.846 &#183; 1.48&#215; mean"],[219.0,250.0,"&#947;616,617 &#183; gap 1.045 &#183; 0.84&#215; mean"],[219.8,316.9,"&#947;619,620 &#183; gap 0.385 &#183; 0.31&#215; mean"],[220.3,227.9,"&#947;622,623 &#183; gap 1.260 &#183; 1.01&#215; mean"],[221.0,259.8,"&#947;625,626 &#183; gap 0.946 &#183; 0.76&#215; mean"],[221.6,264.2,"&#947;628,629 &#183; gap 0.902 &#183; 0.72&#215; mean"],[222.2,167.6,"&#947;631,632 &#183; gap 1.849 &#183; 1.49&#215; mean"],[222.9,243.1,"&#947;634,635 &#183; gap 1.108 &#183; 0.89&#215; mean"],[223.6,259.7,"&#947;637,638 &#183; gap 0.944 &#183; 0.76&#215; mean"],[224.2,230.3,"&#947;640,641 &#183; gap 1.231 &#183; 0.99&#215; mean"],[224.8,306.4,"&#947;643,644 &#183; gap 0.486 &#183; 0.39&#215; mean"],[225.5,222.4,"&#947;646,647 &#183; gap 1.307 &#183; 1.05&#215; mean"],[226.1,196.6,"&#947;649,650 &#183; gap 1.558 &#183; 1.26&#215; mean"],[226.7,211.9,"&#947;652,653 &#183; gap 1.407 &#183; 1.14&#215; mean"],[227.4,275.1,"&#947;655,656 &#183; gap 0.789 &#183; 0.64&#215; mean"],[228.0,167.3,"&#947;658,659 &#183; gap 1.840 &#183; 1.49&#215; mean"],[228.6,215.4,"&#947;661,662 &#183; gap 1.371 &#183; 1.11&#215; mean"],[229.3,221.8,"&#947;664,665 &#183; gap 1.307 &#183; 1.06&#215; mean"],[229.8,218.2,"&#947;667,668 &#183; gap 1.341 &#183; 1.09&#215; mean"],[230.3,310.5,"&#947;669,670 &#183; gap 0.442 &#183; 0.36&#215; mean"],[230.5,175.0,"&#947;670,671 &#183; gap 1.760 &#183; 1.43&#215; mean"],[231.1,184.2,"&#947;673,674 &#183; gap 1.670 &#183; 1.36&#215; mean"],[231.7,170.7,"&#947;676,677 &#183; gap 1.800 &#183; 1.46&#215; mean"],[232.4,246.5,"&#947;679,680 &#183; gap 1.063 &#183; 0.86&#215; mean"],[233.0,216.0,"&#947;682,683 &#183; gap 1.357 &#183; 1.10&#215; mean"],[233.6,294.9,"&#947;685,686 &#183; gap 0.592 &#183; 0.48&#215; mean"],[234.2,256.2,"&#947;688,689 &#183; gap 0.967 &#183; 0.79&#215; mean"],[234.9,183.5,"&#947;691,692 &#183; gap 1.669 &#183; 1.36&#215; mean"],[235.3,333.1,"&#947;693,694 &#183; gap 0.221 &#183; 0.18&#215; mean"],[235.5,181.6,"&#947;694,695 &#183; gap 1.687 &#183; 1.38&#215; mean"],[235.7,313.5,"&#947;695,696 &#183; gap 0.411 &#183; 0.34&#215; mean"],[236.1,251.9,"&#947;697,698 &#183; gap 1.006 &#183; 0.82&#215; mean"],[236.8,236.3,"&#947;700,701 &#183; gap 1.156 &#183; 0.94&#215; mean"],[237.4,257.0,"&#947;703,704 &#183; gap 0.956 &#183; 0.78&#215; mean"],[237.5,296.8,"&#947;704,705 &#183; gap 0.571 &#183; 0.47&#215; mean"],[238.1,243.6,"&#947;706,707 &#183; gap 1.084 &#183; 0.89&#215; mean"],[238.6,233.8,"&#947;709,710 &#183; gap 1.177 &#183; 0.96&#215; mean"],[239.2,177.1,"&#947;712,713 &#183; gap 1.723 &#183; 1.41&#215; mean"],[240.0,170.9,"&#947;715,716 &#183; gap 1.782 &#183; 1.46&#215; mean"],[240.1,320.4,"&#947;716,717 &#183; gap 0.343 &#183; 0.28&#215; mean"],[240.4,203.8,"&#947;718,719 &#183; gap 1.465 &#183; 1.20&#215; mean"],[241.2,247.9,"&#947;721,722 &#183; gap 1.040 &#183; 0.85&#215; mean"],[241.7,177.8,"&#947;724,725 &#183; gap 1.712 &#183; 1.41&#215; mean"],[242.3,255.1,"&#947;727,728 &#183; gap 0.969 &#183; 0.80&#215; mean"],[242.8,301.8,"&#947;729,730 &#183; gap 0.520 &#183; 0.43&#215; mean"],[243.0,229.5,"&#947;730,731 &#183; gap 1.214 &#183; 1.00&#215; mean"],[243.5,232.9,"&#947;733,734 &#183; gap 1.181 &#183; 0.97&#215; mean"],[244.2,251.6,"&#947;736,737 &#183; gap 1.000 &#183; 0.82&#215; mean"],[244.9,251.6,"&#947;739,740 &#183; gap 0.999 &#183; 0.82&#215; mean"],[245.4,181.7,"&#947;742,743 &#183; gap 1.668 &#183; 1.37&#215; mean"],[246.1,280.9,"&#947;745,746 &#183; gap 0.718 &#183; 0.59&#215; mean"],[246.7,219.7,"&#947;748,749 &#183; gap 1.303 &#183; 1.07&#215; mean"],[247.3,309.0,"&#947;751,752 &#183; gap 0.449 &#183; 0.37&#215; mean"],[247.9,219.9,"&#947;754,755 &#183; gap 1.299 &#183; 1.07&#215; mean"],[248.5,124.0,"&#947;757,758 &#183; gap 2.213 &#183; 1.83&#215; mean"],[249.2,212.6,"&#947;760,761 &#183; gap 1.367 &#183; 1.13&#215; mean"],[249.8,174.5,"&#947;763,764 &#183; gap 1.730 &#183; 1.43&#215; mean"],[250.0,299.4,"&#947;764,765 &#183; gap 0.539 &#183; 0.45&#215; mean"],[250.4,154.0,"&#947;766,767 &#183; gap 1.924 &#183; 1.59&#215; mean"],[251.0,258.8,"&#947;769,770 &#183; gap 0.925 &#183; 0.77&#215; mean"],[251.6,189.9,"&#947;772,773 &#183; gap 1.580 &#183; 1.31&#215; mean"],[252.2,271.1,"&#947;775,776 &#183; gap 0.807 &#183; 0.67&#215; mean"],[252.8,296.1,"&#947;778,779 &#183; gap 0.569 &#183; 0.47&#215; mean"],[253.5,241.1,"&#947;781,782 &#183; gap 1.091 &#183; 0.91&#215; mean"],[254.1,299.8,"&#947;784,785 &#183; gap 0.534 &#183; 0.44&#215; mean"],[254.7,186.0,"&#947;787,788 &#183; gap 1.612 &#183; 1.34&#215; mean"],[255.4,231.0,"&#947;790,791 &#183; gap 1.185 &#183; 0.99&#215; mean"],[255.9,206.4,"&#947;793,794 &#183; gap 1.417 &#183; 1.18&#215; mean"],[256.1,306.0,"&#947;794,795 &#183; gap 0.473 &#183; 0.39&#215; mean"],[256.3,81.9,"&#947;795,796 &#183; gap 2.595 &#183; 2.16&#215; mean"],[256.6,255.4,"&#947;796,797 &#183; gap 0.952 &#183; 0.79&#215; mean"],[257.1,236.5,"&#947;799,800 &#183; gap 1.131 &#183; 0.94&#215; mean"],[257.7,200.6,"&#947;802,803 &#183; gap 1.470 &#183; 1.23&#215; mean"],[258.4,195.2,"&#947;805,806 &#183; gap 1.519 &#183; 1.27&#215; mean"],[258.9,299.5,"&#947;808,809 &#183; gap 0.533 &#183; 0.45&#215; mean"],[259.6,184.9,"&#947;811,812 &#183; gap 1.615 &#183; 1.35&#215; mean"],[260.2,220.6,"&#947;814,815 &#183; gap 1.278 &#183; 1.07&#215; mean"],[260.8,236.1,"&#947;817,818 &#183; gap 1.130 &#183; 0.95&#215; mean"],[261.5,301.0,"&#947;820,821 &#183; gap 0.518 &#183; 0.43&#215; mean"],[262.0,282.0,"&#947;823,824 &#183; gap 0.697 &#183; 0.58&#215; mean"],[262.7,271.7,"&#947;826,827 &#183; gap 0.794 &#183; 0.67&#215; mean"],[263.3,296.0,"&#947;829,830 &#183; gap 0.564 &#183; 0.47&#215; mean"],[263.8,222.0,"&#947;832,833 &#183; gap 1.260 &#183; 1.06&#215; mean"],[264.5,209.5,"&#947;835,836 &#183; gap 1.377 &#183; 1.16&#215; mean"],[265.0,165.3,"&#947;838,839 &#183; gap 1.791 &#183; 1.50&#215; mean"],[265.7,169.8,"&#947;841,842 &#183; gap 1.748 &#183; 1.47&#215; mean"],[266.3,187.8,"&#947;844,845 &#183; gap 1.578 &#183; 1.33&#215; mean"],[266.5,304.8,"&#947;845,846 &#183; gap 0.480 &#183; 0.40&#215; mean"],[266.8,214.9,"&#947;847,848 &#183; gap 1.323 &#183; 1.11&#215; mean"],[267.4,306.9,"&#947;849,850 &#183; gap 0.460 &#183; 0.39&#215; mean"],[267.5,215.9,"&#947;850,851 &#183; gap 1.313 &#183; 1.11&#215; mean"],[268.1,282.3,"&#947;853,854 &#183; gap 0.691 &#183; 0.58&#215; mean"],[268.7,250.5,"&#947;856,857 &#183; gap 0.987 &#183; 0.83&#215; mean"],[269.3,251.6,"&#947;859,860 &#183; gap 0.977 &#183; 0.82&#215; mean"],[269.9,223.6,"&#947;862,863 &#183; gap 1.238 &#183; 1.04&#215; mean"],[270.6,254.9,"&#947;865,866 &#183; gap 0.945 &#183; 0.80&#215; mean"],[271.1,225.2,"&#947;868,869 &#183; gap 1.222 &#183; 1.03&#215; mean"],[271.5,316.4,"&#947;870,871 &#183; gap 0.370 &#183; 0.31&#215; mean"],[271.7,83.1,"&#947;871,872 &#183; gap 2.548 &#183; 2.15&#215; mean"],[272.4,229.8,"&#947;874,875 &#183; gap 1.177 &#183; 0.99&#215; mean"],[272.9,168.3,"&#947;877,878 &#183; gap 1.750 &#183; 1.48&#215; mean"],[273.6,267.7,"&#947;880,881 &#183; gap 0.823 &#183; 0.70&#215; mean"],[274.1,320.1,"&#947;883,884 &#183; gap 0.335 &#183; 0.28&#215; mean"],[274.7,171.8,"&#947;886,887 &#183; gap 1.715 &#183; 1.45&#215; mean"],[275.3,322.4,"&#947;889,890 &#183; gap 0.313 &#183; 0.27&#215; mean"],[275.9,288.9,"&#947;892,893 &#183; gap 0.625 &#183; 0.53&#215; mean"],[276.6,199.5,"&#947;895,896 &#183; gap 1.455 &#183; 1.23&#215; mean"],[277.2,247.8,"&#947;898,899 &#183; gap 1.006 &#183; 0.85&#215; mean"],[277.7,126.8,"&#947;901,902 &#183; gap 2.128 &#183; 1.81&#215; mean"],[278.4,170.6,"&#947;904,905 &#183; gap 1.721 &#183; 1.46&#215; mean"],[278.6,309.3,"&#947;905,906 &#183; gap 0.433 &#183; 0.37&#215; mean"],[279.0,257.9,"&#947;907,908 &#183; gap 0.910 &#183; 0.77&#215; mean"],[279.6,123.1,"&#947;910,911 &#183; gap 2.159 &#183; 1.84&#215; mean"],[280.2,272.2,"&#947;913,914 &#183; gap 0.777 &#183; 0.66&#215; mean"],[280.7,288.0,"&#947;916,917 &#183; gap 0.630 &#183; 0.54&#215; mean"],[281.4,275.6,"&#947;919,920 &#183; gap 0.744 &#183; 0.63&#215; mean"],[282.0,338.6,"&#947;922,923 &#183; gap 0.162 &#183; 0.14&#215; mean"],[282.6,156.5,"&#947;925,926 &#183; gap 1.846 &#183; 1.57&#215; mean"],[283.2,248.4,"&#947;928,929 &#183; gap 0.995 &#183; 0.85&#215; mean"],[283.7,193.3,"&#947;931,932 &#183; gap 1.503 &#183; 1.28&#215; mean"],[284.4,188.5,"&#947;934,935 &#183; gap 1.548 &#183; 1.32&#215; mean"],[284.8,328.5,"&#947;936,937 &#183; gap 0.254 &#183; 0.22&#215; mean"],[284.9,162.3,"&#947;937,938 &#183; gap 1.788 &#183; 1.53&#215; mean"],[285.1,302.1,"&#947;938,939 &#183; gap 0.498 &#183; 0.43&#215; mean"],[285.5,116.4,"&#947;940,941 &#183; gap 2.211 &#183; 1.89&#215; mean"],[286.1,312.3,"&#947;943,944 &#183; gap 0.403 &#183; 0.34&#215; mean"],[286.7,229.5,"&#947;946,947 &#183; gap 1.166 &#183; 1.00&#215; mean"],[287.4,247.5,"&#947;949,950 &#183; gap 1.000 &#183; 0.86&#215; mean"],[287.9,280.3,"&#947;952,953 &#183; gap 0.697 &#183; 0.60&#215; mean"],[288.5,222.8,"&#947;955,956 &#183; gap 1.226 &#183; 1.05&#215; mean"],[289.1,278.5,"&#947;958,959 &#183; gap 0.713 &#183; 0.61&#215; mean"],[289.7,231.2,"&#947;961,962 &#183; gap 1.148 &#183; 0.98&#215; mean"],[290.3,83.4,"&#947;964,965 &#183; gap 2.506 &#183; 2.15&#215; mean"],[290.6,305.4,"&#947;965,966 &#183; gap 0.465 &#183; 0.40&#215; mean"],[290.9,217.6,"&#947;967,968 &#183; gap 1.272 &#183; 1.09&#215; mean"],[291.5,223.2,"&#947;970,971 &#183; gap 1.219 &#183; 1.05&#215; mean"],[292.1,176.9,"&#947;973,974 &#183; gap 1.644 &#183; 1.41&#215; mean"],[292.7,269.8,"&#947;976,977 &#183; gap 0.791 &#183; 0.68&#215; mean"],[293.3,175.0,"&#947;979,980 &#183; gap 1.660 &#183; 1.43&#215; mean"],[293.9,246.7,"&#947;982,983 &#183; gap 1.002 &#183; 0.86&#215; mean"],[294.5,311.3,"&#947;985,986 &#183; gap 0.409 &#183; 0.35&#215; mean"],[295.1,201.2,"&#947;988,989 &#183; gap 1.418 &#183; 1.22&#215; mean"],[295.6,279.1,"&#947;991,992 &#183; gap 0.704 &#183; 0.61&#215; mean"],[296.2,150.8,"&#947;994,995 &#183; gap 1.877 &#183; 1.62&#215; mean"],[296.7,334.6,"&#947;996,997 &#183; gap 0.196 &#183; 0.17&#215; mean"],[296.8,211.6,"&#947;997,998 &#183; gap 1.321 &#183; 1.14&#215; mean"],[297.4,247.3,"&#947;1000,1001 &#183; gap 0.994 &#183; 0.86&#215; mean"],[298.0,137.0,"&#947;1003,1004 &#183; gap 2.002 &#183; 1.73&#215; mean"],[298.6,277.2,"&#947;1006,1007 &#183; gap 0.720 &#183; 0.62&#215; mean"],[299.2,184.3,"&#947;1009,1010 &#183; gap 1.568 &#183; 1.35&#215; mean"],[299.8,272.4,"&#947;1012,1013 &#183; gap 0.763 &#183; 0.66&#215; mean"],[300.4,270.5,"&#947;1015,1016 &#183; gap 0.780 &#183; 0.67&#215; mean"],[300.9,99.6,"&#947;1018,1019 &#183; gap 2.338 &#183; 2.02&#215; mean"],[301.6,242.9,"&#947;1021,1022 &#183; gap 1.030 &#183; 0.89&#215; mean"],[302.1,235.5,"&#947;1024,1025 &#183; gap 1.098 &#183; 0.95&#215; mean"],[302.7,239.4,"&#947;1027,1028 &#183; gap 1.062 &#183; 0.92&#215; mean"],[303.2,302.3,"&#947;1029,1030 &#183; gap 0.488 &#183; 0.42&#215; mean"],[303.3,236.7,"&#947;1030,1031 &#183; gap 1.086 &#183; 0.94&#215; mean"],[303.9,262.1,"&#947;1033,1034 &#183; gap 0.855 &#183; 0.74&#215; mean"],[304.4,294.7,"&#947;1035,1036 &#183; gap 0.557 &#183; 0.48&#215; mean"],[304.5,243.8,"&#947;1036,1037 &#183; gap 1.021 &#183; 0.89&#215; mean"],[305.1,224.8,"&#947;1039,1040 &#183; gap 1.193 &#183; 1.03&#215; mean"],[305.6,175.1,"&#947;1042,1043 &#183; gap 1.644 &#183; 1.43&#215; mean"],[306.1,309.5,"&#947;1044,1045 &#183; gap 0.422 &#183; 0.37&#215; mean"],[306.3,176.4,"&#947;1045,1046 &#183; gap 1.631 &#183; 1.42&#215; mean"],[306.6,305.6,"&#947;1047,1048 &#183; gap 0.458 &#183; 0.40&#215; mean"],[306.8,147.9,"&#947;1048,1049 &#183; gap 1.889 &#183; 1.64&#215; mean"],[307.4,210.7,"&#947;1051,1052 &#183; gap 1.319 &#183; 1.15&#215; mean"],[308.0,238.2,"&#947;1054,1055 &#183; gap 1.068 &#183; 0.93&#215; mean"],[308.5,206.7,"&#947;1057,1058 &#183; gap 1.353 &#183; 1.18&#215; mean"],[309.2,276.7,"&#947;1060,1061 &#183; gap 0.718 &#183; 0.63&#215; mean"],[309.8,229.0,"&#947;1063,1064 &#183; gap 1.151 &#183; 1.00&#215; mean"],[310.4,212.8,"&#947;1066,1067 &#183; gap 1.297 &#183; 1.13&#215; mean"],[311.0,277.4,"&#947;1069,1070 &#183; gap 0.711 &#183; 0.62&#215; mean"],[311.5,273.7,"&#947;1072,1073 &#183; gap 0.745 &#183; 0.65&#215; mean"],[312.2,217.3,"&#947;1075,1076 &#183; gap 1.254 &#183; 1.09&#215; mean"],[312.7,233.1,"&#947;1078,1079 &#183; gap 1.111 &#183; 0.97&#215; mean"],[313.2,245.3,"&#947;1081,1082 &#183; gap 1.000 &#183; 0.87&#215; mean"],[313.9,213.9,"&#947;1084,1085 &#183; gap 1.284 &#183; 1.12&#215; mean"],[314.4,297.0,"&#947;1087,1088 &#183; gap 0.533 &#183; 0.47&#215; mean"],[315.1,218.7,"&#947;1090,1091 &#183; gap 1.239 &#183; 1.08&#215; mean"],[315.2,300.3,"&#947;1091,1092 &#183; gap 0.503 &#183; 0.44&#215; mean"],[315.6,191.0,"&#947;1093,1094 &#183; gap 1.489 &#183; 1.30&#215; mean"],[316.0,318.8,"&#947;1095,1096 &#183; gap 0.336 &#183; 0.29&#215; mean"],[316.1,172.9,"&#947;1096,1097 &#183; gap 1.651 &#183; 1.44&#215; mean"],[316.9,227.8,"&#947;1099,1100 &#183; gap 1.155 &#183; 1.01&#215; mean"],[317.3,241.7,"&#947;1102,1103 &#183; gap 1.030 &#183; 0.90&#215; mean"],[318.0,165.9,"&#947;1105,1106 &#183; gap 1.712 &#183; 1.50&#215; mean"],[318.6,276.5,"&#947;1108,1109 &#183; gap 0.716 &#183; 0.63&#215; mean"],[319.1,299.4,"&#947;1111,1112 &#183; gap 0.509 &#183; 0.45&#215; mean"],[319.5,89.0,"&#947;1113,1114 &#183; gap 2.402 &#183; 2.11&#215; mean"],[319.8,274.5,"&#947;1114,1115 &#183; gap 0.733 &#183; 0.64&#215; mean"],[320.3,271.0,"&#947;1117,1118 &#183; gap 0.765 &#183; 0.67&#215; mean"],[320.8,250.9,"&#947;1120,1121 &#183; gap 0.945 &#183; 0.83&#215; mean"],[321.5,185.3,"&#947;1123,1124 &#183; gap 1.534 &#183; 1.35&#215; mean"],[322.0,273.9,"&#947;1126,1127 &#183; gap 0.738 &#183; 0.65&#215; mean"],[322.6,200.2,"&#947;1129,1130 &#183; gap 1.399 &#183; 1.23&#215; mean"],[323.0,296.3,"&#947;1131,1132 &#183; gap 0.536 &#183; 0.47&#215; mean"],[323.1,266.9,"&#947;1132,1133 &#183; gap 0.800 &#183; 0.70&#215; mean"],[323.6,308.7,"&#947;1134,1135 &#183; gap 0.424 &#183; 0.37&#215; mean"],[323.7,199.1,"&#947;1135,1136 &#183; gap 1.407 &#183; 1.24&#215; mean"],[323.9,297.7,"&#947;1136,1137 &#183; gap 0.523 &#183; 0.46&#215; mean"],[324.4,200.4,"&#947;1138,1139 &#183; gap 1.395 &#183; 1.23&#215; mean"],[324.9,248.2,"&#947;1141,1142 &#183; gap 0.966 &#183; 0.85&#215; mean"],[325.5,126.3,"&#947;1144,1145 &#183; gap 2.058 &#183; 1.81&#215; mean"],[326.1,222.6,"&#947;1147,1148 &#183; gap 1.194 &#183; 1.05&#215; mean"],[326.5,304.9,"&#947;1149,1150 &#183; gap 0.458 &#183; 0.40&#215; mean"],[326.6,206.0,"&#947;1150,1151 &#183; gap 1.343 &#183; 1.18&#215; mean"],[327.2,127.9,"&#947;1153,1154 &#183; gap 2.042 &#183; 1.80&#215; mean"],[327.8,222.0,"&#947;1156,1157 &#183; gap 1.199 &#183; 1.06&#215; mean"],[328.0,308.1,"&#947;1157,1158 &#183; gap 0.429 &#183; 0.38&#215; mean"],[328.4,255.0,"&#947;1159,1160 &#183; gap 0.903 &#183; 0.80&#215; mean"],[329.0,269.7,"&#947;1162,1163 &#183; gap 0.772 &#183; 0.68&#215; mean"],[329.6,225.4,"&#947;1165,1166 &#183; gap 1.167 &#183; 1.03&#215; mean"],[329.7,328.0,"&#947;1166,1167 &#183; gap 0.251 &#183; 0.22&#215; mean"],[330.1,172.2,"&#947;1168,1169 &#183; gap 1.642 &#183; 1.45&#215; mean"],[330.7,263.8,"&#947;1171,1172 &#183; gap 0.824 &#183; 0.73&#215; mean"],[331.3,197.5,"&#947;1174,1175 &#183; gap 1.415 &#183; 1.25&#215; mean"],[331.8,257.5,"&#947;1177,1178 &#183; gap 0.879 &#183; 0.78&#215; mean"],[332.5,309.7,"&#947;1180,1181 &#183; gap 0.413 &#183; 0.37&#215; mean"],[333.0,250.2,"&#947;1183,1184 &#183; gap 0.943 &#183; 0.83&#215; mean"],[333.6,275.8,"&#947;1186,1187 &#183; gap 0.714 &#183; 0.63&#215; mean"],[334.2,202.1,"&#947;1189,1190 &#183; gap 1.371 &#183; 1.21&#215; mean"],[334.7,218.8,"&#947;1192,1193 &#183; gap 1.222 &#183; 1.08&#215; mean"],[335.4,169.3,"&#947;1195,1196 &#183; gap 1.662 &#183; 1.47&#215; mean"],[335.6,292.9,"&#947;1196,1197 &#183; gap 0.562 &#183; 0.50&#215; mean"],[335.8,237.9,"&#947;1198,1199 &#183; gap 1.051 &#183; 0.93&#215; mean"],[336.5,210.0,"&#947;1201,1202 &#183; gap 1.298 &#183; 1.15&#215; mean"],[337.1,183.4,"&#947;1204,1205 &#183; gap 1.535 &#183; 1.36&#215; mean"],[337.3,297.4,"&#947;1205,1206 &#183; gap 0.521 &#183; 0.46&#215; mean"],[337.6,210.7,"&#947;1207,1208 &#183; gap 1.292 &#183; 1.15&#215; mean"],[337.7,305.1,"&#947;1208,1209 &#183; gap 0.453 &#183; 0.40&#215; mean"],[338.0,80.0,"&#947;1209,1210 &#183; gap 2.453 &#183; 2.18&#215; mean"],[338.3,261.5,"&#947;1210,1211 &#183; gap 0.840 &#183; 0.75&#215; mean"],[338.6,295.2,"&#947;1212,1213 &#183; gap 0.540 &#183; 0.48&#215; mean"],[338.7,166.9,"&#947;1213,1214 &#183; gap 1.680 &#183; 1.49&#215; mean"],[339.3,202.5,"&#947;1216,1217 &#183; gap 1.363 &#183; 1.21&#215; mean"],[340.0,200.8,"&#947;1219,1220 &#183; gap 1.377 &#183; 1.22&#215; mean"],[340.5,274.4,"&#947;1222,1223 &#183; gap 0.724 &#183; 0.64&#215; mean"],[341.1,206.2,"&#947;1225,1226 &#183; gap 1.329 &#183; 1.18&#215; mean"],[341.6,307.9,"&#947;1228,1229 &#183; gap 0.427 &#183; 0.38&#215; mean"],[342.2,254.6,"&#947;1231,1232 &#183; gap 0.898 &#183; 0.80&#215; mean"],[342.3,312.3,"&#947;1232,1233 &#183; gap 0.387 &#183; 0.34&#215; mean"],[342.8,168.8,"&#947;1234,1235 &#183; gap 1.659 &#183; 1.48&#215; mean"],[343.4,203.8,"&#947;1237,1238 &#183; gap 1.348 &#183; 1.20&#215; mean"],[343.5,303.7,"&#947;1238,1239 &#183; gap 0.464 &#183; 0.41&#215; mean"],[343.9,247.1,"&#947;1240,1241 &#183; gap 0.965 &#183; 0.86&#215; mean"],[344.5,278.3,"&#947;1243,1244 &#183; gap 0.688 &#183; 0.61&#215; mean"],[345.1,259.5,"&#947;1246,1247 &#183; gap 0.854 &#183; 0.76&#215; mean"],[345.6,201.3,"&#947;1249,1250 &#183; gap 1.368 &#183; 1.22&#215; mean"],[346.1,315.3,"&#947;1251,1252 &#183; gap 0.360 &#183; 0.32&#215; mean"],[346.2,209.4,"&#947;1252,1253 &#183; gap 1.297 &#183; 1.16&#215; mean"],[346.8,202.5,"&#947;1255,1256 &#183; gap 1.357 &#183; 1.21&#215; mean"],[347.4,167.9,"&#947;1258,1259 &#183; gap 1.662 &#183; 1.48&#215; mean"],[348.0,219.6,"&#947;1261,1262 &#183; gap 1.204 &#183; 1.08&#215; mean"],[348.4,268.4,"&#947;1264,1265 &#183; gap 0.774 &#183; 0.69&#215; mean"],[349.1,219.9,"&#947;1267,1268 &#183; gap 1.201 &#183; 1.07&#215; mean"],[349.7,179.1,"&#947;1270,1271 &#183; gap 1.561 &#183; 1.40&#215; mean"],[349.8,301.8,"&#947;1271,1272 &#183; gap 0.478 &#183; 0.43&#215; mean"],[350.2,243.7,"&#947;1273,1274 &#183; gap 0.990 &#183; 0.89&#215; mean"],[350.9,204.6,"&#947;1276,1277 &#183; gap 1.335 &#183; 1.19&#215; mean"],[351.0,305.0,"&#947;1277,1278 &#183; gap 0.449 &#183; 0.40&#215; mean"],[351.3,175.8,"&#947;1279,1280 &#183; gap 1.588 &#183; 1.42&#215; mean"],[352.0,173.3,"&#947;1282,1283 &#183; gap 1.610 &#183; 1.44&#215; mean"],[352.5,209.0,"&#947;1285,1286 &#183; gap 1.295 &#183; 1.16&#215; mean"],[352.9,299.5,"&#947;1287,1288 &#183; gap 0.498 &#183; 0.45&#215; mean"],[353.0,221.3,"&#947;1288,1289 &#183; gap 1.186 &#183; 1.06&#215; mean"],[353.7,265.7,"&#947;1291,1292 &#183; gap 0.795 &#183; 0.71&#215; mean"],[354.2,230.8,"&#947;1294,1295 &#183; gap 1.102 &#183; 0.99&#215; mean"],[354.3,309.8,"&#947;1295,1296 &#183; gap 0.406 &#183; 0.36&#215; mean"],[354.8,249.4,"&#947;1297,1298 &#183; gap 0.938 &#183; 0.84&#215; mean"],[355.4,169.5,"&#947;1300,1301 &#183; gap 1.640 &#183; 1.47&#215; mean"],[355.9,256.8,"&#947;1303,1304 &#183; gap 0.872 &#183; 0.78&#215; mean"],[356.5,171.7,"&#947;1306,1307 &#183; gap 1.620 &#183; 1.45&#215; mean"],[356.9,321.5,"&#947;1308,1309 &#183; gap 0.303 &#183; 0.27&#215; mean"],[357.0,245.7,"&#947;1309,1310 &#183; gap 0.969 &#183; 0.87&#215; mean"],[357.6,268.8,"&#947;1312,1313 &#183; gap 0.765 &#183; 0.69&#215; mean"],[358.2,266.5,"&#947;1315,1316 &#183; gap 0.786 &#183; 0.71&#215; mean"],[358.8,277.3,"&#947;1318,1319 &#183; gap 0.690 &#183; 0.62&#215; mean"],[359.3,182.4,"&#947;1321,1322 &#183; gap 1.523 &#183; 1.37&#215; mean"],[359.9,223.1,"&#947;1324,1325 &#183; gap 1.166 &#183; 1.05&#215; mean"],[360.4,264.2,"&#947;1327,1328 &#183; gap 0.805 &#183; 0.72&#215; mean"],[361.0,281.5,"&#947;1330,1331 &#183; gap 0.653 &#183; 0.59&#215; mean"],[361.6,268.0,"&#947;1333,1334 &#183; gap 0.771 &#183; 0.69&#215; mean"],[362.1,209.3,"&#947;1336,1337 &#183; gap 1.285 &#183; 1.16&#215; mean"],[362.7,229.5,"&#947;1339,1340 &#183; gap 1.107 &#183; 1.00&#215; mean"],[363.1,323.0,"&#947;1341,1342 &#183; gap 0.289 &#183; 0.26&#215; mean"],[363.3,112.0,"&#947;1342,1343 &#183; gap 2.136 &#183; 1.92&#215; mean"],[363.5,309.7,"&#947;1343,1344 &#183; gap 0.405 &#183; 0.36&#215; mean"],[363.8,268.6,"&#947;1345,1346 &#183; gap 0.765 &#183; 0.69&#215; mean"],[364.5,247.5,"&#947;1348,1349 &#183; gap 0.949 &#183; 0.86&#215; mean"],[364.8,308.0,"&#947;1350,1351 &#183; gap 0.419 &#183; 0.38&#215; mean"],[364.9,247.1,"&#947;1351,1352 &#183; gap 0.953 &#183; 0.86&#215; mean"],[365.5,228.1,"&#947;1354,1355 &#183; gap 1.118 &#183; 1.01&#215; mean"],[366.2,190.4,"&#947;1357,1358 &#183; gap 1.447 &#183; 1.31&#215; mean"],[366.7,193.9,"&#947;1360,1361 &#183; gap 1.416 &#183; 1.28&#215; mean"],[366.8,309.1,"&#947;1361,1362 &#183; gap 0.410 &#183; 0.37&#215; mean"],[367.3,115.1,"&#947;1363,1364 &#183; gap 2.104 &#183; 1.90&#215; mean"],[367.6,323.0,"&#947;1365,1366 &#183; gap 0.288 &#183; 0.26&#215; mean"],[367.8,190.1,"&#947;1366,1367 &#183; gap 1.448 &#183; 1.31&#215; mean"],[368.4,211.7,"&#947;1369,1370 &#183; gap 1.259 &#183; 1.14&#215; mean"],[368.9,208.9,"&#947;1372,1373 &#183; gap 1.283 &#183; 1.16&#215; mean"],[369.5,242.7,"&#947;1375,1376 &#183; gap 0.988 &#183; 0.89&#215; mean"],[370.0,129.2,"&#947;1378,1379 &#183; gap 1.978 &#183; 1.79&#215; mean"],[370.2,311.1,"&#947;1379,1380 &#183; gap 0.392 &#183; 0.35&#215; mean"],[370.7,264.3,"&#947;1381,1382 &#183; gap 0.799 &#183; 0.72&#215; mean"],[371.2,202.6,"&#947;1384,1385 &#183; gap 1.336 &#183; 1.21&#215; mean"],[371.7,228.7,"&#947;1387,1388 &#183; gap 1.109 &#183; 1.00&#215; mean"],[372.4,259.7,"&#947;1390,1391 &#183; gap 0.838 &#183; 0.76&#215; mean"],[372.9,249.3,"&#947;1393,1394 &#183; gap 0.928 &#183; 0.84&#215; mean"],[373.5,212.5,"&#947;1396,1397 &#183; gap 1.249 &#183; 1.13&#215; mean"],[374.1,241.7,"&#947;1399,1400 &#183; gap 0.995 &#183; 0.90&#215; mean"],[374.4,307.2,"&#947;1401,1402 &#183; gap 0.424 &#183; 0.38&#215; mean"],[374.5,167.1,"&#947;1402,1403 &#183; gap 1.643 &#183; 1.49&#215; mean"],[374.7,309.4,"&#947;1403,1404 &#183; gap 0.405 &#183; 0.37&#215; mean"],[375.2,249.4,"&#947;1405,1406 &#183; gap 0.927 &#183; 0.84&#215; mean"],[375.7,295.1,"&#947;1408,1409 &#183; gap 0.529 &#183; 0.48&#215; mean"],[376.2,287.3,"&#947;1411,1412 &#183; gap 0.597 &#183; 0.54&#215; mean"],[376.9,269.1,"&#947;1414,1415 &#183; gap 0.755 &#183; 0.69&#215; mean"],[377.4,325.6,"&#947;1417,1418 &#183; gap 0.264 &#183; 0.24&#215; mean"],[377.9,161.2,"&#947;1420,1421 &#183; gap 1.691 &#183; 1.54&#215; mean"],[378.5,249.1,"&#947;1423,1424 &#183; gap 0.928 &#183; 0.84&#215; mean"],[379.0,290.8,"&#947;1426,1427 &#183; gap 0.566 &#183; 0.51&#215; mean"],[379.6,207.9,"&#947;1429,1430 &#183; gap 1.284 &#183; 1.17&#215; mean"],[380.1,298.9,"&#947;1431,1432 &#183; gap 0.495 &#183; 0.45&#215; mean"],[380.2,271.2,"&#947;1432,1433 &#183; gap 0.735 &#183; 0.67&#215; mean"],[380.7,209.8,"&#947;1435,1436 &#183; gap 1.268 &#183; 1.15&#215; mean"],[381.3,221.0,"&#947;1438,1439 &#183; gap 1.170 &#183; 1.06&#215; mean"],[381.9,270.8,"&#947;1441,1442 &#183; gap 0.738 &#183; 0.67&#215; mean"],[382.2,307.4,"&#947;1443,1444 &#183; gap 0.421 &#183; 0.38&#215; mean"],[382.3,271.8,"&#947;1444,1445 &#183; gap 0.730 &#183; 0.66&#215; mean"],[383.0,266.5,"&#947;1447,1448 &#183; gap 0.775 &#183; 0.71&#215; mean"],[383.5,285.7,"&#947;1450,1451 &#183; gap 0.609 &#183; 0.55&#215; mean"],[384.1,266.9,"&#947;1453,1454 &#183; gap 0.771 &#183; 0.70&#215; mean"],[384.7,177.9,"&#947;1456,1457 &#183; gap 1.541 &#183; 1.40&#215; mean"],[384.9,299.2,"&#947;1457,1458 &#183; gap 0.491 &#183; 0.45&#215; mean"],[385.2,246.3,"&#947;1459,1460 &#183; gap 0.948 &#183; 0.86&#215; mean"],[385.8,133.1,"&#947;1462,1463 &#183; gap 1.927 &#183; 1.76&#215; mean"],[386.3,271.0,"&#947;1465,1466 &#183; gap 0.734 &#183; 0.67&#215; mean"],[386.9,276.5,"&#947;1468,1469 &#183; gap 0.687 &#183; 0.63&#215; mean"],[387.5,157.7,"&#947;1471,1472 &#183; gap 1.713 &#183; 1.56&#215; mean"],[388.0,286.7,"&#947;1474,1475 &#183; gap 0.598 &#183; 0.55&#215; mean"],[388.5,178.5,"&#947;1477,1478 &#183; gap 1.532 &#183; 1.40&#215; mean"],[389.0,293.7,"&#947;1479,1480 &#183; gap 0.537 &#183; 0.49&#215; mean"],[389.1,174.4,"&#947;1480,1481 &#183; gap 1.567 &#183; 1.43&#215; mean"],[389.7,195.2,"&#947;1483,1484 &#183; gap 1.388 &#183; 1.27&#215; mean"],[390.2,270.2,"&#947;1486,1487 &#183; gap 0.740 &#183; 0.68&#215; mean"],[390.4,83.0,"&#947;1487,1488 &#183; gap 2.354 &#183; 2.15&#215; mean"],[390.8,210.2,"&#947;1489,1490 &#183; gap 1.257 &#183; 1.15&#215; mean"],[391.3,215.4,"&#947;1492,1493 &#183; gap 1.212 &#183; 1.11&#215; mean"],[391.9,113.1,"&#947;1495,1496 &#183; gap 2.093 &#183; 1.92&#215; mean"],[392.1,344.7,"&#947;1496,1497 &#183; gap 0.098 &#183; 0.09&#215; mean"],[392.5,173.7,"&#947;1498,1499 &#183; gap 1.570 &#183; 1.44&#215; mean"],[392.7,293.5,"&#947;1499,1500 &#183; gap 0.538 &#183; 0.49&#215; mean"],[393.0,249.8,"&#947;1501,1502 &#183; gap 0.914 &#183; 0.84&#215; mean"],[393.6,200.3,"&#947;1504,1505 &#183; gap 1.341 &#183; 1.23&#215; mean"],[394.0,312.0,"&#947;1506,1507 &#183; gap 0.378 &#183; 0.35&#215; mean"],[394.1,187.5,"&#947;1507,1508 &#183; gap 1.450 &#183; 1.33&#215; mean"],[394.7,265.0,"&#947;1510,1511 &#183; gap 0.783 &#183; 0.72&#215; mean"],[395.3,166.8,"&#947;1513,1514 &#183; gap 1.627 &#183; 1.49&#215; mean"],[395.8,208.7,"&#947;1516,1517 &#183; gap 1.267 &#183; 1.16&#215; mean"]]};
+  function hook(svgSel, tipId, lineId, dotId, data) {
+    var svg = document.querySelector(svgSel);
+    if (!svg) return;
+    var wrap = svg.closest('.fig-frame');
+    var tip = document.getElementById(tipId);
+    var line = document.getElementById(lineId);
+    var dot = document.getElementById(dotId);
+    if (!wrap || !tip || !line || !dot) return;
+    var vb = svg.viewBox.baseVal;
+    function move(ev) {
+      var r = svg.getBoundingClientRect();
+      var px = (ev.clientX - r.left) * vb.width / r.width;
+      var best = 0, bd = 1e9;
+      for (var i = 0; i < data.length; i++) {
+        var d = Math.abs(data[i][0] - px);
+        if (d < bd) { bd = d; best = i; }
+      }
+      var p = data[best];
+      line.setAttribute('x1', p[0]); line.setAttribute('x2', p[0]);
+      line.removeAttribute('visibility');
+      dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]);
+      dot.removeAttribute('visibility');
+      tip.innerHTML = p[2];
+      tip.style.display = 'block';
+      var wr = wrap.getBoundingClientRect();
+      var sx = r.width / vb.width;
+      var lx = (r.left - wr.left) + p[0] * sx + 12;
+      if (lx + tip.offsetWidth > wr.width - 8) lx = lx - tip.offsetWidth - 24;
+      tip.style.left = lx + 'px';
+      tip.style.top = ((r.top - wr.top) + p[1] * (r.height / vb.height) - 34) + 'px';
+    }
+    function leave() {
+      tip.style.display = 'none';
+      line.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+    }
+    svg.addEventListener('mousemove', move);
+    svg.addEventListener('mouseleave', leave);
+  }
+  hook('svg:has(#pline)', 'ptip', 'pline', 'pdot', H.p);
+})();
+</script>
+</body>
+</html>

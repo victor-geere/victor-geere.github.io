@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Geometric & Harmonic Decomposition Lab</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1050px;margin:auto;padding:20px;background:#f6f8fb;color:#1c2333}
+h1{margin-bottom:4px}.sub{color:#556;margin-top:0}
+details{background:#fff;border-radius:12px;padding:18px 22px;margin:22px 0;box-shadow:0 2px 8px #0001}
+summary{color:#24508f;font-size:1.3em;font-weight:600;cursor:pointer;padding:4px 0}details[open] summary{margin-bottom:8px}
+.ctrl{display:flex;flex-wrap:wrap;gap:18px;margin:10px 0}
+.ctrl label{display:flex;flex-direction:column;font-size:13px;min-width:150px}
+.ctrl b{font-size:16px;color:#24508f}
+table{border-collapse:collapse;font-size:13px;margin:8px 0;width:100%}
+td,th{border:1px solid #dde;padding:4px 7px;text-align:right}
+th{background:#eef3fb}td.l,th.l{text-align:left}
+.res{background:#eef8ee;border-left:4px solid #3a9a4a;padding:8px 12px;margin:10px 0;font-size:15px}
+.note{font-size:13px;color:#556}
+.bar{display:flex;height:26px;border-radius:5px;overflow:hidden;margin:6px 0;border:1px solid #ccd}
+.bar div{height:100%;border-right:1px solid #fff8}
+code{background:#eef;padding:1px 4px;border-radius:3px}
+.mono{font-family:ui-monospace,monospace;font-size:12px;word-break:break-all}
+</style></head><body>
+<h1>Geometric &amp; Harmonic Decomposition Lab</h1>
+<p class="sub">Two sets A and B. Each number is broken into unit fractions, like fractions are grouped, then smaller fractions are merged upward into as many copies of the largest fraction as possible.</p>
+
+<!-- ===== 1 ===== -->
+<details name="lab" id="s1" open><summary>1 · Geometric series (integers)</summary>
+<p class="note">Each integer n is written as n·(1/2 + 1/4 + 1/8 + …). So every group 1/2<sup>k</sup> holds Σ(set) copies. The series is cut at K terms; the tiny tail is shown as the leftover. Merging pairs two 1/2<sup>k+1</sup> into one 1/2<sup>k</sup>, from the smallest upward.</p>
+<div class="ctrl" id="c1"></div>
+<div id="o1"></div></details>
+
+<!-- ===== 2 ===== -->
+<details name="lab" id="s2"><summary>2 · Greedy harmonic decomposition (integers)</summary>
+<p class="note">Each integer n is built from <i>distinct</i> unit fractions by the greedy rule: take the smallest unused denominator d with 1/d ≤ what remains. That runs along the harmonic series 1 + 1/2 + 1/3 + … until the next term overshoots, then jumps (Egyptian-fraction greedy) and always finishes exactly. Exact rational arithmetic is used. The final result is always rolled up to the largest fraction 1/2, so an integer n appears as 2n × 1/2. Values are capped at 4 because denominators explode doubly-exponentially.</p>
+<div class="ctrl" id="c2"></div>
+<div id="o2"></div></details>
+
+<!-- ===== 3 ===== -->
+<details name="lab" id="s3"><summary>3 · Greedy harmonic decomposition (rational reals, largest fraction 1/2)</summary>
+<p class="note">Each number x = p/q is built from <i>distinct</i> unit fractions starting at 1/2: take the smallest unused d ≥ 2 with 1/d ≤ what remains. Because x is rational, the greedy expansion always ends exactly, so there is no remainder and every term is a true fraction. Grouped fractions are then promoted as high as possible: k copies of 1/d are swapped for the equal number of copies of the highest unit fraction 1/e they make exactly (10 × 1/8 → 5 × 1/4 → 2 × 1/2 + 1/4), repeated until nothing moves, so the total gravitates to 1/2. Values are capped at 3 to keep denominators readable.</p>
+<div class="ctrl" id="c3"></div>
+<div id="o3"></div></details>
+
+<script>
+// ---------- exact rationals (BigInt) ----------
+const gcd=(a,b)=>{a=a<0n?-a:a;b=b<0n?-b:b;while(b){[a,b]=[b,a%b]}return a};
+class Q{constructor(n,d=1n){if(d<0n){n=-n;d=-d}const g=gcd(n,d)||1n;this.n=n/g;this.d=d/g}
+ add(o){return new Q(this.n*o.d+o.n*this.d,this.d*o.d)}sub(o){return new Q(this.n*o.d-o.n*this.d,this.d*o.d)}
+ mulI(k){return new Q(this.n*k,this.d)}isZero(){return this.n===0n}
+ floorTimes(D){return (this.n*D)/this.d} // floor(this*D) for this>=0
+ toNum(){return Number(this.n)/Number(this.d)}
+ str(){return this.d===1n?this.n.toString():short(this.n)+"/"+short(this.d)}}
+const short=x=>{const s=x.toString();return s.length>18?s.slice(0,8)+"…("+s.length+" digits)":s};
+const shortD=d=>{const s=d.toString();return s.length>14?s.slice(0,6)+"…("+s.length+"d)":s};
+
+// ---------- slider helpers ----------
+function sliders(box,defs,cb){
+ box.innerHTML="";const vals={};
+ defs.forEach(([id,label,min,max,step,v])=>{
+  const L=document.createElement("label");vals[id]=v;
+  L.innerHTML=`${label}: <b id="${box.id}_${id}_v">${v}</b>`;
+  const i=document.createElement("input");Object.assign(i,{type:"range",min,max,step,value:v});
+  i.oninput=()=>{vals[id]=+i.value;document.getElementById(`${box.id}_${id}_v`).textContent=i.value;cb(vals)};
+  L.appendChild(i);box.appendChild(L)});
+ cb(vals)}
+const colors=["#4C78A8","#F58518","#54A24B","#E45756","#72B7B2","#EECA3B","#B279A2","#FF9DA6","#9D755D","#BAB0AC"];
+function bar(parts,total){return `<div class="bar">${parts.map((p,i)=>`<div title="${p.t}" style="width:${100*p.v/total}%;background:${colors[i%10]}"></div>`).join("")}</div>`}
+
+// ---------- merging (shared by 2 and 3) ----------
+// groups: Map denom -> count. Process from smallest fraction (largest d) to largest fraction.
+function mergeExact(groups){
+ const ds=[...groups.keys()].sort((a,b)=>(a>b?-1:a<b?1:0));
+ const steps=[];let carry=new Q(0n);
+ for(let i=0;i<ds.length;i++){
+  const d=ds[i];let val=new Q(BigInt(groups.get(d)),d).add(carry);
+  if(i===ds.length-1){steps.push({d,val,q:val.floorTimes(d),carry:val.sub(new Q(val.floorTimes(d),d))});break}
+  const up=ds[i+1];const q=val.floorTimes(up);const rem=val.sub(new Q(q,up));
+  steps.push({d,val,up,q,carry:rem});carry=new Q(q,up).add(rem); // pass whole value upward
+ }
+ return {ds,steps}}
+
+
+function promoBlock(name,groups,sum,top){
+ const P=promote(groups,sum,top);const T=top===1n?"1":"1/"+top;
+ return `<h4>Promotion to the largest admissible fraction (${T})</h4>
+ <p class="note">k copies of 1/d are swapped for the exactly equal number of copies of the highest unit fraction 1/e (e ≥ ${top}), repeated until nothing moves; fractions below ${T} that still sum to whole ${T}'s are lifted too.</p>
+ <table><tr><th class="l">move</th><th class="l">counts after</th></tr>${P.moves.map(m=>`<tr><td class="l">${m.k} × ${m.d===1n?"1":"1/"+shortD(m.d)} → ${m.j} × ${m.e===1n?"1":"1/"+shortD(m.e)}</td><td class="l mono">${m.after}</td></tr>`).join("")||'<tr><td class="l" colspan=2>none possible</td></tr>'}</table>
+ ${P.mixed?`<p><b>Mixed sums lifted:</b> the fractions below ${T} still sum to ${P.mixed.L.str()}, which contains ${P.mixed.q} more × ${T}.</p>`:""}
+ <div class="res">Set ${name} after promotion: Σ = ${sum.str()} = <b>${P.halves} × ${T}</b>${P.rest.length?" + "+P.rest.map(d=>"1/"+shortD(d)).join(" + "):""}</div>`}
+// ======== SECTION 1 ========
+function run1(v){
+ const A=[v.a1,v.a2,v.a3],B=[v.b1,v.b2,v.b3],K=v.K;
+ const out=document.getElementById("o1");let h="";
+ for(const [name,S] of [["A",A],["B",B]]){
+  const s=S.reduce((x,y)=>x+y,0);
+  // counts per level: s each. merge from level K up to 1
+  let rows="",carry=0,partsV=[];
+  let cnt=new Array(K+1).fill(s);
+  let tail=1; // remainder in units of 1/2^K
+  for(let k=K;k>=1;k--){
+   const tot=cnt[k]+carry; // number of 1/2^k pieces
+   if(k>1){const q=Math.floor(tot/2),r=tot%2;rows+=`<tr><td>1/2<sup>${k}</sup></td><td>${s}</td><td>${carry}</td><td>${tot}</td><td>${q} → 1/2<sup>${k-1}</sup></td><td>${r}</td></tr>`;carry=q;if(r)partsV.push(r/2**k)}
+   else{rows+=`<tr><td>1/2</td><td>${s}</td><td>${carry}</td><td><b>${tot}</b></td><td>—</td><td>0</td></tr>`;var final=tot}
+  }
+  const leftover=s/2**K; // missing tail
+  h+=`<h3>Set ${name} = (${S.join(", ")}) · Σ = ${s}</h3>
+  <p>Each of the ${K} groups 1/2, 1/4, …, 1/2<sup>${K}</sup> holds <b>${s}</b> copies.</p>
+  <table><tr><th class="l">fraction</th><th>own copies</th><th>carried in</th><th>total</th><th>pairs merged up</th><th>left unpaired</th></tr>${rows}</table>
+  <div class="res">Set ${name}: <b>${final} × 1/2</b> = ${final/2} ${leftover>0?`plus unpaired pieces worth ${(s*(1-2**-K)-final/2).toPrecision(6)}; the infinite tail adds exactly ${s}/2<sup>${K}</sup>, so in the limit it is <b>${2*s} × 1/2 = ${s}</b>.`:""}</div>`;
+  {const g=new Map();let tot=new Q(0n);for(let k=1;k<=K;k++){const d=2n**BigInt(k);g.set(d,s);tot=tot.add(new Q(BigInt(s),d))}h+=promoBlock(name,g,tot,2n)}
+ }
+ out.innerHTML=h}
+sliders(document.getElementById("c1"),[["a1","A₁",1,12,1,1],["a2","A₂",1,12,1,4],["a3","A₃",1,12,1,6],["b1","B₁",1,12,1,2],["b2","B₂",1,12,1,3],["b3","B₃",1,12,1,5],["K","terms K",1,16,1,8]],run1);
+
+// ======== SECTION 2 ========
+function greedyQ(x,maxTerms){ // x: Q>0, returns array of BigInt denominators, remainder
+ const ds=[];let r=x,d=1n;
+ while(!r.isZero()&&ds.length<maxTerms){
+  const c=(r.d+r.n-1n)/r.n; // ceil(1/r)
+  if(c>d)d=c;ds.push(d);r=r.sub(new Q(1n,d));d+=1n}
+ return {ds,r}}
+function run2(v){
+ const A=[v.a1,v.a2],B=[v.b1,v.b2];const out=document.getElementById("o2");let h="";
+ for(const [name,S] of [["A",A],["B",B]]){
+  const groups=new Map();let per="";
+  for(const n of S){const {ds,r}=greedyQ(new Q(BigInt(n)),v.T);
+   ds.forEach(d=>groups.set(d,(groups.get(d)||0)+1));
+   per+=`<p><b>${n}</b> = ${ds.map(d=>"1/"+shortD(d)).join(" + ")} ${r.isZero()?"<span style='color:#3a9a4a'>(exact, "+ds.length+" terms)</span>":"<span style='color:#c33'>… cut at "+v.T+" terms, remainder "+r.toNum().toExponential(3)+"</span>"}</p>`;
+   per+=bar(ds.map(d=>({v:1/Number(d),t:"1/"+d})),n)}
+  const {ds,steps}=mergeExact(groups);
+  let rows=steps.map(s=>`<tr><td class="l">1/${shortD(s.d)}</td><td>${groups.get(s.d)}</td><td class="mono">${s.val.str()}</td><td>${s.up!==undefined?`${s.q} × 1/${shortD(s.up)}`:"—"}</td><td class="mono">${s.carry.str()}</td></tr>`).join("");
+  const last=steps[steps.length-1];const sum=S.reduce((a,b)=>a+b,0);
+  h+=`<h3>Set ${name} = (${S.join(", ")})</h3>${per}
+  <p>Grouped fractions (count = how many members of the set use that denominator), merged from the smallest fraction upward:</p>
+  <table><tr><th class="l">group</th><th>copies</th><th>value so far (incl. carry)</th><th>whole largest-next fractions</th><th>remainder</th></tr>${rows}</table>
+  <div class="res">Set ${name}: ${last.q} × 1/${shortD(last.d)} rolls up to <b>${2*sum} × 1/2</b> = ${sum} (Σ of the set).</div>`;
+  h+=promoBlock(name,groups,new Q(BigInt(sum)),2n);
+ }
+ out.innerHTML=h}
+sliders(document.getElementById("c2"),[["a1","A₁",1,4,1,1],["a2","A₂",1,4,1,2],["b1","B₁",1,4,1,2],["b2","B₂",1,4,1,3],["T","term budget",5,80,1,60]],run2);
+
+// ======== SECTION 3 ========
+// ---- promotion toward 1/2 (exact, same-denominator first, then mixed) ----
+function fmtCounts(m){return [...m.entries()].sort((a,b)=>a[0]<b[0]?-1:1).map(([d,c])=>`${c} × ${d===1n?"1":"1/"+shortD(d)}`).join(", ")}
+function promote(groups,sum,top=2n){
+ const c=new Map(groups);const moves=[];let changed=true;
+ for(const [d,n] of [...c]){if(d<top&&n>0&&top%d===0n){const j=BigInt(n)*(top/d);c.delete(d);c.set(top,Number(BigInt(c.get(top)||0)+j));moves.push({k:BigInt(n),d,j,e:top,after:fmtCounts(new Map([...c].filter(x=>x[1]>0)))})}}
+ while(changed){changed=false;
+  const ds=[...c.keys()].filter(d=>c.get(d)>0).sort((a,b)=>a>b?-1:1); // smallest fraction first
+  for(const d of ds){
+   for(let e=top;e<d;e++){ // highest target first
+    const g=gcd(d,e),k=d/g,j=e/g;
+    if(BigInt(c.get(d)||0)>=k && k>1n){
+     const times=BigInt(c.get(d))/k;
+     c.set(d,Number(BigInt(c.get(d))-times*k));c.set(e,Number(BigInt(c.get(e)||0)+times*j));
+     moves.push({k:times*k,d,j:times*j,e,after:fmtCounts(new Map([...c].filter(x=>x[1]>0)))});changed=true;break}
+    if(e>top+300n)break}
+   if(changed)break}}
+ let halves=BigInt(c.get(top)||0);
+ // mixed: remaining fractions below 1/2 may still sum to whole halves (e.g. 1/3 + 1/6)
+ let L=new Q(0n);for(const [d,n] of c)if(d!==top&&n>0)L=L.add(new Q(BigInt(n),d));
+ let mixed=null,rest;
+ const q=L.floorTimes(top);
+ if(q>0n){mixed={L,q};halves+=q;const r=L.sub(new Q(q,top));rest=r.isZero()?[]:greedyHalf(r).ds}
+ else{rest=[];for(const [d,n] of [...c].sort((a,b)=>a[0]<b[0]?-1:1))if(d!==top)for(let i=0;i<n;i++)rest.push(d);
+  // if duplicates remain below 1/2, rewrite that part as distinct greedy fractions
+  if(new Set(rest.map(String)).size!==rest.length)rest=greedyHalf(L).ds}
+ return {moves,halves,rest,mixed}}
+
+function greedyHalf(x){const ds=[];let r=x,d=2n;
+ while(!r.isZero()&&ds.length<400){const c=(r.d+r.n-1n)/r.n;if(c>d)d=c;ds.push(d);r=r.sub(new Q(1n,d));d+=1n}
+ return {ds,r}}
+function run3(v){
+ const mk=(p,q)=>{let x=new Q(BigInt(p),BigInt(q));if(x.toNum()>3)x=new Q(3n);return x};
+ const A=[mk(v.a1p,v.a1q),mk(v.a2p,v.a2q)],B=[mk(v.b1p,v.b1q),mk(v.b2p,v.b2q)];
+ const out=document.getElementById("o3");let h="";
+ for(const [name,S] of [["A",A],["B",B]]){
+  const groups=new Map();let per="";let sum=new Q(0n);
+  for(const x of S){sum=sum.add(x);const {ds,r}=greedyHalf(x);
+   ds.forEach(d=>groups.set(d,(groups.get(d)||0)+1));
+   per+=`<p><b>${x.str()}</b> = ${ds.map(d=>"1/"+shortD(d)).join(" + ")} <span style='color:#3a9a4a'>(exact, ${ds.length} terms${r.isZero()?"":", NOT finished"})</span></p>`+bar(ds.map(d=>({v:1/Number(d),t:"1/"+d})),x.toNum())}
+  const P=promote(groups,sum);
+  h+=`<h3>Set ${name} = (${S.map(x=>x.str()).join(", ")}) · Σ = ${sum.str()}</h3>${per}
+  <p><b>Grouped</b> (copies of each fraction across the set): ${fmtCounts(groups)}</p>
+  <p><b>Promotion moves</b> (k copies of 1/d swapped for exactly equal copies of the highest possible 1/e, e.g. 10 × 1/8 → 5 × 1/4):</p>
+  <table><tr><th class="l">move</th><th class="l">counts after</th></tr>${P.moves.map(m=>`<tr><td class="l">${m.k} × ${m.d===1n?"1":"1/"+shortD(m.d)} → ${m.j} × 1/${shortD(m.e)}</td><td class="l mono">${m.after}</td></tr>`).join("")||'<tr><td class="l" colspan=2>none possible</td></tr>'}</table>
+  ${P.mixed?`<p><b>Mixed sums lifted to 1/2:</b> the fractions below 1/2 still sum to ${P.mixed.L.str()}, which contains ${P.mixed.q} more × 1/2.</p>`:""}
+  <div class="res">Set ${name}: Σ = ${sum.str()} = <b>${P.halves} × 1/2</b>${P.rest.length?" + "+P.rest.map(d=>"1/"+shortD(d)).join(" + "):""}</div>`;
+ }
+ out.innerHTML=h}
+sliders(document.getElementById("c3"),[["a1p","A₁ numerator",1,30,1,3],["a1q","A₁ denominator",1,12,1,4],["a2p","A₂ numerator",1,30,1,5],["a2q","A₂ denominator",1,12,1,7],["b1p","B₁ numerator",1,30,1,7],["b1q","B₁ denominator",1,12,1,5],["b2p","B₂ numerator",1,30,1,11],["b2q","B₂ denominator",1,12,1,6]],run3);
+</script></body></html>

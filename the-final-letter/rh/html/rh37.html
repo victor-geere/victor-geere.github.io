@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh37 — the majorant</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh37 · the majorant</h1>
+<p class="sub">rh30 &#167;10 named three directions and closed one. (b) said
+&#8220;Beurling&#8211;Selberg majorants are the obvious family and the arc has
+never tried them.&#8221; Six documents later they still had not been tried, so
+this one builds them, verifies them pointwise, and takes both ideas rh30
+attached to them. Neither works, and the measurements say why: the loss is not
+in a constant, not in a discrepancy, and not in where the polynomial
+concentrates. It is in assuming a polynomial can be adversarial at every lag at
+once, when a nonnegative one cannot.</p>
+<p class="meta">57 named checks, 16 s · four computed
+figures · the thirty-seventh in the series, after <a href="rh36.html">rh36</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> &#167;2 is arithmetic on
+the construction and unconditional. &#167;3 is a verified fact about two
+explicit entire functions and is unconditional. Everything from &#167;4 on uses
+rh29&#8217;s zero table (4,308 ordinates, &#947; &#8804; 4800) and is
+conditional on RH in the same way every document since rh29 has been. Nothing
+is certified. The certified set stays at nine, as it has since rh30 &#167;10
+(c), renewed by rh31 through rh36 and again here.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · where this stands</a>
+<a href="#s2">2 · the constraints</a>
+<a href="#s3">3 · the machinery</a>
+<a href="#s4">4 · regression</a>
+<a href="#s5">5 · the gap idea</a>
+<a href="#s6">6 · the q &#8805; 0 idea</a>
+<a href="#s7">7 · where the decades go</a>
+<a href="#s8">8 · conjunction</a>
+<a href="#s9">9 · what this leaves</a>
+</nav>
+
+<h2 id="s1">1 · Where this stands</h2>
+
+<p><a href="rh30.html">rh30</a> &#167;9 proved that the arc&#8217;s certified
+points cannot bear on RH whether they pass or fail, and &#167;10 set three
+directions in their place: <strong>(a)</strong> prove the collapse
+&#955;<sub>min</sub>/Eh(0) = F(n/N<sub>eff</sub>), the only statement the arc
+has that is universally quantified over a family; <strong>(b)</strong> the
+inequality &#167;5 names, from the analytic side, for which
+&#8220;Beurling&#8211;Selberg majorants are the obvious family and the arc has
+never tried them&#8221;; <strong>(c)</strong> stop extending the certified
+set.</p>
+
+<p>rh31 through <a href="rh36.html">rh36</a> kept (c) faithfully and touched
+neither (a) nor (b). Six documents went instead on a quadrature lemma that
+rh36 finally showed was false rather than merely unproven. This document takes
+(b), which means building machinery the arc does not have and then testing the
+two specific ideas rh30 attached to it. Both fail. Saying so precisely, with
+the reason, is the useful part &#8212; which is also how rh30 &#167;5 ended.</p>
+
+<h2 id="s2">2 · The constraints</h2>
+
+<p>Two constraints on the construction go into the instrument first, because
+everything downstream is stated in their coordinates.</p>
+
+<div class="cardbox">
+<strong>(i) Matched winding.</strong> Where the a-helix passes through a gear
+it has completed <em>the same number of rotations about the cone</em> as that
+gear has itself. One cumulative count, never reduced mod 2&#960;.<br>
+<strong>(ii) Carry-proof monotonicity.</strong> That count&#8217;s increment
+carries a uniform floor &#8212; half a turn per level, at any torsion &#8212;
+so no small positive increase, and no residual swinging the whole way round
+through a carry, can interrupt it.
+</div>
+
+<p>Constraint (i) fixes the normalisation the sign convention left implicit.
+Writing W(n,&#8201;t) = &#952;(n,&#8201;t)/2&#960;, the count is the
+helix&#8217;s winding at depth n &#8722; 1 <em>and</em> gear n&#8217;s own
+rotation count, and W(1,&#8201;t) = 0 at every torsion. So <strong>gear 1 never
+turns</strong>: depth 0, radius 1 for every &#963;, rate log 1 = 0, winding 0
+&#8212; the origin of all four coordinates and the construction&#8217;s one
+fixed point. rh36 &#167;6 noticed gear 1&#8217;s stationarity as an accident of
+a frequency list; it is an axiom. At zero torsion W(n,&#8201;0) = (n &#8722;
+1)/2 exactly, so consecutive a&#8217;s sit antipodally.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 528" role="img" aria-label="Left: the winding count climbing gear by gear while the residual angle wraps through a carry. Right: the increment of the excluded opposed-sign convention, which passes through zero and turns negative.">
+<text x="370.0" y="21" class="ftitle">the count is cumulative, and its increment has a floor</text>
+<line x1="66" y1="258" x2="380" y2="258" class="axis"/>
+<line x1="66" y1="62" x2="66" y2="258" class="axis"/>
+<line x1="66" y1="196.2" x2="380" y2="196.2" class="grid"/>
+<text x="60" y="199.7" class="flab end">40</text>
+<line x1="66" y1="134.5" x2="380" y2="134.5" class="grid"/>
+<text x="60" y="138.0" class="flab end">80</text>
+<line x1="66" y1="72.7" x2="380" y2="72.7" class="grid"/>
+<text x="60" y="76.2" class="flab end">120</text>
+<path d="M66.0 258.0L105.2 200.8L144.5 167.1L183.8 142.9L223.0 124.0L262.2 108.4L301.5 95.1L340.8 83.4L380.0 73.1" class="ln1"/>
+<circle cx="66.0" cy="258.0" r="3.0" class="hm3"/>
+<circle cx="105.2" cy="200.8" r="3.0" class="hm3"/>
+<circle cx="144.5" cy="167.1" r="3.0" class="hm3"/>
+<circle cx="183.8" cy="142.9" r="3.0" class="hm3"/>
+<circle cx="223.0" cy="124.0" r="3.0" class="hm3"/>
+<circle cx="262.2" cy="108.4" r="3.0" class="hm3"/>
+<circle cx="301.5" cy="95.1" r="3.0" class="hm3"/>
+<circle cx="340.8" cy="83.4" r="3.0" class="hm3"/>
+<circle cx="380.0" cy="73.1" r="3.0" class="hm3"/>
+<line x1="66" y1="322" x2="380" y2="322" class="axis"/>
+<path d="M66.0 322.0L105.2 321.4L144.5 285.2L183.8 299.7L223.0 289.0L262.2 284.6L301.5 300.5L340.8 320.1L380.0 290.5" class="ln4 lnd"/>
+<circle cx="66.0" cy="322.0" r="2.6" class="hm4"/>
+<circle cx="105.2" cy="321.4" r="2.6" class="hm4"/>
+<circle cx="144.5" cy="285.2" r="2.6" class="hm4"/>
+<circle cx="183.8" cy="299.7" r="2.6" class="hm4"/>
+<circle cx="223.0" cy="289.0" r="2.6" class="hm4"/>
+<circle cx="262.2" cy="284.6" r="2.6" class="hm4"/>
+<circle cx="301.5" cy="300.5" r="2.6" class="hm4"/>
+<circle cx="340.8" cy="320.1" r="2.6" class="hm4"/>
+<circle cx="380.0" cy="290.5" r="2.6" class="hm4"/>
+<line x1="164.1" y1="274.0" x2="164.1" y2="326.0" class="hl"/>
+<text x="168.1" y="272.0" class="flab st">a carry</text>
+<text x="66.0" y="339.0" class="flab mid">1</text>
+<text x="144.5" y="339.0" class="flab mid">3</text>
+<text x="223.0" y="339.0" class="flab mid">5</text>
+<text x="301.5" y="339.0" class="flab mid">7</text>
+<text x="380.0" y="339.0" class="flab mid">9</text>
+<text x="223.0" y="358.0" class="flab mid">gear n, at torsion t = 331</text>
+<text x="66" y="50.0" class="flab st hm3">the winding count W(n, t) &#8212; climbs by 15.66 across the carry</text>
+<text x="66" y="376.0" class="flab st hm4">the residual, mod one turn &#8212; falls by 0.34 there</text>
+<line x1="452" y1="258" x2="706" y2="258" class="axis"/>
+<line x1="452" y1="62" x2="452" y2="258" class="axis"/>
+<line x1="452" y1="160.0" x2="706" y2="160.0" class="rule"/>
+<text x="446" y="261.5" class="flab end">-8</text>
+<text x="446" y="212.5" class="flab end">-4</text>
+<text x="446" y="163.5" class="flab end">0</text>
+<text x="446" y="114.5" class="flab end">4</text>
+<text x="446" y="65.5" class="flab end">8</text>
+<path d="M452.0 121.5L706.0 121.5" class="ln1"/>
+<path d="M452.0 121.5L454.5 123.2L457.1 124.9L459.6 126.6L462.2 128.3L464.7 130.0L467.2 131.7L469.8 133.4L472.3 135.1L474.9 136.8L477.4 138.5L479.9 140.2L482.5 141.9L485.0 143.6L487.6 145.3L490.1 147.0L492.6 148.7L495.2 150.4L497.7 152.1L500.3 153.8L502.8 155.5L505.3 157.2L507.9 158.9L510.4 160.6L513.0 162.3L515.5 164.0L518.0 165.7L520.6 167.4L523.1 169.1L525.7 170.8L528.2 172.5L530.7 174.2L533.3 175.9L535.8 177.6L538.4 179.3L540.9 181.0L543.4 182.7L546.0 184.3L548.5 186.0L551.1 187.7L553.6 189.4L556.1 191.1L558.7 192.8L561.2 194.5L563.8 196.2L566.3 197.9L568.8 199.6L571.4 201.3L573.9 203.0L576.5 204.7L579.0 206.4L581.5 208.1L584.1 209.8L586.6 211.5L589.2 213.2L591.7 214.9L594.2 216.6L596.8 218.3L599.3 220.0L601.9 221.7L604.4 223.4L606.9 225.1L609.5 226.8L612.0 228.5L614.6 230.2L617.1 231.9L619.6 233.6L622.2 235.3L624.7 237.0L627.3 238.7L629.8 240.4L632.3 242.1L634.9 243.8L637.4 245.5L640.0 247.2L642.5 248.9L645.0 250.6L647.6 252.3L650.1 254.0L652.7 255.7L655.2 257.4L657.7 258.0L660.3 258.0L662.8 258.0L665.4 258.0L667.9 258.0L670.4 258.0L673.0 258.0L675.5 258.0L678.1 258.0L680.6 258.0L683.1 258.0L685.7 258.0L688.2 258.0L690.8 258.0L693.3 258.0L695.8 258.0L698.4 258.0L700.9 258.0L703.5 258.0L706.0 258.0" class="ln4"/>
+<line x1="509.6" y1="62" x2="509.6" y2="258" class="hl"/>
+<text x="503.6" y="228.0" class="flab end">zero at</text>
+<text x="503.6" y="244.0" class="flab end">t = 4.53</text>
+<line x1="631.5" y1="62" x2="631.5" y2="258" class="hl"/>
+<text x="636.5" y="74.0" class="flab st">&#947;&#8321;</text>
+<text x="623.5" y="112.5" class="flab end hm1">the aligned sign: floor &#960;</text>
+<text x="517.6" y="189.4" class="flab st hm4">the opposed sign:</text>
+<text x="517.6" y="205.3" class="flab st hm4">no floor</text>
+<text x="579.0" y="275.0" class="flab mid">torsion t</text>
+<text x="30" y="404" class="flab st">Left: the two construction constraints, drawn. The winding count is one number for the helix and the gear it passes</text>
+<text x="30" y="422" class="flab st">through, cumulative and never reduced mod 2&#960;; the residual below it wraps. Between gears 3 and 4 at t = 331 the</text>
+<text x="30" y="440" class="flab st">residual falls by 0.34 while the count CLIMBS by 15.66 &#8212; a carry is bookkeeping, and the monotonicity does not live</text>
+<text x="30" y="458" class="flab st">in the residual. Right: why the increment must carry a floor. With both rotations counted the same way it never</text>
+<text x="30" y="476" class="flab st">drops below &#960;, half a turn per level, at any torsion. rh3 &#167;6's opposed sign has no floor: it crosses zero at t =</text>
+<text x="30" y="494" class="flab st">4.53, below the first zero of zeta, and is already &#8722;6.66 at &#947;&#8321;. That convention is excluded, not merely declined.</text>
+</svg></div>
+<figcaption>Left: the count climbing across a carry that the residual wraps
+through. Right: the increment of the excluded opposed sign, crossing zero
+below the first zero of zeta.</figcaption>
+</figure>
+
+<p>Constraint (ii) is the one with teeth. The increment is
+&#189; + (t/2&#960;)&#8201;log(1 + 1/n) discretely and (&#960; + t/n)/2&#960;
+on the continuous extension, and both are <strong>&#8805; &#189;</strong> for
+every n and every t &#8805; 0, with equality only as t &#8594; 0. Because that
+floor does not depend on where in the turn the helix happens to be, a carry is
+pure bookkeeping: between gears 3 and 4 at t = 331 the residual falls by 0.345
+while the count climbs by 15.66.</p>
+
+<p>And it <em>excludes</em> a convention rather than merely declining it.
+rh3 &#167;6 and rh5 &#167;3 write the torsion as &#8722;t&#8201;log n against
+half-turns of +&#960;, whose increment &#960; &#8722; t&#8201;log(1 + 1/n) has
+no floor. At t = 1 its least value is still positive, 2.448; it crosses zero at
+t = &#960;/log 2 = 4.53, <em>below the first zero of zeta</em>; by
+&#947;&#8321; it is &#8722;6.656 and by &#947; = 331 it is &#8722;226.3. The
+&#8220;reversal at x* = t/&#960;&#8221; those documents report is the signature
+of the missing floor. A corollary used throughout: nothing defined mod 2&#960;
+may be made to carry the monotonicity, so the fold and every residual statement
+are disqualified as carriers by construction.</p>
+
+<h2 id="s3">3 · The machinery</h2>
+
+<p>Beurling&#8217;s function B is the extremal majorant of the sign function:
+entire of exponential type 2&#960;, B(x) &#8805; sgn(x) everywhere, meeting sgn
+at every nonzero integer, with &#8747;(B &#8722; sgn) = 1 and no majorant of
+that type doing better.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 474" role="img" aria-label="Left: Beurling’s function above the sign function, touching it at every nonzero integer. Right: Selberg’s majorant and minorant bracketing an interval’s indicator, with the deficiency falling as one over the type.">
+<text x="370.0" y="21" class="ftitle">the majorants rh30 &#167;10 (b) named, built and verified</text>
+<line x1="66" y1="161.5" x2="372" y2="161.5" class="axis"/>
+<line x1="66" y1="62" x2="66" y2="250" class="axis"/>
+<text x="60" y="220.3" class="flab end">-1</text>
+<text x="60" y="109.7" class="flab end">1</text>
+<path d="M66.0 216.8L218.9 216.8L218.9 106.2L372.0 106.2" class="lnm"/>
+<path d="M66.0 216.8L66.5 216.8L67.0 216.8L67.5 216.8L68.0 216.8L68.6 216.8L69.1 216.8L69.6 216.8L70.1 216.8L70.6 216.8L71.1 216.8L71.6 216.7L72.1 216.7L72.6 216.7L73.1 216.7L73.7 216.7L74.2 216.7L74.7 216.6L75.2 216.6L75.7 216.6L76.2 216.6L76.7 216.6L77.2 216.5L77.7 216.5L78.2 216.5L78.8 216.5L79.3 216.5L79.8 216.4L80.3 216.4L80.8 216.4L81.3 216.4L81.8 216.4L82.3 216.4L82.8 216.4L83.3 216.3L83.9 216.3L84.4 216.3L84.9 216.3L85.4 216.3L85.9 216.3L86.4 216.3L86.9 216.3L87.4 216.3L87.9 216.3L88.4 216.3L89.0 216.3L89.5 216.4L90.0 216.4L90.5 216.4L91.0 216.4L91.5 216.4L92.0 216.4L92.5 216.4L93.0 216.5L93.5 216.5L94.0 216.5L94.6 216.5L95.1 216.5L95.6 216.6L96.1 216.6L96.6 216.6L97.1 216.6L97.6 216.7L98.1 216.7L98.6 216.7L99.2 216.7L99.7 216.7L100.2 216.8L100.7 216.8L101.2 216.8L101.7 216.8L102.2 216.8L102.7 216.8L103.2 216.8L103.7 216.8L104.2 216.8L104.8 216.8L105.3 216.8L105.8 216.8L106.3 216.8L106.8 216.8L107.3 216.8L107.8 216.8L108.3 216.7L108.8 216.7L109.3 216.7L109.9 216.7L110.4 216.6L110.9 216.6L111.4 216.6L111.9 216.5L112.4 216.5L112.9 216.5L113.4 216.4L113.9 216.4L114.4 216.4L115.0 216.3L115.5 216.3L116.0 216.2L116.5 216.2L117.0 216.2L117.5 216.1L118.0 216.1L118.5 216.0L119.0 216.0L119.5 216.0L120.1 215.9L120.6 215.9L121.1 215.9L121.6 215.9L122.1 215.8L122.6 215.8L123.1 215.8L123.6 215.8L124.1 215.8L124.7 215.8L125.2 215.8L125.7 215.8L126.2 215.8L126.7 215.8L127.2 215.8L127.7 215.8L128.2 215.9L128.7 215.9L129.2 215.9L129.8 215.9L130.3 216.0L130.8 216.0L131.3 216.1L131.8 216.1L132.3 216.1L132.8 216.2L133.3 216.2L133.8 216.3L134.3 216.3L134.8 216.4L135.4 216.4L135.9 216.5L136.4 216.5L136.9 216.5L137.4 216.6L137.9 216.6L138.4 216.7L138.9 216.7L139.4 216.7L139.9 216.8L140.5 216.8L141.0 216.8L141.5 216.8L142.0 216.8L142.5 216.8L143.0 216.8L143.5 216.8L144.0 216.8L144.5 216.8L145.1 216.7L145.6 216.7L146.1 216.7L146.6 216.6L147.1 216.6L147.6 216.5L148.1 216.4L148.6 216.4L149.1 216.3L149.6 216.2L150.2 216.1L150.7 216.0L151.2 215.9L151.7 215.8L152.2 215.7L152.7 215.6L153.2 215.5L153.7 215.4L154.2 215.3L154.7 215.1L155.2 215.0L155.8 214.9L156.3 214.8L156.8 214.7L157.3 214.6L157.8 214.5L158.3 214.4L158.8 214.3L159.3 214.2L159.8 214.1L160.4 214.0L160.9 213.9L161.4 213.8L161.9 213.8L162.4 213.7L162.9 213.7L163.4 213.7L163.9 213.7L164.4 213.7L164.9 213.7L165.4 213.7L166.0 213.7L166.5 213.7L167.0 213.8L167.5 213.8L168.0 213.9L168.5 214.0L169.0 214.1L169.5 214.2L170.0 214.3L170.6 214.4L171.1 214.6L171.6 214.7L172.1 214.8L172.6 215.0L173.1 215.1L173.6 215.3L174.1 215.5L174.6 215.6L175.1 215.8L175.7 215.9L176.2 216.1L176.7 216.2L177.2 216.3L177.7 216.4L178.2 216.6L178.7 216.6L179.2 216.7L179.7 216.8L180.2 216.8L180.8 216.8L181.3 216.8L181.8 216.8L182.3 216.7L182.8 216.6L183.3 216.5L183.8 216.3L184.3 216.1L184.8 215.8L185.3 215.5L185.8 215.2L186.4 214.8L186.9 214.4L187.4 213.9L187.9 213.4L188.4 212.8L188.9 212.1L189.4 211.4L189.9 210.7L190.4 209.8L190.9 209.0L191.5 208.0L192.0 207.0L192.5 206.0L193.0 204.9L193.5 203.7L194.0 202.4L194.5 201.1L195.0 199.8L195.5 198.3L196.0 196.9L196.6 195.3L197.1 193.7L197.6 192.1L198.1 190.3L198.6 188.6L199.1 186.8L199.6 184.9L200.1 183.0L200.6 181.0L201.2 179.0L201.7 177.0L202.2 174.9L202.7 172.8L203.2 170.6L203.7 168.4L204.2 166.2L204.7 164.0L205.2 161.7L205.7 159.5L206.2 157.2L206.8 154.9L207.3 152.6L207.8 150.3L208.3 148.0L208.8 145.7L209.3 143.5L209.8 141.2L210.3 138.9L210.8 136.7L211.3 134.5L211.9 132.3L212.4 130.2L212.9 128.0L213.4 126.0L213.9 123.9L214.4 121.9L214.9 120.0L215.4 118.0L215.9 116.2L216.4 114.4L217.0 112.6L217.5 110.9L218.0 109.3L218.5 107.7L219.0 106.2L219.5 104.8L220.0 103.4L220.5 102.1L221.0 100.9L221.5 99.7L222.1 98.6L222.6 97.6L223.1 96.6L223.6 95.7L224.1 94.9L224.6 94.1L225.1 93.4L225.6 92.8L226.1 92.3L226.7 91.8L227.2 91.4L227.7 91.0L228.2 90.7L228.7 90.5L229.2 90.3L229.7 90.2L230.2 90.1L230.7 90.1L231.2 90.1L231.8 90.2L232.3 90.4L232.8 90.5L233.3 90.8L233.8 91.0L234.3 91.3L234.8 91.6L235.3 92.0L235.8 92.3L236.3 92.7L236.8 93.2L237.4 93.6L237.9 94.1L238.4 94.5L238.9 95.0L239.4 95.5L239.9 96.0L240.4 96.5L240.9 97.0L241.4 97.5L241.9 98.0L242.5 98.5L243.0 99.0L243.5 99.5L244.0 100.0L244.5 100.5L245.0 100.9L245.5 101.4L246.0 101.8L246.5 102.2L247.1 102.6L247.6 103.0L248.1 103.3L248.6 103.6L249.1 104.0L249.6 104.2L250.1 104.5L250.6 104.8L251.1 105.0L251.6 105.2L252.1 105.4L252.7 105.6L253.2 105.7L253.7 105.8L254.2 106.0L254.7 106.0L255.2 106.1L255.7 106.2L256.2 106.2L256.7 106.2L257.2 106.2L257.8 106.2L258.3 106.2L258.8 106.2L259.3 106.1L259.8 106.1L260.3 106.0L260.8 105.9L261.3 105.9L261.8 105.8L262.4 105.7L262.9 105.6L263.4 105.5L263.9 105.4L264.4 105.3L264.9 105.2L265.4 105.1L265.9 105.0L266.4 104.9L266.9 104.9L267.4 104.8L268.0 104.7L268.5 104.6L269.0 104.5L269.5 104.5L270.0 104.4L270.5 104.4L271.0 104.3L271.5 104.3L272.0 104.2L272.6 104.2L273.1 104.2L273.6 104.2L274.1 104.2L274.6 104.2L275.1 104.2L275.6 104.2L276.1 104.2L276.6 104.3L277.1 104.3L277.6 104.4L278.2 104.4L278.7 104.5L279.2 104.5L279.7 104.6L280.2 104.6L280.7 104.7L281.2 104.8L281.7 104.9L282.2 104.9L282.8 105.0L283.3 105.1L283.8 105.2L284.3 105.2L284.8 105.3L285.3 105.4L285.8 105.5L286.3 105.5L286.8 105.6L287.3 105.7L287.9 105.7L288.4 105.8L288.9 105.9L289.4 105.9L289.9 106.0L290.4 106.0L290.9 106.1L291.4 106.1L291.9 106.1L292.4 106.2L293.0 106.2L293.5 106.2L294.0 106.2L294.5 106.2L295.0 106.2L295.5 106.2L296.0 106.2L296.5 106.2L297.0 106.2L297.5 106.2L298.0 106.2L298.6 106.2L299.1 106.1L299.6 106.1L300.1 106.1L300.6 106.1L301.1 106.0L301.6 106.0L302.1 106.0L302.6 105.9L303.1 105.9L303.7 105.9L304.2 105.8L304.7 105.8L305.2 105.8L305.7 105.7L306.2 105.7L306.7 105.7L307.2 105.6L307.7 105.6L308.2 105.6L308.8 105.5L309.3 105.5L309.8 105.5L310.3 105.5L310.8 105.5L311.3 105.5L311.8 105.5L312.3 105.4L312.8 105.4L313.4 105.4L313.9 105.4L314.4 105.5L314.9 105.5L315.4 105.5L315.9 105.5L316.4 105.5L316.9 105.5L317.4 105.5L317.9 105.6L318.4 105.6L319.0 105.6L319.5 105.6L320.0 105.7L320.5 105.7L321.0 105.7L321.5 105.7L322.0 105.8L322.5 105.8L323.0 105.8L323.6 105.9L324.1 105.9L324.6 105.9L325.1 106.0L325.6 106.0L326.1 106.0L326.6 106.0L327.1 106.1L327.6 106.1L328.1 106.1L328.6 106.1L329.2 106.2L329.7 106.2L330.2 106.2L330.7 106.2L331.2 106.2L331.7 106.2L332.2 106.2L332.7 106.2L333.2 106.2L333.8 106.2L334.3 106.2L334.8 106.2L335.3 106.2L335.8 106.2L336.3 106.2L336.8 106.2L337.3 106.2L337.8 106.2L338.3 106.2L338.9 106.2L339.4 106.1L339.9 106.1L340.4 106.1L340.9 106.1L341.4 106.1L341.9 106.0L342.4 106.0L342.9 106.0L343.4 106.0L343.9 106.0L344.5 106.0L345.0 105.9L345.5 105.9L346.0 105.9L346.5 105.9L347.0 105.9L347.5 105.9L348.0 105.9L348.5 105.8L349.1 105.8L349.6 105.8L350.1 105.8L350.6 105.8L351.1 105.8L351.6 105.8L352.1 105.8L352.6 105.8L353.1 105.8L353.6 105.8L354.1 105.8L354.7 105.8L355.2 105.8L355.7 105.9L356.2 105.9L356.7 105.9L357.2 105.9L357.7 105.9L358.2 105.9L358.7 105.9L359.2 106.0L359.8 106.0L360.3 106.0L360.8 106.0L361.3 106.0L361.8 106.0L362.3 106.0L362.8 106.1L363.3 106.1L363.8 106.1L364.3 106.1L364.9 106.1L365.4 106.1L365.9 106.2L366.4 106.2L366.9 106.2L367.4 106.2L367.9 106.2L368.4 106.2L368.9 106.2L369.4 106.2L370.0 106.2L370.5 106.2L371.0 106.2L371.5 106.2L372.0 106.2" class="ln1"/>
+<circle cx="104.2" cy="216.8" r="2.8" class="hm1"/>
+<circle cx="142.5" cy="216.8" r="2.8" class="hm1"/>
+<circle cx="180.8" cy="216.8" r="2.8" class="hm1"/>
+<circle cx="257.2" cy="106.2" r="2.8" class="hm1"/>
+<circle cx="295.5" cy="106.2" r="2.8" class="hm1"/>
+<circle cx="333.8" cy="106.2" r="2.8" class="hm1"/>
+<text x="66.0" y="267.0" class="flab mid">-4</text>
+<text x="142.5" y="267.0" class="flab mid">-2</text>
+<text x="219.0" y="267.0" class="flab mid">0</text>
+<text x="295.5" y="267.0" class="flab mid">2</text>
+<text x="372.0" y="267.0" class="flab mid">4</text>
+<text x="72" y="64.0" class="flab st hm1">B(x), type 2&#960;</text>
+<text x="72" y="82.0" class="flab st">sgn(x), and the integers where B meets it</text>
+<text x="219.0" y="286.0" class="flab mid">B &#8805; sgn to machine zero; &#8747;(B &#8722; sgn) = 1</text>
+<line x1="444" y1="205.5" x2="706" y2="205.5" class="axis"/>
+<line x1="444" y1="62" x2="444" y2="250" class="axis"/>
+<text x="438" y="209.0" class="flab end">0</text>
+<text x="438" y="110.0" class="flab end">1</text>
+<path d="M444.0 205.5L548.8 205.5L548.8 106.5L601.2 106.5L601.2 205.5L706.0 205.5" class="lnm"/>
+<path d="M444.0 205.5L444.4 205.5L444.7 205.5L445.1 205.5L445.5 205.5L445.9 205.5L446.2 205.4L446.6 205.4L447.0 205.4L447.4 205.4L447.7 205.4L448.1 205.4L448.5 205.4L448.9 205.4L449.2 205.4L449.6 205.4L450.0 205.3L450.4 205.3L450.7 205.3L451.1 205.3L451.5 205.3L451.9 205.4L452.2 205.4L452.6 205.4L453.0 205.4L453.4 205.4L453.7 205.4L454.1 205.4L454.5 205.4L454.9 205.4L455.2 205.4L455.6 205.5L456.0 205.5L456.4 205.5L456.7 205.5L457.1 205.5L457.5 205.5L457.8 205.5L458.2 205.5L458.6 205.5L459.0 205.4L459.3 205.4L459.7 205.4L460.1 205.4L460.5 205.4L460.8 205.4L461.2 205.4L461.6 205.3L462.0 205.3L462.3 205.3L462.7 205.3L463.1 205.3L463.5 205.3L463.8 205.3L464.2 205.3L464.6 205.3L465.0 205.3L465.3 205.3L465.7 205.3L466.1 205.3L466.5 205.4L466.8 205.4L467.2 205.4L467.6 205.4L468.0 205.4L468.3 205.4L468.7 205.5L469.1 205.5L469.5 205.5L469.8 205.5L470.2 205.5L470.6 205.5L470.9 205.5L471.3 205.5L471.7 205.4L472.1 205.4L472.4 205.4L472.8 205.4L473.2 205.4L473.6 205.4L473.9 205.3L474.3 205.3L474.7 205.3L475.1 205.3L475.4 205.3L475.8 205.3L476.2 205.3L476.6 205.2L476.9 205.2L477.3 205.2L477.7 205.3L478.1 205.3L478.4 205.3L478.8 205.3L479.2 205.3L479.6 205.3L479.9 205.3L480.3 205.4L480.7 205.4L481.1 205.4L481.4 205.4L481.8 205.4L482.2 205.5L482.6 205.5L482.9 205.5L483.3 205.5L483.7 205.5L484.0 205.5L484.4 205.5L484.8 205.4L485.2 205.4L485.5 205.4L485.9 205.4L486.3 205.3L486.7 205.3L487.0 205.3L487.4 205.3L487.8 205.2L488.2 205.2L488.5 205.2L488.9 205.2L489.3 205.2L489.7 205.1L490.0 205.1L490.4 205.1L490.8 205.1L491.2 205.2L491.5 205.2L491.9 205.2L492.3 205.2L492.7 205.3L493.0 205.3L493.4 205.3L493.8 205.3L494.2 205.4L494.5 205.4L494.9 205.4L495.3 205.4L495.7 205.5L496.0 205.5L496.4 205.5L496.8 205.5L497.1 205.5L497.5 205.4L497.9 205.4L498.3 205.4L498.6 205.4L499.0 205.3L499.4 205.3L499.8 205.2L500.1 205.2L500.5 205.1L500.9 205.1L501.3 205.1L501.6 205.0L502.0 205.0L502.4 205.0L502.8 204.9L503.1 204.9L503.5 204.9L503.9 204.9L504.3 205.0L504.6 205.0L505.0 205.0L505.4 205.1L505.8 205.1L506.1 205.2L506.5 205.2L506.9 205.3L507.3 205.3L507.6 205.4L508.0 205.4L508.4 205.4L508.8 205.5L509.1 205.5L509.5 205.5L509.9 205.5L510.2 205.5L510.6 205.4L511.0 205.4L511.4 205.3L511.7 205.3L512.1 205.2L512.5 205.1L512.9 205.0L513.2 204.9L513.6 204.9L514.0 204.8L514.4 204.7L514.7 204.6L515.1 204.6L515.5 204.5L515.9 204.5L516.2 204.4L516.6 204.4L517.0 204.4L517.4 204.5L517.7 204.5L518.1 204.6L518.5 204.6L518.9 204.7L519.2 204.8L519.6 204.9L520.0 205.0L520.4 205.1L520.7 205.2L521.1 205.3L521.5 205.4L521.9 205.4L522.2 205.5L522.6 205.5L523.0 205.5L523.3 205.4L523.7 205.4L524.1 205.3L524.5 205.1L524.8 205.0L525.2 204.8L525.6 204.6L526.0 204.4L526.3 204.2L526.7 203.9L527.1 203.7L527.5 203.4L527.8 203.2L528.2 203.0L528.6 202.8L529.0 202.7L529.3 202.6L529.7 202.5L530.1 202.5L530.5 202.5L530.8 202.6L531.2 202.7L531.6 202.9L532.0 203.1L532.3 203.3L532.7 203.6L533.1 203.9L533.5 204.2L533.8 204.5L534.2 204.8L534.6 205.1L535.0 205.3L535.3 205.4L535.7 205.5L536.1 205.4L536.4 205.2L536.8 204.9L537.2 204.4L537.6 203.7L537.9 202.9L538.3 201.8L538.7 200.5L539.1 198.9L539.4 197.1L539.8 195.1L540.2 192.8L540.6 190.2L540.9 187.4L541.3 184.4L541.7 181.1L542.1 177.6L542.4 174.0L542.8 170.1L543.2 166.1L543.6 162.0L543.9 157.7L544.3 153.4L544.7 149.0L545.1 144.6L545.4 140.3L545.8 136.0L546.2 131.7L546.6 127.6L546.9 123.6L547.3 119.8L547.7 116.1L548.1 112.7L548.4 109.5L548.8 106.5L549.2 103.8L549.5 101.4L549.9 99.3L550.3 97.4L550.7 95.8L551.0 94.5L551.4 93.5L551.8 92.7L552.2 92.2L552.5 91.9L552.9 91.9L553.3 92.0L553.7 92.3L554.0 92.8L554.4 93.5L554.8 94.2L555.2 95.0L555.5 95.9L555.9 96.9L556.3 97.9L556.7 98.8L557.0 99.8L557.4 100.8L557.8 101.7L558.2 102.5L558.5 103.3L558.9 104.0L559.3 104.6L559.7 105.1L560.0 105.6L560.4 105.9L560.8 106.2L561.2 106.4L561.5 106.5L561.9 106.5L562.3 106.5L562.6 106.4L563.0 106.3L563.4 106.1L563.8 105.9L564.1 105.7L564.5 105.4L564.9 105.2L565.3 105.0L565.6 104.7L566.0 104.5L566.4 104.4L566.8 104.2L567.1 104.1L567.5 104.1L567.9 104.0L568.3 104.0L568.6 104.1L569.0 104.2L569.4 104.3L569.8 104.4L570.1 104.6L570.5 104.8L570.9 105.0L571.3 105.2L571.6 105.4L572.0 105.6L572.4 105.8L572.8 106.0L573.1 106.1L573.5 106.3L573.9 106.4L574.3 106.5L574.6 106.5L575.0 106.5L575.4 106.5L575.7 106.5L576.1 106.4L576.5 106.3L576.9 106.1L577.2 106.0L577.6 105.8L578.0 105.6L578.4 105.4L578.7 105.2L579.1 105.0L579.5 104.8L579.9 104.6L580.2 104.4L580.6 104.3L581.0 104.2L581.4 104.1L581.7 104.0L582.1 104.0L582.5 104.1L582.9 104.1L583.2 104.2L583.6 104.4L584.0 104.5L584.4 104.7L584.7 105.0L585.1 105.2L585.5 105.4L585.9 105.7L586.2 105.9L586.6 106.1L587.0 106.3L587.4 106.4L587.7 106.5L588.1 106.5L588.5 106.5L588.8 106.4L589.2 106.2L589.6 105.9L590.0 105.6L590.3 105.1L590.7 104.6L591.1 104.0L591.5 103.3L591.8 102.5L592.2 101.7L592.6 100.8L593.0 99.8L593.3 98.8L593.7 97.9L594.1 96.9L594.5 95.9L594.8 95.0L595.2 94.2L595.6 93.5L596.0 92.8L596.3 92.3L596.7 92.0L597.1 91.9L597.5 91.9L597.8 92.2L598.2 92.7L598.6 93.5L599.0 94.5L599.3 95.8L599.7 97.4L600.1 99.3L600.5 101.4L600.8 103.8L601.2 106.5L601.6 109.5L601.9 112.7L602.3 116.1L602.7 119.8L603.1 123.6L603.4 127.6L603.8 131.7L604.2 136.0L604.6 140.3L604.9 144.6L605.3 149.0L605.7 153.4L606.1 157.7L606.4 162.0L606.8 166.1L607.2 170.1L607.6 174.0L607.9 177.6L608.3 181.1L608.7 184.4L609.1 187.4L609.4 190.2L609.8 192.8L610.2 195.1L610.6 197.1L610.9 198.9L611.3 200.5L611.7 201.8L612.1 202.9L612.4 203.7L612.8 204.4L613.2 204.9L613.6 205.2L613.9 205.4L614.3 205.5L614.7 205.4L615.0 205.3L615.4 205.1L615.8 204.8L616.2 204.5L616.5 204.2L616.9 203.9L617.3 203.6L617.7 203.3L618.0 203.1L618.4 202.9L618.8 202.7L619.2 202.6L619.5 202.5L619.9 202.5L620.3 202.5L620.7 202.6L621.0 202.7L621.4 202.8L621.8 203.0L622.2 203.2L622.5 203.4L622.9 203.7L623.3 203.9L623.7 204.2L624.0 204.4L624.4 204.6L624.8 204.8L625.2 205.0L625.5 205.1L625.9 205.3L626.3 205.4L626.7 205.4L627.0 205.5L627.4 205.5L627.8 205.5L628.1 205.4L628.5 205.4L628.9 205.3L629.3 205.2L629.6 205.1L630.0 205.0L630.4 204.9L630.8 204.8L631.1 204.7L631.5 204.6L631.9 204.6L632.3 204.5L632.6 204.5L633.0 204.4L633.4 204.4L633.8 204.4L634.1 204.5L634.5 204.5L634.9 204.6L635.3 204.6L635.6 204.7L636.0 204.8L636.4 204.9L636.8 204.9L637.1 205.0L637.5 205.1L637.9 205.2L638.3 205.3L638.6 205.3L639.0 205.4L639.4 205.4L639.8 205.5L640.1 205.5L640.5 205.5L640.9 205.5L641.2 205.5L641.6 205.4L642.0 205.4L642.4 205.4L642.7 205.3L643.1 205.3L643.5 205.2L643.9 205.2L644.2 205.1L644.6 205.1L645.0 205.0L645.4 205.0L645.7 205.0L646.1 204.9L646.5 204.9L646.9 204.9L647.2 204.9L647.6 205.0L648.0 205.0L648.4 205.0L648.7 205.1L649.1 205.1L649.5 205.1L649.9 205.2L650.2 205.2L650.6 205.3L651.0 205.3L651.4 205.4L651.7 205.4L652.1 205.4L652.5 205.4L652.9 205.5L653.2 205.5L653.6 205.5L654.0 205.5L654.3 205.5L654.7 205.4L655.1 205.4L655.5 205.4L655.8 205.4L656.2 205.3L656.6 205.3L657.0 205.3L657.3 205.3L657.7 205.2L658.1 205.2L658.5 205.2L658.8 205.2L659.2 205.1L659.6 205.1L660.0 205.1L660.3 205.1L660.7 205.2L661.1 205.2L661.5 205.2L661.8 205.2L662.2 205.2L662.6 205.3L663.0 205.3L663.3 205.3L663.7 205.3L664.1 205.4L664.5 205.4L664.8 205.4L665.2 205.4L665.6 205.5L666.0 205.5L666.3 205.5L666.7 205.5L667.1 205.5L667.4 205.5L667.8 205.5L668.2 205.4L668.6 205.4L668.9 205.4L669.3 205.4L669.7 205.4L670.1 205.3L670.4 205.3L670.8 205.3L671.2 205.3L671.6 205.3L671.9 205.3L672.3 205.3L672.7 205.2L673.1 205.2L673.4 205.2L673.8 205.3L674.2 205.3L674.6 205.3L674.9 205.3L675.3 205.3L675.7 205.3L676.1 205.3L676.4 205.4L676.8 205.4L677.2 205.4L677.6 205.4L677.9 205.4L678.3 205.4L678.7 205.5L679.1 205.5L679.4 205.5L679.8 205.5L680.2 205.5L680.5 205.5L680.9 205.5L681.3 205.5L681.7 205.4L682.0 205.4L682.4 205.4L682.8 205.4L683.2 205.4L683.5 205.4L683.9 205.3L684.3 205.3L684.7 205.3L685.0 205.3L685.4 205.3L685.8 205.3L686.2 205.3L686.5 205.3L686.9 205.3L687.3 205.3L687.7 205.3L688.0 205.3L688.4 205.3L688.8 205.4L689.2 205.4L689.5 205.4L689.9 205.4L690.3 205.4L690.7 205.4L691.0 205.4L691.4 205.5L691.8 205.5L692.2 205.5L692.5 205.5L692.9 205.5L693.3 205.5L693.6 205.5L694.0 205.5L694.4 205.5L694.8 205.4L695.1 205.4L695.5 205.4L695.9 205.4L696.3 205.4L696.6 205.4L697.0 205.4L697.4 205.4L697.8 205.4L698.1 205.4L698.5 205.3L698.9 205.3L699.3 205.3L699.6 205.3L700.0 205.3L700.4 205.4L700.8 205.4L701.1 205.4L701.5 205.4L701.9 205.4L702.3 205.4L702.6 205.4L703.0 205.4L703.4 205.4L703.8 205.4L704.1 205.5L704.5 205.5L704.9 205.5L705.3 205.5L705.6 205.5L706.0 205.5" class="ln1"/>
+<path d="M444.0 205.5L444.4 205.5L444.7 205.5L445.1 205.5L445.5 205.5L445.9 205.5L446.2 205.5L446.6 205.5L447.0 205.5L447.4 205.5L447.7 205.5L448.1 205.6L448.5 205.6L448.9 205.6L449.2 205.6L449.6 205.6L450.0 205.6L450.4 205.6L450.7 205.6L451.1 205.6L451.5 205.6L451.9 205.6L452.2 205.6L452.6 205.6L453.0 205.6L453.4 205.6L453.7 205.5L454.1 205.5L454.5 205.5L454.9 205.5L455.2 205.5L455.6 205.5L456.0 205.5L456.4 205.5L456.7 205.5L457.1 205.5L457.5 205.5L457.8 205.5L458.2 205.5L458.6 205.5L459.0 205.5L459.3 205.5L459.7 205.5L460.1 205.5L460.5 205.6L460.8 205.6L461.2 205.6L461.6 205.6L462.0 205.6L462.3 205.6L462.7 205.6L463.1 205.6L463.5 205.6L463.8 205.6L464.2 205.6L464.6 205.6L465.0 205.6L465.3 205.6L465.7 205.6L466.1 205.6L466.5 205.6L466.8 205.6L467.2 205.5L467.6 205.5L468.0 205.5L468.3 205.5L468.7 205.5L469.1 205.5L469.5 205.5L469.8 205.5L470.2 205.5L470.6 205.5L470.9 205.5L471.3 205.5L471.7 205.5L472.1 205.5L472.4 205.5L472.8 205.5L473.2 205.6L473.6 205.6L473.9 205.6L474.3 205.6L474.7 205.6L475.1 205.6L475.4 205.7L475.8 205.7L476.2 205.7L476.6 205.7L476.9 205.7L477.3 205.7L477.7 205.7L478.1 205.7L478.4 205.7L478.8 205.6L479.2 205.6L479.6 205.6L479.9 205.6L480.3 205.6L480.7 205.6L481.1 205.5L481.4 205.5L481.8 205.5L482.2 205.5L482.6 205.5L482.9 205.5L483.3 205.5L483.7 205.5L484.0 205.5L484.4 205.5L484.8 205.5L485.2 205.5L485.5 205.5L485.9 205.6L486.3 205.6L486.7 205.6L487.0 205.6L487.4 205.7L487.8 205.7L488.2 205.7L488.5 205.7L488.9 205.8L489.3 205.8L489.7 205.8L490.0 205.8L490.4 205.8L490.8 205.8L491.2 205.8L491.5 205.7L491.9 205.7L492.3 205.7L492.7 205.7L493.0 205.6L493.4 205.6L493.8 205.6L494.2 205.6L494.5 205.5L494.9 205.5L495.3 205.5L495.7 205.5L496.0 205.5L496.4 205.5L496.8 205.5L497.1 205.5L497.5 205.5L497.9 205.5L498.3 205.5L498.6 205.6L499.0 205.6L499.4 205.7L499.8 205.7L500.1 205.7L500.5 205.8L500.9 205.8L501.3 205.8L501.6 205.9L502.0 205.9L502.4 205.9L502.8 205.9L503.1 205.9L503.5 205.9L503.9 205.9L504.3 205.9L504.6 205.9L505.0 205.9L505.4 205.8L505.8 205.8L506.1 205.7L506.5 205.7L506.9 205.7L507.3 205.6L507.6 205.6L508.0 205.5L508.4 205.5L508.8 205.5L509.1 205.5L509.5 205.5L509.9 205.5L510.2 205.5L510.6 205.5L511.0 205.6L511.4 205.6L511.7 205.6L512.1 205.7L512.5 205.8L512.9 205.8L513.2 205.9L513.6 206.0L514.0 206.0L514.4 206.1L514.7 206.2L515.1 206.2L515.5 206.3L515.9 206.3L516.2 206.3L516.6 206.3L517.0 206.3L517.4 206.3L517.7 206.2L518.1 206.2L518.5 206.1L518.9 206.1L519.2 206.0L519.6 205.9L520.0 205.8L520.4 205.7L520.7 205.7L521.1 205.6L521.5 205.6L521.9 205.5L522.2 205.5L522.6 205.5L523.0 205.5L523.3 205.5L523.7 205.6L524.1 205.6L524.5 205.7L524.8 205.8L525.2 206.0L525.6 206.1L526.0 206.3L526.3 206.4L526.7 206.6L527.1 206.7L527.5 206.9L527.8 207.1L528.2 207.2L528.6 207.3L529.0 207.4L529.3 207.4L529.7 207.5L530.1 207.5L530.5 207.4L530.8 207.4L531.2 207.3L531.6 207.2L532.0 207.0L532.3 206.8L532.7 206.6L533.1 206.4L533.5 206.2L533.8 206.0L534.2 205.9L534.6 205.7L535.0 205.6L535.3 205.5L535.7 205.5L536.1 205.5L536.4 205.6L536.8 205.8L537.2 206.0L537.6 206.4L537.9 206.8L538.3 207.3L538.7 207.9L539.1 208.6L539.4 209.4L539.8 210.2L540.2 211.1L540.6 212.1L540.9 213.0L541.3 214.0L541.7 215.0L542.1 216.0L542.4 216.9L542.8 217.7L543.2 218.5L543.6 219.1L543.9 219.6L544.3 219.9L544.7 220.1L545.1 220.0L545.4 219.8L545.8 219.3L546.2 218.5L546.6 217.5L546.9 216.2L547.3 214.6L547.7 212.7L548.1 210.6L548.4 208.2L548.8 205.5L549.2 202.5L549.5 199.3L549.9 195.9L550.3 192.2L550.7 188.4L551.0 184.4L551.4 180.3L551.8 176.1L552.2 171.8L552.5 167.4L552.9 163.1L553.3 158.7L553.7 154.4L554.0 150.2L554.4 146.1L554.8 142.1L555.2 138.3L555.5 134.6L555.9 131.1L556.3 127.9L556.7 124.8L557.0 122.0L557.4 119.5L557.8 117.1L558.2 115.1L558.5 113.3L558.9 111.7L559.3 110.3L559.7 109.2L560.0 108.3L560.4 107.6L560.8 107.1L561.2 106.8L561.5 106.6L561.9 106.5L562.3 106.6L562.6 106.7L563.0 107.0L563.4 107.2L563.8 107.6L564.1 107.9L564.5 108.3L564.9 108.6L565.3 109.0L565.6 109.3L566.0 109.6L566.4 109.8L566.8 110.0L567.1 110.1L567.5 110.2L567.9 110.2L568.3 110.2L568.6 110.1L569.0 109.9L569.4 109.8L569.8 109.5L570.1 109.3L570.5 109.0L570.9 108.7L571.3 108.4L571.6 108.1L572.0 107.8L572.4 107.6L572.8 107.3L573.1 107.1L573.5 106.9L573.9 106.7L574.3 106.6L574.6 106.5L575.0 106.5L575.4 106.5L575.7 106.6L576.1 106.7L576.5 106.9L576.9 107.1L577.2 107.3L577.6 107.6L578.0 107.8L578.4 108.1L578.7 108.4L579.1 108.7L579.5 109.0L579.9 109.3L580.2 109.5L580.6 109.8L581.0 109.9L581.4 110.1L581.7 110.2L582.1 110.2L582.5 110.2L582.9 110.1L583.2 110.0L583.6 109.8L584.0 109.6L584.4 109.3L584.7 109.0L585.1 108.6L585.5 108.3L585.9 107.9L586.2 107.6L586.6 107.2L587.0 107.0L587.4 106.7L587.7 106.6L588.1 106.5L588.5 106.6L588.8 106.8L589.2 107.1L589.6 107.6L590.0 108.3L590.3 109.2L590.7 110.3L591.1 111.7L591.5 113.3L591.8 115.1L592.2 117.1L592.6 119.5L593.0 122.0L593.3 124.8L593.7 127.9L594.1 131.1L594.5 134.6L594.8 138.3L595.2 142.1L595.6 146.1L596.0 150.2L596.3 154.4L596.7 158.7L597.1 163.1L597.5 167.4L597.8 171.8L598.2 176.1L598.6 180.3L599.0 184.4L599.3 188.4L599.7 192.2L600.1 195.9L600.5 199.3L600.8 202.5L601.2 205.5L601.6 208.2L601.9 210.6L602.3 212.7L602.7 214.6L603.1 216.2L603.4 217.5L603.8 218.5L604.2 219.3L604.6 219.8L604.9 220.0L605.3 220.1L605.7 219.9L606.1 219.6L606.4 219.1L606.8 218.5L607.2 217.7L607.6 216.9L607.9 216.0L608.3 215.0L608.7 214.0L609.1 213.0L609.4 212.1L609.8 211.1L610.2 210.2L610.6 209.4L610.9 208.6L611.3 207.9L611.7 207.3L612.1 206.8L612.4 206.4L612.8 206.0L613.2 205.8L613.6 205.6L613.9 205.5L614.3 205.5L614.7 205.5L615.0 205.6L615.4 205.7L615.8 205.9L616.2 206.0L616.5 206.2L616.9 206.4L617.3 206.6L617.7 206.8L618.0 207.0L618.4 207.2L618.8 207.3L619.2 207.4L619.5 207.4L619.9 207.5L620.3 207.5L620.7 207.4L621.0 207.4L621.4 207.3L621.8 207.2L622.2 207.1L622.5 206.9L622.9 206.7L623.3 206.6L623.7 206.4L624.0 206.3L624.4 206.1L624.8 206.0L625.2 205.8L625.5 205.7L625.9 205.6L626.3 205.6L626.7 205.5L627.0 205.5L627.4 205.5L627.8 205.5L628.1 205.5L628.5 205.6L628.9 205.6L629.3 205.7L629.6 205.7L630.0 205.8L630.4 205.9L630.8 206.0L631.1 206.1L631.5 206.1L631.9 206.2L632.3 206.2L632.6 206.3L633.0 206.3L633.4 206.3L633.8 206.3L634.1 206.3L634.5 206.3L634.9 206.2L635.3 206.2L635.6 206.1L636.0 206.0L636.4 206.0L636.8 205.9L637.1 205.8L637.5 205.8L637.9 205.7L638.3 205.6L638.6 205.6L639.0 205.6L639.4 205.5L639.8 205.5L640.1 205.5L640.5 205.5L640.9 205.5L641.2 205.5L641.6 205.5L642.0 205.5L642.4 205.6L642.7 205.6L643.1 205.7L643.5 205.7L643.9 205.7L644.2 205.8L644.6 205.8L645.0 205.9L645.4 205.9L645.7 205.9L646.1 205.9L646.5 205.9L646.9 205.9L647.2 205.9L647.6 205.9L648.0 205.9L648.4 205.9L648.7 205.8L649.1 205.8L649.5 205.8L649.9 205.7L650.2 205.7L650.6 205.7L651.0 205.6L651.4 205.6L651.7 205.5L652.1 205.5L652.5 205.5L652.9 205.5L653.2 205.5L653.6 205.5L654.0 205.5L654.3 205.5L654.7 205.5L655.1 205.5L655.5 205.5L655.8 205.6L656.2 205.6L656.6 205.6L657.0 205.6L657.3 205.7L657.7 205.7L658.1 205.7L658.5 205.7L658.8 205.8L659.2 205.8L659.6 205.8L660.0 205.8L660.3 205.8L660.7 205.8L661.1 205.8L661.5 205.7L661.8 205.7L662.2 205.7L662.6 205.7L663.0 205.6L663.3 205.6L663.7 205.6L664.1 205.6L664.5 205.5L664.8 205.5L665.2 205.5L665.6 205.5L666.0 205.5L666.3 205.5L666.7 205.5L667.1 205.5L667.4 205.5L667.8 205.5L668.2 205.5L668.6 205.5L668.9 205.5L669.3 205.6L669.7 205.6L670.1 205.6L670.4 205.6L670.8 205.6L671.2 205.6L671.6 205.7L671.9 205.7L672.3 205.7L672.7 205.7L673.1 205.7L673.4 205.7L673.8 205.7L674.2 205.7L674.6 205.7L674.9 205.6L675.3 205.6L675.7 205.6L676.1 205.6L676.4 205.6L676.8 205.6L677.2 205.5L677.6 205.5L677.9 205.5L678.3 205.5L678.7 205.5L679.1 205.5L679.4 205.5L679.8 205.5L680.2 205.5L680.5 205.5L680.9 205.5L681.3 205.5L681.7 205.5L682.0 205.5L682.4 205.5L682.8 205.5L683.2 205.6L683.5 205.6L683.9 205.6L684.3 205.6L684.7 205.6L685.0 205.6L685.4 205.6L685.8 205.6L686.2 205.6L686.5 205.6L686.9 205.6L687.3 205.6L687.7 205.6L688.0 205.6L688.4 205.6L688.8 205.6L689.2 205.6L689.5 205.6L689.9 205.5L690.3 205.5L690.7 205.5L691.0 205.5L691.4 205.5L691.8 205.5L692.2 205.5L692.5 205.5L692.9 205.5L693.3 205.5L693.6 205.5L694.0 205.5L694.4 205.5L694.8 205.5L695.1 205.5L695.5 205.5L695.9 205.5L696.3 205.5L696.6 205.6L697.0 205.6L697.4 205.6L697.8 205.6L698.1 205.6L698.5 205.6L698.9 205.6L699.3 205.6L699.6 205.6L700.0 205.6L700.4 205.6L700.8 205.6L701.1 205.6L701.5 205.6L701.9 205.6L702.3 205.5L702.6 205.5L703.0 205.5L703.4 205.5L703.8 205.5L704.1 205.5L704.5 205.5L704.9 205.5L705.3 205.5L705.6 205.5L706.0 205.5" class="ln4"/>
+<text x="450" y="64.0" class="flab st hm1">S&#8314; &#8805; 1</text>
+<text x="450" y="82.0" class="flab st hm4">S&#8315; &#8804; 1</text>
+<text x="575.0" y="267.0" class="flab mid">an arc, at type 2&#960;&#948; with &#948; = 8</text>
+<text x="575.0" y="286.0" class="flab mid">deficiency 1/&#948;, whatever the arc</text>
+<text x="30" y="332" class="flab st">Left: Beurling's extremal majorant of the sign function, entire of exponential type 2&#960;, meeting sgn at every nonzero</text>
+<text x="30" y="350" class="flab st">integer. Verified here, not cited: over 400,000 offset samples the largest excess of sgn over B is &#8722;1.7&#215;10&#8315;&#185;&#179;, and</text>
+<text x="30" y="368" class="flab st">out to |x| = 4000 it is exactly zero. Its L&#185; excess is 1 &#8212; and that number is where recollection first went wrong,</text>
+<text x="30" y="386" class="flab st">since B + K majorises too but with excess 2, handing away a factor of two before the argument starts. Right:</text>
+<text x="30" y="404" class="flab st">Selberg's construction from B brackets an arc's indicator at type 2&#960;&#948;, with deficiency exactly 1/&#948; whatever the</text>
+<text x="30" y="422" class="flab st">arc's length &#8212; verified to 6.3&#215;10&#8315;&#8309; at four intervals and four types. That is the property rh30 &#167;5's three routes</text>
+<text x="30" y="440" class="flab st">all lack: every one of them loses LINEARLY in the degree.</text>
+</svg></div>
+<figcaption>B above sgn, touching at the integers; and Selberg&#8217;s pair
+bracketing an arc&#8217;s indicator with deficiency 1/&#948; whatever the arc.
+</figcaption>
+</figure>
+
+<p>Two things had to be got right that recollection got wrong, and both were
+caught by measuring rather than citing. <strong>B is B alone.</strong> Writing
+B = H + K also majorises &#8212; K is the Fej&#233;r kernel and nonnegative
+&#8212; but with excess 2, handing away a factor of two before the argument
+starts; the integral said 1.993 and that is how it was found. And
+<strong>the poles must be removed analytically</strong>: B&#8217;s defining
+bracket has a double pole at every non-positive integer that the sin&#178;
+factor cancels, and doing that cancellation in floating point costs ten digits
+near each one. Reflection gives a pole-free form for z &gt; &#8722;1, and the
+functional equation</p>
+
+<div class="cardbox">
+B(z) + B(&#8722;z) = 2&#8201;K(z)
+</div>
+
+<p>carries it to the rest of the line. It holds here to
+5.6&#215;10<sup>&#8722;17</sup>. With that, B &#8805; sgn is verified to
+&#8722;1.7&#215;10<sup>&#8722;13</sup> over 400,000 offset samples, and exactly
+to zero out to |x| = 4000 where the sampled maximum is attained at the integers
+themselves.</p>
+
+<p>From B, Selberg&#8217;s majorant and minorant bracket any interval&#8217;s
+indicator at any type 2&#960;&#948;, verified pointwise to
+3.2&#215;10<sup>&#8722;15</sup> at four intervals and four types. Their
+L&#185; deficiency is <strong>exactly 1/&#948;</strong> &#8212; independent of
+the interval&#8217;s length, and <em>falling</em> in the type rather than
+growing in it. That last clause is precisely what rh30 &#167;5&#8217;s three
+routes lack: Gershgorin, Koksma and Marcinkiewicz&#8211;Zygmund all lose
+<em>linearly</em> in the degree. It is why (b) looked worth taking.</p>
+
+<h2 id="s4">4 · Regression</h2>
+
+<p>Before anything new is compared to rh30, rh30 is rebuilt from the zeros.
+Gershgorin&#8217;s bound is positive at n = 24 (0.1365) and negative at n = 32
+(&#8722;0.5142), bracketing the reach of 28 that rh30 &#167;5 reports. And
+rh30 &#167;3&#8217;s published point, &#955;<sub>min</sub>/Eh(0) = 0.2846 at
+n = 151, sits between the 0.3265 measured here at n = 128 and the 0.1539 at
+n = 192.</p>
+
+<h2 id="s5">5 · The gap idea</h2>
+
+<p>rh30 &#167;10 (b)&#8217;s first suggestion: a bound &#8220;that localises to
+the largest gap instead of taking a worst case round the whole circle.&#8221;
+Its sharp form is an uncertainty principle rather than a variation bound
+&#8212; a nonnegative trig polynomial of degree n &#8722; 1 can put nearly all
+its mass in one arc of length about 1/n, and in no less. So the adversary gets
+<em>one</em> hiding place, and the quantity is the <strong>avoidable
+mass</strong>: the weight that survives the best window of width 1/n.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 478" role="img" aria-label="The avoidable mass climbing towards one while the true floor collapses, at three windows. The two do not track.">
+<text x="370.0" y="21" class="ftitle">the adversary is not hiding in a gap</text>
+<line x1="66" y1="292" x2="470" y2="292" class="axis"/>
+<line x1="66" y1="60" x2="66" y2="292" class="axis"/>
+<line x1="66" y1="225.7" x2="470" y2="225.7" class="grid"/>
+<text x="60" y="229.2" class="flab end">10&#8315;&#178;</text>
+<line x1="66" y1="145.3" x2="470" y2="145.3" class="grid"/>
+<text x="60" y="148.8" class="flab end">0.1</text>
+<line x1="66" y1="64.9" x2="470" y2="64.9" class="grid"/>
+<text x="60" y="68.4" class="flab end">1</text>
+<text x="66.0" y="309.0" class="flab mid">2</text>
+<text x="167.0" y="309.0" class="flab mid">8</text>
+<text x="268.0" y="309.0" class="flab mid">32</text>
+<text x="369.0" y="309.0" class="flab mid">128</text>
+<text x="470.0" y="309.0" class="flab mid">512</text>
+<text x="268.0" y="328.0" class="flab mid">depth n</text>
+<path d="M66.0 72.8L95.5 76.7L116.5 77.1L146.0 83.5L167.0 91.2L196.5 100.4L217.5 119.9L247.0 152.0L268.0 169.0L297.5 218.7L318.5 260.2L348.0 289.5L369.0 292.0L398.5 292.0L419.5 292.0L449.0 292.0L470.0 292.0" class="ln0"/>
+<path d="M66.0 105.6L95.5 88.3L116.5 83.7L146.0 76.6L167.0 73.8L196.5 73.6L217.5 72.6L247.0 71.0L268.0 70.5L297.5 69.6L318.5 69.6L348.0 68.2L369.0 68.2L398.5 67.5L419.5 67.5L449.0 67.5L470.0 67.5" class="ln0 lnd"/>
+<circle cx="470.0" cy="67.5" r="3.0" class="hm1"/>
+<path d="M66.0 65.6L95.5 65.9L116.5 66.0L146.0 66.2L167.0 66.4L196.5 67.1L217.5 67.4L247.0 72.9L268.0 77.3L297.5 83.4L318.5 88.5L348.0 97.2L369.0 104.0L398.5 130.3L419.5 189.6L449.0 231.5L470.0 276.1" class="ln1"/>
+<path d="M66.0 90.6L95.5 80.2L116.5 75.7L146.0 71.9L167.0 70.2L196.5 68.5L217.5 67.8L247.0 66.8L268.0 66.5L297.5 66.1L318.5 66.0L348.0 65.8L369.0 65.6L398.5 65.5L419.5 65.5L449.0 65.4L470.0 65.4" class="ln1 lnd"/>
+<circle cx="470.0" cy="65.4" r="3.0" class="hm3"/>
+<path d="M66.0 65.7L95.5 66.1L116.5 66.4L146.0 66.8L167.0 67.0L196.5 67.2L217.5 67.3L247.0 67.3L268.0 67.8L297.5 68.3L318.5 68.9L348.0 70.5L369.0 71.8L398.5 76.9L419.5 83.8L449.0 93.2L470.0 102.0" class="ln2"/>
+<path d="M66.0 90.2L95.5 79.7L116.5 75.4L146.0 71.6L167.0 69.8L196.5 68.1L217.5 67.3L247.0 66.5L268.0 66.1L297.5 65.7L318.5 65.5L348.0 65.4L369.0 65.3L398.5 65.2L419.5 65.1L449.0 65.1L470.0 65.0" class="ln2 lnd"/>
+<circle cx="470.0" cy="65.0" r="3.0" class="hm2"/>
+<text x="500" y="64.0" class="flab st">dashed: the avoidable mass</text>
+<text x="500" y="81.0" class="flab st">solid: the truth</text>
+<text x="500" y="106.0" class="flab st hm1">&#916; = 0.48</text>
+<text x="500" y="124.0" class="flab st hm3">&#916; = 0.12</text>
+<text x="500" y="142.0" class="flab st hm2">&#916; = 0.03</text>
+<text x="500" y="186.0" class="flab st">at &#916; = 0.12, the ratio</text>
+<text x="500" y="203.0" class="flab st">truth / avoidable mass:</text>
+<text x="552.0" y="230.0" class="flab end">n = 2</text>
+<text x="650.0" y="230.0" class="flab end">2.0490</text>
+<text x="552.0" y="250.0" class="flab end">n = 16</text>
+<text x="650.0" y="250.0" class="flab end">1.0110</text>
+<text x="552.0" y="270.0" class="flab end">n = 64</text>
+<text x="650.0" y="270.0" class="flab end">0.5240</text>
+<text x="552.0" y="290.0" class="flab end">n = 256</text>
+<text x="650.0" y="290.0" class="flab end">0.0290</text>
+<text x="552.0" y="310.0" class="flab end">n = 512</text>
+<text x="650.0" y="310.0" class="flab end">0.0024</text>
+<text x="30" y="354" class="flab st">rh30 &#167;10 (b) asked for a bound that localises to the largest gap instead of taking a worst case round the circle.</text>
+<text x="30" y="372" class="flab st">Its sharp form is an uncertainty principle rather than a variation bound: a nonnegative trig polynomial of degree n</text>
+<text x="30" y="390" class="flab st">&#8722; 1 can put nearly all its mass in one arc of length about 1/n and in no less, so the adversary gets one hiding</text>
+<text x="30" y="408" class="flab st">place. The quantity is then the avoidable mass &#8212; the weight surviving the best window &#8212; and it does not track. It</text>
+<text x="30" y="426" class="flab st">saturates towards 1 while the floor falls two decades below it, because 8,616 atoms are dense enough that a window</text>
+<text x="30" y="444" class="flab st">of width 1/n holds almost nothing. The polynomial is not hiding anywhere; it is small at many atoms at once.</text>
+</svg></div>
+<figcaption>The avoidable mass saturating towards 1 while the floor collapses
+two decades below it. The two do not track, at any window.</figcaption>
+</figure>
+
+<p>It fails, and it fails by saturating. At the 0.12 window the avoidable mass
+is 0.9455 at n = 24 and 0.9847 by n = 512, while the truth over the same range
+falls to 0.0024. The ratio of truth to avoidable mass runs from 2.05 at n = 2
+to 0.0024 at n = 512 &#8212; three decades, moving the wrong way &#8212; and
+past n = 8 the avoidable mass never drops below 0.858 at any depth.</p>
+
+<p>The reason is countable. There are 8,616 atoms on the circle, so a window of
+width 1/n contains almost none of the mass at any depth worth having. The
+minimising polynomial is not hiding in a gap. It is small at many atoms at
+once, which is a different thing and not a localisation at all.</p>
+
+<h2 id="s6">6 · The q &#8805; 0 idea</h2>
+
+<p>The second suggestion, and the one rh30 wanted most: &#8220;an inequality
+that uses q = |p|&#178; &#8805; 0 rather than only its variation.&#8221; There
+is a clean one, and it is Fej&#233;r&#8217;s own extremal problem. A
+nonnegative trig polynomial of degree n &#8722; 1 with mean 1 has
+sup&#8201;q &#8804; n, attained by the Fej&#233;r kernel; hence
+&#8214;q&#8214;&#8322;&#178; &#8804; n, and Cauchy&#8211;Schwarz gives</p>
+
+<div class="cardbox">
+&#955;<sub>min</sub>/E(0) &#8805; 1 &#8722; &#8730;(n&#8722;1)
+&#8201;( 2&#8201;&#8721;<sub>0&lt;k&lt;n</sub>
+(E(k&#916;)/E(0))&#178; )<sup>1/2</sup>
+</div>
+
+<p>&#8212; &#8730;n where Gershgorin has n, using nonnegativity and nothing
+else. It is exactly the shape rh30 asked for.</p>
+
+<p><strong>It is worse.</strong> At the 0.12 window Gershgorin survives to
+n = 24 and this dies at 16; at 0.03, where the arc has the most room,
+Gershgorin reaches 96 and this reaches 64. At no window of the five does it
+beat Gershgorin. The &#8730;n is real, but it is bought by trading max|E| for
+the &#8467;&#178; norm of the whole row, and the row does not decay fast enough
+to pay for the trade.</p>
+
+<h2 id="s7">7 · Where the decades go</h2>
+
+<p>Four routes now, all with the same shape of failure, which is a reason to
+stop looking for a fifth and ask what they share. They share one step. Each
+controls</p>
+
+<div class="cardbox">
+&#8721;<sub>|k|&lt;n</sub> q&#770;(k)&#8201;E(k&#916;)
+&#8195;by&#8195; |q&#770;(k)| &#8804; 1,
+</div>
+
+<p>the worst case, one sign flip per lag. The true minimiser does not look like
+that.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 436" role="img" aria-label="The autocorrelation of the true minimising polynomial, far below the worst case of one that every bound assumes, and the reach of four lower bounds against the certified depth.">
+<text x="370.0" y="21" class="ftitle">the loss is the worst case over q, not the constant</text>
+<line x1="66" y1="250" x2="420" y2="250" class="axis"/>
+<line x1="66" y1="66" x2="66" y2="250" class="axis"/>
+<line x1="66" y1="170.0" x2="420" y2="170.0" class="grid"/>
+<text x="60" y="173.5" class="flab end">0.5</text>
+<line x1="66" y1="90.0" x2="420" y2="90.0" class="rule"/>
+<text x="60" y="93.5" class="flab end">1</text>
+<rect x="68.4" y="171.2" width="2.7" height="78.8" class="bar hm3"/>
+<rect x="72.1" y="201.7" width="2.7" height="48.3" class="bar hm3"/>
+<rect x="75.9" y="118.1" width="2.7" height="131.9" class="bar hm3"/>
+<rect x="79.6" y="169.7" width="2.7" height="80.3" class="bar hm3"/>
+<rect x="83.3" y="223.8" width="2.7" height="26.2" class="bar hm3"/>
+<rect x="87.0" y="156.5" width="2.7" height="93.5" class="bar hm3"/>
+<rect x="90.8" y="172.5" width="2.7" height="77.5" class="bar hm3"/>
+<rect x="94.5" y="249.7" width="2.7" height="0.3" class="bar hm3"/>
+<rect x="98.2" y="199.5" width="2.7" height="50.5" class="bar hm3"/>
+<rect x="101.9" y="176.1" width="2.7" height="73.9" class="bar hm3"/>
+<rect x="105.7" y="212.0" width="2.7" height="38.0" class="bar hm3"/>
+<rect x="109.4" y="248.8" width="2.7" height="1.2" class="bar hm3"/>
+<rect x="113.1" y="195.4" width="2.7" height="54.6" class="bar hm3"/>
+<rect x="116.8" y="185.4" width="2.7" height="64.6" class="bar hm3"/>
+<rect x="120.6" y="219.1" width="2.7" height="30.9" class="bar hm3"/>
+<rect x="124.3" y="212.2" width="2.7" height="37.8" class="bar hm3"/>
+<rect x="128.0" y="163.5" width="2.7" height="86.5" class="bar hm3"/>
+<rect x="131.7" y="196.8" width="2.7" height="53.2" class="bar hm3"/>
+<rect x="135.5" y="229.4" width="2.7" height="20.6" class="bar hm3"/>
+<rect x="139.2" y="155.7" width="2.7" height="94.3" class="bar hm3"/>
+<rect x="142.9" y="179.1" width="2.7" height="70.9" class="bar hm3"/>
+<rect x="146.7" y="247.2" width="2.7" height="2.8" class="bar hm3"/>
+<rect x="150.4" y="175.4" width="2.7" height="74.6" class="bar hm3"/>
+<rect x="154.1" y="177.4" width="2.7" height="72.6" class="bar hm3"/>
+<rect x="157.8" y="232.0" width="2.7" height="18.0" class="bar hm3"/>
+<rect x="161.6" y="203.5" width="2.7" height="46.5" class="bar hm3"/>
+<rect x="165.3" y="179.7" width="2.7" height="70.3" class="bar hm3"/>
+<rect x="169.0" y="213.4" width="2.7" height="36.6" class="bar hm3"/>
+<rect x="172.7" y="239.6" width="2.7" height="10.4" class="bar hm3"/>
+<rect x="176.5" y="190.3" width="2.7" height="59.7" class="bar hm3"/>
+<rect x="180.2" y="192.7" width="2.7" height="57.3" class="bar hm3"/>
+<rect x="183.9" y="218.7" width="2.7" height="31.3" class="bar hm3"/>
+<rect x="187.6" y="220.0" width="2.7" height="30.0" class="bar hm3"/>
+<rect x="191.4" y="185.3" width="2.7" height="64.7" class="bar hm3"/>
+<rect x="195.1" y="191.4" width="2.7" height="58.6" class="bar hm3"/>
+<rect x="198.8" y="249.0" width="2.7" height="1.0" class="bar hm3"/>
+<rect x="202.5" y="186.3" width="2.7" height="63.7" class="bar hm3"/>
+<rect x="206.3" y="177.3" width="2.7" height="72.7" class="bar hm3"/>
+<rect x="210.0" y="225.6" width="2.7" height="24.4" class="bar hm3"/>
+<rect x="213.7" y="191.4" width="2.7" height="58.6" class="bar hm3"/>
+<rect x="217.5" y="169.5" width="2.7" height="80.5" class="bar hm3"/>
+<rect x="221.2" y="211.2" width="2.7" height="38.8" class="bar hm3"/>
+<rect x="224.9" y="202.1" width="2.7" height="47.9" class="bar hm3"/>
+<rect x="228.6" y="168.9" width="2.7" height="81.1" class="bar hm3"/>
+<rect x="232.4" y="204.0" width="2.7" height="46.0" class="bar hm3"/>
+<rect x="236.1" y="220.5" width="2.7" height="29.5" class="bar hm3"/>
+<rect x="239.8" y="178.2" width="2.7" height="71.8" class="bar hm3"/>
+<rect x="243.5" y="206.6" width="2.7" height="43.4" class="bar hm3"/>
+<rect x="247.3" y="237.4" width="2.7" height="12.6" class="bar hm3"/>
+<rect x="251.0" y="195.2" width="2.7" height="54.8" class="bar hm3"/>
+<rect x="254.7" y="212.7" width="2.7" height="37.3" class="bar hm3"/>
+<rect x="258.4" y="246.8" width="2.7" height="3.2" class="bar hm3"/>
+<rect x="262.2" y="217.6" width="2.7" height="32.4" class="bar hm3"/>
+<rect x="265.9" y="217.3" width="2.7" height="32.7" class="bar hm3"/>
+<rect x="269.6" y="229.4" width="2.7" height="20.6" class="bar hm3"/>
+<rect x="273.3" y="248.2" width="2.7" height="1.8" class="bar hm3"/>
+<rect x="277.1" y="227.3" width="2.7" height="22.7" class="bar hm3"/>
+<rect x="280.8" y="219.3" width="2.7" height="30.7" class="bar hm3"/>
+<rect x="284.5" y="230.3" width="2.7" height="19.7" class="bar hm3"/>
+<rect x="288.3" y="233.7" width="2.7" height="16.3" class="bar hm3"/>
+<rect x="292.0" y="212.4" width="2.7" height="37.6" class="bar hm3"/>
+<rect x="295.7" y="216.8" width="2.7" height="33.2" class="bar hm3"/>
+<rect x="299.4" y="241.5" width="2.7" height="8.5" class="bar hm3"/>
+<rect x="303.2" y="210.7" width="2.7" height="39.3" class="bar hm3"/>
+<rect x="306.9" y="211.6" width="2.7" height="38.4" class="bar hm3"/>
+<rect x="310.6" y="245.9" width="2.7" height="4.1" class="bar hm3"/>
+<rect x="314.3" y="224.5" width="2.7" height="25.5" class="bar hm3"/>
+<rect x="318.1" y="226.0" width="2.7" height="24.0" class="bar hm3"/>
+<rect x="321.8" y="245.2" width="2.7" height="4.8" class="bar hm3"/>
+<rect x="325.5" y="234.7" width="2.7" height="15.3" class="bar hm3"/>
+<rect x="329.2" y="237.3" width="2.7" height="12.7" class="bar hm3"/>
+<rect x="333.0" y="243.4" width="2.7" height="6.6" class="bar hm3"/>
+<rect x="336.7" y="246.8" width="2.7" height="3.2" class="bar hm3"/>
+<rect x="340.4" y="244.2" width="2.7" height="5.8" class="bar hm3"/>
+<rect x="344.1" y="235.6" width="2.7" height="14.4" class="bar hm3"/>
+<rect x="347.9" y="235.1" width="2.7" height="14.9" class="bar hm3"/>
+<rect x="351.6" y="245.8" width="2.7" height="4.2" class="bar hm3"/>
+<rect x="355.3" y="234.5" width="2.7" height="15.5" class="bar hm3"/>
+<rect x="359.1" y="225.9" width="2.7" height="24.1" class="bar hm3"/>
+<rect x="362.8" y="244.2" width="2.7" height="5.8" class="bar hm3"/>
+<rect x="366.5" y="230.6" width="2.7" height="19.4" class="bar hm3"/>
+<rect x="370.2" y="221.3" width="2.7" height="28.7" class="bar hm3"/>
+<rect x="374.0" y="244.0" width="2.7" height="6.0" class="bar hm3"/>
+<rect x="377.7" y="228.3" width="2.7" height="21.7" class="bar hm3"/>
+<rect x="381.4" y="221.1" width="2.7" height="28.9" class="bar hm3"/>
+<rect x="385.1" y="242.0" width="2.7" height="8.0" class="bar hm3"/>
+<rect x="388.9" y="233.0" width="2.7" height="17.0" class="bar hm3"/>
+<rect x="392.6" y="228.4" width="2.7" height="21.6" class="bar hm3"/>
+<rect x="396.3" y="244.2" width="2.7" height="5.8" class="bar hm3"/>
+<rect x="400.0" y="236.4" width="2.7" height="13.6" class="bar hm3"/>
+<rect x="403.8" y="234.3" width="2.7" height="15.7" class="bar hm3"/>
+<rect x="407.5" y="244.7" width="2.7" height="5.3" class="bar hm3"/>
+<rect x="411.2" y="242.0" width="2.7" height="8.0" class="bar hm3"/>
+<rect x="414.9" y="240.4" width="2.7" height="9.6" class="bar hm3"/>
+<rect x="418.7" y="244.1" width="2.7" height="5.9" class="bar hm3"/>
+<line x1="66" y1="214.8" x2="420" y2="214.8" class="hl"/>
+<text x="416" y="82.0" class="flab end c4">what every bound assumes: |q&#770;(k)| = 1</text>
+<text x="416" y="206.8" class="flab end">mean 0.220</text>
+<text x="66.0" y="267.0" class="flab mid">0</text>
+<text x="155.4" y="267.0" class="flab mid">24</text>
+<text x="244.9" y="267.0" class="flab mid">48</text>
+<text x="334.3" y="267.0" class="flab mid">72</text>
+<text x="420.0" y="267.0" class="flab mid">95</text>
+<text x="243.0" y="286.0" class="flab mid">lag k, for the true minimiser at n = 96, &#916; = 0.12</text>
+<text x="470" y="66.0" class="flab st">reach at &#916; = 0.12, against</text>
+<text x="470" y="83.0" class="flab st">a certified depth of 151:</text>
+<rect x="582.0" y="102.0" width="5.9" height="11" class="bar hmo"/>
+<text x="576.0" y="112.0" class="flab end">Koksma (rh30)</text>
+<text x="593.9" y="112.0" class="flab st">12</text>
+<rect x="582.0" y="132.0" width="11.8" height="11" class="bar hm1"/>
+<text x="576.0" y="142.0" class="flab end">Gershgorin</text>
+<text x="599.8" y="142.0" class="flab st">24</text>
+<rect x="582.0" y="162.0" width="7.9" height="11" class="bar hm4"/>
+<text x="576.0" y="172.0" class="flab end">q &#8805; 0, Fejer</text>
+<text x="595.9" y="172.0" class="flab st">16</text>
+<rect x="582.0" y="192.0" width="112.1" height="11" class="bar hm3"/>
+<text x="576.0" y="202.0" class="flab end">Marcinkiewicz&#8211;Z.</text>
+<text x="700.1" y="202.0" class="flab st">228</text>
+<text x="470" y="238.0" class="flab st">the two new ones sit inside the</text>
+<text x="470" y="255.0" class="flab st">two rh30 already had</text>
+<text x="30" y="312" class="flab st">Every bound in rh30 &#167;5, and both tried here, controls |&#8721;&#8342; q&#770;(k) E(k&#916;)| by putting |q&#770;(k)| &#8804; 1 &#8212; the worst case, one</text>
+<text x="30" y="330" class="flab st">sign flip per lag. The true minimiser does not look like that. Its autocorrelation averages 0.220 over the 95</text>
+<text x="30" y="348" class="flab st">nonzero lags, and it is charged 1.34 against the worst case's 6.27, a factor 4.7. So the loss is not in a constant</text>
+<text x="30" y="366" class="flab st">and not in the discrepancy: it is in assuming a polynomial can be adversarial at every lag at once, when a</text>
+<text x="30" y="384" class="flab st">NONNEGATIVE one cannot. The missing inequality rh30 &#167;5 named is a joint bound on the autocorrelation of a</text>
+<text x="30" y="402" class="flab st">nonnegative polynomial across lags. Beurling&#8211;Selberg does not supply one, and neither does Fejer.</text>
+</svg></div>
+<figcaption>The true minimiser&#8217;s autocorrelation against the value every
+bound assumes for it, and the reach of four bounds against a certified depth of
+151.</figcaption>
+</figure>
+
+<p>Take the exact minimiser at n = 96 on the 0.12 window and read off its
+autocorrelation. q&#770;(0) = 1 by normalisation, and the mean of |q&#770;(k)|
+over the 95 nonzero lags is <strong>0.220</strong>, not 1. The worst case
+charges 2&#8721;|E(k&#916;)|/E(0) = 6.27 against a budget of 1, which is why
+Gershgorin dies at 24; the true minimiser is charged 1.34, a factor
+<strong>4.7</strong> less, because its autocorrelation decays where the worst
+case does not.</p>
+
+<p>So the loss is not in any constant, and no sharpening of one closes it
+&#8212; rh30 &#167;5 said as much and this is the mechanism. It is not in the
+discrepancy either, and not in where q concentrates. It is in assuming a
+polynomial can be adversarial at every lag at once, when a <em>nonnegative</em>
+one cannot. The missing inequality rh30 named is a joint bound on the
+autocorrelation of a nonnegative polynomial across lags.
+Beurling&#8211;Selberg does not supply one. Neither does Fej&#233;r.</p>
+
+<h2 id="s8">8 · Where this leaves the conjunction</h2>
+
+<p>Nowhere new. What has changed is the status of rh30 &#167;10 (b): it is now
+<em>tried</em> rather than open. The majorants are built and verified, both
+suggestions attached to them are refuted by measurement, and the four failures
+turn out to be one failure rather than four.</p>
+
+<p>That leaves rh30 &#167;10 (a) &#8212; prove the collapse &#8212; as the only
+one of the three directions not closed, and still the only statement the arc has
+with the logical shape a conjunction needs. It has now been open for seven
+documents and untouched for all seven, which is worth saying plainly rather
+than leaving to be inferred.</p>
+
+<p>The honest summary of &#167;&#167;5&#8211;7 is that this document converts a
+vague &#8220;the constants are wrong&#8221; into a specific missing lemma. That
+is smaller than a bound and larger than nothing: a fifth attempt of the same
+kind can now be predicted to fail before it is run, and the thing that would
+not fail has a name.</p>
+
+<h2 id="s9">9 · What this document leaves</h2>
+
+<dl class="dict">
+<dt>(a) The autocorrelation lemma.</dt>
+<dd>&#167;7 names it: a bound on &#8721;<sub>k</sub>|q&#770;(k)|&#8201;c<sub>k</sub>
+for nonnegative q of degree n &#8722; 1 with q&#770;(0) = 1, valid jointly
+across lags rather than one lag at a time. The measured mean of 0.220 at n = 96
+is one data point on whatever the truth is; the profile as a function of n and
+of the window is measurable with the machinery already here, and would say
+whether the joint constraint has a clean form worth trying to prove.</dd>
+
+<dt>(b) rh30 &#167;10 (a), still.</dt>
+<dd>Prove the collapse. Seven documents open. rh36 supplied a method that has
+not been pointed at it &#8212; name the eigenvector that carries
+&#955;<sub>min</sub> on the arc&#8217;s own lattice, as rh36 did on the integer
+ladder, and see whether n/N<sub>eff</sub> has a vector reading. Measured this
+session and worth recording: rh36&#8217;s collapse law and rh30&#8217;s are
+<em>not</em> the same variable &#8212; rh36&#8217;s holds to 1.06&#215; across
+four windows where N<sub>eff</sub> moves by 11&#215; against it.</dd>
+
+<dt>(c) The machinery is now the arc&#8217;s.</dt>
+<dd>bs_lib is verified and reusable, and B is worth having whatever happens to
+(a): the pole-free evaluation and the functional equation are the parts that
+took the work, and the excess-1 correction is the part that would have
+quietly cost a factor of two.</dd>
+
+<dt>(d) The certified set stays closed.</dt>
+<dd>Nine, unchanged, renewed once more.</dd>
+</dl>
+
+<p class="foot">Sibling documents: <a href="rh30.html">rh30</a> ·
+<a href="rh34.html">rh34</a> · <a href="rh35.html">rh35</a> ·
+<a href="rh36.html">rh36</a></p>
+
+
+</div>
+</body>
+</html>

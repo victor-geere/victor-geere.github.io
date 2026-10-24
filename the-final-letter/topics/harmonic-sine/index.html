@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonic sine — research programme</title>
+<style>
+:root{--ink:#1a202c;--muted:#555;--line:#d8d8d8;--accent:#1a5fb4;--panel:#f3f5f7}
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:var(--ink);background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid var(--line);padding-bottom:.25rem;font-size:1.3rem}
+h3{margin-top:1.5rem;font-size:1.05rem}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:var(--muted);font-size:1.05rem;font-style:italic}
+.top{background:var(--panel);border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+pre{background:#f6f8fa;border:1px solid var(--line);padding:.8rem 1rem;border-radius:6px;overflow-x:auto;font-size:.9rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--panel)}
+.err{background:#fff8e6;border:1px solid #e6d9a8;padding:.8rem 1rem;border-radius:6px}
+.meta{color:var(--muted);font-size:.94rem;margin-top:2.5rem}
+</style></head><body>
+
+<h1>Harmonic sine</h1>
+<p class="sub">A reconstructed research programme: geometric formal core, exact computation, archived RH claim</p>
+
+<div class="top"><p><strong>Status.</strong> Geometric core reconstructed and checked. The source's Riemann-hypothesis claim is <strong>archived and superseded</strong>; it is not a theorem here. The full dossier is in <a href="README.md">README.md</a>.</p></div>
+
+<h2>Provenance and what this folder is</h2>
+<p>The designated source is the 9 KB ebook <a href="../../archive/maths/rh/research/harmonic-sine/harmonic-sine-rh.html"><code>harmonic-sine-rh.html</code></a> (7 March 2026), with the sibling geometric note <a href="../../archive/maths/rh/research/harmonic-sine/sine-harmonic.html"><code>sine-harmonic.html</code></a> and its <a href="../../archive/maths/rh/research/harmonic-sine/sine-harmonic.tex">TeX source</a>. The inventory entry is <a href="../../scraps.html">Scraps item 15</a>, tagged <em>archived claim</em> and <em>superseded</em>.</p>
+<p>The ebook's first half defines a greedy reconstruction of <code>sin(πx)</code> from harmonic steps <code>π/(n+2)</code> fused by the Pythagorean rotation rule. Its second half claims that a "harmonic sheaf" over the zeta landscape, plus an extension of Matomäki–Radziwiłł discorrelation to <code>1/n</code> phases, yields the Riemann hypothesis. Only the finite geometry survives as mathematics that can be proved; the zeta/RH material is recorded as source claim or open item.</p>
+
+<div class="err"><strong>Erratum.</strong> The source defines <code>h_n = √((1 − cos(π/(n+2)))/2)</code>, which is <code>sin(π/(2(n+2)))</code> — the <em>half</em>-angle — while the rotation update needs <code>sin(π/(n+2))</code>. The sibling <code>sine-harmonic.tex</code> instead uses <code>dyadic_sin(1/(n+2))</code>. The Python layer verifies both the exact half-angle identity and the discrepancy (C1, C2); Lean uses the correct <code>(sin ε, cos ε)</code> pair.</div>
+
+<h2>Reconstructed objects and notation</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Harmonic step</td><td><code>ε n = π / (n + 2)</code></td></tr>
+<tr><td>Target</td><td><code>π y</code>, with <code>y ∈ [0, 1]</code> measured in units of <code>π</code></td></tr>
+<tr><td>Selection word</td><td><code>δ n ∈ {0,1}</code>, with <code>δ n = 1</code> iff <code>r n ≥ ε n</code></td></tr>
+<tr><td>Accumulated angle</td><td><code>θ n = Σ δ j ε j</code></td></tr>
+<tr><td>Residual</td><td><code>r n = π y − θ n</code></td></tr>
+<tr><td>Rotation pair</td><td><code>(s n, c n)</code>, intended to equal <code>(sin θ n, cos θ n)</code></td></tr>
+<tr><td>Step pair</td><td><code>(h n, ch n) = (sin ε n, cos ε n)</code></td></tr>
+<tr><td>Rotation</td><td><code>rotate (s,c) h ch = (s ch + c h, c ch − s h)</code></td></tr>
+<tr><td>One-step residual</td><td><code>residStep r n = r − (ε n if ε n ≤ r else 0)</code></td></tr>
+<tr><td>Source's <code>h n</code></td><td><code>√((1 − cos ε n)/2) = sin(ε n/2)</code> — see erratum</td></tr>
+</tbody>
+</table>
+
+<h2>Theorem ledger</h2>
+<p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every <strong>Computation</strong> row is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td><code>0 &lt; ε n</code> for every <code>n</code></td><td><code>HarmonicSine.eps_pos</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td><code>n ↦ ε n</code> is strictly antitone</td><td><code>HarmonicSine.eps_strictAnti</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td><code>ε n → 0</code></td><td><code>HarmonicSine.eps_tendsto_zero</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td><code>(n + 2) ε n = π</code></td><td><code>HarmonicSine.scaled_eps</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>The rotation preserves the unit circle: <code>s² + c² = 1</code> and <code>h² + ch² = 1</code> imply the rotated pair has squared norm 1</td><td><code>HarmonicSine.rotate_unit</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td><code>(sin θ, cos θ)</code> rotated by <code>(sin ε, cos ε)</code> equals <code>(sin(θ+ε), cos(θ+ε))</code></td><td><code>HarmonicSine.rotate_trig</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td><code>0 ≤ r ≤ ε n</code> implies <code>0 ≤ residStep r n ≤ ε n</code></td><td><code>HarmonicSine.residStep_bounds</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>The source's half-angle expression equals <code>sin(ε n/2)</code> exactly for <code>n ≤ 11</code></td><td><code>test_half_angle_sine_identity_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>Erratum: the source's <code>h n</code> is not <code>sin ε n</code> for <code>n ≤ 5</code>; doubling the half-angle recovers it</td><td><code>test_source_half_angle_is_not_the_rotation_sine</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>Symbolically, the rotation is exactly the angle-addition update</td><td><code>test_rotation_is_angle_addition_symbolic</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>Symbolically, the rotation preserves <code>s² + c² = 1</code>; zero and right-angle rotations behave correctly</td><td><code>test_rotation_preserves_unit_circle_symbolic</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>The residual bound <code>0 ≤ r n ≤ π/(n+1)</code> holds exactly on a rational grid up to <code>n_max = 200</code></td><td><code>test_greedy_residual_bound_on_grid</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>The source's boundary equality holds: at <code>y = 1</code>, <code>n = 1</code>, <code>r 1 = 1/2 = 1/(1+1)</code></td><td><code>test_greedy_residual_boundary_equality_at_y_equals_one</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>400-step rotation reconstruction agrees with <code>sin(π y)</code> to <code>10⁻¹²</code> on a 12-point grid including <code>0, 1/2, 1</code></td><td><code>test_reconstruction_convergence_with_stated_tolerance</code></td></tr>
+</tbody>
+</table>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td><code>sin(πx) = sgn(x) lim s_n(|x| mod 2)</code> for all real <code>x</code></td><td>Source theorem, proof sketch only</td><td>T6 and T7 prove the finite rotation and one-step bound; the limit and reflection reduction are not formalised.</td></tr>
+<tr><td><code>s_n = sin θ_n</code> by induction</td><td>Source proof step</td><td>T6 is one step; the induction over the greedy history is not formalised.</td></tr>
+<tr><td><code>h_n = √((1 − cos(π/(n+2)))/2)</code> used as the step sine</td><td>Source definition</td><td><strong>Erratum:</strong> this is the half-angle. The correct pair is used in Lean and checked in Python.</td></tr>
+<tr><td>Convergence is <code>O(1/n)</code>, slower than dyadic</td><td>Source remark</td><td>The finite residual bound is tested (C5); the asymptotic rate is not formalised.</td></tr>
+<tr><td>Harmonic angles parallel the Euler product and explicit formula</td><td>Speculative analogy</td><td>An analogy table, not a precise identity; nothing available to formalise.</td></tr>
+<tr><td>Off-line zeros imply phase non-alignment; RH follows from harmonic-sheaf acyclicity</td><td><strong>Archived claim</strong>, superseded</td><td>No sheaf, energy functional, or implication is defined precisely. Not formalised and not assumed anywhere here.</td></tr>
+<tr><td>Matomäki–Radziwiłł extension to <code>1/n</code> phases: <code>|Σ cos(2πα/n)| ≪ x^{1−δ}</code></td><td>Source claim, proof sketch</td><td>No complete proof in the source; a substantial open analytic statement, not formalised.</td></tr>
+<tr><td>Off-line energy bound <code>inf_x E(x) &gt; c &gt; 0</code>, <code>c = x^{-1/4}</code></td><td>Source conjecture</td><td><code>E(x)</code> is not precisely defined; not formalised.</td></tr>
+<tr><td>"Complete pathway to proving Riemann Hypothesis"</td><td><strong>Archived claim</strong>, superseded</td><td>Not supported by the source and not a theorem here. RH remains open.</td></tr>
+</tbody>
+</table>
+
+<h2>Errata</h2>
+<ol>
+<li><strong>Half-angle substitution.</strong> The source's <code>h n</code> is <code>sin(ε n/2)</code>, while the rotation needs <code>sin ε n</code>; as written the recurrence advances by half the selected angle. The sibling note uses the full step sine instead.</li>
+<li><strong><code>√(1 − s n²)</code> is not <code>cos θ n</code>.</strong> It is <code>|cos θ n|</code> and flips sign after <code>θ n &gt; π/2</code>. The sibling <code>sine-harmonic.html</code> repairs this by carrying <code>c n</code> forward; the Lean rotation is the repaired form.</li>
+<li><strong>Same text, three files.</strong> <code>harmonic-sine-rh.html</code>, <code>harmonic-sine-zeta.html</code> and the essay-level copy are near-duplicates; they are not independent evidence.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> uses <code>sympy</code> for exact rational/trigonometric work and <code>mpmath</code> (50 digits) for the rotation reconstruction. The greedy layer works in exact rational multiples of <code>π</code>, so residual comparisons never round. It implements <code>harmonic_angle</code>, <code>half_angle_sine</code>, <code>step_sine</code>, <code>rotation_step</code>, <code>greedy_word</code>, <code>greedy_residuals</code>, <code>residual_bound_holds</code>, and <code>reconstruct_sine</code>.</p>
+<pre><code>python3 -m pytest the-final-letter/topics/harmonic-sine/tests -q</code></pre>
+<p>Recorded result: <strong>8 passed</strong> in about 2 seconds.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, uses the <code>HarmonicSine</code> namespace, defines <code>eps</code>, <code>Point</code>, <code>rotate</code>, and <code>residStep</code>, and proves T1–T7. It contains no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. See <a href="lean/README.md"><code>lean/README.md</code></a> for the precise boundary of the formalisation.</p>
+<pre><code>the-final-letter/topics/harmonic-sine/lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK Topic.lean</code>.</p>
+
+<h2>Open items and gaps</h2>
+<ol>
+<li><strong>Full greedy recursion.</strong> Formalise the finite sequence <code>θ n</code>, prove <code>0 ≤ r n ≤ π/(n+1)</code> by induction, and derive <code>r n → 0</code>. T7 is only the one-step induction step.</li>
+<li><strong>Reconstruction limit.</strong> Combine a sine Lipschitz estimate with <code>r n → 0</code> and the reflection <code>y ↦ 2 − y</code> to obtain the source's boxed identity.</li>
+<li><strong>Resolve the <code>h n</code> erratum</strong> across the v2/v3 files and the geometric note, and state the corrected recurrence once.</li>
+<li><strong>Precise zeta correspondence.</strong> The source's table is an analogy with no explicit map or identity to prove.</li>
+<li><strong><code>1/n</code>-phase discorrelation.</strong> The claimed Matomäki–Radziwiłł extension has no complete proof in the source; it remains open and unformalised.</li>
+<li><strong>The RH claim.</strong> Harmonic-sheaf acyclicity is an archived, superseded claim. RH is not proved here.</li>
+</ol>
+
+<h2>Provenance and links</h2>
+<ul>
+<li><a href="../../archive/maths/rh/research/harmonic-sine/harmonic-sine-rh.html">Source ebook</a> · <a href="../../archive/maths/rh/research/harmonic-sine/sine-harmonic.html">geometric note</a> · <a href="../../archive/maths/rh/research/harmonic-sine/sine-harmonic.tex">TeX</a></li>
+<li><a href="../../scraps.html">Scraps inventory</a> — item 15, tagged <em>archived claim</em> and <em>superseded</em></li>
+<li><a href="../README.md">Topic index</a> · <a href="../../index.html">The Final Letter</a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

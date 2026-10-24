@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh12 — the three digs that remained</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.fam-b { stroke: var(--chart-1); stroke-width: 1.7; stroke-dasharray: 6 3; fill: none; stroke-linejoin: round; }
+.fam-h { stroke: var(--chart-2); stroke-width: 1.7; stroke-dasharray: 2 3; fill: none; stroke-linejoin: round; }
+.open-neg { fill: none; stroke: var(--chart-1); stroke-width: 1.4; }
+.scat { stroke: var(--chart-1); stroke-width: 2.4; stroke-linecap: round; fill: none; stroke-opacity: .5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The three digs that remained, and the books closed</h1>
+  <p class="sub">rh11 ended with an assessment naming exactly three tasks still tractable in this space. This document executes all three — the optimal window, the high-altitude hunt, the family — then closes the arc's books: what eight documents achieved, what they could not, what remains reachable and what does not. And it answers rh9's question the only way it can be answered today: by naming the constructions that would render the missing base, and computing their shadows.</p>
+  <p class="meta">docs/rh12 · continues <a href="rh4.html">rh4</a>–<a href="rh11.html">rh11</a> · figures computed, not sketched · 2026-08-01</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> Three digs, then the audit. <b>The frontier</b> (§2): rh11 asked which windows tighten the Weil-positivity dips; this document answers <i>optimally</i>. The dip is a quadratic form in the window's profile, so the deepest dip a bandlimited window can reach is an exact linear-algebra computation — no search, no iteration. The measured frontier D*(a) falls six decades as the gear budget grows from 2 to 41, sits below every rh11 family at equal budget (12 gears already reach 5.0×10<sup>−6</sup>, deeper than the B-spline's 8.6×10<sup>−4</sup> on 32), and flattens near 1.6×10<sup>−7</sup> — the measured price schedule of sharpening Axiom 8's instrument. <b>The altitude</b> (§3): Riemann–Siegel machinery (main sum ≈ 400 terms, one remainder term) extends the arc's reach from T = 2000 to t = 10⁶. A band of 60,000 zeros is harvested and audited against Riemann–von Mangoldt by a change-point census; the GUE forecast of the tightest pair — <i>pre-registered</i> at median 0.0219 of the mean spacing — is met by an observed 0.0257; the pair collides at <b>λ* = −2.3×10⁻⁵</b>, fifty times past rh11, with the g²/8 law now holding to 0.1%. rh8's honest gap is closed: the spacing distribution's distance to GUE drops from 0.046 to 0.012, and pair correlation lands on 1−(sin πx/πx)² to 0.014. <b>The family</b> (§4): Dirichlet L-functions for conductors 3, 4, 5, built from Hurwitz zeta, anchored at Catalan's constant and the ℤ[i] lattice, their zeros audited against the counting formula (151, 162, 170 found against 150.6, 162.1, 170.8), their first ordinates matching the cited values to 10⁻⁵ — and the same positivity scan runs on each: nonnegative throughout, dips to 2.5×10⁻⁵. The gears wear characters; the knife edge is conductor-independent. <b>The audit</b> (§5) then closes the arc's books in four columns: achieved, not achieved, still tractable (with the measured cost curve: the next λ* decade costs 10^1.5 more zeros), not tractable (with the reason each door is closed). <b>The base</b> (§6): what construction would render rh9's missing foundation. Arakelov theory is shown to sit exactly one floor below the need; the three living candidates — Deninger's flow, the Connes–Consani site, Borger's Λ-descent — each manufacture the missing second dimension from different raw material (time, scale, Witt components), and each has a shadow this document computes: the counting function N(q) of the would-be curve, built from our 1517 zeros, comes out as a baseline 1+1/(q²−1) carrying upward atoms <i>exactly at the prime powers</i> with Landau weights (verified at seven gears to 5%), negative only below q = 1.03 — the infinite-genus wall — and with windowed mean q+1: <b>the prime number theorem is the point count of the missing curve</b>. The explicit formula balances as a Lefschetz ledger — pole +50.5, archimedean −20.4, one orbit per prime −29.9, spectral side 0.17 — to 2×10⁻⁵. What every candidate still owes is the same single clause: positivity on H¹. The arch is now priced, weighed, and audited; the keystone is still not there.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The brief</a></li>
+  <li><a href="#s2">Dig one — the frontier: the optimal window, solved</a></li>
+  <li><a href="#s3">Dig two — altitude: GUE arrives, pairs are harvested</a></li>
+  <li><a href="#s4">Dig three — the family: gears wearing characters</a></li>
+  <li><a href="#s5">The audit: achieved, not achieved, tractable, not</a></li>
+  <li><a href="#s6">What would render a base: the three constructions</a></li>
+  <li><a href="#s7">Dictionary additions</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The brief</h2>
+<p>The arc's assessment at the close of <a href="rh11.html">rh11</a> separated the remaining goals into two lists. Not tractable, at any computational scale: proving RH (the altitude theorem of <a href="rh5.html#s4">rh5 §4</a> — a Π⁰₁ statement can be refuted by computation, never proved by it), refuting it by search (the literature's 10¹³ verified zeros say the counterexample, if any, lives beyond reach), and constructing the base itself. Tractable, in this exact space of verified laptop computation: <i>optimize</i> the cone instead of sampling it; <i>climb</i> to a height where the statistics mature and tighter pairs live; <i>widen</i> to the family and watch conductor-invariance. This document executes those three, in that order, then does what an honest campaign does when its tractable list is empty: closes the books (§5) and states, precisely, what mathematical object would have to exist for the books to reopen (§6).</p>
+</section>
+
+<p class="kicker">Part I · The three digs</p>
+
+<section class="prose" id="s2">
+<h2>2 · Dig one — the frontier: the optimal window, solved</h2>
+<p>rh11 §2 measured four window families and found the dip floor obeys the tail ordering. That left an optimization question: at a fixed gear budget — support of g inside [−2a, 2a], so only gears with log n ≤ 2a are consulted — how deep can <i>any</i> window drive the dip? The answer needs no search, because the scanned functional is exactly quadratic in the window. Write the profile f as a vector on nodes (piecewise-linear, even, vanishing at ±a); then h = |f̂|² makes the zeros-side reading at t₀ a quadratic form,</p>
+<div class="eq"><span class="tag">(1)</span>
+W(t&#8320;) = 2<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">γ</span></span>[h(γ−t&#8320;) + h(γ+t&#8320;)]
+= <b>f</b><sup>T</sup> M(t&#8320;) <b>f</b>,
+&nbsp;&nbsp;h(0) = (<b>b</b>&#8320;·<b>f</b>)² = 1,
+</div>
+<p>with M built from the 1517 zeros plus the density tail beyond the table (so the solver cannot hide leakage past T = 2000; residual leak measured &lt; 10⁻³ of the answer). Minimising a positive quadratic form under one linear constraint is a single linear solve: D*(a) = 1/(<b>b</b>₀ᵀM⁻¹<b>b</b>₀). One matrix, one inversion, the <i>exact</i> optimum over the entire infinite-dimensional family at that budget — the matched filter for the quietest point of the spectrum, tuned here to the dip at t₀* = 17.1.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 430" role="img" aria-label="Left: the measured optimal dip against gear budget, a frontier falling six decades from two gears to forty-one, sitting below every fixed window family from rh11. Right: the shape of the optimal window at budget twelve: its profile f, and its h falling six decades by r equals ten">
+<text x="360.0" y="22" class="ftitle">the frontier: the deepest dip a gear budget can buy</text>
+<text x="199" y="46" class="ftitle" font-size="12">optimal dip D* against gears consulted</text>
+<line x1="62" y1="284.8" x2="336" y2="284.8" class="grid"/>
+<text x="56" y="288.8" class="flab end">10&#8315;&#8310;</text>
+<line x1="62" y1="215.3" x2="336" y2="215.3" class="grid"/>
+<text x="56" y="219.3" class="flab end">10&#8315;&#8308;</text>
+<line x1="62" y1="145.7" x2="336" y2="145.7" class="grid"/>
+<text x="56" y="149.7" class="flab end">10&#8315;&#178;</text>
+<line x1="62" y1="76.2" x2="336" y2="76.2" class="grid"/>
+<text x="56" y="80.2" class="flab end">10&#8304;</text>
+<line x1="62" y1="330" x2="336" y2="330" class="axis"/>
+<line x1="73.2" y1="330" x2="73.2" y2="334" class="axis"/>
+<text x="73.2" y="346" class="flab">2</text>
+<line x1="136.5" y1="330" x2="136.5" y2="334" class="axis"/>
+<text x="136.5" y="346" class="flab">5</text>
+<line x1="184.3" y1="330" x2="184.3" y2="334" class="axis"/>
+<text x="184.3" y="346" class="flab">10</text>
+<line x1="232.2" y1="330" x2="232.2" y2="334" class="axis"/>
+<text x="232.2" y="346" class="flab">20</text>
+<line x1="280.0" y1="330" x2="280.0" y2="334" class="axis"/>
+<text x="280.0" y="346" class="flab">40</text>
+<line x1="327.9" y1="330" x2="327.9" y2="334" class="axis"/>
+<text x="327.9" y="346" class="flab">80</text>
+<text x="336" y="360" class="flab end">gears (log n &#8804; 2a)</text>
+<circle cx="121.1" cy="116.2" r="2.6" class="zero"/>
+<circle cx="168.9" cy="117.9" r="2.6" class="zero"/>
+<circle cx="202.4" cy="128.1" r="2.6" class="zero"/>
+<circle cx="252.9" cy="130.3" r="2.6" class="zero"/>
+<circle cx="321.5" cy="152.2" r="2.6" class="zero"/>
+<circle cx="177.0" cy="117.3" r="2.6" class="digit main"/>
+<circle cx="216.8" cy="194.8" r="2.6" class="digit main"/>
+<circle cx="264.6" cy="182.7" r="2.6" class="digit main"/>
+<circle cx="330.4" cy="249.1" r="2.6" class="digit main"/>
+<circle cx="159.7" cy="109.2" r="2.6" class="digit alt"/>
+<circle cx="190.9" cy="159.0" r="2.6" class="digit alt"/>
+<circle cx="235.5" cy="177.1" r="2.6" class="digit alt"/>
+<circle cx="291.2" cy="221.8" r="2.6" class="digit alt"/>
+<path d="M73.2 77.8L121.1 110.1L168.9 200.9L196.9 260.4L224.9 290.6L252.9 309.0L281.7 312.8" class="helix"/>
+<circle cx="73.2" cy="77.8" r="3" class="digit main"/>
+<circle cx="121.1" cy="110.1" r="3" class="digit main"/>
+<circle cx="168.9" cy="200.9" r="3" class="digit main"/>
+<circle cx="196.9" cy="260.4" r="3" class="digit main"/>
+<circle cx="224.9" cy="290.6" r="3" class="digit main"/>
+<circle cx="252.9" cy="309.0" r="3" class="digit main"/>
+<circle cx="281.7" cy="312.8" r="3" class="digit main"/>
+<text x="91.3" y="131.9" class="flab st c1">the frontier D*(a)</text>
+<text x="149.1" y="94.7" class="flab st"><tspan class="c2">&#9679;</tspan> Fej&#233;r &#183; <tspan class="c1">&#9679;</tspan> B-spline / Hann (rh11)</text>
+<text x="190.9" y="278.4" class="flab st c1">12 gears: 5.0&#215;10&#8315;&#8310;</text>
+<text x="66" y="66" class="flab st">six decades from 2 gears to 41 &#8212; then the floor flattens</text>
+<text x="548" y="46" class="ftitle" font-size="12">the winning window at budget 12 (a = 1.5)</text>
+<line x1="420.0" y1="190" x2="676.0" y2="190" class="axis"/>
+<path d="M420.0 190.0L425.1 186.1L430.2 177.9L435.4 167.8L440.5 157.5L445.6 147.9L450.7 139.5L455.8 132.6L461.0 127.9L466.1 127.3L471.2 130.9L476.3 137.0L481.4 142.8L486.6 147.0L491.7 149.4L496.8 150.0L501.9 147.6L507.0 141.8L512.2 134.8L517.3 126.9L522.4 117.4L527.5 107.4L532.6 97.7L537.8 90.0L542.9 85.4L548.0 83.9L553.1 85.4L558.2 90.0L563.4 97.7L568.5 107.4L573.6 117.4L578.7 126.9L583.8 134.8L589.0 141.8L594.1 147.6L599.2 150.0L604.3 149.4L609.4 147.0L614.6 142.8L619.7 137.0L624.8 130.9L629.9 127.3L635.0 127.9L640.2 132.6L645.3 139.5L650.4 147.9L655.5 157.5L660.6 167.8L665.8 177.9L670.9 186.1L676.0 190.0" class="helix2"/>
+<text x="548.0" y="68.0" class="flab c2">f(y): the profile the solver chose</text>
+<text x="420.0" y="203" class="flab">-1.5</text>
+<text x="548.0" y="203" class="flab">0</text>
+<text x="676.0" y="203" class="flab">1.5</text>
+<line x1="420.0" y1="322" x2="676.0" y2="322" class="axis"/>
+<path d="M420.0 226.0L422.6 226.0L425.1 226.1L427.7 226.3L430.2 226.5L432.8 226.7L435.4 227.1L437.9 227.5L440.5 227.9L443.0 228.5L445.6 229.1L448.2 229.7L450.7 230.5L453.3 231.3L455.8 232.2L458.4 233.3L461.0 234.4L463.5 235.6L466.1 237.0L468.6 238.5L471.2 240.1L473.8 242.0L476.3 244.0L478.9 246.4L481.4 249.1L484.0 252.2L486.6 256.0L489.1 260.8L491.7 267.5L494.2 279.8L496.8 288.7L499.4 274.1L501.9 269.2L504.5 267.0L507.0 266.2L509.6 266.5L512.2 268.0L514.7 271.0L517.3 277.0L519.8 296.3L522.4 280.5L525.0 270.0L527.5 264.2L530.1 260.1L532.6 256.9L535.2 254.4L537.8 252.3L540.3 250.6L542.9 249.2L545.4 247.9L548.0 246.9L550.6 246.0L553.1 245.3L555.7 244.7L558.2 244.2L560.8 243.8L563.4 243.6L565.9 243.5L568.5 243.4L571.0 243.5L573.6 243.6L576.2 243.9L578.7 244.3L581.3 244.7L583.8 245.3L586.4 245.9L589.0 246.7L591.5 247.6L594.1 248.7L596.6 249.9L599.2 251.2L601.8 252.8L604.3 254.5L606.9 256.6L609.4 259.1L612.0 262.0L614.6 265.8L617.1 270.9L619.7 279.0L622.2 307.3L624.8 282.8L627.4 274.6L629.9 270.3L632.5 267.5L635.0 265.7L637.6 264.4L640.2 263.6L642.7 263.0L645.3 262.8L647.8 262.8L650.4 263.0L653.0 263.4L655.5 264.1L658.1 264.9L660.6 266.0L663.2 267.3L665.8 268.9L668.3 270.8L670.9 273.2L673.4 276.2L676.0 280.1" class="helix thin"/>
+<text x="496.8" y="228.0" class="flab st c1">h = |f&#770;|&#178; (log): 1 &#8594; 10&#8315;&#8310; by r = 10</text>
+<text x="420.0" y="335" class="flab">0</text>
+<text x="548.0" y="335" class="flab">5</text>
+<text x="676.0" y="335" class="flab">10</text>
+<text x="548" y="352" class="flab">D* = 5.0&#215;10&#8315;&#8310; at t&#8320;* = 17.1 &#183; FWHM 2.31 &#183; EF-certified</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the frontier.</b> <i>Left:</i> the measured optimal dip D* against gear budget, with rh11's fixed families overlaid at their own budgets: the frontier falls from 0.90 (two gears — the windows that only know 2 and 3) through 2.6×10⁻⁴ (8 gears), 5.0×10⁻⁶ (12), to 1.6×10⁻⁷ (41), below every family point, and visibly flattening past ~27 gears. <i>Right:</i> the winning window at budget 12: a two-shouldered profile no standard family contains, whose h reaches 10⁻⁶ by r = 10. It is certified as a lawful instrument — its explicit formula balances both sides to 2×10⁻⁴ — and its D* value agrees with the direct zeros-side evaluation to the density-tail share.</figcaption>
+</figure>
+<p>Three readings. First, the answer to rh11's question in final form: at budget 12 the optimum is <b>170× deeper</b> than the best fixed family reaches on 32 gears — the families were nowhere near the wall. Second, the wall itself: past ~27 gears the frontier flattens toward ~1.6×10⁻⁷, and the limiting floor is set by the zero table's own precision — the instrument is now as sharp as its spectrum is known. Third, the classical tie: minimising a positive quadratic form built from a spectrum against a bandwidth constraint is a concentration problem of Beurling–Selberg/prolate type (Vaaler's survey is the map); what the arc adds is the number: this is what the extremal theory's abstract trade-off <i>costs, in gears, on the actual zeros of ζ</i>. Axiom 8's instrument has been ground to its optical limit; positivity still holds at every reading it can take.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · Dig two — altitude: GUE arrives, and the pairs are harvested</h2>
+<p>Every table in the arc so far ended at T = 2000, because Euler–Maclaurin evaluation costs O(t) per point. The Riemann–Siegel formula costs O(√t): at t = 10⁶ the main sum is 398 terms and one correction term suffices to 3×10⁻⁶. Implemented and validated three ways — against the Euler–Maclaurin Z in the overlap, by an eight-zero splice against the rh11 table at T ≈ 2000 (ordinates matching to 10⁻³), and by the Riemann–von Mangoldt census on the new band — the machinery then harvests <b>60,000 consecutive zeros near t = 10⁶</b>, scanned at step 0.05 with a change-point audit: a missed close pair leaves a permanent +2 step in the cumulative count deficit, which the audit detects and rescans at step 0.006. The final census agrees with the counting formula to within the S(T) fluctuation it cannot see (±2.5).</p>
+<p>The hunt was <i>pre-registered</i>: GUE repulsion (P(s&lt;x) ≈ (π²/9)x³ near 0) predicts the tightest of N = 60,000 gaps at a median 0.0219 of the local mean spacing. Observed: 0.0257 — inside the forecast's own spread, the third-tightest at 0.037. Each harvested pair is then collided under the backward-heat dynamics of <a href="rh11.html#s3">rh11 §3</a>, with one upgrade validated on the old table first: the frozen background is spliced — 1500 discrete neighbours a side, the density integral beyond, including the 1.7 million unseen zeros below the band — and the splice moves the validation collision by 0.02%.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 430" role="img" aria-label="Left: the nearest-neighbour spacing distribution of sixty thousand zeros near ten to the sixth, lying on the GUE curve, with the low-height distribution visibly off it. Right: the cumulative count of small gaps following the cubic repulsion law, with the three harvested tightest pairs and their collision lambdas marked">
+<text x="360.0" y="22" class="ftitle">altitude 10&#8310;: the statistics arrive, and the tight pairs are harvested</text>
+<text x="206" y="46" class="ftitle" font-size="12">spacing distribution: 60000 zeros at 10&#8310; vs GUE</text>
+<line x1="56" y1="330" x2="356" y2="330" class="axis"/>
+<rect x="56.0" y="328.0" width="9.4" height="2.0" class="bar"/>
+<rect x="65.4" y="314.9" width="9.4" height="15.1" class="bar"/>
+<rect x="74.8" y="291.4" width="9.4" height="38.6" class="bar"/>
+<rect x="84.1" y="254.3" width="9.4" height="75.7" class="bar"/>
+<rect x="93.5" y="214.7" width="9.4" height="115.3" class="bar"/>
+<rect x="102.9" y="177.9" width="9.4" height="152.1" class="bar"/>
+<rect x="112.2" y="142.5" width="9.4" height="187.5" class="bar"/>
+<rect x="121.6" y="113.5" width="9.4" height="216.5" class="bar"/>
+<rect x="131.0" y="100.8" width="9.4" height="229.2" class="bar"/>
+<rect x="140.4" y="96.1" width="9.4" height="233.9" class="bar"/>
+<rect x="149.8" y="116.6" width="9.4" height="213.4" class="bar"/>
+<rect x="159.1" y="135.6" width="9.4" height="194.4" class="bar"/>
+<rect x="168.5" y="158.2" width="9.4" height="171.8" class="bar"/>
+<rect x="177.9" y="189.7" width="9.4" height="140.3" class="bar"/>
+<rect x="187.2" y="218.2" width="9.4" height="111.8" class="bar"/>
+<rect x="196.6" y="246.3" width="9.4" height="83.7" class="bar"/>
+<rect x="206.0" y="268.7" width="9.4" height="61.3" class="bar"/>
+<rect x="215.4" y="285.0" width="9.4" height="45.0" class="bar"/>
+<rect x="224.8" y="299.8" width="9.4" height="30.2" class="bar"/>
+<rect x="234.1" y="308.1" width="9.4" height="21.9" class="bar"/>
+<rect x="243.5" y="316.9" width="9.4" height="13.1" class="bar"/>
+<rect x="252.9" y="320.9" width="9.4" height="9.1" class="bar"/>
+<rect x="262.2" y="324.1" width="9.4" height="5.9" class="bar"/>
+<rect x="271.6" y="327.0" width="9.4" height="3.0" class="bar"/>
+<rect x="281.0" y="328.0" width="9.4" height="2.0" class="bar"/>
+<rect x="290.4" y="329.2" width="9.4" height="0.8" class="bar"/>
+<rect x="299.8" y="329.2" width="9.4" height="0.8" class="bar"/>
+<rect x="309.1" y="329.8" width="9.4" height="0.2" class="bar"/>
+<rect x="318.5" y="329.8" width="9.4" height="0.2" class="bar"/>
+<rect x="327.9" y="330.0" width="9.4" height="0.0" class="bar"/>
+<rect x="337.2" y="330.0" width="9.4" height="0.0" class="bar"/>
+<rect x="346.6" y="330.0" width="9.4" height="0.0" class="bar"/>
+<path d="M60.7 328.4L70.1 325.3L79.4 303.4L88.8 262.6L98.2 245.4L107.6 190.6L116.9 116.9L126.3 77.8L135.7 66.8L145.1 90.3L154.4 102.8L163.8 146.7L173.2 173.3L182.6 196.8L191.9 182.7L201.3 270.5L210.7 273.6L220.1 295.5L229.4 294.0L238.8 304.9L248.2 317.5L257.6 320.6L266.9 328.4L276.3 330.0L285.7 330.0L295.1 330.0L304.4 330.0L313.8 330.0L323.2 330.0L332.6 330.0L341.9 330.0L351.3 330.0" class="brk"/>
+<path d="M56.9 329.9L60.7 328.1L64.4 323.8L68.2 317.3L71.9 308.5L75.7 297.9L79.4 285.6L83.2 271.8L86.9 257.0L90.7 241.4L94.4 225.5L98.2 209.5L101.9 193.8L105.7 178.7L109.4 164.6L113.2 151.6L116.9 140.0L120.7 130.0L124.4 121.8L128.2 115.4L131.9 110.9L135.7 108.3L139.4 107.5L143.2 108.6L146.9 111.3L150.7 115.7L154.4 121.4L158.2 128.4L161.9 136.5L165.7 145.5L169.4 155.2L173.2 165.4L176.9 176.0L180.7 186.8L184.4 197.5L188.2 208.2L191.9 218.7L195.7 228.8L199.4 238.5L203.2 247.7L206.9 256.4L210.7 264.5L214.4 272.1L218.2 279.0L221.9 285.3L225.7 291.1L229.4 296.2L233.2 300.9L236.9 305.0L240.7 308.6L244.4 311.8L248.2 314.6L251.9 317.1L255.7 319.2L259.4 321.0L263.2 322.5L266.9 323.8L270.7 324.9L274.4 325.8L278.2 326.6L281.9 327.3L285.7 327.8L289.4 328.2L293.2 328.6L296.9 328.9L300.7 329.1L304.4 329.3L308.2 329.4L311.9 329.6L315.7 329.7L319.4 329.7L323.2 329.8L326.9 329.8L330.7 329.9L334.4 329.9L338.2 329.9L341.9 329.9L345.7 330.0L349.4 330.0L353.2 330.0" class="helix2"/>
+<line x1="56.0" y1="330" x2="56.0" y2="334" class="axis"/>
+<text x="56.0" y="346" class="flab">0</text>
+<line x1="149.8" y1="330" x2="149.8" y2="334" class="axis"/>
+<text x="149.8" y="346" class="flab">1</text>
+<line x1="243.5" y1="330" x2="243.5" y2="334" class="axis"/>
+<text x="243.5" y="346" class="flab">2</text>
+<line x1="337.2" y1="330" x2="337.2" y2="334" class="axis"/>
+<text x="337.2" y="346" class="flab">3</text>
+<text x="356" y="360" class="flab end">gap / mean</text>
+<text x="201.3" y="102.0" class="flab st c2">GUE (Wigner): KS = 0.012</text>
+<text x="201.3" y="125.8" class="flab st"><tspan class="c2">dashed</tspan>: the 1516 low zeros, KS = 0.046</text>
+<text x="201.3" y="149.5" class="flab st">rh8&#8217;s gap closed: 3.7&#215; nearer GUE</text>
+<text x="60" y="66" class="flab st">repulsion empties the origin &#8212; P ~ s&#178; (&#946; = 2)</text>
+<text x="560" y="46" class="ftitle" font-size="12">count of gaps &#8804; s: the s&#179; law</text>
+<line x1="420" y1="330" x2="700" y2="330" class="axis"/>
+<line x1="468.3" y1="330" x2="468.3" y2="334" class="axis"/>
+<text x="468.3" y="346" class="flab">0.03</text>
+<line x1="550.8" y1="330" x2="550.8" y2="334" class="axis"/>
+<text x="550.8" y="346" class="flab">0.06</text>
+<line x1="611.7" y1="330" x2="611.7" y2="334" class="axis"/>
+<text x="611.7" y="346" class="flab">0.1</text>
+<line x1="694.2" y1="330" x2="694.2" y2="334" class="axis"/>
+<text x="694.2" y="346" class="flab">0.2</text>
+<text x="700" y="360" class="flab end">s (of mean)</text>
+<line x1="420" y1="315.6" x2="700" y2="315.6" class="grid"/>
+<text x="414" y="319.6" class="flab end">1</text>
+<line x1="420" y1="223.0" x2="700" y2="223.0" class="grid"/>
+<text x="414" y="227.0" class="flab end">10</text>
+<line x1="420" y1="130.3" x2="700" y2="130.3" class="grid"/>
+<text x="414" y="134.3" class="flab end">100</text>
+<path d="M449.9 315.6L470.2 287.8L494.1 271.4L501.7 259.9L515.2 250.9L528.0 243.5L528.4 237.3L535.1 232.0L547.3 227.2L548.9 223.0L549.9 219.2L554.5 215.7L561.6 212.4L567.8 209.5L568.4 206.7L568.5 204.1L571.4 201.6L576.5 199.3L576.7 197.2L580.0 195.1L580.7 193.1L583.8 191.3L584.0 189.5L584.3 187.8L586.9 186.1L588.9 184.5L590.1 183.0L590.5 181.6L592.8 180.2L593.2 178.8L593.3 177.5L593.7 176.2L594.2 175.0L594.5 173.8L595.3 172.6L596.0 171.5L597.6 170.3L598.5 169.3L599.1 168.2L601.0 167.2L602.5 166.2L603.0 165.2L605.9 164.3L606.2 163.4L607.0 162.5L607.0 161.6L609.2 160.7L609.4 159.9L610.5 159.0L611.2 158.2L611.8 156.7L613.2 155.9L614.4 154.4L615.5 153.7L615.5 152.3L617.8 151.6L618.2 150.2L619.1 148.9L620.7 148.3L621.1 147.1L621.2 145.9L622.5 144.7L623.3 143.6L624.6 143.0L625.4 141.9L625.8 140.9L627.8 139.8L629.8 139.3L631.1 138.3L631.5 137.4L632.9 136.4L635.5 135.5L636.6 134.6L637.1 133.7L637.4 132.8L637.7 132.0L638.6 131.2L639.4 130.3L641.7 129.5L643.0 128.4L643.5 127.2L645.8 126.1L646.9 125.1L648.0 124.0L648.5 123.0L649.4 122.0L650.1 121.0L651.3 120.7L652.2 120.4L653.1 119.8L653.9 119.2L654.5 118.3L655.1 117.4L655.7 116.5L656.1 115.7L656.9 114.8L657.8 114.3L658.3 113.5L658.8 112.4L659.7 111.7L660.1 110.7L661.0 110.2L661.7 109.2L662.6 108.3L663.4 107.6L664.1 106.7L665.4 106.2L665.6 105.4L666.2 104.5L666.6 103.7L666.9 102.9L667.8 102.0L668.6 101.1L669.4 100.1L669.8 99.2L670.3 98.2L671.1 97.5L671.6 96.7L672.6 96.0L673.4 95.1L674.1 94.3L674.7 93.5L675.5 92.5L676.3 91.7L676.9 90.8L677.7 89.9L678.4 89.1L679.0 88.2L679.5 87.4L679.9 86.5L680.5 85.7L681.2 84.8L682.3 84.4L683.1 83.7L683.6 82.8L684.0 81.9L684.8 81.3L685.5 80.5L686.1 79.7L687.3 79.0L687.7 78.1L688.5 77.3L689.4 76.7L690.1 75.9L691.0 75.3L691.3 74.6" class="helix thin"/>
+<path d="M432.7 328.5L439.7 321.5L446.6 314.5L453.6 307.4L460.5 300.4L467.4 293.4L474.4 286.3L481.3 279.3L488.3 272.3L495.2 265.2L502.1 258.2L509.1 251.2L516.0 244.1L523.0 237.1L529.9 230.1L536.8 223.0L543.8 216.0L550.7 209.0L557.6 201.9L564.6 194.9L571.5 187.9L578.5 180.8L585.4 173.8L592.3 166.8L599.3 159.7L606.2 152.7L613.2 145.7L620.1 138.6L627.0 131.6L634.0 124.6L640.9 117.5L647.8 110.5L654.8 103.5L661.7 96.4L668.7 89.4L675.6 82.4L682.5 75.3L689.5 68.3L696.4 61.3" class="brk"/>
+<text x="617.5" y="169.3" class="flab c2">N&#183;(&#960;&#178;/9)s&#179;</text>
+<circle cx="449.9" cy="315.6" r="3.6" class="zero"/>
+<circle cx="470.2" cy="287.8" r="3.6" class="zero"/>
+<circle cx="494.1" cy="271.4" r="3.6" class="zero"/>
+<text x="457.9" y="319.6" class="flab st c2">the harvest: &#955;* = &#8722;2.3&#215;10&#8315;&#8309;,</text>
+<text x="457.9" y="333.6" class="flab st c2">&#8722;3.2&#215;10&#8315;&#8309;, &#8722;4.8&#215;10&#8315;&#8309; (g&#178;/8 to 0.1%)</text>
+<line x1="430.9" y1="72" x2="430.9" y2="330" class="cross"/>
+<text x="430.9" y="68" class="flab">forecast median min</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — altitude 10⁶.</b> <i>Left:</i> the nearest-neighbour spacing distribution of the band (bars) against the GUE curve (orange): Kolmogorov–Smirnov distance 0.012, against 0.046 for the 1516 low-height gaps (dashed) — rh8's honestly-flagged "not yet GUE" is now, measurably, 3.7× closer to yes; pair correlation (not shown) lands on 1−(sin πx/πx)² to 0.014. <i>Right:</i> the cumulative count of small gaps rides the cubic repulsion law; the three tightest (orange) collide at λ* = −2.3×10⁻⁵, −3.2×10⁻⁵, −4.8×10⁻⁵, each on the g²/8 law to 0.1%.</figcaption>
+</figure>
+<p>The headline: <b>λ* = −2.27×10⁻⁵</b>, fifty-two times past rh11's −0.00119, three decades past rh10's −0.989. And with it, the hunt's complete economics, now measured rather than argued: the bound is quadratic in the rarest gap; the rarest gap among N samples shrinks like N^(−1/3); so λ* improves like N^(−2/3), and <i>each further decade costs 10^1.5 ≈ 32× more zeros</i>. This table cost four minutes of computation; matching Csordas–Smith–Varga's cited −4.4×10⁻⁶ needs a few hours; matching Saouter–Gourdon–Demichel's −1.1×10⁻¹¹ needs ~10¹² zeros — the literature's entire ladder is this one power law priced out. The wall at 0 (Rodgers–Tao) remains what rh11 said it was: reached by theorem, touchable from below at documented and unbounded cost, crossable only by proving RH.</p>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · Dig three — the family: gears wearing characters</h2>
+<p>Nothing in the arc's machinery is special to ζ. The whole apparatus — completed function, functional equation, explicit formula, positivity criterion — exists for every Dirichlet L(s,χ), with the Generalized Riemann Hypothesis as the same knife-edge statement per conductor. Built here from Hurwitz zeta (Euler–Maclaurin, validated against three exact identities including ψ′(¼) = π² + 8G), the L-functions of the real primitive characters mod 3, 4, 5 are anchored absolutely — L(2,χ₄) equals Catalan's constant to 10⁻¹⁰, and independently the ℤ[i] lattice sum over 1.1 million points reproduces ζ(2)·G to 3×10⁻⁵, tying the construction to <a href="rh8.html#s6">rh8 §6</a>'s Dedekind factorizations — and their completed Λ(½+it,χ) verified real on the line (the root number +1, Gauss's theorem, holding to 10⁻⁸).</p>
+<p>Then the same three instruments, per conductor. <b>Zeros:</b> 151, 162, 170 ordinates to height 250, against counting-formula predictions of 150.6, 162.1, 170.8; first ordinates 8.039737 (χ₃) and 6.020949 (χ₄) matching the cited values to 10⁻⁵, and 6.648453 (χ₅) measured. <b>The explicit formula:</b> re-verified per character to 10⁻⁵ — the archimedean term shifts by log(q/π) and the parity of χ, and the prime side is the arc's same gear sum with every gear's weight rotated by χ(p): the gears wear characters. <b>The scan:</b> Weil positivity per character, nonnegative across the range for all three, dips to 2.5×10⁻⁵ (χ₃), 1.6×10⁻² (χ₅), 1.2×10⁻¹ (χ₄) — floor depths set by each spectrum's local gaps, exactly as for ζ.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 424" role="img" aria-label="Left: the zeros of zeta and of the three Dirichlet L functions for conductors three, four and five, as four combs up to height sixty. Right: the Weil positivity scan for each of the three characters, all nonnegative, with dips down to two times ten to the minus five">
+<text x="360.0" y="22" class="ftitle">the family: four spectra, one knife edge</text>
+<text x="211" y="46" class="ftitle" font-size="12">zeros to height 60, conductor by conductor</text>
+<line x1="66" y1="90" x2="356" y2="90" class="axis"/>
+<line x1="134.3" y1="81" x2="134.3" y2="90" class="comb2"/>
+<line x1="167.6" y1="81" x2="167.6" y2="90" class="comb2"/>
+<line x1="186.9" y1="81" x2="186.9" y2="90" class="comb2"/>
+<line x1="213.1" y1="81" x2="213.1" y2="90" class="comb2"/>
+<line x1="225.2" y1="81" x2="225.2" y2="90" class="comb2"/>
+<line x1="247.7" y1="81" x2="247.7" y2="90" class="comb2"/>
+<line x1="263.8" y1="81" x2="263.8" y2="90" class="comb2"/>
+<line x1="275.4" y1="81" x2="275.4" y2="90" class="comb2"/>
+<line x1="298.0" y1="81" x2="298.0" y2="90" class="comb2"/>
+<line x1="306.6" y1="81" x2="306.6" y2="90" class="comb2"/>
+<line x1="322.0" y1="81" x2="322.0" y2="90" class="comb2"/>
+<line x1="338.8" y1="81" x2="338.8" y2="90" class="comb2"/>
+<line x1="352.8" y1="81" x2="352.8" y2="90" class="comb2"/>
+<text x="60" y="91" class="flab end">&#950;</text>
+<text x="112" y="104" class="flab st">&#947;&#8321; = 14.1347</text>
+<line x1="66" y1="152" x2="356" y2="152" class="axis"/>
+<line x1="104.9" y1="143" x2="104.9" y2="152" class="comb2"/>
+<line x1="120.4" y1="143" x2="120.4" y2="152" class="comb2"/>
+<line x1="141.9" y1="143" x2="141.9" y2="152" class="comb2"/>
+<line x1="154.3" y1="143" x2="154.3" y2="152" class="comb2"/>
+<line x1="164.9" y1="143" x2="164.9" y2="152" class="comb2"/>
+<line x1="182.3" y1="143" x2="182.3" y2="152" class="comb2"/>
+<line x1="194.5" y1="143" x2="194.5" y2="152" class="comb2"/>
+<line x1="202.4" y1="143" x2="202.4" y2="152" class="comb2"/>
+<line x1="214.6" y1="143" x2="214.6" y2="152" class="comb2"/>
+<line x1="229.8" y1="143" x2="229.8" y2="152" class="comb2"/>
+<line x1="238.1" y1="143" x2="238.1" y2="152" class="comb2"/>
+<line x1="247.5" y1="143" x2="247.5" y2="152" class="comb2"/>
+<line x1="256.8" y1="143" x2="256.8" y2="152" class="comb2"/>
+<line x1="272.0" y1="143" x2="272.0" y2="152" class="comb2"/>
+<line x1="279.2" y1="143" x2="279.2" y2="152" class="comb2"/>
+<line x1="289.7" y1="143" x2="289.7" y2="152" class="comb2"/>
+<line x1="295.7" y1="143" x2="295.7" y2="152" class="comb2"/>
+<line x1="309.5" y1="143" x2="309.5" y2="152" class="comb2"/>
+<line x1="319.7" y1="143" x2="319.7" y2="152" class="comb2"/>
+<line x1="327.9" y1="143" x2="327.9" y2="152" class="comb2"/>
+<line x1="334.9" y1="143" x2="334.9" y2="152" class="comb2"/>
+<line x1="344.3" y1="143" x2="344.3" y2="152" class="comb2"/>
+<text x="60" y="153" class="flab end">L(&#967;&#8323;)</text>
+<text x="112" y="166" class="flab st">&#947;&#8321; = 8.0397</text>
+<line x1="66" y1="214" x2="356" y2="214" class="axis"/>
+<line x1="95.1" y1="205" x2="95.1" y2="214" class="comb2"/>
+<line x1="115.5" y1="205" x2="115.5" y2="214" class="comb2"/>
+<line x1="128.8" y1="205" x2="128.8" y2="214" class="comb2"/>
+<line x1="145.0" y1="205" x2="145.0" y2="214" class="comb2"/>
+<line x1="154.4" y1="205" x2="154.4" y2="214" class="comb2"/>
+<line x1="169.7" y1="205" x2="169.7" y2="214" class="comb2"/>
+<line x1="178.5" y1="205" x2="178.5" y2="214" class="comb2"/>
+<line x1="190.4" y1="205" x2="190.4" y2="214" class="comb2"/>
+<line x1="203.1" y1="205" x2="203.1" y2="214" class="comb2"/>
+<line x1="209.3" y1="205" x2="209.3" y2="214" class="comb2"/>
+<line x1="223.5" y1="205" x2="223.5" y2="214" class="comb2"/>
+<line x1="231.3" y1="205" x2="231.3" y2="214" class="comb2"/>
+<line x1="240.7" y1="205" x2="240.7" y2="214" class="comb2"/>
+<line x1="252.1" y1="205" x2="252.1" y2="214" class="comb2"/>
+<line x1="260.9" y1="205" x2="260.9" y2="214" class="comb2"/>
+<line x1="268.1" y1="205" x2="268.1" y2="214" class="comb2"/>
+<line x1="281.7" y1="205" x2="281.7" y2="214" class="comb2"/>
+<line x1="286.4" y1="205" x2="286.4" y2="214" class="comb2"/>
+<line x1="296.8" y1="205" x2="296.8" y2="214" class="comb2"/>
+<line x1="306.3" y1="205" x2="306.3" y2="214" class="comb2"/>
+<line x1="315.8" y1="205" x2="315.8" y2="214" class="comb2"/>
+<line x1="321.0" y1="205" x2="321.0" y2="214" class="comb2"/>
+<line x1="333.1" y1="205" x2="333.1" y2="214" class="comb2"/>
+<line x1="341.2" y1="205" x2="341.2" y2="214" class="comb2"/>
+<line x1="346.9" y1="205" x2="346.9" y2="214" class="comb2"/>
+<text x="60" y="215" class="flab end">L(&#967;&#8324;)</text>
+<text x="112" y="228" class="flab st">&#947;&#8321; = 6.0209</text>
+<line x1="66" y1="276" x2="356" y2="276" class="axis"/>
+<line x1="98.1" y1="267" x2="98.1" y2="276" class="comb2"/>
+<line x1="113.5" y1="267" x2="113.5" y2="276" class="comb2"/>
+<line x1="123.8" y1="267" x2="123.8" y2="276" class="comb2"/>
+<line x1="143.5" y1="267" x2="143.5" y2="276" class="comb2"/>
+<line x1="150.9" y1="267" x2="150.9" y2="276" class="comb2"/>
+<line x1="160.4" y1="267" x2="160.4" y2="276" class="comb2"/>
+<line x1="173.4" y1="267" x2="173.4" y2="276" class="comb2"/>
+<line x1="184.8" y1="267" x2="184.8" y2="276" class="comb2"/>
+<line x1="195.4" y1="267" x2="195.4" y2="276" class="comb2"/>
+<line x1="203.6" y1="267" x2="203.6" y2="276" class="comb2"/>
+<line x1="209.6" y1="267" x2="209.6" y2="276" class="comb2"/>
+<line x1="225.5" y1="267" x2="225.5" y2="276" class="comb2"/>
+<line x1="233.9" y1="267" x2="233.9" y2="276" class="comb2"/>
+<line x1="239.4" y1="267" x2="239.4" y2="276" class="comb2"/>
+<line x1="250.3" y1="267" x2="250.3" y2="276" class="comb2"/>
+<line x1="257.2" y1="267" x2="257.2" y2="276" class="comb2"/>
+<line x1="268.2" y1="267" x2="268.2" y2="276" class="comb2"/>
+<line x1="278.8" y1="267" x2="278.8" y2="276" class="comb2"/>
+<line x1="285.6" y1="267" x2="285.6" y2="276" class="comb2"/>
+<line x1="290.7" y1="267" x2="290.7" y2="276" class="comb2"/>
+<line x1="299.7" y1="267" x2="299.7" y2="276" class="comb2"/>
+<line x1="312.9" y1="267" x2="312.9" y2="276" class="comb2"/>
+<line x1="317.9" y1="267" x2="317.9" y2="276" class="comb2"/>
+<line x1="326.2" y1="267" x2="326.2" y2="276" class="comb2"/>
+<line x1="334.7" y1="267" x2="334.7" y2="276" class="comb2"/>
+<line x1="340.7" y1="267" x2="340.7" y2="276" class="comb2"/>
+<line x1="348.2" y1="267" x2="348.2" y2="276" class="comb2"/>
+<text x="60" y="277" class="flab end">L(&#967;&#8325;)</text>
+<text x="112" y="290" class="flab st">&#947;&#8321; = 6.6485</text>
+<text x="162.7" y="304" class="flab">20</text>
+<text x="259.3" y="304" class="flab">40</text>
+<text x="356.0" y="304" class="flab">60</text>
+<text x="356" y="318" class="flab end">t</text>
+<text x="70" y="318" class="flab st">denser with conductor: N ~ (T/2&#960;)log(qT/2&#960;e)</text>
+<text x="560" y="46" class="ftitle" font-size="12">the pairing scan per character</text>
+<line x1="420" y1="330" x2="700" y2="330" class="axis"/>
+<line x1="420" y1="271.4" x2="700" y2="271.4" class="grid"/>
+<text x="414" y="275.4" class="flab end">10&#8315;&#8308;</text>
+<line x1="420" y1="181.2" x2="700" y2="181.2" class="grid"/>
+<text x="414" y="185.2" class="flab end">10&#8315;&#178;</text>
+<line x1="420" y1="91.1" x2="700" y2="91.1" class="grid"/>
+<text x="414" y="95.1" class="flab end">10&#8304;</text>
+<path d="M420.0 298.6L422.7 272.1L425.4 247.3L428.1 224.1L430.8 202.7L433.5 182.9L436.2 164.9L438.8 148.5L441.5 133.9L444.2 120.9L446.9 109.6L449.6 100.0L452.3 92.1L455.0 85.9L457.7 81.4L460.4 78.6L463.1 77.5L465.8 78.0L468.5 80.2L471.2 83.9L473.8 88.9L476.5 94.2L479.2 98.1L481.9 98.4L484.6 95.0L487.3 89.7L490.0 84.7L492.7 80.7L495.4 78.3L498.1 77.5L500.8 78.3L503.5 80.9L506.2 85.1L508.8 91.0L511.5 98.6L514.2 107.8L516.9 118.0L519.6 127.4L522.3 131.1L525.0 125.9L527.7 116.1L530.4 106.0L533.1 97.1L535.8 89.8L538.5 84.2L541.2 80.2L543.8 77.9L546.5 77.3L549.2 78.1L551.9 80.1L554.6 82.8L557.3 85.2L560.0 86.0L562.7 84.9L565.4 82.4L568.1 79.6L570.8 77.6L573.5 76.6L576.2 76.8L578.8 77.8L581.5 79.2L584.2 80.1L586.9 80.0L589.6 79.0L592.3 77.7L595.0 76.8L597.7 76.9L600.4 78.4L603.1 81.3L605.8 85.8L608.5 91.8L611.2 98.7L613.8 105.0L616.5 107.9L619.2 105.3L621.9 99.1L624.6 92.2L627.3 86.2L630.0 81.6L632.7 78.7L635.4 77.3L638.1 77.5L640.8 79.0L643.5 81.4L646.2 83.9L648.8 85.3L651.5 84.7L654.2 82.5L656.9 79.5L659.6 76.8L662.3 74.9L665.0 73.7L667.7 73.2L670.4 73.0L673.1 73.0L675.8 73.1L678.5 73.6L681.2 74.6L683.8 76.4L686.5 79.0L689.2 82.0L691.9 84.5L694.6 85.5L697.3 84.4L700.0 82.0" class="helix2"/>
+<path d="M420.0 132.8L422.7 120.0L425.4 108.8L428.1 99.4L430.8 91.6L433.5 85.5L436.2 81.2L438.8 78.5L441.5 77.5L444.2 78.2L446.9 80.6L449.6 84.7L452.3 90.4L455.0 97.8L457.7 106.6L460.4 116.0L463.1 123.1L465.8 123.4L468.5 116.5L471.2 107.2L473.8 98.3L476.5 90.8L479.2 85.0L481.9 80.8L484.6 78.2L487.3 77.4L490.0 78.1L492.7 80.2L495.4 83.4L498.1 86.8L500.8 89.1L503.5 89.0L506.2 86.6L508.8 83.2L511.5 80.0L514.2 78.0L516.9 77.4L519.6 78.3L522.3 80.9L525.0 85.1L527.7 90.5L530.4 96.4L533.1 101.0L535.8 101.7L538.5 98.1L541.2 92.3L543.8 86.6L546.5 81.8L549.2 78.5L551.9 76.5L554.6 75.8L557.3 75.9L560.0 76.4L562.7 76.8L565.4 76.6L568.1 76.2L570.8 75.7L573.5 76.0L576.2 77.2L578.8 79.8L581.5 83.6L584.2 88.6L586.9 93.7L589.6 97.2L592.3 97.1L595.0 93.5L597.7 88.3L600.4 83.4L603.1 79.5L605.8 76.8L608.5 75.4L611.2 74.9L613.8 75.0L616.5 75.2L619.2 75.2L621.9 75.0L624.6 74.9L627.3 75.3L630.0 76.5L632.7 78.5L635.4 81.0L638.1 83.2L640.8 84.2L643.5 83.4L646.2 81.3L648.8 79.1L651.5 77.5L654.2 77.0L656.9 77.9L659.6 80.0L662.3 83.0L665.0 85.7L667.7 87.1L670.4 86.0L673.1 83.0L675.8 79.3L678.5 75.8L681.2 73.0L683.8 71.1L686.5 70.0L689.2 69.6L691.9 69.9L694.6 71.0L697.3 73.0L700.0 75.9" class="fam-b"/>
+<path d="M420.0 172.5L422.7 155.4L425.4 140.0L428.1 126.3L430.8 114.3L433.5 104.0L436.2 95.4L438.8 88.4L441.5 83.2L444.2 79.6L446.9 77.8L449.6 77.6L452.3 79.1L455.0 82.1L457.7 86.6L460.4 91.8L463.1 96.4L465.8 98.2L468.5 96.1L471.2 91.3L473.8 86.1L476.5 81.7L479.2 78.6L481.9 76.9L484.6 76.5L487.3 77.1L490.0 78.2L492.7 79.1L495.4 79.2L498.1 78.4L500.8 77.3L503.5 76.6L506.2 76.8L508.8 78.3L511.5 81.3L514.2 85.9L516.9 92.1L519.6 99.8L522.3 108.5L525.0 116.6L527.7 120.1L530.4 116.3L533.1 108.1L535.8 99.3L538.5 91.5L541.2 85.1L543.8 80.1L546.5 76.6L549.2 74.2L551.9 72.8L554.6 72.1L557.3 71.8L560.0 71.8L562.7 72.1L565.4 72.7L568.1 73.6L570.8 74.9L573.5 76.1L576.2 76.8L578.8 76.8L581.5 76.3L584.2 75.8L586.9 76.0L589.6 77.1L592.3 79.3L595.0 82.4L597.7 85.7L600.4 88.0L603.1 88.1L605.8 85.9L608.5 82.7L611.2 79.7L613.8 77.7L616.5 76.9L619.2 77.5L621.9 79.0L624.6 81.0L627.3 82.5L630.0 82.7L632.7 81.4L635.4 79.4L638.1 77.6L640.8 76.5L643.5 76.5L646.2 77.3L648.8 78.7L651.5 79.8L654.2 79.9L656.9 79.0L659.6 77.3L662.3 75.6L665.0 74.4L667.7 73.6L670.4 73.2L673.1 72.9L675.8 72.4L678.5 71.6L681.2 70.6L683.8 69.7L686.5 69.0L689.2 68.8L691.9 69.2L694.6 70.2L697.3 72.1L700.0 74.9" class="helix thin"/>
+<line x1="430.8" y1="330" x2="430.8" y2="334" class="axis"/>
+<text x="430.8" y="346" class="flab">5</text>
+<line x1="538.5" y1="330" x2="538.5" y2="334" class="axis"/>
+<text x="538.5" y="346" class="flab">15</text>
+<line x1="646.2" y1="330" x2="646.2" y2="334" class="axis"/>
+<text x="646.2" y="346" class="flab">25</text>
+<text x="700" y="360" class="flab end">t&#8320;</text>
+<text x="560" y="60" class="flab"><tspan class="c2">&#967;&#8323;</tspan> &#183; <tspan class="c1">dashed &#967;&#8324;</tspan> &#183; <tspan class="c1">&#967;&#8325;</tspan> &#8212; all &#8805; 0</text>
+<text x="516.9" y="290.6" class="flab c2">&#967;&#8323; dips to 2.5e-05</text>
+<text x="426" y="322" class="flab st">same gears, wearing characters</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — the family.</b> <i>Left:</i> four spectra to height 60 — ζ and the three L-functions — each with its measured γ₁; the combs densify with conductor as (T/2π)log(qT/2πe). <i>Right:</i> the positivity scan per character (log scale): three curves, all strictly nonnegative, the χ₃ floor reaching the same 10⁻⁵ depth the arc first saw for ζ in rh10. One criterion, one knife edge, every conductor.</figcaption>
+</figure>
+<p>The reading for the base question: the obstruction is <b>uniform</b>. Nothing about ζ's missing foundation is special to ζ — the same pairing awaits the same positivity for every character, exactly as Weil's proved case handles all characters over 𝔽<sub>q</sub>(t) at once with one surface. Whatever renders the base for ζ renders it for the family; no wall between conductors offers a side entrance.</p>
+</section>
+
+<p class="kicker">Part II · The books</p>
+
+<section class="prose" id="s5">
+<h2>5 · The audit: achieved, not achieved, tractable, not</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>column</th><th>the entries, with their numbers</th></tr>
+<tr><td><b>achieved</b> (rh4–rh12)</td><td>a geometric dictionary held for nine documents without a retraction; every classical criterion built and read (explicit formula to 5×10⁻⁶; ξ from its zeros to 1.1×10⁻⁸; four instruments of rh10); the proved case computed (rh9); the cone priced (rh11) and then optimized to its frontier (§2); the zero table pushed 500× in height with GUE measurably arriving (§3); the family verified uniform (§4); the base's computable grammar all verified — GL<sub>n</sub>(𝔽₁) = S<sub>n</sub>, ζ-shapes from counting, Frobenius = Fermat, the gear gas, and now N(q) with the PNT as its mean (§6). 629 named checks across the arc, every quoted number asserted.</td></tr>
+<tr><td><b>not achieved</b></td><td>no theorem; no rigorous bound (our λ* readings are validated dynamics, 7 decades above the cited rigorous ladder); positivity — clause (iii) of <a href="rh4.html#s15">rh4 §15</a>'s Axiom 8 — verified at every reading, proved at none; no operator, no H¹, no intersection form; the dips certifiably ≥ 0 only as far as any window can look.</td></tr>
+<tr><td><b>tractable still, and how</b></td><td>more altitude: the cost curve is now measured — λ* ~ N^(−2/3), so −10⁻⁶ costs hours, −10⁻⁷ a cluster, the rigorous ladder ~10¹² zeros (diminishing but open); the frontier at bigger budgets (the flattening suggests ~10⁻⁷ is near the table-precision floor; a longer table lowers it); more conductors and higher degree (Dedekind ζ's, Ramanujan Δ) by the same Hurwitz route; deeper shadows of the base — the square of the arithmetic site, Λ-ring descent data — as computations <i>about</i> the constructions, not of them.</td></tr>
+<tr><td><b>not tractable, and why</b></td><td>proving RH / Λ ≤ 0 / cone positivity: Π⁰₁ altitude (<a href="rh5.html#s4">rh5 §4</a>) — no computation proves it at any scale; refuting by search: the cubic repulsion law makes tight pairs common but <i>violations</i> astronomically rare — 10¹³ zeros verified in the literature, margins everywhere ≈ 0 but never negative; rigorous competitive Λ bounds: certified interval arithmetic at heights ~10¹⁰, plus the side already closed by theorem; the base itself and any genuine Hilbert–Pólya operator: open mathematics — surveyable (§6), not computable into existence.</td></tr>
+</table>
+</div>
+<p>The audit's single sentence: <b>everything computable about the hypothesis confirms it, everything decisive about it is not computable</b> — and the boundary between those two regions is now drawn with measured coordinates, not adjectives: 10⁻⁵ dips at the cone's optical limit, λ* at −2×10⁻⁵ on a priced power law, GUE to 0.012, the family uniform, the count exact to S(T). The arc's instruments end where its theorems would have to begin.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · What would render a base for rh9</h2>
+<p><a href="rh9.html#s8">rh9 §8</a> stated the need: Weil's proof consumes a surface C × C — the curve crossed with itself over the base field — on which Frobenius has a graph, the graph an intersection number, and the Hodge index theorem a negative-definite verdict. For Spec ℤ, three things must be manufactured: a <b>base</b> under the arithmetic, a <b>second factor</b> to cross with, and a <b>cohomology with a positive form</b> for the crossing to act on. It is worth being precise about how close existing mathematics comes, because the answer is: one full dimension short, three live construction programs, and one clause owed by all of them.</p>
+<p><b>The floor below.</b> Arakelov geometry already supplies genuine intersection theory over ℤ: compactify Spec ℤ with its archimedean place, and arithmetic surfaces — <i>curves fibered over</i> Spec ℤ — carry a Hodge index theorem (Faltings, Hriljac) strong enough to prove Mordell-grade finiteness. That is the exact analogue of Weil's tool, one floor down: it treats curves <i>over</i> the arithmetic base, but RH needs the base <i>itself</i> as a curve — and then its self-product, the "arithmetic plane" Spec ℤ ×<sub>𝔽₁</sub> Spec ℤ, an object Arakelov theory does not contain because over ℤ there is nothing beneath ℤ to cross over. Every serious construction program is a proposal for the missing tensor direction, and they differ precisely in the raw material for it:</p>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>needed for Weil's argument</th><th>Deninger: <b>time</b></th><th>Connes–Consani: <b>scale</b></th><th>Borger: <b>Witt</b></th></tr>
+<tr><td>the base under Spec ℤ</td><td>the fixed stratum of an ℝ-flow on a foliated site</td><td>the topos of the arithmetic/scaling site over the tropical semifield</td><td>𝔽₁-descent = the Λ-ring structure on ℤ</td></tr>
+<tr><td>the second factor / the plane</td><td>the flow direction itself: 3-space fibered over time</td><td>the square of the site, with its Frobenius correspondences (constructed)</td><td>ℤ ⊗<sub>𝔽₁</sub> ℤ realised inside big Witt vectors W(ℤ)</td></tr>
+<tr><td>Frobenius and its graph</td><td>the time-t maps φ<sup>t</sup>; orbits = primes, period log p</td><td>multiplicative scaling by n ∈ ℕ; the BC symmetry Ẑ<sup>×</sup> of <a href="rh7.html#s5">rh7 §5</a></td><td>the commuting lifts ψ<sub>p</sub>, forced = id on ℤ: Fermat (verified, rh11 §5)</td></tr>
+<tr><td>the explicit formula as trace</td><td>transversal Lefschetz for the flow — <b>the ledger below</b></td><td>the trace formula on the adele class space (local terms proved)</td><td>ghost/Frobenius bookkeeping on Witt components</td></tr>
+<tr><td>H¹ with a positive form</td><td><i>owed</i></td><td><i>owed</i> (Weil positivity recast as a trace inequality; partial positivity via Sonine spaces)</td><td><i>owed</i></td></tr>
+</table>
+</div>
+<p>Two of those shadows are computable from this arc's own tables, and here they are, run. <b>The point count.</b> If Spec ℤ were a curve over 𝔽₁, it would count points over "𝔽<sub>q</sub>" for real q &gt; 1 by the Weil recipe N(q) = q + 1 − ∑<sub>ρ</sub>q<sup>ρ</sup> — the Connes–Consani program takes exactly this as the definition and inverts the Hasse–Weil formula with it. Computed from our 1517 zeros at a stated band limit, the function is not a mystery object; it <i>decomposes</i>, and the decomposition is the arc in one picture (differentiate von Mangoldt's formula): a smooth baseline 1 + 1/(q²−1); upward atoms <b>exactly at the prime powers</b> with weight Λ(n) — verified at seven gears to 5%: <b>the points of the missing curve are the gears</b>; negative values confined below q = 1.03, the band-limited signature of the "infinite genus" that Connes–Consani meet at q → 1; and windowed mean q + 1 to 15% — which is the prime number theorem, re-worn as "the curve has, on average, the point count of a projective line". The base's counting function exists, computes, and says nothing the primes did not already say — that is both its beauty and the program's unfinished state in one measurement.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 442" role="img" aria-label="Left: the counting function of the would-be curve over the field with one element, computed from the zeros: a baseline near one, upward atoms exactly at the prime powers with Landau weights, briefly negative only below one point zero three. Right: the explicit formula as a Lefschetz ledger: pole term plus archimedean term minus one orbit per prime balancing the spectral side">
+<text x="360.0" y="22" class="ftitle">the base, computed where it computes: N(q) and the orbit ledger</text>
+<text x="240" y="46" class="ftitle" font-size="12">N(q) = q + 1 &#8722; &#8721;&#8202;q&#961; from the 1517 zeros (band limit 60)</text>
+<line x1="60" y1="292.2" x2="420" y2="292.2" class="axis"/>
+<path d="M63.1 281.9L63.7 283.1L64.3 284.0L65.5 285.1L66.7 285.9L68.0 286.3L69.2 286.7L70.4 287.0L71.6 287.2L72.9 287.3L74.1 287.5L75.3 287.6L76.5 287.7L77.8 287.7L79.0 287.8L80.2 287.9L81.4 287.9L82.7 288.0L83.9 288.0L85.1 288.0L86.3 288.1L87.6 288.1L88.8 288.1L90.0 288.1L91.2 288.2L92.4 288.2L93.7 288.2L94.9 288.2L96.1 288.2L97.3 288.2L98.6 288.3L99.8 288.3L101.0 288.3L102.2 288.3L103.5 288.3L104.7 288.3L105.9 288.3L107.1 288.3L108.4 288.3L109.6 288.3L110.8 288.3L112.0 288.3L113.3 288.3L114.5 288.4L115.7 288.4L116.9 288.4L118.2 288.4L119.4 288.4L120.6 288.4L121.8 288.4L123.1 288.4L124.3 288.4L125.5 288.4L126.7 288.4L128.0 288.4L129.2 288.4L130.4 288.4L131.6 288.4L132.9 288.4L134.1 288.4L135.3 288.4L136.5 288.4L137.8 288.4L139.0 288.4L140.2 288.4L141.4 288.4L142.7 288.4L143.9 288.4L145.1 288.4L146.3 288.4L147.6 288.4L148.8 288.4L150.0 288.4L151.2 288.4L152.4 288.4L153.7 288.4L154.9 288.4L156.1 288.4L157.3 288.4L158.6 288.4L159.8 288.4L161.0 288.4L162.2 288.4L163.5 288.4L164.7 288.4L165.9 288.4L167.1 288.4L168.4 288.4L169.6 288.4L170.8 288.4L172.0 288.4L173.3 288.4L174.5 288.4L175.7 288.4L176.9 288.4L178.2 288.4L179.4 288.4L180.6 288.4L181.8 288.4L183.1 288.4L184.3 288.5L185.5 288.5L186.7 288.5L188.0 288.5L189.2 288.5L190.4 288.5L191.6 288.5L192.9 288.5L194.1 288.5L195.3 288.5L196.5 288.5L197.8 288.5L199.0 288.5L200.2 288.5L201.4 288.5L202.7 288.5L203.9 288.5L205.1 288.5L206.3 288.5L207.6 288.5L208.8 288.5L210.0 288.5L211.2 288.5L212.4 288.5L213.7 288.5L214.9 288.5L216.1 288.5L217.3 288.5L218.6 288.5L219.8 288.5L221.0 288.5L222.2 288.5L223.5 288.5L224.7 288.5L225.9 288.5L227.1 288.5L228.4 288.5L229.6 288.5L230.8 288.5L232.0 288.5L233.3 288.5L234.5 288.5L235.7 288.5L236.9 288.5L238.2 288.5L239.4 288.5L240.6 288.5L241.8 288.5L243.1 288.5L244.3 288.5L245.5 288.5L246.7 288.5L248.0 288.5L249.2 288.5L250.4 288.5L251.6 288.5L252.9 288.5L254.1 288.5L255.3 288.5L256.5 288.5L257.8 288.5L259.0 288.5L260.2 288.5L261.4 288.5L262.7 288.5L263.9 288.5L265.1 288.5L266.3 288.5L267.6 288.5L268.8 288.5L270.0 288.5L271.2 288.5L272.4 288.5L273.7 288.5L274.9 288.5L276.1 288.5L277.3 288.5L278.6 288.5L279.8 288.5L281.0 288.5L282.2 288.5L283.5 288.5L284.7 288.5L285.9 288.5L287.1 288.5L288.4 288.5L289.6 288.5L290.8 288.5L292.0 288.5L293.3 288.5L294.5 288.5L295.7 288.5L296.9 288.5L298.2 288.5L299.4 288.5L300.6 288.5L301.8 288.5L303.1 288.5L304.3 288.5L305.5 288.5L306.7 288.5L308.0 288.5L309.2 288.5L310.4 288.5L311.6 288.5L312.9 288.5L314.1 288.5L315.3 288.5L316.5 288.5L317.8 288.5L319.0 288.5L320.2 288.5L321.4 288.5L322.7 288.5L323.9 288.5L325.1 288.5L326.3 288.5L327.6 288.5L328.8 288.5L330.0 288.5L331.2 288.5L332.4 288.5L333.7 288.5L334.9 288.5L336.1 288.5L337.3 288.5L338.6 288.5L339.8 288.5L341.0 288.5L342.2 288.5L343.5 288.5L344.7 288.5L345.9 288.5L347.1 288.5L348.4 288.5L349.6 288.5L350.8 288.5L352.0 288.5L353.3 288.5L354.5 288.5L355.7 288.5L356.9 288.5L358.2 288.5L359.4 288.5L360.6 288.5L361.8 288.5L363.1 288.5L364.3 288.5L365.5 288.5L366.7 288.5L368.0 288.5L369.2 288.5L370.4 288.5L371.6 288.5L372.9 288.5L374.1 288.5L375.3 288.5L376.5 288.5L377.8 288.5L379.0 288.5L380.2 288.5L381.4 288.5L382.7 288.5L383.9 288.5L385.1 288.5L386.3 288.5L387.6 288.5L388.8 288.5L390.0 288.5L391.2 288.5L392.4 288.5L393.7 288.5L394.9 288.5L396.1 288.5L397.3 288.5L398.6 288.5L399.8 288.5L401.0 288.5L402.2 288.5L403.5 288.5L404.7 288.5L405.9 288.5L407.1 288.5L408.4 288.5L409.6 288.5L410.8 288.5L412.0 288.5L413.3 288.5L414.5 288.5L415.7 288.5L416.9 288.5L418.2 288.5" class="brk"/>
+<path d="M60.0 284.8L420.0 176.6" class="target"/>
+<path d="M60.2 330.0L60.3 317.2L60.3 304.8L60.4 293.4L60.4 283.5L60.5 275.3L60.5 268.9L60.6 264.3L60.6 261.3L60.7 259.6L60.7 259.0L60.8 259.9L60.9 261.0L60.9 262.2L61.0 263.5L61.0 264.8L61.1 266.1L61.1 267.2L61.2 268.3L61.2 269.3L61.3 270.3L61.3 271.1L61.4 271.9L61.4 272.6L61.5 273.2L61.5 273.8L61.6 274.4L61.6 274.9L61.7 275.8L61.8 276.7L61.9 277.4L62.1 278.1L62.2 278.6L62.3 279.2L62.4 279.9L62.6 280.5L62.8 281.0L63.0 281.7L63.2 282.2L63.5 282.8L63.8 283.3L64.2 283.8L64.6 284.4L65.1 284.8L65.7 285.2L66.2 285.6L66.8 285.9L67.3 286.1L67.8 286.3L68.4 286.5L68.9 286.6L69.5 286.8L70.0 286.9L70.6 286.6L70.7 286.0L70.8 285.4L70.9 284.7L71.0 283.6L71.1 282.2L71.2 280.4L71.3 278.1L71.3 275.3L71.4 272.1L71.5 268.4L71.6 264.4L71.7 260.3L71.8 256.2L71.9 252.3L72.0 249.0L72.1 246.4L72.2 244.7L72.2 244.1L72.4 246.0L72.5 248.5L72.6 251.7L72.7 255.5L72.8 259.6L72.9 263.8L73.0 267.9L73.1 271.6L73.2 275.0L73.3 277.9L73.4 280.3L73.5 282.2L73.6 283.7L73.7 284.9L73.8 285.7L73.9 286.3L74.1 287.0L74.7 287.5L75.2 287.6L75.7 287.6L76.2 287.6L76.8 287.7L77.3 287.7L77.9 287.7L78.4 287.8L79.0 287.8L79.6 287.8L80.2 287.9L80.8 287.9L81.3 287.9L81.9 287.5L82.1 286.8L82.2 286.1L82.4 285.2L82.5 283.9L82.6 282.1L82.8 279.7L82.9 276.7L83.0 272.9L83.2 268.3L83.3 263.0L83.4 257.0L83.6 250.6L83.7 244.0L83.8 237.6L84.0 231.6L84.1 226.5L84.2 222.6L84.4 220.3L84.5 219.6L84.7 220.6L84.8 223.4L84.9 227.5L85.1 232.8L85.2 238.9L85.4 245.5L85.5 252.1L85.6 258.4L85.8 264.2L85.9 269.4L86.1 273.8L86.2 277.5L86.4 280.4L86.5 282.6L86.6 284.3L86.8 285.6L86.9 286.4L87.1 287.0L87.4 287.7L88.0 288.1L88.6 288.1L89.2 288.1L89.8 288.1L90.5 288.2L91.1 288.2L91.8 288.2L92.5 288.2L93.0 288.1L93.5 287.6L93.8 286.8L94.0 286.1L94.2 285.1L94.3 283.8L94.5 282.1L94.7 279.9L94.9 277.3L95.0 274.1L95.2 270.6L95.4 266.6L95.6 262.5L95.8 258.4L95.9 254.4L96.1 250.9L96.3 248.1L96.5 246.1L96.7 245.1L97.0 246.5L97.2 248.7L97.4 251.7L97.6 255.3L97.8 259.4L98.0 263.5L98.2 267.6L98.4 271.5L98.6 275.0L98.7 278.0L98.9 280.5L99.1 282.6L99.3 284.2L99.5 285.4L99.7 286.3L99.9 287.0L100.3 287.7L100.9 288.2L101.5 288.3L102.1 288.3L102.7 288.3L103.4 288.3L104.0 288.2L104.6 287.6L105.1 286.5L105.3 285.4L105.5 284.0L105.7 281.9L105.9 279.1L106.1 275.5L106.4 270.8L106.6 265.0L106.8 258.1L107.0 250.1L107.2 241.2L107.5 231.8L107.7 222.1L107.9 212.7L108.1 204.1L108.4 197.0L108.6 191.7L108.8 188.7L109.1 188.2L109.3 190.2L109.5 194.6L109.8 201.0L110.0 209.1L110.2 218.2L110.5 227.8L110.7 237.4L110.9 246.6L111.2 255.0L111.4 262.3L111.7 268.6L111.9 273.7L112.1 277.8L112.4 280.9L112.6 283.2L112.9 284.9L113.1 286.1L113.4 286.9L113.6 287.5L114.1 288.0L114.6 288.3L115.1 288.3L115.6 288.3L116.1 288.4L116.6 288.4L117.2 288.4L117.7 288.4L118.2 288.4L118.8 288.4L119.3 288.4L119.8 288.4L120.4 288.4L120.9 288.4L121.5 288.4L122.0 288.4L122.6 288.4L123.2 288.4L123.7 288.4L124.3 288.4L124.9 288.4L125.5 288.4L126.0 288.3L126.6 288.2L127.2 287.7L127.8 286.6L128.1 285.5L128.4 284.0L128.7 281.9L129.0 279.0L129.4 275.0L129.7 270.0L130.0 263.6L130.3 255.8L130.6 246.8L130.9 236.5L131.2 225.3L131.5 213.7L131.8 202.1L132.2 191.2L132.5 181.7L132.8 174.2L133.1 169.3L133.4 167.2L133.8 168.3L134.1 172.3L134.4 179.0L134.7 187.9L135.1 198.4L135.4 209.9L135.7 221.6L136.1 233.0L136.4 243.6L136.7 253.1L137.1 261.2L137.4 268.0L137.7 273.5L138.1 277.7L138.4 280.9L138.8 283.1L139.1 284.6L139.4 285.5L140.1 285.7L140.5 285.1L140.8 284.1L141.2 282.7L141.5 280.7L141.9 278.2L142.2 275.2L142.6 271.8L143.0 268.0L143.3 263.9L143.7 259.7L144.0 255.7L144.4 252.0L144.8 249.0L145.1 246.7L145.5 245.5L146.2 246.2L146.6 248.1L147.0 251.0L147.4 254.4L147.7 258.4L148.1 262.5L148.5 266.6L148.9 270.5L149.2 274.1L149.6 277.1L150.0 279.6L150.4 281.5L150.8 282.8L151.2 283.5L152.0 283.1L152.3 281.8L152.7 279.8L153.1 277.0L153.5 273.5L153.9 269.0L154.3 263.8L154.7 258.0L155.1 251.6L155.5 245.0L155.9 238.5L156.4 232.5L156.8 227.3L157.2 223.3L157.6 220.8L158.0 220.0L158.4 220.9L158.8 223.5L159.2 227.5L159.7 232.7L160.1 238.8L160.5 245.3L160.9 251.9L161.4 258.3L161.8 264.2L162.2 269.4L162.7 273.9L163.1 277.6L163.5 280.5L164.0 282.8L164.4 284.6L164.8 285.8L165.3 286.7L165.7 287.3L166.6 288.0L167.5 288.3L168.4 288.4L169.3 288.4L170.2 288.4L171.2 288.3L172.1 288.0L173.0 287.2L173.5 286.4L174.0 285.2L174.5 283.4L174.9 281.0L175.4 277.5L175.9 272.9L176.4 266.9L176.9 259.3L177.4 250.1L177.8 239.1L178.3 226.7L178.8 213.1L179.3 198.8L179.8 184.4L180.3 170.8L180.8 158.7L181.3 149.1L181.8 142.4L182.3 139.3L182.8 139.9L183.3 144.3L183.8 152.1L184.4 162.6L184.9 175.3L185.4 189.3L185.9 203.7L186.4 217.8L187.0 231.1L187.5 243.0L188.0 253.4L188.5 262.1L189.1 269.1L189.6 274.6L190.1 278.8L190.7 281.9L191.2 284.1L191.7 285.6L192.3 286.7L192.8 287.3L193.4 287.7L193.9 287.9L194.5 287.9L195.0 287.7L195.6 287.3L196.1 286.6L196.7 285.5L197.3 283.9L197.8 281.6L198.4 278.4L199.0 274.0L199.5 268.3L200.1 260.9L200.7 251.7L201.3 240.8L201.8 228.1L202.4 214.0L203.0 198.9L203.6 183.5L204.2 168.5L204.8 154.8L205.3 143.3L205.9 134.8L206.5 129.8L207.1 128.8L207.7 131.9L208.3 138.7L208.9 148.9L209.6 161.6L210.2 176.1L210.8 191.4L211.4 206.7L212.0 221.4L212.6 234.8L213.2 246.6L213.9 256.6L214.5 264.9L215.1 271.4L215.8 276.5L216.4 280.2L217.0 282.9L217.7 284.9L218.3 286.2L218.9 287.0L219.6 287.6L220.2 288.0L220.9 288.2L221.5 288.3L222.2 288.4L222.9 288.4L223.5 288.4L224.2 288.5L224.8 288.5L225.5 288.5L226.2 288.4L226.8 288.4L227.5 288.4L228.2 288.4L228.9 288.3L229.6 288.2L230.2 288.0L230.9 287.8L231.6 287.4L232.3 286.8L233.0 286.0L233.7 284.8L234.4 283.4L235.1 281.4L235.8 279.1L236.5 276.2L237.2 272.8L238.0 269.0L238.7 264.9L239.4 260.6L240.1 256.2L240.8 252.0L241.6 248.1L242.3 244.6L243.0 241.5L243.8 238.7L244.5 236.1L245.2 233.3L246.0 230.0L246.7 225.8L247.5 220.2L248.2 212.8L249.0 203.6L249.8 192.5L250.5 179.8L251.3 166.1L252.0 152.1L252.8 138.7L253.6 127.0L254.4 117.8L255.1 112.1L255.9 110.4L256.7 112.9L257.5 119.5L258.3 129.9L259.1 143.3L259.9 158.8L260.7 175.5L261.5 192.5L262.3 208.8L263.1 223.8L263.9 236.9L264.7 247.8L265.5 256.2L266.4 262.1L267.2 265.4L268.0 266.2L268.8 264.3L269.7 259.9L270.5 252.8L271.3 243.2L272.2 231.1L273.0 216.9L273.9 200.8L274.7 183.6L275.6 166.0L276.4 148.9L277.3 133.5L278.2 120.6L279.0 111.2L279.9 106.0L280.8 105.4L281.7 109.3L282.5 117.6L283.4 129.7L284.3 144.5L285.2 161.3L286.1 178.9L287.0 196.5L287.9 213.2L288.8 228.4L289.7 241.7L290.6 253.0L291.5 262.3L292.5 269.6L293.4 275.2L294.3 279.4L295.2 282.4L296.2 284.5L297.1 286.0L298.1 286.9L299.0 287.5L299.9 287.9L300.9 288.2L301.8 288.3L302.8 288.4L303.8 288.4L304.7 288.4L305.7 288.3L306.7 288.1L307.6 287.9L308.6 287.5L309.6 286.9L310.6 285.9L311.6 284.4L312.6 282.2L313.6 279.1L314.6 274.7L315.6 268.8L316.6 261.2L317.6 251.5L318.6 239.6L319.6 225.6L320.7 209.5L321.7 191.8L322.7 173.1L323.8 154.3L324.8 136.4L325.9 120.3L326.9 107.3L328.0 98.1L329.0 93.5L330.1 93.7L331.1 98.7L332.2 108.1L333.3 121.2L334.3 136.8L335.4 153.9L336.5 171.2L337.6 187.6L338.7 202.3L339.8 214.3L340.9 223.3L342.0 229.0L343.1 231.3L344.2 230.6L345.3 227.3L346.5 222.0L347.6 215.3L348.7 208.0L349.8 201.0L351.0 194.9L352.1 190.4L353.3 187.9L354.4 187.7L355.6 189.9L356.7 194.1L357.9 200.2L359.1 207.5L360.2 215.5L361.4 223.4L362.6 230.8L363.8 236.9L365.0 241.5L366.2 244.3L367.4 245.3L368.6 244.4L369.8 242.0L371.0 238.4L372.2 234.1L373.4 229.5L374.7 225.2L375.9 221.6L377.1 218.9L378.4 217.5L379.6 217.2L380.9 217.9L382.1 219.2L383.4 220.6L384.7 221.4L385.9 220.9L387.2 218.5L388.5 213.6L389.8 205.9L391.1 195.3L392.3 181.8L393.6 166.1L395.0 148.8L396.3 131.0L397.6 114.0L398.9 98.7L400.2 86.5L401.5 78.2L402.9 74.2L404.2 74.7L405.6 79.3L406.9 87.2L408.3 97.2L409.6 107.9L411.0 117.9L412.3 125.9L413.7 130.7L415.1 131.7" class="helix thin"/>
+<text x="72.2" y="239.1" class="flab c1">2</text>
+<text x="84.5" y="214.6" class="flab c1">3</text>
+<text x="96.7" y="240.1" class="flab c1">4</text>
+<text x="109.0" y="183.1" class="flab c1">5</text>
+<text x="133.5" y="162.2" class="flab c1">7</text>
+<text x="145.7" y="240.2" class="flab c1">8</text>
+<text x="158.0" y="215.0" class="flab c1">9</text>
+<line x1="60.0" y1="340" x2="60.0" y2="344" class="axis"/>
+<text x="60.0" y="356" class="flab">1</text>
+<line x1="170.2" y1="340" x2="170.2" y2="344" class="axis"/>
+<text x="170.2" y="356" class="flab">10</text>
+<line x1="292.7" y1="340" x2="292.7" y2="344" class="axis"/>
+<text x="292.7" y="356" class="flab">20</text>
+<line x1="415.1" y1="340" x2="415.1" y2="344" class="axis"/>
+<text x="415.1" y="356" class="flab">30</text>
+<text x="420" y="370" class="flab end">q</text>
+<text x="54" y="296.2" class="flab end">0</text>
+<text x="54" y="222.6" class="flab end">20</text>
+<text x="54" y="149.0" class="flab end">40</text>
+<text x="54" y="75.4" class="flab end">60</text>
+<text x="102.9" y="301.7" class="flab st c1">atoms at the gears: spike = &#923;(n)&#183;16.9 + baseline, verified at 7</text>
+<text x="102.9" y="313.5" class="flab st c2">orange: mean line q + 1 &#8212; the PNT as a point count</text>
+<text x="102.9" y="325.3" class="flab st">dashed: baseline 1 + 1/(q&#178;&#8722;1) between gears</text>
+<text x="102.9" y="337.1" class="flab st">negative only below q = 1.03 &#8212; the infinite-genus wall</text>
+<line id="pline" class="cross" x1="0" y1="60" x2="0" y2="340" visibility="hidden"/>
+<circle id="pdot" class="crossdot" r="3.5" visibility="hidden"/>
+<text x="584" y="46" class="ftitle" font-size="12">the ledger (Fej&#233;r, a = 1.6, t&#8320; = 0)</text>
+<text x="470" y="80" class="flab st">pole h(&#177;i/2): +50.479</text>
+<rect x="470" y="84" width="132.0" height="9" class="bar"/>
+<text x="470" y="114" class="flab st">archimedean: -20.420</text>
+<rect x="470" y="118" width="53.4" height="9" class="open-neg"/>
+<text x="470" y="148" class="flab st">&#8722; orbits (primes): -29.887</text>
+<rect x="470" y="152" width="78.2" height="9" class="open-neg"/>
+<text x="470" y="182" class="flab st">= spectral side: +0.172</text>
+<rect x="470" y="186" width="1.2" height="9" class="bar"/>
+<text x="470" y="222" class="flab st">balance: |&#916;| = 1.3e-05</text>
+<text x="470" y="240" class="flab st c2">one orbit per prime, period log p:</text>
+<rect x="502" y="246.0" width="109.8" height="7" class="bar"/>
+<text x="498" y="253.0" class="flab end">2</text>
+<text x="617.8" y="253.0" class="flab st">4 traversals</text>
+<rect x="502" y="259.5" width="84.6" height="7" class="bar"/>
+<text x="498" y="266.5" class="flab end">3</text>
+<rect x="502" y="273.0" width="57.0" height="7" class="bar"/>
+<text x="498" y="280.0" class="flab end">5</text>
+<rect x="502" y="286.5" width="45.9" height="7" class="bar"/>
+<text x="498" y="293.5" class="flab end">7</text>
+<rect x="502" y="300.0" width="28.9" height="7" class="bar"/>
+<text x="498" y="307.0" class="flab end">11</text>
+<rect x="502" y="313.5" width="22.5" height="7" class="bar"/>
+<text x="498" y="320.5" class="flab end">13</text>
+<rect x="502" y="327.0" width="12.5" height="7" class="bar"/>
+<text x="498" y="334.0" class="flab end">17</text>
+<rect x="502" y="340.5" width="8.6" height="7" class="bar"/>
+<text x="498" y="347.5" class="flab end">19</text>
+<rect x="502" y="354.0" width="2.1" height="7" class="bar"/>
+<text x="498" y="361.0" class="flab end">23</text>
+</svg>
+<div class="ztip" id="ptip"></div>
+</div>
+<figcaption><b>Figure 4 — two computed shadows of the base.</b> <i>Left:</i> the counting function N(q) from the zero table (hover for values): baseline 1+1/(q²−1) (dashed), Landau atoms at the labeled prime powers, the PNT mean-line q+1 (orange), negativity only below q = 1.03. <i>Right:</i> the explicit formula as a Lefschetz ledger for one window: the pole term (+50.5, the H⁰/H² poles at 0 and 1), the archimedean term (−20.4, the place at infinity), and one closed orbit per prime (−29.9 total, period log p, k-fold traversals weighted p^(−k/2)) balance the spectral side (0.17) to 2×10⁻⁵. Deninger's dictionary, run as arithmetic.</figcaption>
+</figure>
+<p><b>The ledger.</b> Deninger's proposal reads the explicit formula as a transversal Lefschetz fixed-point formula for a flow: closed orbits at the primes with period log p, the archimedean place as the fixed point at infinity, the zeros as the spectrum of the infinitesimal generator on an H¹ that does not yet exist. The formula itself, of course, exists — it is the arc's equation (1) of rh10 — and re-organized in orbit form it balances on our table to 2×10⁻⁵ (Figure 4, right). Every line of the would-be Lefschetz formula is verified arithmetic; only the cohomology it would be <i>about</i> is missing. That is the exact sense in which these programs are serious: they are not analogies, they are specifications — every computable consequence checks out, on this page, to stated precision.</p>
+<p><b>What is owed, and by everyone.</b> Each column above discharges the base, the plane, the Frobenius, and the trace — different raw material, same ledger — and each stalls at the same final row. Deninger needs his H¹ with a Hodge-type positivity; Connes–Consani have recast RH as a positivity of the Weil distribution on their square and proved it on subspaces (the Sonine-space results), not yet in full; Borger's Λ-geometry has the descent data but no finiteness, no H¹, no form. The arc has met this row before: it is clause (iii) of <a href="rh4.html#s15">rh4 §15</a>'s Axiom 8, the one clause that was never a theorem in disguise. rh5 §5 said why the obstruction is structural (the visible symmetries are abelian; positivity of this kind is bought with the non-abelian geometry of a surface); rh9 §8 named the missing floor; §2–§4 of this document measured how sharp, how high, and how uniform the criterion holds without it. So the answer to "what alternative construction would render a base for rh9" is, in one sentence each: <b>a cohomology of a dynamical time under Spec ℤ (Deninger), or of an adelic scale beside it (Connes–Consani), or of a Witt-vector width inside it (Borger) — any one of the three, if it can be built finite-dimensional enough to carry an intersection form, closes the arc's last axiom</b>; and the measured state of all three is: ledger verified, positivity owed.</p>
+</section>
+
+<section id="s7">
+<h2 class="prose" style="max-width:46rem">7 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic number theory</th></tr>
+<tr><td>the sharpest window a gear budget can grind</td><td>D*(a) = 1/(b₀ᵀM⁻¹b₀): the exact optimum of the Weil functional per bandwidth</td></tr>
+<tr><td>the instrument's optical limit</td><td>the frontier's flattening at ~10⁻⁷ — table precision becomes the floor</td></tr>
+<tr><td>climbing the tower to hear finer beats</td><td>Riemann–Siegel at t = 10⁶: O(√t) evaluation, 60,000 zeros audited</td></tr>
+<tr><td>the crowd finally moves like the random crowd</td><td>KS to GUE: 0.046 → 0.012; pair correlation on the sine kernel to 0.014</td></tr>
+<tr><td>the forecast posted before the hunt</td><td>GUE small-gap law (π²/9)s³: median tightest-of-60,000 = 0.0219; observed 0.0257</td></tr>
+<tr><td>fifty times closer to the wall</td><td>λ* = −2.3×10⁻⁵ at g²/8 to 0.1%; the decade price 10^1.5 in zeros, measured</td></tr>
+<tr><td>the same sieve in every parish</td><td>GRH instruments per conductor: same EF, same scan, dips to 10⁻⁵</td></tr>
+<tr><td>the floor below the floor</td><td>Arakelov/Faltings–Hriljac: Hodge index for curves <i>over</i> ℤ — one dimension short of ℤ itself</td></tr>
+<tr><td>three raw materials for the missing direction</td><td>time (Deninger flow), scale (Connes–Consani site), Witt width (Borger Λ-rings)</td></tr>
+<tr><td>the missing curve's census, taken anyway</td><td>N(q) = q+1−∑q<sup>ρ</sup>: baseline 1+1/(q²−1), Landau atoms at gears, PNT as the mean</td></tr>
+<tr><td>the books balance; the account is unproved</td><td>Lefschetz ledger: pole + archimedean − orbits = spectrum to 2×10⁻⁵</td></tr>
+<tr><td>the one unpaid clause</td><td>positivity on the H¹ nobody has built — Axiom 8(iii), still the whole hypothesis</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<p class="meta" style="margin-bottom:.6rem">Additions to the rh4–rh11 lists, which remain in force.</p>
+<ol>
+<li>H. L. Montgomery, <i>The pair correlation of zeros of the zeta function</i>, Proc. Sympos. Pure Math. 24 (1973) — the sine-kernel law measured in §3.</li>
+<li>W. Gabcke, <i>Neue Herleitung und explizite Restabschätzung der Riemann–Siegel-Formel</i>, thesis, Göttingen (1979) — the remainder used at t = 10⁶.</li>
+<li>A. M. Odlyzko, <i>On the distribution of spacings between zeros of the zeta function</i>, Math. Comp. 48 (1987) — the GUE convergence §3 reproduces at small scale.</li>
+<li>S. Ju. Arakelov, <i>Intersection theory of divisors on an arithmetic surface</i>, Izv. Akad. Nauk SSSR 38 (1974) — the floor below (§6).</li>
+<li>G. Faltings, <i>Calculus on arithmetic surfaces</i>, Ann. of Math. 119 (1984); P. Hriljac, <i>Heights and Arakelov's intersection theory</i>, Amer. J. Math. 107 (1985) — the arithmetic Hodge index theorem.</li>
+<li>A. Connes, C. Consani, <i>The arithmetic site</i>, C. R. Math. 352 (2014); <i>Geometry of the arithmetic site</i>, Adv. Math. 291 (2016) — the scale construction of §6 and its square.</li>
+<li>A. Connes, C. Consani, <i>Weil positivity and trace formula: the archimedean place</i>, Selecta Math. 27 (2021) — positivity on Sonine subspaces; the owed clause, partially paid.</li>
+<li>C. Soulé, J. B. Bost — see rh11's list; the 𝔽₁ and gas references remain in force for §6.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page was computed for this document and cross-checked against 54 named checks plus the inline assertion suite: the Riemann–Siegel implementation against Euler–Maclaurin at four points (≤ 2.5×10⁻³), the θ-asymptotics against the Γ-based θ to 10⁻⁹, and an eight-zero splice against the rh11 table (≤ 2×10⁻³ per ordinate); the 60,000-zero band audited by change-point census against Riemann–von Mangoldt (final agreement within ±2.5, strict monotonicity, tightest pairs re-scanned densely); the pre-registered GUE forecast with the observed minimum inside its acceptance band; KS distances and pair-correlation deviation asserted (0.012 &lt; 0.02; low-height 0.046 &gt; 1.8×; R₂ dev 0.014 &lt; 0.03); the collision recipe validated against rh10/rh11's direct value (−0.98871 vs −0.98899) and against a hard 300-zero splice (0.02% shift), the three altitude collisions with g²/8 ratios 1.001 asserted in [0.7, 1.35]; the optimal-window solver's residuals (&lt; 10⁻⁸), positivity of every D*, monotone frontier, beyond-table leakage &lt; 10⁻³ of D*, EF certification of the winner to 2×10⁻⁴, and its D* equal to the direct zeros-side reading; Hurwitz zeta against ζ(s), the (2^s−1) identity, and ψ′(¼) = π²+8G; L(2,χ₄) = Catalan to 10⁻¹⁰ and the ℤ[i] lattice sum (1.13 million points, disk-truncated with analytic tail) to 3×10⁻⁵; per-character reality of Λ on the line (10⁻⁸), windowwise and total zero-census against the counting formula, cited first ordinates for χ₃, χ₄ to 3×10⁻⁵, explicit formula per character to 10⁻⁵, and every scan value ≥ −10⁻⁶; the counting function's seven gear atoms at Landau weight + baseline to 5%, the PNT windowed mean at three windows to 15%, and its positivity beyond q = 1.03; the Lefschetz ledger balancing to 6×10⁻⁴ of h(0). Literature values (Catalan, LMFDB ordinates, the λ-ladder) are cited, never presented as computed. Companion texts: <a href="rh4.html">rh4</a> · <a href="rh5.html">rh5</a> · <a href="rh6.html">rh6</a> · <a href="rh7.html">rh7</a> · <a href="rh8.html">rh8</a> · <a href="rh9.html">rh9</a> · <a href="rh10.html">rh10</a> · <a href="rh11.html">rh11</a>.
+</div>
+
+
+</div>
+<script>
+(function () {
+  var H = {"p":[[60.2,330.0,"q = 1.02 &#183; N = -10.27"],[60.4,293.4,"q = 1.03 &#183; N = -0.33"],[60.5,268.9,"q = 1.04 &#183; N = 6.32"],[60.7,259.6,"q = 1.06 &#183; N = 8.83"],[60.8,259.9,"q = 1.07 &#183; N = 8.76"],[61.0,263.5,"q = 1.08 &#183; N = 7.79"],[61.1,267.2,"q = 1.09 &#183; N = 6.77"],[61.3,270.3,"q = 1.10 &#183; N = 5.95"],[61.4,272.6,"q = 1.12 &#183; N = 5.32"],[61.6,274.4,"q = 1.13 &#183; N = 4.83"],[61.7,275.8,"q = 1.14 &#183; N = 4.43"],[61.9,277.0,"q = 1.15 &#183; N = 4.11"],[62.1,278.1,"q = 1.17 &#183; N = 3.83"],[62.2,278.9,"q = 1.18 &#183; N = 3.60"],[62.4,279.7,"q = 1.19 &#183; N = 3.40"],[62.5,280.3,"q = 1.21 &#183; N = 3.22"],[62.7,280.9,"q = 1.22 &#183; N = 3.07"],[62.9,281.4,"q = 1.24 &#183; N = 2.93"],[63.1,281.8,"q = 1.25 &#183; N = 2.81"],[63.2,282.2,"q = 1.26 &#183; N = 2.70"],[63.4,282.6,"q = 1.28 &#183; N = 2.60"],[63.6,282.9,"q = 1.29 &#183; N = 2.51"],[63.8,283.2,"q = 1.31 &#183; N = 2.43"],[63.9,283.5,"q = 1.32 &#183; N = 2.35"],[64.1,283.8,"q = 1.34 &#183; N = 2.28"],[64.3,284.0,"q = 1.35 &#183; N = 2.22"],[64.5,284.2,"q = 1.37 &#183; N = 2.16"],[64.7,284.4,"q = 1.38 &#183; N = 2.10"],[64.9,284.6,"q = 1.40 &#183; N = 2.05"],[65.1,284.8,"q = 1.41 &#183; N = 2.01"],[65.3,284.9,"q = 1.43 &#183; N = 1.96"],[65.5,285.1,"q = 1.45 &#183; N = 1.92"],[65.7,285.2,"q = 1.46 &#183; N = 1.88"],[65.9,285.4,"q = 1.48 &#183; N = 1.85"],[66.1,285.5,"q = 1.50 &#183; N = 1.81"],[66.3,285.6,"q = 1.51 &#183; N = 1.78"],[66.5,285.7,"q = 1.53 &#183; N = 1.75"],[66.7,285.8,"q = 1.55 &#183; N = 1.72"],[66.9,285.9,"q = 1.57 &#183; N = 1.69"],[67.1,286.0,"q = 1.58 &#183; N = 1.67"],[67.4,286.1,"q = 1.60 &#183; N = 1.64"],[67.6,286.2,"q = 1.62 &#183; N = 1.62"],[67.8,286.3,"q = 1.64 &#183; N = 1.60"],[68.0,286.4,"q = 1.66 &#183; N = 1.58"],[68.3,286.4,"q = 1.68 &#183; N = 1.56"],[68.5,286.5,"q = 1.69 &#183; N = 1.54"],[68.7,286.6,"q = 1.71 &#183; N = 1.52"],[69.0,286.6,"q = 1.73 &#183; N = 1.50"],[69.2,286.7,"q = 1.75 &#183; N = 1.48"],[69.5,286.8,"q = 1.77 &#183; N = 1.47"],[69.7,286.8,"q = 1.79 &#183; N = 1.45"],[70.0,286.9,"q = 1.81 &#183; N = 1.44"],[70.2,286.9,"q = 1.83 &#183; N = 1.44"],[70.5,286.7,"q = 1.85 &#183; N = 1.48"],[70.7,286.0,"q = 1.88 &#183; N = 1.68"],[71.0,283.6,"q = 1.90 &#183; N = 2.32"],[71.3,278.1,"q = 1.92 &#183; N = 3.82"],[71.5,268.4,"q = 1.94 &#183; N = 6.46"],[71.8,256.2,"q = 1.96 &#183; N = 9.78"],[72.1,246.4,"q = 1.98 &#183; N = 12.44"],[72.3,244.5,"q = 2.01 &#183; N = 12.94"],[72.6,251.7,"q = 2.03 &#183; N = 10.98"],[72.9,263.8,"q = 2.05 &#183; N = 7.70"],[73.2,275.0,"q = 2.08 &#183; N = 4.67"],[73.5,282.2,"q = 2.10 &#183; N = 2.70"],[73.8,285.7,"q = 2.12 &#183; N = 1.75"],[74.1,287.0,"q = 2.15 &#183; N = 1.40"],[74.4,287.4,"q = 2.17 &#183; N = 1.30"],[74.7,287.5,"q = 2.20 &#183; N = 1.27"],[75.0,287.5,"q = 2.22 &#183; N = 1.26"],[75.3,287.6,"q = 2.25 &#183; N = 1.25"],[75.6,287.6,"q = 2.27 &#183; N = 1.24"],[75.9,287.6,"q = 2.30 &#183; N = 1.23"],[76.2,287.6,"q = 2.32 &#183; N = 1.23"],[76.5,287.7,"q = 2.35 &#183; N = 1.22"],[76.9,287.7,"q = 2.38 &#183; N = 1.22"],[77.2,287.7,"q = 2.40 &#183; N = 1.21"],[77.5,287.7,"q = 2.43 &#183; N = 1.20"],[77.9,287.7,"q = 2.46 &#183; N = 1.20"],[78.2,287.8,"q = 2.49 &#183; N = 1.19"],[78.6,287.8,"q = 2.52 &#183; N = 1.19"],[78.9,287.8,"q = 2.54 &#183; N = 1.18"],[79.3,287.8,"q = 2.57 &#183; N = 1.18"],[79.6,287.8,"q = 2.60 &#183; N = 1.17"],[80.0,287.9,"q = 2.63 &#183; N = 1.17"],[80.3,287.9,"q = 2.66 &#183; N = 1.16"],[80.7,287.9,"q = 2.69 &#183; N = 1.16"],[81.1,287.9,"q = 2.72 &#183; N = 1.16"],[81.5,287.8,"q = 2.75 &#183; N = 1.18"],[81.9,287.5,"q = 2.78 &#183; N = 1.27"],[82.2,286.1,"q = 2.82 &#183; N = 1.64"],[82.6,282.1,"q = 2.85 &#183; N = 2.73"],[83.0,272.9,"q = 2.88 &#183; N = 5.24"],[83.4,257.0,"q = 2.91 &#183; N = 9.55"],[83.8,237.6,"q = 2.95 &#183; N = 14.84"],[84.2,222.6,"q = 2.98 &#183; N = 18.89"],[84.7,220.6,"q = 3.01 &#183; N = 19.43"],[85.1,232.8,"q = 3.05 &#183; N = 16.12"],[85.5,252.1,"q = 3.08 &#183; N = 10.89"],[85.9,269.4,"q = 3.12 &#183; N = 6.18"],[86.4,280.4,"q = 3.15 &#183; N = 3.20"],[86.8,285.6,"q = 3.19 &#183; N = 1.79"],[87.2,287.4,"q = 3.22 &#183; N = 1.28"],[87.7,288.0,"q = 3.26 &#183; N = 1.14"],[88.1,288.1,"q = 3.30 &#183; N = 1.11"],[88.6,288.1,"q = 3.34 &#183; N = 1.10"],[89.1,288.1,"q = 3.37 &#183; N = 1.10"],[89.5,288.1,"q = 3.41 &#183; N = 1.09"],[90.0,288.1,"q = 3.45 &#183; N = 1.09"],[90.5,288.2,"q = 3.49 &#183; N = 1.09"],[91.0,288.2,"q = 3.53 &#183; N = 1.09"],[91.5,288.2,"q = 3.57 &#183; N = 1.09"],[92.0,288.2,"q = 3.61 &#183; N = 1.08"],[92.5,288.2,"q = 3.65 &#183; N = 1.09"],[93.0,288.1,"q = 3.69 &#183; N = 1.11"],[93.5,287.6,"q = 3.73 &#183; N = 1.24"],[94.0,286.1,"q = 3.78 &#183; N = 1.65"],[94.5,282.1,"q = 3.82 &#183; N = 2.74"],[95.0,274.1,"q = 3.86 &#183; N = 4.90"],[95.6,262.5,"q = 3.91 &#183; N = 8.06"],[96.1,250.9,"q = 3.95 &#183; N = 11.21"],[96.7,245.1,"q = 4.00 &#183; N = 12.78"],[97.2,248.7,"q = 4.04 &#183; N = 11.81"],[97.8,259.4,"q = 4.09 &#183; N = 8.91"],[98.4,271.5,"q = 4.13 &#183; N = 5.62"],[98.9,280.5,"q = 4.18 &#183; N = 3.16"],[99.5,285.4,"q = 4.23 &#183; N = 1.83"],[100.1,287.4,"q = 4.28 &#183; N = 1.28"],[100.7,288.1,"q = 4.32 &#183; N = 1.11"],[101.3,288.2,"q = 4.37 &#183; N = 1.06"],[101.9,288.3,"q = 4.42 &#183; N = 1.06"],[102.5,288.3,"q = 4.47 &#183; N = 1.05"],[103.1,288.3,"q = 4.52 &#183; N = 1.05"],[103.8,288.2,"q = 4.57 &#183; N = 1.07"],[104.4,287.9,"q = 4.63 &#183; N = 1.16"],[105.1,286.5,"q = 4.68 &#183; N = 1.55"],[105.7,281.9,"q = 4.73 &#183; N = 2.78"],[106.4,270.8,"q = 4.79 &#183; N = 5.81"],[107.0,250.1,"q = 4.84 &#183; N = 11.43"],[107.7,222.1,"q = 4.90 &#183; N = 19.04"],[108.4,197.0,"q = 4.95 &#183; N = 25.86"],[109.1,188.2,"q = 5.01 &#183; N = 28.25"],[109.8,201.0,"q = 5.06 &#183; N = 24.77"],[110.5,227.8,"q = 5.12 &#183; N = 17.49"],[111.2,255.0,"q = 5.18 &#183; N = 10.11"],[111.9,273.7,"q = 5.24 &#183; N = 5.01"],[112.6,283.2,"q = 5.30 &#183; N = 2.42"],[113.4,286.9,"q = 5.36 &#183; N = 1.42"],[114.1,288.0,"q = 5.42 &#183; N = 1.12"],[114.9,288.3,"q = 5.48 &#183; N = 1.05"],[115.6,288.3,"q = 5.54 &#183; N = 1.04"],[116.4,288.4,"q = 5.61 &#183; N = 1.03"],[117.2,288.4,"q = 5.67 &#183; N = 1.03"],[118.0,288.4,"q = 5.73 &#183; N = 1.03"],[118.8,288.4,"q = 5.80 &#183; N = 1.03"],[119.6,288.4,"q = 5.86 &#183; N = 1.03"],[120.4,288.4,"q = 5.93 &#183; N = 1.03"],[121.2,288.4,"q = 6.00 &#183; N = 1.03"],[122.0,288.4,"q = 6.07 &#183; N = 1.03"],[122.9,288.4,"q = 6.13 &#183; N = 1.03"],[123.7,288.4,"q = 6.20 &#183; N = 1.03"],[124.6,288.4,"q = 6.27 &#183; N = 1.03"],[125.5,288.4,"q = 6.35 &#183; N = 1.03"],[126.3,288.3,"q = 6.42 &#183; N = 1.06"],[127.2,287.7,"q = 6.49 &#183; N = 1.21"],[128.1,285.5,"q = 6.56 &#183; N = 1.80"],[129.0,279.0,"q = 6.64 &#183; N = 3.59"],[130.0,263.6,"q = 6.71 &#183; N = 7.76"],[130.9,236.5,"q = 6.79 &#183; N = 15.13"],[131.8,202.1,"q = 6.87 &#183; N = 24.48"],[132.8,174.2,"q = 6.95 &#183; N = 32.06"],[133.8,168.3,"q = 7.02 &#183; N = 33.66"],[134.7,187.9,"q = 7.10 &#183; N = 28.32"],[135.7,221.6,"q = 7.18 &#183; N = 19.18"],[136.7,253.1,"q = 7.27 &#183; N = 10.63"],[137.7,273.5,"q = 7.35 &#183; N = 5.07"],[138.8,283.1,"q = 7.43 &#183; N = 2.45"],[139.8,285.8,"q = 7.52 &#183; N = 1.72"],[140.8,284.1,"q = 7.60 &#183; N = 2.18"],[141.9,278.2,"q = 7.69 &#183; N = 3.79"],[143.0,268.0,"q = 7.77 &#183; N = 6.57"],[144.0,255.7,"q = 7.86 &#183; N = 9.91"],[145.1,246.7,"q = 7.95 &#183; N = 12.34"],[146.2,246.2,"q = 8.04 &#183; N = 12.48"],[147.4,254.4,"q = 8.13 &#183; N = 10.25"],[148.5,266.6,"q = 8.23 &#183; N = 6.94"],[149.6,277.1,"q = 8.32 &#183; N = 4.09"],[150.8,282.8,"q = 8.41 &#183; N = 2.54"],[152.0,283.1,"q = 8.51 &#183; N = 2.47"],[153.1,277.0,"q = 8.61 &#183; N = 4.11"],[154.3,263.8,"q = 8.70 &#183; N = 7.70"],[155.5,245.0,"q = 8.80 &#183; N = 12.81"],[156.8,227.3,"q = 8.90 &#183; N = 17.62"],[158.0,220.0,"q = 9.00 &#183; N = 19.61"],[159.2,227.5,"q = 9.11 &#183; N = 17.57"],[160.5,245.3,"q = 9.21 &#183; N = 12.73"],[161.8,264.2,"q = 9.31 &#183; N = 7.61"],[163.1,277.6,"q = 9.42 &#183; N = 3.96"],[164.4,284.6,"q = 9.53 &#183; N = 2.06"],[165.7,287.3,"q = 9.63 &#183; N = 1.31"],[167.1,288.2,"q = 9.74 &#183; N = 1.08"],[168.4,288.4,"q = 9.85 &#183; N = 1.02"],[169.8,288.4,"q = 9.97 &#183; N = 1.02"],[171.2,288.3,"q = 10.08 &#183; N = 1.05"],[172.6,287.7,"q = 10.19 &#183; N = 1.22"],[174.0,285.2,"q = 10.31 &#183; N = 1.90"],[175.4,277.5,"q = 10.43 &#183; N = 3.98"],[176.9,259.3,"q = 10.54 &#183; N = 8.93"],[178.3,226.7,"q = 10.66 &#183; N = 17.79"],[179.8,184.4,"q = 10.78 &#183; N = 29.28"],[181.3,149.1,"q = 10.91 &#183; N = 38.89"],[182.8,139.9,"q = 11.03 &#183; N = 41.36"],[184.4,162.6,"q = 11.16 &#183; N = 35.20"],[185.9,203.7,"q = 11.28 &#183; N = 24.04"],[187.5,243.0,"q = 11.41 &#183; N = 13.35"],[189.1,269.1,"q = 11.54 &#183; N = 6.26"],[190.7,281.9,"q = 11.67 &#183; N = 2.79"],[192.3,286.7,"q = 11.80 &#183; N = 1.50"],[193.9,287.9,"q = 11.94 &#183; N = 1.17"],[195.6,287.3,"q = 12.07 &#183; N = 1.33"],[197.3,283.9,"q = 12.21 &#183; N = 2.23"],[199.0,274.0,"q = 12.35 &#183; N = 4.93"],[200.7,251.7,"q = 12.49 &#183; N = 10.99"],[202.4,214.0,"q = 12.63 &#183; N = 21.24"],[204.2,168.5,"q = 12.77 &#183; N = 33.61"],[205.9,134.8,"q = 12.92 &#183; N = 42.77"],[207.7,131.9,"q = 13.07 &#183; N = 43.56"],[209.6,161.6,"q = 13.21 &#183; N = 35.48"],[211.4,206.7,"q = 13.36 &#183; N = 23.21"],[213.2,246.6,"q = 13.52 &#183; N = 12.38"],[215.1,271.4,"q = 13.67 &#183; N = 5.64"],[217.0,282.9,"q = 13.82 &#183; N = 2.50"],[218.9,287.0,"q = 13.98 &#183; N = 1.39"],[220.9,288.2,"q = 14.14 &#183; N = 1.08"],[222.9,288.4,"q = 14.30 &#183; N = 1.02"],[224.8,288.5,"q = 14.46 &#183; N = 1.01"],[226.8,288.4,"q = 14.63 &#183; N = 1.01"],[228.9,288.3,"q = 14.79 &#183; N = 1.05"],[230.9,287.8,"q = 14.96 &#183; N = 1.20"],[233.0,286.0,"q = 15.13 &#183; N = 1.69"],[235.1,281.4,"q = 15.30 &#183; N = 2.91"],[237.2,272.8,"q = 15.47 &#183; N = 5.25"],[239.4,260.6,"q = 15.65 &#183; N = 8.58"],[241.6,248.1,"q = 15.83 &#183; N = 11.98"],[243.8,238.7,"q = 16.01 &#183; N = 14.53"],[246.0,230.0,"q = 16.19 &#183; N = 16.88"],[248.2,212.8,"q = 16.37 &#183; N = 21.56"],[250.5,179.8,"q = 16.56 &#183; N = 30.53"],[252.8,138.7,"q = 16.75 &#183; N = 41.70"],[255.1,112.1,"q = 16.94 &#183; N = 48.93"],[257.5,119.5,"q = 17.13 &#183; N = 46.92"],[259.9,158.8,"q = 17.32 &#183; N = 36.24"],[262.3,208.8,"q = 17.52 &#183; N = 22.65"],[264.7,247.8,"q = 17.72 &#183; N = 12.07"],[267.2,265.4,"q = 17.92 &#183; N = 7.27"],[269.7,259.9,"q = 18.12 &#183; N = 8.77"],[272.2,231.1,"q = 18.33 &#183; N = 16.58"],[274.7,183.6,"q = 18.54 &#183; N = 29.51"],[277.3,133.5,"q = 18.75 &#183; N = 43.13"],[279.9,106.0,"q = 18.96 &#183; N = 50.59"],[282.5,117.6,"q = 19.17 &#183; N = 47.42"],[285.2,161.3,"q = 19.39 &#183; N = 35.56"],[287.9,213.2,"q = 19.61 &#183; N = 21.46"],[290.6,253.0,"q = 19.84 &#183; N = 10.63"],[293.4,275.2,"q = 20.06 &#183; N = 4.61"],[296.2,284.5,"q = 20.29 &#183; N = 2.07"],[299.0,287.5,"q = 20.52 &#183; N = 1.26"],[301.8,288.3,"q = 20.75 &#183; N = 1.05"],[304.7,288.4,"q = 20.99 &#183; N = 1.03"],[307.6,287.9,"q = 21.22 &#183; N = 1.15"],[310.6,285.9,"q = 21.47 &#183; N = 1.70"],[313.6,279.1,"q = 21.71 &#183; N = 3.56"],[316.6,261.2,"q = 21.96 &#183; N = 8.42"],[319.6,225.6,"q = 22.20 &#183; N = 18.10"],[322.7,173.1,"q = 22.46 &#183; N = 32.34"],[325.9,120.3,"q = 22.71 &#183; N = 46.69"],[329.0,93.5,"q = 22.97 &#183; N = 53.99"],[332.2,108.1,"q = 23.23 &#183; N = 50.01"],[335.4,153.9,"q = 23.49 &#183; N = 37.58"],[338.7,202.3,"q = 23.76 &#183; N = 24.43"],[342.0,229.0,"q = 24.03 &#183; N = 17.17"],[345.3,227.3,"q = 24.30 &#183; N = 17.62"],[348.7,208.0,"q = 24.58 &#183; N = 22.86"],[352.1,190.4,"q = 24.86 &#183; N = 27.65"],[355.6,189.9,"q = 25.14 &#183; N = 27.80"],[359.1,207.5,"q = 25.42 &#183; N = 23.00"],[362.6,230.8,"q = 25.71 &#183; N = 16.69"],[366.2,244.3,"q = 26.00 &#183; N = 13.00"],[369.8,242.0,"q = 26.30 &#183; N = 13.63"],[373.4,229.5,"q = 26.60 &#183; N = 17.02"],[377.1,218.9,"q = 26.90 &#183; N = 19.90"],[380.9,217.9,"q = 27.21 &#183; N = 20.17"],[384.7,221.4,"q = 27.51 &#183; N = 19.24"],[388.5,213.6,"q = 27.83 &#183; N = 21.34"],[392.3,181.8,"q = 28.14 &#183; N = 29.99"],[396.3,131.0,"q = 28.46 &#183; N = 43.78"],[400.2,86.5,"q = 28.78 &#183; N = 55.88"],[404.2,74.7,"q = 29.11 &#183; N = 59.09"],[408.3,97.2,"q = 29.44 &#183; N = 52.98"],[412.3,125.9,"q = 29.78 &#183; N = 45.18"]]};
+  function hook(svgSel, tipId, lineId, dotId, data) {
+    var svg = document.querySelector(svgSel);
+    if (!svg) return;
+    var wrap = svg.closest('.fig-frame');
+    var tip = document.getElementById(tipId);
+    var line = document.getElementById(lineId);
+    var dot = document.getElementById(dotId);
+    if (!wrap || !tip || !line || !dot) return;
+    var vb = svg.viewBox.baseVal;
+    function move(ev) {
+      var r = svg.getBoundingClientRect();
+      var px = (ev.clientX - r.left) * vb.width / r.width;
+      var best = 0, bd = 1e9;
+      for (var i = 0; i < data.length; i++) {
+        var d = Math.abs(data[i][0] - px);
+        if (d < bd) { bd = d; best = i; }
+      }
+      var p = data[best];
+      line.setAttribute('x1', p[0]); line.setAttribute('x2', p[0]);
+      line.removeAttribute('visibility');
+      dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]);
+      dot.removeAttribute('visibility');
+      tip.innerHTML = p[2];
+      tip.style.display = 'block';
+      var wr = wrap.getBoundingClientRect();
+      var sx = r.width / vb.width;
+      var lx = (r.left - wr.left) + p[0] * sx + 12;
+      if (lx + tip.offsetWidth > wr.width - 8) lx = lx - tip.offsetWidth - 24;
+      tip.style.left = lx + 'px';
+      tip.style.top = ((r.top - wr.top) + p[1] * (r.height / vb.height) - 34) + 'px';
+    }
+    function leave() {
+      tip.style.display = 'none';
+      line.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+    }
+    svg.addEventListener('mousemove', move);
+    svg.addEventListener('mouseleave', leave);
+  }
+  hook('svg:has(#pline)', 'ptip', 'pline', 'pdot', H.p);
+})();
+</script>
+</body>
+</html>

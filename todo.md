@@ -53,6 +53,13 @@ Survey of the physics literature against each gap, litmus-tested against Corolla
 - [x] **F.5.** Connes–Consani window \([2^{-1/2},2^{1/2}]\) is the prime-free regime of the explicit formula; first prime at \(\lambda=2\). Lemma F.5.
 - [x] **F.6.** Gauss sums: the (M)-locus is a finite set inside the additive basis. Lemma F.6.
 - [x] **F.7.** Fisher zeros of \(\eta_N^{(N^2)}\), \(N\le20\): \(\sigma>1\) zeros are clock zeros of \(1-N^{1-s}\); near-line zeros within the Rouché disk of the Riemann zeros. `quantum_fisher_zeros_test.py`.
+- [x] **F.8.** Clock zeros: the \(\sigma>1\) zeros of \(\eta_N^{(N^2)}\) are the zeros of \(1-N^{1-s}\), displaced \(O((1+t)\log t/(N\log N))\), never anchors. Lemma F.8.
+- [x] **F.9 (corollary).** Uniform prefactor/depth/speed/Marty clauses on \(|\gamma|\le N^{1/2-\varepsilon}/C_1\) for fixed \(\varepsilon>13/194\), by Bourgain. Isolation stays per zero.
+- [x] **F.10.** Landau–Gonek on the register: \(\sum_{\gamma\le T}\eta_N(\rho)=N(T)-\tfrac{T}{2\pi}S_N+O(N^4\log(NT)\log\log N)\). First \(\Lambda\) in the paper; sign passes the litmus, form does not; regime disjoint from the window.
+- [ ] **(a)** Gonek–Ledoan bound for \(\eta_N\): \(N_\eta(\sigma,T)\ll TN^{2(1-2\sigma)}\log^6T\). Bookkeeping.
+- [ ] **(b)** Transfer-operator form of the nested fibres; sign of the induced couplings at small \(N\). Finite computation; the computable part of F.4. Try first.
+- [ ] **(c)** Heat-flowed polygon \(\sum c_m e^{\tau(\log m)^2}m^{-s}\): zeros against \(\tau\) on the window.
+- [ ] **(d)** Twist form of Lemma F.8 via Lemma 9.4 at clock points avoiding zeros of \(f\).
 - [ ] **F.4 (open).** A Lee–Yang property for \(\eta_N^{(N^2)}\): a ferromagnetic system whose finite partition functions are the polygon, or any reweighting confining every finite zero to a line. Passes the litmus. Known boundary: plain partial sums have zeros in \(\sigma>1\) (Montgomery) and cluster to the line without lying on it (Gonek–Ledoan); Bombieri–Hejhal show density statements cannot see a density-zero off-line set, so the property would have to be pointwise.
 - [ ] **Uniform slow passage on the window.** Needs \(\lvert\zeta'(\rho)\rvert\le N^{\varepsilon}\) for \(\lvert\gamma\rvert\le N^{1/2-\varepsilon}\); random-matrix prediction (Hughes–Keating–O'Connell) says yes. Conjectural; not used by any theorem.
 - [ ] **Past the first prime.** Extending archimedean Weil positivity beyond \(\lambda=2\) is importing (M); the paper's aperture is the same parameter. Not a polygon problem.

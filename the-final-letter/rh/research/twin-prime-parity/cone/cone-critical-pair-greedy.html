@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The critical cone — radial decay as an index coordinate, the pair-greedy rule, and the residue at p = 1/2</title>
+<style>
+:root{--ink:#12161c;--ink2:#3c4552;--ink3:#6b7686;--rule:#dfe4ea;--bg:#fff;--bg2:#f8fafc;
+--accent:#1f4e79;--ok:#1c6b3a;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:17.5px;line-height:1.62}
+.wrap{max-width:860px;margin:0 auto;padding:56px 28px 120px}
+code,pre{font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+code{font-size:.88em;background:var(--bg2);border:1px solid var(--rule);border-radius:3px;padding:.5px 4px}
+pre{background:var(--bg2);border:1px solid var(--rule);border-left:3px solid var(--accent);
+ padding:14px 18px;overflow-x:auto;font-size:14px;line-height:1.5}
+pre code{background:none;border:0;padding:0}
+h1{font-size:30px;line-height:1.22;font-weight:600;letter-spacing:-.01em;margin:0 0 18px}
+h2{font-size:22px;margin:46px 0 8px;font-weight:600;border-bottom:1px solid var(--rule);padding-bottom:8px}
+h3{font-size:18.5px;margin:32px 0 6px}
+h4{font-size:16px;margin:24px 0 4px;color:var(--ink2)}
+p{margin:12px 0}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid #c9d8e8}
+ul,ol{margin:12px 0;padding-left:26px}li{margin:5px 0}
+table{border-collapse:collapse;width:100%;margin:18px 0;font-size:15.5px}
+th,td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--bg2);font-weight:600}
+tr:nth-child(even) td{background:#fcfdfe}
+blockquote{margin:18px 0;padding:14px 20px;background:var(--bg2);
+ border-left:3px solid var(--accent);border-radius:2px}
+blockquote p{margin:0;font-size:17px}
+hr{border:0;border-top:1px solid var(--rule);margin:40px 0}
+.title-meta{font-size:14px;color:var(--ink3);margin:-6px 0 26px}
+.footer{margin-top:60px;padding-top:18px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>The critical cone: radial decay as an index coordinate, the pair-greedy rule, and the residue at <code>p = 1/2</code></h1>
+<p><strong>Twin-prime-parity programme · cone note 001.</strong> A standalone note on a real (complex-free) lift of the signed greedy expansion, the radial-pair greedy rule it suggests, and the numerical location of the two-point residue.</p>
+<table>
+<thead><tr><th></th><th></th></tr></thead>
+<tbody>
+<tr><td><strong>object</strong></td><td>the cone <code>C_n = (n^{−p} cos(t log n), n^{−p} sin(t log n), n) ∈ ℝ³</code> and its pair algebra</td></tr>
+<tr><td><strong>new threshold</strong></td><td>the radial-pair completeness threshold <code>p_pair = 1.4740898895836146046…</code>, root of <code>ζ(p) = 2 + 2^{1−p}</code></td></tr>
+<tr><td><strong>ordering</strong></td><td><code>pN &lt; pP &lt; p_pair &lt; p* &lt; q</code> (all five values certified at 50 dps)</td></tr>
+<tr><td><strong>critical cone</strong></td><td><code>p = 1/2</code>; the two-point mean value is the residue of the cone pair transform there</td></tr>
+<tr><td><strong>numerical verdict</strong></td><td>the critical-cone pair series converges to <code>−0.8637…</code>; the residue estimate is <code>0</code> (finite range, <code>N = 10⁸</code>)</td></tr>
+<tr><td><strong>formalisation</strong></td><td><code>lean/ConeLean/</code> (Lean 4 + Mathlib): <strong>machine-checked, no <code>sorry</code>, no new axioms</strong> — cone core, one-power dichotomy, strict antitonicity of <code>Ψ</code>, the certified brackets and tails, <code>pP &lt; p_pair &lt; p*</code>, the pairing identity, Brown's <code>k = 0</code> condition <code>⟺ Ψ(p) ≥ 0</code>, the all-k conditions at <code>k ≥ 1</code>, the census mechanism with its gap lemma, the machine-checked equivalence of <code>Σλ(n)λ(n+2) = o(x)</code> with the four-density-<code>1/4</code> statement (conditional on the one-point input), and the Cesàro ⟹ Abel reduction for the cone residue</td></tr>
+<tr><td><strong>status of the target</strong></td><td>the open statement <code>Σ_{n≤x} λ(n)λ(n+2) = o(x)</code> is <strong>not</strong> proved here</td></tr>
+</tbody></table>
+<hr>
+<h2>Abstract</h2>
+<p>The rh42 budgets live on a signed alphabet <code>α_n = (−1)^n (n+2)^{−p}</code>; the associated helix has <strong>unit</strong> radius, so it carries no index coordinate and the word factors through the height <code>sin(2πθ)</code>.  Replacing the unit radius by the radial decay <code>n^{−p}</code> opens the helix into a <strong>cone</strong> whose reciprocal radius is the index <code>n</code>: the helix is the degenerate <code>p = 0</code> cone, and the index becomes a geometric coordinate. On the cone the additive shift <code>n ↦ n+2</code> is an exact radial map on the same ray, and a pair acquires two canonical real invariants: the symmetric pair weight <code>r_n r_{n+2} = (n(n+2))^{−p}</code> and the antisymmetric separation <code>r_n − r_{n+2} ≤ 2p n^{−p−1}</code>.</p>
+<p>Two consequences are proved or certified here.</p>
+<ol><li><strong>The one-power dichotomy.</strong>  Differencing along the shift costs exactly one power</li></ol>
+<p>of <code>n</code>, so the shift-antisymmetric channel is absolutely convergent for every <code>p &gt; 0</code> and never sees the mean value; the mean value lives only in the undifferenced pair weight, whose critical exponent is <code>p = 1/2</code>.</p>
+<ol><li><strong>The pair-greedy threshold.</strong>  Grouping the positive half-series into consecutive</li></ol>
+<p>radial pairs gives the pair alphabet <code>a_k = (4k+2)^{−p} + (4k+4)^{−p}</code>.  Brown's first completeness condition is the binding one (verified for <code>k = 0..7</code>), and it reads <code>ζ(p) ≥ 2 + 2^{1−p}</code>.  Its root <code>p_pair = 1.4740898896…</code> slots strictly between the positive-endpoint threshold <code>pP = 1.4649845878…</code> and the positive-half completeness threshold <code>p* = 1.7286472390…</code>.</p>
+<p>The ordering <code>pP &lt; p_pair &lt; p*</code> is now a <strong>Lean theorem</strong> (<code>ConeLean.pair_threshold_between</code>, no <code>sorry</code>); the numerically certified inputs it consumes are the four brackets of §3.2 and the constant of §3.3, all of which are proved inside the same development.</p>
+<p>Numerically (real arithmetic only, <code>N = 10⁸</code>): the critical-cone pair series <code>Σ λ(n)λ(n+2)/√(n(n+2))</code> <strong>converges</strong> to <code>−0.8637…</code>; the residue ladder <code>K(ε) = ε Σ f(n)(n(n+2))^{−(1+ε)/2} → 0</code>; and the <em>majorant</em> of the same cone has residue <code>1</code> regardless of the mean value.  That contrast is the parity obstruction drawn on the cone: the only pole real-variable positivity can force at <code>p = 1/2</code> is the spurious majorant pole.</p>
+<hr>
+<h2>1. The cone</h2>
+<p>Fix a real decay exponent <code>p &gt; 0</code> and a real angular parameter <code>t</code>.  Place the <code>n</code>-th term of a Dirichlet-type expansion at</p>
+<pre><code>C_n(t) = ( n^{−p} cos(t log n),  n^{−p} sin(t log n),  n )  ∈ ℝ³ ,   n = 1, 2, 3, …</code></pre>
+<p>with <strong>sheet coordinates</strong> <code>(r, φ, h) = (n^{−p}, t log n, n)</code>.  The points lie on the cone <code>r = h^{−p}</code>.</p>
+<blockquote><p><strong>Only real numbers are used.</strong>  <code>cos</code>, <code>sin</code> and <code>n^{−p}</code> are real functions; no complex number, no analytic continuation and no phase <code>n^{it}</code> is required.  The signed (Tau) alphabet is the case <code>φ_n = πn + t log n</code>, since <code>cos(πn + ψ) = (−1)^n cos ψ</code>.</p></blockquote>
+<p>Three facts, all with short proofs (formalised in <code>lean/ConeLean/Cone.lean</code>).</p>
+<p><strong>1.1 The index is a coordinate.</strong>  The map <code>n ↦ C_n(t)</code> is injective, and the readout is <code>n = r^{−1/p}</code> (for <code>p = 1</code>, <code>n = 1/r</code>).  Every term has its own radius, so the expansion is decodable term by term.</p>
+<p><em>Proof.</em>  <code>(n^{−p})^{−1/p} = n^{(−p)(−1/p)} = n</code>, and <code>r_n = 0</code> only for <code>n = 0</code>. ∎</p>
+<p><strong>1.2 The helix is the <code>p = 0</code> cone.</strong>  At <code>p = 0</code>, <code>r ≡ 1</code> and the readout is constant: no index information.  This is exactly rh42's "the word cannot see the turns" — the helix is the zero-decay cone, and adding radial decay is what restores the lost coordinate.</p>
+<p><strong>1.3 Cone dictionary.</strong>  The one-point weight is <code>n^{−p}</code> (the line <code>σ = p</code> of the Dirichlet series); the pair weight is <code>(n(n+2))^{−p}</code> (the line <code>σ = 2p</code>).</p>
+<table>
+<thead><tr><th>cone <code>p</code></th><th>one-point weight</th><th>pair weight</th><th>status</th></tr></thead>
+<tbody>
+<tr><td><code>p = 0</code></td><td><code>1</code> — the helix; no decay, no index</td><td><code>1</code></td><td>index invisible</td></tr>
+<tr><td><code>p = 1</code></td><td><code>σ = 1</code>, the pole/log line; <code>Σ λ(n)/n = 0</code> (PNT)</td><td><code>σ = 2</code>, absolutely convergent</td><td>greedy mass <code>= x</code>; pair a computable number</td></tr>
+<tr><td><code>p = 1/2</code></td><td><code>σ = 1/2</code>, the critical line (rh43; <code>√N</code> error)</td><td><code>σ = 1</code>, the log-average regime</td><td>log-average a theorem (Tao); the <strong>residue</strong> open</td></tr>
+<tr><td><code>p &gt; 1</code></td><td><code>σ &gt; 1</code>, the rh42 budget range</td><td><code>σ &gt; 1</code></td><td>budgets, Brown's criterion, thresholds</td></tr>
+<tr><td><code>1/2 &lt; p ≤ 1</code></td><td>one-point divergent: <strong>no budget theory</strong></td><td>pair convergent</td><td>a new window: the pair is computable where budgets are not</td></tr>
+</tbody></table>
+<p>On the harmonic cone <code>p = 1</code> the radii <em>are</em> the terms, so for a rational target <code>Σ_{m∈A} 1/m = x</code> exactly; verified for <code>1 ↦ {2,3,6}</code>, <code>2/3 ↦ {2,6}</code>, <code>7/11 ↦ {2,8,88}</code>, and four more targets (see §5).</p>
+<hr>
+<h2>2. The two channels, and the one-power dichotomy</h2>
+<p>The shift <code>n ↦ n+2</code> sends <code>h ↦ h+2</code>, <code>1/r ↦ 1/r + 2</code> (exact), <code>r ↦ r·(n/(n+2))^p</code>, and on the Tau alphabet it preserves the sign: <code>(−1)^{n+2} = (−1)^n</code>.  So <strong><code>n</code> and <code>n+2</code> lie on the same ray of the cone</strong>, two sheets apart.  The pair has two canonical real invariants.</p>
+<table>
+<thead><tr><th>channel</th><th>invariant</th><th>contraction with <code>f(n) = λ(n)λ(n+2)</code></th><th>behaviour</th></tr></thead>
+<tbody>
+<tr><td><strong>symmetric</strong></td><td>pair weight <code>r_n r_{n+2} = (n(n+2))^{−p}</code></td><td><code>C_f(p) = Σ f(n)(n(n+2))^{−p}</code></td><td>pole at the critical cone <code>p = 1/2</code></td></tr>
+<tr><td><strong>antisymmetric</strong></td><td>separation <code>r_n − r_{n+2} ≤ 2p n^{−p−1}</code></td><td><code>B(p) = Σ f(n)(r_n − r_{n+2})</code></td><td>absolutely convergent for <strong>every</strong> <code>p &gt; 0</code></td></tr>
+</tbody></table>
+<p><strong>Lemma 1 (one-power dichotomy).</strong>  For <code>p &gt; 0</code> and <code>n ≥ 1</code>,</p>
+<pre><code>0 ≤ n^{−p} − (n+2)^{−p} = n^{−p}(1 − (1 + 2/n)^{−p}) ≤ 2p n^{−p−1} ,</code></pre>
+<p>so <code>Σ_n |n^{−p} − (n+2)^{−p}| &lt; ∞</code> for every <code>p &gt; 0</code>.</p>
+<p><em>Proof.</em>  The function <code>x ↦ (1+x)^{−p}</code> is convex on <code>[0,∞)</code>; its tangent at <code>0</code> is <code>1 − px</code>, so <code>(1+2/n)^{−p} ≥ 1 − 2p/n</code>, giving the bound; <code>Σ n^{−p−1}</code> converges because <code>p + 1 &gt; 1</code>.  (Equivalently, the mean value theorem on <code>[n, n+2]</code> for <code>x ↦ x^{−p}</code>: <code>|f(n+2) − f(n)| ≤ 2·sup|f′| = 2p n^{−p−1}</code>.)  ∎</p>
+<p><strong>Corollary 2.</strong>  For every bounded <code>f</code>, the shift-difference channel <code>B(p)</code> is absolutely convergent for every <code>p &gt; 0</code>, <em>before any cancellation in <code>f</code> is used</em>. Hence:</p>
+<blockquote><p><strong>the mean value of <code>λ(n)λ(n+2)</code> lives only in the undifferenced (symmetric) pair weight.</strong>  Any statistic that differences along the shift has abscissa one lower and cannot see it.</p></blockquote>
+<p>At <code>p = 1</code> the two invariants coincide up to a factor: <code>1/n − 1/(n+2) = 2/(n(n+2))</code>, so <code>B(1) = 2 C_f(1)</code> exactly (numerically <code>B(1) = −0.7855111755</code>, <code>2C_f(1) = −0.7855111755</code>).</p>
+<hr>
+<h2>3. The pair-greedy rule, and a new threshold</h2>
+<h3>3.1 The rule</h3>
+<p><strong>Definition 3 (radial-pair alphabet).</strong>  The positive half-series is <code>P(p) = Σ_{m even ≥ 2} m^{−p} = 2^{−p} ζ(p)</code>.  Group it into <em>consecutive radial pairs</em> — the pairs <code>{2,4}, {6,8}, {10,12}, …</code> of even sheets, all of which lie on the same ray of the cone:</p>
+<pre><code>a_k = (4k+2)^{−p} + (4k+4)^{−p} ,      k = 0, 1, 2, … ,      Σ_k a_k = P(p) .</code></pre>
+<p><em>(Scalar form; for <code>t ≠ 0</code> replace each term by its vector <code>v_n = n^{−p}(cos(t log n), sin(t log n))</code> and the pair by the resultant <code>w_k = v_{4k+2} + v_{4k+4}</code>; for large <code>k</code> the pair is nearly radial and <code>|w_k| → a_k</code>.)</em></p>
+<p><strong>Definition 4 (cone pair-greedy rule).</strong>  Fix <code>p &gt; 0</code> and a target <code>x ∈ [0, 1]</code>. Put <code>r_0 = x</code>.  At pair index <code>k = 0, 1, 2, …</code>:</p>
+<ul><li><strong>take</strong> the pair iff <code>r_k ≥ a_k</code> (same ray, no overshoot), then <code>r_{k+1} = r_k − a_k</code>;</li><li>otherwise <strong>skip it permanently</strong>, <code>r_{k+1} = r_k</code>.</li></ul>
+<p>The decision uses the pair's <em>radial coordinate</em> (its length and its position in the pair sequence).  The rule is the greedy on the decreasing positive sequence <code>(a_k)</code>, so its reachable set is the set of sub-sums of <code>(a_k)</code>.</p>
+<h3>3.2 The completeness threshold</h3>
+<p><strong>Brown's criterion.</strong>  The sub-sums of a positive decreasing sequence <code>(a_k)</code> fill <code>[0, Σ a_k]</code> iff <code>a_k ≤ Σ_{j&gt;k} a_j</code> for every <code>k</code>.  For the pair alphabet the condition at <code>k = 0</code> is the binding one, and this is now a <strong>theorem</strong> for <code>1 &lt; p ≤ 3/2</code> (<code>pair_brown_all_k</code> in <a href="../../../lean/ConeLean/PairCensus.lean"><code>lean/ConeLean/PairCensus.lean</code></a>: every <code>k ≥ 1</code> condition holds), together with the equivalence <code>a_0 ≤ Σ_{j≥1} a_j ⟺ Ψ(p) ≥ 0</code> (<code>pair_brown_zero_iff</code>).  Numerically the ratios <code>a_k / Σ_{j&gt;k} a_j</code> are <code>1.0000, 0.3173, 0.1896, 0.1353, …</code> at <code>p = p_pair</code>, so <code>k = 0</code> is binding and later conditions are slack by a factor <code>≥ 3</code> (<code>3.15</code> at <code>p = p_pair</code>):</p>
+<pre><code>k = 0 :  a_0 ≤ P(p) − a_0   ⟺   2(2^{−p} + 4^{−p}) ≤ 2^{−p} ζ(p)
+                            ⟺   ζ(p) ≥ 2 + 2^{1−p} .</code></pre>
+<p><strong>Proposition 5 (the pair threshold).</strong>  The pair-greedy rule is complete at exponent <code>p</code> iff (first condition) <code>ζ(p) ≥ 2 + 2^{1−p}</code>.  Since <code>ζ</code> is strictly decreasing and the right side is strictly decreasing, the first condition is equivalent to <code>p ≤ p_pair</code>, where</p>
+<pre><code>p_pair = 1.4740898895836146046…      (ζ(p_pair) = 2 + 2^{1−p_pair}, 50 dps)</code></pre>
+<p><em>Location.</em>  The bracket <code>22/15 &lt; p_pair &lt; 3/2</code> holds, with certified values</p>
+<table>
+<thead><tr><th><code>p</code></th><th><code>Ψ(p) = ζ(p) − 2 − 2^{1−p}</code></th><th><code>P(p) = 2^{−p}ζ(p)</code></th></tr></thead>
+<tbody>
+<tr><td><code>22/15 = 1.4666…</code></td><td><code>+0.0293334</code></td><td><code>0.9960715</code></td></tr>
+<tr><td><code>147/100 = 1.47</code></td><td><code>+0.0160328</code></td><td><code>0.9883686</code></td></tr>
+<tr><td><code>p_pair = 1.4740899</code></td><td><code>0</code></td><td><code>0.9790638</code></td></tr>
+<tr><td><code>149/100 = 1.49</code></td><td><code>−0.0595115</code></td><td><code>0.9443281</code></td></tr>
+<tr><td><code>3/2 = 1.5</code></td><td><code>−0.0947314</code></td><td><code>0.9236142</code></td></tr>
+</tbody></table>
+<h3>3.3 The five thresholds</h3>
+<table>
+<thead><tr><th>threshold</th><th>equation</th><th>value</th><th>meaning</th></tr></thead>
+<tbody>
+<tr><td><code>pN</code></td><td><code>(1−2^{−p})ζ(p) = 2</code></td><td><code>1.3777851698375411838</code></td><td>negative budget reaches <code>1</code>: <code>sin = −1</code> writable</td></tr>
+<tr><td><code>pP</code></td><td><code>2^{−p}ζ(p) = 1</code></td><td><code>1.4649845878051603837</code></td><td>positive budget reaches <code>1</code>: <code>sin = +1</code> writable</td></tr>
+<tr><td><strong><code>p_pair</code></strong></td><td><code>ζ(p) = 2 + 2^{1−p}</code></td><td><strong><code>1.4740898895836146046</code></strong></td><td><strong>the radial-pair greedy is complete</strong></td></tr>
+<tr><td><code>p*</code></td><td><code>ζ(p) = 2</code></td><td><code>1.7286472389981836181</code></td><td>positive half complete (rh41's threshold)</td></tr>
+<tr><td><code>q</code></td><td><code>N(p) = 2·3^{−p}</code></td><td><code>2.0767751792106867148</code></td><td>negative half complete</td></tr>
+</tbody></table>
+<blockquote><p><strong><code>pN &lt; pP &lt; p_pair &lt; p* &lt; q</code>.</strong>  Verified to 20 digits.  The cone contributes the middle entry: grouping the positive half into radial pairs is a <em>coarsening</em>, so the pair rule loses completeness strictly earlier than the single-term rule (<code>p_pair &lt; p*</code>), but strictly later than the endpoint budget fails (<code>pP &lt; p_pair</code>).</p></blockquote>
+<p><em>Why the ordering is not free.</em>  <code>Ψ(p) = ζ(p) − 2 − 2^{1−p}</code> is a difference of two decreasing functions, so monotonicity must be earned: <code>Ψ</code> is strictly decreasing on <code>[7/5, 8/5]</code> because the one-power bound of Lemma 1 applied at <code>n = 3, 4</code> beats the loss at <code>n = 2</code>:</p>
+<pre><code>Ψ(p) − Ψ(q) = Σ_{k≥0} [ (k+3)^{−p} − (k+3)^{−q} ] − (2^{−p} − 2^{−q})
+            ≥ (q−p) [ log 3 · 3^{−8/5} + log 4 · 4^{−8/5} − log 2 · 2^{−7/5} ]  &gt;  0 ,</code></pre>
+<p>the bracket being <code>≥ 0.1721 + 0.1086 − 0.2667 = 0.0140 &gt; 0</code> on <code>[7/5, 8/5]</code>. Strict antitonicity of <code>Ψ</code> on <code>[7/5, 8/5]</code>, the bracket <code>22/15 &lt; p_pair &lt; 3/2</code>, and the endpoint comparison <code>P(22/15) &lt; 1</code> then give <code>pP &lt; p_pair &lt; p*</code> by trichotomy.</p>
+<hr>
+<h2>4. The critical cone <code>p = 1/2</code></h2>
+<h3>4.1 The transform and its residue</h3>
+<p>Define the <strong>cone pair transform</strong></p>
+<pre><code>C_f(p) = Σ_{n≥1} λ(n) λ(n+2) (n(n+2))^{−p} ,        absolutely convergent for p &gt; 1/2 .</code></pre>
+<p>Partial summation with <code>S(x) = Σ_{n≤x} f(n)</code>, <code>f(n) = λ(n)λ(n+2)</code>, gives</p>
+<pre><code>C_f(p) = 2p ∫_1^∞ S(x) x^{−2p−1} (1 + O(1/x)) dx ,</code></pre>
+<p>hence, as <code>p ↓ 1/2</code> (write <code>ε = 2p − 1</code>):</p>
+<ul><li><code>S(x) ~ c x</code> (positive density) <code>⟹ C_f(p) ~ 2pc/ε</code>, i.e. <code>ε C_f(p) → c</code>;</li><li><code>S(x) = o(x)</code> <code>⟹ C_f(p) = o(1/ε)</code>, i.e. <code>ε C_f(p) → 0</code>.</li></ul>
+<blockquote><p><strong>The two-point mean value is the residue of the cone pair transform at the critical cone <code>p = 1/2</code>.</strong>  In cone coordinates, two-point Chowla for the shift <code>2</code> is the statement <em>"the cone pair transform has no pole at <code>p = 1/2</code>"</em>.</p></blockquote>
+<h3>4.2 What is a theorem on the critical cone</h3>
+<p>At <code>p = 1/2</code> the pair weight differs from the log-Chowla weight by an absolutely summable error:</p>
+<pre><code>|1/√(n(n+2)) − 1/n| ≤ 1/n²     (because 1/(n+2) ≤ 1/√(n(n+2)) ≤ 1/n and
+                                1/n − 1/(n+2) = 2/(n(n+2)) ≤ 2/n²),</code></pre>
+<p>so for bounded <code>f</code>, <code>Σ f(n)/√(n(n+2)) = Σ f(n)/n + O(1)</code>, and Tao's logarithmic Chowla theorem gives</p>
+<pre><code>Σ_{n≤x} f(n)/√(n(n+2)) = o(log x) .</code></pre>
+<p>The antisymmetric channel is even better behaved (Lemma 1 and Corollary 2): absolutely convergent.  So <strong>everything readable on the critical cone is theorem-level</strong>; only the <em>residue</em> — the mean value — is open.</p>
+<h3>4.3 The parity obstruction, drawn on the cone</h3>
+<p>The majorant of the same cone is <code>Σ 1/√(n(n+2))</code>, which grows like <code>log x</code> (§5: <code>0.9800 · log x</code> at <code>x = 10⁸</code>).  Its residue is <code>1</code>:</p>
+<pre><code>lim_{ε↓0} ε Σ_{n≥1} (n(n+2))^{−(1+ε)/2} = 1 ,</code></pre>
+<p>independently of the mean value of <code>f</code>.  So the only pole that non-negativity arguments (Landau, Wiener–Ikehara) can force at <code>p = 1/2</code> is the <strong>spurious majorant pole</strong>; the signed series need not have one, and numerically it does not.  This is the parity obstruction in cone coordinates: the <em>positivity</em> is in the majorant, not in the correlation.</p>
+<hr>
+<h2>5. Numerics (<code>N = 10⁸</code>, real arithmetic only)</h2>
+<p><code>λ</code> is sieved as <code>(−1)^{Ω(n)}</code> by a prime-power sieve; <code>f(n) = λ(n)λ(n+2)</code>.  Script: <a href="cone_critical_probe.py"><code>cone_critical_probe.py</code></a>; log: <a href="verify/cone_critical_probe.log"><code>verify/cone_critical_probe.log</code></a>.</p>
+<h3>5.1 The residue ladder</h3>
+<p><code>K(ε) = ε Σ_{n≤M} f(n) (n(n+2))^{−(1+ε)/2}</code>, with the rigorous truncation bar <code>≤ M^{−ε}</code> (since <code>ε Σ_{n&gt;M} n^{−2p} ≤ M^{−ε}</code>).  <code>K(ε) → c = lim S(x)/x</code>.</p>
+<table>
+<thead><tr><th><code>ε</code></th><th><code>p = 1/2 + ε/2</code></th><th><code>K(ε)</code></th><th>bar <code>M^{−ε}</code></th><th>majorant <code>K_maj(ε)</code></th><th>plain <code>R(ε)</code></th></tr></thead>
+<tbody>
+<tr><td><code>0.5</code></td><td><code>0.75</code></td><td><code>−0.28056916</code></td><td><code>1.0·10⁻⁴</code></td><td><code>0.86415674</code></td><td><code>−0.59599873</code></td></tr>
+<tr><td><code>0.3</code></td><td><code>0.65</code></td><td><code>−0.19816356</code></td><td><code>4.0·10⁻³</code></td><td><code>0.91118155</code></td><td><code>−0.37222752</code></td></tr>
+<tr><td><code>0.2</code></td><td><code>0.60</code></td><td><code>−0.14404386</code></td><td><code>2.5·10⁻²</code></td><td><code>0.91702033</code></td><td><code>−0.25457550</code></td></tr>
+<tr><td><code>0.15</code></td><td><code>0.575</code></td><td><code>−0.11294057</code></td><td><code>6.3·10⁻²</code></td><td><code>0.89298136</code></td><td><code>−0.19368395</code></td></tr>
+<tr><td><code>0.1</code></td><td><code>0.55</code></td><td><code>−0.07877129</code></td><td><code>1.6·10⁻¹</code></td><td><code>0.81185793</code></td><td><code>−0.13112225</code></td></tr>
+<tr><td><code>0.07</code></td><td><code>0.535</code></td><td><code>−0.05667215</code></td><td><code>2.8·10⁻¹</code></td><td><code>0.70365750</code></td><td><code>−0.09268285</code></td></tr>
+<tr><td><code>0.05</code></td><td><code>0.525</code></td><td><code>−0.04123152</code></td><td><code>4.0·10⁻¹</code></td><td><code>0.58687056</code></td><td><code>−0.06664674</code></td></tr>
+</tbody></table>
+<p>Reading:</p>
+<ul><li>the signed ladder <code>K(ε)</code> decreases to <code>0</code> roughly linearly in <code>ε</code></li></ul>
+<p>(<code>K(ε)/ε = C_f(1/2+ε/2) = −0.561, −0.661, −0.720, −0.753, −0.788, −0.810, −0.825</code>), i.e. <strong>the residue estimate is <code>0</code></strong>: no pole at the critical cone;</p>
+<ul><li>the majorant ladder stays of order <code>1</code> (<code>0.59 – 0.92</code>) — the spurious pole — and</li></ul>
+<p>tends to <code>1</code> as <code>ε ↓ 0</code> (at <code>ε = 0.5</code> the plain majorant <code>ε ζ(1+ε) = 1.306</code> is already close to its limit <code>1</code>);</p>
+<ul><li>the scale barrier is intrinsic: to see the residue at level <code>ε</code> one needs</li></ul>
+<p><code>M ≳ e^{1/ε}</code> (<code>M^{−ε} ≲ 1</code>).  At <code>M = 10⁸</code> this means <code>ε ≳ 0.055</code>; the ladder is quoted down to <code>ε = 0.05</code> with its bar, and not beyond.</p>
+<h3>5.2 The critical cone converges</h3>
+<p>Partial sums of the critical-cone pair series <code>Σ_{n≤x} f(n)/√(n(n+2))</code> and of the log-Chowla series <code>Σ_{n≤x} f(n)/n</code>:</p>
+<table>
+<thead><tr><th><code>x</code></th><th><code>S(x)</code></th><th><code>S(x)/x</code></th><th><code>Σ f(n)/n</code></th><th><code>Σ f(n)/√(n(n+2))</code></th></tr></thead>
+<tbody>
+<tr><td><code>10⁷</code></td><td><code>1246</code></td><td><code>1.25·10⁻⁴</code></td><td><code>−1.356313</code></td><td><code>−0.863657</code></td></tr>
+<tr><td><code>2·10⁷</code></td><td><code>734</code></td><td><code>3.67·10⁻⁵</code></td><td><code>−1.356354</code></td><td><code>−0.863698</code></td></tr>
+<tr><td><code>3·10⁷</code></td><td><code>−4108</code></td><td><code>−1.37·10⁻⁴</code></td><td><code>−1.356559</code></td><td><code>−0.863903</code></td></tr>
+<tr><td><code>5·10⁷</code></td><td><code>−1960</code></td><td><code>−3.92·10⁻⁵</code></td><td><code>−1.356465</code></td><td><code>−0.863809</code></td></tr>
+<tr><td><code>8·10⁷</code></td><td><code>32</code></td><td><code>4.0·10⁻⁷</code></td><td><code>−1.356447</code></td><td><code>−0.863791</code></td></tr>
+<tr><td><code>10⁸−2</code></td><td><code>4632</code></td><td><code>4.63·10⁻⁵</code></td><td><code>−1.356396</code></td><td><code>−0.863740</code></td></tr>
+</tbody></table>
+<p>The critical-cone series appears to <strong>converge</strong> (to <code>−0.8637…</code>, stable to <code>2·10⁻⁴</code> over the last decade), which is stronger than the <code>o(log x)</code> guaranteed by Tao's theorem.  This is a finite-range observation, not an asymptotic claim.</p>
+<h3>5.3 Convergent cone invariants (absolute error bars)</h3>
+<table>
+<thead><tr><th>quantity</th><th>value</th><th>bar</th></tr></thead>
+<tbody>
+<tr><td><code>C_f(1) = Σ f(n)/(n(n+2))</code></td><td><code>−0.3927555877</code></td><td><code>1.0·10⁻⁸</code></td></tr>
+<tr><td><code>C_f(1.5)</code></td><td><code>−0.2145524256</code></td><td><code>&lt; 10⁻⁶</code></td></tr>
+<tr><td><code>C_f(2)</code></td><td><code>−0.1207675238</code></td><td><code>&lt; 10⁻⁸</code></td></tr>
+<tr><td><code>B(1) = 2C_f(1)</code></td><td><code>−0.7855111755</code></td><td>—</td></tr>
+<tr><td>majorant <code>Σ_{n≤10⁸} 1/√(n(n+2))</code></td><td><code>14.8972</code></td><td><code>= 0.9800 · log x</code></td></tr>
+</tbody></table>
+<h3>5.4 The cone mass of a greedy support</h3>
+<p>For the harmonic cone <code>p = 1</code> the radii are the terms; the greedy mass equals the target exactly:</p>
+<table>
+<thead><tr><th><code>x</code></th><th>support <code>A</code></th><th><code>Σ_{m∈A} 1/m</code></th></tr></thead>
+<tbody>
+<tr><td><code>1/3</code></td><td><code>{3}</code></td><td><code>1/3</code></td></tr>
+<tr><td><code>1/2</code></td><td><code>{2}</code></td><td><code>1/2</code></td></tr>
+<tr><td><code>2/3</code></td><td><code>{2,6}</code></td><td><code>2/3</code></td></tr>
+<tr><td><code>5/9</code></td><td><code>{2,18}</code></td><td><code>5/9</code></td></tr>
+<tr><td><code>7/11</code></td><td><code>{2,8,88}</code></td><td><code>7/11</code></td></tr>
+<tr><td><code>1</code></td><td><code>{2,3,6}</code></td><td><code>1</code></td></tr>
+</tbody></table>
+<h3>5.5 The reachable set of the pair rule (the rh42 census analogue)</h3>
+<p>The script <a href="pair_census.py"><code>pair_census.py</code></a> (log: <a href="verify/pair_census.log"><code>verify/pair_census.log</code></a>) computes the Brown ratios <code>r_k = a_k / T_k</code> (<code>T_k = Σ_{j&gt;k} a_j</code>) and the resulting census.</p>
+<table>
+<thead><tr><th><code>p</code></th><th><code>r_0</code></th><th><code>r_1</code></th><th><code>r_2</code></th><th><code>r_3</code></th><th><code>min_{k≥1} T_k/a_k</code></th><th>census</th></tr></thead>
+<tbody>
+<tr><td><code>1.40</code></td><td><code>0.7986</code></td><td><code>0.2619</code></td><td><code>0.1578</code></td><td><code>0.1130</code></td><td><code>3.82</code></td><td>1 interval <code>[0, A]</code></td></tr>
+<tr><td><code>1.45</code></td><td><code>0.9323</code></td><td><code>0.2990</code></td><td><code>0.1791</code></td><td><code>0.1280</code></td><td><code>3.34</code></td><td>1 interval <code>[0, A]</code></td></tr>
+<tr><td><strong><code>p_pair</code></strong></td><td><strong><code>1.0000</code></strong></td><td><code>0.3173</code></td><td><code>0.1896</code></td><td><code>0.1353</code></td><td><strong><code>3.15</code></strong></td><td>1 interval <code>[0, A]</code></td></tr>
+<tr><td><code>1.48</code></td><td><code>1.0169</code></td><td><code>0.3218</code></td><td><code>0.1922</code></td><td><code>0.1371</code></td><td><code>3.11</code></td><td>2 intervals, gap <code>0.00811</code></td></tr>
+<tr><td><code>1.50</code></td><td><code>1.0753</code></td><td><code>0.3372</code></td><td><code>0.2009</code></td><td><code>0.1432</code></td><td><code>2.97</code></td><td>2 intervals, gap <code>0.03349</code></td></tr>
+<tr><td><code>1.60</code></td><td><code>1.3913</code></td><td><code>0.4169</code></td><td><code>0.2456</code></td><td><code>0.1742</code></td><td><code>2.40</code></td><td>2 intervals, gap <code>0.12337</code></td></tr>
+<tr><td><code>2.00</code></td><td>—</td><td><code>0.7844</code></td><td>—</td><td>—</td><td><code>1.27</code></td><td>2 intervals, gap <code>0.21377</code></td></tr>
+</tbody></table>
+<p>Reading:</p>
+<ul><li><strong><code>k = 0</code> is exactly the binding condition</strong>: <code>r_0 = 1.000000</code> at <code>p = p_pair</code> and</li></ul>
+<p><code>r_0 &lt; 1</code> below it, while <code>r_k ≤ 0.32</code> for <code>k ≥ 1</code> — the numerical slack the note promised is <code>min_{k≥1} T_k/a_k = 3.15</code> at the critical exponent;</p>
+<ul><li><strong>the census is <code>1</code> or <code>2</code> intervals, never more</strong> (for <code>p ≤ 2</code>): since only the</li></ul>
+<p><code>k = 0</code> condition can fail, the reachable set is <code>[0, A]</code> below <code>p_pair</code> and <code>[0, T_1] ∪ [a_0, a_0 + T_1]</code> above it, with gap <code>2a_0 − A</code>.  In rh42's language the pair alphabet has <code>2^{n_min−1} = 2</code> intervals, i.e. <code>n_min = 2</code> — the smallest possible failure, in contrast to the single-term rule whose interval count grows;</p>
+<ul><li>the measure drops from <code>A</code> (complete) to <code>2^j·Σ_{i≥j} a_i</code>, i.e. to <code>2(A − a_0)</code> at</li></ul>
+<p>depth <code>j = 1</code>: at <code>p = 1.5</code>, <code>0.92361 → 0.89012</code>; at <code>p = 2</code>, <code>0.41123 → 0.19747</code>; at <code>p = 3</code> the depth is <code>j = 3</code> and the measure falls to <code>0.01177</code>.  The two tables agree term by term, which is a check on the script rather than on the mathematics.</p>
+<p>At <code>p = 3</code> the depth rises to <code>j = 3</code> (<code>8</code> intervals) — the all-k theorem (<code>pair_brown_all_k</code>) is stated for <code>p ≤ 3/2</code>, which is exactly the range where only <code>k = 0</code> can fail.  The mechanism behind the census is machine-checked in §6.3; the numbers in this table are the finite-range evidence for it.</p>
+<hr>
+<h2>6. Formalisation (Lean 4 + Mathlib) — complete</h2>
+<p>Development: <a href="../../../lean/ConeLean/"><code>lean/ConeLean/</code></a>, built by</p>
+<pre><code>cd lean &amp;&amp; ./check.sh ConeLean/Cone.lean ConeLean/PairThreshold.lean ConeLean/PairCensus.lean ConeLean.lean</code></pre>
+<p>— <strong>all green, no <code>sorry</code>, no <code>admit</code>, no new axioms</strong> (log: <a href="verify/lean_check.log"><code>verify/lean_check.log</code></a>).</p>
+<h3>6.1 <code>ConeLean/Cone.lean</code> — the cone core (17 declarations)</h3>
+<table>
+<thead><tr><th>declaration</th><th>statement</th></tr></thead>
+<tbody>
+<tr><td><code>coneIndex_coneRadius</code></td><td>the index readout <code>(n^{−p})^{−1/p} = n</code></td></tr>
+<tr><td><code>coneRadius_injective</code></td><td>the radius determines the index (fails at <code>p = 0</code>, the helix)</td></tr>
+<tr><td><code>ZetaR_eq_tsum_rpow_neg</code></td><td><code>ζ(p) = Σ n^{−p}</code> in the cone's exponent notation</td></tr>
+<tr><td><code>inv_add_two_le_critWeight</code>, <code>critWeight_le_inv</code></td><td>the critical sandwich <code>(n+2)^{−1} ≤ (n(n+2))^{−1/2} ≤ n^{−1}</code></td></tr>
+<tr><td><code>critWeight_error_le</code>, <code>summable_critWeight_error</code></td><td><code>1/n − (n(n+2))^{−1/2} ≤ 2/(n(n+2))</code> and its summability</td></tr>
+<tr><td><code>summable_critWeight_sub_inv_mul</code></td><td>for bounded <code>f</code>, the critical-cone and log-Chowla transforms differ by an absolutely convergent series</td></tr>
+<tr><td><code>pairSeparation_eq</code></td><td><code>1/n − 1/(n+2) = 2·pairWeight 1 n</code></td></tr>
+<tr><td><code>shiftDiff_nonneg</code>, <code>shiftDiff_le</code>, <code>summable_shiftDiff</code></td><td><strong>Lemma 1 and Corollary 2</strong> (the one-power dichotomy)</td></tr>
+</tbody></table>
+<h3>6.2 <code>ConeLean/PairThreshold.lean</code> — the threshold theorem (27 declarations)</h3>
+<table>
+<thead><tr><th>stage</th><th>declarations</th></tr></thead>
+<tbody>
+<tr><td>the difference identity</td><td><code>Psi</code>, <code>Psi_sub</code> (via <code>TppLean.ZetaR_split</code> at <code>N = 2</code>)</td></tr>
+<tr><td>the one-power bounds</td><td><code>hasDerivAt_rpow_neg</code>, <code>rpow_sub_lower</code>, <code>two_rpow_sub_upper</code> (the fencing theorem)</td></tr>
+<tr><td>the certified constant</td><td><code>three_rpow_neg_eight_fifths_gt</code>, <code>four_rpow_neg_eight_fifths_gt</code>, <code>two_rpow_neg_seven_fifths_lt</code>, <code>pair_constant_pos</code></td></tr>
+<tr><td><strong>strict antitonicity</strong></td><td><strong><code>Psi_strictAnti</code></strong> — <code>Ψ</code> strictly decreasing on <code>[7/5, 8/5]</code></td></tr>
+<tr><td>the floor-oracle brackets</td><td><code>ZetaR_22_15_gt</code>, <code>ZetaR_22_15_lt</code>, <code>ZetaR_7_5_gt_three</code>, <code>ZetaR_8_5_lt</code>, <code>tail_22_15</code>, <code>tail_8_5</code></td></tr>
+<tr><td>the power certificates</td><td><code>two_rpow_neg_22_15_lt</code>, <code>two_rpow_neg_7_15_lt</code>, <code>two_rpow_neg_half_gt</code>, <code>two_rpow_neg_three_fifths_gt</code></td></tr>
+<tr><td>the certified values</td><td><code>Psi_22_15_gt</code>, <code>Psi_3_2_lt</code>, <code>BPos_22_15_lt_one</code></td></tr>
+<tr><td>the two tails</td><td><code>ZetaR_eq_zero_of_le_one</code>, <code>Psi_pos_of_lt_seven_fifths</code>, <code>ZetaR_le_one_add</code>, <code>Psi_neg_of_eight_fifths_le</code></td></tr>
+<tr><td><strong>the theorem</strong></td><td><strong><code>pair_threshold_between</code></strong></td></tr>
+</tbody></table>
+<pre><code>theorem pair_threshold_between {pP pPair pstar : ℝ}
+    (hP : BPos pP = 1) (hpair : Psi pPair = 0) (hstar : ZetaR pstar = 2) :
+    pP &lt; pPair ∧ pPair &lt; pstar</code></pre>
+<p>There are <strong>no extra hypotheses</strong>: the bracket <code>7/5 ≤ p_pair ≤ 8/5</code> that the earlier reduction assumed is <em>derived</em> inside the proof from the two tail lemmas, and the ordering then follows by trichotomy from <code>Psi_strictAnti</code> and the certified values.</p>
+<h3>6.3 <code>ConeLean/PairCensus.lean</code> — the pair alphabet, Brown's conditions, and the census (21 declarations)</h3>
+<table>
+<thead><tr><th>declaration</th><th>statement</th></tr></thead>
+<tbody>
+<tr><td><code>pairAlphabet</code>, <code>pairAlphabet_pos</code>, <code>pairAlphabet_antitone</code></td><td>the pair alphabet <code>a_k = (4k+2)^{-p} + (4k+4)^{-p}</code> is positive and decreasing</td></tr>
+<tr><td><strong><code>tsum_even_add_odd_real</code></strong></td><td>the even/odd splitting identity <code>Σ_k f(2k) + Σ_k f(2k+1) = Σ_j f j</code> for real series — <strong>Mathlib has no such lemma for <code>ℝ</code></strong> (only <code>ℝ≥0∞</code>), and the rh42 paper records the split as having eluded its own elaboration; proved here by the block identity <code>Σ_{j&lt;2n} f j = Σ_{k&lt;n} f(2k) + Σ_{k&lt;n} f(2k+1)</code> plus uniqueness of limits</td></tr>
+<tr><td><strong><code>tsum_pairAlphabet</code></strong></td><td><strong>the pairing identity</strong> <code>Σ_k a_k = BPos p = 2^{-p} ζ(p)</code></td></tr>
+<tr><td><strong><code>pair_brown_zero_iff</code></strong></td><td><strong>Brown's first condition</strong> <code>a_0 ≤ Σ_{k≥1} a_k</code> ⟺ <code>0 ≤ Ψ(p)</code> ⟺ <code>p ≤ p_pair</code></td></tr>
+<tr><td><code>tsum_rpow_inv_tail_ge</code></td><td>the lower integral test <code>N^{1-p}/(p-1) ≤ Σ_k (k+N)^{-p}</code> (the mirror of <code>TppLean.tsum_tail_le</code>)</td></tr>
+</tbody></table>
+<p><code>pair_brown_zero_iff</code> closes the gap between the note's claim and the formalisation: the threshold <code>p_pair</code> defined in <code>PairThreshold.lean</code> by <code>Ψ(p) = 0</code> is <em>the same</em> threshold as the pair alphabet's <code>k = 0</code> Brown condition.</p>
+<p>The all-k conditions and the census are in the same file:</p>
+<table>
+<thead><tr><th>declaration</th><th>statement</th></tr></thead>
+<tbody>
+<tr><td><code>pairAlphabet_le</code></td><td><code>a_k ≤ 2(4k+2)^{-p}</code> — for a negative exponent the <em>larger</em> base gives the <em>smaller</em> value, so both terms are dominated by <code>(4k+2)^{-p}</code></td></tr>
+<tr><td><code>pairAlphabet_tail_ge</code></td><td><code>T_k ≥ 4^{-p}(k+2)^{1-p}/(p-1)</code> (the integral test on the second term of each pair)</td></tr>
+<tr><td><code>pair_key</code></td><td><code>2(p-1)·4^p·(4k+2)^{-p} ≤ (k+2)^{1-p}</code>, i.e. <code>2(p-1) ≤ (k+2)^{1-p}((2k+1)/2)^p</code></td></tr>
+<tr><td><strong><code>pair_brown_all_k</code></strong></td><td><strong>every Brown condition holds for <code>k ≥ 1</code> when <code>1 &lt; p ≤ 3/2</code></strong>: <code>a_k ≤ Σ_{j≥0} a_{j+k+1}</code></td></tr>
+<tr><td><code>SubSumIco</code></td><td>finite sub-sum sets over an index window <code>[m,n)</code></td></tr>
+<tr><td><strong><code>SubSumIco_succ</code></strong></td><td><strong>the census recursion</strong> <code>S_{[m,n)} = S_{[m+1,n)} ∪ (a_m + S_{[m+1,n)})</code></td></tr>
+<tr><td><strong><code>SubSumIco_gap</code></strong></td><td><strong>the gap lemma</strong>: no sub-sum lies strictly between the tail total and <code>a_m</code></td></tr>
+<tr><td><code>SubSumIco_glue</code></td><td>Brown one step: tail fills <code>[0,T]</code> and <code>a_m ≤ T</code> ⟹ window fills <code>[0, a_m+T]</code></td></tr>
+<tr><td><strong><code>SubSumIco_two_intervals</code></strong></td><td>at the first failure the window is exactly <code>[0,T] ∪ [a_m, a_m+T]</code></td></tr>
+<tr><td><code>SubSumIco_eq_Icc_of_brown</code></td><td>finite Brown completeness: all conditions ⟹ the window fills <code>[0, Σa]</code></td></tr>
+<tr><td><strong><code>pairAlphabet_subsum_gap</code></strong></td><td>for the pair alphabet: <code>s ≤ Σ_{j≥1} a_j</code> or <code>a_0 ≤ s</code> — the reachable set has no point strictly between the tail total and <code>a_0</code></td></tr>
+</tbody></table>
+<p>The proof of <code>pair_brown_all_k</code> is the chain <code>a_k ≤ 2(4k+2)^{-p} ≤ 4^{-p}(k+2)^{1-p}/(p-1) ≤ T_k</code>.  The middle step is <code>2(p-1)·4^p·(4k+2)^{-p} ≤ (k+2)^{1-p}</code> (<code>pair_key</code>), proved by</p>
+<pre><code>2(p-1)·(2/(2k+1))^p ≤ 2(p-1)·(2/(k+2))^p = 2(p-1)·2^p·(k+2)^{-p}
+                    ≤ 3·(k+2)^{-p} ≤ (k+2)·(k+2)^{-p} = (k+2)^{1-p},</code></pre>
+<p>i.e. by the two rational facts <code>2(p-1)·2^p ≤ 3</code> for <code>p ≤ 3/2</code> (from <code>2(p-1) ≤ 1</code> and <code>2^p ≤ 2^{3/2} ≤ 3</code>, the last certified by <code>8 ≤ 27</code>) and <code>3 ≤ k+2</code> for <code>k ≥ 1</code>.  The margin over the sharp case <code>p = 3/2</code> (<code>2(p-1)·2^p = 2.828 ≤ 3</code>) is a factor <code>1.06</code>; there is no appeal to a limit or to numerics.</p>
+<h3>6.4 What is <em>not</em> formalised here</h3>
+<p>Two items remain outside the machine-checked statement, and neither is claimed:</p>
+<ul><li><strong>the passage to the infinite alphabet.</strong>  The census lemmas are stated for finite</li></ul>
+<p>windows and for the infinite <em>tail</em> only through the gap lemma (<code>pairAlphabet_subsum_gap</code>).  Saying that the reachable set of the whole infinite pair alphabet <em>equals</em> <code>[0, A]</code> (for <code>p ≤ p_pair</code>) or <code>[0,T_1] ∪ [a_0, a_0+T_1]</code> (for <code>p_pair &lt; p ≤ 3/2</code>) needs a closure/limit statement: every <code>s ∈ [0,A]</code> is a limit of finite sub-sums.  The greedy construction does this (the residual is dominated by the tail <code>Σ_{j&gt;k}a_j → 0</code>), but it is not yet mechanised; §5.5 is the numerical evidence, not a proof;</p>
+<ul><li><strong>the residue</strong> <code>lim_{ε↓0} ε C_f(1/2+ε/2)</code>, which is open (§7 item 1) — the cone</li></ul>
+<p>form of <code>Σ λ(n)λ(n+2) = o(x)</code>.</p>
+<h3>6.5 <code>ConeLean/ChowlaEquiv.lean</code> — the exact equivalent form of the target (10 declarations)</h3>
+<p>The one piece of the <em>open</em> target that is theorem-level (dictionary <a href="../dictionary/03-parity-problem.md"><code>03</code></a> Theorem 3.5) is now machine-checked, so that "<code>o(x)</code>" cannot silently drift between meanings:</p>
+<table>
+<thead><tr><th>declaration</th><th>statement</th></tr></thead>
+<tbody>
+<tr><td><code>lam</code></td><td><code>λ(n)</code> as a real number (<code>ArithmeticFunction.liouville</code> coerced)</td></tr>
+<tr><td><code>chowlaSum</code></td><td><code>S(N) = Σ_{1 ≤ n ≤ N−2} λ(n)λ(n+2)</code></td></tr>
+<tr><td><code>eqCount</code>, <code>patCount</code></td><td><code>#{n ≤ N−2 : λ(n) = λ(n+2)}</code> and <code>#{n ≤ N−2 : λ(n) = e₁, λ(n+2) = e₂}</code></td></tr>
+<tr><td><code>lamSum</code>, <code>lamSumShift</code></td><td>the two one-point sums <code>Σλ(n)</code>, <code>Σλ(n+2)</code></td></tr>
+<tr><td><strong><code>chowlaSum_eq</code></strong></td><td><strong><code>S(N) = 2·#{λ(n) = λ(n+2)} − (N−2)</code></strong></td></tr>
+<tr><td><strong><code>patCount_mul_four</code></strong></td><td><strong><code>4·#{λ(n)=e₁, λ(n+2)=e₂} = (N−2) + e₁Σλ(n) + e₂Σλ(n+2) + e₁e₂S(N)</code></strong> for <code>e₁² = e₂² = 1</code></td></tr>
+<tr><td><code>tendsto_card_div</code></td><td><code>(N−2)/N → 1</code></td></tr>
+<tr><td><strong><code>chowlaSum_tendsto_iff_patCount_tendsto</code></strong></td><td><strong>given <code>Σ_{n≤x}λ(n) = o(x)</code> and <code>Σ_{n≤x}λ(n+2) = o(x)</code>, <code>S(x) = o(x)</code> ⟺ each of the four sign patterns has density <code>1/4</code></strong></td></tr>
+</tbody></table>
+<p>The hypothesis in the last line is the one-point case of Chowla, which is PNT (dictionary Theorem 3.3); the module does <strong>not</strong> prove <code>o(x)</code> itself, and its statement is deliberately written as an implication so that the open content stays visible.  Note also that this equivalence does <em>not</em> extend to the cone residue: the residue is the <strong>Abelian</strong> mean <code>lim_{ε↓0} εΣf(n)n^{−1−ε}</code>, whose vanishing is implied by <code>o(x)</code> but does not imply it (the bounded sequence <code>cos(θ log n)</code> has no pole at <code>s = 1</code> yet is not <code>o(x)</code>), so the residue is a strictly weaker invariant.  That asymmetry is the subject of the queued follow-up work on the residue (goal 2 in this session): the residue limit is provable from Tao's log-averaged theorem by Abel summation, and the two forms stand or fall together only under an extra no-poles-on-the-line hypothesis.</p>
+<h3>6.6 <code>ConeLean/ResidueReduction.lean</code> — the Abelian mean, and the three reductions (37 declarations)</h3>
+<p>The residue <code>lim_{ε↓0} ε C_f(1/2+ε/2)</code> is the <strong>Abelian</strong> mean of <code>f</code>, and the first half of the reduction between it and <code>o(x)</code> is machine-checked here (goal 2, deliverable 1a):</p>
+<table>
+<thead><tr><th>declaration</th><th>statement</th></tr></thead>
+<tbody>
+<tr><td><code>partSum</code></td><td><code>M(N) = Σ_{n&lt;N} f n</code></td></tr>
+<tr><td><strong><code>sum_mul_eq</code></strong></td><td><strong>discrete Abel summation</strong> <code>Σ_{n&lt;N} f n · w n = M(N)w(N−1) − Σ_{n&lt;N−1} M(n+1)(w(n+1)−w(n))</code></td></tr>
+<tr><td><code>abelWeight</code></td><td>the weight <code>w n = n^{−1−ε}</code></td></tr>
+<tr><td><code>abelWeight_sub_le</code>, <code>abelWeight_gap_eq</code>, <code>sum_abelWeight_gap_le</code></td><td><code>w n − w(n+1) ≤ (1+ε)n^{−2−ε}</code>; the gaps telescope to <code>≤ 2</code></td></tr>
+<tr><td><code>mul_abelWeight_pred_le</code>, <code>tsum_abelWeight_tail_le</code></td><td><code>N·w(N−1) ≤ 4</code> and <code>Σ_{n≥X} n^{−1−ε} ≤ (X−1)^{−ε}/ε</code></td></tr>
+<tr><td><code>summable_abelWeight</code>, <code>summable_mul_abelWeight</code>, <code>abelMean</code></td><td>summability for <code>ε &gt; 0</code>, and the Abelian mean <code>ε Σ f(n)n^{−1−ε}</code></td></tr>
+<tr><td><strong><code>abel_partial_bound</code></strong>, <strong><code>abel_tsum_bound</code></strong></td><td><strong>the two-parameter bound</strong> `</td><td>ε Σ f(n)n^{−1−ε}</td><td>≤ ε(4δ + 2X) + 2(1+ε)δ(X−1)^{−ε}<code> whenever </code></td><td>f</td><td>≤ 1<code> and </code></td><td>M(n)</td><td>≤ δn<code> for </code>n ≥ X`</td></tr>
+<tr><td><strong><code>abelMean_tendsto_zero</code></strong></td><td><strong>Cesàro ⟹ Abel</strong>: <code>Σ_{n≤x}f(n) = o(x)</code> (for bounded <code>f</code>) implies <code>lim_{ε↓0} εΣ f(n)n^{−1−ε} = 0</code></td></tr>
+<tr><td><code>logPartSum</code></td><td>the log-average numerators <code>g(N) = Σ_{n&lt;N} f n / n</code></td></tr>
+<tr><td><code>rpow_neg_gap_le</code></td><td>the gap bound for the log weight: <code>n^{−ε} − (n+1)^{−ε} ≤ ε n^{−1−ε}</code></td></tr>
+<tr><td><strong><code>log_abel</code></strong></td><td><strong>Abel summation in log form</strong>: <code>Σ_{n&lt;N} f n n^{−1−ε} = g(N)(N−1)^{−ε} + Σ_{n&lt;N−1} g(n+1)(n^{−ε} − (n+1)^{−ε})</code></td></tr>
+<tr><td><code>log_abel_partial_le</code></td><td>the log-form partial bound: the Abel sum is controlled by `\</td><td>g\</td><td><code> against the gaps of </code>n^{−ε}`</td></tr>
+<tr><td><code>log_abelWeight_le</code></td><td><code>log(m+1)·m^{−1−ε} ≤ (4/ε)·m^{−1−ε/2}</code> for <code>m ≥ 2</code></td></tr>
+<tr><td><strong><code>sq_mul_log_tail_le</code></strong></td><td><strong>the log-weighted tail bound</strong>: <code>ε² Σ_{n≥X} log(n+1)·n^{−1−ε} ≤ 8</code> for <code>ε ≤ 1</code>, <code>X ≥ 2</code></td></tr>
+<tr><td><code>tendsto_log_mul_rpow_neg</code></td><td>the boundary term vanishes: <code>log N · N^{−ε} → 0</code></td></tr>
+<tr><td><strong><code>abel_tsum_le_of_logAverage</code></strong></td><td><strong>the log-average input bounds the Abel sum</strong>: `\</td><td>g(m)\</td><td>≤ lam·log m<code> for </code>m ≥ X<code> implies </code>\</td><td>Σ' f(n)n^{−1−ε}\</td><td>≤ εK + 8·lam/ε<code>, </code>K = Σ_{n&lt;X}\</td><td>g(n+1)\</td><td>/n`</td></tr>
+<tr><td><strong><code>abelMean_tendsto_zero_of_logAverage</code></strong></td><td><strong>log-average ⟹ Abel (deliverable 1b)</strong>: <code>Σ_{n≤N} f(n)/n = o(log N)</code> (bounded <code>f</code>) implies <code>lim_{ε↓0} εΣ f(n)n^{−1−ε} = 0</code></td></tr>
+<tr><td><code>pairWeight_sub_le</code>, <code>rpow_neg_gap_two</code></td><td>`\</td><td>(n(n+2))^{−p} − n^{−2p}\</td><td>≤ 2n^{−2}<code> for </code>1/2 ≤ p ≤ 1<code>, by the mean-value theorem on </code>x ↦ x^{−p}<code> over </code>[n,n+2]`</td></tr>
+<tr><td><strong><code>coneTransform_sub_dirichlet_le</code></strong></td><td><strong>(1c)</strong>: `\</td><td>Σ_n f(n)((n(n+2))^{−p} − n^{−2p})\</td><td>≤ 2Σ_n n^{−2}` — the pair transform's residue is the Dirichlet-series residue</td></tr>
+</tbody></table>
+<p>The Cesàro line is the direction that makes the residue <strong>necessary</strong> for <code>o(x)</code>; the <code>log_abel</code> identity is the structural input for the <em>sufficient</em> direction (1b), which runs through Tao's log-averaged theorem and is now complete: the constant <code>ε² Σ log(n+1)n^{−1−ε} ≤ 8</code> is what stops the log-average from being destroyed by the <code>1/ε²</code> growth of the tail, and the two-parameter assembly turns <code>g(N)/log N → 0</code> into <code>ε Σ f(n)n^{−1−ε} → 0</code>.  <strong>The cone residue is therefore a theorem conditional on the published log-averaged two-point Chowla theorem</strong> — it is <em>not</em> an open problem.  The log-averaged theorem itself is an external input, named as such in the Lean docstring; nothing in the module proves <code>o(x)</code>.  The converse fails for bounded sequences (the <code>cos(θ log n)</code> example), so the residue is strictly weaker than <code>o(x)</code>; and the <em>sufficient</em> direction — from the log-averaged input <code>Σ_{n≤x}f(n)/n = o(log x)</code>, i.e. Tao's log-averaged two-point Chowla theorem — is the remaining part of deliverable 1b.  Nothing in this module asserts, assumes or approaches <code>o(x)</code> itself.</p>
+<h3>6.7 Trust accounting</h3>
+<p>The mathematical content is <code>Psi_strictAnti</code> — the one-power bound applied at <code>n = 3, 4</code> against the loss at <code>n = 2</code> — together with the floor-oracle brackets inherited from <code>TppLean</code>.  The numeric input is 13 <code>native_decide</code> invocations (the three large <code>sumF</code> evaluations, the <code>ZetaR_lower</code>/<code>ZetaR_upper</code> side conditions, and five integer power comparisons) plus Mathlib's <code>norm_num</code> and the log bounds <code>Real.log_two_gt_d9</code>, <code>Real.log_two_lt_d9</code>, <code>Real.log_three_gt_d9</code>.  <code>native_decide</code> rests on the Lean compiler (<code>Lean.ofReduceBool</code>), the same assumption <code>TppLean</code> and Mathlib already make for large decidable computations; every other step is kernel checked.  A reader who wants it removed can replace those invocations by <code>decide</code> at the cost of a longer build.</p>
+<h2>7. What is open, and what would count as progress</h2>
+<ol><li><strong>The residue is settled; <code>o(x)</code> is not.</strong>  <code>S(x) = o(x)</code> is open; the cone</li></ol>
+<p>localises it to the pole of <code>C_f</code> at <code>p = 1/2</code>.  Two things are now machine-checked (§6.6): the residue (the Abelian mean) <strong>vanishes</strong> whenever the log-average input <code>Σ_{n≤x}f(n)/n = o(log x)</code> holds — which is Tao's log-averaged two-point Chowla theorem — and the residue is <em>strictly weaker</em> than <code>o(x)</code> (the Cesàro direction <code>o(x) ⟹ residue 0</code> is <code>abelMean_tendsto_zero</code>, §6.6).  So the residue does not open the door to <code>o(x)</code>: it is implied by it, not equivalent to it.  (The <em>equivalence</em> of <code>o(x)</code> with the four-density-<code>1/4</code> statement is machine-checked, §6.5.) Finite data cannot decide it (finite-prefix indeterminacy), so the numerical verdict of §5 is evidence, not proof.</p>
+<ol><li><strong>The cone form of the barrier (OP-3).</strong>  *No sign-blind cone statistic sees the</li></ol>
+<p>residue.*  The natural next experiment is the pair-greedy support statistic: compute <code>C_{f,A}(p)</code> for the support <code>A</code> of the cone pair-greedy rule and compare its residue proxy against size-matched random supports (the rh47 B1 protocol applied to the pair channel).</p>
+<ol><li><strong>The infinite reachable set.</strong>  The census <em>mechanism</em> is machine-checked</li></ol>
+<p>(<code>SubSumIco_succ</code>, <code>SubSumIco_gap</code>, <code>SubSumIco_glue</code>, <code>SubSumIco_two_intervals</code>, <code>SubSumIco_eq_Icc_of_brown</code>, <code>pairAlphabet_subsum_gap</code>) and the numerics give <code>1</code> interval below <code>p_pair</code> and <code>2</code> above it, with the gap <code>2a_0 − A</code>; what is not formalised is the closure statement that identifies the reachable set of the <em>infinite</em> alphabet with those intervals (§6.4).</p>
+<ol><li><strong>Higher windows.</strong>  Only the <em>first</em> failure is certified (<code>k = 0</code>); the numerics</li></ol>
+<p>show the depth rising to <code>j = 3</code> at <code>p = 3</code>, and a per-<code>p</code> description of the interval count for large <code>p</code> is untouched.</p>
+<ol><li><strong>General shifts.</strong>  Everything here is stated for the shift <code>2</code>; the cone algebra</li></ol>
+<p>works for any shift <code>h</code>, and the pair alphabet generalises to <code>h</code>-tuples.  Whether the <code>h</code>-dependence of the threshold carries arithmetic information is open.</p>
+<hr>
+<h2>Appendix A — constants</h2>
+<table>
+<thead><tr><th>constant</th><th>value</th><th>how established</th></tr></thead>
+<tbody>
+<tr><td><code>pN</code></td><td><code>1.3777851698375411838</code></td><td><code>N(p) = 1</code>, 50 dps</td></tr>
+<tr><td><code>pP</code></td><td><code>1.4649845878051603837</code></td><td><code>P(p) = 1</code>, 50 dps</td></tr>
+<tr><td><strong><code>p_pair</code></strong></td><td><strong><code>1.4740898895836146046</code></strong></td><td><code>ζ(p) = 2 + 2^{1−p}</code>, 50 dps</td></tr>
+<tr><td><code>p*</code></td><td><code>1.7286472389981836181</code></td><td><code>ζ(p) = 2</code>, 50 dps</td></tr>
+<tr><td><code>q</code></td><td><code>2.0767751792106867148</code></td><td><code>N(p) = 2·3^{−p}</code>, 50 dps</td></tr>
+<tr><td><code>Ψ(22/15)</code></td><td><code>0.02933340162</code></td><td>50 dps</td></tr>
+<tr><td><code>Ψ(147/100)</code></td><td><code>0.01603282242</code></td><td>50 dps</td></tr>
+<tr><td><code>Ψ(149/100)</code></td><td><code>−0.05951154722</code></td><td>50 dps</td></tr>
+<tr><td><code>P(22/15)</code></td><td><code>0.9960714819</code></td><td>50 dps</td></tr>
+<tr><td><code>C_f(1)</code></td><td><code>−0.3927555877</code></td><td><code>N = 10⁸</code>, absolute tail <code>10⁻⁸</code></td></tr>
+<tr><td><code>C_f(1/2) ≈ Σ f(n)/√(n(n+2))</code></td><td><code>−0.8637 ± 0.0002</code></td><td>finite range <code>N = 10⁸</code>, <strong>not</strong> an asymptotic claim</td></tr>
+</tbody></table>
+<h2>Appendix B — reproduction</h2>
+<pre><code>cd research/twin-prime-parity/cone
+python3 cone_critical_probe.py                 # sieves λ to 10⁸; ~30 s
+python3 pair_census.py                         # Brown ratios + census; ~1 min
+cd ../../../lean
+./check.sh ConeLean/Cone.lean ConeLean/PairThreshold.lean ConeLean/PairCensus.lean ConeLean.lean</code></pre>
+<p><em>Status legend — THEOREM: proved (Lean where noted); CERTIFIED: exact/numerical certificate with stated precision; NUMERICAL: finite computation only, never a proof of an asymptotic; OPEN: no proof known.</em></p>
+<div class="footer">Twin-prime-parity programme · cone note 001 · generated from
+<code>cone-critical-pair-greedy.md</code> by <code>make_html.py</code> · self-contained
+(no external assets).</div>
+</div>
+</body>
+</html>

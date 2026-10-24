@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh36 — the vector</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh36 · the vector</h1>
+<p class="sub">rh35 left two questions and a guess attached to each, and both
+guesses were wrong in the same instructive direction: the answers are not
+statistics of the gear set, they are statements about one vector. The
+threshold rh35 measured is not a scale but a level crossing. The vector that
+carries it — the one four documents have been bounding below without naming
+— is the zeta partial sum on the critical line, overlap 0.995 with
+n<sup>−1/2</sup> and a fitted exponent that walks to 0.500. That names the
+object, explains the collapse, and says why rh32&#8217;s programme could not
+have worked.</p>
+<p class="meta">73 named checks, 82 s · four computed
+figures · the thirty-sixth in the series, after <a href="rh35.html">rh35</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> &#167;2&#8217;s
+identity is arithmetic and unconditional. Everything from &#167;3 on uses
+rh29&#8217;s zero table (4,308 ordinates, &#947; &#8804; 4800) and is
+conditional on RH in the same way every document since rh29 has been: the
+table is a list of ordinates of zeros known to be on the line, and no
+statement here would survive an off-line zero. Nothing is certified. The
+certified set stays at nine, as it has since rh30 &#167;10 (c), renewed by
+rh31 through rh35 and again here.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · where this stands</a>
+<a href="#s2">2 · the instrument</a>
+<a href="#s3">3 · the crossing</a>
+<a href="#s4">4 · the vector</a>
+<a href="#s5">5 · the collapse</a>
+<a href="#s6">6 · why log 2</a>
+<a href="#s7">7 · the correction</a>
+<a href="#s8">8 · conjunction</a>
+<a href="#s9">9 · what this leaves</a>
+</nav>
+
+<h2 id="s1">1 · Where this stands</h2>
+
+<p>Five documents have now been spent on one matrix. <a
+href="rh32.html">rh32</a> proposed a quadrature lemma — that no admissible
+weight profile can drive the loss constant below some fixed fraction — and
+proved it exactly on the mirrored crystal. <a href="rh33.html">rh33</a>
+refuted it on the arc&#8217;s folded lattice. <a href="rh34.html">rh34</a>
+showed that refutation was an aliasing artifact of the fold and reopened the
+lemma on the unwrapped Gram. <a href="rh35.html">rh35</a> ran the search
+rh34 had not and refuted it there too. That is a complete line of attack,
+closed from the inside, and rh35 said so.</p>
+
+<p>What rh35 could not say was <em>why</em>, in either half. It measured that
+displacing the gear rates by 0.006 in log doubles the floor, and looked for
+a length scale to explain a threshold no gap statistic could see. It measured
+that the whole attacking budget goes to log 2, and offered four readings of
+why without a way to choose between them. Both are answered here, and neither
+answer is a statistic. They are both facts about a single eigenvector.</p>
+
+<h2 id="s2">2 · The instrument</h2>
+
+<p>rh35 &#167;4 modulated the moment function by averaging two shifted
+copies of it, which is correct and expensive: every new frequency needs the
+whole zero table swept again for a fresh key set. The same object is reached
+by re-weighting the measure,</p>
+
+<div class="cardbox">
+w<sub>&#947;</sub> &#8594; w<sub>&#947;</sub>(1 + a&#8201;cos(v&#8320;&#947;)),
+&#8195; nonnegative for |a| &#8804; 1 by inspection,
+</div>
+
+<p>because <em>E</em> is the same linear functional of the weight either way:
+½(E(k+v&#8320;) + E(k−v&#8320;)) = 2&#8721;<sub>&#947;</sub>
+w<sub>&#947;</sub>&#8201;cos(k&#947;)&#8201;cos(v&#8320;&#947;). The cosines
+depend only on the key set, which is fixed by the gear set, so they are
+computed once and a re-weighting is one pass. The two forms agree to
+1.9&#215;10<sup>−12</sup> of the mass, which is the roundoff of summing four
+thousand cosines two different ways. That is what makes a sweep affordable,
+and a sweep is what both of rh35&#8217;s questions turn out to need.</p>
+
+<p>Two regressions fix the instrument against rh35 before it is used: the
+floor on the first twenty-four gear rates is 0.293898, and putting the whole
+budget on log 2 drives it to 0.101006 — the number six restarts of
+coordinate descent found there, reproduced in one line.</p>
+
+<p>The vocabulary is rh34 &#167;3&#8217;s and rh35&#8217;s as corrected. A
+<strong>gear</strong> is a level on the unit ladder, at depth n − 1. A
+<strong>gear rate</strong> is its log n. G is built on the rates.</p>
+
+<h2 id="s3">3 · The threshold is a crossing</h2>
+
+<p>Slide the twenty-four gear rates towards equispaced by a fraction θ and
+watch not the floor but the bottom two levels.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 472" role="img" aria-label="The two lowest eigenvalues of the Gram matrix as the gear rates slide towards equispaced. The lowest climbs, the second stays put, they nearly meet and repel; a dashed line follows the original minimising vector, whose own Rayleigh quotient climbs past both.">
+<text x="370.0" y="21" class="ftitle">the threshold is a level crossing, not a scale</text>
+<line x1="66" y1="268" x2="560" y2="268" class="axis"/>
+<line x1="66" y1="56" x2="66" y2="268" class="axis"/>
+<line x1="66" y1="225.6" x2="560" y2="225.6" class="grid"/>
+<text x="60" y="229.1" class="flab end">0.4</text>
+<line x1="66" y1="172.6" x2="560" y2="172.6" class="grid"/>
+<text x="60" y="176.1" class="flab end">0.6</text>
+<line x1="66" y1="119.6" x2="560" y2="119.6" class="grid"/>
+<text x="60" y="123.1" class="flab end">0.8</text>
+<line x1="66" y1="66.6" x2="560" y2="66.6" class="grid"/>
+<text x="60" y="70.1" class="flab end">1</text>
+<text x="66.0" y="285.0" class="flab mid">0</text>
+<text x="230.7" y="285.0" class="flab mid">0.01</text>
+<text x="395.3" y="285.0" class="flab mid">0.02</text>
+<text x="560.0" y="285.0" class="flab mid">0.03</text>
+<text x="313.0" y="305.0" class="flab mid">&#952;, the slide from the gear rates (&#952; = 0) towards equispaced</text>
+<text x="20" y="42" class="flab st">&#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan> / mass</text>
+<path d="M66.0 179.8L82.5 176.1L98.9 170.9L115.4 165.9L131.9 161.1L148.3 157.0L164.8 155.7L181.3 161.3L197.7 158.6L230.7 148.0L296.5 142.9L395.3 141.6L560.0 138.3" class="ln2"/>
+<path d="M66.0 253.7L82.5 249.5L98.9 237.6L115.4 221.9L131.9 205.9L148.3 191.8L164.8 180.3L181.3 172.6L197.7 173.7L230.7 175.4L296.5 164.8L395.3 161.7L560.0 151.8" class="ln1"/>
+<path d="M66.0 253.7L82.5 249.3L98.9 236.0L115.4 215.9L131.9 191.3L148.3 164.6L164.8 137.9L181.3 113.8L197.7 94.2L230.7 69.6L296.5 61.3L395.3 71.2L560.0 71.8" class="ln4 lnd"/>
+<circle cx="66.0" cy="253.7" r="2.4" class="hm3"/>
+<circle cx="82.5" cy="249.5" r="2.4" class="hm3"/>
+<circle cx="98.9" cy="237.6" r="2.4" class="hm3"/>
+<circle cx="115.4" cy="221.9" r="2.4" class="hm3"/>
+<circle cx="131.9" cy="205.9" r="2.4" class="hm3"/>
+<circle cx="148.3" cy="191.8" r="2.4" class="hm3"/>
+<circle cx="164.8" cy="180.3" r="2.4" class="hm3"/>
+<circle cx="181.3" cy="172.6" r="2.4" class="hm3"/>
+<circle cx="197.7" cy="173.7" r="2.4" class="hm3"/>
+<circle cx="230.7" cy="175.4" r="2.4" class="hm3"/>
+<circle cx="296.5" cy="164.8" r="2.4" class="hm3"/>
+<circle cx="395.3" cy="161.7" r="2.4" class="hm3"/>
+<circle cx="560.0" cy="151.8" r="2.4" class="hm3"/>
+<text x="568.2" y="130.3" class="flab st hm2">&#955;<tspan	class="sb"	dy="3">2</tspan><tspan	dy="-3"></tspan></text>
+<text x="568.2" y="166.8" class="flab st hm3">&#955;<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan></text>
+<text x="304.8" y="97.1" class="flab st hm4">the &#952; = 0 minimiser,</text>
+<text x="304.8" y="109.5" class="flab st hm4">held fixed</text>
+<line x1="181.3" y1="172.6" x2="181.3" y2="161.3" class="hl"/>
+<text x="188.3" y="187.2" class="flab st">0.0426 apart</text>
+<text x="188.3" y="197.8" class="flab st">at &#952; = 0.007</text>
+<text x="665.0" y="74.0" class="flab mid">overlap of the</text>
+<text x="665.0" y="89.0" class="flab mid">two minimisers</text>
+<line x1="624" y1="258" x2="706" y2="258" class="axis"/>
+<rect x="633.4" y="125.9" width="22.1" height="132.1" class="bar hm3"/>
+<text x="644.5" y="118.9" class="flab mid">0.971</text>
+<rect x="674.4" y="246.1" width="22.1" height="11.9" class="bar hm4"/>
+<text x="685.5" y="239.1" class="flab mid">0.088</text>
+<text x="624" y="275.0" class="flab st hm3">&#952; = 0.003</text>
+<text x="624" y="291.0" class="flab st hm4">&#952; = 0.01</text>
+<text x="30" y="330" class="flab st">The lowest eigenvalue climbs from 0.2939 to 0.5893 while the second barely moves; at &#952; = 0.007 they come within</text>
+<text x="30" y="348" class="flab st">0.0426 of each other and repel. The dashed curve follows the ORIGINAL minimising vector, held fixed: its own</text>
+<text x="30" y="366" class="flab st">Rayleigh quotient climbs monotonically to 0.9888, so it is not made a little dearer, it is destroyed. The floor that</text>
+<text x="30" y="384" class="flab st">replaces it was already in the matrix at &#952; = 0 as the second level, 0.5727 against the 0.5893 it lands at &#8212; 2.9%.</text>
+<text x="30" y="402" class="flab st">And the two minimisers are all but orthogonal, overlap 0.088, where three-tenths of the way to the threshold they</text>
+<text x="30" y="420" class="flab st">still agree to 0.971. rh35 measured this as a threshold in a displacement and looked for a length scale to explain</text>
+<text x="30" y="438" class="flab st">it. There is no length scale; there is a crossing.</text>
+</svg></div>
+<figcaption>The lowest eigenvalue climbs; the second does not; they come
+within 0.0426 of each other and repel. The dashed curve is the original
+minimising vector, held fixed, becoming one of the most expensive directions
+in the matrix.</figcaption>
+</figure>
+
+<p>The floor doubles from 0.2939 to 0.5893, as rh35 reported. But nothing
+deforms into anything. Hold the θ = 0 minimiser fixed and push it through the
+slide and its own Rayleigh quotient climbs monotonically from 0.2939 to
+0.9888: the vector that carried the floor is not made a little dearer, it is
+destroyed. The floor that replaces it is a <em>different</em> vector —
+the two minimisers overlap 0.088, near enough orthogonal — and the height it
+lands at was already sitting in the matrix at θ = 0 as the second eigenvalue,
+0.5727 against the 0.5893 it arrives at, 2.9%.</p>
+
+<p>So there is no length scale to find. There is a level that climbs, a level
+that does not, and an avoided crossing between them at θ = 0.007 where they
+pass within 0.0426. The &#8220;threshold&#8221; is where the climbing level
+overtakes the stationary one, and its height is read off the unperturbed
+spectrum.</p>
+
+<div class="cardbox">
+<strong>A prediction of mine, refuted.</strong> Before measuring the crossing
+I expected the threshold to be the reciprocal of the measure&#8217;s reach —
+a displacement is invisible until δ·&#947; ≈ 1 — which predicts that
+δ&#215;&#947; is constant across windows. Over five windows &#947; runs from
+91 to 1099, a factor 12.1, and the product runs 0.459 to 2.229, a factor 4.9.
+It is not the bandwidth. It is the crossing, and a crossing is a property of
+the matrix rather than of the measure.
+</div>
+
+<h2 id="s4">4 · The vector</h2>
+
+<p>Which raises the only question that matters: what <em>is</em> the vector?
+It is worth saying first what a vector means here. G&#8217;s quadratic form is
+&#8721;<sub>&#947;</sub>&#8201;ĥ(&#947;)²&#8201;|&#8721;<sub>n</sub>
+c<sub>n</sub>&#8201;n<sup>i&#947;</sup>|², so a unit vector c is the
+coefficient list of a Dirichlet polynomial and its Rayleigh quotient is that
+polynomial&#8217;s weighted mean square over the zeros. The minimiser is
+whichever Dirichlet polynomial comes closest to vanishing on them.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 634" role="img" aria-label="The minimising eigenvector plotted gear by gear, against n to the minus one half. They agree to an overlap of 0.995. Below, the best-fitting exponent as the number of gears grows, walking to one half.">
+<text x="370.0" y="21" class="ftitle">the vector that carries the floor is the truncated zeta</text>
+<line x1="66" y1="232" x2="690" y2="232" class="axis"/>
+<line x1="66" y1="60" x2="66" y2="232" class="axis"/>
+<line x1="66" y1="174.7" x2="690" y2="174.7" class="grid"/>
+<text x="60" y="178.2" class="flab end">0.2</text>
+<line x1="66" y1="117.3" x2="690" y2="117.3" class="grid"/>
+<text x="60" y="120.8" class="flab end">0.4</text>
+<rect x="71.2" y="90.3" width="15.6" height="141.7" class="bar hm1"/>
+<text x="79.0" y="248.0" class="flab mid">1</text>
+<rect x="97.2" y="132.2" width="15.6" height="99.8" class="bar hm1"/>
+<rect x="123.2" y="147.3" width="15.6" height="84.7" class="bar hm1"/>
+<text x="131.0" y="248.0" class="flab mid">3</text>
+<rect x="149.2" y="159.4" width="15.6" height="72.6" class="bar hm1"/>
+<rect x="175.2" y="169.8" width="15.6" height="62.2" class="bar hm1"/>
+<text x="183.0" y="248.0" class="flab mid">5</text>
+<rect x="201.2" y="169.7" width="15.6" height="62.3" class="bar hm1"/>
+<rect x="227.2" y="179.5" width="15.6" height="52.5" class="bar hm1"/>
+<text x="235.0" y="248.0" class="flab mid">7</text>
+<rect x="253.2" y="177.7" width="15.6" height="54.3" class="bar hm1"/>
+<rect x="279.2" y="188.1" width="15.6" height="43.9" class="bar hm1"/>
+<text x="287.0" y="248.0" class="flab mid">9</text>
+<rect x="305.2" y="186.7" width="15.6" height="45.3" class="bar hm1"/>
+<rect x="331.2" y="187.5" width="15.6" height="44.5" class="bar hm1"/>
+<text x="339.0" y="248.0" class="flab mid">11</text>
+<rect x="357.2" y="189.4" width="15.6" height="42.6" class="bar hm1"/>
+<rect x="383.2" y="190.8" width="15.6" height="41.2" class="bar hm1"/>
+<text x="391.0" y="248.0" class="flab mid">13</text>
+<rect x="409.2" y="192.1" width="15.6" height="39.9" class="bar hm1"/>
+<rect x="435.2" y="198.3" width="15.6" height="33.7" class="bar hm1"/>
+<text x="443.0" y="248.0" class="flab mid">15</text>
+<rect x="461.2" y="193.6" width="15.6" height="38.4" class="bar hm1"/>
+<rect x="487.2" y="193.1" width="15.6" height="38.9" class="bar hm1"/>
+<text x="495.0" y="248.0" class="flab mid">17</text>
+<rect x="513.2" y="198.7" width="15.6" height="33.3" class="bar hm1"/>
+<rect x="539.2" y="199.5" width="15.6" height="32.5" class="bar hm1"/>
+<text x="547.0" y="248.0" class="flab mid">19</text>
+<rect x="565.2" y="195.5" width="15.6" height="36.5" class="bar hm1"/>
+<rect x="591.2" y="189.9" width="15.6" height="42.1" class="bar hm1"/>
+<text x="599.0" y="248.0" class="flab mid">21</text>
+<rect x="617.2" y="186.8" width="15.6" height="45.2" class="bar hm1"/>
+<rect x="643.2" y="183.0" width="15.6" height="49.0" class="bar hm1"/>
+<text x="651.0" y="248.0" class="flab mid">23</text>
+<rect x="669.2" y="195.5" width="15.6" height="36.5" class="bar hm1"/>
+<text x="677.0" y="248.0" class="flab mid">24</text>
+<path d="M79.0 84.5L105.0 127.7L131.0 146.8L157.0 158.2L183.0 166.0L209.0 171.8L235.0 176.2L261.0 179.8L287.0 182.8L313.0 185.3L339.0 187.5L365.0 189.4L391.0 191.1L417.0 192.6L443.0 193.9L469.0 195.1L495.0 196.2L521.0 197.2L547.0 198.2L573.0 199.0L599.0 199.8L625.0 200.5L651.0 201.2L677.0 201.9" class="ln4"/>
+<circle cx="79.0" cy="84.5" r="2.6" class="hm4"/>
+<circle cx="105.0" cy="127.7" r="2.6" class="hm4"/>
+<circle cx="131.0" cy="146.8" r="2.6" class="hm4"/>
+<circle cx="157.0" cy="158.2" r="2.6" class="hm4"/>
+<circle cx="183.0" cy="166.0" r="2.6" class="hm4"/>
+<circle cx="209.0" cy="171.8" r="2.6" class="hm4"/>
+<circle cx="235.0" cy="176.2" r="2.6" class="hm4"/>
+<circle cx="261.0" cy="179.8" r="2.6" class="hm4"/>
+<circle cx="287.0" cy="182.8" r="2.6" class="hm4"/>
+<circle cx="313.0" cy="185.3" r="2.6" class="hm4"/>
+<circle cx="339.0" cy="187.5" r="2.6" class="hm4"/>
+<circle cx="365.0" cy="189.4" r="2.6" class="hm4"/>
+<circle cx="391.0" cy="191.1" r="2.6" class="hm4"/>
+<circle cx="417.0" cy="192.6" r="2.6" class="hm4"/>
+<circle cx="443.0" cy="193.9" r="2.6" class="hm4"/>
+<circle cx="469.0" cy="195.1" r="2.6" class="hm4"/>
+<circle cx="495.0" cy="196.2" r="2.6" class="hm4"/>
+<circle cx="521.0" cy="197.2" r="2.6" class="hm4"/>
+<circle cx="547.0" cy="198.2" r="2.6" class="hm4"/>
+<circle cx="573.0" cy="199.0" r="2.6" class="hm4"/>
+<circle cx="599.0" cy="199.8" r="2.6" class="hm4"/>
+<circle cx="625.0" cy="200.5" r="2.6" class="hm4"/>
+<circle cx="651.0" cy="201.2" r="2.6" class="hm4"/>
+<circle cx="677.0" cy="201.9" r="2.6" class="hm4"/>
+<text x="686" y="66.0" class="flab end hm1">the minimising eigenvector, gear by gear</text>
+<text x="686" y="84.0" class="flab end hm4">n<tspan	class="sb"	dy="-4">&#8722;1/2</tspan><tspan	dy="4"></tspan>, normalised &#8212; overlap 0.99495</text>
+<text x="378.0" y="268.0" class="flab mid">gear n (depth n &#8722; 1 on the unit ladder)</text>
+<line x1="66" y1="430" x2="380" y2="430" class="axis"/>
+<line x1="66" y1="300" x2="66" y2="430" class="axis"/>
+<line x1="66" y1="420.7" x2="380" y2="420.7" class="grid"/>
+<text x="60" y="424.2" class="flab end">0.3</text>
+<line x1="66" y1="374.3" x2="380" y2="374.3" class="grid"/>
+<text x="60" y="377.8" class="flab end">0.4</text>
+<line x1="66" y1="327.9" x2="380" y2="327.9" class="rule"/>
+<text x="60" y="331.4" class="flab end">0.5</text>
+<path d="M76.2 416.1L115.5 395.2L143.4 360.4L165.0 351.1L182.7 355.7L210.5 348.7L232.1 334.8L249.8 348.7L277.7 334.8L299.3 334.8L317.0 339.5L331.9 337.1L344.8 327.9L366.5 327.9" class="ln1"/>
+<circle cx="76.2" cy="416.1" r="2.6" class="hm3"/>
+<circle cx="115.5" cy="395.2" r="2.6" class="hm3"/>
+<circle cx="143.4" cy="360.4" r="2.6" class="hm3"/>
+<circle cx="165.0" cy="351.1" r="2.6" class="hm3"/>
+<circle cx="182.7" cy="355.7" r="2.6" class="hm3"/>
+<circle cx="210.5" cy="348.7" r="2.6" class="hm3"/>
+<circle cx="232.1" cy="334.8" r="2.6" class="hm3"/>
+<circle cx="249.8" cy="348.7" r="2.6" class="hm3"/>
+<circle cx="277.7" cy="334.8" r="2.6" class="hm3"/>
+<circle cx="299.3" cy="334.8" r="2.6" class="hm3"/>
+<circle cx="317.0" cy="339.5" r="2.6" class="hm3"/>
+<circle cx="331.9" cy="337.1" r="2.6" class="hm3"/>
+<circle cx="344.8" cy="327.9" r="2.6" class="hm3"/>
+<circle cx="366.5" cy="327.9" r="2.6" class="hm3"/>
+<text x="76.2" y="447.0" class="flab mid">4</text>
+<text x="143.4" y="447.0" class="flab mid">8</text>
+<text x="210.5" y="447.0" class="flab mid">16</text>
+<text x="277.7" y="447.0" class="flab mid">32</text>
+<text x="344.8" y="447.0" class="flab mid">64</text>
+<text x="223.0" y="465.0" class="flab mid">number of gears N</text>
+<text x="66" y="290.0" class="flab st">the best-fitting exponent &#963;</text>
+<text x="376.0" y="319.9" class="flab end c4">&#963; = 1/2</text>
+<line x1="452" y1="430" x2="706" y2="430" class="axis"/>
+<line x1="452" y1="300" x2="452" y2="430" class="axis"/>
+<line x1="452" y1="406.4" x2="706" y2="406.4" class="grid"/>
+<text x="446" y="409.9" class="flab end">0.992</text>
+<line x1="452" y1="359.1" x2="706" y2="359.1" class="grid"/>
+<text x="446" y="362.6" class="flab end">0.996</text>
+<line x1="452" y1="311.8" x2="706" y2="311.8" class="grid"/>
+<text x="446" y="315.3" class="flab end">1.000</text>
+<path d="M460.3 404.8L492.0 395.0L514.6 362.1L532.1 329.4L546.4 347.2L568.9 344.5L586.4 332.3L600.7 371.4L623.2 329.3L640.7 328.7L655.0 341.2L667.1 344.1L677.6 316.6L695.0 314.5" class="ln4"/>
+<circle cx="460.3" cy="404.8" r="2.6" class="hm4"/>
+<circle cx="492.0" cy="395.0" r="2.6" class="hm4"/>
+<circle cx="514.6" cy="362.1" r="2.6" class="hm4"/>
+<circle cx="532.1" cy="329.4" r="2.6" class="hm4"/>
+<circle cx="546.4" cy="347.2" r="2.6" class="hm4"/>
+<circle cx="568.9" cy="344.5" r="2.6" class="hm4"/>
+<circle cx="586.4" cy="332.3" r="2.6" class="hm4"/>
+<circle cx="600.7" cy="371.4" r="2.6" class="hm4"/>
+<circle cx="623.2" cy="329.3" r="2.6" class="hm4"/>
+<circle cx="640.7" cy="328.7" r="2.6" class="hm4"/>
+<circle cx="655.0" cy="341.2" r="2.6" class="hm4"/>
+<circle cx="667.1" cy="344.1" r="2.6" class="hm4"/>
+<circle cx="677.6" cy="316.6" r="2.6" class="hm4"/>
+<circle cx="695.0" cy="314.5" r="2.6" class="hm4"/>
+<text x="460.3" y="447.0" class="flab mid">4</text>
+<text x="514.6" y="447.0" class="flab mid">8</text>
+<text x="568.9" y="447.0" class="flab mid">16</text>
+<text x="623.2" y="447.0" class="flab mid">32</text>
+<text x="677.6" y="447.0" class="flab mid">64</text>
+<text x="579.0" y="465.0" class="flab mid">number of gears N</text>
+<text x="452" y="290.0" class="flab st">overlap with n<tspan	class="sb"	dy="-4">&#8722;1/2</tspan><tspan	dy="4"></tspan></text>
+<text x="30" y="492" class="flab st">Top: the exact minimiser of the Gram form at N = 24, gear by gear, against n<tspan	class="sb"	dy="-4">&#8722;1/2</tspan><tspan	dy="4"></tspan> normalised. Every coefficient</text>
+<text x="30" y="510" class="flab st">has the same sign and the two agree to an overlap of 0.99495, so the minimising Dirichlet polynomial is the zeta</text>
+<text x="30" y="528" class="flab st">partial sum on the critical line. Its mass sits at the SHALLOW end &#8212; gears 1 to 4 carry 0.517 of it, where an even</text>
+<text x="30" y="546" class="flab st">spread would give 0.167, centroid depth 6.26 against 11.5. Bottom left: fit the exponent instead of assuming it and</text>
+<text x="30" y="564" class="flab st">it walks from 0.31 at four gears to 0.500 at sixty-four. Bottom right: the overlap never leaves 0.9921. So what rh32</text>
+<text x="30" y="582" class="flab st">through rh35 spent four documents bounding below is the weighted mean square of the sum of n<tspan	class="sb"	dy="-4">&#8722;1/2+i&#947;</tspan><tspan	dy="4"></tspan>, read at the</text>
+<text x="30" y="600" class="flab st">zeros.</text>
+</svg></div>
+<figcaption>The minimiser, gear by gear, against
+n<sup>−1/2</sup> normalised: overlap 0.99495. Fit the exponent rather
+than assume it and it walks to 0.500.</figcaption>
+</figure>
+
+<p>Every coefficient has the same sign, the mass sits at the shallow end of
+the ladder — gears 1 to 4 carry 0.517 of it where an even spread would give
+0.167 — and the overlap with n<sup>−1/2</sup> is
+<strong>0.99495</strong>. Fitting the exponent instead of assuming it gives
+0.455 at twenty-four gears and 0.500 at sixty-four; the overlap never leaves
+0.9921 anywhere from four gears to eighty. The truncated zeta scores 0.29899
+against a floor of 0.29390 — the exact minimiser beats it by 1.7% and
+never by more than 6.4% at any length tried.</p>
+
+<div class="cardbox">
+The vector is <strong>&#8721;<sub>n&#8804;N</sub>
+n<sup>−1/2+i&#947;</sup></strong>, the zeta partial sum on the critical
+line. Every floor rh32 through rh35 measured is its weighted mean square over
+the zeros, divided by the harmonic number H<sub>N</sub>.
+</div>
+
+<h2 id="s5">5 · Why the collapse is forced</h2>
+
+<p>H<sub>N</sub> is not an arbitrary normaliser: &#8721;1/n is exactly the
+mean square a <em>random-phase</em> Dirichlet polynomial with those
+coefficients would have. So the floor is a suppression factor — how far
+below chance the truncated zeta sits when it is read at the zeros of zeta. At
+twenty-four gears it is 3.34 times below; at sixty-four, 23.1; at eighty,
+90.0.</p>
+
+<p>Put that way the collapse rh34 measured and could not explain stops being
+mysterious and starts being obligatory. A partial sum shortened far below the
+length at which it can resolve a zero knows nothing about that zero, and sits
+near chance. Lengthen it past that point and it begins to see what it is
+standing on.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 504" role="img" aria-label="The floor against the number of gears, for four windows. Each collapses, and the length at which it collapses moves with the window. Inset: the collapse length against the square root of gamma over two pi, on a straight line.">
+<text x="370.0" y="21" class="ftitle">the collapse is forced, and its length is the functional equation&#8217;s</text>
+<line x1="66" y1="300" x2="432" y2="300" class="axis"/>
+<line x1="66" y1="60" x2="66" y2="300" class="axis"/>
+<line x1="66" y1="271.9" x2="432" y2="271.9" class="grid"/>
+<text x="60" y="275.4" class="flab end">10&#8315;&#179;</text>
+<line x1="66" y1="201.3" x2="432" y2="201.3" class="grid"/>
+<text x="60" y="204.8" class="flab end">10&#8315;&#178;</text>
+<line x1="66" y1="130.6" x2="432" y2="130.6" class="grid"/>
+<text x="60" y="134.1" class="flab end">0.1</text>
+<line x1="66" y1="60.0" x2="432" y2="60.0" class="grid"/>
+<text x="60" y="63.5" class="flab end">1</text>
+<text x="75.0" y="317.0" class="flab mid">4</text>
+<text x="155.1" y="317.0" class="flab mid">8</text>
+<text x="235.1" y="317.0" class="flab mid">16</text>
+<text x="315.2" y="317.0" class="flab mid">32</text>
+<text x="395.2" y="317.0" class="flab mid">64</text>
+<text x="249.0" y="336.0" class="flab mid">number of gears N</text>
+<text x="28" y="48.0" class="flab st">&#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan> / mass</text>
+<path d="M75.0 78.7L121.8 93.8L155.1 95.0L180.8 104.1L201.9 123.6L235.1 142.8L260.9 187.6L281.9 212.4L315.2 224.3L340.9 233.6L362.0 247.6L379.8 270.1L395.2 280.5L421.0 288.4" class="ln0"/>
+<circle cx="75.0" cy="78.7" r="2.2" class="hm1"/>
+<circle cx="121.8" cy="93.8" r="2.2" class="hm1"/>
+<circle cx="155.1" cy="95.0" r="2.2" class="hm1"/>
+<circle cx="180.8" cy="104.1" r="2.2" class="hm1"/>
+<circle cx="201.9" cy="123.6" r="2.2" class="hm1"/>
+<circle cx="235.1" cy="142.8" r="2.2" class="hm1"/>
+<circle cx="260.9" cy="187.6" r="2.2" class="hm1"/>
+<circle cx="281.9" cy="212.4" r="2.2" class="hm1"/>
+<circle cx="315.2" cy="224.3" r="2.2" class="hm1"/>
+<circle cx="340.9" cy="233.6" r="2.2" class="hm1"/>
+<circle cx="362.0" cy="247.6" r="2.2" class="hm1"/>
+<circle cx="379.8" cy="270.1" r="2.2" class="hm1"/>
+<circle cx="395.2" cy="280.5" r="2.2" class="hm1"/>
+<circle cx="421.0" cy="288.4" r="2.2" class="hm1"/>
+<line x1="170.6" y1="300.0" x2="170.6" y2="99.9" class="hl"/>
+<circle cx="170.6" cy="99.9" r="3.2" class="hm1"/>
+<path d="M75.0 71.9L121.8 80.0L155.1 81.5L180.8 89.8L201.9 92.8L235.1 97.1L260.9 120.4L281.9 131.7L315.2 158.5L340.9 184.0L362.0 222.6L379.8 236.0L395.2 238.4L421.0 290.8" class="ln1"/>
+<circle cx="75.0" cy="71.9" r="2.2" class="hm3"/>
+<circle cx="121.8" cy="80.0" r="2.2" class="hm3"/>
+<circle cx="155.1" cy="81.5" r="2.2" class="hm3"/>
+<circle cx="180.8" cy="89.8" r="2.2" class="hm3"/>
+<circle cx="201.9" cy="92.8" r="2.2" class="hm3"/>
+<circle cx="235.1" cy="97.1" r="2.2" class="hm3"/>
+<circle cx="260.9" cy="120.4" r="2.2" class="hm3"/>
+<circle cx="281.9" cy="131.7" r="2.2" class="hm3"/>
+<circle cx="315.2" cy="158.5" r="2.2" class="hm3"/>
+<circle cx="340.9" cy="184.0" r="2.2" class="hm3"/>
+<circle cx="362.0" cy="222.6" r="2.2" class="hm3"/>
+<circle cx="379.8" cy="236.0" r="2.2" class="hm3"/>
+<circle cx="395.2" cy="238.4" r="2.2" class="hm3"/>
+<circle cx="421.0" cy="290.8" r="2.2" class="hm3"/>
+<line x1="205.5" y1="300.0" x2="205.5" y2="93.2" class="hl"/>
+<circle cx="205.5" cy="93.2" r="3.2" class="hm3"/>
+<path d="M75.0 69.8L121.8 74.0L155.1 77.3L180.8 80.0L201.9 83.3L235.1 88.3L260.9 93.2L281.9 97.6L315.2 104.8L340.9 112.8L362.0 123.4L379.8 139.6L395.2 157.0L421.0 199.1" class="ln2"/>
+<circle cx="75.0" cy="69.8" r="2.2" class="hm2"/>
+<circle cx="121.8" cy="74.0" r="2.2" class="hm2"/>
+<circle cx="155.1" cy="77.3" r="2.2" class="hm2"/>
+<circle cx="180.8" cy="80.0" r="2.2" class="hm2"/>
+<circle cx="201.9" cy="83.3" r="2.2" class="hm2"/>
+<circle cx="235.1" cy="88.3" r="2.2" class="hm2"/>
+<circle cx="260.9" cy="93.2" r="2.2" class="hm2"/>
+<circle cx="281.9" cy="97.6" r="2.2" class="hm2"/>
+<circle cx="315.2" cy="104.8" r="2.2" class="hm2"/>
+<circle cx="340.9" cy="112.8" r="2.2" class="hm2"/>
+<circle cx="362.0" cy="123.4" r="2.2" class="hm2"/>
+<circle cx="379.8" cy="139.6" r="2.2" class="hm2"/>
+<circle cx="395.2" cy="157.0" r="2.2" class="hm2"/>
+<circle cx="421.0" cy="199.1" r="2.2" class="hm2"/>
+<line x1="250.5" y1="300.0" x2="250.5" y2="91.0" class="hl"/>
+<circle cx="250.5" cy="91.0" r="3.2" class="hm2"/>
+<path d="M75.0 68.2L121.8 71.5L155.1 74.2L180.8 76.5L201.9 78.5L235.1 82.1L260.9 85.4L281.9 88.1L315.2 93.0L340.9 97.8L362.0 101.8L379.8 107.3L395.2 110.3L421.0 116.2" class="ln4"/>
+<circle cx="75.0" cy="68.2" r="2.2" class="hm4"/>
+<circle cx="121.8" cy="71.5" r="2.2" class="hm4"/>
+<circle cx="155.1" cy="74.2" r="2.2" class="hm4"/>
+<circle cx="180.8" cy="76.5" r="2.2" class="hm4"/>
+<circle cx="201.9" cy="78.5" r="2.2" class="hm4"/>
+<circle cx="235.1" cy="82.1" r="2.2" class="hm4"/>
+<circle cx="260.9" cy="85.4" r="2.2" class="hm4"/>
+<circle cx="281.9" cy="88.1" r="2.2" class="hm4"/>
+<circle cx="315.2" cy="93.0" r="2.2" class="hm4"/>
+<circle cx="340.9" cy="97.8" r="2.2" class="hm4"/>
+<circle cx="362.0" cy="101.8" r="2.2" class="hm4"/>
+<circle cx="379.8" cy="107.3" r="2.2" class="hm4"/>
+<circle cx="395.2" cy="110.3" r="2.2" class="hm4"/>
+<circle cx="421.0" cy="116.2" r="2.2" class="hm4"/>
+<line x1="292.3" y1="300.0" x2="292.3" y2="89.4" class="hl"/>
+<circle cx="292.3" cy="89.4" r="3.2" class="hm4"/>
+<text x="66" y="352.0" class="flab st">the dashed marks are where each floor has halved: N = 9.2, 12.4, 18.3, 26.3</text>
+<text x="452" y="68.0" class="flab st">window, mean &#947;:</text>
+<text x="452" y="89.0" class="flab st hm1">&#916; 0.48 &#183; &#947; 91</text>
+<text x="452" y="107.0" class="flab st hm3">&#916; 0.24 &#183; &#947; 159</text>
+<text x="452" y="125.0" class="flab st hm2">&#916; 0.12 &#183; &#947; 331</text>
+<text x="452" y="143.0" class="flab st hm4">&#916; 0.06 &#183; &#947; 661</text>
+<line x1="566" y1="268" x2="706" y2="268" class="axis"/>
+<line x1="566" y1="122" x2="566" y2="268" class="axis"/>
+<path d="M572.1 253.8L699.0 144.2" class="lnm lnd"/>
+<circle cx="580.1" cy="248.8" r="3.6" class="hm1"/>
+<circle cx="601.6" cy="229.2" r="3.6" class="hm3"/>
+<circle cx="640.5" cy="193.3" r="3.6" class="hm2"/>
+<circle cx="693.0" cy="144.8" r="3.6" class="hm4"/>
+<text x="560" y="247.2" class="flab end">10</text>
+<line x1="566" y1="243.7" x2="706" y2="243.7" class="grid"/>
+<text x="560" y="186.3" class="flab end">20</text>
+<line x1="566" y1="182.8" x2="706" y2="182.8" class="grid"/>
+<text x="583.5" y="285.0" class="flab mid">4</text>
+<text x="618.5" y="285.0" class="flab mid">6</text>
+<text x="653.5" y="285.0" class="flab mid">8</text>
+<text x="688.5" y="285.0" class="flab mid">10</text>
+<text x="636.0" y="303.0" class="flab mid">&#8730;(&#947;/2&#960;)</text>
+<text x="566" y="92.0" class="flab st">the collapse length,</text>
+<text x="566" y="107.0" class="flab st">against the balanced length</text>
+<text x="590.5" y="164.6" class="flab st">2.49&#8730;(&#947;/2&#960;)</text>
+<text x="30" y="380" class="flab st">Each window's floor collapses as the ladder lengthens, and the length at which it does moves with the window: over a</text>
+<text x="30" y="398" class="flab st">factor 7.3 in &#947; the half-floor point runs 9.15, 12.38, 18.28, 26.26. Fitting a power law gives an exponent of 0.531</text>
+<text x="30" y="416" class="flab st">with a residual of 0.3% in log &#8212; the BALANCED approximate functional equation's length &#8730;(&#947;/2&#960;), not the one-sided</text>
+<text x="30" y="434" class="flab st">&#947;/2&#960;, whose constant would have to move by a factor 2.54 across the four. This is why no floor uniform in N can</text>
+<text x="30" y="452" class="flab st">exist. Past that length the partial sum begins to resolve the zero it is standing on, and a lower bound on it is a</text>
+<text x="30" y="470" class="flab st">lower bound on something that is heading for nothing.</text>
+</svg></div>
+<figcaption>Four windows, four collapses, and a collapse length that moves
+with the window as the square root of &#947; — the balanced approximate
+functional equation&#8217;s length, not the one-sided one.</figcaption>
+</figure>
+
+<p>The length is measurable and it moves. Over four windows whose mean &#947;
+runs 91, 159, 331, 661 — a factor 7.3 — the half-floor point runs
+9.15, 12.38, 18.28, 26.26. Fitting knee = C·(&#947;/2&#960;)<sup>p</sup>
+gives <strong>p = 0.531, C = 2.221</strong>, with a residual of 0.3% in log.
+That is &#8730;(&#947;/2&#960;), the balanced approximate functional
+equation&#8217;s length. The one-sided &#947;/2&#960; is refuted outright:
+its constant would have to move by a factor 2.54 across the same four
+windows, where the square root holds to 6.3%.</p>
+
+<p>Which settles the programme. A floor uniform in N would assert that the
+zeta partial sums cannot be small at the zeros. They are small at the zeros,
+from length ≈2.49&#8730;(&#947;/2&#960;) onward, for the plainest reason
+available. rh32&#8217;s lemma was not merely unproven and then refuted twice;
+it was asking a bounded quantity to stay away from a value it is converging
+to.</p>
+
+<h2 id="s6">6 · Why log 2</h2>
+
+<p>rh35 &#167;7 (b) offered four readings of why the attacking budget goes
+entirely to log 2: it is the smallest prime, the largest rate gap, the
+shallowest level, and the first nonzero rate. One experiment kills all
+four. Take gear 2 out of the ladder. Then log 3 is the smallest prime, the
+largest gap, the shallowest level and the first nonzero rate, and log 2 is
+not a rate at all — and log 2 still wins, factor 0.465 against log
+3&#8217;s 0.618. Start the ladder at gear 3, so there is no gear 1 to measure
+a first nonzero rate from, and log 2 wins by more: 0.317.</p>
+
+<p>A fifth reading, and this one was mine: that the damage is just the moment
+function, whose spikes rh33 matched to the prime powers. It is not.
+E(log 7)/mass is −0.1937, half again the size of E(log 2)/mass at
+−0.1294, and log 7 does barely half the damage — 0.2528 against
+0.1010. log 5, 11 and 13 all have larger moments than log 2 and all do less.
+Across the fifteen frequencies the moment carries no information about the
+damage whatever: correlation +0.06.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 490" role="img" aria-label="Left: the damage each modulation frequency does, against the fraction of the gear ladder that a shift by that frequency maps back onto itself. Right: three ladders, showing that the winner follows the self-map and not the arithmetic.">
+<text x="370.0" y="21" class="ftitle">the leverage is the ladder&#8217;s self-similarity, not its arithmetic</text>
+<line x1="66" y1="268" x2="400" y2="268" class="axis"/>
+<line x1="66" y1="62" x2="66" y2="268" class="axis"/>
+<line x1="66" y1="237.7" x2="400" y2="237.7" class="grid"/>
+<text x="60" y="241.2" class="flab end">0.4</text>
+<line x1="66" y1="177.1" x2="400" y2="177.1" class="grid"/>
+<text x="60" y="180.6" class="flab end">0.6</text>
+<line x1="66" y1="116.5" x2="400" y2="116.5" class="grid"/>
+<text x="60" y="120.0" class="flab end">0.8</text>
+<text x="66.0" y="285.0" class="flab mid">0</text>
+<text x="165.4" y="285.0" class="flab mid">1/6</text>
+<text x="215.1" y="285.0" class="flab mid">1/4</text>
+<text x="264.8" y="285.0" class="flab mid">1/3</text>
+<text x="364.2" y="285.0" class="flab mid">1/2</text>
+<text x="233.0" y="304.0" class="flab mid">fraction of the ladder a shift by v maps back onto it</text>
+<text x="28" y="50.0" class="flab st">the floor after the attack, as a factor of the floor before</text>
+<circle cx="364.2" cy="254.8" r="3.4" class="hm4"/>
+<text x="374.2" y="258.8" class="flab st">log 2</text>
+<circle cx="264.8" cy="153.5" r="3.4" class="hm1"/>
+<text x="274.8" y="157.5" class="flab st">log 3</text>
+<circle cx="215.1" cy="143.1" r="3.4" class="hm1"/>
+<text x="225.1" y="135.1" class="flab st">log 4</text>
+<circle cx="165.4" cy="109.9" r="3.4" class="hm1"/>
+<text x="175.4" y="113.9" class="flab st">log 5</text>
+<circle cx="165.4" cy="136.7" r="3.4" class="hm1"/>
+<circle cx="140.6" cy="98.3" r="3.4" class="hm1"/>
+<text x="140.6" y="87.3" class="flab mid">log 7</text>
+<circle cx="140.6" cy="109.6" r="3.4" class="hm1"/>
+<circle cx="115.7" cy="129.7" r="3.4" class="hm1"/>
+<circle cx="115.7" cy="131.2" r="3.4" class="hm1"/>
+<circle cx="115.7" cy="89.7" r="3.4" class="hm1"/>
+<circle cx="115.7" cy="128.8" r="3.4" class="hm1"/>
+<circle cx="90.9" cy="83.3" r="3.4" class="hm1"/>
+<text x="90.9" y="72.3" class="flab mid">log 13</text>
+<circle cx="90.9" cy="110.4" r="3.4" class="hm1"/>
+<circle cx="90.9" cy="116.5" r="3.4" class="hm1"/>
+<circle cx="90.9" cy="86.4" r="3.4" class="hm1"/>
+<text x="80" y="193.8" class="flab st">correlation &#8722;0.883</text>
+<text x="80" y="207.4" class="flab st">(the moment scores +0.06 on the</text>
+<text x="80" y="221.0" class="flab st">same fifteen, the rate-distance &#8722;0.03)</text>
+<text x="652.0" y="68.0" class="flab end">factor</text>
+<text x="706.0" y="68.0" class="flab end">self-map</text>
+<text x="430" y="88.0" class="flab st">the integers, floor 0.294</text>
+<rect x="514.0" y="99.0" width="31.6" height="11" class="bar hm4"/>
+<text x="502.0" y="109.0" class="flab end">step (log 2)</text>
+<text x="652.0" y="109.0" class="flab end">0.344</text>
+<text x="706.0" y="109.0" class="flab end">0.50</text>
+<rect x="514.0" y="120.0" width="62.4" height="11" class="bar hm1"/>
+<text x="502.0" y="130.0" class="flab end">log 3</text>
+<text x="652.0" y="130.0" class="flab end">0.678</text>
+<text x="706.0" y="130.0" class="flab end">0.33</text>
+<text x="430" y="164.0" class="flab st">geometric, ratio exp 0.12, floor 0.794</text>
+<rect x="514.0" y="175.0" width="3.0" height="11" class="bar hm3"/>
+<text x="502.0" y="185.0" class="flab end">step (0.12)</text>
+<text x="652.0" y="185.0" class="flab end">0.010</text>
+<text x="706.0" y="185.0" class="flab end">0.96</text>
+<rect x="514.0" y="196.0" width="80.9" height="11" class="bar hm4"/>
+<text x="502.0" y="206.0" class="flab end">log 2</text>
+<text x="652.0" y="206.0" class="flab end">0.880</text>
+<text x="706.0" y="206.0" class="flab end">0.00</text>
+<text x="430" y="240.0" class="flab st">the primes, floor 0.790</text>
+<rect x="514.0" y="251.0" width="54.8" height="11" class="bar hm3"/>
+<text x="502.0" y="261.0" class="flab end">step</text>
+<text x="652.0" y="261.0" class="flab end">0.596</text>
+<text x="706.0" y="261.0" class="flab end">0.04</text>
+<rect x="514.0" y="272.0" width="67.8" height="11" class="bar hm4"/>
+<text x="502.0" y="282.0" class="flab end">log 2</text>
+<text x="652.0" y="282.0" class="flab end">0.737</text>
+<text x="706.0" y="282.0" class="flab end">0.00</text>
+<text x="430" y="304.0" class="flab st">the bar is what the floor falls to;</text>
+<text x="430" y="320.0" class="flab st">shorter is more damage</text>
+<text x="30" y="348" class="flab st">Left: fifteen modulation frequencies on the integer ladder, each plotted against the fraction of the ladder that a</text>
+<text x="30" y="366" class="flab st">shift by it maps back onto the ladder &#8212; 1/2 at log 2, 1/3 at log 3, 1/m at log m. That fraction orders the damage at</text>
+<text x="30" y="384" class="flab st">&#8722;0.883, where the moment function scores +0.06 on the same fifteen and the rate-distance &#8722;0.03. Right: the test that</text>
+<text x="30" y="402" class="flab st">decides it. Build the ladder geometrically and there is no arithmetic in it at all; its own step maps twenty-three</text>
+<text x="30" y="420" class="flab st">of twenty-four rates back and takes the floor to a factor 0.010, while log 2, which maps nothing back, does nothing.</text>
+<text x="30" y="438" class="flab st">The primes are the opposite extreme: no shift maps them onto themselves, since 2p is never prime, and they are both</text>
+<text x="30" y="456" class="flab st">the best-conditioned ladder and the least attackable.</text>
+</svg></div>
+<figcaption>The damage against the fraction of the ladder a shift maps back
+onto itself, and the test that decides it: a ladder with no arithmetic in it
+reverses the answer exactly as the self-map says it must.</figcaption>
+</figure>
+
+<p>What survives is geometric. Shift the whole rate ladder by v&#8320; and
+some of it lands back on itself; on the integers the fraction that does is
+1/2 at log 2, 1/3 at log 3, 1/m at log m. That fraction orders the damage at
+<strong>−0.883</strong>, on the same fifteen frequencies where the moment
+scores +0.06 and rh35&#8217;s rate-distance scores −0.03. It is an
+ordering rather than a formula — 25 of the 105 pairs invert, all of them
+in the tail where the fraction ties at one or two gears out of twenty-four
+— but the top four, log 2, log 3, log 4, log 6, come out in self-map order
+exactly.</p>
+
+<p>The decisive test removes the arithmetic entirely. Build the ladder
+geometrically, ratio e<sup>0.12</sup>. Its own step maps twenty-three of
+twenty-four rates back onto it and takes the floor to a factor
+<strong>0.010</strong>, where log 2&#8217;s best against the integers was
+0.344. And log 2, which maps nothing back, does <em>nothing</em> here: factor
+0.880. The integers&#8217; winner and the geometric ladder&#8217;s winner have
+traded places. The control that fixes it is ratio 2<sup>1/6</sup>, where log 2
+is six steps of the ladder and maps eighteen of twenty-four back: log 2
+recovers to 0.271 while log 3, still mapping nothing, stays at 0.816.</p>
+
+<p>And the primes are the opposite extreme. No shift maps them onto
+themselves at all, since 2p is never prime, which is why they are
+simultaneously the best-conditioned of the five gear sets — floor 0.790
+— and the least attackable, a best single-frequency factor of 0.596
+against the geometric ladder&#8217;s 0.010.</p>
+
+<h2 id="s7">7 · What this corrects in rh35</h2>
+
+<p>rh35 &#167;5 read its two halves as pointing at opposite ends of one
+thread: the conditioning set where the rates crowd, at the deep end, and the
+leverage mounted where they are sparse, at the shallow end. The first half of
+that is wrong, and it was wrong for a reason worth naming. It rested on the
+minimum-gap statistic — the closest pair of rates lives at the deep end
+— which rh35 &#167;3 had already refuted two sections earlier, by
+explicit counterexample, as a predictor of the floor. The section used a
+statistic the document had just discarded.</p>
+
+<p>The vector settles it. The floor is carried at the <strong>shallow</strong>
+end: centroid depth 6.26 against 11.5 for an even spread, participation ratio
+10.0 of a possible 24, half the mass on the first four gears. The deep end is
+where the floor goes <em>after</em> the slide has destroyed the shallow
+vector — centroid 18.92 at θ = 0.03, with 0.803 of the mass on the deepest
+four gears. rh35 read the damaged state as the natural one.</p>
+
+<p>So both halves point the same way after all, and the corrected reading is
+tighter than the one it replaces: the conditioning is carried at the shallow
+end because that is where a truncated zeta puts its weight, and the leverage
+is mounted there because that is where a ladder&#8217;s self-similarity is
+densest. Doubling maps half the integers back; only one in twenty-four
+survives a shift by log 13.</p>
+
+<h2 id="s8">8 · Where this leaves the conjunction</h2>
+
+<p>Nowhere new, and it is worth being exact about what has and has not
+changed. No bound here is uniform in anything, nothing is certified, and the
+nine certified points of rh30 &#167;10 (c) are still nine.</p>
+
+<p>What is different in kind is that this is the first document in the line
+that explains rather than measures. rh32 through rh35 measured a floor,
+argued about what set it, and closed a lemma from the inside without ever
+naming the object they were bounding. It has a name: the zeta partial sum on
+the critical line, read at the zeros. Once it is named, the floor&#8217;s
+collapse is not a datum to be fitted but a consequence, and its length is the
+functional equation&#8217;s.</p>
+
+<p>That is a negative result about the arc&#8217;s own method, and it is
+better to hold it clearly than to keep it vague. Any programme that tries to
+bound &#955;<sub>min</sub> of this Gram matrix away from zero, uniformly in
+the ladder length, is asking for something false. The lever will have to
+be somewhere else. The frame — the helix, the gears, the rates — is
+undamaged, and rather more useful now that it is known what lives on it;
+what is dead is one particular thing to try to prove about it.</p>
+
+<h2 id="s9">9 · What this document leaves</h2>
+
+<dl class="dict">
+<dt>(a) The suppression factor, not the floor.</dt>
+<dd>H<sub>N</sub> makes the floor a ratio to chance, and the ratio is what
+carries the arithmetic: 3.34 at N = 24, 90.0 at N = 80. That is a statement
+about how much cancellation the zeros force in a zeta partial sum. It is not
+a bound and it is not uniform, but it is the quantity that was actually being
+measured for five documents, and it is worth a document of its own — how
+the suppression grows with N, whether the growth rate is uniform in the
+window, and what it looks like for Dirichlet polynomials that are not
+n<sup>−1/2</sup>.</dd>
+
+<dt>(b) Self-similarity as the design variable.</dt>
+<dd>&#167;6 says the attackable ladders are the self-similar ones and the
+primes are the extreme case with no self-map at all. That is a statement
+about which gear sets are well-conditioned, and it is testable further:
+ladders interpolating between geometric and prime should interpolate in both
+the floor and the best attack. If the floor is monotone in a self-similarity
+index, that index is the statistic rh35 &#167;3 went looking for and did not
+find.</dd>
+
+<dt>(c) The exponent.</dt>
+<dd>The fitted collapse exponent is 0.531 over four windows, not 0.500, at a
+residual of 0.3% — tight enough that the 6% excess is probably real rather
+than noise. Four windows is a thin fit. More windows, and a wider span in
+&#947;, would say whether the excess is a genuine correction or an artifact
+of measuring the knee by half-height.</dd>
+
+<dt>(d) The certified set stays closed.</dt>
+<dd>Nine, unchanged, renewed once more.</dd>
+</dl>
+
+<p class="foot">Sibling documents: <a href="rh32.html">rh32</a> ·
+<a href="rh33.html">rh33</a> · <a href="rh34.html">rh34</a> ·
+<a href="rh35.html">rh35</a></p>
+
+
+</div>
+</body>
+</html>

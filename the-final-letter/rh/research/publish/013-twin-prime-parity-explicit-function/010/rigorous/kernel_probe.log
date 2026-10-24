@@ -1,0 +1,96 @@
+==============================================================================
+T6 -- AN ADMISSIBLE KERNEL WITH AN O(1) LEFT SIDE
+==============================================================================
+mp.dps = 60   python 3.13.13
+
+S0.  von Mangoldt Lambda guard (the round's sieve bug is log rad, not Lambda)
+------------------------------------------------------------------------------
+  sieve Lambda vs trial-division Lambda, n<=3000 : 0 mismatch(es)
+  sieve Lambda vs log rad(n),            n<=3000 : 2533 mismatch(es)  <- must be large
+  [ok] Lambda(p^k)=log p reproduced and differs from log rad  -- Lam mismatches=0, lograd mismatches=2533
+
+S1.  The kernels (all real, even; a = gamma_1 = 14.13472514173469379045725)
+------------------------------------------------------------------------------
+  (G) Gaussian           g = e^{-u^2/2}/sqrt(2pi)                    [not compact]
+  (M) modulated Gaussian g = cos(a u) e^{-u^2/2}                     [not compact]
+  (C) compact bump       g = C (1-u^2/A^2)^m cos(a u) on [-A,A]      [COMPACT]
+      varphi(t) = C/2[M(t-a)+M(t+a)], M(x)=A sqrt(pi) m! (2/(A|x|))^{m+1/2} J_{m+1/2}(A|x|)
+
+  prime tables: Lambda(n) to 2000000 (Gaussian/modGauss), 162754 (A=12), 2980 (A=8)
+
+S2.  THE TABLE   (K = 100 zero terms, so gamma_K = 236.5242297)
+------------------------------------------------------------------------------
+  kernel           |LHS|         |RHS-LHS|    zero tail   arch tail   prime cut N
+  -------------------------------------------------------------------------------
+  Gaussian         8.2619766e-44 1.56e-44     -           0.0e+00     2000000   
+  modGauss s=1     2.5066283     2.41e-45     -           0.0e+00     2000000   
+  bump A=12 m=40   2.0           7.24e-54     5.0e-77     3.7e-50     162754    
+  bump A=8 m=40    2.0           3.68e-47     6.7e-70     5.0e-43     2980      
+  bump A=12 m=24   2.0           4.78e-39     5.0e-51     4.0e-35     162754    
+
+  components:
+   Gaussian         poles=2.26629690613  arch=-1.19634671808  primes=1.06995018806  LHS=8.2619765948608e-44  RHS-LHS=1.56477e-44
+   modGauss s=1     poles=1.66140414676e-43  arch=0.80802378836  primes=-1.6986044864  LHS=2.5066282747565  RHS-LHS=2.41395e-45
+   bump A=12 m=40   poles=-1.72991545182e-30  arch=0.485703508744  primes=-1.51429649126  LHS=2.0  RHS-LHS=-7.2363e-54
+   bump A=8 m=40    poles=2.19541267787e-22  arch=0.72696721963  primes=-1.27303278043  LHS=2.000000000064  RHS-LHS=3.67664e-47
+   bump A=12 m=24   poles=3.97154359792e-22  arch=0.378793729842  primes=-1.62120627016  LHS=2.0  RHS-LHS=4.78366e-39
+
+  [ok] |LHS| >= 0.1 for the compact bump A=12 m=40  -- |LHS| = 2.0
+  [ok] |RHS-LHS| <= 1e-20 at K=100 for the compact bump  -- residual = -7.2363e-54
+  [ok] g compactly supported (condition ii)  -- supp g = [-12,12]
+  [ok] archimedean integral converges (operative content of iii)  -- arch tail = 3.68608e-50
+  [ok] prime side finite and exact (condition ii consequence)  -- N = e^12 = 162754
+
+S3.  Condition (i): decay of varphi at the nontrivial zeros
+------------------------------------------------------------------------------
+    t              |varphi(t)|        |varphi(t)| t^{m+1}
+   14.134725      1.0               1.4513832e+47
+   21.02204       1.7031266e-18     2.8901195e+36
+   25.010858      1.1794461e-26     2.4828473e+31
+   50.0           6.3167353e-48     2.8725187e+22
+   100.0          1.2732686e-63     1.2732686e+19
+   236.52423      2.1228659e-80     4.5271374e+17
+   300.0          1.1294782e-87     4.1195454e+14
+   500.0          7.867822e-95      3.5778712e+16
+   envelope check |varphi(gamma)| <= env(gamma) for gamma >= gamma_2 : True
+   and env(t) t^{m+1} -> C A sqrt(pi) m! (2/A)^{m+1} = 3.18141e+21 as t -> infinity
+  [ok] (i) |varphi(gamma)| bounded by the t^{-(m+1)} envelope along the zeros  -- varphi ~ t^{-41}
+
+S4.  Condition (iii): 'decay at the trivial zeros' -- why the literal reading is empty
+------------------------------------------------------------------------------
+  Phi(-2n) = int g(u) e^{-(2n+1/2)u} du is dominated by u = -A and GROWS for every
+  non-zero even g (after Phi(s)=Phi(1-s) the trivial zeros mirror s = 2n+1):
+   n=1    Phi_Gauss(-2n)=9.0798845      Phi_bump(-2n)=-4.0721914e-19
+   n=2    Phi_Gauss(-2n)=9957.3024      Phi_bump(-2n)=-2.3452937e-9
+   n=3    Phi_Gauss(-2n)=5.9618493e+8   Phi_bump(-2n)=1.9789962
+   n=5    Phi_Gauss(-2n)=3.478511e+23   Phi_bump(-2n)=-1.3503378e+19
+   n=10   Phi_Gauss(-2n)=7.1951206e+90  Phi_bump(-2n)=-4.9890725e+64
+  Hence the literal claim '(iii) Phi(-2n)->0' fails for the Gaussian family too; it is a
+  convention artefact.  The operative requirement is absolute convergence of the
+  archimedean integral, varphi(t)=o(1/log t), which holds here.
+  [ok] (iii) archimedean term well defined / absolutely convergent  -- tail 3.68608e-50
+
+S6.  Structural side: Paley-Wiener, and why the literal negative claim (B) is false
+------------------------------------------------------------------------------
+  THEOREM.  If g != 0 is compactly supported and |varphi(t)| <= C e^{-c|t|} on R for some
+  c>0, then g = 0.  (Proof: g(u) = (1/2pi) int varphi(t) e^{-itu}dt converges absolutely
+  and defines a holomorphic function in |Im u| < c; on the real axis it vanishes for
+  |u| > A, an open set meeting the strip, so g = 0 by analytic continuation.)
+  So a compactly supported kernel gives only algebraic / super-polynomial decay of
+  varphi, never exponential decay.  The claim 'O(1) LHS forces a zero-side tail
+  >= c/log G for every compactly supported even g' is therefore FALSE:
+      compact bump A=12 m=40:  |LHS| = 2.0 ,  zero-tail bound at G = gamma_100 = 236.52423 is 4.95487e-77
+      while 1/log G = 0.182947 -- the tail is many orders of magnitude below c/log G.
+  Correct structural statement: if g is C^m and vanishes to order m at the endpoints of
+  its support, then varphi(t) = O(t^{-(m+1)}) and the zero tail beyond G is O((log G)G^{-m}).
+  Convergence needs m >= 1; m = 0 (a jump, e.g. the Cauchy kernel) is the divergent
+  boundary case of truths S1.
+  [ok] (B) refuted by the compact bump witness  -- tail 4.955e-77  <<  1/log G = 0.1829
+
+==============================================================================
+SUMMARY: 9/9 checks passed   (95.7 s)
+OUTCOME (A): the compactly supported even kernel
+  g(u) = C (1 - u^2/144)^40 cos(gamma_1 u),   |u| <= 12,
+meets (i) [varphi(t) = O(t^{-41})] and (ii) [compact support, finite exact prime sum],
+with |LHS| = 2.0 (O(1)) and |RHS - LHS| = 7.2363e-54 at K = 100 zero terms.
+==============================================================================

@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh4 — null helices and the critical line</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;   /* the numeral / helix */
+  --chart-2: #a86b16;   /* closures, limits */
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-helix { background: var(--chart-1); }
+.sw-stair { background: var(--muted); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.anti { fill: var(--bg); stroke: var(--chart-1); stroke-width: 1.4; }
+.step { stroke: var(--chart-1); stroke-width: 2; stroke-linecap: round; }
+.ghost { stroke: var(--muted); stroke-opacity: .3; stroke-width: 1; fill: none; }
+.zig { stroke: var(--chart-1); stroke-opacity: .22; stroke-width: 1; fill: none; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.stair { stroke: var(--muted); stroke-width: 1.7; fill: none; }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.limit { fill: none; stroke: var(--chart-2); stroke-width: 2.4; }
+.zero { fill: var(--chart-2); }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.it { font: italic 14px ui-serif, Georgia, serif; fill: var(--chart-1); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.fsub { fill: var(--muted); font: 12px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.ovl { text-decoration: overline; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>Null helices and the critical line</h1>
+  <p class="sub">The Riemann Hypothesis read as a rigidity theorem inside the nested-circle numeral system — and what the last 165 years of analysis say about each of its axioms.</p>
+  <p class="meta">docs/rh4 · expands <a href="rh3.html">rh3</a>, the nested-circle summary of η, ζ and RH · figures computed, not sketched · 2026-07-30</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> The companion construction reads the Dirichlet eta function as the value of a single infinite numeral: nested circles carry digits, cumulative half-turns supply alternating signs, a continuous torsion supplies the imaginary direction, and radial retuning closes gaps on the number line. Zeros of η — hence of ζ — appear as helices that <i>close</i>. This document takes the construction seriously as a dictionary and pushes each of its notions to the sharpest counterpart known in analytic number theory. The dual helix is the functional equation, and the critical line is the unique locus where a helix and its dual are <i>congruent</i> rather than merely similar (§5). The rotating frame that flattens the helix is the Riemann–Siegel <i>Z</i> (§6). Prime gears factor the train, and each closed helix broadcasts a wave into the primes (§7–8). Random retuning shows square-root decay is the <i>generic</i> closure exponent (§9). The de Bruijn–Newman constant turns the construction's rigidity claim into a proved boundary statement — Λ ≥ 0: the hypothesis, if true, is only barely true (§11). Mollifiers are disciplined λ-retuning and already force more than 41% of all closures onto the line (§10). And the one setting where square-root rigidity is a <i>theorem</i> — Weil's proof for curves over finite fields — isolates exactly the axiom the nested-circle system is missing: positivity (§14); §15 spells out what that inner product must do, and why the phase-opposite pairing is not it.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The axioms, restated</a></li>
+  <li><a href="#s2">The <i>aAaA…</i> helix and η(<i>s</i>)</a></li>
+  <li><a href="#s3">The η–ζ identity and gauge closures</a></li>
+  <li><a href="#s4">What a zero looks like</a></li>
+  <li><a href="#s5">The dual helix: congruence pins the line</a></li>
+  <li><a href="#s6">The rotating frame: <i>Z</i>(<i>t</i>), winding, certification</a></li>
+  <li><a href="#s7">Prime gears and the Euler factorization</a></li>
+  <li><a href="#s8">Resonance: closed helices broadcast into the primes</a></li>
+  <li><a href="#s9">The random gear train, or why one half</a></li>
+  <li><a href="#s10">Retuning as mollification: partial rigidity is proved</a></li>
+  <li><a href="#s11">The canonical deformation: Λ = 0 as exact criticality</a></li>
+  <li><a href="#s12">Forced evolution, made precise</a></li>
+  <li><a href="#s13">The spectral reading: helices as eigenmodes</a></li>
+  <li><a href="#s14">Where rigidity is a theorem: function fields and positivity</a></li>
+  <li><a href="#s15">The inner product, spelled out</a></li>
+  <li><a href="#s16">Gap-filling is the Beurling–Nyman criterion</a></li>
+  <li><a href="#s17">Universality: the helix that can imitate anything</a></li>
+  <li><a href="#s18">Sober assessment: what would have to be done</a></li>
+  <li><a href="#s19">Dictionary</a></li>
+  <li><a href="#s20">Coda</a></li>
+</ol>
+</nav>
+
+<p class="kicker">Part I · The construction</p>
+
+<section class="prose" id="s1">
+<h2>1 · The axioms, restated</h2>
+<p>The system consists of circles of positive radii <i>r</i><sub><i>n</i></sub>, <i>n</i> = 1, 2, …, each carrying a regular polygon whose arc-length between consecutive vertices is the place value at level <i>n</i>. Primary digits sit on the unit circle at angular offsets that are integer multiples of π/6 — the construction names twelve, <i>a</i> through <i>l</i>, but a single pair does all the work below. One extra half-turn carries <i>a</i> to the diametrically opposite pole, the slot the alphabet would label <i>g</i>, and the phase-opposite rule identifies that image with the additive inverse <i>A</i>. The opposite pole is therefore not an independent digit with a helix of its own — <i>gGgG…</i> would be nothing but −(<i>aAaA…</i>), with the same closures — and this document uses the alternating pair <i>a</i>, <i>A</i> alone. Three rotational structures are superimposed:</p>
+<p><b>Half-turns.</b> The absolute orientation of circle <i>n</i> includes the cumulative extra rotation α<sub><i>n</i></sub> = (<i>n</i>−1)π, and the image of any digit after one extra half-turn is its additive inverse (<i>a</i> + <i>A</i> = 0).</p>
+<p><b>Torsion.</b> A continuous, monotonic family of rotations ρ<sub><i>n</i></sub> may be added on top.</p>
+<p><b>Retuning.</b> Radii may be multiplied by continuous factors λ<sub><i>n</i></sub> ∈ (0, 1], introduced <i>solely to close gaps on the number line</i>, varying continuously with the torsion.</p>
+<p>Orientation increments obey the growth condition Δϑ<sub><i>n</i></sub> + Δϑ<sub><i>n</i>+1</sub> ≤ Δϑ<sub><i>n</i>+2</sub>, and the sequence of absolute orientations is monotone: the gear train turns one way and never slackens. We will return to both conditions with intent — monotonicity in §13, where it becomes a broken time-reversal symmetry, and the growth condition in §18, where its analytic shadow is the Phragmén–Lindelöf convexity principle.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · The <i>aAaA…</i> helix and η(<i>s</i>)</h2>
+<p>With half-turns active the infinite string <i>aaaa…</i> becomes, level by level, the alternating helix <i>aAaA…</i> — each successive gear shows the opposite pole of the one before — and it evaluates to</p>
+<div class="eq"><span class="tag">(1)</span>
+val(<i>aaaa…</i>) =
+<span class="bigop"><span class="up">∞</span><span class="sym">∑</span><span class="lo"><i>n</i>=1</span></span>
+(−1)<sup><i>n</i>−1</sup> λ<sub><i>n</i></sub> <i>r</i><sub><i>n</i></sub> <i>e</i><sup><i>i</i>ρ<sub><i>n</i></sub></sup>,
+</div>
+<p>and the classical specialisation</p>
+<div class="eq"><span class="tag">(2)</span>
+<i>r</i><sub><i>n</i></sub> = <i>n</i><sup>−σ</sup>, &nbsp; ρ<sub><i>n</i></sub> = −<i>t</i> log <i>n</i>, &nbsp; λ<sub><i>n</i></sub> ≡ 1
+&nbsp;&nbsp;⟹&nbsp;&nbsp; val(<i>aaaa…</i>) = η(<i>s</i>), &nbsp; <i>s</i> = σ + <i>it</i>.
+</div>
+<p>Each level contributes one vector: length λ<sub><i>n</i></sub><i>n</i><sup>−σ</sup>, direction set by the half-turn count and the torsion. Evaluating the numeral is chaining these vectors tail to head. Figure&nbsp;1 draws the first seven gears of the chain at <i>s</i> = ½ + <i>i</i>γ₁, where γ₁ = 14.134725… is the ordinate of the first nontrivial zero.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 420" role="img" aria-label="The first seven gears of the a A a A helix chained tail to head, each carrying a circle of radius n to the minus one half, with the phase-opposite poles a and A marked on the first gear"><defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--chart-1)"/></marker></defs>
+<path d="M289.7 210.0L430.9 210.0L523.9 246.3L443.7 260.9L391.8 213.0L345.9 169.6L289.4 158.5L251.0 195.7L272.9 240.6L316.9 224.0L297.9 183.6L264.4 209.9L298.8 231.7L303.7 192.9L268.9 207.5L299.4 227.4L296.6 192.2L272.6 216.6L305.9 217.1L282.8 194.4L284.9 225.9L302.9 200.8L274.1 209.5L301.8 219.2L284.8 196.0L286.4 224.1L299.6 199.8L276.3 213.8L303.0 213.1L279.6 201.2L294.6 222.2L290.6 197.1L283.5 221.0L299.8 202.7L277.7 212.6L301.6 212.3L279.8 203.4L296.4 219.7L287.0 198.7L288.2 221.3L294.9 200.0L281.5 217.5L299.8 205.7L278.9 210.8L300.1 212.6L280.7 204.4L296.5 218.0L285.6 200.5L290.8 220.2L291.5 200.0L285.3 219.0L296.4 202.6L281.4 215.2L299.0 207.2L280.1 210.3L299.0 212.1L281.3 205.7L296.7 216.2L284.4 202.3L293.0 218.6L288.5 200.9L288.8 219.0L292.6 201.5L285.0 217.6L295.9 203.7L282.3 214.8L297.8 206.9L281.2 211.3L298.3 210.5L281.5 207.8L297.3 213.8L283.1 204.8L295.1 216.3L285.6 202.8L292.3 217.8L288.6 201.9L289.3 218.1L291.5 202.2L286.5 217.3L294.1 203.4L284.2 215.7L296.0 205.4L282.7 213.4L297.1 207.8L282.0 210.9L297.4 210.4L282.3 208.4L296.7 212.8L283.2 206.2L295.5 214.8L284.8 204.4L293.7 216.3L286.8 203.3L291.6 217.1L288.9 202.8L289.4 217.2L291.0 202.9L287.4 216.8L293.0 203.7L285.6 215.8L294.6 204.9L284.2 214.4L295.7 206.5L283.3 212.7L296.4 208.2L282.9 210.8L296.6 210.1L282.9 209.0L296.2 211.8L283.5 207.4L295.5 213.4L284.4 205.9L294.4 214.7L285.6 204.8L293.1 215.7L287.1 204.0L291.6 216.3L288.6 203.6L290.0 216.5L290.1 203.5L288.5 216.3L291.6 203.9L287.1 215.8L292.9 204.5L285.9 215.1L294.0 205.4L284.9 214.0L294.9 206.5L284.2 212.9L295.5 207.8L283.7 211.6L295.8 209.1L283.6 210.3L295.8 210.4L283.7 209.0L295.5 211.6L284.1 207.8L295.0 212.8L284.7 206.7L294.3 213.8L285.5 205.8L293.5 214.6L286.4 205.1L292.5 215.2L287.5 204.6L291.4 215.6L288.6 204.3L290.3 215.8L289.7 204.2L289.2 215.8L290.8 204.3L288.1 215.5L291.8 204.7L287.1 215.1L292.7 205.2L286.3 214.5L293.5 205.8L285.6 213.8L294.2 206.6L285.0 213.0L294.7 207.4L284.6 212.1L295.0 208.4L284.3 211.2L295.2 209.3L284.2 210.2L295.2 210.2L284.3 209.3L295.0 211.1L284.5 208.4L294.7 212.0L284.9 207.6L294.3 212.8L285.3 206.9L293.8 213.5L285.9 206.2L293.1 214.1L286.6 205.7L292.4 214.5L287.3 205.3L291.7 214.9L288.1 205.0L290.9 215.1L288.9 204.8L290.1 215.2L289.7 204.8L289.3 215.2L290.5 204.9L288.5 215.0L291.2 205.1L287.8 214.8L291.9 205.4L287.2 214.4L292.5 205.8L286.6 214.0L293.1 206.3L286.0 213.5L293.6 206.8L285.6 212.9L294.0 207.4L285.3 212.3L294.3 208.1L285.0 211.6L294.5 208.7L284.9 210.9L294.6 209.4L284.8 210.3L294.6 210.1L284.8 209.6L294.5 210.7L284.9 209.0L294.4 211.4L285.1 208.3L294.1 212.0L285.4 207.8L293.8 212.5L285.8 207.2L293.4 213.0L286.2 206.8L293.0 213.4L286.6 206.4L292.5 213.8L287.1 206.0L292.0 214.1L287.7 205.7L291.5 214.4L288.2 205.5L290.9 214.5L288.8 205.4L290.3 214.6L289.4 205.4L289.8 214.6L289.9 205.4L289.2 214.6L290.5 205.5L288.6 214.5L291.0 205.6L288.1 214.3L291.5 205.8L287.6 214.1L292.0 206.1L287.2 213.8L292.4 206.4L286.8 213.5L292.8 206.7L286.4 213.1L293.2 207.1L286.1 212.7L293.4 207.5L285.8 212.2L293.7 208.0L285.6 211.8L293.9 208.5L285.5 211.3L294.0 208.9L285.4 210.8L294.1 209.4L285.3 210.3L294.1 209.9L285.3 209.9L294.1 210.4L285.4 209.4L294.0 210.8L285.5 208.9L293.8 211.3L285.6 208.5L293.7 211.7L285.8 208.1L293.5 212.1L286.1 207.7L293.2 212.5L286.3 207.3L292.9 212.8L286.6 207.0L292.6 213.1L287.0 206.7L292.2 213.4L287.3 206.5L291.9 213.6L287.7 206.3L291.5 213.8L288.1 206.1L291.1 214.0L288.5 206.0L290.7 214.1L288.9 205.9L290.3 214.1L289.3 205.9L289.9 214.2L289.7 205.9L289.5 214.1L290.1 205.9L289.1 214.1L290.5 206.0L288.7 214.0L290.9 206.1L288.3 213.9L291.3 206.2L288.0 213.7L291.6 206.4L287.6 213.5L291.9 206.6L287.3 213.3L292.2 206.8L287.0 213.0L292.5 207.1L286.8 212.8L292.8 207.4L286.5 212.5L293.0 207.7L286.3 212.2L293.2 208.0L286.2 211.9L293.3 208.3L286.0 211.5L293.4 208.6L285.9 211.2L293.5 209.0L285.8 210.8L293.6 209.3L285.8 210.5L293.6 209.7L285.8 210.1L293.6 210.0L285.8 209.8L293.6 210.4L285.8 209.5L293.5 210.7L285.9 209.1L293.5 211.0L286.0 208.8L293.3 211.3L286.1 208.5L293.2 211.6L286.3 208.2L293.0 211.9L286.4 207.9L292.9 212.2L286.6 207.7L292.7 212.4L286.8 207.4L292.4 212.7L287.1 207.2L292.2 212.9L287.3 207.0L292.0 213.1L287.6 206.9L291.7 213.2L287.8 206.7L291.4 213.4L288.1 206.6L291.1 213.5L288.4 206.5L290.8 213.6L288.7 206.4L290.6 213.6L289.0 206.3L290.3 213.7L289.3 206.3L290.0 213.7L289.6 206.3L289.7 213.7L289.9 206.3L289.4 213.7L290.1 206.3L289.1 213.6L290.4 206.4L288.8 213.6L290.7 206.5L288.6 213.5L291.0 206.6L288.3 213.4L291.2 206.7L288.1 213.3L291.5 206.8L287.8 213.1L291.7 207.0L287.6 213.0L291.9 207.1L287.4 212.8L292.1 207.3L287.2 212.6L292.3 207.5L287.0 212.4L292.5 207.7L286.9 212.2L292.6 207.9L286.7 212.0L292.8 208.1L286.6 211.8L292.9 208.4L286.5 211.5L293.0 208.6L286.4 211.3L293.1 208.8L286.3 211.0L293.1 209.1L286.2 210.8L293.2 209.3L286.2 210.5L293.2 209.6" class="ghost" fill="none"/>
+<circle cx="289.7" cy="210.0" r="141.2" class="gear"/>
+<circle cx="430.9" cy="210.0" r="99.8" class="gear"/>
+<circle cx="523.9" cy="246.3" r="81.5" class="gear"/>
+<circle cx="443.7" cy="260.9" r="70.6" class="gear"/>
+<circle cx="391.8" cy="213.0" r="63.1" class="gear"/>
+<circle cx="345.9" cy="169.6" r="57.6" class="gear"/>
+<circle cx="289.4" cy="158.5" r="53.4" class="gear"/>
+<circle cx="430.9" cy="210.0" r="3.4" class="digit main"/>
+<text x="451" y="210" class="flab it">a</text>
+<circle cx="148.5" cy="210.0" r="3.4" class="digit anti"/>
+<text x="129" y="210" class="flab it">A</text>
+<line x1="289.7" y1="210.0" x2="430.9" y2="210.0" class="step" marker-end="url(#arr)"/>
+<text x="353" y="203" class="flab">n=1</text>
+<line x1="430.9" y1="210.0" x2="523.9" y2="246.3" class="step" marker-end="url(#arr)"/>
+<text x="473" y="219" class="flab">n=2</text>
+<line x1="523.9" y1="246.3" x2="443.7" y2="260.9" class="step" marker-end="url(#arr)"/>
+<text x="488" y="246" class="flab">n=3</text>
+<line x1="443.7" y1="260.9" x2="391.8" y2="213.0" class="step" marker-end="url(#arr)"/>
+<text x="420" y="232" class="flab">n=4</text>
+<line x1="391.8" y1="213.0" x2="345.9" y2="169.6" class="step" marker-end="url(#arr)"/>
+<text x="371" y="186" class="flab">n=5</text>
+<line x1="345.9" y1="169.6" x2="289.4" y2="158.5" class="step" marker-end="url(#arr)"/>
+<text x="320" y="158" class="flab">n=6</text>
+<line x1="289.4" y1="158.5" x2="251.0" y2="195.7" class="step" marker-end="url(#arr)"/>
+<text x="272" y="168" class="flab">n=7</text>
+<circle cx="289.7" cy="210.0" r="4" class="origin"><title>0 — the numeral starts here; a null helix must return here</title></circle>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the gear chain.</b> The first seven levels of the <i>aAaA…</i> helix at <i>s</i> = ½ + <i>i</i>γ₁. Each circle is a gear of radius <i>n</i><sup>−1/2</sup> drawn at the tail of its step; on gear 1 the digit <i>a</i> and its phase-opposite image <i>A</i> are marked at the two poles — the only digit data the helix uses; arrows are the level contributions (−1)<sup><i>n</i>−1</sup><i>n</i><sup>−<i>s</i></sup>; the faint trail is the remainder of the partial-sum path, four hundred levels deep. The open ring is 0 — the point a null helix must return to.</figcaption>
+</figure>
+
+<p>One geometric fact deserves emphasis before any deep water: <i>why the numeral is visible at all</i> in the strip 0 &lt; σ &lt; 1, where the plain zeta train Σ<i>n</i><sup>−<i>s</i></sup> diverges. The phase-opposite rule is the reason. Consecutive steps nearly reverse: pairing level 2<i>k</i>−1 with level 2<i>k</i> leaves a residue of size</p>
+<div class="eq">
+|(2<i>k</i>−1)<sup>−<i>s</i></sup> − (2<i>k</i>)<sup>−<i>s</i></sup>| = O(|<i>s</i>|·<i>k</i><sup>−σ−1</sup>),
+</div>
+<p>and Σ<i>k</i><sup>−σ−1</sup> converges for every σ &gt; 0. The half-turns are not decoration: the <i>aAaA…</i> alternation is the analytic-continuation device, taming the train pair by pair. Geometrically, this one alternating helix <i>is</i> the reason the critical strip can be seen at all — the un-alternated train only exists for σ &gt; 1, and everything interesting happens left of that.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · The η–ζ identity and gauge closures</h2>
+<p>Splitting the train into even and odd levels gives the classical identity</p>
+<div class="eq"><span class="tag">(3)</span>
+η(<i>s</i>) = (1 − 2<sup>1−<i>s</i></sup>) ζ(<i>s</i>):
+</div>
+<p>the even-level sub-helix is a copy of the full zeta train scaled by the complex ratio 2<sup>−<i>s</i></sup>, and the half-turn flips its sign. The prefactor 1 − 2<sup>1−<i>s</i></sup> is the numerical shadow of that self-similarity.</p>
+<p>The identity has a consequence the construction must own honestly. The prefactor has its own zeros, at</p>
+<div class="eq">
+<i>s</i><sub><i>k</i></sub> = 1 + <span class="fr"><span class="nu">2π<i>ik</i></span><span class="de">log 2</span></span>, &nbsp; <i>k</i> = ±1, ±2, … ,
+</div>
+<p>all on the line σ = 1. At <i>s</i>₁ = 1 + 9.06472…<i>i</i> the <i>aAaA…</i> helix closes exactly — numerically |η(<i>s</i>₁)| &lt; 10<sup>−15</sup> with our 135-term evaluation — while ζ there has modulus 1.351: nothing arithmetic vanishes. The helix closes because 2<sup>1−<i>s</i></sup> = 1 makes the even sub-helix an exact replica of the whole train, and replica minus whole cancels. Call these <b>gauge closures</b>: artifacts of the half-turn <i>presentation</i> of ζ, not of ζ itself. (At <i>k</i> = 0 the same degeneration eats the pole: η(1) = log 2 is finite.)</p>
+<p>This is the first discipline the geometry teaches. "Null helix" and "zero of ζ" are not synonyms; they differ by a coordinate choice. Any rigidity statement must be about the closures that survive every admissible re-presentation of the train — the ones at 0 &lt; σ &lt; 1 that belong to ζ. Those are the nontrivial zeros, and everything below is about them.</p>
+</section>
+
+<p class="kicker">Part II · Null helices</p>
+
+<section class="prose" id="s4">
+<h2>4 · What a zero looks like</h2>
+<p>A <b>null helix</b> is continuous data (σ, <i>t</i>, (λ<sub><i>n</i></sub>)) for which the numeral evaluates to 0 with all axioms intact. In the classical gauge (λ ≡ 1) the null helices are exactly the zeros of η. Figure&nbsp;2 shows the phenomenon end-on, computed rather than sketched. At <i>s</i> = ½ + <i>i</i>γ₁ the partial-sum path leaves 0, executes its winding dance, and returns to 0: the numeral for <i>nothing</i>, written in infinitely many nonzero digits. At σ = 0.8 with the identical torsion, the same dance converges — the series always converges for σ &gt; 0 — but to the wrong place: |η(0.8 + <i>i</i>γ₁)| = 0.446. Closure is not about convergence. It is about <i>where</i> the train lands, and the radial decay law decides that.</p>
+
+<figure>
+<div class="fig-frame">
+<div class="fig-row">
+<div class="cell"><svg viewBox="0 0 352 400" role="img" aria-label="σ = ½, t = γ₁ closes: the numeral returns to 0">
+<path d="M74.6 200.3L221.1 200.3L317.5 238.0L234.3 253.1L180.5 203.4L132.9 158.4L74.3 146.9L34.5 185.4L57.2 232.0L102.9 214.8L83.1 173.0L48.3 200.2L84.0 222.8L89.2 182.5L53.1 197.7L84.7 218.3L81.8 181.8L56.9 207.2L91.4 207.7L67.5 184.1L69.7 216.7L88.3 190.8L58.4 199.7L87.2 209.8L69.6 185.7L71.2 215.0L84.9 189.7L60.7 204.2L88.4 203.5L64.2 191.2L79.7 212.9L75.6 186.9L68.1 211.7L85.1 192.7L62.2 203.0L86.9 202.7L64.3 193.5L81.5 210.3L71.8 188.6L73.1 212.0L80.0 189.9L66.1 208.1L85.1 195.8L63.4 201.2L85.4 203.0L65.3 194.5L81.7 208.6L70.4 190.4L75.8 210.9L76.5 189.9L70.0 209.6L81.5 192.7L66.0 205.7L84.3 197.3L64.6 200.6L84.3 202.5L65.9 195.8L81.9 206.7L69.1 192.4L78.0 209.2L73.4 190.9L73.6 209.6L77.6 191.5L69.7 208.1L81.0 193.7L67.0 205.3L83.1 197.1L65.8 201.6L83.5 200.8L66.1 198.0L82.5 204.2L67.7 194.9L80.3 206.8L70.4 192.8L77.4 208.4L73.4 191.9L74.2 208.7L76.5 192.2L71.3 207.9L79.2 193.4L68.9 206.2L81.2 195.5L67.4 203.9L82.3 198.0L66.7 201.2L82.6 200.7L66.9 198.6L81.9 203.2L67.9 196.3L80.6 205.3L69.5 194.5L78.7 206.8L71.6 193.3L76.6 207.6L73.8 192.8L74.3 207.8L76.0 192.9L72.2 207.3L78.0 193.7L70.3 206.3L79.7 195.0L68.9 204.8L80.9 196.6L68.0 203.1L81.6 198.5L67.5 201.2L81.7 200.4L67.6 199.3L81.4 202.2L68.2 197.5L80.6 203.8L69.1 196.0L79.5 205.2L70.4 194.9L78.1 206.2L71.9 194.0L76.6 206.8L73.5 193.6L75.0 207.0L75.1 193.6L73.4 206.9L76.6 193.9L71.9 206.3L78.0 194.6L70.7 205.5L79.1 195.5L69.6 204.5L80.0 196.7L68.9 203.3L80.6 198.0L68.4 201.9L80.9 199.3L68.3 200.6L80.9 200.7L68.4 199.2L80.7 202.0L68.8 198.0L80.2 203.2L69.4 196.9L79.4 204.2L70.2 195.9L78.5 205.1L71.2 195.2L77.5 205.7L72.3 194.6L76.4 206.1L73.4 194.3L75.2 206.3L74.6 194.3L74.1 206.3L75.7 194.4L73.0 206.0L76.8 194.8L72.0 205.6L77.7 195.3L71.1 205.0L78.6 196.0L70.3 204.2L79.2 196.8L69.7 203.4L79.8 197.6L69.3 202.5L80.1 198.6L69.0 201.5L80.3 199.6L68.9 200.5L80.3 200.5L69.0 199.6L80.1 201.5L69.2 198.7L79.8 202.4L69.6 197.8L79.4 203.2L70.1 197.0L78.8 203.9L70.7 196.4L78.2 204.5L71.4 195.8L77.5 205.0L72.2 195.4L76.7 205.3L73.0 195.1L75.9 205.6L73.8 194.9L75.0 205.7L74.6 194.9L74.2 205.6L75.4 195.0L73.4 205.5L76.2 195.2L72.7 205.2L76.9 195.5L72.0 204.9L77.6 195.9L71.4 204.4L78.2 196.4L70.8 203.9L78.6 197.0L70.4 203.3L79.1 197.6L70.0 202.6L79.4 198.3L69.7 202.0L79.6 199.0L69.6 201.3L79.7 199.7L69.5 200.6L79.7 200.4L69.6 199.9L79.6 201.0L69.7 199.2L79.5 201.7L69.9 198.6L79.2 202.3L70.2 198.0L78.9 202.9L70.5 197.4L78.5 203.4L71.0 196.9L78.0 203.9L71.4 196.5" class="zig" fill="none"/>
+<path d="M74.6 200.3L317.5 238.0L180.5 203.4L74.3 146.9L57.2 232.0L83.1 173.0L84.0 222.8L53.1 197.7L81.8 181.8L91.4 207.7L69.7 216.7L58.4 199.7L69.6 185.7L84.9 189.7L88.4 203.5L79.7 212.9L68.1 211.7L62.2 203.0L64.3 193.5L71.8 188.6L80.0 189.9L85.1 195.8L85.4 203.0L81.7 208.6L75.8 210.9L70.0 209.6L66.0 205.7L64.6 200.6L65.9 195.8L69.1 192.4L73.4 190.9L77.6 191.5L81.0 193.7L83.1 197.1L83.5 200.8L82.5 204.2L80.3 206.8L77.4 208.4L74.2 208.7L71.3 207.9L68.9 206.2L67.4 203.9L66.7 201.2L66.9 198.6L67.9 196.3L69.5 194.5L71.6 193.3L73.8 192.8L76.0 192.9L78.0 193.7L79.7 195.0L80.9 196.6L81.6 198.5L81.7 200.4L81.4 202.2L80.6 203.8L79.5 205.2L78.1 206.2L76.6 206.8L75.0 207.0L73.4 206.9L71.9 206.3L70.7 205.5L69.6 204.5L68.9 203.3L68.4 201.9L68.3 200.6L68.4 199.2L68.8 198.0L69.4 196.9L70.2 195.9L71.2 195.2L72.3 194.6L73.4 194.3L74.6 194.3L75.7 194.4L76.8 194.8L77.7 195.3L78.6 196.0L79.2 196.8L79.8 197.6L80.1 198.6L80.3 199.6L80.3 200.5L80.1 201.5L79.8 202.4L79.4 203.2L78.8 203.9L78.2 204.5L77.5 205.0L76.7 205.3L75.9 205.6L75.0 205.7L74.2 205.6L73.4 205.5L72.7 205.2L72.0 204.9L71.4 204.4L70.8 203.9L70.4 203.3L70.0 202.6L69.7 202.0L69.6 201.3L69.5 200.6L69.6 199.9L69.7 199.2L69.9 198.6L70.2 198.0L70.5 197.4L71.0 196.9L71.4 196.5L72.0 196.2L72.5 195.9L73.1 195.7L73.7 195.5L74.3 195.5L74.9 195.5L75.4 195.6L76.0 195.7L76.5 195.9L77.0 196.2L77.4 196.5L77.8 196.9L78.2 197.3L78.5 197.7L78.7 198.2L78.9 198.7L79.1 199.2L79.1 199.7L79.2 200.2L79.1 200.7L79.1 201.2L78.9 201.6L78.7 202.1L78.5 202.5L78.2 202.9L77.9 203.2L77.6 203.5L77.3 203.8L76.9 204.1L76.5 204.2L76.1 204.4L75.6 204.5L75.2 204.6L74.8 204.6L74.4 204.6L74.0 204.5L73.6 204.4L73.2 204.3L72.8 204.1L72.5 203.9L72.1 203.7L71.8 203.4L71.6 203.2L71.3 202.9L71.1 202.5L70.9 202.2L70.8 201.9L70.7 201.5L70.6 201.2L70.6 200.8L70.5 200.4L70.6 200.1L70.6 199.7L70.7 199.4L70.8 199.1L70.9 198.7L71.1 198.4L71.2 198.2L71.4 197.9L71.7 197.6L71.9 197.4L72.1 197.2L72.4 197.0L72.7 196.9L73.0 196.7L73.3 196.6L73.6 196.5L73.9 196.5L74.2 196.4L74.5 196.4L74.8 196.4L75.1 196.5L75.4 196.5L75.7 196.6L75.9 196.7L76.2 196.8L76.4 197.0L76.7 197.1L76.9 197.3L77.1 197.5L77.3 197.7L77.5 197.9L77.6 198.1L77.8 198.4L77.9 198.6L78.0 198.8L78.1 199.1L78.2 199.3L78.2 199.6L78.2 199.9L78.3 200.1L78.3 200.4L78.2 200.6L78.2 200.9L78.1 201.1L78.1 201.4L78.0 201.6L77.9 201.8L77.7 202.0L77.6 202.2L77.5 202.4L77.3 202.6L77.2 202.8L77.0 202.9L76.8 203.1L76.6 203.2L76.4 203.3L76.2 203.4L76.0 203.5L75.8 203.6L75.6 203.6L75.4 203.7L75.1 203.7L74.9 203.7L74.7 203.7L74.5 203.7L74.3 203.7L74.1 203.7L73.9 203.6L73.7 203.6L73.5 203.5L73.3 203.4L73.1 203.3L72.9 203.2L72.7 203.1L72.6 203.0L72.4 202.8L72.3 202.7L72.2 202.6L72.0 202.4" class="helix" fill="none"><title>partial sums of the all-a numeral, levels paired</title></path>
+<circle cx="74.6" cy="200.3" r="4" class="origin"><title>0</title></circle>
+<circle cx="74.6" cy="200.3" r="5.5" class="limit"><title>limit of the numeral = eta(s)</title></circle>
+<text x="176" y="22" class="ftitle">σ = ½, t = γ₁</text>
+<text x="176" y="40" class="fsub">closes: the numeral returns to 0</text>
+</svg></div>
+<div class="cell"><svg viewBox="0 0 352 400" role="img" aria-label="σ = 0.8, t = γ₁ misses: same torsion, wrong decay">
+<path d="M39.0 190.4L217.5 190.4L313.0 227.8L240.1 241.0L196.8 201.0L161.0 167.2L119.2 159.0L92.2 185.2L107.0 215.6L135.8 204.8L123.8 179.2L103.1 195.4L123.7 208.5L126.6 185.7L106.7 194.1L123.8 205.3L122.3 185.9L109.3 199.1L127.0 199.3L114.9 187.5L116.0 203.7L125.1 191.0L110.7 195.3L124.4 200.1L116.1 188.8L116.9 202.3L123.2 190.8L112.2 197.3L124.6 197.0L113.9 191.5L120.7 201.1L118.9 189.8L115.7 200.5L122.9 192.3L113.2 196.7L123.6 196.6L114.2 192.7L121.3 199.7L117.3 190.8L117.8 200.3L120.6 191.4L115.1 198.7L122.6 193.8L114.1 195.9L122.7 196.6L114.9 193.3L121.2 198.8L116.8 191.8L118.9 199.6L119.2 191.7L116.7 199.1L121.1 192.7L115.3 197.6L122.0 194.5L114.8 195.7L122.0 196.4L115.3 193.9L121.1 197.9L116.5 192.7L119.7 198.8L118.0 192.2L118.1 198.9L119.5 192.5L116.8 198.3L120.7 193.3L115.8 197.3L121.4 194.5L115.4 196.0L121.5 195.7L115.6 194.8L121.1 196.9L116.1 193.8L120.4 197.8L117.0 193.1L119.4 198.3L118.1 192.8L118.3 198.4L119.1 192.9L117.4 198.1L120.0 193.3L116.6 197.5L120.6 194.0L116.1 196.7L121.0 194.8L115.9 195.9L121.0 195.7L116.0 195.0L120.8 196.5L116.3 194.3L120.4 197.1L116.9 193.7L119.8 197.6L117.5 193.4L119.1 197.9L118.2 193.2L118.4 197.9L118.9 193.3L117.7 197.7L119.5 193.6L117.2 197.4L120.0 194.0L116.7 197.0L120.4 194.5L116.4 196.4L120.6 195.0L116.3 195.8L120.6 195.6L116.4 195.3L120.5 196.1L116.5 194.8L120.3 196.6L116.8 194.3L119.9 197.0L117.2 194.0L119.5 197.3L117.7 193.7L119.0 197.5L118.1 193.6L118.6 197.5L118.6 193.6L118.1 197.5L119.0 193.7L117.7 197.3L119.4 193.9L117.3 197.1L119.8 194.2L117.0 196.8L120.0 194.5L116.8 196.4L120.2 194.9L116.7 196.0L120.3 195.3L116.7 195.7L120.2 195.7L116.7 195.3L120.2 196.0L116.8 194.9L120.0 196.4L117.0 194.6L119.8 196.7L117.3 194.4L119.5 196.9L117.5 194.2L119.3 197.1L117.8 194.0L118.9 197.2L118.1 193.9L118.6 197.2L118.5 193.9L118.3 197.2L118.8 194.0L118.0 197.1L119.1 194.1L117.8 197.0L119.3 194.2L117.5 196.8L119.5 194.4L117.3 196.6L119.7 194.6L117.2 196.4L119.8 194.9L117.1 196.2L119.9 195.1L117.0 195.9L120.0 195.4L117.0 195.6L120.0 195.6L117.0 195.4L119.9 195.9L117.1 195.1L119.8 196.1L117.2 194.9L119.7 196.3L117.3 194.7L119.6 196.5L117.5 194.6L119.4 196.7L117.6 194.4L119.2 196.8L117.8 194.3L119.0 196.9L118.0 194.2L118.8 196.9L118.3 194.2L118.6 196.9L118.5 194.2L118.4 196.9L118.7 194.2L118.2 196.9L118.9 194.3L118.0 196.8L119.0 194.4L117.8 196.7L119.2 194.5L117.7 196.6L119.4 194.6L117.5 196.5L119.5 194.7L117.4 196.3L119.6 194.9L117.3 196.2L119.6 195.1L117.3 196.0L119.7 195.2L117.2 195.8L119.7 195.4L117.2 195.6L119.7 195.6L117.2 195.5L119.7 195.8L117.3 195.3L119.7 195.9L117.3 195.2L119.6 196.1L117.4 195.0L119.5 196.2L117.5 194.9L119.4 196.3L117.6 194.8L119.3 196.4L117.7 194.7" class="zig" fill="none"/>
+<path d="M39.0 190.4L313.0 227.8L196.8 201.0L119.2 159.0L107.0 215.6L123.8 179.2L123.7 208.5L106.7 194.1L122.3 185.9L127.0 199.3L116.0 203.7L110.7 195.3L116.1 188.8L123.2 190.8L124.6 197.0L120.7 201.1L115.7 200.5L113.2 196.7L114.2 192.7L117.3 190.8L120.6 191.4L122.6 193.8L122.7 196.6L121.2 198.8L118.9 199.6L116.7 199.1L115.3 197.6L114.8 195.7L115.3 193.9L116.5 192.7L118.0 192.2L119.5 192.5L120.7 193.3L121.4 194.5L121.5 195.7L121.1 196.9L120.4 197.8L119.4 198.3L118.3 198.4L117.4 198.1L116.6 197.5L116.1 196.7L115.9 195.9L116.0 195.0L116.3 194.3L116.9 193.7L117.5 193.4L118.2 193.2L118.9 193.3L119.5 193.6L120.0 194.0L120.4 194.5L120.6 195.0L120.6 195.6L120.5 196.1L120.3 196.6L119.9 197.0L119.5 197.3L119.0 197.5L118.6 197.5L118.1 197.5L117.7 197.3L117.3 197.1L117.0 196.8L116.8 196.4L116.7 196.0L116.7 195.7L116.7 195.3L116.8 194.9L117.0 194.6L117.3 194.4L117.5 194.2L117.8 194.0L118.1 193.9L118.5 193.9L118.8 194.0L119.1 194.1L119.3 194.2L119.5 194.4L119.7 194.6L119.8 194.9L119.9 195.1L120.0 195.4L120.0 195.6L119.9 195.9L119.8 196.1L119.7 196.3L119.6 196.5L119.4 196.7L119.2 196.8L119.0 196.9L118.8 196.9L118.6 196.9L118.4 196.9L118.2 196.9L118.0 196.8L117.8 196.7L117.7 196.6L117.5 196.5L117.4 196.3L117.3 196.2L117.3 196.0L117.2 195.8L117.2 195.6L117.2 195.5L117.3 195.3L117.3 195.2L117.4 195.0L117.5 194.9L117.6 194.8L117.7 194.7L117.8 194.6L118.0 194.5L118.1 194.5L118.2 194.4L118.4 194.4L118.5 194.4L118.7 194.5L118.8 194.5L118.9 194.5L119.0 194.6L119.1 194.7L119.2 194.8L119.3 194.9L119.4 195.0L119.4 195.1L119.5 195.2L119.5 195.3L119.5 195.4L119.5 195.5L119.5 195.7L119.5 195.8L119.5 195.9L119.4 196.0L119.4 196.1L119.3 196.2L119.2 196.2L119.1 196.3L119.1 196.4L119.0 196.4L118.9 196.5L118.8 196.5L118.7 196.5L118.6 196.5L118.5 196.5L118.4 196.5L118.3 196.5L118.2 196.5L118.2 196.5L118.1 196.4L118.0 196.4L117.9 196.3L117.9 196.3L117.8 196.2L117.8 196.1L117.7 196.1L117.7 196.0L117.6 195.9L117.6 195.8L117.6 195.8L117.6 195.7L117.6 195.6L117.6 195.5L117.6 195.5L117.6 195.4L117.6 195.3L117.7 195.2L117.7 195.2L117.8 195.1L117.8 195.1L117.8 195.0L117.9 195.0L117.9 194.9L118.0 194.9L118.1 194.9L118.1 194.8L118.2 194.8L118.3 194.8L118.3 194.8L118.4 194.8L118.4 194.8L118.5 194.8L118.6 194.8L118.6 194.8L118.7 194.8L118.7 194.8L118.8 194.9L118.8 194.9L118.9 194.9L118.9 195.0L119.0 195.0L119.0 195.0L119.1 195.1L119.1 195.1L119.1 195.2L119.1 195.2L119.2 195.3L119.2 195.3L119.2 195.4L119.2 195.4L119.2 195.5L119.2 195.5L119.2 195.6L119.2 195.6L119.2 195.7L119.2 195.7L119.2 195.8L119.1 195.8L119.1 195.9L119.1 195.9L119.1 196.0L119.0 196.0L119.0 196.0L119.0 196.1L118.9 196.1L118.9 196.1L118.9 196.1L118.8 196.2L118.8 196.2L118.7 196.2L118.7 196.2L118.7 196.2L118.6 196.2L118.6 196.2L118.5 196.2L118.5 196.2L118.4 196.2L118.4 196.2L118.4 196.2L118.3 196.2L118.3 196.2L118.2 196.2L118.2 196.2L118.2 196.2L118.1 196.1L118.1 196.1L118.1 196.1L118.0 196.1L118.0 196.0L118.0 196.0L118.0 196.0" class="helix" fill="none"><title>partial sums of the all-a numeral, levels paired</title></path>
+<circle cx="39.0" cy="190.4" r="4" class="origin"><title>0</title></circle>
+<circle cx="118.5" cy="195.6" r="5.5" class="limit"><title>limit of the numeral = eta(s)</title></circle>
+<text x="176" y="22" class="ftitle">σ = 0.8, t = γ₁</text>
+<text x="176" y="40" class="fsub">misses: same torsion, wrong decay</text>
+</svg></div>
+</div>
+</div>
+<figcaption><b>Figure 2 — closure and missed closure.</b> Partial sums of the <i>aAaA…</i> helix, both panels at the same torsion <i>t</i> = γ₁ = 14.134725…, drawn in the value plane. Faint: the raw zigzag path (consecutive steps nearly phase-opposite). Solid: the same path with levels paired, which smooths the half-turn oscillation. Left, radial decay <i>n</i><sup>−1/2</sup>: the path starts at the open ring (0) and the amber ring (the limit, η(<i>s</i>)) sits exactly on it — a closed helix, |η| ≈ 4 × 10<sup>−14</sup>. Right, radial decay <i>n</i><sup>−0.8</sup>: same torsion, the amber ring misses 0 by 0.446. The Riemann Hypothesis: for the arithmetic closures, the left panel's decay law is the only one possible.</figcaption>
+</figure>
+
+<p><b>Trivial zeros are different in kind.</b> For σ &lt; 0 the radii <i>n</i><sup>−σ</sup> grow without bound and no numeral converges; there is no visible train there. The value of ζ at σ &lt; 0 is <i>defined</i> through the mirror (next section), and ζ(−2<i>k</i>) = 0 because the coupling factor sin(π<i>s</i>/2) in the reflection sits at a node — the mirror transmits nothing, not because a train cancelled. The construction's phrase — expanding planar oscillations that cancel only after the dual inverted-radius helix is taken into account — is exactly right, and it is why these zeros are called trivial: they belong to the reflection, not to the arithmetic. The nontrivial closures are the ones a train actually performs.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · The dual helix: congruence pins the line</h2>
+<p>The functional equation, in its asymmetric form, is</p>
+<div class="eq"><span class="tag">(4)</span>
+ζ(<i>s</i>) = χ(<i>s</i>) ζ(1−<i>s</i>), &nbsp;&nbsp;
+χ(<i>s</i>) = 2<sup><i>s</i></sup> π<sup><i>s</i>−1</sup> sin(π<i>s</i>/2) Γ(1−<i>s</i>),
+</div>
+<p>with χ(<i>s</i>)χ(1−<i>s</i>) = 1. Geometrically: to every train at <i>s</i> the system associates a <b>dual train</b> at 1−<i>s</i>, radii inverted level by level (<i>n</i><sup>−σ</sup> ↔ <i>n</i><sup>σ−1</sup>), and the two evaluate to the same number up to the fixed rotation-and-scaling χ(<i>s</i>). Zeros therefore come in reflected pairs ρ, 1−ρ (and with complex conjugation, quadruples), degenerating to single points exactly on σ = ½.</p>
+<p>Now the computation that makes the critical line <i>geometrically</i> inevitable rather than numerologically favored. Since the Dirichlet coefficients are real, χ(<i>s̄</i>) = <span class="ovl">χ(<i>s</i>)</span>; and on σ = ½ the reflection 1−<i>s</i> equals <i>s̄</i>. Feeding one identity into the other:</p>
+<div class="eq">
+|χ(½ + <i>it</i>)| = 1 &nbsp; identically, &nbsp; while &nbsp; |χ(σ + <i>it</i>)| ≍ (<i>t</i>/2π)<sup>½−σ</sup> &nbsp; off the line.
+</div>
+<p><b>On the critical line — and only there — the train and its dual are congruent</b>: the same object up to a rigid rotation. Everywhere else the dual is a strict magnification or reduction. A closure off the line would be a configuration in which a train and a strictly-scaled copy of itself cancel against the same arithmetic; on the line, the constraint collapses to a single reflection symmetry. This is the structural sense in which σ = ½ is not one candidate locus among many but the system's unique axis of self-duality: it is the fixed line of the only isometry the functional equation provides, the reflection <i>s</i> ↦ 1 − <i>s̄</i>.</p>
+<p>Counting degrees of freedom sharpens this. A zero of an analytic function is a codimension-two event: two real equations, Re = 0 and Im = 0. Moving along a vertical line gives one real parameter, so zeros on a generic vertical line should not exist at all. The critical line is non-generic: there, as §6 shows, a rotating frame makes the function <i>real</i>, one equation in one unknown — and closures rain down in abundance. RH is the statement that the strip contains no closures beyond the ones the symmetry already pays for. Every verified zero to date confirms the accounting.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The rotating frame: <i>Z</i>(<i>t</i>), winding, certification</h2>
+<p>Define the Riemann–Siegel theta and <i>Z</i> functions</p>
+<div class="eq"><span class="tag">(5)</span>
+θ(<i>t</i>) = arg Γ(¼ + <i>it</i>/2) − (<i>t</i>/2) log π,
+&nbsp;&nbsp;&nbsp;
+<i>Z</i>(<i>t</i>) = <i>e</i><sup><i>i</i>θ(<i>t</i>)</sup> ζ(½ + <i>it</i>).
+</div>
+<p><i>Z</i> is real-valued — the functional equation says so, and our computation confirms |Im <i>Z</i>| &lt; 10<sup>−13</sup> across the sampled range. Read geometrically: <b>there exists a single global rotating frame, the phase <i>e</i><sup><i>i</i>θ(<i>t</i>)</sup>, in which the helix over the critical line flattens into a planar real oscillation.</b> The spatial problem "does the helix close?" becomes the one-dimensional problem "does this real curve cross zero?" — and crossings are forced by any sign change. No other vertical line admits such a frame; that is the practical meaning of the congruence in §5.</p>
+
+<figure>
+<div class="fig-frame" id="zwrap">
+<svg viewBox="0 0 720 340" role="img" aria-label="The Riemann Siegel Z function from t equals 0 to 62; its sign changes are the first fourteen nontrivial zeros" data-t0="0.0" data-t1="62.0" id="zplot">
+<line x1="30.0" y1="156.4" x2="690.0" y2="156.4" class="axis"/>
+<line x1="30.0" y1="153.4" x2="30.0" y2="159.4" class="axis"/>
+<text x="30" y="172" class="flab">0</text>
+<line x1="136.5" y1="153.4" x2="136.5" y2="159.4" class="axis"/>
+<text x="136" y="172" class="flab">10</text>
+<line x1="242.9" y1="153.4" x2="242.9" y2="159.4" class="axis"/>
+<text x="243" y="172" class="flab">20</text>
+<line x1="349.4" y1="153.4" x2="349.4" y2="159.4" class="axis"/>
+<text x="349" y="172" class="flab">30</text>
+<line x1="455.8" y1="153.4" x2="455.8" y2="159.4" class="axis"/>
+<text x="456" y="172" class="flab">40</text>
+<line x1="562.3" y1="153.4" x2="562.3" y2="159.4" class="axis"/>
+<text x="562" y="172" class="flab">50</text>
+<line x1="668.7" y1="153.4" x2="668.7" y2="159.4" class="axis"/>
+<text x="669" y="172" class="flab">60</text>
+<text x="681" y="148" class="flab">t</text>
+<path d="M30.0 211.6L30.6 211.2L31.3 210.1L31.9 208.5L32.6 206.5L33.2 204.2L33.8 201.9L34.5 199.6L35.1 197.3L35.7 195.2L36.4 193.3L37.0 191.5L37.7 189.9L38.3 188.5L38.9 187.1L39.6 185.9L40.2 184.8L40.9 183.9L41.5 183.0L42.1 182.2L42.8 181.5L43.4 180.9L44.1 180.3L44.7 179.8L45.3 179.3L46.0 178.9L46.6 178.5L47.2 178.2L47.9 177.9L48.5 177.6L49.2 177.4L49.8 177.1L50.4 177.0L51.1 176.8L51.7 176.7L52.4 176.6L53.0 176.5L53.6 176.4L54.3 176.3L54.9 176.3L55.5 176.3L56.2 176.2L56.8 176.3L57.5 176.3L58.1 176.3L58.7 176.3L59.4 176.4L60.0 176.5L60.7 176.5L61.3 176.6L61.9 176.7L62.6 176.8L63.2 176.9L63.9 177.1L64.5 177.2L65.1 177.3L65.8 177.5L66.4 177.6L67.0 177.8L67.7 178.0L68.3 178.2L69.0 178.3L69.6 178.5L70.2 178.7L70.9 179.0L71.5 179.2L72.2 179.4L72.8 179.6L73.4 179.9L74.1 180.1L74.7 180.4L75.3 180.6L76.0 180.9L76.6 181.2L77.3 181.4L77.9 181.7L78.5 182.0L79.2 182.3L79.8 182.6L80.5 182.9L81.1 183.2L81.7 183.5L82.4 183.8L83.0 184.2L83.7 184.5L84.3 184.8L84.9 185.2L85.6 185.5L86.2 185.9L86.8 186.3L87.5 186.6L88.1 187.0L88.8 187.4L89.4 187.7L90.0 188.1L90.7 188.5L91.3 188.9L92.0 189.3L92.6 189.7L93.2 190.1L93.9 190.5L94.5 190.9L95.1 191.3L95.8 191.8L96.4 192.2L97.1 192.6L97.7 193.0L98.3 193.5L99.0 193.9L99.6 194.4L100.3 194.8L100.9 195.2L101.5 195.7L102.2 196.1L102.8 196.6L103.5 197.0L104.1 197.5L104.7 197.9L105.4 198.4L106.0 198.8L106.6 199.3L107.3 199.7L107.9 200.2L108.6 200.6L109.2 201.1L109.8 201.5L110.5 202.0L111.1 202.4L111.8 202.9L112.4 203.3L113.0 203.8L113.7 204.2L114.3 204.7L114.9 205.1L115.6 205.5L116.2 205.9L116.9 206.4L117.5 206.8L118.1 207.2L118.8 207.6L119.4 208.0L120.1 208.4L120.7 208.8L121.3 209.1L122.0 209.5L122.6 209.9L123.3 210.2L123.9 210.6L124.5 210.9L125.2 211.2L125.8 211.6L126.4 211.9L127.1 212.2L127.7 212.4L128.4 212.7L129.0 213.0L129.6 213.2L130.3 213.5L130.9 213.7L131.6 213.9L132.2 214.1L132.8 214.2L133.5 214.4L134.1 214.5L134.7 214.7L135.4 214.8L136.0 214.9L136.7 214.9L137.3 215.0L137.9 215.0L138.6 215.0L139.2 215.0L139.9 215.0L140.5 215.0L141.1 214.9L141.8 214.8L142.4 214.7L143.1 214.5L143.7 214.4L144.3 214.2L145.0 214.0L145.6 213.8L146.2 213.5L146.9 213.2L147.5 212.9L148.2 212.5L148.8 212.2L149.4 211.8L150.1 211.4L150.7 210.9L151.4 210.4L152.0 209.9L152.6 209.4L153.3 208.8L153.9 208.2L154.5 207.6L155.2 206.9L155.8 206.2L156.5 205.5L157.1 204.8L157.7 204.0L158.4 203.2L159.0 202.3L159.7 201.4L160.3 200.5L160.9 199.6L161.6 198.6L162.2 197.6L162.9 196.6L163.5 195.5L164.1 194.4L164.8 193.3L165.4 192.1L166.0 190.9L166.7 189.7L167.3 188.4L168.0 187.1L168.6 185.8L169.2 184.5L169.9 183.1L170.5 181.7L171.2 180.2L171.8 178.8L172.4 177.3L173.1 175.8L173.7 174.2L174.3 172.6L175.0 171.0L175.6 169.4L176.3 167.8L176.9 166.1L177.5 164.4L178.2 162.7L178.8 160.9L179.5 159.2L180.1 157.4L180.7 155.6L181.4 153.8L182.0 151.9L182.7 150.1L183.3 148.2L183.9 146.4L184.6 144.5L185.2 142.6L185.8 140.7L186.5 138.8L187.1 136.9L187.8 134.9L188.4 133.0L189.0 131.1L189.7 129.1L190.3 127.2L191.0 125.3L191.6 123.4L192.2 121.4L192.9 119.5L193.5 117.6L194.1 115.7L194.8 113.8L195.4 112.0L196.1 110.1L196.7 108.3L197.3 106.5L198.0 104.7L198.6 102.9L199.3 101.1L199.9 99.4L200.5 97.7L201.2 96.0L201.8 94.4L202.5 92.8L203.1 91.2L203.7 89.7L204.4 88.2L205.0 86.7L205.6 85.3L206.3 83.9L206.9 82.6L207.6 81.3L208.2 80.1L208.8 78.9L209.5 77.8L210.1 76.7L210.8 75.7L211.4 74.7L212.0 73.8L212.7 73.0L213.3 72.2L213.9 71.4L214.6 70.8L215.2 70.2L215.9 69.7L216.5 69.2L217.1 68.8L217.8 68.5L218.4 68.2L219.1 68.0L219.7 67.9L220.3 67.9L221.0 67.9L221.6 68.0L222.3 68.2L222.9 68.5L223.5 68.8L224.2 69.2L224.8 69.7L225.4 70.2L226.1 70.9L226.7 71.6L227.4 72.4L228.0 73.3L228.6 74.2L229.3 75.2L229.9 76.3L230.6 77.5L231.2 78.7L231.8 80.0L232.5 81.4L233.1 82.9L233.7 84.4L234.4 86.0L235.0 87.7L235.7 89.4L236.3 91.2L236.9 93.0L237.6 94.9L238.2 96.9L238.9 98.9L239.5 101.0L240.1 103.2L240.8 105.3L241.4 107.6L242.1 109.9L242.7 112.2L243.3 114.5L244.0 116.9L244.6 119.4L245.2 121.8L245.9 124.3L246.5 126.9L247.2 129.4L247.8 132.0L248.4 134.6L249.1 137.2L249.7 139.8L250.4 142.4L251.0 145.0L251.6 147.6L252.3 150.2L252.9 152.8L253.5 155.4L254.2 158.0L254.8 160.5L255.5 163.1L256.1 165.6L256.7 168.1L257.4 170.5L258.0 172.9L258.7 175.3L259.3 177.6L259.9 179.9L260.6 182.1L261.2 184.3L261.9 186.4L262.5 188.4L263.1 190.4L263.8 192.3L264.4 194.2L265.0 195.9L265.7 197.6L266.3 199.2L267.0 200.7L267.6 202.1L268.2 203.5L268.9 204.7L269.5 205.9L270.2 206.9L270.8 207.8L271.4 208.7L272.1 209.4L272.7 210.1L273.3 210.6L274.0 211.0L274.6 211.3L275.3 211.5L275.9 211.5L276.5 211.5L277.2 211.3L277.8 211.0L278.5 210.6L279.1 210.1L279.7 209.5L280.4 208.7L281.0 207.8L281.7 206.9L282.3 205.7L282.9 204.5L283.6 203.2L284.2 201.7L284.8 200.2L285.5 198.5L286.1 196.7L286.8 194.8L287.4 192.9L288.0 190.8L288.7 188.6L289.3 186.3L290.0 183.9L290.6 181.5L291.2 178.9L291.9 176.3L292.5 173.6L293.1 170.8L293.8 167.9L294.4 165.0L295.1 162.0L295.7 159.0L296.3 155.9L297.0 152.7L297.6 149.6L298.3 146.3L298.9 143.1L299.5 139.8L300.2 136.5L300.8 133.2L301.5 129.8L302.1 126.5L302.7 123.2L303.4 119.8L304.0 116.5L304.6 113.2L305.3 110.0L305.9 106.7L306.6 103.5L307.2 100.3L307.8 97.2L308.5 94.1L309.1 91.1L309.8 88.2L310.4 85.3L311.0 82.5L311.7 79.8L312.3 77.1L312.9 74.6L313.6 72.1L314.2 69.8L314.9 67.5L315.5 65.4L316.1 63.3L316.8 61.4L317.4 59.6L318.1 58.0L318.7 56.4L319.3 55.0L320.0 53.8L320.6 52.6L321.3 51.6L321.9 50.8L322.5 50.1L323.2 49.5L323.8 49.1L324.4 48.8L325.1 48.7L325.7 48.7L326.4 48.9L327.0 49.3L327.6 49.8L328.3 50.4L328.9 51.2L329.6 52.1L330.2 53.2L330.8 54.4L331.5 55.8L332.1 57.3L332.7 58.9L333.4 60.7L334.0 62.6L334.7 64.6L335.3 66.8L335.9 69.0L336.6 71.4L337.2 73.9L337.9 76.5L338.5 79.2L339.1 82.0L339.8 84.9L340.4 87.8L341.1 90.8L341.7 93.9L342.3 97.1L343.0 100.3L343.6 103.6L344.2 106.9L344.9 110.2L345.5 113.5L346.2 116.9L346.8 120.3L347.4 123.7L348.1 127.1L348.7 130.5L349.4 133.8L350.0 137.2L350.6 140.4L351.3 143.7L351.9 146.9L352.5 150.0L353.2 153.1L353.8 156.1L354.5 159.0L355.1 161.9L355.7 164.6L356.4 167.3L357.0 169.8L357.7 172.2L358.3 174.5L358.9 176.7L359.6 178.7L360.2 180.6L360.9 182.4L361.5 184.0L362.1 185.5L362.8 186.8L363.4 187.9L364.0 188.9L364.7 189.7L365.3 190.4L366.0 190.9L366.6 191.2L367.2 191.3L367.9 191.3L368.5 191.1L369.2 190.7L369.8 190.1L370.4 189.4L371.1 188.5L371.7 187.4L372.3 186.2L373.0 184.7L373.6 183.2L374.3 181.4L374.9 179.5L375.5 177.5L376.2 175.3L376.8 172.9L377.5 170.4L378.1 167.8L378.7 165.0L379.4 162.2L380.0 159.2L380.7 156.1L381.3 152.9L381.9 149.6L382.6 146.3L383.2 142.8L383.8 139.3L384.5 135.7L385.1 132.1L385.8 128.4L386.4 124.8L387.0 121.0L387.7 117.3L388.3 113.6L389.0 109.9L389.6 106.2L390.2 102.5L390.9 98.8L391.5 95.3L392.1 91.7L392.8 88.2L393.4 84.8L394.1 81.5L394.7 78.3L395.3 75.2L396.0 72.2L396.6 69.3L397.3 66.5L397.9 63.9L398.5 61.4L399.2 59.1L399.8 56.9L400.5 54.9L401.1 53.1L401.7 51.4L402.4 50.0L403.0 48.7L403.6 47.6L404.3 46.7L404.9 46.0L405.6 45.5L406.2 45.2L406.8 45.1L407.5 45.3L408.1 45.6L408.8 46.1L409.4 46.9L410.0 47.9L410.7 49.1L411.3 50.4L411.9 52.0L412.6 53.8L413.2 55.8L413.9 58.0L414.5 60.4L415.1 62.9L415.8 65.7L416.4 68.6L417.1 71.7L417.7 74.9L418.3 78.3L419.0 81.8L419.6 85.5L420.3 89.3L420.9 93.2L421.5 97.2L422.2 101.3L422.8 105.5L423.4 109.8L424.1 114.2L424.7 118.6L425.4 123.0L426.0 127.5L426.6 132.0L427.3 136.5L427.9 141.0L428.6 145.5L429.2 150.0L429.8 154.4L430.5 158.8L431.1 163.2L431.7 167.4L432.4 171.6L433.0 175.7L433.7 179.7L434.3 183.5L434.9 187.3L435.6 190.9L436.2 194.4L436.9 197.7L437.5 200.8L438.1 203.8L438.8 206.7L439.4 209.3L440.1 211.7L440.7 214.0L441.3 216.0L442.0 217.9L442.6 219.5L443.2 220.9L443.9 222.2L444.5 223.1L445.2 223.9L445.8 224.5L446.4 224.8L447.1 224.9L447.7 224.8L448.4 224.4L449.0 223.9L449.6 223.1L450.3 222.2L450.9 221.0L451.5 219.6L452.2 218.0L452.8 216.3L453.5 214.3L454.1 212.2L454.7 210.0L455.4 207.5L456.0 205.0L456.7 202.2L457.3 199.4L457.9 196.5L458.6 193.4L459.2 190.2L459.9 187.0L460.5 183.7L461.1 180.3L461.8 176.9L462.4 173.5L463.0 170.0L463.7 166.6L464.3 163.1L465.0 159.7L465.6 156.3L466.2 152.9L466.9 149.6L467.5 146.4L468.2 143.3L468.8 140.2L469.4 137.3L470.1 134.5L470.7 131.8L471.3 129.3L472.0 126.9L472.6 124.7L473.3 122.7L473.9 120.8L474.5 119.2L475.2 117.7L475.8 116.5L476.5 115.5L477.1 114.7L477.7 114.1L478.4 113.8L479.0 113.7L479.7 113.8L480.3 114.2L480.9 114.8L481.6 115.6L482.2 116.7L482.8 118.1L483.5 119.7L484.1 121.5L484.8 123.6L485.4 125.9L486.0 128.4L486.7 131.1L487.3 134.1L488.0 137.2L488.6 140.6L489.2 144.2L489.9 147.9L490.5 151.8L491.1 155.9L491.8 160.1L492.4 164.4L493.1 168.9L493.7 173.5L494.3 178.2L495.0 182.9L495.6 187.8L496.3 192.7L496.9 197.6L497.5 202.6L498.2 207.6L498.8 212.5L499.5 217.5L500.1 222.4L500.7 227.3L501.4 232.1L502.0 236.8L502.6 241.4L503.3 246.0L503.9 250.3L504.6 254.6L505.2 258.7L505.8 262.7L506.5 266.4L507.1 270.0L507.8 273.4L508.4 276.5L509.0 279.5L509.7 282.2L510.3 284.6L510.9 286.8L511.6 288.8L512.2 290.5L512.9 291.9L513.5 293.1L514.1 293.9L514.8 294.5L515.4 294.8L516.1 294.9L516.7 294.6L517.3 294.1L518.0 293.3L518.6 292.2L519.3 290.8L519.9 289.2L520.5 287.3L521.2 285.1L521.8 282.7L522.4 280.0L523.1 277.1L523.7 274.0L524.4 270.7L525.0 267.2L525.6 263.5L526.3 259.6L526.9 255.5L527.6 251.3L528.2 247.0L528.8 242.5L529.5 238.0L530.1 233.3L530.7 228.6L531.4 223.8L532.0 219.0L532.7 214.2L533.3 209.3L533.9 204.5L534.6 199.7L535.2 194.9L535.9 190.2L536.5 185.6L537.1 181.1L537.8 176.6L538.4 172.3L539.1 168.2L539.7 164.2L540.3 160.3L541.0 156.7L541.6 153.2L542.2 149.9L542.9 146.9L543.5 144.0L544.2 141.4L544.8 139.0L545.4 136.9L546.1 135.1L546.7 133.5L547.4 132.1L548.0 131.0L548.6 130.2L549.3 129.7L549.9 129.4L550.5 129.4L551.2 129.7L551.8 130.2L552.5 131.0L553.1 132.0L553.7 133.3L554.4 134.9L555.0 136.6L555.7 138.6L556.3 140.8L556.9 143.2L557.6 145.8L558.2 148.6L558.9 151.5L559.5 154.6L560.1 157.8L560.8 161.1L561.4 164.5L562.0 168.0L562.7 171.6L563.3 175.3L564.0 178.9L564.6 182.6L565.2 186.3L565.9 190.0L566.5 193.6L567.2 197.2L567.8 200.7L568.4 204.1L569.1 207.5L569.7 210.6L570.3 213.7L571.0 216.6L571.6 219.3L572.3 221.8L572.9 224.2L573.5 226.3L574.2 228.2L574.8 229.8L575.5 231.2L576.1 232.4L576.7 233.3L577.4 233.9L578.0 234.2L578.7 234.3L579.3 234.0L579.9 233.5L580.6 232.6L581.2 231.5L581.8 230.1L582.5 228.3L583.1 226.3L583.8 224.0L584.4 221.4L585.0 218.5L585.7 215.4L586.3 212.0L587.0 208.3L587.6 204.5L588.2 200.3L588.9 196.0L589.5 191.5L590.1 186.8L590.8 181.9L591.4 176.8L592.1 171.6L592.7 166.3L593.3 160.9L594.0 155.5L594.6 149.9L595.3 144.3L595.9 138.7L596.5 133.1L597.2 127.5L597.8 122.0L598.5 116.5L599.1 111.1L599.7 105.8L600.4 100.6L601.0 95.5L601.6 90.6L602.3 85.9L602.9 81.4L603.6 77.0L604.2 72.9L604.8 69.1L605.5 65.5L606.1 62.2L606.8 59.2L607.4 56.4L608.0 54.0L608.7 51.9L609.3 50.1L609.9 48.6L610.6 47.5L611.2 46.7L611.9 46.3L612.5 46.2L613.1 46.5L613.8 47.1L614.4 48.0L615.1 49.3L615.7 51.0L616.3 52.9L617.0 55.2L617.6 57.8L618.3 60.7L618.9 63.8L619.5 67.3L620.2 71.0L620.8 75.0L621.4 79.2L622.1 83.6L622.7 88.3L623.4 93.1L624.0 98.0L624.6 103.2L625.3 108.4L625.9 113.7L626.6 119.1L627.2 124.6L627.8 130.2L628.5 135.7L629.1 141.2L629.7 146.7L630.4 152.2L631.0 157.6L631.7 162.9L632.3 168.1L632.9 173.1L633.6 178.1L634.2 182.8L634.9 187.4L635.5 191.7L636.1 195.9L636.8 199.8L637.4 203.5L638.1 206.9L638.7 210.0L639.3 212.9L640.0 215.5L640.6 217.7L641.2 219.7L641.9 221.4L642.5 222.7L643.2 223.8L643.8 224.5L644.4 224.9L645.1 225.0L645.7 224.8L646.4 224.3L647.0 223.5L647.6 222.4L648.3 221.1L648.9 219.4L649.5 217.6L650.2 215.5L650.8 213.1L651.5 210.6L652.1 207.8L652.7 204.9L653.4 201.8L654.0 198.6L654.7 195.2L655.3 191.8L655.9 188.3L656.6 184.7L657.2 181.1L657.9 177.5L658.5 173.9L659.1 170.3L659.8 166.8L660.4 163.3L661.0 160.0L661.7 156.7L662.3 153.6L663.0 150.7L663.6 147.9L664.2 145.3L664.9 143.0L665.5 140.9L666.2 139.0L666.8 137.4L667.4 136.0L668.1 134.9L668.7 134.2L669.3 133.7L670.0 133.5L670.6 133.7L671.3 134.2L671.9 135.0L672.5 136.2L673.2 137.6L673.8 139.4L674.5 141.6L675.1 144.0L675.7 146.8L676.4 149.9L677.0 153.2L677.7 156.9L678.3 160.8L678.9 165.0L679.6 169.4L680.2 174.1L680.8 178.9L681.5 184.0L682.1 189.2L682.8 194.6L683.4 200.1L684.0 205.8L684.7 211.5L685.3 217.2L686.0 223.1L686.6 228.9L687.2 234.7L687.9 240.5L688.5 246.2L689.1 251.8L689.8 257.3" class="helix" fill="none"/>
+<circle cx="180.5" cy="156.4" r="3.6" class="zero"><title>γ₁ = 14.134725</title></circle>
+<circle cx="253.8" cy="156.4" r="3.6" class="zero"><title>γ₂ = 21.022040</title></circle>
+<circle cx="296.2" cy="156.4" r="3.6" class="zero"><title>γ₃ = 25.010858</title></circle>
+<circle cx="353.9" cy="156.4" r="3.6" class="zero"><title>γ₄ = 30.424876</title></circle>
+<circle cx="380.6" cy="156.4" r="3.6" class="zero"><title>γ₅ = 32.935062</title></circle>
+<circle cx="430.1" cy="156.4" r="3.6" class="zero"><title>γ₆ = 37.586178</title></circle>
+<circle cx="465.6" cy="156.4" r="3.6" class="zero"><title>γ₇ = 40.918719</title></circle>
+<circle cx="491.2" cy="156.4" r="3.6" class="zero"><title>γ₈ = 43.327073</title></circle>
+<circle cx="541.0" cy="156.4" r="3.6" class="zero"><title>γ₉ = 48.005151</title></circle>
+<circle cx="559.9" cy="156.4" r="3.6" class="zero"><title>γ₁₀ = 49.773832</title></circle>
+<circle cx="593.9" cy="156.4" r="3.6" class="zero"><title>γ₁₁ = 52.970321</title></circle>
+<circle cx="630.9" cy="156.4" r="3.6" class="zero"><title>γ₁₂ = 56.446248</title></circle>
+<circle cx="661.8" cy="156.4" r="3.6" class="zero"><title>γ₁₃ = 59.347044</title></circle>
+<circle cx="677.6" cy="156.4" r="3.6" class="zero"><title>γ₁₄ = 60.831779</title></circle>
+<g id="zcross" style="display:none"><line id="zline" y1="30" y2="310" class="cross"/><circle id="zdot" r="4" class="crossdot"/></g>
+</svg>
+<div class="ztip" id="ztip"></div>
+</div>
+<figcaption><b>Figure 3 — the flattened helix.</b> <i>Z</i>(<i>t</i>) for 0 ≤ <i>t</i> ≤ 62, computed from Borwein's algorithm for η and Stirling's series for θ. Every sign change is a nontrivial zero: the fourteen amber dots are γ₁ through γ₁₄, and hovering (or the table below) gives each ordinate. Note the tightening pair γ₁₃, γ₁₄ near <i>t</i> ≈ 60: between them the excursion of <i>Z</i> reaches only 0.60 — a mild forerunner of the Lehmer phenomenon of §11.</figcaption>
+</figure>
+
+<div class="tbl-scroll">
+<table class="zeros" aria-label="First ten zero ordinates">
+<tr><th>γ₁</th><th>γ₂</th><th>γ₃</th><th>γ₄</th><th>γ₅</th></tr>
+<tr><td>14.134725</td><td>21.022040</td><td>25.010858</td><td>30.424876</td><td>32.935062</td></tr>
+<tr><th>γ₆</th><th>γ₇</th><th>γ₈</th><th>γ₉</th><th>γ₁₀</th></tr>
+<tr><td>37.586178</td><td>40.918719</td><td>43.327073</td><td>48.005151</td><td>49.773832</td></tr>
+</table>
+</div>
+
+<p><b>Winding counts closures.</b> The argument principle turns the zero-counting function into a winding number of the helix system: <i>N</i>(<i>T</i>) = θ(<i>T</i>)/π + 1 + <i>S</i>(<i>T</i>), where <i>S</i>(<i>T</i>) = π<sup>−1</sup> arg ζ(½ + <i>iT</i>) is unconditionally O(log <i>T</i>) (von Mangoldt) and in practice astonishingly small — the phase discipline of the train. Hence the Riemann–von Mangoldt law</p>
+<div class="eq">
+<i>N</i>(<i>T</i>) = <span class="fr"><span class="nu"><i>T</i></span><span class="de">2π</span></span> log <span class="fr"><span class="nu"><i>T</i></span><span class="de">2π</span></span> − <span class="fr"><span class="nu"><i>T</i></span><span class="de">2π</span></span> + <span class="fr"><span class="nu">7</span><span class="de">8</span></span> + <i>S</i>(<i>T</i>) + O(1/<i>T</i>):
+</div>
+<p>the density of closures is the turn density of the frame. Zeros are not sprinkled on the line; they are metered out by θ, roughly one per turn, spacing 2π/log(<i>t</i>/2π). Our figure's range holds exactly the 14 closures the formula predicts; below height 100 there are exactly 29 — Gram (1903) hand-computed the first fifteen of these ordinates, and all 29 are re-derived here by bisection.</p>
+<p><b>Only √(<i>t</i>/2π) gears matter.</b> The Riemann–Siegel approximate functional equation,</p>
+<div class="eq"><span class="tag">(6)</span>
+ζ(½+<i>it</i>) =
+<span class="bigop"><span class="up"><i>m</i></span><span class="sym">∑</span><span class="lo"><i>n</i>=1</span></span>
+<i>n</i><sup>−½−<i>it</i></sup> + χ(½+<i>it</i>)
+<span class="bigop"><span class="up"><i>m</i></span><span class="sym">∑</span><span class="lo"><i>n</i>=1</span></span>
+<i>n</i><sup>−½+<i>it</i></sup> + O(<i>t</i><sup>−¼</sup>), &nbsp;&nbsp; <i>m</i> = ⌊√(<i>t</i>/2π)⌋,
+</div>
+<p>says the infinite train at height <i>t</i> is, to leading order, a <i>finite</i> train of <i>m</i> gears plus the congruent mirror image of that same finite train. At <i>t</i> = 10⁴ about forty gears carry the whole function; at <i>t</i> = 10⁸, about four thousand. A closure at height <i>t</i> is a meeting of two finite spiral arms — the train and its reflected self — and the meeting point can be certified by machine. Turing's method (1953) does exactly this: winding plus sign changes brackets every closure without ever leaving the line. All numerical verification of RH, from Riemann's three zeros to the 3 × 10<sup>12</sup> of Platt–Trudgian (2021), is this one geometric idea industrialized.</p>
+</section>
+
+<p class="kicker">Part III · The gears and the primes</p>
+
+<section class="prose" id="s7">
+<h2>7 · Prime gears and the Euler factorization</h2>
+<p>Everything so far used only the additive presentation of the train. Its arithmetic soul is multiplicative:</p>
+<div class="eq">
+ζ(<i>s</i>) =
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∏</span><span class="lo"><i>p</i> prime</span></span>
+(1 − <i>p</i><sup>−<i>s</i></sup>)<sup>−1</sup>
+&nbsp;&nbsp;(σ &gt; 1).
+</div>
+<p>Each factor is itself a tiny gear train — the self-similar spiral 1 + <i>p</i><sup>−<i>s</i></sup> + <i>p</i><sup>−2<i>s</i></sup> + ⋯ with fixed ratio <i>p</i><sup>−<i>s</i></sup> — and the full train is their direct product. The bridge between the two presentations is a gearing law:</p>
+<div class="eq">
+log <i>n</i> =
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>p</i></span></span>
+<i>v</i><sub><i>p</i></sub>(<i>n</i>) log <i>p</i> :
+</div>
+<p>the angular speed of every composite gear is an integer combination of prime speeds. <b>Unique factorization is the statement that the gear ratios of the system are freely generated by the primes</b> — equivalently, that {log <i>p</i>} is linearly independent over ℚ. That independence is what makes the torsion flow <i>t</i> ↦ (<i>n</i><sup>−<i>it</i></sup>)<sub><i>n</i></sub> equidistribute on an infinite torus (Bohr), and it is why for σ &gt; 1 the value of the train is a convergent product of manifestly nonzero factors: <i>no closures exist to the right of the strip</i>, ever, for any torsion.</p>
+<p>The first hard-won rigidity theorem is the extension of that statement to the boundary. Hadamard and de la Vallée Poussin (1896) proved ζ(1 + <i>it</i>) ≠ 0 — no closure on the edge σ = 1 — and this alone is equivalent to the Prime Number Theorem. It is worth letting that sink in geometrically: <i>the statement that a certain family of helices refuses to close is precisely the statement that primes have density 1/log x</i>. Rigidity claims about this gear train are never mere geometry; each one is a theorem about primes wearing different clothes. RH is the innermost such claim, and §8 says exactly which clothes.</p>
+</section>
+
+<section class="prose" id="s8">
+<h2>8 · Resonance: closed helices broadcast into the primes</h2>
+<p>The explicit formula of Riemann and von Mangoldt is an exact resonance identity between the closures of the train and the distribution of prime powers. With ψ(<i>x</i>) = Σ<sub><i>p</i><sup><i>k</i></sup> ≤ <i>x</i></sub> log <i>p</i>,</p>
+<div class="eq"><span class="tag">(7)</span>
+ψ(<i>x</i>) = <i>x</i> −
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">ρ</span></span>
+<span class="fr"><span class="nu"><i>x</i><sup>ρ</sup></span><span class="de">ρ</span></span>
+− log 2π − ½ log(1 − <i>x</i><sup>−2</sup>).
+</div>
+<p>Write ρ = β + <i>i</i>γ and pair conjugates: each closure contributes a wave in the clock <i>u</i> = log <i>x</i>,</p>
+<div class="eq">
+− <span class="fr"><span class="nu">2 <i>x</i><sup>β</sup></span><span class="de">|ρ|</span></span> cos(γ log <i>x</i> − arg ρ),
+</div>
+<p>frequency γ, amplitude 2<i>x</i><sup>β</sup>/|ρ|. <b>Every null helix is a broadcasting antenna aimed at the primes; the ordinate sets the pitch and the abscissa sets the loudness.</b> The Riemann Hypothesis is the statement that all antennas broadcast at the same loudness exponent, <i>x</i><sup>1/2</sup> — the music of the primes played in equal temperament. Quantitatively (von Koch, 1901): RH is equivalent to π(<i>x</i>) = Li(<i>x</i>) + O(√<i>x</i> log <i>x</i>). One zero off the line, at abscissa β &gt; ½, would be one instrument playing louder than the whole orchestra, an <i>x</i><sup>β</sup> drone audible in the primes at every sufficiently large scale.</p>
+
+<figure>
+<div class="fig-frame">
+<div class="legend">
+<span class="chip"><span class="sw sw-stair"></span>ψ(<i>x</i>) — the prime-power staircase</span>
+<span class="chip"><span class="sw sw-helix"></span><i>x</i> − Σ waves of the first 29 closures − log 2π − ½log(1−<i>x</i><sup>−2</sup>)</span>
+</div>
+<svg viewBox="0 0 720 380" role="img" aria-label="The Chebyshev psi staircase over the primes together with its reconstruction from the first 29 zeros">
+<line x1="30.0" y1="347.0" x2="30.0" y2="353.0" class="axis"/>
+<text x="30" y="366" class="flab">0</text>
+<line x1="162.0" y1="347.0" x2="162.0" y2="353.0" class="axis"/>
+<text x="162" y="366" class="flab">20</text>
+<line x1="294.0" y1="347.0" x2="294.0" y2="353.0" class="axis"/>
+<text x="294" y="366" class="flab">40</text>
+<line x1="426.0" y1="347.0" x2="426.0" y2="353.0" class="axis"/>
+<text x="426" y="366" class="flab">60</text>
+<line x1="558.0" y1="347.0" x2="558.0" y2="353.0" class="axis"/>
+<text x="558" y="366" class="flab">80</text>
+<line x1="690.0" y1="347.0" x2="690.0" y2="353.0" class="axis"/>
+<text x="690" y="366" class="flab">100</text>
+<line x1="27.0" y1="350.0" x2="33.0" y2="350.0" class="axis"/>
+<text x="23" y="354" class="flab end">0</text>
+<line x1="27.0" y1="270.0" x2="33.0" y2="270.0" class="axis"/>
+<text x="23" y="274" class="flab end">25</text>
+<line x1="27.0" y1="190.1" x2="33.0" y2="190.1" class="axis"/>
+<text x="23" y="194" class="flab end">50</text>
+<line x1="27.0" y1="110.1" x2="33.0" y2="110.1" class="axis"/>
+<text x="23" y="114" class="flab end">75</text>
+<line x1="27.0" y1="30.1" x2="33.0" y2="30.1" class="axis"/>
+<text x="23" y="34" class="flab end">100</text>
+<line x1="30.0" y1="350.0" x2="690.0" y2="350.0" class="axis"/>
+<line x1="30.0" y1="350.0" x2="30.0" y2="30.0" class="axis"/>
+<text x="670" y="342" class="flab">x</text>
+<path d="M36.6 350.0L43.2 350.0L43.2 347.8L49.8 347.8L49.8 344.3L56.4 344.3L56.4 342.1L63.0 342.1L63.0 336.9L76.2 336.9L76.2 330.7L82.8 330.7L82.8 328.5L89.4 328.5L89.4 324.9L102.6 324.9L102.6 317.3L115.8 317.3L115.8 309.1L135.6 309.1L135.6 306.9L142.2 306.9L142.2 297.8L155.4 297.8L155.4 288.4L181.8 288.4L181.8 278.3L195.0 278.3L195.0 273.2L208.2 273.2L208.2 269.7L221.4 269.7L221.4 258.9L234.6 258.9L234.6 247.9L241.2 247.9L241.2 245.7L274.2 245.7L274.2 234.2L300.6 234.2L300.6 222.3L313.8 222.3L313.8 210.3L340.2 210.3L340.2 197.9L353.4 197.9L353.4 191.7L379.8 191.7L379.8 179.0L419.4 179.0L419.4 166.0L432.6 166.0L432.6 152.8L452.4 152.8L452.4 150.6L472.2 150.6L472.2 137.2L498.6 137.2L498.6 123.5L511.8 123.5L511.8 109.8L551.4 109.8L551.4 95.8L564.6 95.8L564.6 92.3L577.8 92.3L577.8 78.2L617.4 78.2L617.4 63.8L670.2 63.8L670.2 49.2L690.0 49.2" class="stair" fill="none"><title>ψ(x) = Σ log p over prime powers ≤ x</title></path>
+<path d="M43.2 348.9L44.5 347.7L45.8 347.8L47.2 347.8L48.5 347.7L49.8 346.1L51.1 344.5L52.4 344.4L53.8 344.4L55.1 344.3L56.4 343.1L57.7 342.0L59.0 342.0L60.4 342.2L61.7 342.2L63.0 339.6L64.3 336.6L65.6 336.9L67.0 337.1L68.3 336.6L69.6 337.2L70.9 336.6L72.2 337.3L73.6 336.5L74.9 337.6L76.2 333.6L77.5 330.3L78.8 330.8L80.2 330.6L81.5 330.9L82.8 329.5L84.1 328.4L85.4 328.3L86.8 328.6L88.1 328.6L89.4 326.7L90.7 324.8L92.0 324.9L93.4 325.0L94.7 324.9L96.0 325.1L97.3 324.9L98.6 324.8L100.0 325.5L101.3 324.8L102.6 321.2L103.9 317.5L105.2 316.5L106.6 317.4L107.9 317.8L109.2 317.1L110.5 316.7L111.8 317.5L113.2 318.1L114.5 316.6L115.8 313.1L117.1 309.7L118.4 308.4L119.8 308.9L121.1 309.4L122.4 309.2L123.7 308.9L125.0 309.0L126.4 309.2L127.7 309.1L129.0 308.9L130.3 309.0L131.6 309.4L133.0 309.3L134.3 308.6L135.6 307.7L136.9 307.3L138.2 307.4L139.6 307.0L140.9 305.4L142.2 302.5L143.5 299.5L144.8 297.4L146.2 296.8L147.5 297.2L148.8 298.1L150.1 298.7L151.4 298.6L152.8 297.6L154.1 295.7L155.4 293.1L156.7 290.5L158.0 288.4L159.4 287.5L160.7 287.6L162.0 288.2L163.3 288.8L164.6 288.9L166.0 288.6L167.3 288.2L168.6 288.0L169.9 288.1L171.2 288.3L172.6 288.5L173.9 288.6L175.2 288.7L176.5 288.8L177.8 288.6L179.2 287.9L180.5 286.3L181.8 283.9L183.1 281.1L184.4 278.7L185.8 277.2L187.1 276.9L188.4 277.7L189.7 278.8L191.0 279.4L192.4 279.1L193.7 277.7L195.0 275.7L196.3 273.8L197.6 272.5L199.0 272.2L200.3 272.8L201.6 273.6L202.9 274.3L204.2 274.2L205.6 273.4L206.9 272.0L208.2 270.6L209.5 269.6L210.8 269.3L212.2 269.6L213.5 270.3L214.8 270.9L216.1 270.9L217.4 270.1L218.8 268.4L220.1 266.2L221.4 263.8L222.7 261.6L224.0 260.0L225.4 259.1L226.7 258.9L228.0 258.9L229.3 258.9L230.6 258.6L232.0 257.7L233.3 256.1L234.6 254.1L235.9 251.8L237.2 249.6L238.6 247.7L239.9 246.3L241.2 245.5L242.5 245.2L243.8 245.3L245.2 245.7L246.5 246.1L247.8 246.3L249.1 246.4L250.4 246.2L251.8 246.0L253.1 245.6L254.4 245.3L255.7 245.1L257.0 245.1L258.4 245.2L259.7 245.5L261.0 245.9L262.3 246.2L263.6 246.5L265.0 246.6L266.3 246.5L267.6 246.2L268.9 245.5L270.2 244.6L271.6 243.4L272.9 242.0L274.2 240.3L275.5 238.6L276.8 236.9L278.2 235.3L279.5 234.0L280.8 233.1L282.1 232.6L283.4 232.5L284.8 232.8L286.1 233.5L287.4 234.3L288.7 235.1L290.0 235.7L291.4 235.9L292.7 235.7L294.0 235.1L295.3 234.0L296.6 232.6L298.0 231.0L299.3 229.4L300.6 227.8L301.9 226.3L303.2 225.1L304.6 224.1L305.9 223.3L307.2 222.5L308.5 221.7L309.8 220.7L311.2 219.5L312.5 218.1L313.8 216.5L315.1 214.7L316.4 213.0L317.8 211.5L319.1 210.2L320.4 209.3L321.7 208.8L323.0 208.8L324.4 209.1L325.7 209.7L327.0 210.4L328.3 211.1L329.6 211.6L331.0 211.8L332.3 211.6L333.6 211.0L334.9 210.0L336.2 208.7L337.6 207.2L338.9 205.5L340.2 203.9L341.5 202.3L342.8 200.9L344.2 199.7L345.5 198.7L346.8 197.9L348.1 197.1L349.4 196.5L350.8 195.9L352.1 195.2L353.4 194.6L354.7 193.9L356.0 193.2L357.4 192.6L358.7 192.0L360.0 191.6L361.3 191.3L362.6 191.2L364.0 191.3L365.3 191.5L366.6 191.8L367.9 192.1L369.2 192.4L370.6 192.5L371.9 192.3L373.2 191.9L374.5 191.2L375.8 190.2L377.2 188.9L378.5 187.4L379.8 185.8L381.1 184.1L382.4 182.5L383.8 181.0L385.1 179.8L386.4 178.8L387.7 178.1L389.0 177.6L390.4 177.5L391.7 177.5L393.0 177.8L394.3 178.2L395.6 178.6L397.0 179.1L398.3 179.5L399.6 179.8L400.9 180.0L402.2 180.1L403.6 180.1L404.9 180.0L406.2 179.8L407.5 179.5L408.8 179.2L410.2 178.8L411.5 178.3L412.8 177.8L414.1 177.1L415.4 176.5L416.8 175.6L418.1 174.7L419.4 173.7L420.7 172.5L422.0 171.1L423.4 169.6L424.7 168.1L426.0 166.4L427.3 164.7L428.6 163.0L430.0 161.3L431.3 159.7L432.6 158.2L433.9 156.9L435.2 155.7L436.6 154.7L437.9 153.8L439.2 153.2L440.5 152.7L441.8 152.4L443.2 152.2L444.5 152.0L445.8 152.0L447.1 152.0L448.4 152.1L449.8 152.2L451.1 152.2L452.4 152.3L453.7 152.3L455.0 152.2L456.4 152.1L457.7 151.9L459.0 151.6L460.3 151.3L461.6 150.9L463.0 150.3L464.3 149.7L465.6 149.0L466.9 148.2L468.2 147.3L469.6 146.3L470.9 145.3L472.2 144.2L473.5 143.1L474.8 142.0L476.2 140.9L477.5 139.9L478.8 138.9L480.1 138.1L481.4 137.4L482.8 136.8L484.1 136.4L485.4 136.0L486.7 135.8L488.0 135.6L489.4 135.5L490.7 135.4L492.0 135.3L493.3 135.0L494.6 134.7L496.0 134.2L497.3 133.5L498.6 132.6L499.9 131.4L501.2 130.1L502.6 128.5L503.9 126.8L505.2 124.9L506.5 122.9L507.8 120.9L509.2 118.8L510.5 116.8L511.8 115.0L513.1 113.3L514.4 111.8L515.8 110.5L517.1 109.6L518.4 108.9L519.7 108.4L521.0 108.3L522.4 108.3L523.7 108.6L525.0 109.0L526.3 109.5L527.6 110.1L529.0 110.7L530.3 111.2L531.6 111.7L532.9 112.0L534.2 112.1L535.6 112.1L536.9 111.9L538.2 111.4L539.5 110.9L540.8 110.1L542.2 109.2L543.5 108.2L544.8 107.2L546.1 106.1L547.4 105.0L548.8 103.9L550.1 102.8L551.4 101.8L552.7 100.9L554.0 100.1L555.4 99.4L556.7 98.7L558.0 98.1L559.3 97.5L560.6 96.9L562.0 96.4L563.3 95.8L564.6 95.1L565.9 94.4L567.2 93.6L568.6 92.7L569.9 91.7L571.2 90.6L572.5 89.5L573.8 88.3L575.2 87.0L576.5 85.7L577.8 84.4L579.1 83.2L580.4 82.0L581.8 81.0L583.1 80.0L584.4 79.2L585.7 78.5L587.0 78.0L588.4 77.7L589.7 77.5L591.0 77.5L592.3 77.5L593.6 77.7L595.0 78.0L596.3 78.3L597.6 78.6L598.9 78.9L600.2 79.1L601.6 79.3L602.9 79.4L604.2 79.3L605.5 79.1L606.8 78.7L608.2 78.2L609.5 77.5L610.8 76.7L612.1 75.7L613.4 74.6L614.8 73.5L616.1 72.3L617.4 71.0L618.7 69.8L620.0 68.5L621.4 67.4L622.7 66.3L624.0 65.3L625.3 64.5L626.6 63.8L628.0 63.2L629.3 62.8L630.6 62.5L631.9 62.4L633.2 62.4L634.6 62.5L635.9 62.7L637.2 63.0L638.5 63.3L639.8 63.7L641.2 64.1L642.5 64.4L643.8 64.7L645.1 65.0L646.4 65.2L647.8 65.3L649.1 65.4L650.4 65.3L651.7 65.2L653.0 64.9L654.4 64.6L655.7 64.1L657.0 63.6L658.3 63.1L659.6 62.5L661.0 61.8L662.3 61.1L663.6 60.4L664.9 59.7L666.2 58.9L667.6 58.2L668.9 57.5L670.2 56.8L671.5 56.1L672.8 55.5L674.2 54.8L675.5 54.2L676.8 53.5L678.1 52.9L679.4 52.2L680.8 51.5L682.1 50.8L683.4 50.1L684.7 49.3L686.0 48.5L687.4 47.6L688.7 46.7L690.0 45.8" class="helix" fill="none"><title>x − 2Σ Re(x^ρ/ρ) over the first 29 null helices − log 2π − ½log(1−x⁻²)</title></path>
+</svg>
+</div>
+<figcaption><b>Figure 4 — hearing the closures.</b> The Chebyshev staircase ψ(<i>x</i>) on [1, 100] against its reconstruction from formula (7) truncated to the 29 null helices with ordinate below 100 (the ones in Figure 3 and their successors). Twenty-nine waves already trace every riser of the staircase; maximum deviation 2.83 on [3, 100), concentrated at the jumps, where the truncated series converges to the jump midpoint. The zeros are not merely <i>consistent with</i> the primes — they encode them.</figcaption>
+</figure>
+
+<p>The identity runs both ways. The closures determine the primes (Figure 4), and by Hadamard's product for the completed function, ξ(<i>s</i>) = ξ(0) Π<sub>ρ</sub>(1 − <i>s</i>/ρ), the closures also determine the <i>entire train</i>: the numeral is reconstructible from its failures to be nonzero. A gear system holographically encoded in its own silences — this is why the zeros, and not any other feature of ζ, carry the whole weight of analytic number theory.</p>
+</section>
+
+<p class="kicker">Part IV · Why one half</p>
+
+<section class="prose" id="s9">
+<h2>9 · The random gear train, or why one half</h2>
+<p>Detach the torsion from arithmetic: replace the phases <i>e</i><sup><i>i</i>ρ<sub><i>n</i></sub></sup> by independent fair coin flips ε<sub><i>n</i></sub> = ±1. When does the randomized train Σ ε<sub><i>n</i></sub><i>n</i><sup>−σ</sup> land anywhere at all? Kolmogorov's three-series theorem answers exactly:</p>
+<div class="eq"><span class="tag">(8)</span>
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>n</i></span></span>
+ε<sub><i>n</i></sub> <i>n</i><sup>−σ</sup> converges a.s.
+&nbsp;⟺&nbsp;
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>n</i></span></span>
+<i>n</i><sup>−2σ</sup> &lt; ∞
+&nbsp;⟺&nbsp; σ &gt; ½.
+</div>
+<p><b>Square-root decay is the exact boundary at which an infinite train of incoherently turned gears can still land somewhere.</b> The classical theory of random series (Paley–Zygmund; Kahane) sharpens this: almost surely, the random Dirichlet series has abscissa of convergence ½ and the line σ = ½ is a natural boundary — the generic train cannot even be continued past it, let alone closed beyond it. Random Euler products tell the same story from the multiplicative side: with independent phases on the prime gears, the product converges and is nonvanishing precisely for σ &gt; ½ almost surely.</p>
+<p>The true torsion ρ<sub><i>n</i></sub> = −<i>t</i> log <i>n</i> is deterministic, but it impersonates the coin with statistical fidelity. Selberg's central limit theorem: as <i>t</i> ranges over [T, 2T],</p>
+<div class="eq">
+<span class="fr"><span class="nu">log ζ(½ + <i>it</i>)</span><span class="de">√(½ log log <i>T</i>)</span></span>
+→ complex standard Gaussian.
+</div>
+<p>The flattened helix endpoint performs, to the resolution of every proved statistic, an unbiased random walk. Here is the deep reading of the construction's central claim: <b>the critical line is the locus where the arithmetic train is required to achieve exactly the cancellation a random train achieves — no more, no less — and RH is the assertion that the impersonation never breaks.</b> An off-line zero at β &gt; ½ would be a conspiracy: infinitely many gears aligning to cancel with polynomially <i>better</i>-than-random precision, sustained against the equidistribution that unique factorization enforces (§7). Nothing in probability forbids a conspiracy; that is why RH is hard. But the random model explains, better than any other single fact, why ½ and not another number: it is the only exponent probability theory itself singles out.</p>
+</section>
+
+<section class="prose" id="s10">
+<h2>10 · Retuning as mollification: partial rigidity is proved</h2>
+<p>Axiom 7 permits continuous radial retuning λ<sub><i>n</i></sub>. The analytic community has a name for a disciplined λ-retuning: a <b>mollifier</b>, an auxiliary train <i>B</i>(<i>s</i>) = Σ <i>b</i><sub><i>n</i></sub><i>n</i><sup>−<i>s</i></sup> whose weights are tuned so that ζ·<i>B</i> is tame, making the closures of ζ countable by real-variable methods. The retuning axiom is not a loophole in the construction — it is its most productive component, because every major unconditional result about zeros <i>on</i> the line was proved with it:</p>
+<p>Hardy (1914): infinitely many closures lie exactly on σ = ½. Hardy–Littlewood (1921): at least ≫ <i>T</i> of them up to height <i>T</i>. Selberg (1942): a positive proportion. Levinson (1974), by mollifying ζ′ + ζ: at least one third. Conrey (1989), with longer mollifiers: at least two fifths. Pratt–Robles–Zaharescu–Zeindler (2020): more than 5/12 — over 41% of all closures provably sit exactly on the critical line, each increment purchased by a more refined retuning of the train.</p>
+<p>Rigidity near the right edge is likewise a theorem. De la Vallée Poussin (1899): no closure with σ &gt; 1 − <i>c</i>/log <i>t</i>. Vinogradov and Korobov (1958), via cancellation in exponential sums — that is, via quantified incoherence of the gears:</p>
+<div class="eq">
+ζ(σ + <i>it</i>) ≠ 0 &nbsp; for &nbsp; σ ≥ 1 −
+<span class="fr"><span class="nu"><i>c</i></span><span class="de">(log <i>t</i>)<sup>2/3</sup> (log log <i>t</i>)<sup>1/3</sup></span></span>.
+</div>
+<p>That 2/3 exponent has not moved since 1958 — the <i>Vinogradov wall</i>, the true frontier of proved rigidity on the σ side. And Bohr–Landau (1914) showed almost all closures cluster within any ε-neighborhood of the critical line: the zeros already <i>want</i> to be there in density. The gap between "at least 41%, and 100% within ε" and "all, exactly" is the entire remaining content of the Riemann Hypothesis — a measure of how strong a statement exact rigidity is.</p>
+</section>
+
+<section class="prose" id="s11">
+<h2>11 · The canonical deformation: Λ = 0 as exact criticality</h2>
+<p>The construction's §6 argues that no continuous, axiom-respecting evolution of σ can maintain a null helix between classical ordinates. Analysis possesses a precise, celebrated avatar of this rigidity intuition — not for drifting a single zero, but for deforming the <i>entire train at once</i>.</p>
+<p>Write the completed, symmetrized helix as a Fourier transform, Ξ(<i>z</i>) = ∫ Φ(<i>u</i>) cos(<i>zu</i>) d<i>u</i>, and run it through the backward/forward heat flow:</p>
+<div class="eq">
+<i>H</i><sub>τ</sub>(<i>z</i>) =
+∫<sub>0</sub><sup>∞</sup> <i>e</i><sup>τ<i>u</i>²</sup> Φ(<i>u</i>) cos(<i>zu</i>) d<i>u</i>,
+&nbsp;&nbsp; <i>H</i><sub>0</sub> = Ξ.
+</div>
+<p>This is a canonical one-parameter torsion deformation of the whole gear system, and it moves the closures continuously (Hurwitz: zeros of analytic limits cannot appear or vanish silently). De Bruijn (1950) proved that for τ ≥ ½ every closure is real (in the <i>z</i>-variable: every helix closes on the line); there is therefore a finite constant Λ — the <b>de Bruijn–Newman constant</b> — such that the closures are all on the line iff τ ≥ Λ. The Riemann Hypothesis is exactly Λ ≤ 0. Newman (1976), proving Λ &gt; −∞, conjectured Λ ≥ 0 with a phrase that deserves quoting: <i>the Riemann hypothesis, if true, is only barely so</i>.</p>
+<div class="box thm">
+<span class="lbl">Theorem (Rodgers–Tao, 2018; upper bound Polymath15, 2019)</span>
+<p>Λ ≥ 0. Combined with de Bruijn and with the current upper bound: 0 ≤ Λ ≤ 0.22, and RH ⟺ Λ = 0.</p>
+</div>
+<p>Read this in the construction's own language. The forward flow (τ &gt; 0) is an admissible continuous retuning that combs every closure onto the line — rigidity <i>with slack</i>. Rodgers–Tao says the arithmetic train has <b>no slack at τ = 0</b>: run the flow backward by any ε &gt; 0 and some closure leaves the line immediately. If RH is true, the zeta gear train sits exactly at the critical parameter of its own canonical deformation family — not inside the rigid region but on its boundary. The construction's instinct that any continuous drift of σ "inevitably violates an axiom" is correct in this frame, but with a sharpened moral: the violation begins at once, at strength zero. Rigidity, if it holds, is critical rigidity.</p>
+<p>The proof mechanism is equally instructive: if Λ were negative, the backward-flowed zeros would have to be too regularly spaced — more crystalline than the true zeros are permitted to be. Witness the <b>Lehmer phenomenon</b>: near <i>t</i> ≈ 7005.06 two closures approach within 0.04 of each other, <i>Z</i> grazing the axis so closely that RH survives by a hair's breadth; Figure 3's tight pair near <i>t</i> ≈ 60 is the first faint omen of it. Such near-collisions recur infinitely often and are exactly what forces Λ ≥ 0. The gear train operates permanently at the edge of failure — which is, perhaps, the deepest single fact known about how RH will have to be proved: not by showing the train comfortably avoids off-line closure, but by showing it walks the boundary forever without stepping over.</p>
+</section>
+
+<section class="prose" id="s12">
+<h2>12 · Forced evolution, made precise</h2>
+<p>Two clarifications turn the construction's §6 from an intuition into mathematics.</p>
+<p><b>First: for a fixed train, isolation is free.</b> η is analytic and not identically zero, so its zeros are isolated points of the plane — no continuous curve σ(<i>t</i>) of zeros exists, by the identity theorem, before any axiom is invoked. A rigidity claim gains content only when the <i>system</i> deforms: torsion families, λ-retunings, the heat flow of §11. The axioms should be read as carving out the admissible deformation class; §11 shows that for the canonical class the rigidity boundary is Λ = 0, exactly.</p>
+<p><b>Second: the honest fixed-train statement is Speiser's.</b> A. Speiser (1935) proved</p>
+<div class="box thm">
+<span class="lbl">Theorem (Speiser)</span>
+<p>RH ⟺ ζ′(<i>s</i>) ≠ 0 in the open left half-strip 0 &lt; σ &lt; ½.</p>
+</div>
+<p>Geometrically: the flattened helix family has <i>no stationary point of its shape</i> anywhere left of the line. A critical point of ζ in the left half-strip would be a place where the helix pauses — where an infinitesimal change of <i>s</i> produces no first-order change in the value — and Speiser says such a pause is <i>equivalent</i> to a failed RH. The construction's monotone gear train, forbidden to slacken, is a drawing of this theorem: monotonicity of the evolution, correctly formalized, is not an aesthetic axiom but the hypothesis itself. (On the line, the pairing is exact and proved conditionally: between consecutive closures <i>Z</i>′ vanishes once, zeros of ζ′ interlace, and the flow never stalls to the left.)</p>
+</section>
+
+<p class="kicker">Part V · The missing axiom</p>
+
+<section class="prose" id="s13">
+<h2>13 · The spectral reading: helices as eigenmodes</h2>
+<p>The oldest programme for proving RH — attributed to Hilbert and Pólya — asks for a self-adjoint operator whose eigenvalues are the ordinates γ. In the construction's language: exhibit an inner product on the states of the gear train making the closures the <i>resonant modes</i> of a Hermitian gear operator; reality of the spectrum is then automatic, and RH with it.</p>
+<p>Three discoveries make this more than a wish.</p>
+<p><b>Repulsion.</b> Montgomery (1973) computed (on RH, for band-limited test functions) the pair correlation of the ordinates and found 1 − (sin π<i>u</i>/π<i>u</i>)²: closures repel each other exactly as the eigenvalues of a large random Hermitian matrix from the <b>Gaussian Unitary Ensemble</b>. Odlyzko's computations (1987, and later at the 10<sup>20</sup>-th zero and beyond) confirm the match to extraordinary precision. The closures are spaced like a spectrum — not like a Poisson scatter, not like a lattice.</p>
+<p><b>The right symmetry class.</b> GUE — rather than the orthogonal ensemble GOE — is the statistics of quantum systems whose classical dynamics has <i>no time-reversal symmetry</i>. Here the construction's monotonicity axiom acquires an unexpectedly precise resonance: a gear train constrained to turn one way is a dynamical system with a built-in arrow. The axiom the construction imposed for geometric hygiene is, in the spectral dictionary, the symmetry-breaking that the observed statistics of the zeros demand. (Analogy, not theorem — but the right analogy.)</p>
+<p><b>The candidate dynamics.</b> Berry–Keating (1999): the conjectured operator should quantize the dilation flow <i>x</i> ↦ <i>e</i><sup>τ</sup><i>x</i> — the scale flow whose smoothed phase-space count reproduces the Riemann–von Mangoldt formula of §6, and whose primitive periodic orbits have periods log <i>p</i>, one per prime, with repetitions <i>k</i> log <i>p</i>. Compare the torsion: ρ<sub><i>n</i></sub> = −<i>t</i> log <i>n</i>. <b>The torsion angles of the gear train are literally the flow times of the dilation dynamics, and the prime gears of §7 are its periodic orbits.</b> The explicit formula (7) then reads as a trace formula — spectrum (closures) on one side, periodic orbits (primes) on the other — formally identical to Gutzwiller's and, in Connes' adelic rendering (1999), to a genuine Lefschetz-style trace. What is missing, there as here, is the Hilbert space: the inner product in which the flow is self-adjoint.</p>
+</section>
+
+<section class="prose" id="s14">
+<h2>14 · Where rigidity is a theorem: function fields and positivity</h2>
+<p>There is exactly one setting in mathematics where the Riemann Hypothesis, square-root rigidity included, is <i>proved</i> — and it is a setting where the geometry is literal.</p>
+<p>For a smooth projective curve <i>C</i> of genus <i>g</i> over a finite field 𝔽<sub><i>q</i></sub>, the zeta function is a rational function of <i>T</i> = <i>q</i><sup>−<i>s</i></sup>:</p>
+<div class="eq">
+<i>Z</i><sub><i>C</i></sub>(<i>T</i>) =
+<span class="fr"><span class="nu"><i>P</i>(<i>T</i>)</span><span class="de">(1−<i>T</i>)(1−<i>qT</i>)</span></span>,
+&nbsp;&nbsp; <i>P</i>(<i>T</i>) =
+<span class="bigop"><span class="up">2<i>g</i></span><span class="sym">∏</span><span class="lo"><i>i</i>=1</span></span>
+(1 − α<sub><i>i</i></sub><i>T</i>),
+</div>
+<p>and RH for <i>C</i> is the statement |α<sub><i>i</i></sub>| = √<i>q</i> for every <i>i</i> — proved by Hasse for <i>g</i> = 1 in the 1930s, by Weil for all curves (published 1948), and by Deligne (1974) for varieties of every dimension. Note what the eigenvalues are: the α<sub><i>i</i></sub> are the eigenvalues of <b>Frobenius</b> — the master gear that turns the whole field once, <i>x</i> ↦ <i>x</i><sup><i>q</i></sup> — acting on the curve's first cohomology. The gear train is finite-dimensional (2<i>g</i> eigen-gears), the flow is a single explicit operator, and square-root decay is literally an eigenvalue bound.</p>
+<p>How is it proved? Not by locating zeros. By <b>positivity</b>. Weil's proof runs through the Castelnuovo–Severi inequality — equivalently the Hodge index theorem on the surface <i>C</i> × <i>C</i>: a definite sign of an intersection form, applied to the graph of Frobenius, forces the eigenvalue bound. Duality supplies the functional equation (α ↦ <i>q</i>/α is Poincaré duality); positivity of an inner product supplies RH. The recipe, in constructionese:</p>
+<div class="box rh">
+<span class="lbl">The lesson of the proved case</span>
+<p>congruent dual helix (functional equation) + <b>positive-definite intersection form on the gear system</b> ⟹ square-root rigidity of all closures.</p>
+<p>The nested-circle system possesses the first ingredient (§5). Its missing axiom is the second: it has not named the inner product under which its helices pair with definite sign.</p>
+</div>
+<p>Number theory knows precisely what shape the missing positivity must take. Weil's explicit-formula criterion: RH is equivalent to the positivity <i>W</i>(<i>g</i> ⋆ <i>g̃</i>) ≥ 0 of a specific distribution — built from the primes — evaluated on self-correlations of test functions. Li's criterion (1997; coefficients written ℓ<sub><i>n</i></sub> here, since λ<sub><i>n</i></sub> is taken by the retuning factors) is a countable specialization:</p>
+<div class="eq">
+RH ⟺ ℓ<sub><i>n</i></sub> =
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">ρ</span></span>
+[ 1 − (1 − 1/ρ)<sup><i>n</i></sup> ] ≥ 0 &nbsp; for all <i>n</i> ≥ 1,
+</div>
+<p>which Bombieri–Lagarias (1999) identified as Weil positivity for a specific family of tests. Every serious approach on the number-field side — Connes' trace formula, the search for an arithmetic Frobenius, the tentative geometries over 𝔽₁ — is an attempt to build the space on which this positivity becomes an intersection form. If the nested-circle construction is to be more than a language, this is the axiom it must supply: <b>a pairing of helices whose positivity is checkable from the axioms already in place</b>. Nothing less will close the gap, because in the one world where the gap did close, positivity is what closed it.</p>
+<p>One more gift from the proved case: <i>patterned numerals</i>. Recolor the circles with digits chosen periodically by a character mod <i>q</i> (some circles may carry the empty digit) and the numeral evaluates to a Dirichlet <i>L</i>-function; the Grand Riemann Hypothesis asserts the same square-root closure law for every such coloring. The Selberg class axiomatizes exactly which gear trains are expected to obey the law: an Euler product (prime gears) and a functional equation (congruent dual). The construction's axiom set is, recognizably, a geometric draft of the same two demands.</p>
+</section>
+
+<section class="prose" id="s15">
+<h2>15 · The inner product, spelled out</h2>
+<p>The demand to "name the inner product" invites a natural objection from inside the construction: <i>is the phase-opposite pairing not already a pairing with definite sign?</i> Digit and image cancel, <i>a</i> + <i>A</i> = 0; the <i>g</i>-string is the exact negative of the <i>a</i>-string; the sign could not be more definite. Why is that not the missing axiom?</p>
+<p>Because it is the wrong <i>kind</i> of sign. The phase-opposite rule is odd, linear, and local: it pairs a state with its antipode and returns zero, level by level. It is an involution — call it ι, with <i>v</i> + ι(<i>v</i>) = 0 — and axiom 5 already enshrines it; its full purchase was made in §2, where the <i>aAaA…</i> alternation bought analytic continuation into the strip. An inner product is the opposite creature on every axis: even, quadratic, and global. It pairs a state with <i>itself</i> and returns a nonnegative number, and the positivity must hold for every admissible state at once — one quantifier ranging over the entire deformation space. "Opposites annihilate" manufactures cancellation, which is what makes closures possible in the first place; "self-pairings accumulate" is what would forbid closures from straying. The first is the mechanism of the disease, the second the diagnostic.</p>
+<p>There is a litmus test that settles the question. Any pairing checkable level by level is possessed equally by the Davenport–Heilbronn function (1936): a Dirichlet series with the same kind of alternating sign structure and an <i>exact</i> Riemann-type functional equation, whose zeros nonetheless stray off the critical line — even into σ &gt; 1 — because it has no Euler product. An axiom satisfied by a counterexample cannot be the axiom that forbids the counterexample. Whatever positivity is missing, it must see the prime gears.</p>
+<h3>What a pairing with definite sign actually is</h3>
+<p>An inner product on a space of states is a sesquilinear pairing ⟨<i>v</i>, <i>w</i>⟩, conjugate-symmetric, with ⟨<i>v</i>, <i>v</i>⟩ ≥ 0 and equality only at <i>v</i> = 0. Two consequences do all known mathematical work. First, adjoints: every operator <i>T</i> acquires a mirror <i>T</i><sup>†</sup> with ⟨<i>Tv</i>, <i>w</i>⟩ = ⟨<i>v</i>, <i>T</i><sup>†</sup><i>w</i>⟩, and a self-adjoint operator has real spectrum by a two-line argument — λ⟨<i>v</i>,<i>v</i>⟩ = ⟨<i>Tv</i>,<i>v</i>⟩ = ⟨<i>v</i>,<i>Tv</i>⟩ = <span class="ovl">λ</span>⟨<i>v</i>,<i>v</i>⟩, and since ⟨<i>v</i>,<i>v</i>⟩ &gt; 0 one may divide: λ = <span class="ovl">λ</span>. Note where positivity carries the load: the division <i>is</i> the proof. In an <i>indefinite</i> pairing — a Krein space, which is exactly what an odd involution like ι provides — self-adjointness forces only that non-real eigenvalues come in conjugate pairs, symmetric about the real axis. Compare §5: the functional equation forces only that closures come in quadruples, symmetric about the critical line. <b>An indefinite pairing reproduces precisely the symmetry the system already has; definiteness is the one further axiom that collapses a symmetric spectrum onto its axis.</b> Second, Cauchy–Schwarz: |⟨<i>v</i>,<i>w</i>⟩|² ≤ ⟨<i>v</i>,<i>v</i>⟩⟨<i>w</i>,<i>w</i>⟩ — the engine behind every eigenvalue bound in the proved case.</p>
+<h3>The Weil pairing: turning the mirror into a square</h3>
+<p>Number theory has already computed what the pairing must be, up to the one thing that matters. Take as states the admissible test retunings <i>g</i> — smooth, compactly supported weights on the multiplicative clock <i>u</i> = log <i>x</i> — and take as involution not the antipode but the <i>dual helix</i>: <i>g̃</i>(<i>x</i>) = <i>x</i><sup>−1</sup> <span class="ovl"><i>g</i></span>(1/<i>x</i>), which acts on Mellin transforms by ĝ(<i>s</i>) ↦ <span class="ovl">ĝ</span>(1−<i>s̄</i>) — the reflection whose fixed line is σ = ½ (§5). Pair a retuning with its own dual image through the closures:</p>
+<div class="eq"><span class="tag">(9)</span>
+⟨<i>g</i>, <i>g</i>⟩ =
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">ρ</span></span>
+ĝ(ρ) · <span class="ovl">ĝ</span>(1 − <span class="ovl">ρ</span>).
+</div>
+<p>The involution creates a dichotomy at each closure. If ρ = ½ + <i>i</i>γ lies on the line, then 1 − <span class="ovl">ρ</span> = ρ and its term is |ĝ(ρ)|² — <b>a perfect square, nonnegative by construction</b>. If ρ strays, its mirror partner 1 − <span class="ovl">ρ</span> ≠ ρ, and the pair contributes an interference cross-term of no fixed sign — and a test <i>g</i> tuned to the straddling pair drives the sum negative. Weil's criterion (1952): RH ⟺ ⟨<i>g</i>, <i>g</i>⟩ ≥ 0 for every admissible <i>g</i>. The inner product is the machine that turns the mirror into a square: on the fixed line of the dual-helix involution, pairing-with-mirror <i>is</i> pairing-with-self. This is the exact structural content of "duality + positivity = rigidity," and the reason duality alone can never suffice — without positivity, the cross-terms are legal.</p>
+<h3>Computed by the prime gears</h3>
+<p>The same energy has a second expression, and this is where arithmetic enters. The explicit formula (§8) evaluates ⟨<i>g</i>, <i>g</i>⟩ with no reference to closures at all: a pole term (the train's one non-gear singularity), an archimedean integral (the Γ-gear of the dual helix), minus a sum over prime gears — log <i>p</i>–weighted samples of <i>g</i> ⋆ <i>g̃</i> at the clock times <i>k</i> log <i>p</i>. Every part is explicit; no part is manifestly signed. So the missing axiom, stated as number theory, is: <i>for every admissible retuning, the prime-gear energy is nonnegative.</i> Stated as geometry: the train, paired against its own dual image, never stores negative energy. From that one sentence RH follows formally through (9). In the function-field world the corresponding energy is an intersection number on the compact surface <i>C</i> × <i>C</i>, and the Hodge index theorem signs it. What is being borrowed there is completeness: a geometry in which the archimedean gear is an honest point of the space, so that "energy" is the intersection form of a compact object. Arakelov geometry, Connes' adele class space, and the tentative geometries over 𝔽₁ are, from this vantage, attempts to build that completed space for ζ.</p>
+<h3>Can one simply decree it?</h3>
+<p>Should positivity then just be adopted — axiom 8, and done? One can write it down (below), and any system satisfying it provably has RH. But an axiom is a debt. Weil paid his with the Hodge index theorem, proved from geometry he already possessed; decreeing ⟨<i>g</i>,<i>g</i>⟩ ≥ 0 without a proof mechanism merely relocates the hypothesis into the axiom list. And the choice of pairing is genuinely treacherous: candidate inner products that looked canonical have been proposed — most prominently in de Branges' theory of Hilbert spaces of entire functions — and when their positivity conditions were tested against the actual ζ they failed numerically (Conrey–Li 2000). Positivity is not a formality one appends; most natural-looking pairings are simply <i>not</i> positive for ζ. The productive reading is a construction problem: build, from axioms 1–7, a pairing satisfying (i)–(iii) below, and prove (iii) the way Castelnuovo's inequality is proved — from the internal geometry, not by fiat.</p>
+<div class="box rh">
+<span class="lbl">Axiom 8 (wanted)</span>
+<p>There is a sesquilinear pairing ⟨·,·⟩ on admissible retunings of the train such that (i) the dual-helix reflection is its adjoint operation, (ii) its values are computed by the prime gears through the explicit formula, and (iii) ⟨<i>g</i>,<i>g</i>⟩ ≥ 0, with equality only for the trivial retuning.</p>
+<p>Any nested-circle system with (i)–(iii) has every invariant closure on the critical line. Here (i) and (ii) are theorems in disguise — the functional equation and the explicit formula. The entire Riemann Hypothesis lives in (iii).</p>
+</div>
+</section>
+
+<section class="prose" id="s16">
+<h2>16 · Gap-filling is the Beurling–Nyman criterion</h2>
+<p>Axiom 7 introduces the retuning factors λ<sub><i>n</i></sub> "solely to close gaps on the number line." It is a startling fact that <i>closing gaps on the number line</i> is, verbatim, an equivalent form of the Riemann Hypothesis.</p>
+<p>The fractional part {θ/<i>x</i>} is exactly the gap the integer gear train leaves at scale θ: what remains of θ/<i>x</i> after the integers have taken their full turns. Nyman (1950) and Beurling (1955) proved:</p>
+<div class="box thm">
+<span class="lbl">Theorem (Nyman–Beurling)</span>
+<p>RH ⟺ the indicator function of (0, 1] lies in the <i>L</i>²-closure of the span of the functions ρ<sub>θ</sub>(<i>x</i>) = {θ/<i>x</i>} − θ{1/<i>x</i>}, 0 &lt; θ ≤ 1.</p>
+</div>
+<p>Báez-Duarte (2003) sharpened it: integer dilations θ = 1/<i>k</i> suffice. So RH says: <i>the gaps of the gear train, dilated by integer ratios only, can fill the unit interval to arbitrary mean-square precision.</i> The retuning axiom, which looked like bookkeeping, is in fact a restatement of the hypothesis itself — the whole difficulty of RH can be relocated into the single question of whether the λ-machinery can do what the axiom casually asks of it. Quantitatively the filling is agonizingly slow: with dilations 1/<i>k</i>, <i>k</i> ≤ <i>N</i>, the best mean-square error is known to be at least (<i>C</i> + o(1))/log <i>N</i> with <i>C</i> = Σ<sub>ρ</sub> |ρ|<sup>−2</sup> = 2 + γ<sub>Euler</sub> − log 4π ≈ 0.0231, and conjecturally exactly that. Even if RH is true, the gaps close at a rate 1/log <i>N</i> — slower than any power — and the constant that governs the slowness is again a sum over the closures. The system cannot escape its zeros even while filling gaps.</p>
+</section>
+
+<section class="prose" id="s17">
+<h2>17 · Universality: the helix that can imitate anything</h2>
+<p>Right of the critical line the tail of the train has a property with no parallel elsewhere in analysis. Voronin (1975): for any compact set in the strip ½ &lt; σ &lt; 1 (with connected complement) and any continuous non-vanishing target function analytic in its interior, vertical shifts of ζ approximate the target uniformly to any precision — and do so with positive lower density in the shift. <b>The tail helix is a universal mimic: sufficiently far up the line, every non-vanishing analytic shape occurs in the gear train, infinitely often.</b></p>
+<p>The reason "non-vanishing" appears in the hypothesis is the zeros: an approximand with a zero would force ζ to have nearby zeros in the open strip by Rouché — so universality already brushes against RH. Bagchi (1981) made the contact exact:</p>
+<div class="box thm">
+<span class="lbl">Theorem (Bagchi)</span>
+<p>RH ⟺ ζ is <i>strongly recurrent</i> in the right half-strip: ζ can approximate <b>itself</b> — for every ε and every compact <i>K</i> ⊂ {½ &lt; σ &lt; 1}, the set of shifts τ with sup<sub><i>K</i></sub> |ζ(<i>s</i>+<i>i</i>τ) − ζ(<i>s</i>)| &lt; ε has positive lower density.</p>
+</div>
+<p>The helix can imitate every shape but — unless RH holds — not its own. A closure off the line would be precisely the self-portrait the train is forbidden to paint: to recur to itself it would have to recur to a zero, and zeros are what universality cannot touch. In the construction's language: <b>RH is the statement that the gear train is a legal target of its own mimicry</b> — self-similarity of the tail, elevated from aesthetic to criterion.</p>
+</section>
+
+<p class="kicker">Part VI · Assessment</p>
+
+<section class="prose" id="s18">
+<h2>18 · Sober assessment: what would have to be done</h2>
+<p>The construction ends by saying it makes the critical line "visually and axiomatically natural, without resolving the hypothesis itself." Correct — and the preceding sections let us say precisely what stands between a natural language and a proof.</p>
+<p><b>Equivalences preserve difficulty.</b> Every dictionary entry above (Λ = 0, Speiser, Nyman–Beurling, Li positivity, strong recurrence, von Koch) is an exact restatement of RH; a century of such restatements demonstrates that difficulty is a conserved quantity under reformulation. A geometric language earns its keep only by producing a <i>new invariant</i> — and §14 names the candidate this language should aim for: an inner product on the gear system with provable positivity. That is the one ingredient present in the proved (function-field) case and absent in every failed attack on the classical case.</p>
+<p><b>The axioms need quantitative teeth, and the slack must be exactly right.</b> Two cautionary theorems calibrate how much rigidity is <i>true</i>:</p>
+<div class="box warn">
+<span class="lbl">Calibration</span>
+<p><b>Too strong fails.</b> Mertens' conjecture |<i>M</i>(<i>x</i>)| ≤ √<i>x</i> — square-root discipline with constant 1 — is false (Odlyzko–te Riele, 1985). RH tolerates, and the zeros exploit, unbounded log-factor excursions: rigidity of exponents, looseness of constants. An axiom system that forbids all slack forbids the truth.</p>
+<p><b>Early behavior misleads.</b> π(<i>x</i>) &lt; Li(<i>x</i>) for every <i>x</i> ever computed, yet Littlewood (1914) proved the sign flips infinitely often, first beyond an astronomical threshold. Likewise 3 × 10<sup>12</sup> verified closures on the line (rigorously, Platt–Trudgian 2021; 10<sup>13</sup> by Gourdon's computation, 2004) constrain nothing asymptotic by themselves: log log of the verification height is still tiny. The train's visible prefix is loyal; the theorem must govern gears no one will ever see.</p>
+</div>
+<p><b>Which axioms are load-bearing, on present evidence.</b> The phase-opposite rule buys the strip (§2) — load-bearing and understood. The congruent dual (§5) is the functional equation — load-bearing and understood. Monotonicity is spectrally suggestive (§13) but not yet a mechanism. The growth condition Δϑ<sub><i>n</i></sub> + Δϑ<sub><i>n</i>+1</sub> ≤ Δϑ<sub><i>n</i>+2</sub> reads most naturally as a convexity constraint on phase increments, and convexity's proven analytic content is the Phragmén–Lindelöf principle — which yields the <i>convexity bound</i> |ζ(½+<i>it</i>)| ≪ <i>t</i><sup>1/4+ε</sup>, target of a century of <i>sub</i>convexity work (Bourgain 2017: exponent 13/84). Lindelöf's hypothesis (exponent ε, implied by RH) is the growth-side shadow of rigidity; any geometric derivation of even a new subconvexity exponent from the growth axiom would be a first genuinely new theorem out of this construction — a realistic and falsifiable milestone, far short of RH but on its road.</p>
+<p><b>And the λ-class must be pinned down.</b> With λ unconstrained, closures exist at every exponent (retuning can cancel anything); with λ ≡ 1, the rigidity claim <i>is</i> RH. The construction lives or dies in the middle: a precise admissible class — continuity in the torsion, monotone gear discipline, gap-filling purpose only — tight enough to exclude conspiracies, loose enough to admit the mollifiers of §10 and the heat flow of §11, whose behavior is the proved core of what the geometric rigidity intuition gets right. Defining that class in full mathematical precision, and then computing what it forbids, is the concrete open problem this document leaves its parent construction.</p>
+</section>
+
+<section id="s19">
+<h2 class="prose" style="max-width:46rem">19 · Dictionary</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic number theory</th></tr>
+<tr><td>circle <i>n</i>, radius λ<sub><i>n</i></sub><i>r</i><sub><i>n</i></sub></td><td>modulus of the <i>n</i>-th Dirichlet term</td></tr>
+<tr><td>cumulative half-turns α<sub><i>n</i></sub> = (<i>n</i>−1)π; phase-opposite digits</td><td>alternating signs; η in place of ζ; analytic continuation to σ &gt; 0</td></tr>
+<tr><td>torsion ρ<sub><i>n</i></sub> = −<i>t</i> log <i>n</i></td><td>vertical flow <i>n</i><sup>−<i>it</i></sup>; unitary character of the dilation dynamics</td></tr>
+<tr><td>value of the <i>aAaA…</i> helix</td><td>η(<i>s</i>) = (1 − 2<sup>1−<i>s</i></sup>) ζ(<i>s</i>)</td></tr>
+<tr><td>gauge closures (even/odd degeneration)</td><td>zeros of 1 − 2<sup>1−<i>s</i></sup> at σ = 1, spacing 2π/log 2</td></tr>
+<tr><td>null helix (invariant closure)</td><td>nontrivial zero ρ = β + <i>i</i>γ</td></tr>
+<tr><td>dual inverted-radius helix</td><td>functional equation ζ(<i>s</i>) = χ(<i>s</i>)ζ(1−<i>s</i>)</td></tr>
+<tr><td>helix ≅ dual (congruence, not similarity)</td><td>|χ(½+<i>it</i>)| = 1, exactly and only on the critical line</td></tr>
+<tr><td>flattening rotating frame</td><td>Riemann–Siegel <i>Z</i>(<i>t</i>) real; zeros = sign changes; Gram points</td></tr>
+<tr><td>winding of the frame</td><td><i>N</i>(<i>T</i>) = θ(<i>T</i>)/π + 1 + <i>S</i>(<i>T</i>); Turing certification</td></tr>
+<tr><td>effective gear count at height <i>t</i></td><td>Riemann–Siegel main sums, <i>m</i> = ⌊√(<i>t</i>/2π)⌋</td></tr>
+<tr><td>prime gear sub-trains; integer gear ratios</td><td>Euler product; unique factorization; ℚ-independence of {log <i>p</i>}</td></tr>
+<tr><td>no closure at the right edge</td><td>ζ(1+<i>it</i>) ≠ 0 ⟺ Prime Number Theorem</td></tr>
+<tr><td>closure broadcasting a wave of loudness <i>x</i><sup>β</sup></td><td>explicit-formula term <i>x</i><sup>ρ</sup>/ρ; RH ⟺ √<i>x</i> log <i>x</i> error (von Koch)</td></tr>
+<tr><td>train determined by its closures</td><td>Hadamard product for ξ</td></tr>
+<tr><td>randomly retuned torsion</td><td>random Dirichlet series; a.s. boundary σ = ½; Selberg's CLT</td></tr>
+<tr><td>admissible λ-retuning</td><td>mollifiers; Levinson–Conrey–PRZZ: &gt; 41% of zeros on the line</td></tr>
+<tr><td>canonical deformation of the whole train</td><td>de Bruijn–Newman flow; Λ = 0 ⟺ RH; Λ ≥ 0 (Rodgers–Tao)</td></tr>
+<tr><td>helices that barely close twice</td><td>Lehmer pairs; near-counterexamples forcing Λ ≥ 0</td></tr>
+<tr><td>no stationary shape-point left of the line</td><td>Speiser: RH ⟺ ζ′ ≠ 0 in 0 &lt; σ &lt; ½</td></tr>
+<tr><td>monotone, irreversible gear train</td><td>broken time-reversal; GUE pair correlation (Montgomery–Odlyzko)</td></tr>
+<tr><td>closures as resonant modes</td><td>Hilbert–Pólya; Berry–Keating dilation flow; Connes trace formula</td></tr>
+<tr><td>finite gear train with positive pairing</td><td>Weil/Deligne: |α| = √<i>q</i> via duality + Hodge-index positivity</td></tr>
+<tr><td>the unnamed inner product</td><td>Weil positivity criterion; Li coefficients ℓ<sub><i>n</i></sub> ≥ 0</td></tr>
+<tr><td>phase-opposite pairing <i>a</i> + <i>A</i> = 0 (odd, local)</td><td>sign involution — Krein symmetry only: spectrum symmetric about the axis, nothing more</td></tr>
+<tr><td>closure self-paired through the dual mirror</td><td>on-line zero contributes |ĝ(ρ)|² to ⟨<i>g</i>,<i>g</i>⟩; a straddling pair contributes an indefinite cross-term</td></tr>
+<tr><td>gap-closing on the number line</td><td>Nyman–Beurling–Báez-Duarte: {θ/<i>x</i>} approximation ⟺ RH</td></tr>
+<tr><td>patterned (recolored) numerals</td><td>Dirichlet <i>L</i>-functions; GRH; Selberg class</td></tr>
+<tr><td>tail self-similarity</td><td>Voronin universality; Bagchi: RH ⟺ strong recurrence</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose" id="s20">
+<h2>20 · Coda</h2>
+<p>The nested-circle system earns its geometric vocabulary honestly: every load-bearing beam in it corresponds to a load-bearing theorem — half-turns to continuation, the dual helix to the functional equation, congruence to |χ| = 1, retuning to mollifiers, gap-filling to Nyman–Beurling, deformation rigidity to Λ = 0, monotone irreversibility to GUE. What the correspondence reveals is where the weight of the hypothesis actually rests. The Riemann Hypothesis is not the claim that closures prefer the critical line aesthetically; it is the claim that an arithmetic gear train, forced by unique factorization to turn with the incoherence of a fair coin, achieves forever exactly the cancellation the coin achieves — that it walks the boundary of its own deformation space, Λ = 0, without ever stepping across. The proved instance of such rigidity, Weil's, was purchased with one further axiom the circles have not yet supplied: a pairing of helices with definite sign. Until the construction names its inner product, it is a superb language for seeing why the critical line is the only possible answer. The day it names one, it becomes a strategy.</p>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<ol>
+<li>B. Riemann, <i>Über die Anzahl der Primzahlen unter einer gegebenen Grösse</i>, Monatsberichte der Berliner Akademie, 1859.</li>
+<li>J. Hadamard; C.-J. de la Vallée Poussin, proofs of the Prime Number Theorem, 1896; de la Vallée Poussin, zero-free region, 1899.</li>
+<li>H. von Koch, <i>Sur la distribution des nombres premiers</i>, Acta Math. 24 (1901).</li>
+<li>J.-P. Gram, <i>Note sur les zéros de la fonction ζ(s) de Riemann</i>, Acta Math. 27 (1903).</li>
+<li>G. H. Hardy, <i>Sur les zéros de la fonction ζ(s) de Riemann</i>, C. R. Acad. Sci. Paris 158 (1914); Hardy–Littlewood, Math. Z. 10 (1921).</li>
+<li>H. Bohr, E. Landau, <i>Ein Satz über Dirichletsche Reihen…</i>, Rend. Circ. Mat. Palermo 37 (1914).</li>
+<li>J. E. Littlewood, <i>Sur la distribution des nombres premiers</i>, C. R. Acad. Sci. Paris 158 (1914).</li>
+<li>A. Speiser, <i>Geometrisches zur Riemannschen Zetafunktion</i>, Math. Ann. 110 (1935).</li>
+<li>H. Davenport, H. Heilbronn, <i>On the zeros of certain Dirichlet series</i>, J. London Math. Soc. 11 (1936).</li>
+<li>A. Selberg, <i>On the zeros of Riemann's zeta-function</i>, Skr. Norske Vid.-Akad. Oslo (1942); central limit theorem, Arch. Math. Naturvid. (1946).</li>
+<li>A. Weil, <i>Sur les courbes algébriques et les variétés qui s'en déduisent</i>, Hermann, 1948; H. Hasse, elliptic case, 1930s.</li>
+<li>B. Nyman, thesis, Uppsala, 1950; A. Beurling, <i>A closure problem related to the Riemann zeta-function</i>, PNAS 41 (1955).</li>
+<li>N. G. de Bruijn, <i>The roots of trigonometric integrals</i>, Duke Math. J. 17 (1950).</li>
+<li>A. Weil, <i>Sur les "formules explicites" de la théorie des nombres premiers</i>, Comm. Sém. Math. Univ. Lund (1952).</li>
+<li>A. M. Turing, <i>Some calculations of the Riemann zeta-function</i>, Proc. LMS (3) 3 (1953).</li>
+<li>I. M. Vinogradov; N. M. Korobov, zero-free region improvements, 1958.</li>
+<li>H. L. Montgomery, <i>The pair correlation of zeros of the zeta function</i>, Proc. Sympos. Pure Math. 24, AMS (1973).</li>
+<li>N. Levinson, <i>More than one third of zeros…</i>, Adv. Math. 13 (1974).</li>
+<li>S. M. Voronin, universality theorem, Izv. Akad. Nauk SSSR 39 (1975); B. Bagchi, thesis, Indian Statistical Institute, 1981.</li>
+<li>C. M. Newman, <i>Fourier transforms with only real zeros</i>, Proc. AMS 61 (1976).</li>
+<li>A. M. Odlyzko, H. te Riele, <i>Disproof of the Mertens conjecture</i>, J. reine angew. Math. 357 (1985).</li>
+<li>A. M. Odlyzko, <i>On the distribution of spacings between zeros of the zeta function</i>, Math. Comp. 48 (1987).</li>
+<li>J. B. Conrey, <i>More than two fifths of the zeros…</i>, J. reine angew. Math. 399 (1989).</li>
+<li>X.-J. Li, <i>The positivity of a sequence of numbers and the Riemann hypothesis</i>, J. Number Theory 65 (1997); E. Bombieri, J. C. Lagarias, J. Number Theory 77 (1999).</li>
+<li>M. V. Berry, J. P. Keating, <i>H = xp and the Riemann zeros</i>, SIAM Review 41 (1999); A. Connes, <i>Trace formula in noncommutative geometry…</i>, Selecta Math. 5 (1999).</li>
+<li>J. B. Conrey, X.-J. Li, <i>A note on some positivity conditions related to zeta and L-functions</i>, Int. Math. Res. Notices 2000.</li>
+<li>L. Báez-Duarte, <i>A strengthening of the Nyman–Beurling criterion…</i>, Atti Accad. Naz. Lincei 14 (2003).</li>
+<li>X. Gourdon, <i>The 10<sup>13</sup> first zeros of the Riemann zeta function…</i>, preprint, 2004.</li>
+<li>P. Deligne, <i>La conjecture de Weil I</i>, Publ. Math. IHÉS 43 (1974).</li>
+<li>J. Bourgain, <i>Decoupling, exponential sums and the Riemann zeta function</i>, J. AMS 30 (2017).</li>
+<li>B. Rodgers, T. Tao, <i>The de Bruijn–Newman constant is non-negative</i>, Forum Math. Pi 8 (2020).</li>
+<li>D. H. J. Polymath, <i>Effective approximation of heat flow evolution of the Riemann ξ function…</i>, Res. Math. Sci. 6 (2019).</li>
+<li>K. Pratt, N. Robles, A. Zaharescu, D. Zeindler, <i>More than five-twelfths of the zeros of ζ are on the critical line</i>, Res. Math. Sci. 7 (2020).</li>
+<li>D. J. Platt, T. S. Trudgian, <i>The Riemann hypothesis is true up to 3·10<sup>12</sup></i>, Bull. LMS 53 (2021).</li>
+<li>E. C. Titchmarsh, <i>The Theory of the Riemann Zeta-function</i>, 2nd ed. (Heath-Brown), Oxford, 1986; H. M. Edwards, <i>Riemann's Zeta Function</i>, Academic Press, 1974; H. Iwaniec, E. Kowalski, <i>Analytic Number Theory</i>, AMS, 2004.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page — the fourteen sign changes of <i>Z</i>, the 29 ordinates below 100, the closure |η(½+<i>i</i>γ₁)| ≈ 4×10<sup>−14</sup> versus the miss |η(0.8+<i>i</i>γ₁)| = 0.446, the gauge closure at <i>t</i> = 2π/log 2, and the ψ-staircase reconstruction — was computed for this document from first principles (Borwein's algorithm for η, Stirling's series for Γ) and cross-checked against 24 internal identities, including the functional equation to 10<sup>−15</sup> and the first ten published ordinates to 10<sup>−13</sup>. Companion text: <a href="rh3.html">rh3 — the circles, before the helix</a>, the nested-circle summary (Parts I–II axioms restated in §1–§4).
+</div>
+
+</div>
+
+<script>
+(function () {
+  var svg = document.getElementById('zplot');
+  if (!svg) return;
+  var HD = {"t":[0.0,0.18,0.36,0.54,0.72,0.9,1.08,1.26,1.44,1.62,1.8,1.98,2.16,2.34,2.52,2.7,2.88,3.06,3.24,3.42,3.6,3.78,3.96,4.14,4.32,4.5,4.68,4.86,5.04,5.22,5.4,5.58,5.76,5.94,6.12,6.3,6.48,6.66,6.84,7.02,7.2,7.38,7.56,7.74,7.92,8.1,8.28,8.46,8.64,8.82,9.0,9.18,9.36,9.54,9.72,9.9,10.08,10.26,10.44,10.62,10.8,10.98,11.16,11.34,11.52,11.7,11.88,12.06,12.24,12.42,12.6,12.78,12.96,13.14,13.32,13.5,13.68,13.86,14.04,14.22,14.4,14.58,14.76,14.94,15.12,15.3,15.48,15.66,15.84,16.02,16.2,16.38,16.56,16.74,16.92,17.1,17.28,17.46,17.64,17.82,18.0,18.18,18.36,18.54,18.72,18.9,19.08,19.26,19.44,19.62,19.8,19.98,20.16,20.34,20.52,20.7,20.88,21.06,21.24,21.42,21.6,21.78,21.96,22.14,22.32,22.5,22.68,22.86,23.04,23.22,23.4,23.58,23.76,23.94,24.12,24.3,24.48,24.66,24.84,25.02,25.2,25.38,25.56,25.74,25.92,26.1,26.28,26.46,26.64,26.82,27.0,27.18,27.36,27.54,27.72,27.9,28.08,28.26,28.44,28.62,28.8,28.98,29.16,29.34,29.52,29.7,29.88,30.06,30.24,30.42,30.6,30.78,30.96,31.14,31.32,31.5,31.68,31.86,32.04,32.22,32.4,32.58,32.76,32.94,33.12,33.3,33.48,33.66,33.84,34.02,34.2,34.38,34.56,34.74,34.92,35.1,35.28,35.46,35.64,35.82,36.0,36.18,36.36,36.54,36.72,36.9,37.08,37.26,37.44,37.62,37.8,37.98,38.16,38.34,38.52,38.7,38.88,39.06,39.24,39.42,39.6,39.78,39.96,40.14,40.32,40.5,40.68,40.86,41.04,41.22,41.4,41.58,41.76,41.94,42.12,42.3,42.48,42.66,42.84,43.02,43.2,43.38,43.56,43.74,43.92,44.1,44.28,44.46,44.64,44.82,45.0,45.18,45.36,45.54,45.72,45.9,46.08,46.26,46.44,46.62,46.8,46.98,47.16,47.34,47.52,47.7,47.88,48.06,48.24,48.42,48.6,48.78,48.96,49.14,49.32,49.5,49.68,49.86,50.04,50.22,50.4,50.58,50.76,50.94,51.12,51.3,51.48,51.66,51.84,52.02,52.2,52.38,52.56,52.74,52.92,53.1,53.28,53.46,53.64,53.82,54.0,54.18,54.36,54.54,54.72,54.9,55.08,55.26,55.44,55.62,55.8,55.98,56.16,56.34,56.52,56.7,56.88,57.06,57.24,57.42,57.6,57.78,57.96,58.14,58.32,58.5,58.68,58.86,59.04,59.22,59.4,59.58,59.76,59.94,60.12,60.3,60.48,60.66,60.84,61.02,61.2,61.38,61.56,61.74,61.92],"z":[-1.46,-1.38,-1.205,-1.029,-0.888,-0.782,-0.705,-0.648,-0.607,-0.577,-0.555,-0.541,-0.532,-0.527,-0.526,-0.529,-0.534,-0.541,-0.551,-0.563,-0.577,-0.592,-0.61,-0.628,-0.649,-0.671,-0.694,-0.719,-0.745,-0.772,-0.801,-0.83,-0.861,-0.893,-0.926,-0.959,-0.993,-1.028,-1.064,-1.1,-1.136,-1.171,-1.207,-1.243,-1.278,-1.312,-1.345,-1.376,-1.406,-1.434,-1.46,-1.484,-1.504,-1.522,-1.536,-1.545,-1.551,-1.552,-1.548,-1.539,-1.525,-1.504,-1.477,-1.443,-1.403,-1.355,-1.3,-1.238,-1.169,-1.091,-1.007,-0.914,-0.814,-0.707,-0.593,-0.472,-0.345,-0.213,-0.075,0.068,0.215,0.364,0.516,0.669,0.822,0.974,1.125,1.272,1.414,1.551,1.681,1.803,1.916,2.017,2.107,2.184,2.246,2.293,2.325,2.339,2.337,2.316,2.278,2.221,2.146,2.054,1.944,1.817,1.675,1.519,1.349,1.169,0.978,0.78,0.577,0.37,0.162,-0.043,-0.244,-0.438,-0.622,-0.794,-0.951,-1.091,-1.211,-1.309,-1.384,-1.434,-1.457,-1.454,-1.422,-1.362,-1.274,-1.159,-1.018,-0.853,-0.664,-0.455,-0.229,0.013,0.265,0.525,0.79,1.053,1.313,1.565,1.804,2.026,2.228,2.407,2.559,2.68,2.77,2.826,2.847,2.833,2.782,2.697,2.578,2.427,2.247,2.041,1.813,1.568,1.309,1.043,0.774,0.508,0.25,0.006,-0.218,-0.419,-0.592,-0.731,-0.835,-0.901,-0.925,-0.909,-0.85,-0.751,-0.613,-0.438,-0.23,0.007,0.267,0.546,0.836,1.131,1.425,1.71,1.979,2.227,2.446,2.63,2.776,2.878,2.933,2.939,2.895,2.801,2.659,2.471,2.24,1.971,1.67,1.344,0.999,0.644,0.286,-0.065,-0.403,-0.719,-1.005,-1.256,-1.465,-1.628,-1.74,-1.801,-1.81,-1.766,-1.673,-1.534,-1.354,-1.139,-0.896,-0.634,-0.362,-0.088,0.178,0.426,0.649,0.837,0.983,1.081,1.127,1.116,1.048,0.922,0.74,0.505,0.224,-0.099,-0.453,-0.832,-1.223,-1.617,-2.003,-2.37,-2.708,-3.006,-3.256,-3.452,-3.586,-3.655,-3.658,-3.593,-3.463,-3.271,-3.025,-2.73,-2.397,-2.036,-1.657,-1.273,-0.896,-0.537,-0.207,0.084,0.326,0.514,0.641,0.705,0.705,0.643,0.522,0.348,0.129,-0.125,-0.404,-0.695,-0.986,-1.264,-1.517,-1.732,-1.9,-2.011,-2.06,-2.04,-1.949,-1.789,-1.562,-1.272,-0.929,-0.541,-0.121,0.318,0.762,1.198,1.61,1.984,2.308,2.571,2.763,2.879,2.913,2.865,2.736,2.531,2.257,1.924,1.543,1.128,0.693,0.255,-0.173,-0.574,-0.936,-1.246,-1.495,-1.676,-1.783,-1.816,-1.776,-1.669,-1.501,-1.284,-1.029,-0.75,-0.464,-0.184,0.072,0.291,0.46,0.567,0.603,0.564,0.447,0.253,-0.014,-0.345,-0.731,-1.158,-1.611,-2.072,-2.525],"x0":30.0,"x1":690.0,"ylo":-4.064242287686994,"yhi":3.3423537006099076,"pad":30,"H":340,"W":720};
+  var wrapEl = document.getElementById('zwrap');
+  var tip = document.getElementById('ztip');
+  var cross = document.getElementById('zcross');
+  var line = document.getElementById('zline');
+  var dot = document.getElementById('zdot');
+  var n = HD.t.length;
+  function sx(t) { return HD.x0 + (t - HD.t[0]) / (HD.t[n-1] - HD.t[0]) * (HD.x1 - HD.x0); }
+  function sy(z) { return HD.H - HD.pad - (z - HD.ylo) / (HD.yhi - HD.ylo) * (HD.H - 2 * HD.pad); }
+  svg.addEventListener('mousemove', function (ev) {
+    var r = svg.getBoundingClientRect();
+    var xv = (ev.clientX - r.left) * HD.W / r.width;
+    var frac = (xv - HD.x0) / (HD.x1 - HD.x0);
+    if (frac < 0 || frac > 1) { hide(); return; }
+    var i = Math.round(frac * (n - 1));
+    i = Math.max(0, Math.min(n - 1, i));
+    var t = HD.t[i], z = HD.z[i];
+    cross.style.display = '';
+    line.setAttribute('x1', sx(t)); line.setAttribute('x2', sx(t));
+    dot.setAttribute('cx', sx(t)); dot.setAttribute('cy', sy(z));
+    tip.style.display = 'block';
+    tip.textContent = 't = ' + t.toFixed(2) + '  ·  Z(t) = ' + z.toFixed(3);
+    var wr = wrapEl.getBoundingClientRect();
+    var lx = ev.clientX - wr.left + 14, ly = ev.clientY - wr.top - 10;
+    if (lx + tip.offsetWidth + 8 > wr.width) lx = ev.clientX - wr.left - tip.offsetWidth - 14;
+    tip.style.left = lx + 'px'; tip.style.top = ly + 'px';
+  });
+  function hide() { cross.style.display = 'none'; tip.style.display = 'none'; }
+  svg.addEventListener('mouseleave', hide);
+})();
+</script>
+</body>
+</html>

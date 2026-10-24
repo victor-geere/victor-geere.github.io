@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transfer-operator proof — research programme</title>
+<style>
+  :root { --ink:#1a202c; --muted:#555; --rule:#d8dde3; --wash:#f3f5f7; --link:#1a5fb4; }
+  * { box-sizing:border-box; }
+  body { font-family:Georgia, "Times New Roman", serif; max-width:960px; margin:2.2rem auto; padding:0 1.3rem; line-height:1.65; color:var(--ink); background:#fcfcfb; }
+  h1 { font-size:2rem; line-height:1.15; margin:0 0 .35rem; }
+  h2 { margin-top:2.5rem; border-bottom:1px solid var(--rule); padding-bottom:.25rem; font-size:1.32rem; }
+  h3 { margin-top:1.8rem; font-size:1.08rem; }
+  a { color:var(--link); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .sub { color:var(--muted); font-size:1.04rem; font-style:italic; margin-top:0; }
+  .top { background:var(--wash); border:1px solid var(--rule); border-left:4px solid var(--link); padding:1rem 1.2rem; border-radius:6px; }
+  .warn { background:#fff8e6; border:1px solid #e8d9a8; border-left:4px solid #b7791f; padding:1rem 1.2rem; border-radius:6px; }
+  code { background:#eef1f4; padding:.08rem .24rem; border-radius:3px; font-size:.9em; font-family:"SFMono-Regular", Consolas, monospace; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.9rem; }
+  th, td { border:1px solid var(--rule); padding:.42rem .5rem; text-align:left; vertical-align:top; }
+  th { background:var(--wash); }
+  .kind-theorem { color:#0b6b3a; font-weight:bold; }
+  .kind-comp { color:#1a5fb4; font-weight:bold; }
+  .kind-source { color:#8a5a00; font-weight:bold; }
+  .kind-open { color:#a12b2b; font-weight:bold; }
+  ul, ol { padding-left:1.4rem; }
+  .meta { color:var(--muted); font-size:.94rem; }
+  footer { margin-top:2.5rem; border-top:1px solid var(--rule); padding-top:1rem; font-size:.94rem; }
+</style>
+</head>
+<body>
+
+<h1>Transfer-operator proof</h1>
+<p class="sub">A reconstructed research programme: finite formal core, exact computation, and the archived claims left open</p>
+
+<div class="top">
+<p><strong>Status.</strong> Finite formal core and exact computation layer reconstructed. The archived source is an <strong>exploratory programme, not a proof</strong>; the Riemann Hypothesis and the analytic continuation of the operator family remain <strong>open</strong> here and in the source.</p>
+<p><strong>Source:</strong> <a href="../../archive/maths/rh.html"><code>archive/maths/rh.html</code></a> — “A Transfer Operator Proof of the Riemann Hypothesis — Final Version”.<br>
+<strong>Inventory:</strong> <a href="../../scraps.html">Scraps</a> item <strong>33</strong> · <a href="../README.md">Topic index</a>.</p>
+</div>
+
+<h2>What the programme is</h2>
+<p>The source proposes a Hilbert–Pólya strategy: realise the nontrivial zeros of <code>ζ</code> as the spectrum of a regularised transfer operator <code>L̃<sub>s</sub></code>, equip the space with a Petersson pairing, prove self-adjointness and vanishing deficiency indices, and conclude that the spectrum is real, hence that every zero lies on <code>Re s = ½</code>. Parts VI–IX of the source then audit that strategy and conclude that each load-bearing step is either circular or equivalent to RH. The document ends, correctly, with the status <strong>open</strong>.</p>
+<p>This folder does not reassert the strategy. It reconstructs the <strong>finite algebra the source actually defines</strong> — the diagonal Euler-product operator, its finite Fredholm determinant, the Euclidean self-adjointness of a real diagonal operator, and the indefinite Krein form of Definition 3.1 — and records everything analytic, spectral and RH-related as a source claim or an open item.</p>
+
+<div class="warn">
+<p><strong>Honesty note.</strong> The source labels several statements “Theorem”, including the Riemann Hypothesis itself (its Theorem 5.2). Those are <strong>not</strong> theorems of this reconstruction. They appear in the source-claims table below with their archived status. Nothing here proves RH, Li's criterion, the explicit formula, or any zero-location statement.</p>
+</div>
+
+<h3>What the source defines</h3>
+<table>
+<thead><tr><th>Object</th><th>Source definition</th><th>Reconstruction</th></tr></thead>
+<tbody>
+<tr><td>von Mangoldt weight</td><td><code>Λ(n) = log p</code> if <code>n = p<sup>k</sup></code>, else <code>0</code> (Def. 2.1)</td><td><code>programme.von_mangoldt</code>; not needed in Lean</td></tr>
+<tr><td>transfer eigenvalue</td><td><code>p<sup>−s</sup></code> for primes <code>p</code> (Def. 2.2)</td><td><code>TransferOperator.primeWeight</code></td></tr>
+<tr><td>finite Fredholm determinant</td><td><code>∏<sub>p</sub> (1 − p<sup>−s</sup>) = 1/ζ(s)</code> for <code>Re s &gt; 1</code> (Thm. 2.2)</td><td><code>TransferOperator.fredholmDet</code>, <code>programme.fredholm_det</code></td></tr>
+<tr><td>model pairing</td><td>finite Euclidean diagonal form <code>Σ w<sub>i</sub> x<sub>i</sub> y<sub>i</sub></code></td><td><code>TransferOperator.diagForm</code>, <code>diagEnergy</code></td></tr>
+<tr><td>Petersson pairing</td><td><code>⟨f,g⟩<sub>ξ</sub> = (1/2πi)∫ f ḡ(1−w̄) (ξ′/ξ) dw</code> (Def. 3.1)</td><td>modelled finitely by <code>kreinForm</code>; the analytic integral is <strong>not</strong> formalised</td></tr>
+<tr><td>completed <code>ξ</code></td><td><code>ξ(s) = ½ s(s−1) π<sup>−s/2</sup> Γ(s/2) ζ(s)</code> (Def. 1.2)</td><td><code>programme.xi_numeric</code> for numerical checks only</td></tr>
+</tbody>
+</table>
+
+<p>The source itself corrects two earlier errors: <code>Ψ<sub>P</sub>(s) = ∏<sub>p</sub> sin(πs/p)</code> is <strong>not</strong> a prime sieve (it vanishes at every integer <code>n ≥ 2</code>, composites included), and the Petersson pairing is an <strong>indefinite Krein form</strong>, not a positive inner product. Both corrections are preserved below.</p>
+
+<h2>Theorem ledger</h2>
+<p>Every row marked <span class="kind-theorem">Theorem</span> is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code> or <code>admit</code>. Every row marked <span class="kind-comp">Computation</span> is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. Source claims and open items are <strong>not</strong> theorems of this reconstruction.</p>
+
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td class="kind-theorem">Theorem</td><td>For a positive prime <code>p</code> and any real <code>s</code>, <code>p<sup>−s</sup> &gt; 0</code>.</td><td><code>TransferOperator.primeWeight_pos</code></td></tr>
+<tr><td>T2</td><td class="kind-theorem">Theorem</td><td>For a prime <code>p ≥ 2</code> and <code>s &gt; 0</code>, <code>p<sup>−s</sup> &lt; 1</code>; hence <code>1</code> is not an eigenvalue of the Euler-product model.</td><td><code>TransferOperator.primeWeight_lt_one</code></td></tr>
+<tr><td>T3</td><td class="kind-theorem">Theorem</td><td>If every finite eigenvalue is <code>&lt; 1</code>, the finite determinant <code>∏(1−λ<sub>i</sub>)</code> is positive (in particular nonzero).</td><td><code>TransferOperator.fredholmDet_pos</code></td></tr>
+<tr><td>T4</td><td class="kind-theorem">Theorem</td><td>The finite determinant vanishes exactly when some eigenvalue equals <code>1</code>.</td><td><code>TransferOperator.fredholmDet_eq_zero_iff</code></td></tr>
+<tr><td>T5</td><td class="kind-theorem">Theorem</td><td>A real diagonal operator is symmetric for the Euclidean pairing: <code>Σ w<sub>i</sub> x<sub>i</sub> y<sub>i</sub> = Σ w<sub>i</sub> y<sub>i</sub> x<sub>i</sub></code>.</td><td><code>TransferOperator.diagForm_symm</code></td></tr>
+<tr><td>T6</td><td class="kind-theorem">Theorem</td><td>A positive diagonal weight gives nonnegative energy: <code>0 ≤ Σ w<sub>i</sub> x<sub>i</sub><sup>2</sup></code> when all <code>w<sub>i</sub> ≥ 0</code>.</td><td><code>TransferOperator.diagEnergy_nonneg</code></td></tr>
+<tr><td>T7</td><td class="kind-theorem">Theorem</td><td>If a Krein sign is negative, the form has a negative direction; symmetry does not imply positivity.</td><td><code>TransferOperator.kreinForm_negative_direction</code></td></tr>
+<tr><td>C1</td><td class="kind-comp">Computation</td><td>Exact von Mangoldt values, including <code>Λ(1)=0</code>, <code>Λ(4)=log 2</code>, <code>Λ(6)=0</code>, and rejection of <code>n&lt;1</code>.</td><td><code>test_von_mangoldt_values_and_edge_case</code></td></tr>
+<tr><td>C2</td><td class="kind-comp">Computation</td><td>The truncated <code>Ψ<sub>P</sub></code> vanishes at every integer <code>2 ≤ n ≤ 30</code>, primes <strong>and</strong> composites.</td><td><code>test_prime_sieve_does_not_isolate_primes</code></td></tr>
+<tr><td>C3</td><td class="kind-comp">Computation</td><td><code>Ψ<sub>P</sub>(5/2) ≠ 0</code> numerically, and the empty truncation equals <code>1</code>.</td><td><code>test_prime_sieve_nonzero_off_integers</code></td></tr>
+<tr><td>C4</td><td class="kind-comp">Computation</td><td>For <code>p ∈ {2,3,5,7,11,29}</code> and four positive <code>s</code>, <code>0 &lt; p<sup>−s</sup> &lt; 1</code>; <code>p=1</code> is rejected.</td><td><code>test_prime_weights_stay_in_unit_interval</code></td></tr>
+<tr><td>C5</td><td class="kind-comp">Computation</td><td>The finite determinant is <code>1/3</code> on <code>(1/2,1/3)</code>, <code>0</code> on <code>(1/2,1)</code>, and <code>1</code> on the empty family; the truncation <code>p ≤ 5</code> at <code>s=2</code> equals <code>144/225</code>.</td><td><code>test_fredholm_determinant_vanishes_iff_eigenvalue_one</code></td></tr>
+<tr><td>C6</td><td class="kind-comp">Computation</td><td>The diagonal form is symmetric and the energy is positive on a nonzero vector, zero on the zero vector, negative for a negative weight.</td><td><code>test_diagonal_form_is_symmetric_and_positive</code></td></tr>
+<tr><td>C7</td><td class="kind-comp">Computation</td><td>A <code>(+,−)</code> Krein form is symmetric, has positive and negative directions, and a nonzero isotropic vector.</td><td><code>test_krein_form_is_symmetric_but_indefinite</code></td></tr>
+<tr><td>C8</td><td class="kind-comp">Computation</td><td>The classical symmetry <code>ξ(s) = ξ(1−s)</code> holds at two points to <code>1e-14</code> (mpmath, 30 digits).</td><td><code>test_xi_functional_equation_numeric</code></td></tr>
+</tbody>
+</table>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<p>The archived source labels several of these “Theorem”. We record them with the source's status and do <strong>not</strong> claim them as proved here.</p>
+
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td><strong>Riemann Hypothesis:</strong> all nontrivial zeros satisfy <code>Re s = ½</code> (source Thm. 5.2)</td><td class="kind-source">Archived claim / not proved</td><td>The source's own Part VI says the argument is circular; it is <strong>open</strong> here and everywhere.</td></tr>
+<tr><td>Determinant identity <code>det(1 − L̃<sub>s</sub>) = ∏<sub>p</sub>(1 − p<sup>−s</sup>) = 1/ζ(s)</code> for <code>Re s &gt; 1</code> (Thm. 2.2)</td><td class="kind-source">Source theorem for <code>Re s &gt; 1</code></td><td>The finite determinant is formalised (T4); the infinite Euler product and its convergence are not.</td></tr>
+<tr><td>Self-adjointness of <code>L̃<sub>s</sub></code> on the critical line (Thm. 3.2)</td><td class="kind-source">Source theorem with a proof sketch</td><td>Not formalised. The proof deforms a contour through the zeros of <code>ξ</code>, and the pairing is indefinite (Caveat 2).</td></tr>
+<tr><td>Vanishing deficiency indices / essential self-adjointness (Thm. 4.2)</td><td class="kind-source">Source theorem with a proof sketch</td><td>Not formalised; depends on uniqueness of Dirichlet series and the unproved self-adjointness.</td></tr>
+<tr><td>Purely real spectrum <code>σ(L̃<sub>s</sub>) ⊂ ℝ</code> (Thm. 5.1)</td><td class="kind-source">Source theorem, conditional</td><td>Only the finite diagonal analogue (T5–T6) is proved. Reality for the analytic family is open.</td></tr>
+<tr><td><code>L̃<sub>s</sub></code> maps the prime sieve to the zero sieve, <code>L̃<sub>s</sub>[Ψ<sub>P</sub>] = ξ</code> (Thm. 2.3)</td><td class="kind-source">Source theorem</td><td>Not formalised; the source itself calls the Ruelle/Selberg motivation “not a proof”.</td></tr>
+<tr><td>No trace-class <code>T</code> has <code>det(1−sT) = ξ(s)/ξ(0)</code> (Thm. 6.3)</td><td class="kind-source">Source theorem, quoting Hadamard genus theory</td><td>Not formalised; recorded as an external analytic claim.</td></tr>
+<tr><td>Li's criterion: RH ⇔ <code>λ<sub>n</sub> ≥ 0</code> for all <code>n</code> (Thm. 6.4)</td><td class="kind-source">External theorem (Li 1997; Bombieri–Lagarias)</td><td>Not formalised; it is an RH-equivalent reformulation, not a proof of RH.</td></tr>
+<tr><td>Riemann–von Mangoldt explicit formula (Thm. 6.5)</td><td class="kind-source">Classical theorem</td><td>Not formalised; the source uses it to explain the continuation obstruction.</td></tr>
+<tr><td><code>0 ≤ Λ ≤ 0.22</code>, <code>RH ⇔ Λ = 0</code> (Thm. 7.3, 8.2, 8.3)</td><td class="kind-source">External theorems (Rodgers–Tao; Polymath 15)</td><td>Not formalised; the remaining gap is an <strong>open</strong> numerical/analytic problem.</td></tr>
+<tr><td><code>Ψ<sub>P</sub></code> isolates the primes</td><td class="kind-source">Withdrawn</td><td>Withdrawn by the source's own correction; refuted by C2: <code>Ψ<sub>P</sub></code> vanishes at composites as well.</td></tr>
+<tr><td>The Petersson pairing is a genuine inner product</td><td class="kind-source">Withdrawn</td><td>Withdrawn by the source's Caveat 2; it is an indefinite Krein form, modelled by C7/T7.</td></tr>
+</tbody>
+</table>
+
+<h2>Open items and known gaps</h2>
+<ol>
+<li><strong>RH itself.</strong> Nothing in this folder proves, disproves, or numerically resolves the Riemann Hypothesis. C8 checks a classical symmetry of <code>ξ</code>; it does not check the location of its zeros.</li>
+<li><strong>Determinant completion.</strong> Construct a trace-class (or Hilbert–Schmidt <code>det<sub>2</sub></code>) operator whose determinant is an entire completion of <code>ξ</code>, independently of the zeros. The source's <code>A e<sub>ρ</sub> = ρ<sup>−1</sup> e<sub>ρ</sub></code> is built <em>from</em> the zeros and is therefore circular; no trace-class realisation exists (source Thm. 6.3, not formalised).</li>
+<li><strong>Metric positivity / unbroken PT.</strong> The source identifies this with the Weil–Li positivity criterion, which is equivalent to RH. It is not derived anywhere.</li>
+<li><strong>Analytic continuation into <code>½ &lt; Re s ≤ 1</code>.</strong> The Euler-built operator converges only for <code>Re s &gt; 1</code>; continuing the <em>operator family</em> is not the same as continuing <code>1/ζ</code>. This remains open.</li>
+<li><strong>Deficiency indices and spectral reality.</strong> Essential self-adjointness of the analytic <code>L̃<sub>s</sub></code> is not established; the finite diagonal facts T5–T6 do not transfer to the infinite-dimensional, indefinite setting.</li>
+<li><strong>de Bruijn–Newman gap.</strong> The unconditional bounds leave <code>Λ ∈ [0, 0.22]</code>; showing <code>Λ = 0</code> is exactly RH.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> is importable without side effects and uses exact sympy arithmetic, with mpmath only in <code>xi_numeric</code>.</p>
+<ul>
+<li><code>primes_up_to(n)</code>, <code>von_mangoldt(n)</code>;</li>
+<li><code>prime_sieve(s, primes)</code>, <code>prime_weight(p, s)</code>;</li>
+<li><code>fredholm_det(eigenvalues)</code>, <code>truncated_euler_product(s, primes)</code>;</li>
+<li><code>diagonal_form</code>, <code>diagonal_energy</code>, <code>krein_form</code>;</li>
+<li><code>xi_numeric(s, dps)</code>.</li>
+</ul>
+<pre><code>python3 -m pytest the-final-letter/topics/transfer-operator-proof/tests -q</code></pre>
+<p>Current result: <strong>8 passed</strong> in about 0.3 s.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, uses the namespace <code>TransferOperator</code>, and defines <code>primeWeight</code>, <code>fredholmDet</code>, <code>diagForm</code>, <code>diagEnergy</code>, <code>kreinForm</code>. It proves T1–T7. There is no <code>sorry</code>, <code>axiom</code> or <code>admit</code>.</p>
+<pre><code>the-final-letter/topics/transfer-operator-proof/lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a>. What is <strong>not</strong> formalised is listed in <a href="lean/README.md"><code>lean/README.md</code></a>: the analytic Euler product, the <code>ξ</code> completion, self-adjointness and deficiency indices of the operator family, Li/Weil positivity, the explicit formula, the de Bruijn–Newman constant, and RH.</p>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../archive/maths/rh.html"><code>archive/maths/rh.html</code></a> — the archived “Final Version”, status <strong>EXPLORATORY PROGRAMME — NOT A COMPLETE PROOF</strong>.</li>
+<li><a href="../../scraps.html"><code>scraps.html</code></a> — inventory entry 33.</li>
+<li><a href="../README.md"><code>topics/README.md</code></a> — all topic folders.</li>
+<li><a href="../PROGRAMME-STANDARD.md"><code>PROGRAMME-STANDARD.md</code></a> — the dossier and ledger standard.</li>
+</ul>
+
+<footer>
+<a href="../README.md">Back to the topic index</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a>
+</footer>
+
+</body>
+</html>
