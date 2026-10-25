@@ -14,7 +14,7 @@ import PartialSumTail
 Every row of the programme ledger that was formerly labelled a *computation*
 is restated here as a theorem and proved.  Where the finite computation was a
 sample of a general fact already proved in `Topic.lean`, `Bridges.lean`,
-`Breakthrough.lean`, `TransferNoGo.lean`, `Tractable.lean`, `MatrixNoGo.lean`,
+`LastChord.lean`, `TransferNoGo.lean`, `Tractable.lean`, `MatrixNoGo.lean`,
 `SignedF4.lean`, `LeeYang.lean` or `PartialSumTail.lean`, the theorem below is
 the finite statement itself, derived from (or occasionally strengthening) the
 general result.  The Python suite remains as a regression check, but it is no
@@ -260,7 +260,7 @@ theorem comp_bourgain_below {ε : ℝ} (h : ε < 13 / 194) :
   nlinarith
 
 /-- The exact ratio `L_N(σ)/N^(1-2σ) = 1/2 - 1/(2N)` (the content of T24,
-restated here because `Breakthrough.lean` is not imported). -/
+restated here because `LastChord.lean` is not imported). -/
 theorem lastChordAbs_ratio' {N : ℕ} (hN : 1 ≤ N) (σ : ℝ) :
     lastChordAbs N σ / (N : ℝ) ^ (1 - 2 * σ) = 1 / 2 - 1 / (2 * (N : ℝ)) := by
   unfold lastChordAbs

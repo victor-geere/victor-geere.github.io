@@ -17,16 +17,15 @@ def main() -> int:
     bad = []
     for topic in sorted(p for p in ROOT.iterdir() if p.is_dir() and p.name not in {"tools"}):
         missing = [f for f in REQUIRED if not (topic / f).exists()]
-        lean = topic / "lean" / "Topic.lean"
         dirty = []
-        if lean.exists():
+        for lean in sorted((topic / "lean").glob("*.lean")):
             text = lean.read_text(encoding="utf-8")
             # Strip block and line comments before looking for forbidden commands.
             text = re.sub(r"/-.*?-/", "", text, flags=re.S)
             text = re.sub(r"--[^\n]*", "", text)
             for token in ("sorry", "axiom", "admit"):
                 if re.search(r"\b" + token + r"\b", text):
-                    dirty.append(token)
+                    dirty.append(f"{lean.name}:{token}")
         if missing or dirty:
             bad.append((topic.name, missing, dirty))
     if not bad:

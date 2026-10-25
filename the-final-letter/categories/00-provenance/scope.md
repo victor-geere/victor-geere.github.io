@@ -5,6 +5,7 @@
 - The RH programme’s canonical paper, companion notes, frozen truths, tensor resolution, open problems, and withdrawn/refuted ledger.
 - The parity programme’s 13-section ledger, 15 published papers, OP register, 36 open items, barrier ledger, X1–X6 corrections, Lean audit, and errata.
 - The finite-prefix Lean development, vendored into `the-final-letter/lean/FinalLetter/Chowla.lean`.
+- The partial-sum-plus-tail evaluator from `~/workspace/rh/research/twin-prime-parity/012/`, reconstructed as Objective III under [`topics/partial-sum-plus-tail/`](../../topics/partial-sum-plus-tail/README.md): the rational interval layer, certificate replay, eta cos/sin split, and transcendental enclosures.
 
 ## Excluded
 
@@ -20,6 +21,7 @@
 - 13 ledger sections + 140 result rows.
 - 15 papers + 147 statements.
 - 19 OPs + 36 open items.
+- 1 certified evaluator dossier: 35 Lean theorems, 14 tested computations, 2 analytic inputs (S1–S2) with written proofs but no Lean formalisation.
 - 1 Lean synthesis, 3 modules, `[check] OK`.
 
 [Back to README](../../README.md) · [Folder TOC](TOC.md)

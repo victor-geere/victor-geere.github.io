@@ -44,7 +44,7 @@ Two provenance defects are worth recording rather than silently repairing:
 | `σ_N` | Unique root of `S_N(σ_N) = 1` | Computed exactly/high precision; limit is a source claim. |
 | `σ_0` | Root of `ζ(σ_0) = 2`, `σ_0 ≈ 1.728647238998` | Numerical computation. |
 | `ω(t)` | `t e^t / (1 + e^t)^2 = t / (4 cosh²(t/2))` | Formalised (oddness, positivity). |
-| `M(s)` | `(1 − 2^{1−s})/(1 − 2^s) · Γ(s)/Γ(1−s)` | Source claim (functional equation). |
+| `M(s)` | `(1 − 2^{1−s})/(1 − 2^s) · 2^s π^{s−1} sin(πs/2) Γ(1−s)` | Corrected factor (the source displays an incomplete one). |
 | `Λ(s)` | `Γ(s+1)(1 − 2^{1−s}) ζ(s)` | Source claim. |
 | `ℛ` | Yakaboylu's operator on `L²[0,∞)` | Source claim; not constructed here. |
 | `Ŵ` | The proposed positive-semidefinite intertwiner | Open (condition C7). |
@@ -82,7 +82,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C1 | Computation | `S_N(0) = N − 1` and `S_5(2)` is the exact rational tail; `S_N` decreases in `σ`. | `test_amplitude_sum_exact_identity` |
 | C2 | Computation | `max_t |R_N(σ,t)| ≤ S_N(σ)` on a grid, for `N ∈ {2,5,20}`. | `test_amplitude_bound_numeric` |
 | C3 | Computation | For `N = 40`, `σ = 3` (where `S_N < 1`), `U_N > 0` on a grid. | `test_no_real_zero_below_threshold` |
-| C4 | Computation | `σ_N` is increasing for `N = 2..200`, bounded above by `σ_0`, with `σ_0 − σ_200 < 0.02`. | `test_thresholds_increase_to_sigma_zero` |
+| C4 | Computation | `σ_N` is increasing for the sampled `N ∈ {2, 3, 4, 5, 10, 20, 50, 100, 200}`, bounded above by `σ_0`, with `σ_0 − σ_200 < 0.02`. | `test_thresholds_increase_to_sigma_zero` |
 | C5 | Computation | `σ_0 ≈ 1.7286472389981835` and `ζ(σ_0) = 2` to `10^{−25}`. | `test_sigma_zero_is_zeta_two_root` |
 | C6 | Computation | The partial Euler product at `σ_0` approaches `2`, and at `σ = 2` approaches `π²/6`. | `test_euler_product_approaches_zeta_at_sigma_zero` |
 | C7 | Computation | `ω(t) = t/(4 cosh²(t/2))` and `ω(−t) = −ω(t)` symbolically. | `test_weight_identity_and_symmetry_exact` |

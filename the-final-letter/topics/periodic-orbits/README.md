@@ -67,13 +67,13 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | T4 | Theorem | For $p>1$, the squared total quantum dimension is positive: $D_p^2>0$. | `PeriodicOrbits.Dsq_pos` |
 | T5 | Theorem | The local RT weight is positive: $p^{-n}>0$. | `PeriodicOrbits.rtWeight_pos` |
 | T6 | Theorem | Finite geometric identity: $\sum_{n<N}p^{-n}=(1-p^{-N})/(1-p^{-1})$. | `PeriodicOrbits.geom_rtWeight` |
-| T7 | Theorem | A full twist on $n\ge 2$ strands has positive writhe $n(n-1)$. | `PeriodicOrbits.fullTwist_writhe_pos` |
+| T7 | Theorem | The word `replicate (n(n−1)) 1` (the writhe stand-in for a full twist) has positive writhe $n(n-1)$ for $n\ge 2$. The braid itself is not constructed. | `PeriodicOrbits.fullTwist_writhe_pos` |
 | C1 | Computation | $d_j>0$, $d_0=1$, and $d_r=d_{p-r}$ for $p=3,5,7,11$. | `test_quantum_dimensions_positive_and_symmetric` |
 | C2 | Computation | $\sum_{r=1}^{p-1}\sin^2(\pi r/p)=p/2$ exactly (reduction mod $\Phi_p$), hence $D_p^2=p/(2\sin^2(\pi/p))$; numerical residual $<10^{-40}$ at 50 digits. | `test_total_quantum_dim_identity` |
 | C3 | Computation | For $\ell=(p-1)/2$, every $S_{j\ell}=0$ and the "surviving sum" is exactly $0$ ($p=3,5,7$). | `test_verlinde_column_at_half_p_vanishes` |
 | C4 | Computation | $G_p\ne\tau_p$ for $p=3,5,7$ (mismatch far above $10^{-3}$; 40-digit evaluation). | `test_source_gauss_sum_mismatch` |
 | C5 | Computation | $p^{-n}$ is exact rational, and $\sum_{n<N}p^{-n}=(1-p^{-N})/(1-p^{-1})$, including the empty sum $N=0$. | `test_rt_weight_and_truncated_euler_factor` |
-| C6 | Computation | Writhe is additive; the full twist has $w=n(n-1)$, positive for $n\ge2$, zero for $n=1$, and the empty word has writhe $0$. | `test_writhe_bookkeeping` |
+| C6 | Computation | Writhe is additive; the word `replicate (n(n−1)) 1` has $w=n(n-1)$, positive for $n\ge2$, zero for $n=1$, and the empty word has writhe $0$. | `test_writhe_bookkeeping` |
 | C7 | Computation | Primitive length-$n$ orbits by Möbius inversion: $nP(n)=\sum_{d\mid n}\mu(n/d)(p^d+1)$; $P(1)=p+1$, $P(2)=(p^2-p)/2$. | `test_primitive_orbit_counts` |
 
 Nothing in the ledger asserts `RT = p^{-n}`, the existence of the Seifert identification, or RH.

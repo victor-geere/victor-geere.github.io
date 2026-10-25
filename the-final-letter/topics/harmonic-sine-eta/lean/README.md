@@ -33,7 +33,7 @@ It proves seven public theorems:
 | `etaPartial_even_pos` | `0 < etaPartial α (2N)` for `α > 0`, `N > 0` |
 | `cos_sin_at_zero` | `cosPartial α 0 N = etaPartial α N ∧ sinPartial α 0 N = 0` |
 
-Two `private` helper lemmas split a `2N`-term sum into even and odd indices (`sum_range_two_mul`) and factor `2^(-α)` out of the odd-index weights (`sum_range_odd_weight`). They are proof infrastructure, not programme claims.
+Two `private` helper lemmas split a `2N`-term sum into even and odd indices (`sum_range_pair`) and factor `2^(-α)` out of the odd-index weights (`sum_range_odd_weight`). They are proof infrastructure, not programme claims.
 
 No `sorry`, no `axiom`, no `admit`. The file compiles with the shared checker.
 

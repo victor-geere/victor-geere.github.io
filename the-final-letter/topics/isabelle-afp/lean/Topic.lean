@@ -16,7 +16,7 @@ It proves the involution and self-adjointness facts for `H`, `X`, `Z`,
 and the conjugation identity `H * X * H = Z`.  It does **not** formalise
 the source's vector-space predicates (`state`, `unitary`, `gate`), its
 matrix dimensions, the Bell-state entanglement lemmas, the no-cloning
-theorem, or any other theorem of the 976-entry AFP corpus.
+theorem, or any other theorem of the 972-entry AFP corpus.
 
 The auxiliary matrix `H2 = [[1,1],[1,-1]]` and the scalar
 `c = sqrt 2 / 2` expose the normalisation argument: `H2 * H2 = 2 • 1`

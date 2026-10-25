@@ -42,7 +42,7 @@ The sign character `χ` is described abstractly in the proposal (a homomorphism 
 These are not editorial nitpicks: they change the arithmetic of the model.
 
 1. **Factor of two in `D_k²`.** The standard `SU(2)_k` value is `N/(2 sin²(π/N))`, not `N/(4 sin²(π/N))`. The latter is the literal formula in the proposal, so it is the one implemented. With the literal formula the midpoint denominator is `N/4`, which need not be an integer.
-2. **The assertion “all `m_{j,k}` are integers” fails for the literal formula.** At `k = 3` and `n = 1` the value is `(5+√5)/2`; at `k = 4` and `n = 3` it is `3/2`. Computation C4 records this counterexample. With the standard factor `2` the values at these levels are integers.
+2. **The assertion “all `m_{j,k}` are integers” fails for the literal formula.** At `k = 3` and `n = 1` the value is `(5+√5)/2`; at `k = 4` and `n = 3` it is `3/2`. Computation C4 records this counterexample. With the standard factor `2` the `k = 4, n = 3` value becomes an integer (`3`), but the `k = 3, n = 1` value becomes `5 + √5`, so the standard normalisation does not make all values integral.
 3. **The stated asymptotic constant is inconsistent.** The proposal writes `m_n ∼ N³/(3π² n²)`; the literal definition gives `N³/(4π² n²)`. Computation C7 verifies the `1/(4π²)` constant numerically to high precision.
 4. **Parity of `n`.** Half-integer spins give even `n`, so the object labels are all integers `1, …, N-1`, not only odd integers. This is respected in both the Python and Lean layers.
 

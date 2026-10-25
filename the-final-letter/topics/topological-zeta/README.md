@@ -78,7 +78,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C3 | Computation | The Ising S-matrix is symmetric, unitary, and satisfies `S_{0i} = d_i/D`. | `test_ising_s_matrix` |
 | C4 | Computation | `SU(2)_k` S-matrices are symmetric, unitary, and satisfy `S_{0i} = d_i/D` for `k = 1,2,4`. | `test_su2_s_matrix_levels` |
 | C5 | Computation | `Ψ(s)` factorises and `Ψ(1) = 0`, `Ψ(2) = −1/8`. | `test_ising_psi_factorisation_and_zero` |
-| C6 | Computation | The source's completion of `Ψ` has **no constant root number**: `Λ(s)/Λ(1−s)` varies by more than `0.1` across samples (30-digit mpmath). | `test_claimed_completion_functional_equation_fails` |
+| C6 | Computation | For the Ising completion, `Λ(s)/Λ(1−s)` varies by more than `0.1` across samples (30-digit mpmath), so there is no constant root number. `SU(2)₄` is not tested. | `test_claimed_completion_functional_equation_fails` |
 | C7 | Computation | Degenerate inputs (empty, non-positive, mismatched, level `0`) raise `ValueError`. | `test_edge_cases_reject_degenerate_data` |
 
 ### Source claims (not promoted to theorems)
@@ -89,7 +89,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | S2 | **Asymmetry lemma:** for `Re(s) ≠ 1/2`, `RT_k(B_N(s)) ≠ 0` for large `k,N`, and the normalised limit is non-zero. | Source lemma without proof; open | Not formalised. The source itself lists it as a gap. |
 | S3 | **Topological Zeta Rigidity:** S1 + S2 imply RH. | Source “conditional theorem” | The implication is only as strong as S1–S2, neither of which is proved. It is **not** a theorem of this reconstruction. |
 | S4 | “Hence no off-line zeros. RH holds. Q.E.D. (in this speculative framework).” | Archived speculative claim, explicitly caveated by the same source | Recorded as speculative; the source’s chapter 6 says it is “not a formal proof”. |
-| S5 | The Ising and `SU(2)₄` completions satisfy `Λ(s) = εΛ(1−s)` with `ε = 1`, “verified numerically to 10 significant figures”. | Source claim | **Erratum:** not reproducible. C6 shows the ratio `Λ(s)/Λ(1−s)` is not constant, so no `ε` of modulus one exists for the stated completion. |
+| S5 | The Ising and `SU(2)₄` completions satisfy `Λ(s) = εΛ(1−s)` with `ε = 1`, “verified numerically to 10 significant figures”. | Source claim | **Erratum:** not reproducible for the Ising completion. C6 shows the ratio `Λ(s)/Λ(1−s)` is not constant there, so no constant `ε` of modulus one exists for the stated completion. The `SU(2)₄` completion is not tested here. |
 | S6 | “In an MTC of rank `r`, `∑_{i=1}^r 1/m_i = 1 − 1/D²`.” | Source claim in `greedy-egyptian-mtcs.html` | **Misstatement:** the full sum is `1` (T1). The non-unit sum `∑_{i≠0} 1/m_i = 1 − 1/D²` is T2, and is the version the later rigorous paper states. |
 | S7 | “There exists a hybrid family of Greedy-Egyptian MTCs…” with exact finite functional equations and an asymptotic irrational case. | Source “Theorem”; frontier/speculative | No construction of the family is given, and the convergence of the `k → ∞` limit is undefined. Not formalised. |
 | S8 | Numerical floor `δ_k ≥ k^{−C}` and modular error `≤ exp(−πk)`, crossing by `k ≈ 50`. | Source numerical plan | Not a computation performed in the source; no data tables are supplied. Recorded as an open numerical programme. |

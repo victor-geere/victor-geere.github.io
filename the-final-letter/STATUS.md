@@ -4,9 +4,9 @@
 
 | Objective | Statement | Status |
 |---|---|---|
-| Certified evaluation | Rational enclosures of `ζ(s)`, `ζ(s,a)`, `L(s,χ)` via Euler–Maclaurin partial sum + tail | Interval algebra, certificate replay, transport, eta cos/sin split PROVED in Lean; Euler–Maclaurin formula and transcendental leaves source claims |
+| Certified evaluation | Rational enclosures of `ζ(s)`, `ζ(s,a)`, `L(s,χ)` via Euler–Maclaurin partial sum + tail | Interval algebra, certificate replay, transport, eta cos/sin split, the `π`/`exp`/`log`/`sin`/`cos` enclosures, and the former source claims S3–S5 are proved in Lean; the Euler–Maclaurin formula and the tail bound have a written proof but are not Lean-formalised. Integrated into the letter as Objective III (proof ledger C, finding F11, further research R13–R15). It is the positive computation layer, not a hypothesis in a theorem about either wall. |
 
-The two walls are the programme's negative results; the third objective is the positive computation layer. See [`topics/partial-sum-plus-tail`](topics/partial-sum-plus-tail/README.md).
+The two walls are the programme's negative results; the third objective is the positive computation layer. See [`topics/partial-sum-plus-tail`](topics/partial-sum-plus-tail/README.md) and [05 — Proofs](categories/05-proofs/proofs.md#c-the-certified-evaluation-layer).
 
 ## The two walls
 
@@ -32,6 +32,7 @@ The programme converts both and proves the limits of the local toolboxes. It doe
 | Sylvester sparsity; no Euler product | [Summary-rh ledger §8](summary-rh/01-ledger/08-greedy-sine-vs-the-parity-barrier-rh47.md) |
 | One-point Chowla = PNT | [Summary-rh errata X1](summary-rh/04-programme/03-corrections-x1-x6.md) |
 | Lean finite-prefix core | [`lean/`](lean) |
+| Certified evaluation: interval algebra, certificate replay, transport, eta cos/sin split, transcendental enclosures, integer zeta bound, eta identity, `L`-reduction | [`topics/partial-sum-plus-tail`](topics/partial-sum-plus-tail/README.md) |
 
 ## Proved limits
 
@@ -47,6 +48,8 @@ The programme converts both and proves the limits of the local toolboxes. It doe
 - OP-19; OP-1; OP-4; OP-9; OP-16; OP-17; OP-18.
 - `(M)`; Weil positivity; F.4; `Λ=0`; Jensen/Li; uniform slow passage.
 - Formalising the conversion theorem and the greedy/budget layers in Lean.
+- Formalising the Euler–Maclaurin identity and its explicit tail bound in Lean (S1–S2 have a written proof).
+- Wiring the general transcendental theorems into a `Replay` for arbitrary `s`, and using a certified enclosure as a hypothesis in a theorem about a wall.
 
 ## Refuted / withdrawn
 

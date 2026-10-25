@@ -10,7 +10,7 @@ The archived paper, *The Generalised Riemann Helix and the Connes–Consani–Mo
 
 1. it defines a classical curve — the generalised Riemann helix — whose angular phase is tuned to the non-trivial zeros of an `L`-function;
 2. it writes down a Dirac operator `D_λ` with point interactions at the prime logarithms `m log p`, and asserts that this operator is the self-adjoint realisation of the CCM scaling operator;
-3. it reduces the CCM Conjecture 1 to two analytic problems (WKB asymptotics and a finite-dimensional trace formula) that it labels **Gap 1** and **Gap 2**, with spectrum identification as **Gap 3**.
+3. it reduces the CCM Conjecture 1 to two analytic problems — WKB asymptotics and a finite-dimensional trace formula, the two halves of the source's **Gap 3** — with spectrum identification as **Gap 4**. The source's Gap 1 (the phase construction) and Gap 2 (the rigorous Dirac operator) remain source claims here.
 
 The paper is explicit that RH and GRH are *not* proved by it. Its construction of the phase `φ` assumes the zeros lie on the critical line (GRH) and are enumerated there. This dossier therefore separates:
 
@@ -33,7 +33,7 @@ A caution on scope: the inventory note calls this "the largest genuine research 
 | Torsion (source eq. 1) | `τ = p(p⁴ − p r + 3q²)/(p⁶ + p⁴ + q²)`, `p = φ'`, `q = φ''`, `r = φ'''` |
 | Point-interaction potential | `D_λ = i d/dx + Σ_{p^m ≤ λ²} c(p^m) p^{−m/2} δ(x − m log p mod L)` |
 | Matching condition | `ψ(x_j⁺) = exp(i c(p^m) p^{−m/2}) ψ(x_j⁻)` |
-| Arithmetic coefficients | `c(p^m)` from `−L'/L(s)`; for `ζ`, `c(p) = log p` and `c(p^m) = 0` for `m ≥ 2` |
+| Arithmetic coefficients | `c(p^m)` from `−L'/L(s)`; for `ζ`, `c(p^m) = log p` for every `m ≥ 1`, matching Λ(p^m) |
 | Logarithmic coordinate | `x = log t`, so a prime power sits at `x = m log p` |
 
 The torsion formula is a genuine identity for the curve as defined: `python/programme.frenet_torsion` computes the Frenet–Serret torsion independently and agrees with the source formula symbolically (computation C2). What the source does **not** prove is that this torsion converges to the arithmetic delta distribution, nor that the quantised operator has the claimed spectrum.
@@ -57,7 +57,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C4 | Computation | The frequency gap is `2π/L`, independent of `k`, and `μ_{−k−1} = −μ_k` on a grid. | `test_frequency_gap_and_conjugate_symmetry` |
 | C5 | Computation | `|exp(i c)|² = 1` symbolically and at four sample couplings. | `test_matching_coefficient_has_unit_modulus` |
 | C6 | Computation | `log(p^m) = m log p` exactly, and the cutoff `p^m ≤ λ²` agrees with `m log p ≤ 2 log λ` on a grid (50-digit log comparison). | `test_log_prime_power_and_cutoff_dictionary` |
-| C7 | Computation | The zeta coefficients are `c(p, 1) = log p` and `c(p, m) = 0` for `m ≥ 2`, consistent with the von Mangoldt function on prime powers. | `test_zeta_arithmetic_coefficients` |
+| C7 | Computation | The zeta coefficients are `c(p, m) = log p` for every `m ≥ 1`, consistent with `Λ(p^m) = log p` on prime powers. | `test_zeta_arithmetic_coefficients` |
 | C8 | Computation | Degenerate inputs are rejected: zero or negative phase rate, zero period, `p ≤ 1`, non-prime base. | `test_edge_cases_reject_degenerate_phase` |
 
 ## Source claims (not promoted to theorems)
@@ -69,17 +69,17 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | S3 | `D_λ` is essentially self-adjoint on its natural domain, with purely discrete real spectrum. | Source claim, citing Albeverio–Gesztesy–Høegh-Krohn–Holden. | T5 proves unitarity of the matching coefficient only; operator domain and self-adjoint extension are not constructed. |
 | S4 | The band-limited projection of `D_λ` coincides with the CCM Weil matrix `Q_{kℓ} = QW(e_k, e_ℓ)`. | Source claim; the "dictionary". | Not formalised. |
 | S5 | Finite-dimensional trace formula `Tr_{E_N}(h(D_λ)) = Σ c(p^m) p^{−m/2} h(m log p) + smooth errors`. | Source claim, eq. (4). | Not formalised; error term unspecified beyond "smooth". |
-| S6 | Conjecture 1 reduces to WKB asymptotics (Gap 1) plus the trace formula (Gap 2). | Source claim / programme. | This is a reduction claim, not a theorem. |
-| S7 | Eigenvalues of `D_∞` are exactly `±γ_n`. | Source claim, conditional on Gaps 1–2 (Gap 3). | Not formalised. |
+| S6 | Conjecture 1 reduces to WKB asymptotics and the trace formula (Gap 3a/3b). | Source claim / programme. | This is a reduction claim, not a theorem. |
+| S7 | Eigenvalues of `D_∞` are exactly `±γ_n`. | Source claim, conditional on Gap 3. | Not formalised. |
 | S8 | The construction generalises to all automorphic `L`-functions, giving a uniform route to GRH. | Source claim; assumes GRH to build `φ`. | Not formalised; GRH is not proved. |
 | S9 | A smooth strictly increasing `φ` with `φ(γ_n) = 2πn` exists. | Construction conditional on the zeros being on the critical line and enumerated (GRH assumed "for simplicity"). | Not formalised; existence is by monotone interpolation once GRH is assumed. |
 
 ## Open items and gaps
 
 1. **CCM Conjecture 1 (S1).** The central open statement; nothing here bears on its truth.
-2. **WKB asymptotics (Gap 1).** Uniform resolvent analysis of `D_λ` near zero energy with many weak point interactions; not attempted.
-3. **Trace-formula convergence (Gap 2).** The source expects an `O(L^{−1/3+ε})` error via Krein's spectral shift function; not proved.
-4. **Spectrum identification (Gap 3).** Conditional on 2 and 3; not proved.
+2. **WKB asymptotics (Gap 3a).** Uniform resolvent analysis of `D_λ` near zero energy with many weak point interactions; not attempted.
+3. **Trace-formula convergence (Gap 3b).** The source expects an `O(L^{−1/3+ε})` error via Krein's spectral shift function; not proved.
+4. **Spectrum identification (Gap 4).** Conditional on 2 and 3; not proved.
 5. **Derivation of the torsion formula in Lean.** `torsionFormula` is a definition taken from the source; T2–T4 study it, but the equality with the Frenet–Serret torsion of `helix` is only checked symbolically in Python (C2). A Lean derivation needs a `ℝ³` cross-product/Frenet development.
 6. **Self-adjointness (S3).** Even the elementary unitary matching condition (T5) does not give a self-adjoint operator; deficiency indices, domains, and resolvents are outside this core.
 7. **Distributional torsion (S2) and the smooth background.** The bump construction and its limit are not formalised.

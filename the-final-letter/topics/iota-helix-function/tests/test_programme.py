@@ -21,6 +21,7 @@ from programme import (  # noqa: E402
 
 
 def test_radius_and_index_edge_cases():
+    """C3: radius edge cases and index validation."""
     # The first step has unit radius for every real σ.
     assert radius(sp.Rational(1, 2), 1) == 1
     assert radius(-sp.Rational(3, 2), 1) == 1
@@ -53,7 +54,7 @@ def test_first_step_is_one():
 
 
 def test_step_length_identity():
-    """C3: |v_n|² = r_n² = n^(-2σ)."""
+    """C4: |v_n|² = r_n² = n^(-2σ)."""
     for sigma in (sp.Rational(1, 2), sp.Integer(2)):
         for n in range(1, 9):
             lhs = helix_x(sigma, sp.Rational(2, 5), n) ** 2
@@ -62,7 +63,7 @@ def test_step_length_identity():
 
 
 def test_phase_increment_identity():
-    """C4: Φ_{n+1} - Φ_n = π - t log((n+1)/n)."""
+    """C5: Φ_{n+1} - Φ_n = π - t log((n+1)/n)."""
     t = sp.Rational(3, 5)
     for n in range(1, 10):
         lhs = sp.simplify(phase(t, n + 1) - phase(t, n))
@@ -71,7 +72,7 @@ def test_phase_increment_identity():
 
 
 def test_finite_eta_pairing():
-    """C5: the even eta partial sums equal the paired positive sums."""
+    """C6: the even eta partial sums equal the paired positive sums."""
     for sigma in (sp.Rational(1, 2), sp.Integer(2)):
         for M in range(1, 8):
             assert sp.simplify(eta_partial(sigma, 2 * M) - paired_partial(sigma, M)) == 0
@@ -81,7 +82,7 @@ def test_finite_eta_pairing():
 
 
 def test_real_axis_greedy_pattern():
-    """C6: at t = 0, GC holds at N = 1 and even N, and fails at odd N ≥ 3."""
+    """C7: at t = 0, GC holds at N = 1 and even N, and fails at odd N ≥ 3."""
     for sigma in (sp.Rational(1, 2), sp.Integer(2)):
         for N in range(1, 21):
             dot = sp.N(greedy_dot(sigma, 0, N), 30)
@@ -94,7 +95,7 @@ def test_real_axis_greedy_pattern():
 
 
 def test_source_pairing_omits_alternating_sign():
-    """C7: the note's w_N = N^(-s) pairing is not the dot product with v_N.
+    """C8: the note's w_N = N^(-s) pairing is not the dot product with v_N.
 
     At σ = 1/2, t = 0 and N = 2 the source expression is positive while the
     geometric dot product with the actual step is negative.

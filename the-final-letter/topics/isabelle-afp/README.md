@@ -21,7 +21,7 @@ around it is large:
 
 | Measurement | Value |
 |---|---|
-| AFP entries (directories under `thys/`) | 976 |
+| AFP entries (directories under `thys/`) | 972 |
 | Files under `afp-2026-05-08/` | 15,424 |
 | Isabelle theory files (`.thy`) | 10,068 |
 | Size on disk | about 396 MB |
@@ -130,7 +130,7 @@ in the entry inspected, and none is asserted here.
 
 ## Open items and gaps
 
-1. **The AFP is not surveyed.** 976 entries and 10,068 theory files remain
+1. **The AFP is not surveyed.** 972 entries and 10,068 theory files remain
    outside this dossier. The inventory item is a corpus, not a single result.
 2. **The source predicates are not in Lean.** A faithful translation would
    define `state`, `unitary`, `gate`, and the dimension-indexed matrix type,

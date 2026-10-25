@@ -12,9 +12,9 @@ The Davenport–Heilbronn twist has every feature the construction consumes — 
 
 The greedy harmonic sine is a rich object: a proved complexity law, exact budgets, Brown reachability, a parity lock, a balance identity, and the sharp partial-sum error. But all five bridges to the parity problem fail: the support carries no λ-parity signal, the budgets carry only index parity, the correlation has no Euler product, the support is Sylvester-sparse, and an arithmetic alphabet is circular. The programme’s own verdict is that the goal is unreachable as it stands.
 
-## F4 — Finite prefixes cannot decide the Chowla wall
+## F4 — Finite prefixes do not determine finite correlations
 
-The finite-prefix indeterminacy theorem is the one clean new theorem. Two functions can agree on an arbitrarily long prefix and have different correlation sums; the perturbation has ℓ²-mass exactly `4`. Therefore no finite computation can establish two-point Chowla. The theorem is Lean-certified. It is the formal statement of the futility of finite verification.
+The finite-prefix indeterminacy theorem is the one clean new theorem. Two functions can agree on an arbitrarily long prefix yet have different correlation sums at finite scales; the perturbation has ℓ²-mass exactly `4`. Because only finitely many terms change, the two correlation sums differ by a bounded amount and have the same asymptotics. The theorem is Lean-certified. It shows that a finite prefix cannot fix a finite correlation; it is not a formal statement that finite reasoning cannot decide the limit.
 
 ## F5 — Density statements are blind
 
@@ -39,5 +39,9 @@ The programme does not prove `RH ↔ twin primes`, or `RH ↔ Chowla`. The two w
 ## F10 — The map is the achievement
 
 The programme’s achievement is not a proof of either wall. It is the map: the conversion theorem, the sharpness theorem, the finite-prefix theorem, the five-bridge refutation, the two-wall diagnosis, and the Lean core. The map is complete enough to tell a future researcher where not to dig.
+
+## F11 — Certified evaluation is an instrument, not a key
+
+Objective III supplies a rational rectangle containing `ζ(s)`, `ζ(s,a)` or `L(s,χ)`, with every rational operation recorded in a straight-line certificate, replayed by an independent checker, and checked in Lean. The interval algebra, certificate soundness, truncation transport, eta cos/sin split and transcendental enclosures are Lean-proved. But the evaluator is not a bridge: no theorem about either wall uses a certified enclosure as a hypothesis, and the final ζ enclosure still depends on the Euler–Maclaurin identity and tail bound (S1–S2, written proof but not Lean-formalised). Its contribution is that finite-scale claims can now be made exact and replayable instead of floating point. That strengthens the audit and the instrument kit; it does not decide an asymptotic statement. The open tasks are R13–R15 in [Further research](../09-further-research/further-research.md).
 
 [Back to README](README.md) · [Back to index](../../index.html)

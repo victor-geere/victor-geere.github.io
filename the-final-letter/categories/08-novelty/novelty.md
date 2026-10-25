@@ -1,14 +1,14 @@
 # Novelty
 
-The individual results are not all new. The conversion theorem, the Davenport–Heilbronn sharpness, the finite-prefix theorem, and the barrier ledger come from the two source corpora. The novelty of `the-final-letter/` is the synthesis and the formalisation.
+The individual results are not all new. The conversion theorem, the Davenport–Heilbronn sharpness, the finite-prefix theorem, and the barrier ledger come from the two source corpora; the evaluator is reconstructed from the third source. The novelty of `the-final-letter/` is the synthesis, the formalisation, and the integration of the computation layer.
 
 ## N1 — The two-wall diagnosis
 
 The claim that the Riemann wall and the parity wall are the same *kind* of wall — a missing global arithmetic positivity, not a missing estimate — is new as a unified thesis. The two programmes were pursued separately; this letter puts them in one frame.
 
-## N2 — Finite-prefix indeterminacy as a general no-go
+## N2 — Finite-prefix indeterminacy as a finite-scale statement
 
-The finite-prefix theorem is a result about two-point Chowla. The letter reads it as a general no-go principle: finite data cannot determine the limit of a correlation, so numerical verification is structurally incapable of closing the wall. This reading is new, and it is the conceptual bridge between the two programmes.
+The finite-prefix theorem shows that finite prefixes underdetermine finite correlation sums: two functions can agree on an arbitrarily long prefix and still differ at a finite scale, with a bounded difference. It does not show that finite data cannot determine a limit; that is true only for the trivial reason that a limit is not a finite object. N2 should be read as a precise finite-scale indeterminacy, not as a general no-go for numerical verification.
 
 ## N3 — The Davenport–Heilbronn litmus as a general method
 
@@ -26,10 +26,15 @@ The `FinalLetter` Lean development is new: it defines the two walls in Mathlib�
 
 The programme is written as a letter rather than a paper: it states what has been achieved and what has not, and it ends with a note on futility. The form is a deliberate rejection of the hype cycle that surrounds RH and twin primes. It is a literary and methodological novelty, not a mathematical one.
 
+## N7 — A certified evaluator inside the letter's argument
+
+Objective III is not a new numerical method: Euler–Maclaurin, rational interval arithmetic, Machin's formula, and Taylor enclosures are standard. What is new here is the arrangement: the evaluator is reconstructed as a programme with a 35-row Lean ledger, a 14-row computation ledger, an independent certificate replay, kernel-checked transcendental enclosures, and an explicit boundary between the proved rational cell and the two analytic inputs, which have a written proof but are not Lean-formalised. The letter reads that layer as an instrument for finite-scale claims, not as a bridge. The integration is the novelty; the mathematics of the evaluator is inherited.
+
 ## What is not novel
 
 - The conversion theorem, the DH sharpness, the finite-prefix theorem, the barrier ledger entries, and the Lean finite-prefix proofs are from the source corpora.
 - The individual open problems (OP-1…OP-19, F.4, Λ=0) are from the literature or the source programmes.
 - The two walls are known separately; only the unified diagnosis is new.
+- The evaluator's algorithm and the transcendental enclosure methods are standard; the reconstruction and the integration are the contribution, not the invention of the method.
 
 [Back to README](README.md) · [Back to index](../../index.html)

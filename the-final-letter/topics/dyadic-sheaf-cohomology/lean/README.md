@@ -54,9 +54,9 @@ source does not define it precisely enough to state a theorem:
 
 Those are recorded as source claims or open items in the
 [programme README](../README.md). The finite symmetry
-`energy t x = energy t (t/x)` is proved in the Python layer (test C8)
-but not in Lean; the Lean file proves the forward divisor-detection
-direction and the elementary energy algebra.
+`energy t x = energy t (t/x)` is proved in Lean as `energy_symm` (T8)
+and checked in the Python layer (test C8); the Lean file also proves the
+forward divisor-detection direction and the elementary energy algebra.
 
 ## Note on scope
 

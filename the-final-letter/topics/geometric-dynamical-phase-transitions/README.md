@@ -64,6 +64,8 @@ This topic folder reconstructs the **finite coefficient and finite-measure bookk
 
 Every row marked **Theorem** is proved in Lean with no `sorry`, `axiom` or `admit`: T1–T67 in the original core files and T68–T108 in [`lean/Computations.lean`](lean/Computations.lean), which converts the former computation ledger into theorems. The Python suite remains a regression check, not the proof of any ledger row. Source claims and open items are not theorems of this reconstruction.
 
+The 108 rows are not 108 independent mathematical facts. A few restate an earlier result or record a guard: T36, T46 and T93 all record η₂(−1) = −2; T56 is a structure-field projection; T63 is the trivial guard `(0 : ℂ).re ≠ 1/2`. They are kept because the ledger reproduces the source's row numbering, not because each is a separate discovery.
+
 Four numerical certificates remain at the computation layer and are listed separately below: the 40-digit Davenport–Heilbronn DFT eigenvector identity and the three Krawczyk interval certificates. They are not theorems of this reconstruction; formalising them requires a verified interval-arithmetic layer for `exp`, `log`, `cos` and `sin`. A rational interval-replay layer (`IBox`/`Expr`) exists in the sibling twin-prime-parity bundle and compiles against the same Mathlib, but its transcendental leaves are still Python-checked; porting the series enclosures from its `rativ.py` to Lean is the remaining step.
 
 | # | Kind | Statement | Lean / test name |
@@ -77,8 +79,8 @@ Four numerical certificates remain at the computation layer and are listed separ
 | T7 | Theorem | A finite atomic measure with one tempered atom per point has total mass at most its number of atoms. | `GeoDQPT.atomicMass_le_card` |
 | T8 | Theorem | The absolute last-chord size `L(σ) = (N−1)/2 · N^(−2σ)` is positive for `N > 1`. | `GeoDQPT.lastChordAbs_pos` |
 | T9 | Theorem | `L(σ)L(1−σ) = (N−1)²/(4N²)`; the twin product is independent of `σ`. | `GeoDQPT.lastChordAbs_mul_twin` |
-| T10 | Theorem | `L(σ) = L(1−σ)` iff `σ = 1/2`; the self-dual abscissa is unique. | `GeoDQPT.lastChordAbs_twin_eq_iff` |
-| T11 | Theorem | `N^(1−s) = 1` iff `s = 1 − 2πik/log N` for some `k ∈ ℤ`; the algebraic clock-zero classification. | `GeoDQPT.clock_zero_iff` |
+| T10 | Theorem | For `1 < N`, `L(σ) = L(1−σ)` iff `σ = 1/2`; the self-dual abscissa is unique. | `GeoDQPT.lastChordAbs_twin_eq_iff` |
+| T11 | Theorem | For `1 < N`, `N^(1−s) = 1` iff `s = 1 − 2πik/log N` for some `k ∈ ℤ`; the algebraic clock-zero classification. | `GeoDQPT.clock_zero_iff` |
 | T12 | Theorem | `N^(1−σ) − 1 ≤ |1 − N^(1−σ−it)|`; the prefactor lower bound. | `GeoDQPT.prefactor_lower_bound` |
 | T13 | Theorem | For continuous `f`, `∫(1−Rf)(−f) = −∫f + R∫f²`. | `GeoDQPT.local_diagonal_identity` |
 | T14 | Theorem | If `∫f = 1`, the local diagonal is `−1 + R∫f²`; the `−1/2` value is not assumed. | `GeoDQPT.local_diagonal_normalized` |
@@ -206,7 +208,7 @@ The exact bridge theorems are collected in [`BRIDGES.md`](BRIDGES.md) and [`lean
 | B10 formalisation | exact algebraic skeleton formalised; analytic layer not | **partially bridged** |
 | B11 O3 separator | DH word odd, mean-zero, `a_5=0`; `σ>1` non-vanishing still analytic | **reduced algebraically** |
 | B12 complex last chord | `H_N(s)H_N(1−s)=(N−1)²/(4N²)` | **closed** |
-| B13 asymptotic dichotomy | `L_N(1/2)→1/2`, `σ>1/2⇒L_N(σ)→0`, `σ<1/2⇒L_N(σ)⟶∞`, full twin dichotomy | **breakthrough** |
+| B13 asymptotic dichotomy | `L_N(1/2)→1/2`, `σ>1/2⇒L_N(σ)→0`, `σ<1/2⇒L_N(σ)⟶∞`, full twin dichotomy | **proved** |
 | B14 quantitative ratio | `L_N(σ)/N^(1−2σ)=1/2−1/(2N)` exactly | **closed** |
 | B15 register transfer | exact matrix product; coupling `(1−N)N^(−s)<0`; register-only Lee–Yang obstructed | **decisive no-go** |
 | B16 heat-flow derivative | `∂_τ P_τ(s)|_{τ=0} = Σ c_m (log m)² m^(−s)` | **computation-level** |
@@ -283,7 +285,7 @@ cd the-final-letter/topics/geometric-dynamical-phase-transitions
 python3 -m pytest -q tests
 ```
 
-Recorded result: **7 passed** (well under 20 seconds).
+Recorded result: **55 passed** (well under 20 seconds).
 
 Example:
 
@@ -297,7 +299,7 @@ atomic_mass([sp.Integer(0), sp.Integer(1), sp.I])  # 2
 
 ## Lean layer
 
-[`lean/Topic.lean`](lean/Topic.lean) imports Mathlib, opens the namespace `GeoDQPT`, and proves T1–T7. It defines `filterCoeff`, `atomWeight` and `atomicMass`; it uses only elementary integer, order and finite-sum facts. [`lean/Bridges.lean`](lean/Bridges.lean) proves T8–T18: the last-chord product and self-dual abscissa, the clock-zero classification, the prefactor lower bound, the corrected local diagonal, and the Davenport–Heilbronn word algebra. [`lean/Breakthrough.lean`](lean/Breakthrough.lean) proves T19–T24: the asymptotic last-chord dichotomy and its exact rate. There is no `sorry`, `axiom` or `admit` in either file.
+[`lean/Topic.lean`](lean/Topic.lean) imports Mathlib, opens the namespace `GeoDQPT`, and proves T1–T7. It defines `filterCoeff`, `atomWeight` and `atomicMass`; it uses only elementary integer, order and finite-sum facts. [`lean/Bridges.lean`](lean/Bridges.lean) proves T8–T18: the last-chord product and self-dual abscissa, the clock-zero classification, the prefactor lower bound, the corrected local diagonal, and the Davenport–Heilbronn word algebra. [`lean/LastChord.lean`](lean/LastChord.lean) proves T19–T24: the asymptotic last-chord dichotomy and its exact rate. There is no `sorry`, `axiom` or `admit` in either file.
 
 ```bash
 cd the-final-letter/topics/geometric-dynamical-phase-transitions
@@ -313,7 +315,7 @@ See [`lean/README.md`](lean/README.md) for the precise boundary of what is and i
 - Canonical paper: [`publication.html`](../../geometric-dynamical-phase-transitions/publication.html).
 - Bundle overview: [`the-final-letter/geometric-dynamical-phase-transitions/README.md`](../../geometric-dynamical-phase-transitions/README.md).
 - Gap inventory: [`gaps.html`](../../geometric-dynamical-phase-transitions/gaps.html) · strengthening checklist [`todo.md`](../../geometric-dynamical-phase-transitions/todo.md).
-- Gap bridges: [`BRIDGES.md`](BRIDGES.md) · [`lean/Bridges.lean`](lean/Bridges.lean) · [`lean/Breakthrough.lean`](lean/Breakthrough.lean) · [`lean/TransferNoGo.lean`](lean/TransferNoGo.lean) · [`lean/Tractable.lean`](lean/Tractable.lean) · [`lean/MatrixNoGo.lean`](lean/MatrixNoGo.lean) · [`lean/SignedF4.lean`](lean/SignedF4.lean) · [`lean/LeeYang.lean`](lean/LeeYang.lean) · [`lean/Ledger.lean`](lean/Ledger.lean) · [`lean/PartialSumTail.lean`](lean/PartialSumTail.lean) · [`lean/CertifiedZero.lean`](lean/CertifiedZero.lean) · [`python/bridges.py`](python/bridges.py) · [`python/transfer_nogo.py`](python/transfer_nogo.py) · [`python/tractable.py`](python/tractable.py) · [`python/matrix_nogo.py`](python/matrix_nogo.py) · [`python/signed_f4.py`](python/signed_f4.py) · [`python/lee_yang.py`](python/lee_yang.py) · [`python/partial_sum_tail.py`](python/partial_sum_tail.py) · [`python/polygon_zero.py`](python/polygon_zero.py).
+- Gap bridges: [`BRIDGES.md`](BRIDGES.md) · [`lean/Bridges.lean`](lean/Bridges.lean) · [`lean/LastChord.lean`](lean/LastChord.lean) · [`lean/TransferNoGo.lean`](lean/TransferNoGo.lean) · [`lean/Tractable.lean`](lean/Tractable.lean) · [`lean/MatrixNoGo.lean`](lean/MatrixNoGo.lean) · [`lean/SignedF4.lean`](lean/SignedF4.lean) · [`lean/LeeYang.lean`](lean/LeeYang.lean) · [`lean/Ledger.lean`](lean/Ledger.lean) · [`lean/PartialSumTail.lean`](lean/PartialSumTail.lean) · [`lean/CertifiedZero.lean`](lean/CertifiedZero.lean) · [`python/bridges.py`](python/bridges.py) · [`python/transfer_nogo.py`](python/transfer_nogo.py) · [`python/tractable.py`](python/tractable.py) · [`python/matrix_nogo.py`](python/matrix_nogo.py) · [`python/signed_f4.py`](python/signed_f4.py) · [`python/lee_yang.py`](python/lee_yang.py) · [`python/partial_sum_tail.py`](python/partial_sum_tail.py) · [`python/polygon_zero.py`](python/polygon_zero.py).
 - Summary sections used for the status audit: [`summary/05-spectral-measures-and-tightness`](../../summary/05-spectral-measures-and-tightness/README.md), [`summary/06-davenport-heilbronn`](../../summary/06-davenport-heilbronn/README.md), [`summary/13-working-notes`](../../summary/13-working-notes/README.md).
 - Inventory: [`scraps.html`](../../scraps.html) item 1.
 - All topics: [`topics/README.md`](../README.md).

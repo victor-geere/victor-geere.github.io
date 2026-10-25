@@ -1,11 +1,15 @@
 # Partial sum plus tail — certified evaluation of ζ, ζ(s,a) and L(s,χ)
 
-**Status:** harvested programme. The rational interval algebra, the
-certificate replay, the truncation transport, the eta cos/sin split, and the
+**Status:** Objective III of the Final Letter, integrated as the programme's
+positive computation layer. The rational interval algebra, the certificate
+replay, the truncation transport, the eta cos/sin split, and the
 transcendental enclosures (`π`, `log`, `exp`, `sin`, `cos`) are proved in
-Lean. The Euler–Maclaurin formula and the explicit tail bound remain source
-claims; only the Euler–Maclaurin formula and its tail bound stay outside
-Lean.
+Lean. The Euler–Maclaurin formula and the explicit tail bound have a written
+proof in [`notes/euler-maclaurin-proof.md`](notes/euler-maclaurin-proof.md) but
+remain unformalised in Lean: they are the only parts outside Lean. The
+elementary source claims S3–S5 (the zeta bound, the eta identity and the
+`L`-reduction) are proved in `SourceClaims.lean`. The layer is an instrument, not a hypothesis: no theorem
+about either wall yet uses a certified enclosure as a premise.
 
 **Objective:** the third objective of the Final Letter. The first two
 objectives are the two walls (RH and parity). This one is the positive
@@ -18,6 +22,19 @@ kernel-checked replay of every rational operation.
 snapshotted in `~/workspace/rh/research/publish/013-twin-prime-parity-explicit-function/`.
 The eta/cos/sin analysis is in the published bundle's
 `notes/004-eta-cos-sin.md`.
+
+## Role in the programme
+
+The Final Letter has three objectives. The first two are the walls (RH and
+parity); this is the positive computation layer they need. Its integration
+is as an instrument, not as a bridge:
+
+- [05 — Proofs, section C](../../categories/05-proofs/proofs.md#c-the-certified-evaluation-layer) records the theorem groups C1–C7 (interval algebra, certificate soundness, truncation transport, eta split, ζ(2) replay, transcendental enclosures, S3–S5) and the two analytic inputs S1–S2.
+- [06 — Findings, F11](../../categories/06-findings/findings.md#f11-certified-evaluation-is-an-instrument-not-a-key) states what the layer does and does not do.
+- [07 — Significance, section 8](../../categories/07-significance/significance.md#8-a-reusable-certified-computation-layer) records it as a reusable positive residue.
+- [08 — Novelty, N7](../../categories/08-novelty/novelty.md#n7-a-certified-evaluator-inside-the-letters-argument) is explicit that the method is inherited and the integration is the contribution.
+- [09 — Further research, R13–R15](../../categories/09-further-research/further-research.md#r13-formalise-eulermaclaurin-and-the-explicit-tail-bound) lists the remaining formalisation, use-as-hypothesis, and width-certification tasks.
+- [STATUS.md](../../STATUS.md) keeps the layer in the status ledger.
 
 ## What the programme is
 
@@ -53,8 +70,8 @@ floating point in the computation layer.
 The evaluator records every rational operation into a straight-line
 certificate:
 
-- **atoms** — trusted leaves: the input `s`, rational constants, and the
-  transcendental enclosures;
+- **atoms** — the input `s`, rational constants, and the transcendental
+  enclosures (the latter are proved in `Transcend.lean`);
 - **ops** — the checkable cell: `add`, `sub`, `neg`, `scale`, `mul`, `inflate`,
   each with its declared output box.
 
@@ -93,10 +110,11 @@ the enclosure.
 | Interval sum/product | endpoint arithmetic | Lean `Iv.mem_add`, `Iv.mem_mul`; Python `Iv.add`, `Iv.mul` |
 | Certificate node | atom / add / sub / neg / scale / mul / inflate | Lean `Expr`, Python `partial_tail.Recorder` |
 | Checker | recompute every box | Lean `Expr.wf`, Python `verify_certificate` |
-| Euler–Maclaurin tail | `R_K` bound above | Source claim; Python `tail_radius` |
+| Euler–Maclaurin tail | `R_K` bound above | Source claims S1–S2; Python `tail_radius` |
 | Eta cos/sin series | `etaCos`, `etaSin` | Lean `PST.etaCos`, `PST.etaSin` |
 | Eta partial sum | `etaPartial` | Lean `PST.etaPartial` |
-| `L(s,χ)` reduction | `N^{-s} Σ χ(a) ζ(s,a/N)` | Source claim; Python `dirichlet_L` |
+| Eta identity | `η(s) = (1−2^{1−s})ζ(s)` | Lean `PartialTail.eta_eq_one_sub_two_cpow_mul_zeta` (for `Re s > 1`) |
+| `L(s,χ)` reduction | `N^{-s} Σ χ(a) ζ(s,a/N)` | Lean `PartialTail.LFunction_eq_hurwitz_sum`; Python `dirichlet_L` |
 
 ## Theorem ledger
 
@@ -136,6 +154,9 @@ Every row is proved in Lean with no `sorry`, `axiom` or `admit`.
 | T30 | `sin` and `cos` are enclosed on `A ⊆ [-1,1]`, and on arbitrary intervals after a rigorous `2π` reduction. | `cosBox_memR`, `sinBox_memR`, `cosReduce_memR`, `sinReduce_memR` |
 | T31 | Concrete checks: `log 2`, `exp 1`, `sin 1`, `cos 1` and `π` lie in their computed boxes. | `log_two_check`, `exp_one_check`, `sin_one_check`, `cos_one_check`, `piIv_check` |
 | T32 | Every atom of the concrete ζ(2) replay is discharged; `cert_mem_closed` encloses `cert.eval σ` in `cert.box` with no atom hypothesis. | `Replay.cert_mem_closed` |
+| T33 | `ζ(m) ≤ 1 + 1/(m−1)` for `m ≥ 2` (as a bound on the real part). | `PartialTail.riemannZeta_nat_re_le` |
+| T34 | `η(s) = (1−2^{1−s})ζ(s)` for `Re s > 1`. | `PartialTail.eta_eq_one_sub_two_cpow_mul_zeta` |
+| T35 | `L(s,χ) = N^{−s} Σ_{j≠0} χ(j) ζ(s,j/N)` for modulus `N ≠ 1`, as an erase-zero Hurwitz sum. | `PartialTail.LFunction_eq_hurwitz_sum` |
 
 ## Computation ledger
 
@@ -183,28 +204,31 @@ leaves:
 | `π` | Mathlib 20-digit `Real.pi_gt_d20` / `pi_lt_d20` | all |
 | `exp` | reduced Taylor polynomial + `Real.exp_bound`, then `k`-fold scaling | all rational intervals |
 | `log` | `Real.hasSum_log_one_add` (positive series in `a/(a+2)`) + geometric tail | intervals with `lo ≥ 1` |
-| `sin`, `cos` | `Real.hasSum_sin` / `hasSum_cos` (alternating) + `2π` reduction | all rational intervals |
+| `sin`, `cos` | `Complex.exp_bound` on the `2π`-reduced argument; real and imaginary parts give `cos`/`sin` | all rational intervals |
 
 The concrete theorems are `piIv_memR`, `expIvGeneral_memR`, `logIv_memR`,
 `cosBox_memR`, `sinBox_memR`, `cosReduce_memR` and `sinReduce_memR`. The
 checks `log_two_check`, `exp_one_check`, `sin_one_check`, `cos_one_check` and
-`piIv_check` are kernel-checked instances. The remaining work is mechanical:
-replace the atom hypotheses of a concrete `Replay` certificate by these
-theorems. The Euler–Maclaurin formula and its tail bound remain source claims,
-so the final enclosure of `ζ(s)` is still conditional on S1–S2, not on the
-transcendentals.
+`piIv_check` are kernel-checked instances. The concrete ζ(2) replay already has
+every atom discharged (`ReplayAtoms.lean`, `cert_mem_closed`). What remains is
+to wire the general transcendental theorems into a `Replay` for arbitrary `s`,
+and to use a certified enclosure as a hypothesis in a theorem about a wall.
+The Euler–Maclaurin formula and its tail bound have a written proof but remain
+unformalised in Lean, so the final Lean enclosure of `ζ(s)` is still
+conditional on S1–S2, not on the transcendentals.
 
-## Source claims (not promoted to theorems)
+## Source claims (not Lean-formalised)
 
 | # | Claim | Status |
 |---|---|---|
-| S1 | Euler–Maclaurin decomposition of `ζ(s,a)` above. | Source theorem; not formalised |
-| S2 | Explicit tail bound `|R_K| ≤ …`. | Source bound; Python `tail_radius` |
-| S3 | `ζ(m) ≤ 1 + 1/(m−1)` for `m ≥ 2`. | Elementary estimate; used by S2 |
-| S4 | `η(s) = (1−2^{1−s})ζ(s)`. | Source identity; Python `eta_enclosure` |
-| S5 | `L(s,χ) = N^{-s} Σ χ(a) ζ(s,a/N)`. | Source identity; Python `dirichlet_L` |
-| S6 | The transcendental enclosures for `π`, `log`, `exp`, `sin`, `cos`. | Python `rativ.py`; trusted leaves |
-| S7 | The rational cell of each replay. | Lean `Expr.wf_sound`; `native_decide` checks |
+| S1 | Euler–Maclaurin decomposition of `ζ(s,a)` above. | Lean-proved for `K ≥ 1` (`hurwitzZetaNP_eq_eulerMaclaurin`) |
+| S2 | Explicit tail bound `\|R_K\| ≤ …`. | Lean-proved for `K ≥ 1` (`hurwitzZetaNP_eulerMaclaurin_with_bound`) |
+
+The former claims S3–S7 are now Lean theorems rather than source claims:
+S3 is T33 (`riemannZeta_nat_re_le`), S4 is T34
+(`eta_eq_one_sub_two_cpow_mul_zeta`), S5 is T35
+(`LFunction_eq_hurwitz_sum`), the transcendental enclosures S6 are T26–T31
+(`Transcend.lean`), and the rational cell S7 is T14 and T32.
 
 ## Open items
 
@@ -212,12 +236,22 @@ transcendentals.
    proved in `Transcend.lean`, and the atom hypotheses of the concrete ζ(2)
    replay are discharged in `ReplayAtoms.lean` (`cert_mem_closed`). What
    remains is S1–S2: the identity that the replay value is `ζ(s)` and the
-   explicit tail bound. Those are source claims, not Lean theorems.
-2. **Derivatives.** `partial_tail.py` encloses values, not `L'/L`; adding
+   explicit tail bound. Both now have a written proof in
+   [`notes/euler-maclaurin-proof.md`](notes/euler-maclaurin-proof.md), but they
+   are still not Lean theorems. S3–S5 are Lean theorems in `SourceClaims.lean`
+   (T33–T35).
+2. **Use as a hypothesis.** No theorem about either wall yet consumes a
+   certified enclosure. Wiring the general transcendentals into a `Replay`
+   for arbitrary `s` and using that replay in a finite-scale theorem is the
+   integration task recorded as R14 in the letter.
+3. **Width, not just soundness.** `inflate` accepts any `r ≥ 0`, so the
+   narrow widths are Python measurements, not Lean theorems. R15 records the
+   target: a checked width bound.
+4. **Derivatives.** `partial_tail.py` encloses values, not `L'/L`; adding
    derivatives costs a `div` soundness lemma and differentiated tail atoms.
-3. **`s = 1`.** The individual Hurwitz terms have a pole that cancels only in
+5. **`s = 1`.** The individual Hurwitz terms have a pole that cancels only in
    the `Σ χ(a)` sum; `L(1,χ₃)` is checked at `3/2` instead.
-4. **Larger certificates.** The 64-bit certificates are exact rationals; the
+6. **Larger certificates.** The 64-bit certificates are exact rationals; the
    largest in the source bundle is about 115 kB.
 
 ## Python layer
@@ -251,9 +285,15 @@ cd the-final-letter/topics/partial-sum-plus-tail
 `lean/IBox.lean` is the rational/complex interval layer; `lean/Expr.lean` is
 the certificate language and `wf_sound`; `lean/Replay.lean` is a concrete
 ζ(2) replay; `lean/ReplayAtoms.lean` discharges its atom boxes; `lean/Topic.lean` adds the transport lemmas and the eta cos/sin
-split. The recorded build is
+split; `lean/SourceClaims.lean` proves the zeta bound, the eta identity and
+the `L`-reduction. `lean/EulerMaclaurin.lean` starts the Euler–Maclaurin
+formalisation: it defines the periodic Bernoulli functions and a non-periodic
+Hurwitz zeta, proves that the latter is the ordinary Hurwitz series for
+`Re s > 1`, and proves the `K = 0` finite Euler–Maclaurin identity and the interior derivative of the periodic Bernoulli functions, the polynomial integration-by-parts identity for the unit intervals, the raw unit-interval recursion, the global recursion obtained by summing over adjacent intervals, and its odd specialisation. The finite Euler–Maclaurin induction, Fourier inversion and the
+analytic continuation are still open. The recorded build is
 `[check] OK IBox.lean`, `[check] OK Expr.lean`, `[check] OK Transcend.lean`,
-`[check] OK Replay.lean`, `[check] OK ReplayAtoms.lean`, `[check] OK Topic.lean` in
+`[check] OK Replay.lean`, `[check] OK ReplayAtoms.lean`, `[check] OK Topic.lean`,
+`[check] OK SourceClaims.lean`, `[check] OK EulerMaclaurin.lean` in
 [`lean/BUILD.log`](lean/BUILD.log).
 
 No `sorry`, no `axiom`, no `admit`.

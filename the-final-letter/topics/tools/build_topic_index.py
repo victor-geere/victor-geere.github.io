@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = [
     "README.md", "index.html", "python/programme.py",
-    "tests/test_programme.py", "lean/Topic.lean", "lean/BUILD.log",
+    "tests/test_programme.py", "lean/Topic.lean",
 ]
 
 # slug: (novelty, current value, potential value, tractability), each 1-5.
@@ -41,6 +41,7 @@ RATINGS = {
     "iota-helix-function": (3, 2, 3, 2),
     "isabelle-afp": (2, 2, 2, 3),
     "nested-spheres-continuous-cone": (3, 3, 3, 3),
+    "partial-sum-plus-tail": (4, 5, 4, 4),
     "padic-stochastic-zeta": (2, 3, 2, 4),
     "periodic-orbits": (4, 2, 4, 2),
     "phase-interference": (3, 2, 3, 3),
@@ -73,8 +74,9 @@ def title_for(topic: Path) -> str:
 
 
 def status_for(topic: Path) -> str:
+    """Structural status only: required files present, not that the ledger agrees."""
     missing = [f for f in REQUIRED if not (topic / f).exists()]
-    return "complete" if not missing else f"in progress ({len(REQUIRED)-len(missing)}/{len(REQUIRED)})"
+    return "structural pass" if not missing else f"in progress ({len(REQUIRED)-len(missing)}/{len(REQUIRED)})"
 
 
 def score(v: int, label: str) -> str:
@@ -125,7 +127,7 @@ td.scorecell{{text-align:center;white-space:nowrap}}
 </style></head><body>
 <h1>Research topics</h1>
 <p class="sub">Reconstructed programmes: README, index, sympy tests, Lean core</p>
-<div class="top"><p>Every folder follows the <a href="PROGRAMME-STANDARD.md">programme standard</a>. A topic marked <strong>complete</strong> has a README, index.html, sympy computation layer, pytest suite, and a compiling Lean core. Source claims and open conjectures are recorded as such, not proved.</p></div>
+<div class="top"><p>Every folder follows the <a href="PROGRAMME-STANDARD.md">programme standard</a>. A topic marked <strong>structural pass</strong> has the required README, index.html, sympy computation layer, pytest suite, and Lean core. The status certifies the file layout and the audit, not that the ledger, tests, or Lean statements agree. Source claims and open conjectures are recorded as such, not proved.</p><p>The table includes the three programme objectives: the Riemann wall (<code>geometric-dynamical-phase-transitions</code>), the parity wall (<code>greedy-harmonic-sine-parity</code>), and Objective III, certified partial-sum-plus-tail evaluation (<code>partial-sum-plus-tail</code>).</p></div>
 <div class="legend"><strong>Rating key (1–5).</strong> These are editorial judgements about the reconstructed programme, not mathematical claims.
 <ul>
 <li><strong>Novelty</strong> — 5: a genuinely new mechanism; 3: known ideas in a new arrangement; 1: standard or expository.</li>

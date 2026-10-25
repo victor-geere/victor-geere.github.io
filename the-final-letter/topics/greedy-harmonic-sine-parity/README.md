@@ -62,7 +62,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C1 | **Computation** | `λ(n) ∈ {±1}`, `λ(n)² = 1` on `0 ≤ n < 200`, and `λ(mn) = λ(m)λ(n)` on `1 ≤ m,n ≤ 20`. | Exact integer check. | `test_liouville_is_a_sign_and_multiplicative` |
 | C2 | **Computation** | `|S(N,h)| ≤ N` for `0 ≤ h ≤ 5`, `0 ≤ N ≤ 60`, and `S(N,0) = N`. | Exact integer check. | `test_trivial_bound_and_sharpness` |
 | C3 | **Computation** | Prefix agreement holds on the stated grid, while `S_5(2,2) = S(2,2)` and `S_5(2,5) ≠ S(2,5)`. | Exact integer check. | `test_prefix_agreement_of_the_slice` |
-| C4 | **Computation** | For `0 < h < a ≤ 15`, `S_a(a,h) − S(a,h) = −2λ(a)λ(a+h) − 2λ(a−h)λ(a)`; at `h=2, a=5` the value is `−4`. | Exact integer check. | `test_slice_perturbation_closed_form` |
+| C4 | **Computation** | For `0 < h < a`, tested with `h ∈ 1..4` and `a ∈ h+1..15`, `S_a(a,h) − S(a,h) = −2λ(a)λ(a+h) − 2λ(a−h)λ(a)`; at `h=2, a=5` the value is `−4`. | Exact integer check. | `test_slice_perturbation_closed_form` |
 | C5 | **Computation** | The slice `ℓ²` mass is `4` for `1 ≤ a ≤ N ≤ a+10`; at `a = 0` it is `0` because the sum starts at `1`. | Exact integer check with edge case. | `test_slice_l2_mass_is_exactly_four` |
 | C6 | **Computation** | `f_2(25) = −1` while `f_2(5)² = 1`. | Exact integer check. | `test_shifted_product_is_not_completely_multiplicative` |
 | C7 | **Computation** | Boundary behaviour: `λ 0 = 1`, `λ_0(0) = −1`, empty correlation at `N = 0`, and rejection of negative indices and of `h = 0` or `h ≥ a` in the closed form. | Exact integer check with failure cases. | `test_edge_and_invalid_inputs` |

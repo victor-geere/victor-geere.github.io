@@ -74,9 +74,28 @@ Theorems:
 
 The root module, importing the two.
 
+### Objective III — `topics/partial-sum-plus-tail/lean`
+
+The certified evaluator is a separate Lean development:
+
+```
+cd the-final-letter/topics/partial-sum-plus-tail
+./lean/check.sh
+# [check] OK IBox.lean
+# [check] OK Expr.lean
+# [check] OK Transcend.lean
+# [check] OK Replay.lean
+# [check] OK ReplayAtoms.lean
+# [check] OK Topic.lean
+# [check] OK SourceClaims.lean
+# [check] OK EulerMaclaurin.lean
+```
+
+`IBox.lean` is the rational/complex interval layer; `Expr.lean` is the certificate language with `wf` and `wf_sound`; `Transcend.lean` proves the `π`, `exp`, `log`, `sin` and `cos` enclosures; `Replay.lean` is a concrete ζ(2) replay and `ReplayAtoms.lean` discharges its atom boxes (`cert_mem_closed`); `Topic.lean` adds the truncation transport and the eta cos/sin split; `SourceClaims.lean` proves S3–S5 (the integer zeta bound, the eta identity and the `L`-reduction); `EulerMaclaurin.lean` formalises the finite Euler–Maclaurin layer: periodic Bernoulli functions, a non-periodic Hurwitz zeta, the Hurwitz series identity for `Re s > 1`, and the general finite Euler–Maclaurin formula. Fourier inversion, the ζ-sum evaluation and the Bernoulli supremum bound for odd indices are also proved; differentiability of the non-periodic zeta away from `s = 0, 1` is also proved; the integral form of the S2 tail bound is also proved; the S1 decomposition and combined S1/S2 tail bound are proved for `K ≥ 1`. The full ledger is in [Proofs C](proofs.md#c-the-certified-evaluation-layer).
+
 ## What is not formalised
 
-The Riemann-side conversion theorem, the Davenport–Heilbronn sharpness theorem, the measure-theoretic tightness/limit theorems, the greedy complexity law, the budget/balance theory, and the explicit formula are **not** formalised in this development. They are formalised in the source repository to varying degrees (`Rh41`, `Rh42`, `Rh43`, `Rh45`, `Rh46`, `Rh47`, `Op56`, `ConeLean`, `TppLean`) and are cited in [Proofs](proofs.md). Formalising the full conversion theorem would require a substantial measure-theory and analytic-number-theory development; this letter formalises the logical core that survives both programmes: finite-prefix indeterminacy and the well-posedness of the two walls.
+The Riemann-side conversion theorem, the Davenport–Heilbronn sharpness theorem, the measure-theoretic tightness/limit theorems, the greedy complexity law, the budget/balance theory, and the explicit formula are **not** formalised in this development. They are formalised in the source repository to varying degrees (`Rh41`, `Rh42`, `Rh43`, `Rh45`, `Rh46`, `Rh47`, `Op56`, `ConeLean`, `TppLean`) and are cited in [Proofs](proofs.md). The Euler–Maclaurin identity and the explicit tail bound of Objective III (S1–S2) have a written proof in [`notes/euler-maclaurin-proof.md`](../../topics/partial-sum-plus-tail/notes/euler-maclaurin-proof.md) but are likewise **not** formalised in Lean. S3–S5 are proved in `SourceClaims.lean`. Formalising the full conversion theorem would require a substantial measure-theory and analytic-number-theory development; this letter formalises the logical core that survives both programmes: finite-prefix indeterminacy and the well-posedness of the two walls.
 
 ## Verification status
 

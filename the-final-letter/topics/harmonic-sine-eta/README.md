@@ -77,9 +77,9 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C5 | Computation | `η(1/2 + iγ₁) = 0` at the first non-trivial zeta zero `γ₁ ≈ 14.1347`, residual below `1e-30`. | `test_eta_zero_on_critical_line` |
 | C6 | Computation | The alternating harmonic partial sums approach `log 2`, with the alternating-series error bound `1/(N+1)`. | `test_alternating_harmonic_limit` |
 | C7 | Computation | Consecutive eta terms alternate in sign, i.e. the sign word is period two. | `test_alternating_signs` |
-| C8 | Computation (edge case) | At `θ = 0` the greedy condition fails: `Re(conj(S_{N-1}) w_N) > 0` for every `N ≥ 2`. | `test_greedy_condition_edge_theta_zero` |
+| C8 | Computation (edge case) | At `θ = 0` the greedy condition fails: `Re(conj(S_{N-1}) w_N) > 0` for the tested `N ≤ 8` (and for every `N ≥ 2` by the accompanying positivity argument). | `test_greedy_condition_edge_theta_zero` |
 
-Auxiliary private lemmas in the Lean file (`sum_range_two_mul`, `sum_range_odd_weight`) split a `2N`-term sum into even/odd indices and extract the factor `2^(−α)`. They support T4–T5 and are not counted as programme theorems.
+Auxiliary private lemmas in the Lean file (`sum_range_pair`, `sum_range_odd_weight`) split a `2N`-term sum into even/odd indices and extract the factor `2^(−α)`. They support T4–T5 and are not counted as programme theorems.
 
 ## Source claims (not promoted to theorems)
 

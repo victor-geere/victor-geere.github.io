@@ -16,7 +16,7 @@ The source itself is inconsistent about the step size. `harmonic-sine-rh.html` d
 h_n=\sqrt{\frac{1-\cos(\pi/(n+2))}{2}},
 \]
 
-which is `sin(π/(2(n+2)))`, the **half**-angle, while the rotation update needs `sin(π/(n+2))`. The sibling `sine-harmonic.tex` instead writes `h_n = dyadic_sin(1/(n+2))`. The Python layer verifies the exact half-angle identity and records the discrepancy as an erratum (row C2); the Lean core uses the correct `sin ε_n`/`cos ε_n` pair.
+which is `sin(π/(2(n+2)))`, the **half**-angle, while the rotation update needs `sin(π/(n+2))`. The sibling `sine-harmonic.tex` instead writes `h_n = dyadic_sin(1/(n+2))`. The Python layer verifies the exact half-angle identity and records the discrepancy as an erratum (row C2); the Lean core uses the correct `sin ε_n`/`cos ε_n` pair. A second clash is between the angle step `π/(n+2)` and the residual bound `π/(n+1)`: the reconstruction uses `π/(n+2)` for the angle and records `π/(n+1)` only as the source's bound.
 
 ## Reconstructed objects and notation
 
@@ -52,7 +52,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C4 | Computation | Symbolically, the rotation preserves `s² + c² = 1`; zero and right-angle rotations give the expected pairs. | `test_rotation_preserves_unit_circle_symbolic` |
 | C5 | Computation | The source's residual bound `0 ≤ r n ≤ π/(n+1)` holds exactly on a rational grid with `n_max` up to 200. | `test_greedy_residual_bound_on_grid` |
 | C6 | Computation | The source's boundary equality is attained: at `y = 1`, `n = 1`, `r 1 = 1/2 = 1/(1+1)` in `π` units. | `test_greedy_residual_boundary_equality_at_y_equals_one` |
-| C7 | Computation | The rotation reconstruction of `sin(π y)` agrees with the reference to within `10⁻¹²` for 400 steps on a 12-point grid, including `y = 0, 1/2, 1`. | `test_reconstruction_convergence_with_stated_tolerance` |
+| C7 | Computation | The rotation reconstruction of `sin(π y)` agrees with the reference to within `10⁻¹²` for 400 steps on a 13-point grid (`k/12`, `k = 1..11`, plus `0` and `1`), including `y = 0, 1/2, 1`. | `test_reconstruction_convergence_with_stated_tolerance` |
 
 ## Source claims (not promoted to theorems)
 

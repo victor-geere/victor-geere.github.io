@@ -14,11 +14,11 @@ The remaining gap in the parity programme is not a missing estimate of the greed
 
 **Status:** supported by the barrier ledger P1–P19, B1–B5.
 
-## H3 — Finite prefixes cannot decide either wall
+## H3 — Finite prefixes do not determine finite correlations
 
-No finite prefix of values can decide the asymptotic statements. For two-point Chowla this is the finite-prefix indeterminacy theorem, Lean-certified. For RH, the analogous statement is that finite numerical certificates at bounded height (e.g. `T=15`, `T=33`) do not prove the asymptotic.
+A finite prefix of values does not fix the finite correlation. For two-point Chowla this is the finite-prefix indeterminacy theorem, Lean-certified. It is a statement about finite sums, not a proof that asymptotic reasoning is impossible. For RH, the analogous observation is that finite numerical certificates at bounded height (e.g. `T=15`, `T=33`) do not prove the asymptotic.
 
-**Status:** H3 is proved for the Chowla slice; for RH it is a methodological observation, not a formal theorem.
+**Status:** the finite-scale statement is proved for the Chowla slice; the RH remark is methodological, not a formal theorem.
 
 ## H4 — Any bridge must fail for the Davenport–Heilbronn twist
 

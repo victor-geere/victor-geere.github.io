@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Final Letter — two walls, one missing input</title>
+<title>The Final Letter — two walls, one kind of missing input</title>
 <style>body{font-family:Georgia,serif;max-width:920px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}h1{font-size:2.1rem;line-height:1.15;margin-bottom:.2rem}h2{margin-top:2.6rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.45rem}h3{margin-top:1.6rem}a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}.sub{color:#555;font-size:1.1rem;font-style:italic}.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}.toc{columns:2;column-gap:2rem}.toc a{display:block;margin:.18rem 0}.meta{color:#555;font-size:.95rem}code{background:#f1f3f5;padding:.1rem .2rem;border-radius:3px}pre{background:#f1f3f5;padding:.8rem;overflow-x:auto;border-radius:6px}table{border-collapse:collapse;width:100%;margin:1rem 0}th,td{border:1px solid #d8d8d8;padding:.35rem .5rem;text-align:left;vertical-align:top}blockquote{border-left:3px solid #1a5fb4;margin-left:0;padding-left:1rem;color:#333}.final{border-top:2px solid #1a202c;margin-top:3rem;padding-top:1rem}@media(max-width:700px){.toc{columns:1}}</style>
 <script>window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head><body>
 <h1>The Final Letter</h1>
-<p class="sub">Two walls, one missing input: from the Riemann hypothesis to the parity barrier</p>
-<div class="top"><p><strong>What this is.</strong> A unified research programme built from <a href="summary/README.md">summary/</a> (the geometric DQPT/spectral-measure programme for RH) and <a href="summary-rh/README.md">summary-rh/</a> (the greedy harmonic sine/twin-prime parity programme). It does not prove RH or the twin-prime conjecture. It proves the conversion, the Davenport–Heilbronn sharpness, the finite-prefix no-go theorem, the five-bridge refutation, and a Lean spine. The final note argues that the failure is structural.</p></div>
+<p class="sub">Two walls, one kind of missing input: from the Riemann hypothesis to the parity barrier</p>
+<div class="top"><p><strong>What this is.</strong> This page is the canonical reading artefact; the Markdown files are the source text. A unified research programme built from <a href="summary/README.md">summary/</a> (the geometric DQPT/spectral-measure programme for RH), <a href="summary-rh/README.md">summary-rh/</a> (the greedy harmonic sine/twin-prime parity programme), and <a href="topics/partial-sum-plus-tail/index.html">Objective III</a> (the certified partial-sum-plus-tail evaluator). It does not prove RH or the twin-prime conjecture. It sets out the conversion, the Davenport–Heilbronn sharpness, the finite-prefix indeterminacy theorem, the five-bridge refutation, the certified computation layer, and a Lean spine, at five different levels of evidence: written proof, Lean, certified computation, argument about this programme's own routes, and Lean for the finite layer only. The final note argues that the failure is structural.</p></div>
 <h2 id="toc">Table of Contents</h2><div class="toc">
 <a href="#description">Description</a>
 <a href="categories/README.md">Numbered sections</a>
 <a href="#three-objectives">The three objectives</a>
+<a href="#third-objective">The third objective</a>
 <a href="#abstract">Abstract</a>
 <a href="#hypotheses">Hypotheses</a>
 <a href="#conjectures">Conjectures</a>
-<a href="#third-objective">The third objective</a>
 <a href="#proofs">Proofs</a>
 <a href="#lean">Lean formalisation</a>
 <a href="#findings">Findings</a>
@@ -103,8 +103,8 @@ unrestricted measure, equivalently the joint non-vanishing of
 positivity for the repaired current.</p>
 <p><strong>Parity.</strong> The programme proves the finite-prefix
 indeterminacy theorem: two functions agreeing on a prefix can have
-different correlation sums, so no finite computation can decide
-two-point Chowla. It proves that the greedy support is Sylvester-sparse,
+different finite correlation sums, so a finite prefix does not fix the
+correlation. It proves that the greedy support is Sylvester-sparse,
 that the shifted product is not multiplicative, and that the five
 proposed bridges (support parity, budget parity, ζ-machinery,
 positive-density support, arithmetic alphabet) fail. The remaining gap
@@ -126,7 +126,10 @@ finite-prefix core, the definitions of the walls, and the elementary
 facts — and leave the walls as definitions, not axioms.</li>
 </ol>
 <p>The final letter is the statement of that common shape, and the
-argument that the shape is a wall rather than a door.</p>
+argument that the shape is a wall rather than a door. The third objective
+follows the same discipline: it proves the rational cell and the
+transcendental enclosures, gives a written proof of the Euler–Maclaurin
+identity and the tail bound, and leaves their Lean formalisation explicit.</p>
 <h3 id="what-the-programme-is-not">What the programme is not</h3>
 <p>It is not a proof of RH. It is not a proof of the twin prime
 conjecture. It is not a proof of Chowla, Sarnak, or Elliott. It is not a
@@ -147,17 +150,34 @@ rational bound. Every operation is recorded in a straight-line certificate;
 the rational cell is replayed by an independent Python checker and
 kernel-checked in Lean (<code>Expr.wf</code>, <code>Expr.wf_sound</code>),
 and the transcendental enclosures (<code>π</code>, <code>log</code>,
-<code>exp</code>, <code>sin</code>, <code>cos</code>) are now kernel-checked
+<code>exp</code>, <code>sin</code>, <code>cos</code>) are kernel-checked
 in the Lean library <code>Transcend.lean</code>. The concrete ζ(2)
 replay’s atom boxes are discharged in <code>ReplayAtoms.lean</code>
-(<code>cert_mem_closed</code>); only the Euler–Maclaurin identity remains a
-source claim.</p>
+(<code>cert_mem_closed</code>).</p>
+<table>
+<thead><tr><th>Layer</th><th>Status</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>Rational interval algebra, complex boxes</td><td>Lean-proved</td><td><code>IBox.lean</code>, T1–T13</td></tr>
+<tr><td>Certificate checker soundness</td><td>Lean-proved</td><td><code>Expr.wf_sound</code>, T14</td></tr>
+<tr><td>Truncation transport (finite sum + tail = total; residual bounded by tail norm)</td><td>Lean-proved</td><td><code>Topic.lean</code>, T15–T18</td></tr>
+<tr><td>Eta cos/sin split</td><td>Lean-proved</td><td><code>Topic.lean</code>, T19–T24</td></tr>
+<tr><td>Concrete ζ(2) replay with atoms discharged</td><td>Lean-proved</td><td><code>ReplayAtoms.lean</code>, T25 and T32</td></tr>
+<tr><td><code>π</code>, <code>exp</code>, <code>log</code>, <code>sin</code>, <code>cos</code> enclosures</td><td>Lean-proved</td><td><code>Transcend.lean</code>, T26–T31</td></tr>
+<tr><td>Euler–Maclaurin identity and explicit tail bound</td><td>Finite EM, Fourier inversion, Bernoulli sup bound, analyticity, S1 decomposition and S2 tail bound Lean-proved (`K ≥ 1`)</td><td><code>EulerMaclaurin.lean</code>, <a href="topics/partial-sum-plus-tail/notes/euler-maclaurin-proof.md">notes/euler-maclaurin-proof.md</a>, S1–S2</td></tr>
+<tr><td>Integer zeta bound, eta identity, <code>L</code>-reduction</td><td>Lean-proved</td><td><code>SourceClaims.lean</code>, T33–T35</td></tr>
+<tr><td>Use of an enclosure as a hypothesis in a wall theorem</td><td>Open</td><td>R14</td></tr>
+</tbody>
+</table>
 <p>The same layer contains the eta cos/sin split:
 <code>η = (1−2<sup>1−s</sup>)ζ</code>, with the real part the cos series and
 the imaginary part minus the sin series. The finite split is proved in Lean;
 the tail, not the first hundred terms, carries the cancellation at a zero.</p>
 <p>This is the computation layer the walls need, not a bridge across either.
-The dossier, theorem ledger, tests and Lean build are in
+It is integrated into the letter as Objective III: described in section 01,
+recorded in the proof ledger C, and carried into finding F11, significance 8,
+novelty N7 and further research R13–R15. It does not prove either wall, and
+no theorem about a wall yet uses a certified enclosure as a hypothesis. The
+dossier, full theorem ledger, tests and Lean build are in
 <a href="topics/partial-sum-plus-tail/index.html"><code>topics/partial-sum-plus-tail</code></a>.</p>
 </section>
 <section id="abstract"><h2>Abstract</h2>
@@ -185,11 +205,26 @@ missing objects are not identical, but they are structurally the same
 kind of object: an arithmetic positivity that the local machinery cannot
 manufacture.</p>
 <p>The programme’s achievements are a conversion theorem, a sharpness
-theorem, a finite-prefix no-go theorem, a five-bridge refutation, a
-unified two-wall map, and a Lean formalisation of the finite-prefix core
-and the two wall statements. The programme does <strong>not</strong>
+theorem, a finite-prefix indeterminacy theorem, a five-bridge refutation, a
+unified two-wall map, a Lean formalisation of the finite-prefix core
+and the two wall statements, and a certified computation layer for
+<code>ζ</code>, <code>ζ(s,a)</code> and <code>L(s,χ)</code>. The programme
+does <strong>not</strong>
 prove the Riemann hypothesis, the twin-prime conjecture, Chowla for
 <code>k ≥ 2</code>, Sarnak’s conjecture, or Elliott’s conjecture.</p>
+<p>A third, positive objective supplies the computation layer the two walls
+need: a certified partial-sum-plus-tail evaluator. Euler–Maclaurin splits
+the function into a finite sum, the Bernoulli corrections, and an explicit
+tail; exact rational interval arithmetic encloses every factor; a
+straight-line certificate records every rational operation, is replayed by
+an independent checker, and is kernel-checked in Lean. The eta cos/sin split
+is proved in the same core, and the transcendental enclosures
+(<code>π</code>, <code>log</code>, <code>exp</code>, <code>sin</code>,
+<code>cos</code>) are kernel-checked in <code>Transcend.lean</code>. The
+Euler–Maclaurin identity and the explicit tail bound have a written proof but are not Lean-formalised;
+no theorem about either wall yet uses a certified enclosure as a hypothesis.
+The evaluator is integrated as the programme's computation layer, not as a
+bridge.</p>
 <p>The final note argues that the futility is structural rather than
 accidental. More computation, more estimates, more finite prefixes, and
 more local structure cannot close these walls; the missing object is
@@ -197,8 +232,8 @@ global arithmetic positivity. The letter is a map of the wall, not a key
 to the door.</p>
 <p><strong>Keywords:</strong> Riemann hypothesis; twin primes; parity
 barrier; Chowla; Liouville function; finite-prefix indeterminacy;
-Davenport–Heilbronn; Weil positivity; Lean 4; formalisation; no-go
-theorem.</p>
+Davenport–Heilbronn; Weil positivity; Euler–Maclaurin; interval arithmetic;
+certified evaluation; Lean 4; formalisation.</p>
 
 </section>
 <section id="hypotheses"><h2>Hypotheses</h2>
@@ -225,15 +260,16 @@ proposed bridges fail for structural reasons, not for want of numerical
 precision.</p>
 <p><strong>Status:</strong> supported by the barrier ledger P1–P19,
 B1–B5.</p>
-<h3 id="h3--finite-prefixes-cannot-decide-either-wall">H3 — Finite
-prefixes cannot decide either wall</h3>
-<p>No finite prefix of values can decide the asymptotic statements. For
+<h3 id="h3--finite-prefixes-do-not-determine-finite-correlations">H3 — Finite
+prefixes do not determine finite correlations</h3>
+<p>A finite prefix of values does not fix the finite correlation. For
 two-point Chowla this is the finite-prefix indeterminacy theorem,
-Lean-certified. For RH, the analogous statement is that finite numerical
-certificates at bounded height (e.g. <code>T=15</code>,
-<code>T=33</code>) do not prove the asymptotic.</p>
-<p><strong>Status:</strong> H3 is proved for the Chowla slice; for RH it
-is a methodological observation, not a formal theorem.</p>
+Lean-certified; it is a statement about finite sums, not a proof that
+asymptotic reasoning is impossible. For RH, the analogous observation is
+that finite numerical certificates at bounded height (e.g.
+<code>T=15</code>, <code>T=33</code>) do not prove the asymptotic.</p>
+<p><strong>Status:</strong> the finite-scale statement is proved for the
+Chowla slice; the RH remark is methodological, not a formal theorem.</p>
 <h3 id="h4--any-bridge-must-fail-for-the-davenportheilbronn-twist">H4 —
 Any bridge must fail for the Davenport–Heilbronn twist</h3>
 <p>A result can close the RH gap only if it consumes an Euler product, a
@@ -420,13 +456,14 @@ critical-line zero <code>ρ</code> with <code>|γ| ≤ N^{1/2-ε}</code>.</p>
 (Hughes–Keating–O’Connell) says yes. Not used by any theorem.</p>
 <h3 id="what-is-not-a-conjecture">What is not a conjecture</h3>
 <p>The finite-prefix indeterminacy theorem, the Davenport–Heilbronn
-sharpness, the Sylvester-sparsity theorem, and the conversion theorem
+sharpness, the Sylvester-sparsity theorem, the conversion theorem, and the
+Lean-proved rational/transcendental layer of Objective III
 are <strong>proved</strong>. They are not conjectures. The programme’s
 discipline is to keep the two lists separate.</p>
 
 </section>
 <section id="proofs"><h2>Proofs</h2>
-<p>This is the proof ledger of the unified programme. It separates four
+<p>This is the proof ledger of the unified programme. It separates five
 things that are often conflated:</p>
 <ol type="1">
 <li><strong>Proved in the source</strong> — a written proof in a paper
@@ -437,6 +474,8 @@ repository.</li>
 prove either side.</li>
 <li><strong>Sharpness/litmus</strong> — a proved negative result showing
 that a class of methods cannot close the wall.</li>
+<li><strong>Certified computation</strong> — a Lean-checked finite
+calculation with a replayable certificate, not an asymptotic theorem.</li>
 </ol>
 <h3 id="a-the-riemann-side">A. The Riemann side</h3>
 <h4 id="a1-the-conversion-theorem">A1. The conversion theorem</h4>
@@ -572,7 +611,47 @@ equivalent to PNT.</p>
 <p><strong>Status:</strong> theorem (classical). Correction X1.</p>
 <p>Source: <a
 href="summary-rh/04-programme/03-corrections-x1-x6.md"><code>summary-rh/04/03</code></a>.</p>
-<h3 id="c-the-lean-spine">C. The Lean spine</h3>
+<h3 id="c-the-certified-evaluation-layer">C. The certified evaluation layer</h3>
+<p>Objective III is the programme's positive computation layer. It is not a
+proof of either wall; it is the machine-checked instrument a finite-scale
+claim can use instead of floating point. The full 35-row theorem ledger and
+the 14-row computation ledger are in
+<a href="topics/partial-sum-plus-tail/index.html#theorem-ledger"><code>topics/partial-sum-plus-tail</code></a>.</p>
+<table>
+<thead><tr><th>Group</th><th>What is proved</th><th>Lean theorems</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td>Rational interval addition, negation, subtraction, scaling, multiplication and inflation are sound; the same six laws hold over <code>ℝ</code>; complex boxes obey the same laws.</td><td><code>PartialTail.Iv.mem_add</code> … <code>mem_inflate</code>, <code>Iv.memR_*</code>, <code>PartialTail.Cx.mem_*</code></td><td>T1–T13, <code>IBox.lean</code></td></tr>
+<tr><td>C2</td><td>An accepted straight-line certificate encloses the value it denotes; <code>Expr.wf</code> recomputes every box.</td><td><code>PartialTail.Expr.wf_sound</code></td><td>T14, <code>Expr.lean</code></td></tr>
+<tr><td>C3</td><td>A finite partial sum plus the shifted tail is the total; the truncation residual is bounded by the tail norm, for arbitrary finite families and for the three-tail case.</td><td><code>PST.tsum_eq_finite_add_tail</code>, <code>PST.truncation_residual_le_tail_norm</code>, <code>PST.truncation_residual_le_finset_tail_norm</code>, <code>PST.truncation_residual_le_three_tails</code></td><td>T15–T18, <code>Topic.lean</code></td></tr>
+<tr><td>C4</td><td>The eta partial sum splits exactly into the cos series and minus the sin series.</td><td><code>PST.etaTerm_re</code>, <code>PST.etaTerm_im</code>, <code>PST.etaPartial_re</code>, <code>PST.etaPartial_im</code></td><td>T19–T24, <code>Topic.lean</code></td></tr>
+<tr><td>C5</td><td>The concrete ζ(2) replay is accepted, and every atom is discharged, so its final box encloses the replay value with no atom hypothesis.</td><td><code>PartialTail.Replay.cert_mem</code>, <code>Replay.cert_mem_closed</code></td><td>T25, T32, <code>Replay.lean</code>, <code>ReplayAtoms.lean</code></td></tr>
+<tr><td>C6</td><td><code>π</code>, <code>exp</code>, <code>log</code>, <code>sin</code> and <code>cos</code> are enclosed on the required rational intervals, with concrete kernel-checked instances.</td><td><code>piIv_memR</code>, <code>expIvGeneral_memR</code>, <code>logIv_memR</code>, <code>cosBox_memR</code>, <code>sinBox_memR</code>, <code>cosReduce_memR</code>, <code>sinReduce_memR</code>; <code>log_two_check</code>, <code>exp_one_check</code>, <code>sin_one_check</code>, <code>cos_one_check</code>, <code>piIv_check</code></td><td>T26–T31, <code>Transcend.lean</code></td></tr>
+<tr><td>C7</td><td>S3–S5: the integer zeta bound, the eta identity, and the <code>L</code>-function as a finite Hurwitz sum.</td><td><code>riemannZeta_nat_re_le</code>, <code>eta_eq_one_sub_two_cpow_mul_zeta</code>, <code>LFunction_eq_hurwitz_sum</code></td><td>T33–T35, <code>SourceClaims.lean</code></td></tr>
+</tbody>
+</table>
+<p>The analytic inputs S1–S2 are now Lean theorems for <code>K ≥ 1</code>:</p>
+<table>
+<thead><tr><th>#</th><th>Claim</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>S1</td><td>Euler–Maclaurin decomposition of <code>ζ(s,a)</code> into partial sum, Bernoulli corrections and tail.</td><td>Finite EM, Fourier inversion, Bernoulli sup bound, analyticity, S1 decomposition and S2 tail bound Lean-proved (`K ≥ 1`)</td></tr>
+<tr><td>S2</td><td>Explicit tail bound <code>|R_K(s)| ≤ |(s)_{2K+1}| · 2ζ(2K+1)/(2π)^{2K+1} · b^{−σ−2K}/(σ+2K)</code>.</td><td>Fourier inversion, Bernoulli sup bound, analyticity, S1 decomposition and S2 tail bound Lean-proved (`K ≥ 1`)</td></tr>
+</tbody>
+</table>
+<p>S3–S5 are now Lean theorems (C7): <code>riemannZeta_nat_re_le</code>,
+<code>eta_eq_one_sub_two_cpow_mul_zeta</code>, and
+<code>LFunction_eq_hurwitz_sum</code>.</p>
+<p><strong>Status of the layer.</strong> The rational cell, the certificate
+checker, the truncation transport, the eta split and the transcendental
+enclosures are Lean-proved with no <code>sorry</code>, <code>axiom</code> or
+<code>admit</code>. The Euler–Maclaurin decomposition and the explicit tail bound are also Lean-proved
+for <code>K ≥ 1</code> (<code>hurwitzZetaNP_eq_eulerMaclaurin</code> and
+<code>hurwitzZetaNP_eulerMaclaurin_with_bound</code>). The elementary claims S3–S5 are now Lean theorems
+(C7). No theorem about either wall uses a certified enclosure as a
+hypothesis yet; R13–R14 in
+<a href="#further-research">Further research</a> state what that would take.</p>
+<p>Source: <a href="topics/partial-sum-plus-tail/index.html"><code>topics/partial-sum-plus-tail</code></a>,
+<code>~/workspace/rh/research/twin-prime-parity/012/</code>.</p>
+<h3 id="d-the-lean-spine">D. The Lean spine</h3>
 <p>The <code>the-final-letter/lean/</code> development builds against
 the same Lean 4 + Mathlib installation as
 <code>~/workspace/rh</code>:</p>
@@ -600,11 +679,12 @@ The build contains no <code>sorry</code> and no new axiom.</li>
 </ul>
 <p>See <a href="categories/05-proofs/lean.md">Lean formalisation</a> for the
 theorem inventory and build instructions.</p>
-<h3 id="d-what-is-not-proved">D. What is not proved</h3>
+<h3 id="e-what-is-not-proved">E. What is not proved</h3>
 <p>RH, the twin-prime conjecture, Chowla for <code>k ≥ 2</code>, Sarnak,
 Elliott, <code>(M)</code>, OP-19, F.4, <code>Λ=0</code>, the Jensen/Li
-tower, and uniform slow passage. The proof ledger is not a proof of the
-walls; it is a proof of the map.</p>
+tower, and uniform slow passage. The evaluator's Euler–Maclaurin identity
+and explicit tail bound have a written proof but are not Lean-formalised. The
+proof ledger is not a proof of the walls; it is a proof of the map.</p>
 
 </section>
 <section id="lean"><h2>Lean formalisation</h2>
@@ -686,6 +766,35 @@ witness;</li>
 </ul>
 <h4 id="finalletterlean"><code>FinalLetter.lean</code></h4>
 <p>The root module, importing the two.</p>
+<h4 id="objective-iii-lean-layer">Objective III —
+<code>topics/partial-sum-plus-tail/lean</code></h4>
+<p>The certified evaluator is a separate Lean development:</p>
+<pre><code>cd the-final-letter/topics/partial-sum-plus-tail
+./lean/check.sh
+# [check] OK IBox.lean
+# [check] OK Expr.lean
+# [check] OK Transcend.lean
+# [check] OK Replay.lean
+# [check] OK ReplayAtoms.lean
+# [check] OK Topic.lean
+# [check] OK SourceClaims.lean
+# [check] OK EulerMaclaurin.lean</code></pre>
+<p><code>IBox.lean</code> is the rational/complex interval layer;
+<code>Expr.lean</code> is the certificate language with <code>wf</code> and
+<code>wf_sound</code>; <code>Transcend.lean</code> proves the
+<code>π</code>, <code>exp</code>, <code>log</code>, <code>sin</code> and
+<code>cos</code> enclosures; <code>Replay.lean</code> is a concrete ζ(2)
+replay and <code>ReplayAtoms.lean</code> discharges its atom boxes
+(<code>cert_mem_closed</code>); <code>Topic.lean</code> adds the truncation
+transport and the eta cos/sin split; <code>SourceClaims.lean</code> proves
+S3–S5 (the integer zeta bound, the eta identity and the <code>L</code>-reduction);
+<code>EulerMaclaurin.lean</code> formalises the finite Euler–Maclaurin layer:
+periodic Bernoulli functions, a non-periodic Hurwitz zeta, the Hurwitz series
+identity for <code>Re s &gt; 1</code>, and the general finite Euler–Maclaurin
+formula <code>finite_eulerMaclaurin</code>. Fourier inversion, the Bernoulli supremum bound, differentiability of the
+non-periodic zeta away from `s = 0, 1`, the S1 decomposition and the combined
+S1/S2 tail bound are also Lean-proved. The full ledger is in
+<a href="#c-the-certified-evaluation-layer">Proofs C</a>.</p>
 <h3 id="what-is-not-formalised">What is not formalised</h3>
 <p>The Riemann-side conversion theorem, the Davenport–Heilbronn
 sharpness theorem, the measure-theoretic tightness/limit theorems, the
@@ -695,7 +804,11 @@ are formalised in the source repository to varying degrees
 (<code>Rh41</code>, <code>Rh42</code>, <code>Rh43</code>,
 <code>Rh45</code>, <code>Rh46</code>, <code>Rh47</code>,
 <code>Op56</code>, <code>ConeLean</code>, <code>TppLean</code>) and are
-cited in <a href="categories/05-proofs/proofs.md">Proofs</a>. Formalising the full
+cited in <a href="categories/05-proofs/proofs.md">Proofs</a>. The finite Euler–Maclaurin identity, Fourier inversion, the Bernoulli bound,
+the S1 decomposition and the combined S1/S2 tail bound of Objective III are
+formalised in Lean for <code>K ≥ 1</code>. S3–S5 are proved in
+<code>SourceClaims.lean</code>.
+Formalising the full
 conversion theorem would require a substantial measure-theory and
 analytic-number-theory development; this letter formalises the logical
 core that survives both programmes: finite-prefix indeterminacy and the
@@ -720,8 +833,9 @@ self-limits</h3>
 consumes — functional equation, mean-zero periodic coefficients,
 Euler–Maclaurin comparison, classical floor — and no Euler product. The
 framework transfers verbatim and reports a false RH at Spira’s zero.
-Therefore no theorem from the additive toolbox can prove RH. This is a
-proved limitative result, not a heuristic.</p>
+Therefore no theorem using only the ingredients in that list can prove
+RH. This is a limitative result about that list, not a heuristic about
+every conceivable method.</p>
 <h3 id="f3--the-parity-programme-self-limits">F3 — The parity programme
 self-limits</h3>
 <p>The greedy harmonic sine is a rich object: a proved complexity law,
@@ -732,14 +846,16 @@ only index parity, the correlation has no Euler product, the support is
 Sylvester-sparse, and an arithmetic alphabet is circular. The
 programme’s own verdict is that the goal is unreachable as it
 stands.</p>
-<h3 id="f4--finite-prefixes-cannot-decide-the-chowla-wall">F4 — Finite
-prefixes cannot decide the Chowla wall</h3>
+<h3 id="f4--finite-prefixes-do-not-determine-finite-correlations">F4 — Finite
+prefixes do not determine finite correlations</h3>
 <p>The finite-prefix indeterminacy theorem is the one clean new theorem.
-Two functions can agree on an arbitrarily long prefix and have different
-correlation sums; the perturbation has ℓ²-mass exactly <code>4</code>.
-Therefore no finite computation can establish two-point Chowla. The
-theorem is Lean-certified. It is the formal statement of the futility of
-finite verification.</p>
+Two functions can agree on an arbitrarily long prefix yet have different
+finite correlation sums; the perturbation has ℓ²-mass exactly
+<code>4</code>. Because only finitely many terms change, the two
+correlation sums differ by a bounded amount and have the same asymptotics.
+The theorem is Lean-certified. It shows that a finite prefix cannot fix a
+finite correlation; it is not a formal statement that finite reasoning
+cannot decide the limit.</p>
 <h3 id="f5--density-statements-are-blind">F5 — Density statements are
 blind</h3>
 <p>Bombieri–Hejhal show that “almost all” statements about zeros of a
@@ -782,9 +898,24 @@ positivity. The analogy is structural, not a theorem of equivalence.</p>
 achievement</h3>
 <p>The programme’s achievement is not a proof of either wall. It is the
 map: the conversion theorem, the sharpness theorem, the finite-prefix
-theorem, the five-bridge refutation, the two-wall diagnosis, and the
-Lean core. The map is complete enough to tell a future researcher where
-not to dig.</p>
+theorem, the five-bridge refutation, the two-wall diagnosis, the Lean core,
+and the certified evaluator. The map is complete enough to tell a future
+researcher where not to dig.</p>
+<h3 id="f11-certified-evaluation-is-an-instrument-not-a-key">F11 — Certified
+evaluation is an instrument, not a key</h3>
+<p>Objective III supplies a rational rectangle containing <code>ζ(s)</code>,
+<code>ζ(s,a)</code> or <code>L(s,χ)</code>, with every rational operation
+recorded in a straight-line certificate, replayed by an independent checker,
+and checked in Lean. The interval algebra, certificate soundness, truncation
+transport, eta cos/sin split and transcendental enclosures are Lean-proved.
+But the evaluator is not a bridge: no theorem about either wall uses a
+certified enclosure as a hypothesis, and the final ζ enclosure depends
+on the Euler–Maclaurin identity and tail bound, which are now Lean-proved for
+<code>K ≥ 1</code>. Its
+contribution is that finite-scale claims can now be made exact and
+replayable instead of floating point. That strengthens the audit and the
+instrument kit; it does not decide an asymptotic statement. The open task is
+R13–R15 in <a href="#further-research">Further research</a>.</p>
 
 </section>
 <section id="significance"><h2>Significance</h2>
@@ -823,8 +954,8 @@ arithmetic positivity” can be used in the same sentence without
 equivocation.</p>
 <h3 id="5-a-correction-to-the-rhetoric-of-progress">5. A correction to
 the rhetoric of progress</h3>
-<p>The programme is a corrective to the rhetoric that more computation,
-more data, or more numerical zeros will close these problems. The
+<p>The programme is a corrective to the rhetoric that more numerical
+probing, more data, or more numerical zeros will close these problems. The
 finite-prefix theorem is a precise statement that they will not. This
 matters for how the subject is presented to students, funders, and the
 public.</p>
@@ -840,14 +971,28 @@ correction, the false ceiling law, the withdrawn barrier sentence, the
 015 dimension-law retraction. The errata are part of the significance. A
 research programme that hides its failures is less useful than one that
 maps them.</p>
+<h3 id="8-a-reusable-certified-computation-layer">8. A reusable certified
+computation layer</h3>
+<p>Objective III is a positive residue of the programme even though it does
+not move either wall. It gives an exact-rational interval engine, a
+straight-line certificate format, an independent replay checker, and a Lean
+soundness theorem, together with kernel-checked enclosures for
+<code>π</code>, <code>exp</code>, <code>log</code>, <code>sin</code> and
+<code>cos</code> and a closed ζ(2) replay. Any future finite-scale claim
+about <code>ζ</code>, <code>ζ(s,a)</code> or <code>L(s,χ)</code> can use
+this layer instead of floating point. The layer is honest about its
+boundary: the Euler–Maclaurin identity and the explicit tail bound have a
+written proof but are not Lean-formalised, and the evaluator is not yet a
+hypothesis in a theorem about a wall. That boundary is part of the significance, not a defect to hide.</p>
 
 </section>
 <section id="novelty"><h2>Novelty</h2>
 <p>The individual results are not all new. The conversion theorem, the
 Davenport–Heilbronn sharpness, the finite-prefix theorem, and the
-barrier ledger come from the two source corpora. The novelty of
-<code>the-final-letter/</code> is the synthesis and the
-formalisation.</p>
+barrier ledger come from the two source corpora; the evaluator is
+reconstructed from the third source. The novelty of
+<code>the-final-letter/</code> is the synthesis, the formalisation, and
+the integration of the computation layer.</p>
 <h3 id="n1--the-two-wall-diagnosis">N1 — The two-wall diagnosis</h3>
 <p>The claim that the Riemann wall and the parity wall are the same
 <em>kind</em> of wall — a missing global arithmetic positivity, not a
@@ -883,6 +1028,17 @@ what has been achieved and what has not, and it ends with a note on
 futility. The form is a deliberate rejection of the hype cycle that
 surrounds RH and twin primes. It is a literary and methodological
 novelty, not a mathematical one.</p>
+<h3 id="n7-a-certified-evaluator-inside-the-letters-argument">N7 — A
+certified evaluator inside the letter's argument</h3>
+<p>Objective III is not a new numerical method: Euler–Maclaurin, rational
+interval arithmetic, Machin's formula, and Taylor enclosures are standard.
+What is new here is the arrangement: the evaluator is reconstructed as a
+programme with a 35-row Lean ledger, a 14-row computation ledger, an
+independent certificate replay, kernel-checked transcendental enclosures,
+and an explicit boundary between the proved rational cell and the two
+analytic inputs, which have a written proof but are not Lean-formalised. The letter reads that layer as an instrument for
+finite-scale claims, not as a bridge. The integration is the novelty; the
+mathematics of the evaluator is inherited.</p>
 <h3 id="what-is-not-novel">What is not novel</h3>
 <ul>
 <li>The conversion theorem, the DH sharpness, the finite-prefix theorem,
@@ -892,6 +1048,9 @@ the source corpora.</li>
 literature or the source programmes.</li>
 <li>The two walls are known separately; only the unified diagnosis is
 new.</li>
+<li>The evaluator's algorithm and the transcendental enclosure methods are
+standard; the reconstruction and the integration are the contribution, not
+the invention of the method.</li>
 </ul>
 
 </section>
@@ -982,6 +1141,35 @@ finite prefix” meta-theorem</h4>
 — any predicate determined by finitely many values cannot imply a limit
 statement — would be a reusable no-go principle. It is not currently
 formalised.</p>
+<h4 id="r13-formalise-eulermaclaurin-and-the-explicit-tail-bound">R13.
+Formalise Euler–Maclaurin and the explicit tail bound</h4>
+<p>Objective III's rational cell is Lean-proved, but the identity that its
+replay value is <code>ζ(s,a)</code> (S1) and the explicit tail bound (S2) are now
+Lean-proved for <code>K ≥ 1</code>. What remains is to wire the general Lean
+S1/S2 theorem into the evaluator's certificate replay; the analytic content is
+formalised.</p>
+<p><strong>Why it matters:</strong> it is the only remaining gap between the
+evaluator and an unconditional certified enclosure of <code>ζ(s)</code>,
+<code>ζ(s,a)</code> and <code>L(s,χ)</code>.</p>
+<h4 id="r14-use-a-certified-enclosure-as-a-hypothesis">R14. Use a certified
+enclosure as a hypothesis</h4>
+<p>No theorem in the letter yet consumes a certified enclosure. Candidate
+targets are finite-window zero counts, interval Newton or bisection for
+zeros on a line, and rigorous evaluation of a truncated explicit formula.
+The point is not to replace the analytic proof but to remove floating point
+from a finite-scale step that a theorem actually cites.</p>
+<p><strong>Why it matters:</strong> this is the difference between an
+evaluator as a library and an evaluator as part of an argument.</p>
+<h4 id="r15-certify-enclosure-width-not-only-soundness">R15. Certify
+enclosure width, not only soundness</h4>
+<p><code>inflate</code> is sound for every <code>r ≥ 0</code>, so a
+certificate can always be widened. The recorded narrow widths are Python
+measurements, not Lean theorems. A width theorem — or a certificate format
+that records a target width and checks it — would make “the enclosure is
+narrow” a checkable claim rather than a measurement.</p>
+<p><strong>Why it matters:</strong> soundness without a width bound is
+enough for containment but not for the efficiency claims that make a
+certified evaluator useful.</p>
 <h3 id="what-not-to-do">What not to do</h3>
 <ul>
 <li><strong>Do not run more zeros.</strong> The finite-prefix theorem
@@ -998,6 +1186,12 @@ targets.</strong> Eleven of the 36 harvested items are recorded
 expectations, not commitments.</li>
 <li><strong>Do not restore X1–X6.</strong> The errata are part of the
 result.</li>
+<li><strong>Do not treat a zero inside an interval as a proof that a zero
+exists.</strong> The evaluator certifies containment, not a sign change or a
+zero count.</li>
+<li><strong>Do not quote a width that the Lean layer does not check.</strong>
+<code>inflate</code> is sound for every non-negative radius; the recorded
+narrow widths are measurements.</li>
 </ul>
 
 </section>
@@ -1052,7 +1246,9 @@ the correlation later; the perturbation has ℓ²-mass exactly
 <code>4</code>.</p>
 <p><strong>Why it is a wall.</strong> A finite computation can refute an
 asymptotic claim by finding a counterexample, but cannot establish the
-limit. The theorem is Lean-certified.</p>
+limit. The theorem is Lean-certified. Objective III is the finite
+instrument this wall permits: it certifies finite-scale values exactly,
+but it does not turn a finite certificate into a limit.</p>
 <p><strong>What would breach it.</strong> Nothing, for the finite-prefix
 method. It is a no-go result, not a conjecture. The only way past it is
 to use a global argument, not more prefix data.</p>
@@ -1249,6 +1445,18 @@ refute, not establish.</p>
 indeterminacy.</p>
 <p><strong>Verdict.</strong> Not a bridge. It is the proof that a
 certain class of bridges cannot exist.</p>
+<h3 id="b11--certified-evaluation-explicitly-not-a-bridge">B11 — Certified
+evaluation (explicitly not a bridge)</h3>
+<p><strong>What it would give.</strong> Rational enclosures of
+<code>ζ(s)</code>, <code>ζ(s,a)</code> and <code>L(s,χ)</code> with a
+replayable certificate. It gives exact finite-scale values, not an
+asymptotic statement.</p>
+<p><strong>Status.</strong> The rational cell, certificate replay, eta split
+and transcendental enclosures are Lean-proved; the Euler–Maclaurin identity
+and tail bound have a written proof but are not Lean-formalised. No wall theorem uses an enclosure as a
+hypothesis yet.</p>
+<p><strong>Verdict.</strong> Not a bridge. It is the instrument a future
+bridge can use, and the letter says so rather than promoting it.</p>
 <h3 id="bridge-ledger">Bridge ledger</h3>
 <table>
 <thead>
@@ -1331,16 +1539,25 @@ certain class of bridges cannot exist.</p>
 <td>no-go</td>
 <td>none</td>
 </tr>
+<tr>
+<td>B11 certified evaluation</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>proved finite layer; source-claim analytic inputs</td>
+<td>none (instrument)</td>
+</tr>
 </tbody>
 </table>
 <p>The table is the programme’s answer to “what are the possible
 bridges?”: there are several, but they all terminate at the same two
-walls. The bridges are real; the far banks are not.</p>
+walls. The bridges are real; the far banks are not. B11 is listed to make
+the negative claim explicit: a certified evaluator is an instrument, not a
+route across either wall.</p>
 
 </section>
 <section id="final-note"><h2>Final note</h2>
 <h3 id="what-has-been-achieved">What has been achieved</h3>
-<p>This programme has achieved five things.</p>
+<p>This programme has achieved six things.</p>
 <p><strong>1. A conversion.</strong> The Riemann hypothesis has been
 translated into an equality of supports of two measure families. The
 translation is complete. It does not prove the hypothesis, but it
@@ -1370,6 +1587,15 @@ development defines the two walls in Mathlib’s vocabulary, defines
 two-point Chowla, and proves the finite-prefix theorem in a form that
 connects the two programmes. The build is <code>[check] OK</code>, with
 no <code>sorry</code> and no <code>axiom</code>.</p>
+<p><strong>6. A certified computation layer.</strong> Objective III
+reconstructs the partial-sum-plus-tail evaluator as a programme: exact
+rational interval arithmetic, a straight-line certificate replayed by an
+independent checker, a Lean soundness theorem, the eta cos/sin split,
+kernel-checked transcendental enclosures, and a closed ζ(2) replay. It is
+the instrument the walls need, not a bridge across either. The
+Euler–Maclaurin identity and the explicit tail bound have a written proof but are not Lean-formalised,
+and no theorem about a wall yet uses a certified enclosure as a
+hypothesis.</p>
 <h3 id="what-has-not-been-achieved">What has not been achieved</h3>
 <p>The Riemann hypothesis is not proved. The twin-prime conjecture is
 not proved. Chowla for <code>k ≥ 2</code> is not proved. Sarnak’s
@@ -1384,7 +1610,9 @@ prefixes, more local estimates, more sign-blind rules, more density
 statements. Each of these can refute. None of them can establish the
 limit. The finite-prefix theorem is the precise form of that sentence
 for Chowla; the Davenport–Heilbronn theorem is the precise form of it
-for the additive RH toolbox.</p>
+for the additive RH toolbox. The certified evaluator is not a
+counterexample to that sentence: it makes finite claims exact, but it
+does not make a finite claim asymptotic.</p>
 <p>The wall is not a mistake in the proof. The wall is the proof that
 the method has reached its edge.</p>
 <p>This is why the final letter is a letter of resignation — not from
@@ -1395,7 +1623,9 @@ house.</p>
 <p>The two walls remain. OP-19 remains. Weil positivity remains. F.4
 remains. <code>Λ=0</code> remains. The Jensen/Li tower remains. The
 conversion remains an equivalence, not a proof. The finite-prefix
-theorem remains a no-go, not a victory.</p>
+theorem remains a no-go, not a victory. The evaluator's Euler–Maclaurin
+identity and tail bound have a written proof but remain unformalised in Lean, and no wall theorem consumes
+a certified enclosure yet.</p>
 <p>But something remains that was not there before: a precise map of
 where the walls are, what they are made of, which bridges fail and why,
 and what a future bridge would have to consume. A map is not a key, but
@@ -1407,8 +1637,8 @@ location.</p>
 <blockquote>
 <p>The Riemann hypothesis and the twin-prime conjecture are not behind a
 computation. They are behind an arithmetic positivity that the local
-methods cannot manufacture. We have proved the absence of the local key,
-and drawn the shape of the lock.</p>
+methods cannot manufacture. We have proved the absence of the local key
+for the methods surveyed here, and drawn the shape of the lock.</p>
 </blockquote>
 <p>That is what has been achieved. The futility is that the lock is
 still locked.</p>
@@ -1418,6 +1648,7 @@ still locked.</p>
 <p>The synthesis carries local copies of the two evidence annexes, the archived sources it cites, and the Lean development, so the folder can be read without the rest of the site. Layout and caveats: <a href="EVIDENCE.md">EVIDENCE.md</a>.</p><ul>
 <li><a href="summary/README.md">summary/</a> — the Riemann programme: 104 canonical statements, 90 frozen truths, the tensor refutation, the working notes, the archive.</li>
 <li><a href="summary-rh/README.md">summary-rh/</a> — the parity programme: 13 ledger sections, 15 papers, 19 OPs, 36 open items, the Lean audit.</li>
+<li><a href="topics/partial-sum-plus-tail/index.html">topics/partial-sum-plus-tail/</a> — Objective III: the certified evaluator, its theorem and computation ledgers, and its Lean build.</li>
 <li><a href="lean/FinalLetter/Synthesis.lean">FinalLetter/Synthesis.lean</a> — the new Lean synthesis.</li>
 <li><a href="TABLE-OF-CONTENTS.md">TABLE-OF-CONTENTS.md</a> — the complete file-level index.</li>
 <li><a href="STATUS.md">STATUS.md</a> — the status ledger.</li>
@@ -1431,5 +1662,5 @@ still locked.</p>
 # [check] OK FinalLetter.lean</pre>
 <p class="meta">Built with the same Lean 4 + Mathlib installation as <code>~/workspace/rh</code>. No <code>sorry</code>; no <code>axiom</code>.</p>
 </section>
-<div class="final"><p><strong>The last sentence.</strong> The Riemann hypothesis and the twin-prime conjecture are not behind a computation. They are behind an arithmetic positivity that the local methods cannot manufacture. We have proved the absence of the local key, and drawn the shape of the lock.</p><p>That is what has been achieved. The futility is that the lock is still locked.</p></div>
+<div class="final"><p><strong>The last sentence.</strong> The Riemann hypothesis and the twin-prime conjecture are not behind a computation. They are behind an arithmetic positivity that the local methods cannot manufacture. We have proved the absence of the local key for the methods surveyed here, and drawn the shape of the lock.</p><p>That is what has been achieved. The futility is that the lock is still locked.</p></div>
 </body></html>

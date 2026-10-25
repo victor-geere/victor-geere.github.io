@@ -73,7 +73,7 @@ Every **Theorem** row is proved in [`lean/Topic.lean`](lean/Topic.lean) with no 
 | T6 | Theorem | Finite determinant of Lemma 4.1: `det(I − A_k) = (1 − c_{s,0}(N))^{k+1}`. | `HCHP.det_one_sub_A` |
 | T7 | Theorem | The characteristic polynomial of a real symmetric `2 × 2` matrix splits over `ℝ` into real roots `(a+d ± √disc₂)/2`. | `HCHP.hermitian2_charpoly_splits` |
 | C1 | Computation | Exact truncated weights, including the empty sum `N = 0`. | `test_weight_exact_values_and_empty_sum` |
-| C2 | Computation | `entry` reproduces source equation (2), and is exactly zero below the diagonal. | `test_entry_matches_source_formula_and_below_diagonal` |
+| C2 | Computation | `entry` reproduces source equation (2) up to the extra `j = 0` term in the truncation (the source sums `j = 1..∞`), and is exactly zero below the diagonal. | `test_entry_matches_source_formula_and_below_diagonal` |
 | C3 | Computation | `A_k` is upper triangular, has constant diagonal, and `tr A_k = (k+1)c`. | `test_matrix_A_upper_triangular_and_constant_diagonal` |
 | C4 | Computation | `det A_k = c^{k+1}` and `det(I − A_k) = (1 − c)^{k+1}` for exact rational `s`. | `test_det_A_and_det_one_minus_A_closed_forms` |
 | C5 | Computation | A real symmetric `2 × 2` matrix has non-negative discriminant and real roots with `tr = a+d`, `det = ad − b²`. | `test_symmetric_2x2_real_spectrum` |
@@ -121,7 +121,7 @@ cd the-final-letter/topics/harmonic-categorical-hilbert-polya
 python3 -m pytest -q tests
 ```
 
-Recorded result: **7 passed** (about 10 s on the development machine).
+Recorded result: **7 passed** (about 1 s on the development machine).
 
 ## Lean layer and how to run it
 

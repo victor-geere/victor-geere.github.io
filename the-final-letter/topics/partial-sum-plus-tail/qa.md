@@ -28,8 +28,9 @@ The checkable cell is `add`, `sub`, `neg`, `scale`, `mul`, `inflate` over `ℚ` 
 elementary ordered-field algebra. Everything specifically number-theoretic sits
 in the atoms: the input `s`, the transcendental enclosures, and above all the
 Euler–Maclaurin decomposition (S1) and its tail bound (S2), which the page
-leaves as source claims. Twenty-five of the thirty-one ledger rows (T1–T25) are
-about the container; the contents are trusted by hypothesis.
+leaves as source claims. Twenty-five of the thirty-five ledger rows (T1–T25) are
+about the container; the contents are trusted by hypothesis. The elementary
+S3–S5 are now T33–T35; S1–S2 have a written proof but are not Lean-formalised.
 
 *If the kernel-checked spine would remain true for an arbitrary series and an
 arbitrary tail bound, what exactly has been certified about ζ — and why was the
@@ -129,17 +130,16 @@ does it certify?*
 
 ## 10. What does "no axiom" cover, and who keeps the ledger honest?
 
-S7 names `native_decide` as the checker of each replay's rational cell. That
+The dossier's former S7 named `native_decide` as the checker of each replay's rational cell. That
 tactic trusts compiled evaluation (`Lean.ofReduceBool`), so the blanket "no
 `sorry`, no `axiom`, no `admit`" holds for `wf_sound` and the interval lemmas but
 not, without qualification, for each accepted certificate. Meanwhile the page's
-Lean-layer paragraph lists four files and cites `lean/BUILD.log` — which records
-five, including `Transcend.lean`, and omits `lean/ReplayAtoms.lean`, which
-already contains the atom wiring the open items describe as future work.
+Lean-layer paragraph and `lean/BUILD.log` must stay in sync as the development
+grows; they now list seven files, including `SourceClaims.lean`.
 
 *What is the trust budget when `native_decide` is in the loop, and what
-maintenance discipline keeps a ledger of 31 theorems, 14 tests, 7 source claims
-and 4 open items in sync with the artefacts it indexes — given that this page has
+maintenance discipline keeps a ledger of 35 theorems, 14 tests, 2 unresolved
+source claims and 6 open items in sync with the artefacts it indexes — given that this page has
 already drifted from its own build log?*
 
 ---

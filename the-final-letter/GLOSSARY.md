@@ -18,6 +18,11 @@
 | **Λ** | de Bruijn–Newman constant; RH is `Λ=0`; known `0≤Λ≤0.22`. |
 | **Jensen/Li tower** | Hyperbolicity of all Jensen polynomials / non-negativity of all Li coefficients; equivalent to RH. |
 | **CERTIFIED** | Rigorous finite-window interval certificate; not an asymptotic theorem. |
+| **Objective III** | The programme's positive computation layer: a certified partial-sum-plus-tail evaluator for `ζ`, `ζ(s,a)` and `L(s,χ)`. |
+| **Rational interval** | A pair of rationals `[lo, hi]` containing a real value; the evaluator's exact arithmetic domain. |
+| **Certificate** | A straight-line record of rational interval operations, replayed by an independent checker and kernel-checked in Lean. |
+| **Source claim** | A statement asserted by the source but not formalised here; it is recorded, not adopted as a theorem. |
+| **Instrument, not a bridge** | A tool that makes finite-scale claims exact without supplying an asymptotic input; Objective III is the programme's instrument. |
 | **`sorry` / `axiom`** | Lean placeholders/assumptions; the `FinalLetter` build has none. |
 | **`native_decide`** | A decision procedure with an axiom footprint; eight `Rh41` theorems use it, none in `FinalLetter`. |
 

@@ -1,6 +1,6 @@
 # Frozen truths — research programme
 
-**Status:** reconstructed elementary formal core + exact computation layer; the ninety archived claims are preserved separately and none is promoted to a theorem.  
+**Status:** reconstructed elementary formal core + exact computation layer; the ninety archived claims are preserved separately; five appear as the finite theorems T1–T5, and the rest are recorded as source claims or open items.  
 **Source:** [`truths.md`](../../geometric-dynamical-phase-transitions/truths.md) (site root copy; bundle copy at [`geometric-dynamical-phase-transitions/truths.md`](../../geometric-dynamical-phase-transitions/truths.md)).  
 **Inventory:** [Scraps](../../scraps.html) item 5 · [Topic index](../README.md).
 
@@ -102,7 +102,7 @@ Run the tests from the repository root:
 python3 -m pytest the-final-letter/topics/frozen-truths/tests -q
 ```
 
-Recorded result: **7 passed in 0.90s**.
+Recorded result: **7 passed in 0.95s**.
 
 ## Lean layer
 
@@ -112,7 +112,7 @@ Recorded result: **7 passed in 0.90s**.
 the-final-letter/topics/frozen-truths/lean/check.sh
 ```
 
-Recorded build: [`lean/BUILD.log`](lean/BUILD.log) — `[check] OK Topic.lean (7s)`.
+Recorded build: [`lean/BUILD.log`](lean/BUILD.log) — `[check] OK Topic.lean (5s)`.
 
 See [`lean/README.md`](lean/README.md) for the exact theorem list and the formalisation limits.
 

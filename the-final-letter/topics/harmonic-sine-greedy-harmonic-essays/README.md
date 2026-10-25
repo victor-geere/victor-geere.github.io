@@ -6,7 +6,7 @@
 
 ## Provenance and what this folder is
 
-The inventory marks item 38 as *essay versions; duplicates items 15 and 17* and as an *archived claim superseded*. The source is one of those essay versions: a nine-section manuscript that opens with the harmonic reconstruction of `sin`, then builds a “zeta bridge”, an energy functional, an extended Matomäki–Radziwiłł discorrelation estimate, a “harmonic sheaf”, and finally a claimed proof of the Riemann hypothesis. The first line of the document retracts the claim and points to a “Version 2”.
+The inventory tags item 38 as *archived claim* and *superseded*; it does not describe it as a duplicate of items 15 and 17. The source is one of those essay versions: a nine-section manuscript that opens with the harmonic reconstruction of `sin`, then builds a “zeta bridge”, an energy functional, an extended Matomäki–Radziwiłł discorrelation estimate, a “harmonic sheaf”, and finally a claimed proof of the Riemann hypothesis. The first line of the document retracts the claim and points to a “Version 2”.
 
 What is genuine and self-contained in the source is the **finite harmonic-sine core**:
 
@@ -52,7 +52,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C2 | Computation | The corrected residual bound `0 ≤ r N/π ≤ 1/(N+1)` holds on a rational grid for `N ≤ 300`; the source's `1/(N+2)` fails at `N = 1`, `x = 2/5`. | `test_residual_bound_correct_form` |
 | C3 | Computation | At `θ = α n` (i.e. `x = 1/(n+2)`) no earlier index is selected and index `n` is, for `n ≤ 12`. | `test_own_angle_selected` |
 | C4 | Computation | The fusion step preserves `s² + c² = 1` and equals `(sin(θ+a), cos(θ+a))` exactly; zero rotation is the identity. | `test_fusion_preserves_unit_circle` |
-| C5 | Computation | Reconstruction of `sin(π x)` from the exact greedy word at 300 terms agrees to `10⁻¹²` on a five-point grid including `x = 0, 1`. | `test_reconstruction_convergence` |
+| C5 | Computation | Reconstruction of `sin(π x)` from the exact greedy word at 300 terms agrees to `π/301 + 10⁻¹²` on a five-point grid including `x = 0, 1`. | `test_reconstruction_convergence` |
 | C6 | Computation | Erratum: at `θ = π` the word is `1,1,0,0,1,0,…` (only indices 0, 1, 4), so `Φ(2,π) = 7/18 ≠ ζ(2) − 1`. | `test_pi_target_sparse_erratum` |
 | C7 | Computation | The accumulated angle satisfies `0 ≤ θ N ≤ θ` on a 41-point grid for `N ≤ 400`. | `test_accumulated_never_overshoots` |
 
@@ -94,7 +94,7 @@ These are precise statements that remain unresolved. None is used as a theorem.
 2. **`θ = π` does not select every index.** Proposition 4.4 argues that because `Σ α_n` diverges the residual always exceeds `α_n`. That inference is invalid: the greedy rule instead stops taking once the accumulated angle reaches `π`. Exactly `α_0 + α_1 + α_4 = π/2 + π/3 + π/6 = π`, so the word is `1,1,0,0,1,0,0,…` and `Φ(s,π)` is a three-term sum. The claimed zeta bridge `Φ(s,π) = ζ(s) − 1` therefore fails at the one angle where the source claims to verify it directly. C6 checks this exactly.
 3. **Selection-density lemma ignores early termination.** For `x = 5/6 = 1/2 + 1/3` the greedy word is `1,1,0,0,…` and the selection count is 2 for every `N`, contradicting `x log(N+2) + O(1)`. The lemma is plausible only for targets that are not finite harmonic sub-sums.
 4. **The RH argument is non sequitur even on its own terms.** Step 4 of Theorem 8.1 infers that `H¹` *must* vanish because `ζ` is meromorphic, while the preceding step asserts `H¹ ≠ 0`. Oka–Cartan vanishing is a theorem about Stein manifolds; it does not supply the missing implication from zeta's analytic continuation to the vanishing of a cohomology group attached to an undefined sheaf. The source retracts the conclusion; the inventory marks it superseded.
-5. **Duplicate material.** Inventory item 38 duplicates the harmonic-sine essay versions (item 15) and the Harmonic Sine Transform material (item 17). This reconstruction cites the archived essay-level file as the designated source and does not treat the duplicates as independent evidence.
+5. **Superseded material.** Inventory item 38 is tagged *archived claim / superseded*. This reconstruction cites the archived essay-level file as the designated source; it is not treated as independent evidence for any claim.
 
 ## Python layer
 

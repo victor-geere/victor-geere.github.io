@@ -59,7 +59,7 @@ def test_sinc_taylor_moments():
 
 
 def test_invalid_taylor_orders_raise():
-    """Edge case: negative orders are rejected by the moment bookkeeping."""
+    """C5: negative orders are rejected by the moment bookkeeping."""
     with pytest.raises(ValueError):
         sinc_taylor_coeff(-1)
     with pytest.raises(ValueError):
@@ -69,7 +69,7 @@ def test_invalid_taylor_orders_raise():
 
 
 def test_kosters_kernel_diagonal_and_modulus_squared():
-    """C5: the phase factor normalises to one on the diagonal and has unit
+    """C6: the phase factor normalises to one on the diagonal and has unit
     modulus, so |K(mu,nu)|^2 = sinc(mu-nu)^2."""
     assert sp.simplify(kosters_kernel(2, 2) - 1) == 0
     kernel = kosters_kernel(MU, NU)
@@ -78,7 +78,7 @@ def test_kosters_kernel_diagonal_and_modulus_squared():
 
 
 def test_shifted_moment_bookkeeping():
-    """C6: a finite shifted-moment matrix is Hermitian with unit diagonal and
+    """C7: a finite shifted-moment matrix is Hermitian with unit diagonal and
     the correct modulus on every entry."""
     shifts = [0, sp.Rational(1, 3), sp.Rational(1, 2), 1]
     ledger = moment_ledger(shifts)
@@ -88,7 +88,7 @@ def test_shifted_moment_bookkeeping():
 
 
 def test_sinc_positivity_on_open_unit_interval():
-    """C7: sinc is positive on (0, 1)."""
+    """C8: sinc is positive on (0, 1)."""
     tol = sp.Float("1e-30")
     for k in range(1, 20):
         value = sp.N(sinc(sp.Rational(k, 20)), 40)

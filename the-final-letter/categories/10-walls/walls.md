@@ -26,7 +26,7 @@ A wall is a place where a method class reaches a proved or structural limit. The
 
 **What it blocks.** No finite prefix of values can decide an asymptotic correlation statement. The finite-prefix indeterminacy theorem makes this precise for two-point Chowla: a function can agree with `λ` on `[1,a)` and change the correlation later; the perturbation has ℓ²-mass exactly `4`.
 
-**Why it is a wall.** A finite computation can refute an asymptotic claim by finding a counterexample, but cannot establish the limit. The theorem is Lean-certified.
+**Why it is a wall.** A finite computation can refute an asymptotic claim by finding a counterexample, but cannot establish the limit. The theorem is Lean-certified. Objective III is the finite instrument this wall permits: it certifies finite-scale values exactly, but it does not turn a finite certificate into a limit.
 
 **What would breach it.** Nothing, for the finite-prefix method. It is a no-go result, not a conjecture. The only way past it is to use a global argument, not more prefix data.
 

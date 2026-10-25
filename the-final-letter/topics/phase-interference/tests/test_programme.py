@@ -80,6 +80,8 @@ def test_kernel_matrix_symmetric_and_psd():
     assert form.is_nonnegative is True
     with pytest.raises(ValueError):
         is_positive_semidefinite(sp.Matrix([[1, 2]]))
+    # Leading principal minors are not enough for semidefiniteness.
+    assert is_positive_semidefinite(sp.Matrix([[0, 0], [0, -1]])) is False
 
 
 def test_phase_unit_modulus_and_trivial_phase():

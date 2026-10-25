@@ -59,7 +59,7 @@ does **not** define or prove:
    quantum prisoners' dilemma.** These are source theorems in the archived
    entry and are recorded as source claims, not as theorems of this
    reconstruction.
-8. **The AFP corpus as a whole.** The corpus has 976 entries and 10,068 theory
+8. **The AFP corpus as a whole.** The corpus has 972 entries and 10,068 theory
    files; this dossier inspects one entry (`Isabelle_Marries_Dirac`) and only a
    small part of it. Nothing outside that entry was surveyed.
 

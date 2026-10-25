@@ -90,7 +90,7 @@ def test_actual_greedy_digits_are_not_monotone():
 
 
 def test_edge_cases():
-    """C7: rejects bad indices, handles size zero and equal indices."""
+    """C8: rejects bad indices, handles size zero and equal indices."""
     for n in (-1, -5):
         with pytest.raises(ValueError):
             alpha(n)
@@ -108,7 +108,7 @@ def test_edge_cases():
 
 
 def test_true_greedy_kernel_matches_archived_small_values():
-    """C8: the actual greedy kernel differs from the step model.
+    """C7: the actual greedy kernel differs from the step model.
 
     The exact values agree with the archive's own negative-result note
     ``vanishing_result.md``: K(0,0)=π/12, K(1,1)=2π/9, K(0,1)=−7π/72,

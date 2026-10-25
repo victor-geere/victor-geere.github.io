@@ -24,7 +24,7 @@ The programme gives a shared vocabulary for two fields that usually do not talk 
 
 ## 5. A correction to the rhetoric of progress
 
-The programme is a corrective to the rhetoric that more computation, more data, or more numerical zeros will close these problems. The finite-prefix theorem is a precise statement that they will not. This matters for how the subject is presented to students, funders, and the public.
+The programme is a corrective to the rhetoric that more numerical probing, more data, or more numerical zeros will close these problems. The finite-prefix theorem is a precise statement that they will not. This matters for how the subject is presented to students, funders, and the public.
 
 ## 6. A pedagogical map
 
@@ -33,5 +33,9 @@ The two-wall map is a teaching device. It shows what a proof of RH would have to
 ## 7. A record of failure, kept honestly
 
 The programme keeps its errors: X1–X6, the `O(1/p)` correction, the false ceiling law, the withdrawn barrier sentence, the 015 dimension-law retraction. The errata are part of the significance. A research programme that hides its failures is less useful than one that maps them.
+
+## 8. A reusable certified computation layer
+
+Objective III is a positive residue of the programme even though it does not move either wall. It gives an exact-rational interval engine, a straight-line certificate format, an independent replay checker, and a Lean soundness theorem, together with kernel-checked enclosures for `π`, `exp`, `log`, `sin` and `cos` and a closed ζ(2) replay. Any future finite-scale claim about `ζ`, `ζ(s,a)` or `L(s,χ)` can use this layer instead of floating point. The layer is honest about its boundary: the Euler–Maclaurin identity and the explicit tail bound have a written proof but are not Lean-formalised, and the evaluator is not yet a hypothesis in a theorem about a wall. That boundary is part of the significance, not a defect to hide.
 
 [Back to README](README.md) · [Back to index](../../index.html)

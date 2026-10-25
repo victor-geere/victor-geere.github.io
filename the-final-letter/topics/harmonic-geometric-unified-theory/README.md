@@ -60,7 +60,7 @@ Every **Theorem** row is proved in [`lean/Topic.lean`](lean/Topic.lean) with no 
 | C4 | Computation | For every non-trivial `k/17`, the first denominator is `ceil(1/r)`, the denominators strictly increase, and the expansion reconstructs `r` exactly. | `test_greedy_egyptian_is_greedy_and_distinct` |
 | C5 | Computation | Edge cases: `0`, `1`, negative and `> 1` inputs are rejected; `1/7` terminates in one step; `63/64` reconstructs exactly. | `test_greedy_egyptian_edge_cases` |
 | C6 | Computation | The stated phase durations total `(72, 108)` months, so the plan's maximum exceeds the `36`-month horizon and the phases must overlap. | `test_phase_table_arithmetic` |
-| C7 | Computation | The milestone years cover phases 1–6 exactly once; Phase 7 is absent; the four open problems are ranked as stated. | `test_milestones_and_open_problems` |
+| C7 | Computation | The milestone years cover phases 1–6 exactly once; Phase 7 is absent; `open_problems()` returns four non-empty strings with “Monotonicity” second. The source's stated ranking is not checked. | `test_milestones_and_open_problems` |
 
 “All theorems are proved” means: T1–T7 have Lean declarations and C1–C7 have tests. The source's analytic claims are not in this count.
 

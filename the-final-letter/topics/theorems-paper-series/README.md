@@ -100,7 +100,7 @@ a theorem of this reconstruction.
 | # | Claim (source label) | Archived status | Reconstruction note |
 |---|---|---|---|
 | S1 | Greedy harmonic expansion `x = Σ δ_n/(n+2)` (Thm 1.5) | Source theorem, proof sketch | The finite invariant T5 is proved; the limit `r_N → 0` is not formalised. |
-| S2 | Super-exponential sparsity `n_{k+1} ≥ n_k(n_k−1)` (Thm 1.6) | Archived claim | The proof's key strict inequality is invalid (E5). Only its arithmetic tail is tested (C6). Not adopted. |
+| S2 | Super-exponential sparsity `n_{k+1} ≥ n_k(n_k−1)` (Thm 1.6) | Archived claim | The printed proof contains a sign typo (E5), so the sparsity claim is not established by it. Only its arithmetic tail is tested (C6). Not adopted. |
 | S3 | Digit monotonicity (Thm 1.7) | **Refuted here** | Exact counterexample C7. The greedy word is not monotone in the target. |
 | S4 | Threshold representation `δ_n(θ) = 1[θ ≥ θ_n*]` (Thm 1.9) | **Refuted as stated** | Depends on S3. For `n = 1` the infimum is `1/3`, yet `δ_1(1/2) = 0` although `1/2 ≥ 1/3` (E3). |
 | S5 | Closed-form correlation kernel (Thm 1.14) | Archived claim, internally inconsistent | At `n = 0` the stated diagonal `(π/12)(1 − 3/(n+2))` equals `−π/24 < 0`, impossible for a Gram-matrix diagonal; it also disagrees with the diagonal kernel of item 11, `(t³ + (π−t)³)/(3π²) = π/12` at `t = π/2` (E4). |
@@ -121,16 +121,17 @@ a theorem of this reconstruction.
   `δ_1(999/2000) = 1` while `δ_1(1/2) = 0`: at `1/2` the first fraction is
   taken, leaving remainder `0`; just below `1/2` the first fraction is skipped,
   so the second one fits. C7 checks this exactly.
-- **E3 — Theorem 1.9(2) is false.** `δ_1(x) = 1` exactly on `[1/3, 1/2)`, so
-  `θ_1* = 1/3`; but `δ_1(1/2) = 0`, contradicting the claimed up-set
-  `{θ : δ_1(θ) = 1} = [θ_1*, π]`.
+- **E3 — Theorem 1.9(2) is false.** `δ_1(x) = 1` on `[1/3, 1/2) ∪ [5/6, 1]`
+  (check `δ_1(0.9) = 1`), so the digit set is not the interval `[1/3, π]`
+  claimed as an up-set. In particular `δ_1(1/2) = 0` although `1/2 ≥ 1/3`.
 - **E4 — Theorem 1.14 is inconsistent.** The stated diagonal formula is
   negative at `n = 0` and disagrees with the direct threshold integral. The
   "proof sketch" defers the computation to a companion paper.
-- **E5 — Theorem 1.6's proof has an invalid step.** It writes
-  `r_m < r_{m−1} − 1/(m+2)` although the algorithm gives equality, and the
-  claimed lower bound on `m'` does not follow. The super-exponential claim is
-  left open here, not refuted.
+- **E5 — Theorem 1.6's proof contains a sign typo, not an invalid step.** It
+  writes `r_m < r_{m−1} − 1/(m+2)` although the algorithm gives equality; the
+  intended symbol is `=`. Read literally the line is false, but the repair is
+  clerical, and the printed argument still does not establish the claimed lower
+  bound on `m'`. The super-exponential claim is left open here, not refuted.
 - **E6 — §3.3 Step 4 is a non sequitur.** From `ρ − 1/2 ∈ spec(J_{1/2}) ⊂ ℝ`
   the paper concludes `Im ρ = 0` *or* `Re ρ = 1/2`. An element of `ℝ` has zero
   imaginary part, so the argument yields `Im ρ = 0` (impossible for a

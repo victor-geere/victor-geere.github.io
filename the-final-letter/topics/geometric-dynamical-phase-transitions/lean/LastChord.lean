@@ -1,7 +1,7 @@
 import Mathlib
 
 /-!
-# Geometric DQPT — asymptotic breakthrough
+# Geometric DQPT — asymptotic last-chord dichotomy
 
 This file proves the first asymptotic form of the last-chord dichotomy:
 the critical-line twin tends to `1/2`, and the right-half twin tends to `0`.

@@ -9,7 +9,8 @@ decomposition into a finite partial sum and an explicit tail.  This file proves
 the transport core of that decomposition and the cos/sin split of the eta
 partial sums.  The rational interval algebra and the certificate replay are in
 `IBox.lean` and `Expr.lean`; the analytic enclosures for `π`, `log`, `exp`,
-`sin`, `cos` remain the trusted leaves documented in `README.md`.
+`sin`, `cos` are proved in `Transcend.lean`. The Euler–Maclaurin decomposition
+and the tail bound remain source claims.
 -/
 
 noncomputable section

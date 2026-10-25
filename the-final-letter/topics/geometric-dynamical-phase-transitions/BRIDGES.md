@@ -24,7 +24,7 @@ Nothing here proves the Riemann hypothesis. The conversion `supp μ = supp ν �
 | B10 | Formalisation gap: Euler–Maclaurin, Rouché, tightness, measure limits, conversion | Not formalised | The exact algebraic skeleton (filter, last chord, clock zeros, prefactor, local diagonal) is now formalised; the analytic estimates are not | **Partially bridged** |
 | B11 | O3 algebraic separator: Davenport–Heilbronn word | Used as the litmus; coefficient algebra not formalised | `dhCoeff_odd`, `dhCoeff_mean_zero`, `dhCoeff_five`: the period-five word `(1,ξ,−ξ,−1,0)` is odd, mean-zero, and vanishes on the class `5` | **Reduced algebraically**; non-vanishing in `σ>1` remains the analytic (M) input |
 | B12 | Complex last-chord product | Only the absolute size was formalised | `lastChord_mul_twin_complex`: `H_N(s)H_N(1−s)=(N−1)²/(4N²)` for complex `s` | **Closed** |
-| B13 | Asymptotic last-chord dichotomy | Algebraic product only; no limit theorem | `lastChordAbs_half_tendsto`, `lastChordAbs_tendsto_zero_of_half_lt`, `lastChordAbs_tendsto_atTop_of_lt_half`, `lastChordAbs_dichotomy`: `L_N(1/2)→1/2`, `σ>1/2⇒L_N(σ)→0`, `σ<1/2⇒L_N(σ)→∞`, and the twins are opposite | **Breakthrough** |
+| B13 | Asymptotic last-chord dichotomy | Algebraic product only; no limit theorem | `lastChordAbs_half_tendsto`, `lastChordAbs_tendsto_zero_of_half_lt`, `lastChordAbs_tendsto_atTop_of_lt_half`, `lastChordAbs_dichotomy`: `L_N(1/2)→1/2`, `σ>1/2⇒L_N(σ)→0`, `σ<1/2⇒L_N(σ)→∞`, and the twins are opposite | **Proved** |
 | B14 | Quantitative ratio | Only the qualitative dichotomy | `lastChordAbs_ratio`: `L_N(σ)/N^(1-2σ)=1/2-1/(2N)` exactly | **Closed** |
 | B15 | Register transfer operator (F.4) | Register weights known negative, but no transfer-matrix statement | Exact bond-dimension-2 register matrix product; top-right is the polygon; coupling at `m=N` is `(1-N)N^{-s}<0` for every real `s`; hence the register chain is not ferromagnetic | **Decisive no-go** for the register-only representation; interacting F.4 remains open |
 | B16 | Heat-flow derivative | Only the `τ=0` identity was implemented | `heat_flow_derivative`: `∂_τ P_τ(s)|_{τ=0}=Σ c_m(log m)²m^{-s}`, verified against sympy differentiation | **Computation-level bridge** |
@@ -125,9 +125,9 @@ python3 -m pytest -q tests
 ./lean/check.sh
 ```
 
-Recorded: **55 pytest tests**, `[check] OK` for `Topic.lean`, `Bridges.lean`, `Breakthrough.lean`, `TransferNoGo.lean`, and `Tractable.lean`.
+Recorded: **55 pytest tests**, `[check] OK` for `Topic.lean`, `Bridges.lean`, `LastChord.lean`, `TransferNoGo.lean`, and `Tractable.lean`.
 
-## Breakthrough: asymptotic last-chord dichotomy
+## Asymptotic last-chord dichotomy
 
 The exact product was upgraded to a limit theorem. For fixed `σ`:
 
@@ -135,9 +135,9 @@ The exact product was upgraded to a limit theorem. For fixed `σ`:
 - `σ > 1/2`: `L_N(σ) → 0` and `L_N(1−σ) → ∞`;
 - `σ < 1/2`: `L_N(σ) → ∞` and `L_N(1−σ) → 0`.
 
-This is the analytic content of the twin dichotomy in `truths.md` 11.5. It does not prove RH: it shows that an off-line zero necessarily produces one collapsing and one blowing-up twin, which is precisely why the support equality remains the open statement. The Lean proofs are in `lean/Breakthrough.lean`; the exact ratio is `lastChordAbs_ratio`, and the numeric classes are tested at `N=10^10`.
+This is the analytic content of the twin dichotomy in `truths.md` 11.5. It does not prove RH: it shows that an off-line zero necessarily produces one collapsing and one blowing-up twin, which is precisely why the support equality remains the open statement. The Lean proofs are in `lean/LastChord.lean`; the exact ratio is `lastChordAbs_ratio`, and the numeric classes are tested at `N=10^10`.
 
-## Breakthrough 2: register transfer no-go
+## Register transfer no-go
 
 The register chain can be written exactly as a bond-dimension-2 matrix product:
 

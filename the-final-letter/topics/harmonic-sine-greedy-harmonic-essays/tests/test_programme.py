@@ -84,7 +84,7 @@ def test_fusion_preserves_unit_circle():
 
 
 def test_reconstruction_convergence():
-    # Greedy-word reconstruction of sin(π x); stated tolerance 1e-12.
+    # Greedy-word reconstruction of sin(π x); stated tolerance π/301 + 1e-12.
     for x in (sp.Rational(0), sp.Rational(1, 7), sp.Rational(1, 2),
               sp.Rational(9, 10), sp.Rational(1)):
         approx = reconstruct_sine(x, 300, dps=50)

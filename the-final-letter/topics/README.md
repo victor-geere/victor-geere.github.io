@@ -51,8 +51,8 @@ The table also carries the three programme objectives: item 1 (Riemann wall), it
 | 41 | p-adic and stochastic zeta | adjacent | [padic-stochastic-zeta](padic-stochastic-zeta/README.md) | [`archive/essays/p-adic.html`](../archive/essays/p-adic.html) |
 | 42 | Sinc, sine kernel, moments | adjacent | [sinc-sine-kernel-moments](sinc-sine-kernel-moments/README.md) | [`archive/essays/sinc-zeta.html`](../archive/essays/sinc-zeta.html) |
 | 43 | Factorisation and theta | speculative | [factorisation-theta](factorisation-theta/README.md) | [`archive/essays/factorisation-theta-zeta.html`](../archive/essays/factorisation-theta-zeta.html) |
-| 44 | Finance / trading ebooks | out of scope | [finance-trading](finance-trading/README.md) | [`archive/ebooks/index.html`](../archive/ebooks/index.html) |
-| 45 | Partial sum plus tail (Objective III) | harvested | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | `~/workspace/rh/research/twin-prime-parity/012/` |
+| 44 | Finance / trading ebooks | separate scope (outside the RH programme) | [finance-trading](finance-trading/README.md) | [`archive/ebooks/index.html`](../archive/ebooks/index.html) |
+| 45 | Partial sum plus tail (Objective III) | harvested — integrated as Objective III | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | `~/workspace/rh/research/twin-prime-parity/012/` |
 
 ## How to use these folders
 

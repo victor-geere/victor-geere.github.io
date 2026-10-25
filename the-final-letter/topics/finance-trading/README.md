@@ -11,11 +11,13 @@ The archived source is a 1.6 KB table of contents, not a paper. It lists fourtee
 
 | Linked document | Content | Status of the document |
 |---|---|---|
+| [`math-rigour.html`](../../archive/ebooks/math-rigour.html) | Mathematical rigour: definitions, notation, proof conventions | Expository; entry 1 of the index |
 | [`continuous-lattice.html`](../../archive/ebooks/continuous-lattice.html) | Binomial lattice, action sums, continuous-time/Malliavin sketch | Authored by “Grok 3, Built by xAI”; expository |
-| [`fractional-kelly.html`](../../archive/ebooks/fractional-kelly.html) | Volatility drag, fractional Kelly, FX rebalancing | AI-generated long-form ebook with interactive simulation |
+| [`fractional-kelly.html`](../../archive/ebooks/fractional-kelly.html) | Volatility drag, fractional Kelly, FX rebalancing | AI-generated long-form ebook; **unlisted in the source index** |
 | [`volatility-drag.html`](../../archive/ebooks/volatility-drag.html) | The `μ/σ²` metric and the `g ≈ μ − σ²/2` approximation | AI-generated expository ebook |
 | [`volatility-harvesting.html`](../../archive/ebooks/volatility-harvesting.html) | Summary of Rabault (2017), excess growth rate | Derivative summary of a third-party paper |
 | `heston-model.html`, `optimal-exit.html`, `technical-indicators.html`, `dynamic-asset-allocation.html`, `risk-adjusted-returns.html`, `portfolio-theory.html`, `talagrand_probability.html`, `concentration-inequalities.html` | Catalogue entries | Listed only; no finite identity was extracted here |
+| `talagrand_bounds_stochastic_processes.pdf` | Book, entry 11 | Not vendored (9.6 MB); the repository-root `archive/ebooks/` copy is canonical |
 
 This is a catalogue of heterogeneous, largely AI-generated expository ebooks. It contains no unified definitions, no theorem numbering, no proofs, and no datasets. The reconstruction therefore does **not** adopt the ebooks' performance numbers, thresholds, or modelling claims. It extracts the one finite computation that `continuous-lattice.html` §3–§4 states completely, plus the exact two-point inequality behind the volatility-drag approximation.
 

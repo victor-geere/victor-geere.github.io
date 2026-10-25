@@ -59,6 +59,8 @@ For \(\delta_n=1\) this is \(2s_n\cos h_n+h_n\cos s_n\), not the sine-addition v
 
 Every **Theorem** row is proved in [`lean/Topic.lean`](lean/Topic.lean) with no `sorry`, `axiom`, or `admit`. Every **Computation** row is tested in [`tests/test_programme.py`](tests/test_programme.py). **Source claim** and **Open / conjecture** rows are not theorems of this reconstruction.
 
+T1–T3 are definitional unfoldings of `eml`: they record the definition rather than independent discoveries, and should be read as such in the count.
+
 | # | Kind | Statement | Lean / test / status |
 |---|---|---|---|
 | T1 | Theorem | `eml z 1 = exp z` — the exponential is one eml gate. | `EML.exp_identity` |

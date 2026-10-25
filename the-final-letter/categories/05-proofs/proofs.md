@@ -1,11 +1,12 @@
 # Proofs
 
-This is the proof ledger of the unified programme. It separates four things that are often conflated:
+This is the proof ledger of the unified programme. It separates five things that are often conflated:
 
 1. **Proved in the source** — a written proof in a paper or ledger.
 2. **Machine-checked** — a Lean proof in the source repository.
 3. **Conversion** — a proved equivalence that does not prove either side.
 4. **Sharpness/litmus** — a proved negative result showing that a class of methods cannot close the wall.
+5. **Certified computation** — a Lean-checked finite calculation with a replayable certificate, not an asymptotic theorem.
 
 ## A. The Riemann side
 
@@ -134,7 +135,34 @@ Source: [`summary-rh/01/08`](../../summary-rh/01-ledger/08-greedy-sine-vs-the-pa
 
 Source: [`summary-rh/04/03`](../../summary-rh/04-programme/03-corrections-x1-x6.md).
 
-## C. The Lean spine
+## C. The certified evaluation layer
+
+Objective III is the programme's positive computation layer. It is not a proof of either wall; it is the machine-checked instrument a finite-scale claim can use instead of floating point. The full 35-row theorem ledger and the 14-row computation ledger are in [`topics/partial-sum-plus-tail`](../../topics/partial-sum-plus-tail/README.md#theorem-ledger).
+
+| Group | What is proved | Lean theorems | Evidence |
+|---|---|---|---|
+| C1 | Rational interval addition, negation, subtraction, scaling, multiplication and inflation are sound; the same six laws hold over `ℝ`; complex boxes obey the same laws. | `PartialTail.Iv.mem_add` … `mem_inflate`, `Iv.memR_*`, `PartialTail.Cx.mem_*` | T1–T13, `IBox.lean` |
+| C2 | An accepted straight-line certificate encloses the value it denotes. `Expr.wf` recomputes every box; `Expr.wf_sound` is the soundness theorem. | `PartialTail.Expr.wf_sound` | T14, `Expr.lean` |
+| C3 | A finite partial sum plus the shifted tail is the total; the truncation residual is bounded by the tail norm, for arbitrary finite families and for the three-tail case. | `PST.tsum_eq_finite_add_tail`, `PST.truncation_residual_le_tail_norm`, `PST.truncation_residual_le_finset_tail_norm`, `PST.truncation_residual_le_three_tails` | T15–T18, `Topic.lean` |
+| C4 | The eta partial sum splits exactly into the cos series and minus the sin series. | `PST.etaTerm_re`, `PST.etaTerm_im`, `PST.etaPartial_re`, `PST.etaPartial_im` | T19–T24, `Topic.lean` |
+| C5 | The concrete ζ(2) replay is accepted, and every atom is discharged, so its final box encloses the replay value with no atom hypothesis. | `PartialTail.Replay.cert_mem`, `Replay.cert_mem_closed` | T25, T32, `Replay.lean`, `ReplayAtoms.lean` |
+| C6 | `π`, `exp`, `log`, `sin` and `cos` are enclosed on the required rational intervals, with concrete kernel-checked instances. | `piIv_memR`, `expIvGeneral_memR`, `logIv_memR`, `cosBox_memR`, `sinBox_memR`, `cosReduce_memR`, `sinReduce_memR`; `log_two_check`, `exp_one_check`, `sin_one_check`, `cos_one_check`, `piIv_check` | T26–T31, `Transcend.lean` |
+| C7 | S3–S5: the integer zeta bound, the eta identity, and the `L`-function as a finite Hurwitz sum. | `riemannZeta_nat_re_le`, `eta_eq_one_sub_two_cpow_mul_zeta`, `LFunction_eq_hurwitz_sum` | T33–T35, `SourceClaims.lean` |
+
+The remaining analytic inputs that are **not** Lean theorems are S1–S2; both have a written proof in [`notes/euler-maclaurin-proof.md`](../../topics/partial-sum-plus-tail/notes/euler-maclaurin-proof.md):
+
+| # | Claim | Status |
+|---|---|---|
+| S1 | Euler–Maclaurin decomposition of `ζ(s,a)` into partial sum, Bernoulli corrections and tail. | Written proof; not Lean-formalised |
+| S2 | Explicit tail bound `\|R_K(s)\| ≤ \|(s)_{2K+1}\| · 2ζ(2K+1)/(2π)^{2K+1} · b^{−σ−2K}/(σ+2K)`. | Written proof; not Lean-formalised |
+
+S3–S5 are now Lean theorems (C7): `riemannZeta_nat_re_le`, `eta_eq_one_sub_two_cpow_mul_zeta`, and `LFunction_eq_hurwitz_sum`.
+
+**Status of the layer.** The rational cell, the certificate checker, the truncation transport, the eta split and the transcendental enclosures are Lean-proved with no `sorry`, `axiom` or `admit`. The Euler–Maclaurin identity and the explicit tail bound have a written proof but remain unformalised in Lean, so the final Lean enclosure of `ζ(s)` is conditional on S1–S2. The elementary claims S3–S5 are now Lean theorems (C7). No theorem about either wall uses a certified enclosure as a hypothesis yet; R13–R14 in [Further research](../09-further-research/further-research.md) state what that would take.
+
+Source: [`topics/partial-sum-plus-tail`](../../topics/partial-sum-plus-tail/README.md), `~/workspace/rh/research/twin-prime-parity/012/`.
+
+## D. The Lean spine
 
 The `the-final-letter/lean/` development builds against the same Lean 4 + Mathlib installation as `~/workspace/rh`:
 
@@ -152,8 +180,8 @@ cd the-final-letter/lean
 
 See [Lean formalisation](lean.md) for the theorem inventory and build instructions.
 
-## D. What is not proved
+## E. What is not proved
 
-RH, the twin-prime conjecture, Chowla for `k ≥ 2`, Sarnak, Elliott, `(M)`, OP-19, F.4, `Λ=0`, the Jensen/Li tower, and uniform slow passage. The proof ledger is not a proof of the walls; it is a proof of the map.
+RH, the twin-prime conjecture, Chowla for `k ≥ 2`, Sarnak, Elliott, `(M)`, OP-19, F.4, `Λ=0`, the Jensen/Li tower, and uniform slow passage. The evaluator's Euler–Maclaurin identity and explicit tail bound have a written proof but are not Lean-formalised. The proof ledger is not a proof of the walls; it is a proof of the map.
 
 [Back to README](README.md) · [Back to index](../../index.html)

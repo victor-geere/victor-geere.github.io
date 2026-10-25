@@ -5,7 +5,8 @@ The folder is self-contained when no relative link points outside it. Curated
 documents (the numbered sections, topics, the two evidence annexes, and the
 paper bundle) must also have no broken links. The two snapshot trees (`archive/`
 and `rh/`) are imported evidence; their pre-existing dangling references are
-reported but do not fail the check.
+reported but do not fail the check. Links to `BUILD.log` are skipped: the
+log is a local build artefact, ignored by Git, and absent in a fresh checkout.
 """
 from __future__ import annotations
 
@@ -71,6 +72,10 @@ def main() -> int:
                 continue
             base = urllib.parse.unquote(link.split("#", 1)[0].split("?", 1)[0])
             if not base or not target_is_path(base) or "\\" in base or "{" in base:
+                continue
+            # BUILD.log is a local build artefact (ignored by Git), so a link to
+            # it is expected to be absent in a fresh checkout.
+            if base.rsplit("/", 1)[-1] == "BUILD.log":
                 continue
             checked += 1
             target = (path.parent / base).resolve()

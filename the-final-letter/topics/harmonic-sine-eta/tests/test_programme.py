@@ -109,7 +109,7 @@ def test_alternating_harmonic_limit():
 
 
 def test_greedy_condition_edge_theta_zero():
-    """Computation C7 / edge case: at theta = 0 the greedy condition fails."""
+    """Computation C8 / edge case: at theta = 0 the greedy condition fails."""
     values = greedy_condition_values(sp.Rational(1, 2), sp.Integer(0), 8)
     assert abs(values[0]) < 1e-25  # S_0 = 0 makes N = 1 vacuous
     assert all(v > 0 for v in values[1:])

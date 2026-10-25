@@ -136,12 +136,12 @@ def prime_power_cutoff(p: int, m: int, lam: sp.Expr) -> tuple[bool, bool]:
 
 
 def zeta_coefficient(p: int, m: int) -> sp.Expr:
-    """Coefficient ``c(p^m)`` of ``−ζ'/ζ``: ``log p`` if ``m = 1``, else 0."""
+    """Coefficient ``c(p^m)`` of ``−ζ'/ζ``: ``log p`` for every ``m ≥ 1``."""
     if p < 2:
         raise ValueError("p must be a prime integer >= 2")
     if m < 1:
         raise ValueError("m must be a positive integer")
-    return sp.log(p) if m == 1 else sp.Integer(0)
+    return sp.log(p)
 
 
 def von_mangoldt(n: int) -> sp.Expr:

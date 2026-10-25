@@ -97,7 +97,7 @@ cd the-final-letter/topics/greedy-harmonic-transfer-operator
 ./lean/check.sh
 ```
 
-The wrapper calls the shared [`check-lean.sh`](../tools/check-lean.sh) against the local Mathlib installation. Recorded build: [`lean/BUILD.log`](lean/BUILD.log) — `[check] OK Topic.lean (11s)`.
+The wrapper calls the shared [`check-lean.sh`](../tools/check-lean.sh) against the local Mathlib installation. Recorded build: [`lean/BUILD.log`](lean/BUILD.log) — `[check] OK Topic.lean (5s)`.
 
 ## What is not formalised, and why
 

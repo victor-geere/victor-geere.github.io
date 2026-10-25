@@ -45,7 +45,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | T5 | Theorem | The diagonal kernel is positive for `0 < t < π`. | `GHD.Kdiag_pos` |
 | T6 | Theorem | The diagonal kernel is symmetric: `Kdiag t = Kdiag (π − t)`. | `GHD.Kdiag_symm` |
 | T7 | Theorem | `Kdiag (π/2) = π/12`. | `GHD.Kdiag_half` |
-| C1 | Computation | The exact threshold recursion returns `θ n* = α n` for `n ≤ 40`. | `test_threshold_identity_exact` |
+| C1 | Computation | The exact threshold recursion returns `θ n* = α n` for `n ≤ 40`. The select/reject branch never fires (the residual is `≥ α n` by monotonicity), so this checks the identity against `α n` itself, not an independent recursion. | `test_threshold_identity_exact` |
 | C2 | Computation | At `θ = α n`, index `n` is selected and no earlier index is. | `test_threshold_at_own_angle_selects` |
 | C3 | Computation | The residual bound `0 ≤ θ − θ_N ≤ π/(N+2)` holds on a grid. | `test_residual_bound` |
 | C4 | Computation | The closed-form diagonal kernel equals the defining integral. | `test_diagonal_kernel_matches_integral` |
@@ -62,7 +62,7 @@ These are recorded with the source's status, not adopted as proved here.
 | Selection monotonicity `θ ↦ δ n(θ)` | Source lemma | Not formalised. |
 | Full threshold identity `θ n* = α n` for all `n` | Source theorem, derived by induction | Verified exactly for `n ≤ 40`; the Lean file proves the order facts, not the induction. |
 | Selection density `D(N,θ) = (θ/π) log(N+2) + O(1)` | Source lemma | Not formalised. The finite fraction is not used as a theorem; for exact harmonic targets the word can terminate early. |
-| Asymptotic threshold distribution | Source proposition | Open/exploratory; not formalised. |
+| Asymptotic threshold distribution | Source theorem (4.3) | Proved in the source; not formalised here. |
 
 ## Python layer
 

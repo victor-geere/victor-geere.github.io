@@ -82,7 +82,7 @@ test in [`tests/test_programme.py`](tests/test_programme.py).
 | C2 | Computation | Malformed MTC data (wrong sum, zero `d²`, negative `D²`, empty) is rejected. | `test_egyptian_denominator_validation` |
 | C3 | Computation | `Ψ(0) = 1` and `Ψ(1) = 0` exactly for both examples. | `test_dirichlet_series_exact_values` |
 | C4 | Computation | At `s = 1/2`, gamma ratio and full prefactor equal `1` exactly. | `test_gamma_ratio_and_prefactor_at_centre` |
-| C5 | Computation | The archived QEFE holds at `s = 1/2` for both worked examples. | `test_claimed_functional_equation_at_centre` |
+| C5 | Computation | The archived QEFE holds at `s = 1/2` for both worked examples. At the centre both sides are real, so this checks a real identity and is not evidence off-centre. | `test_claimed_functional_equation_at_centre` |
 | C6 | Computation | **The archived QEFE fails off-centre** for the source's own Ising and `SU(2)_4` data. | `test_claimed_functional_equation_fails_off_centre` |
 | C7 | Computation | The Ising sign product is `-1`, contradicting the source's `ε = 1`; `SU(2)_4` gives `+1`. | `test_ising_sign_product_inconsistency` |
 | C8 | Computation | `categorical_psi` rejects mismatched or empty coefficient lists. | `test_categorical_psi_rejects_mismatched_lengths` |
@@ -107,7 +107,8 @@ from its data:
 1. **The derivation is explicitly interrupted.** In §5.1 the text derives an
    identity, observes that it "merely reproduces the original first part", and
    then says "Instead, we obtain the functional equation ... after a different
-   manipulation". That different manipulation is never supplied.
+   manipulation". §5.2 offers a candidate replacement, but it is a heuristic
+   manipulation rather than a derivation of the displayed identity.
 2. **The Mellin normalisation is inconsistent.** §2.4 computes the Mellin
    transform with a factor `D^{2s}` and `Γ(s)`; §5.3 replaces it with `D^s` and
    `Γ((s+a)/2)` by hand, invoking a "standard result" about theta

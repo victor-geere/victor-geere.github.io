@@ -15,6 +15,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 import sympy as sp
+from itertools import combinations
 
 PI = sp.pi
 THETA = sp.symbols("theta", real=True)
@@ -162,18 +163,21 @@ def kernel_matrix(n_max: int) -> sp.Matrix:
 
 
 def is_positive_semidefinite(matrix: sp.Matrix) -> bool:
-    """Exact PSD test by the leading-minor (Sylvester) criterion.
+    """Exact PSD test: every principal minor is non-negative.
 
-    The finite correlation matrix is a Gram matrix, so every principal minor
-    is non-negative; the test returns ``True`` only if all leading principal
-    minors are exactly non-negative.
+    Leading principal minors alone are a criterion for positive *definite*
+    matrices, not for semidefinite ones.  The finite correlation matrix is a
+    Gram matrix, so all principal minors are non-negative; the test returns
+    ``True`` only if every one of them is exactly non-negative.
     """
     if matrix.rows != matrix.cols:
         raise ValueError("matrix must be square")
-    for k in range(1, matrix.rows + 1):
-        minor = matrix[:k, :k].det()
-        if sp.simplify(minor).is_nonnegative is not True:
-            return False
+    n = matrix.rows
+    for k in range(1, n + 1):
+        for idx in combinations(range(n), k):
+            minor = matrix.extract(idx, idx).det()
+            if sp.simplify(minor).is_nonnegative is not True:
+                return False
     return True
 
 

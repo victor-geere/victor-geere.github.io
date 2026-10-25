@@ -21,7 +21,9 @@ partial-sum-plus-tail evaluator with checked certificates”.
 |---|---|
 | `lean/Topic.lean` | Partial-sum + tail transport lemmas and the eta cos/sin split. |
 | `lean/Transcend.lean` | Kernel-checked `π`, `exp`, `log`, `sin`, `cos` interval enclosures, with concrete checks. |
+| `lean/SourceClaims.lean` | Formalises S3–S5: the integer zeta bound, the eta identity and the `L`-function Hurwitz reduction. |
 | `lean/ReplayAtoms.lean` | The true atom values of the concrete ζ(2) replay and the unconditional `cert_mem_closed`. |
+| `notes/euler-maclaurin-proof.md` | Written proof of S1–S2, the Euler–Maclaurin decomposition and the explicit tail bound. |
 | `python/programme.py` | Clean API over `rativ`/`partial_tail`, including `eta_enclosure` and `eta_cos_sin_enclosure`. |
 | `tests/test_programme.py`, `tests/test_interval.py` | The computation ledger (14 tests). |
 | `README.md`, `index.html`, `lean/README.md` | Dossier and ledger. |

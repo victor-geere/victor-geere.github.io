@@ -17,8 +17,10 @@ Every topic folder follows this standard. The standard exists so that a topic ca
     README.md            what is and is not formalised
     Topic.lean           the proved formal core
     check.sh             wrapper around ../../tools/check-lean.sh
-    BUILD.log            last successful check output
 ```
+
+`lean/BUILD.log` is written by `check.sh` as a local build artefact. It is not
+required in the tree and is ignored by Git.
 
 The Lean file must contain **no `sorry`, no `axiom`, and no `admit`**. The Python tests must pass with `python3 -m pytest`.
 
@@ -74,4 +76,4 @@ python3 -m pytest the-final-letter/topics/<topic>/tests -q
 the-final-letter/topics/<topic>/lean/check.sh
 ```
 
-A topic is **complete** when both commands pass and the README/index ledger agrees with the files.
+A topic passes the **structural audit** when every required file is present and the Lean core contains no `sorry`/`axiom`/`admit`. The index reports this as **structural pass**. It does not certify that the ledger rows, test names and Lean statements agree; that is a separate review, and it is not implied by the status.

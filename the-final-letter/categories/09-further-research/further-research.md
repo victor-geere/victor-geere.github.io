@@ -68,6 +68,24 @@ OP-18 is not well-posed as phrased; on a fixed class it is the existential dual 
 
 The finite-prefix theorem is about one slice. A general meta-theorem — any predicate determined by finitely many values cannot imply a limit statement — would be a reusable no-go principle. It is not currently formalised.
 
+### R13. Formalise Euler–Maclaurin and the explicit tail bound
+
+Objective III's rational cell is Lean-proved, but the identity that its replay value is `ζ(s,a)` (S1) and the explicit tail bound (S2) have a written proof in [`notes/euler-maclaurin-proof.md`](../../topics/partial-sum-plus-tail/notes/euler-maclaurin-proof.md) and are not Lean-formalised. A Lean proof of S1–S2 would make the final enclosure of `ζ(s)` unconditional. The tail bound is the smaller target; the Euler–Maclaurin identity is the analytic content.
+
+**Why it matters:** it is the only remaining gap between the evaluator and an unconditional certified enclosure of `ζ(s)`, `ζ(s,a)` and `L(s,χ)`.
+
+### R14. Use a certified enclosure as a hypothesis
+
+No theorem in the letter yet consumes a certified enclosure. Candidate targets are finite-window zero counts, interval Newton or bisection for zeros on a line, and rigorous evaluation of a truncated explicit formula. The point is not to replace the analytic proof but to remove floating point from a finite-scale step that a theorem actually cites.
+
+**Why it matters:** this is the difference between an evaluator as a library and an evaluator as part of an argument.
+
+### R15. Certify enclosure width, not only soundness
+
+`inflate` is sound for every `r ≥ 0`, so a certificate can always be widened. The recorded narrow widths are Python measurements, not Lean theorems. A width theorem — or a certificate format that records a target width and checks it — would make “the enclosure is narrow” a checkable claim rather than a measurement.
+
+**Why it matters:** soundness without a width bound is enough for containment but not for the efficiency claims that make a certified evaluator useful.
+
 ## What not to do
 
 - **Do not run more zeros.** The finite-prefix theorem says finite computation cannot decide the Chowla limit; the `T=15/33` certificates are finite-window results, not RH.
@@ -75,5 +93,7 @@ The finite-prefix theorem is about one slice. A general meta-theorem — any pre
 - **Do not treat density statements as pointwise.** Bombieri–Hejhal show they are blind to density-zero off-line sets.
 - **Do not promote `CONJECTURED` heuristics to targets.** Eleven of the 36 harvested items are recorded expectations, not commitments.
 - **Do not restore X1–X6.** The errata are part of the result.
+- **Do not treat a zero inside an interval as a proof that a zero exists.** The evaluator certifies containment, not a sign change or a zero count.
+- **Do not quote a width that the Lean layer does not check.** `inflate` is sound for every non-negative radius; the recorded narrow widths are measurements.
 
 [Back to README](README.md) · [Back to index](../../index.html)

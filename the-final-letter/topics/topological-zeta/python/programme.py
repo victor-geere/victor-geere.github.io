@@ -75,9 +75,8 @@ def nonunit_egyptian_sum(ms: Sequence[sp.Expr]) -> sp.Expr:
     """The non-unit sum ``sum_{i != 0} 1/m_i = 1 - 1/D**2``."""
     if len(ms) == 0:
         raise ValueError("empty denominator family")
-    # For the unit object m_0 = D**2, so ms[0] is the total dimension.
-    D2 = sp.simplify(ms[0])
-    return sp.simplify(1 - 1 / D2)
+    # The unit object is ms[0]; the non-unit sum really sums the rest.
+    return sp.simplify(sum((1 / m for m in ms[1:]), sp.Integer(0)))
 
 
 def ising_dims() -> tuple[sp.Expr, ...]:

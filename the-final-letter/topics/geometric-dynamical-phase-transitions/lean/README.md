@@ -14,7 +14,7 @@ last successful check. The file imports all of Mathlib, so a cold build can take
 
 ## What is formalised
 
-[`Topic.lean`](Topic.lean), [`Bridges.lean`](Bridges.lean), [`Breakthrough.lean`](Breakthrough.lean), [`TransferNoGo.lean`](TransferNoGo.lean), [`Tractable.lean`](Tractable.lean), [`MatrixNoGo.lean`](MatrixNoGo.lean), [`SignedF4.lean`](SignedF4.lean), [`LeeYang.lean`](LeeYang.lean), [`Ledger.lean`](Ledger.lean), [`PartialSumTail.lean`](PartialSumTail.lean), [`CertifiedZero.lean`](CertifiedZero.lean), and [`Computations.lean`](Computations.lean) define, in the namespace `GeoDQPT`:
+[`Topic.lean`](Topic.lean), [`Bridges.lean`](Bridges.lean), [`LastChord.lean`](LastChord.lean), [`TransferNoGo.lean`](TransferNoGo.lean), [`Tractable.lean`](Tractable.lean), [`MatrixNoGo.lean`](MatrixNoGo.lean), [`SignedF4.lean`](SignedF4.lean), [`LeeYang.lean`](LeeYang.lean), [`Ledger.lean`](Ledger.lean), [`PartialSumTail.lean`](PartialSumTail.lean), [`CertifiedZero.lean`](CertifiedZero.lean), and [`Computations.lean`](Computations.lean) define, in the namespace `GeoDQPT`:
 
 | Definition | Meaning |
 |---|---|
@@ -105,8 +105,10 @@ computation layer.  They are either the finite statement that the Python test ch
 generalisation of it (`twoSumCoeff_eq_filterCoeff`, `clockZero_isZero`, `gauge_contractionVec`),
 or a structural result behind it (`comp_heatFlow_deriv`, `comp_register_matrix`,
 `comp_ising_product`).  The file also proves the exact domain guards (`comp_invalid_entries`,
-`comp_invalid_boundary`, `comp_invalid_period`).  No row is an alias of an earlier theorem:
-each statement is the finite or general proposition the corresponding computation tested.
+`comp_invalid_boundary`, `comp_invalid_period`).  Most rows state the finite or general proposition the corresponding computation
+tested; a small number restate an earlier result (for example
+`comp_eta_two`), and those are identified in the dossier ledger rather than
+counted as independent discoveries.
 
 No `sorry`, no `axiom`, no `admit`. There is no `rfl`-only padding: the block-sum theorem
 proves a divisibility classification over a full block and evaluates the resulting finite sum;

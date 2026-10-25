@@ -36,6 +36,8 @@ One small erratum in the source: it writes the derivative of `cos(2πk/x)` with 
 
 Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) with no `sorry`, `axiom`, or `admit`. Every row marked **Computation** is exercised in [`tests/test_programme.py`](tests/test_programme.py). Source claims and open items are *not* theorems of this reconstruction.
 
+The Lean definition uses totalised division, so `divisorDetector k 0 = 0` and both cosines equal `1` at `x = 0`. That is a Lean convention (division by zero is defined as zero), not a claim that `0` divides `k`; T4/T5 are stated for non-zero inputs. The Python layer rejects `x = 0`.
+
 | # | Kind | Statement | Lean / test name |
 |---|---|---|---|
 | T1 | Theorem | The detector is non-positive: `f_k(x) ≤ 0` for all real `x` (total convention at `x = 0`). | `FactorisationTheta.divisorDetector_nonpos` |

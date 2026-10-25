@@ -77,7 +77,7 @@ def test_log_prime_power_and_cutoff_dictionary():
 
 def test_zeta_arithmetic_coefficients():
     assert sp.simplify(zeta_coefficient(2, 1) - sp.log(2)) == 0
-    assert zeta_coefficient(2, 2) == 0
+    assert sp.simplify(zeta_coefficient(2, 2) - sp.log(2)) == 0
     assert sp.simplify(zeta_coefficient(101, 1) - sp.log(101)) == 0
     # Λ(n) = log p exactly on prime powers and zero otherwise.
     for n in (2, 3, 4, 5, 8, 9, 16, 30):
@@ -87,9 +87,10 @@ def test_zeta_arithmetic_coefficients():
             assert sp.simplify(von_mangoldt(n) - sp.log(p)) == 0
         else:
             assert von_mangoldt(n) == 0
-    # The explicit-formula coefficient is the m = 1 coefficient only.
+    # The coefficient matches the von Mangoldt value on every prime power.
     assert sp.simplify(zeta_coefficient(2, 1) - von_mangoldt(2)) == 0
-    assert zeta_coefficient(2, 2) == 0
+    assert sp.simplify(zeta_coefficient(2, 2) - von_mangoldt(4)) == 0
+    assert sp.simplify(zeta_coefficient(3, 3) - von_mangoldt(27)) == 0
 
 
 def test_edge_cases_reject_degenerate_phase():

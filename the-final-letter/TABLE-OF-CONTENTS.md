@@ -1,6 +1,6 @@
 # Table of Contents
 
-Complete file-level index of `the-final-letter/`. Every link is relative to the file that contains it, and every target is inside this folder; the evidence annexes are local copies (see [EVIDENCE.md](EVIDENCE.md)). The thirteen numbered sections live under [categories/](categories/README.md).
+Complete file-level index of `the-final-letter/`. The single-page [`index.html`](index.html) is the canonical reading artefact; the Markdown files are the source text. Every link is relative to the file that contains it, and every target is inside this folder; the evidence annexes are local copies (see [EVIDENCE.md](EVIDENCE.md)). The thirteen numbered sections live under [categories/](categories/README.md).
 
 ## Master documents
 

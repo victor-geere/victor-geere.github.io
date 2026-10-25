@@ -13,5 +13,6 @@
 | What is refuted/withdrawn? | both | [Summary errata](../../summary/12-open-problems/withdrawn-and-refuted.md), [RH errata](../../summary-rh/05-lean-verification/03-errata.md) |
 | What is formalised? | `the-final-letter/lean` | [`FinalLetter/Synthesis.lean`](../../lean/FinalLetter/Synthesis.lean) |
 | What is the certified evaluator? | `~/workspace/rh/research/twin-prime-parity/012/` | [partial-sum-plus-tail](../../topics/partial-sum-plus-tail/README.md) |
+| Where is the evaluator in the argument? | Objective III | [Proof ledger C](../05-proofs/proofs.md#c-the-certified-evaluation-layer), [finding F11](../06-findings/findings.md#f11-certified-evaluation-is-an-instrument-not-a-key) |
 
 [Back to README](../../README.md) · [Folder TOC](TOC.md)

@@ -107,6 +107,6 @@ On the tightness window, `|ζ′(ρ)| ≤ N^ε` for every critical-line zero `ρ
 
 ## What is not a conjecture
 
-The finite-prefix indeterminacy theorem, the Davenport–Heilbronn sharpness, the Sylvester-sparsity theorem, and the conversion theorem are **proved**. They are not conjectures. The programme’s discipline is to keep the two lists separate.
+The finite-prefix indeterminacy theorem, the Davenport–Heilbronn sharpness, the Sylvester-sparsity theorem, and the conversion theorem are **proved**. They are not conjectures. The Lean-proved rational cell, certificate soundness, truncation transport, eta split and transcendental enclosures of Objective III are also proved, while its Euler–Maclaurin identity and tail bound have a written proof but are not Lean-formalised. The programme’s discipline is to keep the proved list, the source-claim list, and the open list separate.
 
 [Back to README](README.md) · [Back to index](../../index.html)

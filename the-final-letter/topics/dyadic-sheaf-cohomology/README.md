@@ -55,6 +55,7 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | T5 | Theorem | The alignment energy is non-negative: `0 ≤ E t x`. | `DyadicSheaf.energy_nonneg` |
 | T6 | Theorem | The energy vanishes iff both cosine alignments are perfect. | `DyadicSheaf.energy_eq_zero_iff` |
 | T7 | Theorem | For `x ≥ 1`, `x ∣ p` forces `E p x = 0` (forward divisor detection). | `DyadicSheaf.energy_vanishes_of_dvd` |
+| T8 | Theorem | For `t ≠ 0` and `x ≠ 0`, the energy is symmetric: `E t (t/x) = E t x`. | `DyadicSheaf.energy_symm` |
 | C1 | Computation | `r k = 2^{-k}`, `r k > 0`, and `r (k+1) = r k / 2` for `k ≤ 14`. | `test_dyadic_radius_halving_and_positivity` |
 | C2 | Computation | The shell index returns the unique `k` with `2^{-k} ≤ x < 2^{-k+1}` on a rational grid; the shell length is `2^{-k}`. | `test_dyadic_shell_index_selects_the_unique_shell` |
 | C3 | Computation | The shell is closed below and open above at exact boundaries; non-positive inputs raise. | `test_shell_index_boundary_is_closed_below_open_above` |

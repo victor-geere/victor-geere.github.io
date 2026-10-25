@@ -59,8 +59,8 @@ Angles are written \(\theta\); it is often convenient to use \(t=\theta/\pi\in[0
 | Greedy digit | \(\delta_n(\theta)=1\) if \(\alpha_n\le \theta-A_n\), else \(0\) |
 | Threshold | \(\theta_n^*=\inf\{\theta:\delta_n(\theta)=1\}\) |
 | Cylinder interval | \(I_\varepsilon=\{\theta:\delta_k(\theta)=\varepsilon_k,\ k<|\varepsilon|\}\) |
-| Split node | a node of length \(\ell\) with \(\alpha_n<\ell\); right child length \(\alpha_n\), left child length \(\ell-\alpha_n\) |
-| Haar wavelet (reconstructed) | on a node of length \(L=a+b\), left child \(a\), right child \(b\): \(\psi=-\sqrt{b/(aL)}\,\mathbf 1_L+\sqrt{a/(bL)}\,\mathbf 1_R\) |
+| Split node | a node of length \(\ell\) with \(\alpha_n<\ell\); left child length \(\alpha_n\), right child length \(\ell-\alpha_n\) |
+| Haar wavelet (reconstructed) | on a node of length \(L=a+b\), left child \(a\), right child \(b\): \(\psi=\sqrt{b/(aL)}\,\mathbf 1_L-\sqrt{a/(bL)}\,\mathbf 1_R\) |
 | Accumulated mass | \(M_n(\theta)=\sum_{k\le n}\delta_k(\theta)/(k+2)\), so \(A_n=\pi M_n\) |
 
 The source's displayed wavelet (equation (5) of `harmonic-tree-haar.tex`) is
@@ -103,15 +103,15 @@ These are recorded with the archive's status. None of them is used as a theorem 
 
 | Claim | Kind | Source status | Reconstruction note |
 |---|---|---|---|
-| The Haar system \(\mathcal B\) is an orthonormal basis of \(L^2[0,\pi]\). | Source claim | Source Theorem 2.1, proof sketch | Not formalised. The displayed normalisation is defective (C5); the repaired wavelets are individually orthonormal (T6, T7, C4), but completeness is open. |
+| The Haar system \(\mathcal B\) is an orthonormal basis of \(L^2[0,\pi]\). | Source claim | source claim, section 2, proof sketch | Not formalised. The displayed normalisation is defective (C5); the repaired wavelets are individually orthonormal (T6, T7, C4), but completeness is open. |
 | \(\theta\mapsto\delta_n(\theta)\) is non-decreasing, so \(\delta_n\) is the step function at \(\theta_n^*\). | Source claim | Source equation (3) and the surrounding observation | **Refuted** for the residual-subtraction rule by C3. Only the least-threshold statement T5 holds. |
 | \(\theta_0^*=\pi/2,\ \theta_1^*=\pi/3,\ \theta_2^*=\pi/6,\ \theta_3^*=5\pi/12\). | Source claim | Source table after equation (4) | **Contradicted** by C1/C2: the correct values are \(\pi/2,\pi/3,\pi/4,\pi/5\). The listed \(\pi/6\) is \(\theta_4^*\); \(5\pi/12\) is not a threshold. |
 | Selection density \(D(N,\theta)=\sum_{n\le N}\delta_n(\theta)=(\theta/\pi)\log(N+2)+O(1)\). | Source claim | Source Lemma 3.3, asserted | Not used. Exact computation shows that under the residual-subtraction rule selections are extremely sparse (at \(t=99/100\): indices \(0,1,5,71,9016,\dots\)). Under the guide's floor recursion the digits form a different sequence entirely, and the stated logarithmic law is not established anywhere in the corpus. The density law is an archived claim, not a theorem. |
 | \(\theta/\pi=\sum_{n\ge0}\delta_n(\theta)/(n+2)\). | Source claim | Source equation (2), stated as a theorem for a.e. \(\theta\) | Not formalised. T3 gives bounded partial sums; convergence and the a.e. statement are open. The observed convergence is extremely slow. |
-| \(s\mapsto\Phi(\theta,s)=\sum_n\delta_n(\theta)/(n+2)^s\) continues meromorphically, with a simple pole at \(s=1\) of residue \(\theta/\pi\) and further poles at the non-trivial zeros of \(\zeta\). | Source claim | Source Theorem 2.2, proof sketch | Not formalised; proof sketch invokes a transfer operator that is never constructed. |
+| \(s\mapsto\Phi(\theta,s)=\sum_n\delta_n(\theta)/(n+2)^s\) continues meromorphically, with a simple pole at \(s=1\) of residue \(\theta/\pi\) and further poles at the non-trivial zeros of \(\zeta\). | Source claim | source claim, section 2, proof sketch | Not formalised; proof sketch invokes a transfer operator that is never constructed. |
 | \(\det_{(1)}(I-\mathcal L_s)=\zeta(s)/\zeta(2s)e^{P(s)}\), and zeros of \(\zeta\) are eigenvalue-1 parameters of \(\mathcal L_s\). | Source claim | Source Problem P1; later `hst-further-research-results.tex` presents it as a theorem | Archived claim. The later "proof" rests on an unproved intertwining Lemma with the Gauss transfer operator. Not formalised; no Lean statement. |
 | \(\mathcal L_s\) is trace-class for \(\operatorname{Re}s>1/2\) (P3). | Source claim | Source claim, later presented as a theorem | Archived claim; the singular-value estimates are asserted, not proved. |
-| Weil-type explicit formula for HST coefficients. | Source claim | Source Theorem 2.3, sketch | Archived claim; the weights \(W_f(n)\) are not constructed. |
+| Weil-type explicit formula for HST coefficients. | Source claim | source claim, section 2, sketch | Archived claim; the weights \(W_f(n)\) are not constructed. |
 | \(H(t)=e^{i\pi/4}K(1/2+it)e^{-i\pi/4}\) is self-adjoint and eigenvalue \(1\) occurs exactly at Riemann zeros; spectral flow proves Hilbert–Pólya. | Source claim | Source Section 5 and P8–P10, speculative | Archived claim. P9 is explicitly left open in `hst-further-research-results.tex`; the programme's own significance paper says it does not prove RH. |
 | The Programme IIX paper proves the Generalised Riemann Hypothesis via HST and greedy decomposition. | Source claim | Archived GRH claim (`archive/maths/latex/proof.tex`, not this folder) | **Not a theorem.** No step of the GRH argument is formalised here; the finite core below has no bearing on GRH. Recorded as an archived claim. |
 | Greedy–MTC correspondence: a bijection exists (guide P6) versus no such bijection exists (`hst-further-research-results.tex` Theorem P6). | Source claim | Source claims, mutually inconsistent | Unresolved corpus contradiction. Neither direction is formalised. |

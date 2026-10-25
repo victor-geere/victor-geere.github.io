@@ -39,7 +39,7 @@ Every row marked **Theorem** has a declaration in [`lean/Topic.lean`](lean/Topic
 | T2 | Theorem | The remainder is non-negative for `x ≥ 0`: `0 ≤ r n(x)`. | `GDST.rem_nonneg` |
 | T3 | Theorem | On `[0,1]`, `r n(x) ≤ 1/(n+2)`. | `GDST.rem_bound` |
 | T4 | Theorem | Finite partial-sum identity: `x = Σ_{k≤N} δ k(x)/(k+2) + r N(x)`. | `GDST.finite_identity` |
-| T5 | Theorem | Post-selection bound: if `δ (n+1)(x) = 1`, then `r (n+1)(x) ≤ 1/((n+2)(n+3))`. | `GDST.rem_after_selection` |
+| T5 | Theorem | Post-selection bound: if `x ≤ 1` and `δ (n+1)(x) = 1`, then `r (n+1)(x) ≤ 1/((n+2)(n+3))`. | `GDST.rem_after_selection` |
 | T6 | Theorem | Finite selected/rejected split: `E_N(x,s) + Ω_N(x,s) = D_N(s)`. | `GDST.selected_add_rejected` |
 | T7 | Theorem | Both finite sums are non-negative: `0 ≤ E_N(x,s)` and `0 ≤ Ω_N(x,s)`. | `GDST.selected_rejected_nonneg` |
 | C1 | Computation | `α 0 = 1/2`, `α 1 = 1/3`, `α 3 = 1/5`; negative indices are rejected. | `test_alpha_values_and_edge_cases` |
