@@ -342,4 +342,25 @@ theorem iteratedDeriv_Psi3 (j : ℕ) (s : ℂ) (hs : s ≠ 1) :
         (contDiffAt_polynomial_eval_neg (descPochhammer ℂ 5) _ s) _)
 
 
+/-- **`Ψ₃` is smooth away from the pole** (needed for the `iteratedDeriv` add/mul rules). -/
+theorem contDiffAt_Psi3 (n : WithTop ℕ∞) {s : ℂ} (hs : s ≠ 1) :
+    ContDiffAt ℂ n Psi3 s := by
+  have hs1 : s - 1 ≠ 0 := sub_ne_zero.mpr hs
+  rw [Psi3_eq_sum]
+  apply ContDiffAt.sum
+  intro i hi
+  fin_cases i
+  · simp only [psiTerm]
+    fun_prop
+  · simp only [psiTerm]
+    exact contDiffAt_const
+  · simp only [psiTerm]
+    fun_prop
+  · simp only [psiTerm]
+    exact ContDiffAt.div_const (contDiffAt_polynomial_eval_neg (descPochhammer ℂ 3) _ s) _
+  · simp only [psiTerm]
+    exact ContDiffAt.neg (ContDiffAt.div_const
+      (contDiffAt_polynomial_eval_neg (descPochhammer ℂ 5) _ s) _)
+
+
 end FiniteWindowZeros

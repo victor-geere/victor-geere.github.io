@@ -665,3 +665,17 @@ The remaining work is the box construction
 (`dsPowPow k` + `cpowBox 21 S14 · scalarBox k` + the `R₃` Cauchy correction),
 the `sup|ζ^{(6)}|` bound, the Taylor remainder (`taylor_mean_remainder_bound`,
 `K = 6`), and the `h2` / `zeta_zero_14_of_bounds` assembly.
+
+### 2026-10-27 — I.306: smoothness of `Ψ₃` (T414)
+
+`contDiffAt_Psi3 : ContDiffAt ℂ n Ψ₃ s` for `s ≠ 1`, via `Psi3_eq_sum` (T406),
+`ContDiffAt.sum` and `fin_cases` on the five terms.  `fun_prop` solves the pole
+(`21(s−1)⁻¹`, using `s−1 ≠ 0` from the context), the constant and `s/252`;
+the polynomial terms need `contDiffAt_polynomial_eval_neg` (T405) with
+`ContDiffAt.div_const`/`.neg`.  **Trap:** `ContDiffAt.const_mul` does not exist
+as a dotted name in this Mathlib (dot notation resolves to `Function.const_mul`
+and fails) — use `fun_prop` instead.
+
+This was the last missing `ContDiffAt`, so `iteratedDeriv k (zetaEMGen 3 20) s`
+now follows from `gen3_eq_sum_psi`, `iteratedDeriv_add` (both sides smooth:
+T399-sum and `ContDiffAt.mul` of T399 with T414), T400 and T401 — the next step.
