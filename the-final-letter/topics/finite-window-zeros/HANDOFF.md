@@ -8,7 +8,7 @@ No RH, twin-prime, Chowla, or infinite Weil-positivity claim is made anywhere.
 
 | item | state |
 |---|---|
-| counts | **787 theorems · 393 computations · 457 tests · 48/48 Lean builds** |
+| counts | **914 theorems · 393 computations · 457 tests · 48/48 Lean builds (15 files)** |
 | audit | `python3 topics/tools/audit_topics.py` → 48/48 OK |
 | links | `python3 tools/check-links.py` → 0 broken |
 | default build | `./lean/check.sh` OK |
@@ -355,7 +355,20 @@ Do this first, then the finite sum over `n ≤ 20`, then the pole term
 (`‖1 - Yk·ζ′‖ ≤ 1/4` on `‖w-s0‖ ≤ 1/4`) is still open, so **no zero is
 certified yet**. No RH or infinite-positivity claim is made anywhere.
 
-## Next steps, in order (current — round I.294)
+## Next steps, in order (current — round I.312)
+
+**Status update (journal I.311–I.312).** `h2` is now down to two pieces:
+
+1. `sup|ζ^{(7)}| ≤ 25000` on the closed `1/5`-ball (`EMTaylorCert.lean` next).
+2. The downward Taylor induction (`m = K+1` down to `m = 1`) via
+   `norm_sub_le_of_deriv_bound`, using `AnalyticAt.deriv` for the
+   differentiability of every `iteratedDeriv k ζ`.
+
+Already available: the `c_k` boxes (`gen3Box k`, `corner_gen3_*`) and the bounds
+`|c₂| ≤ 0.351`, `|c₃| ≤ 0.103`, `|c₄| ≤ 0.025`, `|c₅| ≤ 0.007`, `|c₆| ≤ 0.006`
+(`EMTaylorCert.lean`), plus `iteratedDeriv_zeta_eq_gen3_add`.  Budget:
+`0.15363 + 2·25000·(1/5)^6/6! = 0.1625 ≤ 47/250`.  The text below is the
+original round-I.294 plan, kept for the derivation.
 
 `h1` is **done**: `h1_deriv : ‖1 - Yk * deriv riemannZeta s14‖ ≤ 1/200`
 (`EMDeriv.lean`, T391; the `h1(a)/(b)/(c)` split and the `ρ = 1/2` radius
