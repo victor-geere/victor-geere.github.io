@@ -408,6 +408,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T329 | Theorem | **Final zero theorem, conditional on two explicit numerical inputs:** `∃ z ∈ ball(s14, 1/5), ζ z = 0`. All other Krawczyk hypotheses are discharged. | `zeta_zero_14_of_bounds` (`EMBox14.lean`) |
 | T330 | Theorem | **`d/dz b^z = b^z·log b`** for `b ≠ 0`, built from `Complex.cpow_def` (Mathlib has no such lemma). | `hasDerivAt_cpow_exp` (`EMDeriv.lean`) |
 | T331 | Theorem | **`d/dz b^(-z) = -(b^(-z)·log b)`** for `b ≠ 0`; the derivative of each `n^{-s}` term. | `hasDerivAt_cpow_neg` (`EMDeriv.lean`) |
+| T332 | Theorem | **Base sum differentiated:** `d/ds Σ_{n<N} (n+1)^{-s} = -Σ (n+1)^{-s} log (n+1)`. | `hasDerivAt_sum_cpow` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

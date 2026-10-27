@@ -2865,3 +2865,13 @@ The sum lemma `d/ds sum_{n<N} (n+1)^{-s}` was attempted and deferred: `HasDerivA
 returns the sum of *functions*, so it needs `Finset.sum_apply` and
 `Finset.sum_neg_distrib` to reshape both the function and the derivative value.
 That belongs with the next increment.
+
+### 2026-10-27 — Phase I.273: base sum differentiated
+
+`hasDerivAt_sum_cpow` (T332): `d/ds Σ_{n<N} (n+1)^{-s} = -Σ (n+1)^{-s} log (n+1)`,
+assembled from `hasDerivAt_cpow_neg` via `HasDerivAt.sum`.  Two reshaping steps
+were needed and are worth recording: `HasDerivAt.sum` returns the derivative of
+a sum of *functions* (`∑ x, fun z => ...`), so the function needs
+`funext` + `Finset.sum_apply`, and the value needs `Finset.sum_neg_distrib` to
+match a `-∑ ...` statement.  Stating the lemma with the value as `-∑ ...`
+rather than `∑ -...` made the last step one line.

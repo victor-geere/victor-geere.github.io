@@ -44,4 +44,25 @@ theorem hasDerivAt_cpow_neg {b : ℂ} (hb : b ≠ 0) (s : ℂ) :
   convert h2 using 1
   ring
 
+/-- **The base sum, differentiated.**  `d/ds Σ_{n<N} (n+1)^{-s} = -Σ (n+1)^{-s} log (n+1)`. -/
+theorem hasDerivAt_sum_cpow (N : ℕ) (s : ℂ) :
+    HasDerivAt (fun z : ℂ => ∑ n ∈ Finset.range N, ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+      (-∑ n ∈ Finset.range N,
+        ((((n + 1 : ℝ)) : ℂ) ^ (-s)) * Complex.log ((((n + 1 : ℝ)) : ℂ))) s := by
+  have h : ∀ n ∈ Finset.range N,
+      HasDerivAt (fun z : ℂ => ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+        (-(((((n + 1 : ℝ)) : ℂ) ^ (-s)) * Complex.log ((((n + 1 : ℝ)) : ℂ)))) s := by
+    intro n _
+    have hb : ((((n + 1 : ℝ)) : ℂ)) ≠ 0 := by
+      have hpos : (0 : ℝ) < ((n : ℝ) + 1) := by positivity
+      exact_mod_cast hpos.ne'
+    simpa using hasDerivAt_cpow_neg hb s
+  have hs := HasDerivAt.sum h
+  have hfun : (∑ x ∈ Finset.range N, fun z : ℂ => ((((x + 1 : ℝ)) : ℂ) ^ (-z)))
+      = fun z : ℂ => ∑ x ∈ Finset.range N, ((((x + 1 : ℝ)) : ℂ) ^ (-z)) := by
+    funext z
+    simp [Finset.sum_apply]
+  rw [hfun] at hs
+  simpa [Finset.sum_neg_distrib] using hs
+
 end FiniteWindowZeros
