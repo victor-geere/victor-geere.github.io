@@ -310,4 +310,45 @@ theorem norm_base_seven_le {z : ℂ} (hre : 0 ≤ z.re) :
   have h := base_seven_sum_le
   exact_mod_cast h
 
+/-! ## The derivative split at an arbitrary point of the `1/2`-ball -/
+
+theorem analyticAt_zetaEM_of_ball {z : ℂ} (hz : ‖z - s14‖ < 1 / 2) : AnalyticAt ℂ (zetaEM 20) z := by
+  have hd : DifferentiableOn ℂ (zetaEM 20) (Metric.ball s14 (1 / 2)) :=
+    (differentiableOn_zetaEM 20).mono (fun w hw => by
+      exact ⟨re_pos_of_ball_half (mem_ball_half.mp hw),
+        ne_one_of_ball_half (mem_ball_half.mp hw)⟩)
+  exact (hd.analyticOnNhd Metric.isOpen_ball) z (mem_ball_half.mpr hz)
+
+theorem contDiffAt_remainder_at (n : WithTop ℕ∞) {z : ℂ} (hz : ‖z - s14‖ < 1 / 2) :
+    ContDiffAt ℂ n (zetaEMRemainder 3 20) z := by
+  have h := (analyticAt_zetaEM_of_ball hz).contDiffAt.sub
+    (contDiffAt_gen3 (ne_one_of_ball_half hz) n)
+  have hfun : zetaEMRemainder 3 20 = fun s => zetaEM 20 s - zetaEMGen 3 20 s := by
+    funext s
+    rw [zetaEMRemainder]
+  rw [hfun]
+  exact h
+
+theorem iteratedDeriv_zeta_eq_gen3_add_at (k : ℕ) {z : ℂ} (hz : ‖z - s14‖ < 1 / 2) :
+    iteratedDeriv k riemannZeta z =
+      iteratedDeriv k (zetaEMGen 3 20) z + iteratedDeriv k (zetaEMRemainder 3 20) z := by
+  have hne : z ≠ 1 := ne_one_of_ball_half hz
+  have heq : riemannZeta =ᶠ[𝓝 z]
+      (fun s => zetaEMGen 3 20 s + zetaEMRemainder 3 20 s) := by
+    have hpos : (0 : ℝ) < 1 / 2 - ‖z - s14‖ := by linarith
+    filter_upwards [Metric.ball_mem_nhds z hpos] with w hw
+    have hdist : ‖w - z‖ < 1 / 2 - ‖z - s14‖ := by
+      simpa [dist_eq_norm] using hw
+    have h2 : ‖w - s14‖ ≤ ‖w - z‖ + ‖z - s14‖ := by
+      calc ‖w - s14‖ = ‖(w - z) + (z - s14)‖ := by ring_nf
+        _ ≤ ‖w - z‖ + ‖z - s14‖ := norm_add_le _ _
+    have hw' : ‖w - s14‖ < 1 / 2 := by linarith
+    have hζ := zeta_eq_zetaEM_of_im 20 (re_pos_of_ball_half hw')
+      (im_bounds_of_ball_half hw').1 (im_bounds_of_ball_half hw').2
+    rw [hζ, zetaEMRemainder]
+    ring
+  rw [heq.iteratedDeriv_eq k]
+  exact iteratedDeriv_add (contDiffAt_gen3 hne k) (contDiffAt_remainder_at k hz)
+
+
 end FiniteWindowZeros
