@@ -437,5 +437,240 @@ theorem dsPowPow_mem (k M : ℕ)
         exact Cx.mem_mul (cpowBox_mem hb mem_S14 hk hkI hn he1 he2 hI1 hI2)
           (mem_logBoxPow 20 (M + 1) k (by omega))
 
+/-! ## Exact values of `Ψ₃^{(j)}(s14)` -/
+
+theorem P3_mono : descPochhammer ℂ 3 = Polynomial.X ^ 3 - 3 * Polynomial.X ^ 2 + 2 * Polynomial.X := by
+  simp [descPochhammer]
+  ring_nf
+
+theorem P5_mono : descPochhammer ℂ 5 = Polynomial.X ^ 5 - 10 * Polynomial.X ^ 4 + 35 * Polynomial.X ^ 3
+    - 50 * Polynomial.X ^ 2 + 24 * Polynomial.X := by
+  simp [descPochhammer]
+  ring_nf
+
+theorem inv_pow_s14_sub_one (m : ℕ) :
+    ((s14 - 1) ^ m)⁻¹ =
+      ((((-2 / 785 : ℝ) : ℂ) + ((-56 / 785 : ℝ) : ℂ) * Complex.I) ^ m) := by
+  rw [← inv_pow]
+  congr 1
+  rw [inv_eq_one_div, inv_s14_sub_one]
+
+/-- Real part of `Ψ₃^{(j)}(s14)`, `j ≤ 6` (exact). -/
+def psiRe : ℕ → ℚ
+  | 0 => 39765388134947 / 88640021191680
+  | 1 => 26981771701667341 / 243538458224140800
+  | 2 => 38985956058659131 / 23897211213243816000
+  | 3 => -10127609715859404893 / 3126551800399399260000
+  | 4 => -101763989839147157867 / 613585790828382104775000
+  | 5 => 15691992412343226121901 / 48166484580027995224837500
+  | 6 => 1297363014162432 / 36738176211523328125
+  | _ => 0
+
+/-- Imaginary part of `Ψ₃^{(j)}(s14)`, `j ≤ 6` (exact). -/
+def psiIm : ℕ → ℚ
+  | 0 => -31957632314371 / 22160005297920
+  | 1 => -1849142049389 / 241605613317600
+  | 2 => 12952590191792761 / 853471829044422000
+  | 3 => 25995669568631621 / 55831282149989272500
+  | 4 => -20144741568085642927 / 21913778243870789456250
+  | 5 => -3316669526016 / 46800224473278125
+  | 6 => 5083137461477376 / 36738176211523328125
+  | _ => 0
+
+theorem iteratedDeriv_Psi3_val (j : ℕ) (hj : j ≤ 6) :
+    iteratedDeriv j Psi3 s14 = ((psiRe j : ℚ) : ℂ) + ((psiIm j : ℚ) : ℂ) * Complex.I := by
+  interval_cases j <;>
+  · rw [iteratedDeriv_Psi3 _ s14 s14_ne_one, P3_mono, P5_mono, inv_pow_s14_sub_one]
+    simp [polyIter, PolyD, psiRe, psiIm, pow_succ, pow_two]
+    apply Complex.ext <;>
+      simp [s14, Complex.add_re, Complex.add_im, Complex.sub_re, Complex.sub_im,
+        Complex.mul_re, Complex.mul_im, Complex.neg_re, Complex.neg_im,
+        Complex.I_re, Complex.I_im, pow_succ, pow_two] <;>
+      norm_num
+
+/-! ## The boxes -/
+
+/-- The point box at `Ψ₃^{(j)}(s14)`. -/
+def psiBox (j : ℕ) : Cx := ptBox (psiRe j) (psiIm j)
+
+theorem mem_psiBox (j : ℕ) (hj : j ≤ 6) :
+    (psiBox j).mem (iteratedDeriv j Psi3 s14) := by
+  rw [iteratedDeriv_Psi3_val j hj]
+  apply mem_ptBox <;> simp [psiBox]
+
+/-- The point box at `(-1)^i`. -/
+def signBox (i : ℕ) : Cx := ptBox ((-1 : ℚ) ^ i) 0
+
+theorem neg_one_pow_re (i : ℕ) : ((-1 : ℂ) ^ i).re = ((-1 : ℝ) ^ i) := by
+  induction i with
+  | zero => simp
+  | succ i ih => rw [pow_succ, pow_succ]; simp [ih, Complex.mul_re, Complex.neg_re, Complex.one_re]
+
+theorem neg_one_pow_im (i : ℕ) : ((-1 : ℂ) ^ i).im = 0 := by
+  induction i with
+  | zero => simp
+  | succ i ih => rw [pow_succ]; simp [ih, Complex.mul_im]
+
+theorem mem_signBox (i : ℕ) : (signBox i).mem ((-1 : ℂ) ^ i) := by
+  apply mem_ptBox
+  · show ((-1 : ℂ) ^ i).re = (((-1 : ℚ) ^ i : ℚ) : ℝ)
+    rw [neg_one_pow_re]
+    push_cast
+    ring
+  · show ((-1 : ℂ) ^ i).im = ((0 : ℚ) : ℝ)
+    rw [neg_one_pow_im]
+    norm_num
+
+/-- The point box at the binomial coefficient. -/
+def chooseBox (k i : ℕ) : Cx := ptBox ((k.choose i : ℕ) : ℚ) 0
+
+theorem mem_chooseBox (k i : ℕ) : (chooseBox k i).mem ((k.choose i : ℂ)) := by
+  apply mem_ptBox
+  · push_cast
+    simp [chooseBox]
+  · simp [chooseBox]
+
+/-- One term of the `21^{-s14}`-side scalar box. -/
+def sTerm (k i : ℕ) : Cx :=
+  (chooseBox k i).mul ((signBox i).mul ((logBoxPow 20 21 i).mul
+    ((cpowBox 20 16 48 24 21 S14).mul (psiBox (k - i)))))
+
+/-- Fold of the scalar-box terms over `i = 0..M-1`. -/
+def sBox (k : ℕ) : ℕ → Cx
+  | 0 => ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+  | (M + 1) => (sBox k M).add (sTerm k M)
+
+/-- The scalar value summed by `sBox`. -/
+def sVal (k i : ℕ) : ℂ :=
+  (k.choose i : ℂ) * (-Complex.log 21) ^ i * (21 : ℂ) ^ (-s14) * iteratedDeriv (k - i) Psi3 s14
+
+theorem sTerm_mem (k i : ℕ) (hk : k ≤ 6) (hi : i ≤ k) : (sTerm k i).mem (sVal k i) := by
+  have hki : k - i ≤ 6 := by omega
+  have hlog : (logBoxPow 20 21 i).mem ((Complex.log 21) ^ i) := by
+    have h := mem_logBoxPow 20 21 i (by norm_num)
+    rw [show (Complex.log 21) = Complex.log ((((21 : ℕ) : ℝ)) : ℂ) by rw [cpow21_base]]
+    exact h
+  have hcp : (cpowBox 20 16 48 24 21 S14).mem ((21 : ℂ) ^ (-s14)) := by
+    have hbase : ((21 : ℂ) ^ (-s14)) = (((((21 : ℕ) : ℝ)) : ℂ) ^ (-s14)) := by
+      rw [cpow21_base]
+    rw [hbase]
+    obtain ⟨hb, hk', hkI, hn, he1, he2, hI1, hI2⟩ :=
+      CpowConditions_of_OK (by native_decide : CpowOK 20 16 48 24 21 S14 = true)
+    exact cpowBox_mem hb mem_S14 hk' hkI hn he1 he2 hI1 hI2
+  simp only [sTerm]
+  have h := Cx.mem_mul (mem_chooseBox k i)
+    (Cx.mem_mul (mem_signBox i) (Cx.mem_mul hlog (Cx.mem_mul hcp (mem_psiBox (k - i) hki))))
+  convert h using 2
+  simp only [sVal]
+  rw [show (-Complex.log 21 : ℂ) = (-1) * Complex.log 21 by ring, mul_pow]
+  ring
+
+theorem sBox_mem (k : ℕ) (hk : k ≤ 6) (M : ℕ) (hM : M ≤ k + 1) :
+    (sBox k M).mem (∑ i ∈ Finset.range M, sVal k i) := by
+  induction M with
+  | zero => simp [sBox, Cx.mem, Iv.memR]
+  | succ M ih =>
+      rw [sBox, Finset.sum_range_succ]
+      apply Cx.mem_add
+      · exact ih (by omega)
+      · exact sTerm_mem k M hk (by omega)
+
+/-- The box for the `k`-th derivative of the `K = 3` generator at `s14`. -/
+def gen3Box (k : ℕ) : Cx := ((signBox k).mul (dsPowPow k 20)).add (sBox k (k + 1))
+
+/-- `(-1)^k · Σ (log n)^k n^{-s14} = Σ (-log n)^k n^{-s14}`. -/
+theorem sign_mul_dsPow (k : ℕ) :
+    (-1 : ℂ) ^ k * (∑ n ∈ Finset.range 20,
+        ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14)) * (Complex.log ((((n + 1 : ℕ) : ℝ) : ℂ))) ^ k)
+      = ∑ n ∈ Finset.range 20,
+        (-Complex.log ((((n + 1 : ℕ) : ℝ) : ℂ))) ^ k * ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14)) := by
+  rw [Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro n hn
+  rw [show (-Complex.log ((((n + 1 : ℕ) : ℝ) : ℂ))) = (-1 : ℂ) * Complex.log
+      ((((n + 1 : ℕ) : ℝ) : ℂ)) by ring, mul_pow]
+  ring
+
+/-- Cast bridge between the `ℕ`-cast and `ℝ`-cast forms of the base sum. -/
+theorem base_sum_cast (k : ℕ) :
+    (∑ n ∈ Finset.range 20,
+        (-Complex.log ((((n + 1 : ℝ)) : ℂ))) ^ k * ((((n + 1 : ℝ)) : ℂ) ^ (-s14)))
+      = ∑ n ∈ Finset.range 20,
+        (-Complex.log ((((n + 1 : ℕ) : ℝ) : ℂ))) ^ k
+          * ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14)) := by
+  apply Finset.sum_congr rfl
+  intro n hn
+  have hc : ((((n + 1 : ℕ) : ℝ)) : ℂ) = ((((n + 1 : ℝ)) : ℂ)) := by push_cast; ring
+  rw [hc]
+
+theorem gen3Box_mem (k : ℕ) (hk : k ≤ 6) :
+    (gen3Box k).mem (iteratedDeriv k (zetaEMGen 3 20) s14) := by
+  have hb := Cx.mem_mul (mem_signBox k)
+    (dsPowPow_mem k 20 (sumOK_conditions (by native_decide : sumOK 20 = true)))
+  have hs := sBox_mem k hk (k + 1) (le_refl _)
+  have h := Cx.mem_add hb hs
+  rw [iteratedDeriv_gen3 k s14_ne_one, base_sum_cast]
+  convert h using 2
+  · exact (sign_mul_dsPow k).symm
+  · apply Finset.sum_congr rfl
+    intro i hi
+    simp only [sVal]
+    ring
+  · rfl
+
+/-! ## Corner bounds -/
+
+theorem norm_gen3_deriv_le (k : ℕ) (hk : k ≤ 6) {q : ℚ} (hq0 : 0 ≤ q)
+    (hq : (maxAbsIv (gen3Box k).re) ^ 2 + (maxAbsIv (gen3Box k).im) ^ 2 ≤ q ^ 2) :
+    ‖iteratedDeriv k (zetaEMGen 3 20) s14‖ ≤ (q : ℝ) := by
+  have hqr : ((maxAbsIv (gen3Box k).re) ^ 2 + (maxAbsIv (gen3Box k).im) ^ 2 : ℝ) ≤
+      ((q : ℚ) : ℝ) ^ 2 := by exact_mod_cast hq
+  have hq0r : (0 : ℝ) ≤ ((q : ℚ) : ℝ) := by exact_mod_cast hq0
+  exact norm_le_of_mem_box (gen3Box_mem k hk) hq0r (by simpa using hqr)
+
+theorem corner_gen3_two :
+    (maxAbsIv (gen3Box 2).re) ^ 2 + (maxAbsIv (gen3Box 2).im) ^ 2 ≤ ((70 / 100 : ℚ)) ^ 2 := by
+  native_decide
+
+theorem corner_gen3_three :
+    (maxAbsIv (gen3Box 3).re) ^ 2 + (maxAbsIv (gen3Box 3).im) ^ 2 ≤ ((61 / 100 : ℚ)) ^ 2 := by
+  native_decide
+
+theorem corner_gen3_four :
+    (maxAbsIv (gen3Box 4).re) ^ 2 + (maxAbsIv (gen3Box 4).im) ^ 2 ≤ ((55 / 100 : ℚ)) ^ 2 := by
+  native_decide
+
+theorem corner_gen3_five :
+    (maxAbsIv (gen3Box 5).re) ^ 2 + (maxAbsIv (gen3Box 5).im) ^ 2 ≤ ((53 / 100 : ℚ)) ^ 2 := by
+  native_decide
+
+theorem corner_gen3_six :
+    (maxAbsIv (gen3Box 6).re) ^ 2 + (maxAbsIv (gen3Box 6).im) ^ 2 ≤ ((53 / 100 : ℚ)) ^ 2 := by
+  native_decide
+
+/-- `|gen₃^{(2)}(s14)| ≤ 0.70`.  True value `0.6378`. -/
+theorem norm_gen3_deriv_two :
+    ‖iteratedDeriv 2 (zetaEMGen 3 20) s14‖ ≤ ((70 / 100 : ℚ) : ℝ) :=
+  norm_gen3_deriv_le 2 (by norm_num) (q := 70 / 100) (by norm_num) corner_gen3_two
+
+/-- `|gen₃^{(3)}(s14)| ≤ 0.61`.  True value `0.5506`. -/
+theorem norm_gen3_deriv_three :
+    ‖iteratedDeriv 3 (zetaEMGen 3 20) s14‖ ≤ ((61 / 100 : ℚ) : ℝ) :=
+  norm_gen3_deriv_le 3 (by norm_num) (q := 61 / 100) (by norm_num) corner_gen3_three
+
+/-- `|gen₃^{(4)}(s14)| ≤ 0.55`.  True value `0.5005`. -/
+theorem norm_gen3_deriv_four :
+    ‖iteratedDeriv 4 (zetaEMGen 3 20) s14‖ ≤ ((55 / 100 : ℚ) : ℝ) :=
+  norm_gen3_deriv_le 4 (by norm_num) (q := 55 / 100) (by norm_num) corner_gen3_four
+
+/-- `|gen₃^{(5)}(s14)| ≤ 0.53`.  True value `0.4789`. -/
+theorem norm_gen3_deriv_five :
+    ‖iteratedDeriv 5 (zetaEMGen 3 20) s14‖ ≤ ((53 / 100 : ℚ) : ℝ) :=
+  norm_gen3_deriv_le 5 (by norm_num) (q := 53 / 100) (by norm_num) corner_gen3_five
+
+/-- `|gen₃^{(6)}(s14)| ≤ 0.53`.  True value `0.4802`. -/
+theorem norm_gen3_deriv_six :
+    ‖iteratedDeriv 6 (zetaEMGen 3 20) s14‖ ≤ ((53 / 100 : ℚ) : ℝ) :=
+  norm_gen3_deriv_le 6 (by norm_num) (q := 53 / 100) (by norm_num) corner_gen3_six
 
 end FiniteWindowZeros

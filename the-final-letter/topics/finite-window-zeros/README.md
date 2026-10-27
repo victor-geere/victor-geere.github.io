@@ -494,6 +494,31 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T415 | Theorem | **`K = 3` generator, `k`-th derivative:** `d^k zetaEMGen 3 20 = Σ_{n≤20}(−log n)^k n^{−s} + Σ_{i≤k} C(k,i)(−log21)^i 21^{−s}·Ψ₃^{(k−i)}(s)` for `s ≠ 1`. | `iteratedDeriv_gen3` (`EMTaylor.lean`) |
 | T416 | Theorem | **Powers of the `log` box:** `logBoxPow N b k` contains `(Complex.log ↑b)^k` (needed for `(log n)^k` in `c_k`). | `logBoxPow`, `mem_logBoxPow` (`EMTaylor.lean`) |
 | T417 | Theorem | **`k`-th-derivative atom fold:** `dsPowPow k M` contains `Σ_{n<M} n^{−s14}·(log n)^k` (`derivAtomPow k n` = `cpowBox n S14 × logBoxPow n k`). | `derivAtomPow`, `dsPowPow`, `dsPowPow_mem` (`EMTaylor.lean`) |
+| T418 | Theorem | **`P₃` in monomial form:** `descPochhammer ℂ 3 = X³ − 3X² + 2X` (lets Lean evaluate the polynomial derivatives in `Ψ₃^{(j)}`). | `P3_mono` (`EMTaylor.lean`) |
+| T419 | Theorem | **`P₅` in monomial form:** `descPochhammer ℂ 5 = X⁵ − 10X⁴ + 35X³ − 50X² + 24X`. | `P5_mono` (`EMTaylor.lean`) |
+| T420 | Theorem | **Exact inverse powers of `s14 − 1`:** `((s14−1)^m)⁻¹ = ((−2−56i)/785)^m` for every `m`. | `inv_pow_s14_sub_one` (`EMTaylor.lean`) |
+| T421 | Theorem | **Exact `Ψ₃^{(j)}(s14)`, `j ≤ 6`:** each is a Gaussian rational `psiRe j + psiIm j·i` (matches the sympy table of I.303 digit for digit). | `iteratedDeriv_Psi3_val` (`EMTaylor.lean`) |
+| T422 | Theorem | **Point boxes at `Ψ₃^{(j)}(s14)`:** `psiBox j` contains `iteratedDeriv j Psi3 s14` for `j ≤ 6`. | `psiBox`, `mem_psiBox` (`EMTaylor.lean`) |
+| T423 | Theorem | **Real part of `(−1)^i`:** `((−1:ℂ)^i).re = (−1:ℝ)^i`. | `neg_one_pow_re` (`EMTaylor.lean`) |
+| T424 | Theorem | **Imaginary part of `(−1)^i`:** `((−1:ℂ)^i).im = 0`. | `neg_one_pow_im` (`EMTaylor.lean`) |
+| T425 | Theorem | **Point box at `(−1)^i`:** `signBox i` contains `(−1)^i`. | `signBox`, `mem_signBox` (`EMTaylor.lean`) |
+| T426 | Theorem | **Point box at the binomial coefficient:** `chooseBox k i` contains `C(k,i)`. | `chooseBox`, `mem_chooseBox` (`EMTaylor.lean`) |
+| T427 | Theorem | **One scalar-box term:** `sTerm k i` contains `C(k,i)(−1)^i(log21)^i·21^{-s14}·Ψ₃^{(k−i)}(s14)`. | `sTerm`, `sTerm_mem` (`EMTaylor.lean`) |
+| T428 | Theorem | **The `21^{-s14}`-side scalar box:** the fold `sBox k (k+1)` contains `Σ_{i≤k} C(k,i)(−log21)^i 21^{-s14} Ψ₃^{(k−i)}(s14)` = `21^{s14}·S_k`. | `sBox`, `sBox_mem` (`EMTaylor.lean`) |
+| T429 | Theorem | **Sign–sum identity:** `(−1)^k Σ (log n)^k n^{-s14} = Σ (−log n)^k n^{-s14}`. | `sign_mul_dsPow` (`EMTaylor.lean`) |
+| T430 | Theorem | **Cast bridge** for the base sum (`ℕ`-cast vs `ℝ`-cast logarithms). | `base_sum_cast` (`EMTaylor.lean`) |
+| T431 | Theorem | **`c_k` input box:** `gen3Box k` contains `gen₃^{(k)}(s14) = iteratedDeriv k (zetaEMGen 3 20) s14` for `k ≤ 6`. | `gen3Box`, `gen3Box_mem` (`EMTaylor.lean`) |
+| T432 | Theorem | **Box-to-norm for the generator:** membership in `gen3Box k` with rational corner `q` gives `‖gen₃^{(k)}(s14)‖ ≤ q`. | `norm_gen3_deriv_le` (`EMTaylor.lean`) |
+| T433 | Theorem | **Corner certificate, `k = 2`:** `‖gen₃″(s14)‖ ≤ 0.70` (true `0.6378`), by `native_decide`. | `corner_gen3_two` (`EMTaylor.lean`) |
+| T434 | Theorem | **Corner certificate, `k = 3`:** `‖gen₃‴(s14)‖ ≤ 0.61` (true `0.5506`). | `corner_gen3_three` (`EMTaylor.lean`) |
+| T435 | Theorem | **Corner certificate, `k = 4`:** `‖gen₃⁗(s14)‖ ≤ 0.55` (true `0.5005`). | `corner_gen3_four` (`EMTaylor.lean`) |
+| T436 | Theorem | **Corner certificate, `k = 5`:** `‖gen₃^{(5)}(s14)‖ ≤ 0.53` (true `0.4789`). | `corner_gen3_five` (`EMTaylor.lean`) |
+| T437 | Theorem | **Corner certificate, `k = 6`:** `‖gen₃^{(6)}(s14)‖ ≤ 0.53` (true `0.4802`). | `corner_gen3_six` (`EMTaylor.lean`) |
+| T438 | Theorem | **Second Taylor coefficient:** `‖gen₃″(s14)‖ ≤ 0.70`. | `norm_gen3_deriv_two` (`EMTaylor.lean`) |
+| T439 | Theorem | **Third:** `‖gen₃‴(s14)‖ ≤ 0.61`. | `norm_gen3_deriv_three` (`EMTaylor.lean`) |
+| T440 | Theorem | **Fourth:** `‖gen₃⁗(s14)‖ ≤ 0.55`. | `norm_gen3_deriv_four` (`EMTaylor.lean`) |
+| T441 | Theorem | **Fifth:** `‖gen₃^{(5)}(s14)‖ ≤ 0.53`. | `norm_gen3_deriv_five` (`EMTaylor.lean`) |
+| T442 | Theorem | **Sixth:** `‖gen₃^{(6)}(s14)‖ ≤ 0.53`. | `norm_gen3_deriv_six` (`EMTaylor.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

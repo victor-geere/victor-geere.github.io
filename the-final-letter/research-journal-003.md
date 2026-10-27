@@ -26,8 +26,16 @@ h2 : ∀ z ∈ closedBall s14 (1/5), ‖deriv riemannZeta z - deriv riemannZeta 
 T385) and `h1(c)` (T391, `h1_deriv`) are all proved. **`h2` is the only
 remaining obligation**; it is designed (§2b) but not started.
 
-Counts: **T1–T391 · 849 ledger theorems · 48/48 topics · 13 Lean files green ·
+**`c_k` boxes are done** (T418–T442): `gen3Box k` encloses `gen₃^{(k)}(s14)` for
+`k ≤ 6` with proved corner bounds `0.70, 0.61, 0.55, 0.53, 0.53`.  Nothing left
+before `h2` except the assembly steps of §2b.3 and the `sup|ζ^{(7)}|` bound.
+
+Counts: **T1–T442 · 900 ledger theorems · 48/48 topics · 14 Lean files green ·
 audit 48/48 · links 0 broken**.
+
+*File size note:* this journal is now ~830 lines, well past the ~500-line split
+threshold of the header.  Split into `research-journal-004.md` (live state = §0–§6,
+entries I.293–I.31x stay here) at the start of the next session.
 
 ## 1. What is proved (chain, in order)
 
@@ -762,3 +770,72 @@ the numeric `R₃` correction left.  Suggestion for the `scalarBox`:
 `ptBox (Re S_k) (Im S_k)` for each `k = 1..6` (the exact rationals are in I.303)
 times `logBoxPow`-powers of `log21`, or — simpler — use `native_decide` on the
 final corner as `Vbox` did.
+
+### 2026-10-27 — I.311: the `c_k` box layer is done (T418–T442)
+
+`gen3Box k` now encloses `gen₃^{(k)}(s14)` for every `k ≤ 6`, with **native_decide**
+corner certificates, so the Taylor coefficients `c_k = ζ^{(k)}(s14)/k!` are
+within reach.  25 new theorems in `EMTaylor.lean`:
+
+* **exact `Ψ₃^{(j)}(s14)`** (`j ≤ 6`) as Gaussian rationals — the values of I.303
+  are now *proved*, digit for digit, from the closed form T413;
+* the scalar box `sBox k` = `Σ_i C(k,i)(−log21)^i 21^{-s14} Ψ₃^{(k−i)}` (i.e.
+  `21^{-s14}·S_k`, the I.303 table), the base-sum box reused via `dsPowPow k`;
+* `gen3Box k` membership and `|gen₃^{(k)}(s14)| ≤ q_k` with
+
+  ```
+  k     2      3      4      5      6
+  q_k   0.70   0.61   0.55   0.53   0.53      (true 0.6378 0.5506 0.5005 0.4789 0.4802)
+  ```
+
+**What made the polynomial derivatives tractable.**  `Polynomial.derivative` is a
+`Finsupp` sum, so `simp [polyIter]` alone leaves a `p.sum` it cannot evaluate
+(the trap of I.296 is still there).  The fix is to *first* put the Pochhammer
+symbols in monomial form (`P3_mono`, `P5_mono`: `simp [descPochhammer]; ring_nf`)
+and then `simp [polyIter, PolyD]` computes the iterated derivatives by the
+ordinary `derivative_X_pow`/`derivative_mul` simp set.  Never put
+`Polynomial.derivative` in a `simp` list — unfolding it re-introduces `.sum`.
+
+Other frictions paid for:
+
+1. **`(-1 : ℂ)^i` needs its re/im computed by induction.**  Coercion
+   manipulations (`← Complex.ofReal_pow`, `push_cast`) do not unify the `ℚ`-cast
+   and `ℝ`-cast occurrences; `neg_one_pow_re`/`neg_one_pow_im` by induction on
+   `i` are two lines each and always fire.
+2. **`Cx` has no `AddCommMonoid` instance**, so `∑ i in range, …` over `Cx`
+   does not elaborate.  Use a fold (`sBox k : ℕ → Cx`), exactly as `dsPowPow`
+   does, and keep the *value* sum a `Finset.sum` over `ℂ`.
+3. **`convert h using 2` on a `Cx.mem` goal produces three subgoals** (value,
+   box, and sometimes a split sum); the box goal is `rfl`, and the sum goal
+   needs `Finset.sum_congr` + `ring` because the box's factor order is
+   `C·((−1)^i·(log^i·(21^s·Ψ)))` while the target is `C·(−log)^i·21^s·Ψ`.
+4. **State the `q` of a norm bound as `((q : ℚ) : ℝ)`**, not `(q / 100 : ℝ)`:
+   `norm_gen3_deriv_le` produces the coerced ℚ form and the ℝ literal does not
+   unify (two compiles).
+5. **`interval_cases j` on `hj : j ≤ 6`** handles all seven `Ψ₃` values in one
+   theorem; each case is `rw [iteratedDeriv_Psi3, P3_mono, P5_mono,
+   inv_pow_s14_sub_one]; simp [polyIter, PolyD, psiRe, psiIm]; Complex.ext;
+   simp [...]; norm_num` (23 s for the whole file).
+
+Compile: `EMTaylor.lean` is now **192 s** — the five corner `native_decide`s
+dominate (~30 s each); the structural proofs are seconds.  Batch edits to this
+file or move the corner tests to a trailing certificate file if that becomes
+painful.
+
+**Numbers.**  `|gen₃^{(k)}/k!|` gives `Σ_{k=2..6} k|c_k|r^{k−1} = 0.13928`
+(unchanged), and with `|R₃^{(k)}|/k! ≤ 6·10⁻⁵·2^k` (Cauchy on the `1/2`-ball)
+the budget is
+
+```
+0.13928 + 1.5·10⁻³ (R₃ corrections) + 2·C·r⁶/6!  ≤  0.188
+```
+
+with `C = sup|ζ^{(7)}|` on the ball; the crude termwise bound gives
+`C ≤ 6400`, so the remainder is `≤ 1.14·10⁻³` and the total `≈ 0.142` — 24%
+margin.  **Next: `h2` proper:** (i) the `ζ = gen₃ + R₃` derivative split,
+(ii) the Cauchy bound on `R₃` (use
+`Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le` in
+`Mathlib/Analysis/Complex/Liouville.lean`, radius `49/100`), (iii) the
+`sup|ζ^{(7)}|` bound, (iv) the downward Taylor induction via
+`norm_sub_le_of_deriv_bound`, with `AnalyticAt.deriv` supplying the
+differentiability of every `iteratedDeriv k ζ` (`iteratedDeriv_succ`).
