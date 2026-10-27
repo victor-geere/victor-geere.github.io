@@ -141,6 +141,26 @@ Pieces:
    `AnalyticAt.fderiv` / `AnalyticOnNhd.iteratedFDeriv` to get that every
    `deriv^[k] ζ` is differentiable.
 
+**Remainder, two routes (decide when starting `h2`):**
+
+* (A) *Taylor integral remainder*: `G(w) = (1/K!)∫₀¹ (1-t)^K ζ^{(K+1)}(s14+tw) w^{K+1} dt`,
+  bound `≤ sup|ζ^{(K+1)}| r^{K+1}/(K+1)!`, then `|G'| ≤ 2 max|G|/r`.  Needs the
+  integral identity (~150–250 lines, induction with `intervalIntegral.integral_deriv_eq_sub`)
+  and the crude `sup|ζ^{(7)}|` bound, which itself needs the 7th-derivative formula
+  of `gen₃` (available once `c_k` is).
+* (B) *Power-series tail*: Mathlib's `hasSum_taylorSeries_on_ball`
+  (`Mathlib/Analysis/Complex/TaylorSeries.lean`) gives `ζ(s14+w) = Σ c_k w^k` on
+  the ball of convergence, so
+  `|tail of ζ′| ≤ Σ_{k>K} k|c_k| r^{k-1}` with `|c_k| ≤ M/R^k` from Cauchy on a
+  radius-`R` ball: bound `= (M/r)·Σ_{k>K} k (r/R)^k`.  With `R = 1/2`, `r = 1/5`,
+  `c = 0.4`, `K = 7`: `Σ_{k>7} k c^k = c^8(8-7c)/(1-c)^2 = 9.4·10⁻⁴`; with a
+  crude `M ≤ 0.6` this is `1.6·10⁻³` — enough, and it needs **no high derivative
+  formula**, only `sup|ζ|` on the `1/2`-ball (which the `h1` machinery almost
+  gives).  This may well be the cheaper route; note the series in Mathlib is
+  phrased with `iteratedFDeriv`, so term-by-term differentiation of the power
+  series and the coefficient identification `c_k = ζ^{(k)}(s14)/k!` still need
+  a bridge.
+
 ### 2c. Why `K = 3`, not `K = 2`
 
 A *value* certificate works at `K = 2` (T306). A *derivative* certificate does
