@@ -289,3 +289,25 @@ including inside `A1c`'s numerals (harmless, it is a numeral equality); and the
 Round budget note: two consecutive rounds have produced one small lemma each,
 because context ran out mid-proof.  The membership is ~40 lines and should be
 done in one go with a fresh window rather than spread over three partial ones.
+
+### 2026-10-27 — I.287: `h1(a)` DONE — `mem_Vbox` (T351)
+
+`mem_Vbox : Cx.mem (deriv (zetaEMGen 1 20) s14) Vbox` is proved.  The whole
+`h1(a)` chain is now closed: T339 (derivative) → `V_eq` → T342/T343 (folding) →
+T341 (`dsPow_mem`) → T344–T347 (scalar) → T349/T350 (casts) → T351.
+
+The final proof was ~30 lines and the only real snag was **rewrite order** in the
+sum bridge:
+
+```lean
+rw [ofReal_log_natCast (n + 1) (by omega), hc]   -- log first, then the cast
+```
+
+`rw [hc, ofReal_log_natCast …]` fails, because `ofReal_log` *re-introduces*
+`↑↑(n+1)` (inside `Complex.log`) after `hc` has already fired.  General lesson:
+when two rewrites interact, put the one that *creates* the pattern last.
+
+**Next: `h1(b)`** — the residual ball `B4' + B6' + R3'` (~5.3e-4), then `h1(c)`.
+See §2a of this journal for the plan; the `Real.rpow` bounds on `21^-3.5` and
+`21^-5.5` are the only unfamiliar ingredient (T307 in `EMBox14.lean` shows the
+pattern: `Real.rpow_le_rpow_of_exponent_le` plus an integer-exponent evaluation).

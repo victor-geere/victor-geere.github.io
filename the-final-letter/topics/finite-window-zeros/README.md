@@ -427,6 +427,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T348 | Theorem | **`log` bridge:** `↑(Real.log b) = Complex.log ↑b`, linking `dsPow_mem`'s `Real.log` to T339's `Complex.log`. | `ofReal_log_natCast` (`EMDeriv.lean`) |
 | T349 | Theorem | **`log` box, `Complex.log` form:** `⟨logIvRat N b, 0⟩` contains `Complex.log ↑b`; avoids bridging inside the goal. | `mem_logBox'` (`EMDeriv.lean`) |
 | T350 | Theorem | **`21` base cast bridge:** `(21:ℂ) = (((21:ℕ):ℝ):ℂ)`, between `cpowBox`/`logIvRat` (keyed by `ℕ`) and the derivative lemmas. | `cpow21_base` (`EMDeriv.lean`) |
+| T351 | Theorem | **`h1(a)`: `ζ′` membership** — `deriv (zetaEMGen 1 20) s14 ∈ Vbox`. | `mem_Vbox` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

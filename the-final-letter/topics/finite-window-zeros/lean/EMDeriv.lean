@@ -335,4 +335,38 @@ theorem mem_logBox' (N b : ℕ) (hb : 1 ≤ b) :
 lemmas use `(21:ℂ)`.  This is the rewrite between them. -/
 theorem cpow21_base : (21 : ℂ) = (((↑(21 : ℕ) : ℝ)) : ℂ) := by norm_num
 
+/-- **`h1(a)`: the `ζ′` membership.**  `deriv (zetaEMGen 1 20) s14` lies in `Vbox`. -/
+theorem mem_Vbox : Cx.mem (deriv (zetaEMGen 1 20) s14) Vbox := by
+  rw [(hasDerivAt_zetaEMGen_one s14 s14_ne_one).deriv, V_eq, cpow21_base, Vbox, scalarBox]
+  apply Cx.mem_add
+  · apply Cx.mem_neg
+    have h := dsPow_mem 20 (sumOK_conditions (by native_decide : sumOK 20 = true))
+    have hbridge : (∑ n ∈ Finset.range 20,
+          ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14)) * (((Real.log ((n + 1 : ℕ) : ℝ)) : ℝ) : ℂ))
+        = ∑ n ∈ Finset.range 20,
+            ((((n + 1 : ℝ)) : ℂ) ^ (-s14)) * Complex.log ((((n + 1 : ℝ)) : ℂ)) := by
+      apply Finset.sum_congr rfl
+      intro n _
+      have hc : ((((n + 1 : ℕ) : ℝ)) : ℂ) = ((((n + 1 : ℝ)) : ℂ)) := by
+        push_cast
+        ring
+      rw [ofReal_log_natCast (n + 1) (by omega), hc]
+    rw [hbridge] at h
+    exact h
+  · apply Cx.mem_mul
+    · obtain ⟨hb, hk, hkI, hn, he1, he2, hI1, hI2⟩ :=
+        CpowConditions_of_OK (by native_decide : CpowOK 20 16 48 24 21 S14 = true)
+      exact cpowBox_mem hb mem_S14 hk hkI hn he1 he2 hI1 hI2
+    · have h0 : (ptBox (17190769 / 155288700) (-4704 / 616225)).mem A0c := by
+        apply mem_ptBox <;> simp [A0c]
+      have h1 : (ptBox (-177437 / 395640) (20383 / 14130)).mem A1c := by
+        apply mem_ptBox <;> simp [A1c]
+      have hl : (⟨logIvRat 20 21, (⟨0, 0⟩ : Iv)⟩ : Cx).mem
+          (Complex.log (((↑(21 : ℕ) : ℝ)) : ℂ)) :=
+        mem_logBox' 20 21 (by norm_num)
+      have hm := Cx.mem_mul h1 hl
+      have hsum := Cx.mem_add h0 hm
+      convert hsum using 1
+      ring
+
 end FiniteWindowZeros
