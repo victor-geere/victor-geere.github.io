@@ -2572,3 +2572,20 @@ Guessing parameters from a Python re-implementation was the mistake — the
 mirror is close enough to choose `kI` but not close enough to predict the box
 width.  The next probe should bisect `maxAbsIv (cpowBox 14 16 64 20 2 S14).re`
 against the mirror's interval in a single compile.
+
+### 2026-10-27 — Phase I.260: the wide atom is the one at `Im = 17`
+
+Bisected the four components of the `1/2+14i` box separately at radius `1/2`.
+`csPow 20`, `cpowBox 21 S14 · 1/2` and `cpowBox 21 S2box · 1/(s-1)` pass;
+`cpowBox 21 S17box · ball 6` fails.  So the enclosure width is driven by the
+largest imaginary exponent (`Im = 17`), not by the pole term or the base sum.
+
+That is a sharper diagnosis than "the box is too wide": the `Im = 14` atoms are
+fine and only the shifted one is not, which means the `powNat kI` width
+amplification in Lean is materially worse than the Python mirror's `cx_pow`
+re-implementation.  The mirror is therefore useless as a *width* predictor and
+should be used only for the parameter *admissibility* question.
+
+The intended fix sidesteps the problem rather than fighting it: the `B₄`
+boundary term is numerically negligible (`<= 6·21^(-3) < 1/1000`), so it never
+needed an atom.  Bounding it directly leaves 22 tight atoms.

@@ -141,11 +141,19 @@ The likely suspects, in order:
 2. `logIvRat 14 21` may differ from the mirror's `log_iv_rat`.
 3. `Iv.mul`'s `min4`/`max4` corner selection, if either mirror mis-models it.
 
-Diagnostics already gathered: `csPow 20`, `cpowBox 21 S14` and
-`cpowBox 21 S2box` each have corner norm within `3`, `1` and `50` of the
-predicted `0.22`, `0.22` and `4.58`, so no atom is grossly wrong — the excess
-is per-atom *width*, not magnitude.  That points at the `expIvGeneral` /
-`expRem` definitions rather than at `logIvRat`.
+**Localised (round 5).**  Bisecting the four components separately at radius
+`1/2`: `csPow 20`, `cpowBox 21 S14 · 1/2` and `cpowBox 21 S2box · 1/(s-1)` all
+pass, but `cpowBox 21 S17box · ball 6` **fails**.  So the wide atom is the one
+with `Im = 17`; the `Im = 14` atoms are fine.  The box width therefore grows
+with `|Im|` much faster than the mirror predicts — consistent with the
+`powNat kI` width amplification being worse in Lean than in
+`emit_blocks.cx_pow`, which is where the mirror and Lean diverge.
+
+**The fix does not need that atom at all.**  The `B₄` boundary term is
+`P₃ · 21^(-(s0+3))` with `|P₃/720| <= 6` and `|21^(-(s0+3))| = 21^(-7/2)`, so
+`|B₄ term| <= 6 · 21^(-3) < 1/1000`.  Replacing the atom by that rational bound
+needs one `Real.rpow` inequality (`21^(-(7/2)) <= 21^(-3)`) and the norm bound
+on `P₃`, and removes the wide atom entirely.
 
 Until this is resolved the box cannot certify anything: a corner of `>1` is
 compatible with `ζ(s0) ≠ 0` but not with `|ζ(s0)| <= 1/8`.  The infrastructure

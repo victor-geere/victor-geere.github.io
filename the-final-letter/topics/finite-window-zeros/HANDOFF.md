@@ -205,13 +205,17 @@ conditions pass), but the corner norm is **> 1**, while the exact-rational
 mirror `python/emit_em.py` predicts `0.10570` for the same atoms and the same
 `(14,16,64,20)` parameters — a factor-ten disagreement.
 
-Localisation so far: `csPow 20`, `cpowBox 21 S14`, `cpowBox 21 S2box` have
-corner norms ≤ 3, 1, 50 against predicted magnitudes 0.22, 0.22, 4.58 — so no
-atom is grossly *wrong*, the excess is per-atom **width**.  Next things to
-check, in order: `expRem`'s Lean definition vs the mirror's `(n+1)/(n!·n)`;
-`expIvGeneral`'s split; `Iv.mul`'s `min4`/`max4`; `expITaylor`'s sign
-convention.  A single `example : maxAbsIv (cpowBox 14 16 64 20 2 S14).re ≤ q`
-bisected against the mirror's interval will pin it down in one compile.
+**Localised.** Bisecting the four components separately at radius `1/2`:
+`csPow 20`, `cpowBox 21 S14 · 1/2` and `cpowBox 21 S2box · 1/(s-1)` all pass;
+`cpowBox 21 S17box · ball 6` **fails**. The wide atom is the one with `Im = 17`;
+the `Im = 14` atoms are fine. Box width grows with `|Im|` much faster than
+`emit_blocks.cx_pow` predicts, so the mirror and Lean diverge in the
+`powNat kI` amplification.
+
+**Planned fix: delete that atom.** The `B₄` boundary term is `P₃·21^(-(s0+3))`
+with `|P₃/720| <= 6` and `|21^(-(s0+3))| = 21^(-7/2)`, hence `<= 6·21^(-3) <
+1/1000`. Bounding it rationally (one `Real.rpow` monotonicity step plus a norm
+bound on `P₃`) removes the wide atom; the remaining 22 atoms are all tight.
 
 Until then step 3 cannot be closed: a corner of `>1` is consistent with
 `ζ(s0) ≠ 0` but not with `|ζ(s0)| ≤ 1/8`.
