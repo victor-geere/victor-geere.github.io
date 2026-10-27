@@ -519,6 +519,20 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T440 | Theorem | **Fourth:** `‖gen₃⁗(s14)‖ ≤ 0.55`. | `norm_gen3_deriv_four` (`EMTaylor.lean`) |
 | T441 | Theorem | **Fifth:** `‖gen₃^{(5)}(s14)‖ ≤ 0.53`. | `norm_gen3_deriv_five` (`EMTaylor.lean`) |
 | T442 | Theorem | **Sixth:** `‖gen₃^{(6)}(s14)‖ ≤ 0.53`. | `norm_gen3_deriv_six` (`EMTaylor.lean`) |
+| T443 | Theorem | **Analyticity of `ζ` at `s14`:** `AnalyticAt ℂ riemannZeta s14` (from `DifferentiableOn` on the `1/2`-ball). | `analyticAt_riemannZeta_s14` (`EMTaylorCert.lean`) |
+| T444 | Theorem | **All iterated derivatives of `ζ` are analytic at `s14`:** `AnalyticAt ℂ (iteratedDeriv m ζ) s14`, by induction with `AnalyticAt.deriv`. | `analyticAt_iteratedDeriv_zeta_s14` (`EMTaylorCert.lean`) |
+| T445 | Theorem | **Smoothness of the `K = 3` generator:** `ContDiffAt ℂ n gen₃ s` for `s ≠ 1`, any order `n`. | `contDiffAt_gen3` (`EMTaylorCert.lean`) |
+| T446 | Theorem | **Analyticity of `zetaEM 20` at `s14`.** | `analyticAt_zetaEM_twenty` (`EMTaylorCert.lean`) |
+| T447 | Theorem | **Smoothness of `R₃ = zetaEMRemainder 3 20` at `s14`, any order.** | `contDiffAt_remainder` (`EMTaylorCert.lean`) |
+| T448 | Theorem | **The derivative split:** `ζ^{(k)}(s14) = gen₃^{(k)}(s14) + R₃^{(k)}(s14)` for every `k` (eventual equality on the `1/2`-ball + `iteratedDeriv_add`). | `iteratedDeriv_zeta_eq_gen3_add` (`EMTaylorCert.lean`) |
+| T449 | Theorem | **`R₃` is `DiffContOnCl` on `ball s14 (49/100)`** (needed for the Cauchy estimate). | `diffContOnCl_remainder` (`EMTaylorCert.lean`) |
+| T450 | Theorem | **Cauchy estimate for `R₃`:** `‖R₃^{(k)}(s14)‖ ≤ k!·6·10⁻⁵/(49/100)^k` (Liouville's `norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le`). | `norm_iteratedDeriv_remainder_le` (`EMTaylorCert.lean`) |
+| T451 | Theorem | **The `c_k` bound formula:** `‖ζ^{(k)}(s14)/k!‖ ≤ q/k! + 6·10⁻⁵/(49/100)^k` whenever `‖gen₃^{(k)}(s14)‖ ≤ q`. | `norm_c_k_le` (`EMTaylorCert.lean`) |
+| T452 | Theorem | **`|c₂| ≤ 0.351`** (true `0.3189`). | `norm_c_two` (`EMTaylorCert.lean`) |
+| T453 | Theorem | **`|c₃| ≤ 0.103`** (true `0.09176`). | `norm_c_three` (`EMTaylorCert.lean`) |
+| T454 | Theorem | **`|c₄| ≤ 0.025`** (true `0.02086`). | `norm_c_four` (`EMTaylorCert.lean`) |
+| T455 | Theorem | **`|c₅| ≤ 0.007`** (true `0.003991`). | `norm_c_five` (`EMTaylorCert.lean`) |
+| T456 | Theorem | **`|c₆| ≤ 0.006`** (true `0.0006669`). | `norm_c_six` (`EMTaylorCert.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

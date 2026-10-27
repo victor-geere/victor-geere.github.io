@@ -26,11 +26,13 @@ h2 : ∀ z ∈ closedBall s14 (1/5), ‖deriv riemannZeta z - deriv riemannZeta 
 T385) and `h1(c)` (T391, `h1_deriv`) are all proved. **`h2` is the only
 remaining obligation**; it is designed (§2b) but not started.
 
-**`c_k` boxes are done** (T418–T442): `gen3Box k` encloses `gen₃^{(k)}(s14)` for
-`k ≤ 6` with proved corner bounds `0.70, 0.61, 0.55, 0.53, 0.53`.  Nothing left
-before `h2` except the assembly steps of §2b.3 and the `sup|ζ^{(7)}|` bound.
+**`c_k` is done** (T418–T442, T443–T456): the boxes enclose `gen₃^{(k)}(s14)`
+(`k ≤ 6`), the `ζ = gen₃ + R₃` split is proved for every derivative order, and
+Cauchy's estimate gives `|c_k| ≤ 0.351, 0.103, 0.025, 0.007, 0.006`.  What is
+left of `h2` is exactly two things: `sup|ζ^{(7)}| ≤ 25000` on the closed
+`1/5`-ball, and the downward Taylor induction (design in §2b.3).
 
-Counts: **T1–T442 · 900 ledger theorems · 48/48 topics · 14 Lean files green ·
+Counts: **T1–T456 · 914 ledger theorems · 48/48 topics · 15 Lean files green ·
 audit 48/48 · links 0 broken**.
 
 *File size note:* this journal is now ~830 lines, well past the ~500-line split
@@ -839,3 +841,47 @@ margin.  **Next: `h2` proper:** (i) the `ζ = gen₃ + R₃` derivative split,
 `sup|ζ^{(7)}|` bound, (iv) the downward Taylor induction via
 `norm_sub_le_of_deriv_bound`, with `AnalyticAt.deriv` supplying the
 differentiability of every `iteratedDeriv k ζ` (`iteratedDeriv_succ`).
+
+### 2026-10-27 — I.312: the `c_k` bounds — `ζ = gen₃ + R₃` split, Cauchy for `R₃` (T443–T456)
+
+New file `lean/EMTaylorCert.lean` (15th in `check.sh`, 20 s), 14 theorems:
+
+* **Analyticity chain.** `AnalyticAt ℂ riemannZeta s14` (from `DifferentiableOn` on
+  the `1/2`-ball + `DifferentiableOn.analyticOnNhd`), then
+  `AnalyticAt.deriv` iterated → `AnalyticAt ℂ (iteratedDeriv m ζ) s14` for every
+  `m`.  This is the differentiability input the Taylor induction needs.
+* **`ContDiffAt ℂ n (zetaEMGen 3 20) s`** for `s ≠ 1`, any `n` (the same
+  `gen3_eq_sum_psi` decomposition as T415, with `ContDiffAt.sum`/`.mul`).
+* **The derivative split** `iteratedDeriv_zeta_eq_gen3_add`:
+  `ζ =ᶠ[𝓝 s14] gen₃ + R₃` on the `1/2`-ball (via `zeta_eq_zetaEM_of_im` and
+  `zetaEMRemainder = zetaEM − gen`), then
+  `Filter.EventuallyEq.iteratedDeriv_eq` + `iteratedDeriv_add`.
+* **Cauchy for `R₃`:** `Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le`
+  (`Mathlib/Analysis/Complex/Liouville.lean`) with radius `49/100`:
+  `‖R₃^{(k)}(s14)‖ ≤ k!·6·10⁻⁵/(49/100)^k`.  Radius `49/100` (not `1/2`) because
+  `norm_remainder_three_ball_le` is stated with a **strict** inequality.
+* **The `c_k` bounds:** `‖c_k‖ ≤ q_k/k! + 6·10⁻⁵·(100/49)^k`, giving
+
+  ```
+  |c₂| ≤ 0.351    |c₃| ≤ 0.103    |c₄| ≤ 0.025    |c₅| ≤ 0.007    |c₆| ≤ 0.006
+  ```
+
+  so `Σ_{k=2..6} k|c_k|r^{k−1} ≤ 2·0.351·0.2 + 3·0.103·0.04 + 4·0.025·0.008
+  + 5·0.007·0.0016 + 6·0.006·0.00032 = 0.15363`.
+
+Traps: `differentiableOn_zetaEM` is stated on `{0 < re ∧ s ≠ 1}`, so the ball
+bound needs an explicit `.mono`; `ContDiffAt.differentiableAt` needs `1 ≠ 0`;
+`Complex.norm_natCast` already closes `‖(n:ℂ)‖ = n` (a trailing `simp` then
+errors with "no goals"); and the Cauchy estimate's `C` must be given for the
+**sphere**, not the ball, so every bound `‖z − s14‖ ≤ 49/100` on a sphere is
+converted to `< 1/2` first.
+
+Remaining for `h2`: `sup|ζ^{(7)}| ≤ 25000` on the closed `1/5`-ball, then the
+downward Taylor induction.  Budget with `K = 6`:
+`0.15363 + 2·25000·(1/5)^6/6! = 0.15363 + 0.00889 = 0.1625 ≤ 47/250` ✔ (14%).
+The sup bound decomposes as
+`Σ_{n≤20}(log n)^7 ≤ 13189` (using `logIvRat 20 n` upper endpoints, no `rpow`
+evaluation needed — `n^{-z} ≤ 1` on `Re z ≥ 0`) + `21`-part `≤ 6500`
+(`log 21 ≤ 61/20` from `logIvRat`, and `Ψ₃^{(j)}` bounds from the T413 closed
+form with polynomial derivatives by Cauchy on a radius-`10` ball) + `R₃^{(7)}`
+`≤ 1800` (Cauchy, radius `29/100` around each point).
