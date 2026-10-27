@@ -495,3 +495,28 @@ it from `Polynomial.derivative` by induction on the polynomial.
 After that: evaluate `Ψ₃^{(j)}(s14)` (`j ≤ 6`) as Gaussian rationals in the ring
 `ℚ(i)[log 21]`, box them with the `Vbox`-style arithmetic, and bound
 `|c_k|`.  The numerical targets are in §2b.
+
+### 2026-10-27 — I.300: polynomial factor too (T403); the `c_k` toolkit is complete
+
+`iteratedDeriv_polynomial_neg : iteratedDeriv j (fun s => p.eval (-s)) =
+fun s => (-1)^j * (p^{(j)}(-s))`.  All four derivative formulas needed for the
+Taylor coefficients now compile (T400–T403).
+
+**Notation traps paid for here** (both cost a compile each):
+* `p.derivative` is fine, but `Polynomial.derivative^[j]` does **not** parse —
+  `^[` falls back to `GetElem` indexing.  Workaround: a plain wrapper
+  `def PolyD : Polynomial ℂ → Polynomial ℂ := fun p => Polynomial.derivative p`
+  and a *recursive* `def polyIter : ℕ → Polynomial ℂ → Polynomial ℂ
+  | 0, p => p | (j+1), p => PolyD (polyIter j p)`.  With the successor peeling
+  from the right, `polyIter (j+1) p = (polyIter j p).derivative` is definitional,
+  so no commutation lemma is needed (peeling from the left does need one, and
+  the naive `rfl` fails).
+* `ℂ[X]` was not in scope in this file — write `Polynomial ℂ` (the `[X]`
+  notation is scoped).  This was the source of a misleading
+  "failed to prove index is valid" error.
+
+**Next:** `iteratedDeriv j Psi3 s14` for `j ≤ 6` from the four formulas via the
+linearity of `iteratedDeriv` (`iteratedDeriv_add`, `iteratedDeriv_const_mul`,
+both needing `ContDiffAt` of each summand — obtainable from
+`ContDiffAt.inv`/`ContDiffAt.add`/`fun_prop`), then the boxes for
+`c_k = (gen3^{(k)}(s14) + R3^{(k)}(s14))/k!`.

@@ -210,4 +210,34 @@ theorem iteratedDeriv_inv_sub_one (j : ℕ) {s : ℂ} (hs : s ≠ 1) :
       ring
 
 
+/-- The formal derivative, as a plain function. -/
+def PolyD : Polynomial ℂ → Polynomial ℂ := fun p => Polynomial.derivative p
+
+/-- `j`-fold formal derivative. -/
+def polyIter : ℕ → Polynomial ℂ → Polynomial ℂ
+  | 0, p => p
+  | (j + 1), p => PolyD (polyIter j p)
+
+/-- **Polynomial factor, `j`-th derivative:** `d^j/ds^j p(-s) = (-1)^j p^{(j)}(-s)`. -/
+theorem iteratedDeriv_polynomial_neg (p : Polynomial ℂ) (j : ℕ) :
+    iteratedDeriv j (fun s : ℂ => p.eval (-s))
+      = fun s => (-1 : ℂ) ^ j * ((polyIter j p).eval (-s)) := by
+  induction j with
+  | zero =>
+      funext s
+      rw [iteratedDeriv_zero]
+      simp [polyIter]
+  | succ j ih =>
+      rw [iteratedDeriv_succ, ih]
+      funext s
+      have hc : HasDerivAt (fun s : ℂ => -s) (-1) s := hasDerivAt_neg s
+      have hq : HasDerivAt (fun x : ℂ => (polyIter j p).eval x)
+          ((polyIter j p).derivative.eval (-s)) (-s) :=
+        (polyIter j p).hasDerivAt (-s)
+      have hmul := (hq.comp s hc).const_mul ((-1 : ℂ) ^ j)
+      have hd := hmul.deriv
+      simp only [Function.comp_apply] at hd
+      rw [hd, show polyIter (j + 1) p = Polynomial.derivative (polyIter j p) from rfl]
+      ring
+
 end FiniteWindowZeros
