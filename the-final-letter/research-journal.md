@@ -2778,3 +2778,41 @@ shared `IBox.lean`.
 
 Lesson recorded: "we need a derivative of the remainder" was an assumption, not
 a fact.  Cauchy on a *small* quantity is far cheaper than differentiating it.
+
+### 2026-10-27 — Phase I.270: box enclosures cannot quantify over 2D regions
+
+Retracted the round-15 plan for `h2` (`M_R` → `Cx.inv` → `G''` box over the
+disk → MVT).  It rested on an unexamined assumption: that a `CpowBox`
+enclosure over a 2D rectangle stays tight.  It does not.
+
+Probed directly in Lean with `native_decide`: a *single* atom `20^{-S}` over
+the ball's bounding rectangle `[0.3,0.7] x [13.8,14.2]` has width `>= 0.1`,
+and over a rectangle of half-width `0.02` has width `>= 0.01`.  Interval
+arithmetic captures no cancellation over a region — the box width of a sum is
+the sum of the term widths — so `sum_{n<=20} n^{-S}` is `>= 2` wide against
+`|zeta| ~ 0.1`, and with `(log n)^2` weights `G''` is far worse.
+
+Consequence, and it is the important part: **no statement quantifying over a
+2D region can be certified with this layer at all.**  That is not a matter of
+effort or parameters.  `hC` is such a statement.
+
+The correct technique is a Taylor model: a point enclosure of the coefficients
+plus a crude modulus-sum bound on one high derivative, where the factor
+`r^m/m!` does the work.  Measured remainder bounds on the `1/5`-ball
+(`|G^{(m)}| <= sum_{n<=20} (log n)^m n^{-0.3}`):
+
+  degree 3: 2.0e-2    degree 5: 1.9e-4    degree 6: 1.5e-5    degree 7: 1.0e-6
+
+so the model is not the bottleneck; the true degree-7 error is `3.6e-11`.
+
+Two useful by-products: no `Cx.inv` is needed after all (the pole factor
+`(s0-1)^{-k}` is *exactly rational* at a point), and the remaining delicate
+step — bounding `sup |sum a_j w^j|` over the disk by `0.188` — is a **1D**
+problem on a circle, which interval arithmetic can handle (the naive modulus
+sum gives `0.25`, so subdivision into arcs will be needed).
+
+Methodological note: this is the third time in this dossier that a "mechanical"
+plan turned out to rest on an untested assumption about interval arithmetic
+(after the mirror-as-width-predictor error and the miscalculated pole scalar).
+Probing the primitive with one `native_decide` before designing around it has
+been the only reliable way to find these.

@@ -264,48 +264,55 @@ follows by the triangle inequality (`hC_of_bounds`, T328):
 The **true** values are `‖1 − Ykζ′(s14)‖ ≈ 10⁻¹⁰` and the Lipschitz constant
 `0.1517`, so `h1` has a factor-`10⁶` slack and `h2` has 24% slack.
 
-### The remaining work for `h2` — a plan that works
+### The remaining work for `h2` — CORRECTED in round 16
 
-**Key realisation (round 15): no second-derivative remainder theory is needed.**
-The remainder `R = zetaEM 20 - zetaEMGen 1 20` is *tiny* (`~3·10⁻³` over the
-`0.45`-disk, T305 at `K=2`), so `R′` can be bounded by **Cauchy on `R`
-itself**:
+**Retracted: the round-15 plan (M_R, `Cx.inv`, a `G″` box over the disk) cannot
+work.** It assumed that a `CpowBox` enclosure over a 2D rectangle stays tight.
+It does not. Measured in Lean (T-probe, `native_decide`):
 
-```
-|R'(z)| <= M_R / rho,   rho = 0.45 - 0.2 = 0.25
-```
-
-with `M_R` from T305 at `K = 2`, `N = 20` over `Re s >= 0.05`:
-
-| quantity | value |
+| region | width of a *single* atom `20^{-S}` |
 |---|---|
-| `‖s‖` max on the `0.45`-disk | `14.4812` |
-| `‖(s)₄‖ ≤` | `64590` |
-| `M_R` | `3.124·10⁻³` |
-| `|R′| ≤ M_R/0.25` | `0.01249` |
-| needed `sup‖G″‖ ≤ (47/250 − 2·0.01249)/0.2` | **`0.815`** |
-| true `sup‖ζ″‖` on the `1/5`-ball | `0.75863` (7.4% margin) |
-| total MVT `0.2·0.7586 + 2·0.0125` | `0.1767 ≤ 0.188` ✓ |
+| ball's bounding rect `[0.3,0.7]×[13.8,14.2]` | `≥ 0.1` |
+| small rect of half-width `0.02` | `≥ 0.01` |
 
-So `h2` follows from `sup‖G″‖ ≤ 0.815` where `G = zetaEMGen 1 20`, and `G″`
-is **explicit**: differentiating `Σ_{n≤20} n^{-s}`, the pole term and the
-`21^{-s}` multiples twice gives a finite expression in `n^{-s}`, `log n`,
-`log 21`, and powers of `1/(s-1)`.
+So summing 20 atoms gives a width `≥ 2` for `ζ` itself over the ball, against
+`|ζ| ≈ 0.1`: interval arithmetic over a 2D region captures **no cancellation**
+because the sum's width is the sum of the term widths. For `G″` the weights
+`(log n)²` make it far worse. Hence `sup‖G″‖` cannot be bounded this way, and
+**no** statement quantifying over a 2D region can be certified with this layer.
 
-Remaining pieces, in order:
+**The correct technique is a Taylor model**, which needs only *point*
+enclosures plus a crude modulus-sum bound on one high derivative. Measured:
 
-1. `M_R` over the `0.45`-disk (a small variant of T306; same shape).
-2. `|R′| ≤ M_R/ρ` by Cauchy (`Complex.norm_deriv_le_div_of_mapsTo_ball` is
-   already used in `EulerMaclaurin.lean`).
-3. **`Cx.inv`** — a complex reciprocal on boxes with soundness, for the
-   `1/(s-1)`, `1/(s-1)²`, `1/(s-1)³` factors. `Cx` has no `inv`;
-   `Interval.lean`'s separate `ComplexInterval` does. This is the only genuinely
-   new piece of infrastructure. Safe to add locally (not in the shared
-   `IBox.lean`) since `Re(s-1) ∈ [-0.45,-0.05]` is bounded away from `0`.
-4. The `G″` box formula and `sup‖G″‖ ≤ 0.815` by `native_decide`.
-5. MVT assembly → `h2`; then `h1` in the same style (point enclosure of `ζ′`).
+| Taylor degree | crude bound on `‖G^{(m)}‖` over the ball | remainder `≤` |
+|---|---|---|
+| 3 | `3.0·10²` | `2.0·10⁻²` |
+| 5 | `2.1·10³` | `1.9·10⁻⁴` |
+| 6 | `5.8·10³` | `1.5·10⁻⁵` |
+| 7 | `1.6·10⁴` | `1.0·10⁻⁶` |
 
-Nothing here is analytically hard any more; items 3–4 are mechanical but bulky.
+(the bound is just `Σ_{n≤20} (log n)^m · n^{-0.3}`, no cancellation needed,
+because `0.2^m/m!` kills it). The true degree-7 Taylor error on the ball is
+`3.6·10⁻¹¹`, so the model is not the bottleneck.
+
+Concretely, `h2` then follows from:
+
+1. **Point enclosures** of `ζ^{(k)}(s14)/k!` for `k = 1..6`, via the explicit
+   differentiated `zetaEMGen 1 20` at the point (only `cpowBox` at `S14`, and
+   `(s14-1)^{-k}` is *exactly rational* at a point, so **no `Cx.inv` is
+   needed**), plus `|R^{(k)}(s14)| ≤ k!·M_R/ρ^k` by Cauchy on the tiny
+   remainder (`M_R ≈ 3.1·10⁻³`, `ρ = 0.25`).
+2. A modulus-sum bound `‖G^{(7)}‖ ≤ 5.8·10³` over the ball — pure real
+   arithmetic, no boxes.
+3. Taylor's theorem for `ℂ`-valued functions (need to locate Mathlib's form).
+4. `sup_{|w|≤0.2} |Σ a_j w^j| ≤ 0.188` where `a_j` are the enclosed
+   coefficient combinations `-Yk·(j+1)·c_{j+1}`. The naive modulus sum gives
+   `≈ 0.25`, which is **too loose**; this needs either a finer norm (subdivide
+   the boundary circle into arcs and use `native_decide` per arc) or a higher
+   Taylor degree to shrink the tail.
+
+Item 4 is now the delicate part, and note it is a **1D** problem (a circle),
+which interval arithmetic *can* handle — unlike items that previously failed.
 
 ### What this does *not* give
 
@@ -313,29 +320,28 @@ Nothing here is analytically hard any more; items 3–4 are mechanical but bulky
 (`‖1 - Yk·ζ′‖ ≤ 1/4` on `‖w-s0‖ ≤ 1/4`) is still open, so **no zero is
 certified yet**. No RH or infinite-positivity claim is made anywhere.
 
-## Next steps, in order (current)
+## Next steps, in order (current — round 16)
 
-The only outstanding obligation is T329's two hypotheses (`h1`, `h2`).
-Concretely, in this order:
+The only outstanding obligation is T329's two hypotheses (`h1`, `h2`). The
+route is a **Taylor model**; the old `M_R`/`Cx.inv`/`G″`-box plan is retracted
+(see "The remaining work for `h2` — CORRECTED").
 
-1. `M_R` over the `0.45`-disk — a variant of T306 at `K=2`, `N=20`, `Re s ≥ 0.05`.
-   Expect `≈ 3.124·10⁻³`.
-2. `|R'| ≤ M_R/0.25` by Cauchy (`Complex.norm_deriv_le_div_of_mapsTo_ball`, as
-   already used in `EulerMaclaurin.lean`), giving `≈ 0.01249`.
-3. **`Cx.inv`** — complex reciprocal on boxes with soundness. `Cx` has none;
-   `Interval.lean`'s separate `ComplexInterval` does. Put it in the topic's own
-   file, not the shared `IBox.lean`: `Re(s-1) ∈ [-0.45,-0.05]` is bounded away
-   from `0` on the `1/5`-ball, which is all the side condition needs.
-4. The explicit `G''` box (`G = zetaEMGen 1 20`): `(log n)²·n^{-s}` summed over
-   `n ≤ 20`, plus the differentiated pole and `21^{-s}` terms. Check
-   `sup‖G''‖ ≤ 0.815` by `native_decide` (true value `0.75863`).
-5. Assemble `h2`: `|ζ'(z) - ζ'(s14)| ≤ 0.2·sup‖G''‖ + 2·|R'| ≤ 0.188`.
-6. `h1` in the same style: a point enclosure of `ζ'` at `s14` to `10⁻³`
-   (true error `~10⁻¹⁰`, so six orders of slack).
-7. `zeta_zero_14_of_bounds h1 h2` then yields the certified zero.
+1. Point enclosures of `ζ^{(k)}(s14)` for `k = 1..6`: differentiate
+   `zetaEMGen 1 20` explicitly, evaluate at the point `S14` with `cpowBox`,
+   use exact rational `(s14-1)^{-k}`, and add `k!·M_R/ρ^k` for the remainder
+   (`M_R` from T305 at `K=2`, `N=20`; `ρ = 0.25`).
+2. The modulus-sum bound `‖G^{(7)}‖ ≤ 5.8·10³` over the ball (real arithmetic).
+3. Taylor's theorem in ℂ (find the Mathlib form; `ftaylorSeries` /
+   `HasFTaylorSeriesUpTo` or a bespoke induction).
+4. The circle bound `sup_{|w|≤0.2}|Σ a_j w^j| ≤ 0.188` (1D; subdivide into
+   arcs if the naive modulus sum `≈0.25` is too loose).
+5. `h1` falls out of the same coefficient set (`c_1` gives `ζ′(s14)`).
+6. `zeta_zero_14_of_bounds h1 h2` → the certified zero.
+7. Ledger rows (README + index.html), `STATUS.md` counts, journal entry.
 
-Then update the ledger (README + index.html), `topics/STATUS.md` counts and
-`research-journal.md`, per the hard rules below.
+**Realistic size**: this is a new layer, not plumbing. Budget several rounds.
+Do not start until item 1's enclosure has been probed at a point — that part is
+known to work, but the constants need checking.
 
 ## Hard rules
 
