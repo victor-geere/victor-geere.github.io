@@ -2875,3 +2875,23 @@ a sum of *functions* (`∑ x, fun z => ...`), so the function needs
 `funext` + `Finset.sum_apply`, and the value needs `Finset.sum_neg_distrib` to
 match a `-∑ ...` statement.  Stating the lemma with the value as `-∑ ...`
 rather than `∑ -...` made the last step one line.
+
+### 2026-10-27 — Phase I.274: pole and 21-power terms differentiated
+
+Three more derivative lemmas (T333-T335), all stated in the form the `ζ′`
+assembly needs:
+
+  hasDerivAt_pow21_one_sub   d/dz 21^(1-z) = -log21 * 21^(1-s)
+  hasDerivAt_pow21_neg       d/dz 21^(-z)  = -log21 * 21^(-s)
+  hasDerivAt_pole            d/dz [21^(1-z)/(z-1)]
+                               = 21^(1-s) * (-log21/(s-1) - 1/(s-1)^2)
+
+Two friction points, both instances of the same pattern as T330: after
+`HasDerivAt.comp` the function is a syntactic `Function.comp`
+(`(fun z => 21^z) ∘ (fun z => 1 - z)`), so it needs a `rfl` rewrite before
+`convert` will see it as `fun z => 21^(1-z)`; and `HasDerivAt.inv` produces the
+value `-1/(s-1)^2`, not `-(s-1)⁻¹^2`, so the hypothesis must be stated in the
+form the library gives rather than the form I wanted.
+
+Remaining for `h1`: the `B₂` term `(1/12)·s·21^(-(s+1))`, the assembly into a
+box at `s14`, and the `deriv` bridge from `ζ` to `zetaEM 20`.

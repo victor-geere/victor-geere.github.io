@@ -65,4 +65,43 @@ theorem hasDerivAt_sum_cpow (N : ℕ) (s : ℂ) :
   rw [hfun] at hs
   simpa [Finset.sum_neg_distrib] using hs
 
+/-- **`d/dz 21^(1-z) = -log 21 · 21^(1-s)`.** -/
+theorem hasDerivAt_pow21_one_sub (s : ℂ) :
+    HasDerivAt (fun z : ℂ => (21 : ℂ) ^ (1 - z)) (-(Complex.log 21) * (21 : ℂ) ^ (1 - s)) s := by
+  have hg : HasDerivAt (fun z : ℂ => 1 - z) (-1) s :=
+    (hasDerivAt_id s).const_sub (1 : ℂ)
+  have h := (hasDerivAt_cpow_exp (b := (21 : ℂ)) (by norm_num) (1 - s)).comp s hg
+  have hfun : ((fun z : ℂ => (21 : ℂ) ^ z) ∘ (fun z : ℂ => 1 - z)) =
+      fun z : ℂ => (21 : ℂ) ^ (1 - z) := rfl
+  rw [hfun] at h
+  convert h using 1
+  ring
+
+/-- **`d/dz 21^(-z) = -log 21 · 21^(-s)`.** -/
+theorem hasDerivAt_pow21_neg (s : ℂ) :
+    HasDerivAt (fun z : ℂ => (21 : ℂ) ^ (-z)) (-(Complex.log 21) * (21 : ℂ) ^ (-s)) s := by
+  have h := hasDerivAt_cpow_neg (b := (21 : ℂ)) (by norm_num) s
+  convert h using 1
+  ring
+
+/-- **The pole term, differentiated:**
+`d/dz [21^(1-z)/(z-1)] = 21^(1-s)·(-log21/(s-1) - 1/(s-1)²)`. -/
+theorem hasDerivAt_pole (s : ℂ) (hs : s ≠ 1) :
+    HasDerivAt (fun z : ℂ => (21 : ℂ) ^ (1 - z) / (z - 1))
+      ((21 : ℂ) ^ (1 - s) * (-(Complex.log 21) / (s - 1) - 1 / (s - 1) ^ 2)) s := by
+  have hnum := hasDerivAt_pow21_one_sub s
+  have hden : HasDerivAt (fun z : ℂ => z - 1) (1 : ℂ) s :=
+    (hasDerivAt_id s).sub_const (1 : ℂ)
+  have hne : (s - 1) ≠ 0 := sub_ne_zero.mpr hs
+  have hinv : HasDerivAt (fun z : ℂ => (z - 1)⁻¹) (-1 / (s - 1) ^ 2) s := hden.inv hne
+  have h := hnum.mul hinv
+  have hfun : (fun z : ℂ => (21 : ℂ) ^ (1 - z) / (z - 1))
+      = fun z : ℂ => (21 : ℂ) ^ (1 - z) * (z - 1)⁻¹ := by
+    funext z
+    rw [div_eq_mul_inv]
+  rw [hfun]
+  convert h using 1
+  field_simp
+  ring
+
 end FiniteWindowZeros
