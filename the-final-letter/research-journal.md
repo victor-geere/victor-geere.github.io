@@ -2969,3 +2969,25 @@ leaves is cheaper than guessing.
 remains for `h1`: enclose that expression in a box at `s14` (atoms are ~1e-9
 tight, so unconstrained), add the Cauchy bound on `deriv (zetaEMRemainder 2 20)`
 (`<= 0.0125`), and assemble.
+
+### 2026-10-27 — Phase I.279: `h1` needs K=3, not K=2
+
+Checked the K-dependence of the remainder-derivative bound before building the
+`h1` assembly, and the planned `K = 2` does not work.
+
+`h1`'s budget is `0.25 - 1.29*(47/250) = 7.48e-3` (T328).  The remainder's
+derivative comes from Cauchy, `|R'| <= 2 M_R / rho` with `rho = 0.45`:
+
+  K=1: M_R = 7.64e-1  -> 1.29*|R'| = 4.38    FAIL
+  K=2: M_R = 3.12e-3  -> 1.29*|R'| = 1.79e-2 FAIL (2.4x over)
+  K=3: M_R = 3.97e-5  -> 1.29*|R'| = 2.28e-4 OK (33x margin)
+
+So the assembly must use `zetaEMGen 3 20`, which adds the `B_6` boundary term
+`-(1/30240)*P_5(s)*21^(-(s+5))` and its derivative; `P_5` and `P_5'` are exact
+Gaussian rationals at `s14`.
+
+Worth noting how this was nearly missed: T320–T339 were all built assuming
+`K = 2` for the remainder, because `K = 2` suffices for the *value* bound
+(T306).  Differentiating tightens the requirement by three orders of magnitude,
+because Cauchy on `R` divides by only `rho`, not by `rho^k`.  A value certificate
+and a derivative certificate need different `K`.
