@@ -455,3 +455,12 @@ Remaining for `c_k`: (i) `iteratedDeriv_sum` over the 20 base atoms (needs
 `21^{-s}·Ψ₃(s)` (or the packaged `iteratedDeriv (fun s => 21^{-s} * g s)`);
 (iii) `Ψ₃^{(j)}(s14)` for `j ≤ 6` as boxes from `1/(s14-1) = (-2-56i)/785`
 and the polynomial derivatives of `P₃`, `P₅`.
+
+**Update (I.298).** The explicit-implicit form
+`rw [iteratedDeriv_sum (I := Finset.range 20) (f := fun n z => …) (x := s) hf]`
+also fails (application type mismatch on `hf`, same metavariable issue).  The
+robust fallback, not yet tried, is `Finset.induction` on the sum with
+`iteratedDeriv_add` (`ContDiffAt` of each term is `contDiffAt_cpow_neg`, T399),
+or state the result as an equality of *functions*
+(`iteratedDeriv k (∑ n ∈ range 20, fun z => …) = …`) so the expected type fixes
+all implicits.  `EMTaylor.lean` is green at T399; nothing is left uncommitted.
