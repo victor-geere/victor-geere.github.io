@@ -412,6 +412,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T333 | Theorem | **`d/dz 21^(1-z) = -log21·21^(1-s)`.** | `hasDerivAt_pow21_one_sub` (`EMDeriv.lean`) |
 | T334 | Theorem | **`d/dz 21^(-z) = -log21·21^(-s)`.** | `hasDerivAt_pow21_neg` (`EMDeriv.lean`) |
 | T335 | Theorem | **Pole term differentiated:** `d/dz [21^(1-z)/(z-1)] = 21^(1-s)·(-log21/(s-1) - 1/(s-1)²)`. | `hasDerivAt_pole` (`EMDeriv.lean`) |
+| T336 | Theorem | **`deriv` bridge:** `deriv ζ s14 = deriv (zetaEM 20) s14`, from local equality of `ζ` and `zetaEM 20`. | `deriv_zeta_eq_deriv_zetaEM` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

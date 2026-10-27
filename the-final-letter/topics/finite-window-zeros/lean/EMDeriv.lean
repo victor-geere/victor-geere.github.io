@@ -104,4 +104,38 @@ theorem hasDerivAt_pole (s : ℂ) (hs : s ≠ 1) :
   field_simp
   ring
 
+/-- **The `deriv` bridge.**  `ζ` and `zetaEM 20` agree on a neighbourhood of
+`s14` (both are analytic on the strip `0 < Re s`, `1 < Im s < 20`), so their
+derivatives agree there.  This lets `deriv riemannZeta s14` be replaced by the
+explicit `deriv (zetaEM 20) s14`. -/
+theorem deriv_zeta_eq_deriv_zetaEM :
+    deriv riemannZeta s14 = deriv (zetaEM 20) s14 := by
+  have heq : riemannZeta =ᶠ[𝓝 s14] zetaEM 20 := by
+    filter_upwards [Metric.ball_mem_nhds s14 (by norm_num : (0 : ℝ) < 1 / 2)] with z hz
+    have hd : ‖z - s14‖ < 1 / 2 := by
+      simpa [dist_eq_norm] using Metric.mem_ball.mp hz
+    have hre : (z - s14).re = z.re - s14.re := Complex.sub_re _ _
+    have him : (z - s14).im = z.im - s14.im := Complex.sub_im _ _
+    have h1 : |z.re - s14.re| ≤ ‖z - s14‖ := by
+      have := Complex.abs_re_le_norm (z - s14)
+      rwa [hre] at this
+    have h2 : |z.im - s14.im| ≤ ‖z - s14‖ := by
+      have := Complex.abs_im_le_norm (z - s14)
+      rwa [him] at this
+    have hsre : s14.re = 1 / 2 := by norm_num [s14]
+    have hsim : s14.im = 14 := by norm_num [s14]
+    rw [hsre] at h1
+    rw [hsim] at h2
+    refine zeta_eq_zetaEM_of_im 20 ?_ ?_ ?_
+    · have hlt : |z.re - 1 / 2| < 1 / 2 := lt_of_le_of_lt h1 hd
+      have := (abs_lt.mp hlt).1
+      linarith
+    · have hlt : |z.im - 14| < 1 / 2 := lt_of_le_of_lt h2 hd
+      have := (abs_lt.mp hlt).1
+      linarith
+    · have hlt : |z.im - 14| < 1 / 2 := lt_of_le_of_lt h2 hd
+      have := (abs_lt.mp hlt).2
+      linarith
+  exact heq.deriv_eq
+
 end FiniteWindowZeros

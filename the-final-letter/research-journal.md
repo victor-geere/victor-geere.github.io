@@ -2895,3 +2895,25 @@ form the library gives rather than the form I wanted.
 
 Remaining for `h1`: the `B₂` term `(1/12)·s·21^(-(s+1))`, the assembly into a
 box at `s14`, and the `deriv` bridge from `ζ` to `zetaEM 20`.
+
+### 2026-10-27 — Phase I.275: the `deriv` bridge, and a good surprise
+
+Two results.
+
+**T336** `deriv riemannZeta s14 = deriv (zetaEM 20) s14`.  `zeta_eq_zetaEM_of_im`
+is a pointwise statement, so it cannot be differentiated directly; instead prove
+`riemannZeta =ᶠ[𝓝 s14] zetaEM 20` by applying the pointwise theorem throughout a
+ball of radius `1/2`, then use `Filter.EventuallyEq.deriv_eq`.  The ball bounds
+give `z.re > 0`, `13.5 < z.im < 14.5` from `|z - s14| < 1/2` via
+`Complex.abs_re_le_norm` / `abs_im_le_norm`.
+
+**Good surprise**: round 18 probed `derivAtom n` and asserted only `width <= 1e-3`,
+which I then worried about — twenty such atoms would give `0.02`, far above
+`h1`'s `7.7e-4` allowance.  Re-probing with tighter thresholds shows the actual
+width is `<= 1e-9` per atom, so the sum is `~1e-8`.  The enclosure precision was
+never the problem; `1e-3` was merely a loose assertion that happened to pass.
+
+Lesson: an *existential-style* probe ("is it at most X?") only tells you the
+bound you asked for.  To learn the actual magnitude, bisect the threshold until
+it fails — one extra compile, and it changed the feasibility assessment from
+"tight" to "unconstrained".
