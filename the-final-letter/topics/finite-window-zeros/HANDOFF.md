@@ -324,6 +324,31 @@ Concretely, the remaining pieces are
 
 Item 1 is the bulk.  Item 3 is formally delicate but the lemmas exist.
 
+**Probe done (round 18).**  The building block of item 1 is validated in Lean:
+
+```lean
+def derivAtom (n : ℕ) : Cx := (cpowBox 20 16 48 24 n S14).mul ⟨logIvRat 20 n, ⟨0, 0⟩⟩
+```
+
+* width `≤ 10⁻³` in each coordinate, checked at `n = 2, 10, 20`;
+* contains `log n · n^{-s14}`, checked against `10⁻³` windows at `n = 10, 20`
+  (values `0.4966125 − 0.5325090i` and `−0.3041189 + 0.5968520i`).
+
+So `ζ′` will enclose to `~10⁻³`, and `h1` needs only `~7·10⁻⁴` (the `Yk`
+approximation is 10-digit), so the accuracy is adequate.
+
+**One gap found:** Mathlib has no `HasDerivAt (fun s => b ^ s)` for the
+exponent variable.  It must be built from `Complex.cpow_def` +
+`HasDerivAt.exp` + chain rule — short, but it is not a one-liner:
+
+```lean
+theorem hasDerivAt_cpow_exp (b : ℂ) (hb : b ≠ 0) (s : ℂ) :
+    HasDerivAt (fun z => b ^ z) (b ^ s * Complex.log b) s
+```
+
+Do this first, then the finite sum over `n ≤ 20`, then the pole term
+(`P′ = 21^{1-s}·[−log21/(s-1) − 1/(s-1)²]`, exactly rational at `s14`).
+
 ### What this does *not* give
 
 `hmap` was the last *numerical* premise of the Krawczyk step. `hC`
