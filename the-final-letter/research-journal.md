@@ -2917,3 +2917,20 @@ Lesson: an *existential-style* probe ("is it at most X?") only tells you the
 bound you asked for.  To learn the actual magnitude, bisect the threshold until
 it fails — one extra compile, and it changed the feasibility assessment from
 "tight" to "unconstrained".
+
+### 2026-10-27 — Phase I.276: derivative layer complete for the base and pole terms
+
+`hasDerivAt_cpow_neg_shift` (T337): `d/dz b^(-(z+c)) = -log b · b^(-(z+c))`,
+needed for the `B₂` boundary term `s·21^(-(s+1))` (`c = 1`).  Same
+`Function.comp` friction as T333: `HasDerivAt.comp` leaves the syntactic
+composite, which needs a `rfl` rewrite before `convert`.
+
+`EMDeriv.lean` now has the full derivative toolkit for the explicit
+Euler–Maclaurin expression (T330–T337): `b^z`, `b^(-z)`, the shifted
+`b^(-(z+c))`, the finite base sum, `21^(1-z)`, `21^(-z)`, the pole term, and the
+`deriv` bridge from `ζ` to `zetaEM 20`.
+
+Still open for `h1`: the function identity
+`zetaEMGen 1 20 s = Σ + pole + 21^(-s)/2 + (1/12)s·21^(-(s+1))` as an equality
+of *functions of `s`* (only the `s14` instance exists, as T315), the assembly
+into a box, and the Cauchy bound on `deriv (zetaEMRemainder 2 20)`.

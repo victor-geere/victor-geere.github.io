@@ -138,4 +138,17 @@ theorem deriv_zeta_eq_deriv_zetaEM :
       linarith
   exact heq.deriv_eq
 
+/-- **`d/dz b^(-(z+c)) = -log b · b^(-(z+c))`** for `b ≠ 0`: the `B₂` boundary
+term `s·21^(-(s+1))` needs the case `c = 1`. -/
+theorem hasDerivAt_cpow_neg_shift {b : ℂ} (hb : b ≠ 0) (c s : ℂ) :
+    HasDerivAt (fun z : ℂ => b ^ (-(z + c))) (-(Complex.log b) * b ^ (-(s + c))) s := by
+  have hg : HasDerivAt (fun z : ℂ => z + c) (1 : ℂ) s :=
+    (hasDerivAt_id s).add_const c
+  have h := (hasDerivAt_cpow_neg hb (s + c)).comp s hg
+  have hfun : ((fun z : ℂ => b ^ (-z)) ∘ (fun z : ℂ => z + c)) =
+      fun z : ℂ => b ^ (-(z + c)) := rfl
+  rw [hfun] at h
+  convert h using 1
+  ring
+
 end FiniteWindowZeros
