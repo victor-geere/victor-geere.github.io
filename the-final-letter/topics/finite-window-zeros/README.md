@@ -398,6 +398,11 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T319 | Theorem | **Box membership:** `zetaEMGen 1 20 s14` lies in the folded box `Bzeta`. | `mem_Bzeta` (`EMBox14.lean`) |
 | T320 | Theorem | **Step 3:** `‖ζ(1/2+14i)‖ ≤ 1/8`. | `zeta_norm_le_eighth` (`EMBox14.lean`) |
 | T321 | Theorem | **Krawczyk map condition:** `‖Yk·ζ(1/2+14i)‖ + (1/4)² ≤ 1/4`; `hmap` is discharged. | `hmap_zeta` (`EMBox14.lean`) |
+| T322 | Theorem | **Sharp step-3 bound:** `‖ζ(1/2+14i)‖ ≤ 23/200 = 0.115` (the triangle chain, kept sharp for the `1/5` radius). | `zeta_norm_le_115` (`EMBox14.lean`) |
+| T323 | Theorem | **Sharpened `Yk` bound:** `‖Yk‖ ≤ 1.29` (the 10-digit rational is accurate to `3·10⁻⁵`). | `norm_Yk_le` (`EMBox14.lean`) |
+| T324 | Theorem | **Map condition at radius `1/5`:** `‖Yk·ζ(s0)‖ + (1/4)·(1/5) ≤ 1/5`; a zero in the `1/5`-ball is stronger than in the `1/4`-ball. | `hmap_zeta_fifth` (`EMBox14.lean`) |
+| T325 | Theorem | **The `1/5`-ball avoids `1`.** | `fifth_ball_ne_one` (`EMBox14.lean`) |
+| T326 | Theorem | **Krawczyk target at radius `1/5`:** reduces to `hC` alone; `hmap` and the `z ≠ 1` condition are discharged. | `zeta_zero_fifth_ball` (`EMBox14.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

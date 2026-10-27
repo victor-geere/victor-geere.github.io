@@ -2711,3 +2711,19 @@ summing moduli of the differentiated EM terms gives `≥ 30`, so a genuine
 second-derivative enclosure is required.  Interesting negative result: this is
 the first place in the dossier where an *interval* bound cannot be made to work
 and the order of the derivative is the binding constraint, not the height.
+
+### 2026-10-27 — Phase I.267: the `1/5` radius is proved down to `hC` alone
+
+At `r = 1/5` the map condition has only a 1.3% margin, so it was worth checking
+in exact arithmetic rather than by `mpmath`.  `|Yk|² = 1.6621015 ≤ 1.29²` and
+`1.29·(23/200) + 1/20 = 0.19835 ≤ 1/5`; both are now Lean theorems (T323,
+T324), together with the sharpened `‖ζ(s14)‖ ≤ 23/200` (T322), the `z ≠ 1`
+condition (T325) and the packaged target `zeta_zero_fifth_ball` (T326).
+
+So the whole remaining obligation for a certified zero at `1/2 + 14i` is the
+single derivative-enclosure hypothesis `hC`.  That is a much better position
+than "steps 4 and 5 open": step 5 is now trivial plumbing, and step 4 is one
+lemma.
+
+Note on the radius: `r = 1/5` is *stronger* than `r = 1/4`, so nothing is
+weakened by the change; `zeta_zero_quarter_ball` is simply superseded.

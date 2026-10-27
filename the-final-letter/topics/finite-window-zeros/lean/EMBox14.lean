@@ -367,8 +367,8 @@ theorem mem_Bzeta : Cx.mem (zetaEMGen 1 20 s14) Bzeta := by
   rw [zetaEMGen_one_expand, Bzeta]
   convert Cx.mem_add hsum hthree using 1 <;> ring
 
-/-- **Step 3: `‖ζ(1/2+14i)‖ ≤ 1/8`.** -/
-theorem zeta_norm_le_eighth : ‖riemannZeta s14‖ ≤ (1 / 8 : ℝ) := by
+/-- **Step 3, sharp form: `‖ζ(1/2+14i)‖ ≤ 23/200 = 0.115`.** -/
+theorem zeta_norm_le_115 : ‖riemannZeta s14‖ ≤ (23 / 200 : ℝ) := by
   have hre : 0 < s14.re := by norm_num [s14]
   have him1 : 1 < s14.im := by norm_num [s14]
   have him2 : s14.im < 20 := by norm_num [s14]
@@ -392,12 +392,62 @@ theorem zeta_norm_le_eighth : ‖riemannZeta s14‖ ≤ (1 / 8 : ℝ) := by
     _ ≤ (11 / 100 + 1 / 1000) + 1 / 250 := by
         have h1 := norm_add_le (zetaEMGen 1 20 s14) ((-(emCoef 2) : ℂ) * emGShift s14 20 3 0)
         linarith [hnorm, norm_b4term_le, norm_remainder_two_le]
-    _ ≤ (1 / 8 : ℝ) := by norm_num
+    _ ≤ (23 / 200 : ℝ) := by norm_num
+
+/-- **Step 3: `‖ζ(1/2+14i)‖ ≤ 1/8`.** -/
+theorem zeta_norm_le_eighth : ‖riemannZeta s14‖ ≤ (1 / 8 : ℝ) :=
+  zeta_norm_le_115.trans (by norm_num)
 
 /-- **The Krawczyk map condition for `Yk` at `1/2+14i`** (step 3 payoff):
 `‖Yk·ζ(s0)‖ + (1/4)·(1/4) ≤ 1/4`. -/
 theorem hmap_zeta :
     ‖Yk * riemannZeta s14‖ + (1/4 : ℝ) * (1/4 : ℝ) ≤ (1/4 : ℝ) :=
   hmap_of_zeta_bound zeta_norm_le_eighth
+
+/-! ## The `r = 1/5` Krawczyk data -/
+
+/-- `‖Yk‖ ≤ 1.29` (the 10-digit rational is accurate to `3·10⁻⁵`). -/
+theorem norm_Yk_le : ‖Yk‖ ≤ (1.29 : ℝ) := by
+  have hsq : Complex.normSq Yk ≤ ((1.29 : ℝ) ^ 2) := by
+    rw [Yk]
+    norm_num [Complex.normSq_apply, Complex.add_re, Complex.add_im,
+      Complex.mul_re, Complex.mul_im]
+  calc ‖Yk‖ = Real.sqrt (Complex.normSq Yk) := by
+        rw [← Real.sqrt_sq (norm_nonneg _), Complex.normSq_eq_norm_sq]
+    _ ≤ Real.sqrt ((1.29 : ℝ) ^ 2) := Real.sqrt_le_sqrt hsq
+    _ = (1.29 : ℝ) := by rw [Real.sqrt_sq (by norm_num)]
+
+/-- **The map condition at radius `1/5`.**  `‖Yk·ζ(s0)‖ + (1/4)·(1/5) ≤ 1/5`,
+using the sharp `‖ζ(s0)‖ ≤ 23/200`.  A zero in the `1/5`-ball is *stronger* than
+one in the `1/4`-ball, so this is not a weakening of the target. -/
+theorem hmap_zeta_fifth :
+    ‖Yk * riemannZeta s14‖ + (1/4 : ℝ) * (1/5 : ℝ) ≤ (1/5 : ℝ) := by
+  have hmul : ‖Yk * riemannZeta s14‖ ≤ (1.29 : ℝ) * (23 / 200 : ℝ) := by
+    rw [norm_mul]
+    exact mul_le_mul norm_Yk_le zeta_norm_le_115 (norm_nonneg _) (by norm_num)
+  linarith
+
+/-- The `1/5`-ball around `1/2+14i` avoids `1`. -/
+theorem fifth_ball_ne_one : ∀ z ∈ Metric.closedBall s14 (1/5), z ≠ 1 := by
+  intro z hz hz1
+  subst hz1
+  rw [Metric.mem_closedBall, dist_eq_norm] at hz
+  have him := Complex.abs_im_le_norm ((1 : ℂ) - s14)
+  have hval : ((1 : ℂ) - s14).im = -14 := by norm_num [s14]
+  rw [hval] at him
+  rw [show ((1 : ℂ) - s14) = -((s14) - 1) by ring, norm_neg] at him
+  have hnorm : ‖s14 - 1‖ ≤ (1/5 : ℝ) := by rw [norm_sub_rev]; exact hz
+  norm_num at him
+  linarith
+
+/-- **The Krawczyk target at radius `1/5`.**  The *only* remaining hypothesis is
+the derivative enclosure `hC`; the map condition is `hmap_zeta_fifth` (proved)
+and the ball avoids `1` (`fifth_ball_ne_one`, proved). -/
+theorem zeta_zero_fifth_ball {Y : ℂ} (hY : Y ≠ 0)
+    (hC : ∀ z ∈ Metric.closedBall s14 (1/5), ‖1 - Y * deriv riemannZeta z‖ ≤ (1/4 : ℝ))
+    (hmap : ‖Y * riemannZeta s14‖ + (1/4 : ℝ) * (1/5 : ℝ) ≤ (1/5 : ℝ)) :
+    ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0 :=
+  FiniteWindowZeros.zeta_zero_of_krawczyk (x0 := s14) (r := 1/5) (q := 1/4)
+    (by norm_num) (by norm_num) (by norm_num) hY fifth_ball_ne_one hC hmap
 
 end FiniteWindowZeros

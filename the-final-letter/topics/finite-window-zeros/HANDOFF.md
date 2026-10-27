@@ -257,8 +257,28 @@ At `r = 1/5`, `q = 1/4` **both** Krawczyk conditions hold, with 28% margin on
 existing `norm_Yk_le_three_halves`).
 
 Changing the radius means `zeta_zero_of_krawczyk` is instantiated at `r = 1/5`
-rather than `zeta_zero_quarter_ball`; that is a new lemma, not a weakening of
-P3.
+rather than `zeta_zero_quarter_ball`.  This is **not a weakening**: a zero in
+the `1/5`-ball is a stronger statement than one in the `1/4`-ball.  Done in
+T322–T326:
+
+```lean
+theorem zeta_norm_le_115 : ‖riemannZeta s14‖ ≤ (23 / 200 : ℝ)      -- sharp
+theorem norm_Yk_le : ‖Yk‖ ≤ (1.29 : ℝ)                             -- sharp
+theorem hmap_zeta_fifth :
+    ‖Yk * riemannZeta s14‖ + (1/4) * (1/5) ≤ (1/5)                 -- map, proved
+theorem fifth_ball_ne_one : ∀ z ∈ closedBall s14 (1/5), z ≠ 1      -- proved
+theorem zeta_zero_fifth_ball ... (hC : ...) (hmap : ...) :
+    ∃ z ∈ closedBall s14 (1/5), riemannZeta z = 0
+```
+
+So the *entire* remaining obligation for a certified zero is the single
+hypothesis `hC`.  Exactly:
+
+**Exactly one hypothesis remains:**
+
+```lean
+hC : ∀ z ∈ Metric.closedBall s14 (1/5), ‖1 - Y * deriv riemannZeta z‖ ≤ 1/4
+```
 
 ### The remaining blocker
 
