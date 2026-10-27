@@ -342,3 +342,36 @@ and `P_j' = -(sum over one factor dropped)`, each remaining product bounded by
 `|P3| <= 3708` (proved) rather than 4320; (ii) tighten `log21 <= 4` to
 `log21 <= 3.05`; (iii) drop the `B6` term entirely by using `K = 2` for the
 *generator* and `K = 3` only for the remainder — `B4'` alone is 2.4e-3.
+
+### 2026-10-27 — I.289: `h1(b)` simplified — Cauchy on `B₄`, no `P′` bounds
+
+Checked the radius-dependence of the *Cauchy-on-`B₄`* route before writing the
+`P₃′`/`P₅′` bounds planned in I.288.  It is strictly better: it avoids
+differentiating `P_j` at all, and it has more margin.
+
+`B₄(s) = (1/720)·P₃(s)·21^{-(s+3)}`, so on the ball of radius `ρ`
+`|B₄| ≤ (1/720)·(14.5+ρ)(15.5+ρ)(16.5+ρ)·21^{-3.5+ρ}`, and
+`|B₄′| ≤ 2|B₄|/ρ` by `norm_deriv_le_of_norm_le_on_ball`.  Measured:
+
+| `ρ` | `|B₄′| ≤` | `|B₆′| ≤` | `|R₃′| ≤` | `1.29·total` | vs `5e-3` |
+|---|---|---|---|---|---|
+| 0.25 | 2.18e-3 | 3.9e-5 | 3.18e-4 | 3.27e-3 | ✓ |
+| **0.35** | 2.15e-3 | 3.9e-5 | 2.27e-4 | **3.12e-3** | ✓ 38% margin |
+| 0.45 | 2.31e-3 | 4.3e-5 | 1.76e-4 | 3.27e-3 | ✓ |
+
+So `ρ = 0.35` and **no `P₃′`/`P₅′` terms are needed** — only
+`max|P₃|` and `max|P₅|` over the ball, which are the *same* `∏(14.5+ρ+i)` bounds
+already used for `norm_descPochhammer_three_le`/`_four_le` in `EMBox14.lean`
+(just with `14.5+ρ` in place of `14.5`).
+
+This supersedes the I.288 numbers: prefer this route.  The earlier `P′` route
+gave `4.3e-3` (14% margin) and required a hand-derived `|P₅′| ≤ 722950`; this one
+gives `3.12e-3` (38%) and needs no derivative of `P` at all.  Third time this
+session that a "differentiate it" instinct was beaten by "Cauchy the whole
+thing" — see I.269 (`R′`) for the first.
+
+Next: `h1(b)` in Lean is now
+1. `max|P₃|` and `max|P₅|` over the radius-`0.35` ball (modulus bounds, easy),
+2. `M_R(K=3)` over that ball (a T306-shaped statement),
+3. three `norm_deriv_le_of_norm_le_on_ball` applications,
+4. assemble `h1` with `mem_Vbox` (T351) and `Yk`.
