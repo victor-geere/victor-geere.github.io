@@ -221,50 +221,65 @@ Sequence: `ζ = zetaEM 20` (`zeta_eq_zetaEM_of_im`), `= zetaEMGen 2 + rem₂`,
 `zetaEMGen 2 = zetaEMGen 1 + B₄`, `zetaEMGen 1 ∈ Bzeta`, then three triangle
 inequalities.
 
-## Step 4 (`hC`): design analysis
+## Step 4 (`hC`): analysis and a radius correction
 
 ```lean
-hC : ∀ z ∈ Metric.closedBall s14 (1/4), ‖1 - Yk * deriv riemannZeta z‖ ≤ 1/4
+hC : ∀ z ∈ Metric.closedBall s14 (r), ‖1 - Yk * deriv riemannZeta z‖ ≤ q
 ```
 
-**Numerically the target is tight.** Sampling 2001 points on the circle
-`|z-s14| = 1/4` gives `max ‖1 - Yk·ζ′‖ = 0.2295` against the budget `0.25` —
-a margin of only `0.0205`, i.e. 9%. Since `‖1 - Yk·ζ′(s14)‖` itself is
-`~10⁻¹⁰` (`Yk` is a 10-digit rational for `1/ζ′`), essentially the whole
-`0.2295` is *variation* over the disk, so the derivative enclosure must
-resolve `ζ′` to ~`10⁻²` absolute.
+### `r = 1/4` is not reachable by the mean-value route
 
-**Cauchy is not adequate.** If `|ζ| ≤ M` on `D(s14, 1/2)` then for
-`z ∈ D(s14, 1/4)`, `|ζ″(z)| ≤ 2M/(1/4)² = 32M`, and `M ≥ |ζ(s14)| = 0.1056`,
-so `32M ≥ 3.4`. Then
+Supremum over the boundary circle (720 samples): `sup‖1 - Yk·ζ′‖ = 0.22955`
+against a budget of `0.25`. The mean-value form
 
-`‖1 - Yk ζ′(z)‖ ≤ ‖1 - Yk ζ′(s14)‖ + (1/4)·|Yk|·sup|ζ″| ≥ 1.29·(1/4)·3.4 ≈ 1.1`,
+`‖1 - Yk ζ′(z)‖ ≤ ‖1 - Yk ζ′(s14)‖ + |Yk|·r·sup|ζ″|`
 
-four times too large. The mean-value route cannot work; a **direct `ζ′`
-enclosure over the disk** is required.
+gives `0 + 1.2892·0.25·0.79244 = 0.25541 > 0.25` — it **fails by 2%**, even
+with a perfect `sup|ζ″|`. The direct route (enclose `ζ′` over boxes and take
+the sup) needs box radius `≤ 0.02`, i.e. ~150 EM boxes; and covering the
+bounding box fails outright because its corners are at distance `0.354` from
+`s14`, where the value is already `0.332`.
 
-**Sketch of the required layer.** Enclose over the rectangle
-`Re ∈ [1/4, 3/4]`, `Im ∈ [13.75, 14.25]` (which contains the disk):
+So `hC` at `r = 1/4` requires a *tight global* `ζ′` enclosure, not a
+subdivision.
 
-1. `n^{-s}` over that rectangle — reuse `cpowBox`, but note the side
-   conditions change (`Re ≤ 3/4`, `Im ≤ 14.25`); `kI = 48` still suffices
-   since `14.25·log 21 / 48 = 0.904 ≤ 1`.
-2. `log n` enclosures — `logIvRat` already provides these, and they are the
-   only new ingredient: `d/ds n^{-s} = -log(n)·n^{-s}`.
-3. The pole term `21^{1-s}/(s-1)` and the `21^{-s}` multiples, differentiated,
-   plus `B₄`; all are `21^{-s}` times rational functions of `s`, so the same
-   single-atom trick applies with a different rational scalar *depending on s*
-   (a box, not a point).
-4. The derivative of `zetaEMRemainder`, bounded by differentiating the
-   `S_even` series bound — this needs a `K`-derivative analogue of T305 and is
-   the genuinely analytical piece.
+### `r = 1/5` works, and the map condition still holds
 
-Item 4 is the main risk and has no existing support in
-`EulerMaclaurin.lean`. A cheaper fallback: bound `‖ζ′‖` over the disk from a
-`ζ` enclosure on a *slightly larger* rectangle via Cauchy on the boundary
-against a `ζ` box that is tight to `10⁻⁵`; the loss factor is
-`2/(separation)`, and a rectangle-based Cauchy estimate with a thin frame may
-be competitive with item 4. Neither approach has been tried.
+| r | sup‖1−Ykζ′‖ | sup‖ζ″‖ | MVT bound (≤0.25) | map: 1.2892·0.114361 + 0.25r ≤ r |
+|---|---|---|---|---|
+| 1/4 | 0.22955 | 0.79244 | 0.25541 ✗ | 0.20994 ≤ 0.25 ✓ |
+| **1/5** | 0.17956 | 0.75863 | **0.19561 ✓** | **0.19744 ≤ 0.2 ✓** |
+| 7/40 | 0.15538 | 0.74229 | 0.16747 ✓ | 0.19119 > 0.175 ✗ |
+
+At `r = 1/5`, `q = 1/4` **both** Krawczyk conditions hold, with 28% margin on
+`hC` and 1.3% on the map condition (which uses the *proved* T320 bound
+`‖ζ(s14)‖ ≤ 0.114361` and needs only `‖Yk‖ ≤ 1.29`, a sharpening of the
+existing `norm_Yk_le_three_halves`).
+
+Changing the radius means `zeta_zero_of_krawczyk` is instantiated at `r = 1/5`
+rather than `zeta_zero_quarter_ball`; that is a new lemma, not a weakening of
+P3.
+
+### The remaining blocker
+
+`sup|ζ″| ≤ 0.96` over the `1/5`-disk (true value `0.75863`) **cannot be got
+from Cauchy**: `|ζ″(z)| ≤ 2 sup|ζ|/ρ²` with the circle of radius `ρ` inside the
+`1/2`-disk gives `≥ 22·0.14 ≈ 3.1`. Nor from a modulus sum of the
+differentiated EM terms (≥ 30).
+
+Two viable routes, both needing new layers:
+
+1. **Second-derivative EM enclosure.** Differentiate `zetaEMGen 1 20` twice
+   and bound `‖S_even''‖` — a second-derivative analogue of T304/T305. Gives
+   `sup|ζ″|` directly and also `1 - Yk ζ′(s14)`. Largest new piece.
+2. **First-derivative EM enclosure over a covering of the `1/5`-disk by boxes
+   lying inside it** (~10–20 cells). Each cell needs the differentiated
+   `zetaEMGen 1 20` box, which for a *box* `S` needs complex inversion on `Cx`
+   for the pole term `21^{1-s}/(s-1)` — `Cx` has no `inv` (only
+   `Interval.lean`'s separate `ComplexInterval` does), so that must be added.
+
+Both need: `logIvRat` boxes for `log n` (`d/ds n^{-s} = -log n · n^{-s}`),
+which is the only *already available* ingredient.
 
 ### What this does *not* give
 

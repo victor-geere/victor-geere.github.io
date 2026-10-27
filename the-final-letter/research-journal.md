@@ -2692,3 +2692,22 @@ inadequate: `|ζ″| ≤ 32M` with `M ≥ 0.1056` gives a bound of `≈1.1`, fou
 too large. A direct `ζ′` enclosure over the disk is therefore required, which
 means a derivative analogue of the T305 remainder bound — the one piece with no
 existing support in `EulerMaclaurin.lean`.
+
+### 2026-10-27 — Phase I.266: `hC` at r=1/4 is not reachable; r=1/5 is
+
+Measured the Krawczyk requirements as a function of the ball radius.  At
+`r = 1/4` the mean-value bound `|Yk|·r·sup|ζ″|` is `0.25541 > 0.25` — it fails
+by 2% even with a perfect `sup|ζ″|`, and the subdivision route needs box radius
+`≤ 0.02` (~150 EM boxes) because the bounding-box corners are `0.354` from
+`s14` where the value is already `0.332`.
+
+At `r = 1/5` both conditions hold: `hC ≤ 0.19561` (28% margin) and the map
+condition `0.19744 ≤ 0.2` (1.3% margin, using the proved
+`‖ζ(s14)‖ ≤ 0.114361` and `‖Yk‖ ≤ 1.29`).  So the certificate should be
+instantiated at `r = 1/5`.
+
+The blocker is `sup|ζ″| ≤ 0.96` over that disk: Cauchy gives `≥ 3.1` and
+summing moduli of the differentiated EM terms gives `≥ 30`, so a genuine
+second-derivative enclosure is required.  Interesting negative result: this is
+the first place in the dossier where an *interval* bound cannot be made to work
+and the order of the derivative is the binding constraint, not the height.
