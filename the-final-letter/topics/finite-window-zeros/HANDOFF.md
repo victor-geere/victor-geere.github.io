@@ -8,7 +8,7 @@ No RH, twin-prime, Chowla, or infinite Weil-positivity claim is made anywhere.
 
 | item | state |
 |---|---|
-| counts | **758 theorems · 393 computations · 457 tests · 48/48 Lean builds** |
+| counts | **787 theorems · 393 computations · 457 tests · 48/48 Lean builds** |
 | audit | `python3 topics/tools/audit_topics.py` → 48/48 OK |
 | links | `python3 tools/check-links.py` → 0 broken |
 | default build | `./lean/check.sh` OK |
@@ -108,49 +108,20 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
   Note the coefficient on `altSum (deltaN K a) N` is `2^{-K}` **without** a
   `(-1)^N` factor.
 
-## Blockers
+## Status of steps 1–5
 
-### 1. Box evaluation is noncomputable
+| step | state |
+|---|---|
+| 1. Euler-acceleration bounds in `EtaEM.lean` | **superseded** — the expansion is asymptotic, not convergent; see "Route change" |
+| 2. Replace the 10⁶-term block | **superseded** — Euler–Maclaurin reaches the bound with 21 atoms |
+| 3. `‖ζ(1/2+14i)‖ ≤ 1/8` | **DONE** (T320/T321), sharpened to `23/200` (T322) |
+| 4. `hC` | **REDUCED to `h1` + `h2`** (T329); `h2` has a concrete plan with no analytic unknowns |
+| 5. Final zero theorem | **DONE, conditional on step 4** (`zeta_zero_14_of_bounds`, T329) |
 
-`sumBox`/`blockPairs`/`foldPairs` depend on `Real.log`/`Real.exp` and the
-Taylor enclosures in `Transcend.lean`, so they are `noncomputable`.
-`native_decide` fails with:
-
-```text
-failed to compile definition … depends on 'blockPairs', which is 'noncomputable'
-```
-
-The million-term `allOK` is cheap only because it checks exponent bounds and
-never constructs `expIBox`.
-
-### 2. Python mirror is too slow
-
-`python/emit_blocks.py` ports `logIvRat`, `expIvGeneral`, `expITaylor`,
-`expIBox`, `cpowBox`. Measured:
-
-```text
-pair_box(0) ≈ 38.5 s
-```
-
-so `10^6` terms is order `10^7` s. Brute force is not viable.
-
-### 3. Euler acceleration is only algebraic so far
-
-`EtaEM.lean` proves the transformation but **not** the analytic bounds needed
-to apply it at `Re s = 1/2`:
-
-- finite-difference decay `|Δ^K a_n| ≤ C_K (n+1)^{-1/2-K}` for `a_n = n^{-s}`;
-- absolute convergence of the transformed tail;
-- vanishing of the two boundary sums as `N → ∞`.
-
-### 4. `hC`
-
-Needs:
-
-- `DifferentiableAt ℂ (deriv riemannZeta) w`;
-- a rigorous derivative enclosure on the disk of radius `1/4` around
-  `s0 = 1/2+14i`;
-- the resulting Krawczyk contraction `q`.
+Old blockers 1–3 (noncomputable box evaluation, slow Python mirror, algebraic-only
+Euler transformation) are all resolved or bypassed; see "Route change" and
+"Step-3 calibration".  No `sorry`/`axiom`/`admit` anywhere; `./lean/check.sh` is
+green (12 files).
 
 ## Route change (2026-10-27)
 
@@ -342,31 +313,29 @@ Nothing here is analytically hard any more; items 3–4 are mechanical but bulky
 (`‖1 - Yk·ζ′‖ ≤ 1/4` on `‖w-s0‖ ≤ 1/4`) is still open, so **no zero is
 certified yet**. No RH or infinite-positivity claim is made anywhere.
 
-## Next steps, in order
+## Next steps, in order (current)
 
-0. ~~Relax the `B₂` remainder to `0 < Re s`.~~  **Done** (T293–T300).
-1. *(superseded)* **Finish the Euler analytic bounds** in `EtaEM.lean`:
-   - define `a n = (n+1 : ℂ) ^ (-s)` on the critical line;
-   - prove finite-difference decay via the integral/MVT bound for `x^{-s}`;
-   - prove `Summable (fun n => ‖deltaN K a n‖)`;
-   - prove the boundary terms tend to `0`;
-   - conclude an explicit `|η(s) - accelerated partial sum| ≤ ε` with
-     `K ≈ 50`, `ε ≈ 10^{-10}`.
-2. **Evaluate `zetaEMGen 2 20` as a rational box** (24 atoms, params
-   `(14,16,64,20)`, see the calibration section).  Note the pole term is exact
-   at the point: `1/(s0-1) = (-2 - 56i)/785`, so **no interval division is
-   needed**.  *Superseded detail:*  Mirror the `Cert.lean`
-   `sumBox` architecture: a fold of `CpowBox` atoms for `Σ_{n≤100} n^{-s}`, the
-   `101^{1-s}/(s-1)` term (needs a complex reciprocal on `Cx`, which exists only
-   on `Interval.lean`'s `ComplexInterval` — port `inv` to `Cx` or bound
-   `|s-1| ≥ 3/4` and use `conj/|·|²` with `Iv.divPos`), and the `B₂` boundary
-   term.  Then `‖ζ(s₀)‖ ≤ |box| + 1/600` via `BoxNorm.norm_le_of_mem_box`,
-   feeding `hmap_of_zeta_bound`.
-3. **ζ value bound.** As above; the `η` transfer is no longer needed for this
-   step, though `Cert.lean`'s `zeta_ne_zero_of_eta_mem` remains the pattern.
-4. **`hC`.** Prove differentiability of `ζ′` and a derivative enclosure on
-   `‖w - s0‖ ≤ 1/4`; close the Krawczyk contraction.
-5. **Final zero theorem** from `zeta_zero_of_krawczyk` (T148/T230).
+The only outstanding obligation is T329's two hypotheses (`h1`, `h2`).
+Concretely, in this order:
+
+1. `M_R` over the `0.45`-disk — a variant of T306 at `K=2`, `N=20`, `Re s ≥ 0.05`.
+   Expect `≈ 3.124·10⁻³`.
+2. `|R'| ≤ M_R/0.25` by Cauchy (`Complex.norm_deriv_le_div_of_mapsTo_ball`, as
+   already used in `EulerMaclaurin.lean`), giving `≈ 0.01249`.
+3. **`Cx.inv`** — complex reciprocal on boxes with soundness. `Cx` has none;
+   `Interval.lean`'s separate `ComplexInterval` does. Put it in the topic's own
+   file, not the shared `IBox.lean`: `Re(s-1) ∈ [-0.45,-0.05]` is bounded away
+   from `0` on the `1/5`-ball, which is all the side condition needs.
+4. The explicit `G''` box (`G = zetaEMGen 1 20`): `(log n)²·n^{-s}` summed over
+   `n ≤ 20`, plus the differentiated pole and `21^{-s}` terms. Check
+   `sup‖G''‖ ≤ 0.815` by `native_decide` (true value `0.75863`).
+5. Assemble `h2`: `|ζ'(z) - ζ'(s14)| ≤ 0.2·sup‖G''‖ + 2·|R'| ≤ 0.188`.
+6. `h1` in the same style: a point enclosure of `ζ'` at `s14` to `10⁻³`
+   (true error `~10⁻¹⁰`, so six orders of slack).
+7. `zeta_zero_14_of_bounds h1 h2` then yields the certified zero.
+
+Then update the ledger (README + index.html), `topics/STATUS.md` counts and
+`research-journal.md`, per the hard rules below.
 
 ## Hard rules
 
