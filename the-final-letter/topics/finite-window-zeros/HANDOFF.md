@@ -8,7 +8,7 @@ No RH, twin-prime, Chowla, or infinite Weil-positivity claim is made anywhere.
 
 | item | state |
 |---|---|
-| counts | **750 theorems · 393 computations · 457 tests · 48/48 Lean builds** |
+| counts | **758 theorems · 393 computations · 457 tests · 48/48 Lean builds** |
 | audit | `python3 topics/tools/audit_topics.py` → 48/48 OK |
 | links | `python3 tools/check-links.py` → 0 broken |
 | default build | `./lean/check.sh` OK |
@@ -41,6 +41,7 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
 | `lean/FixedBox.lean` | T264–T276, T283–T288: snapped boxes and folds, block values, block fold membership. |
 | `lean/BlockCert.lean` | T289: `blockFold_1e6` at `B = M = 1000`. |
 | `lean/EtaEM.lean` | T290–T292: forward differences and the iterated Euler transformation. |
+| `lean/EMCritical.lean` | T293–T300: the `B₂` remainder on the critical line (`0 < Re s`). |
 | `lean/Cert.lean`, `lean/Seg.lean` | P3 certificates for `1/2+5i`. |
 | `python/emit_blocks.py` | Python rational mirror of the `CpowBox` layer (reference emitter). |
 
@@ -73,6 +74,23 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
 - T283–T288: list-range bridge, block values, pair fold, block pairs,
   `blockFold_mem`.
 - T289: `blockFold_1e6` at `B = M = 1000`.
+
+### `B₂` remainder on the critical line (T293–T300, `EMCritical.lean`)
+
+- T293–T294: `emGShift s N j n → 0` for `0 < Re s` (previously `1 < Re s`).
+- T295: the finite bridge `Sum_{k<n} ∫ B₁-weight = ½ B₂(0)(emG₁ n − emG₁ 0) − ½ Σ ∫ B₂-weight`,
+  valid for every `s` and `n`.
+- T296: the `B₂` series identity at `0 < Re s` (`tsum_correction_first_eq_of_re_pos`).
+- T297–T298: `zetaEM = zetaEMGen 1 − ½ Σ' B₂`; `zetaEMRemainder 1 = −½ Σ' B₂`, at `0 < Re s`.
+- T299–T300: `2 Re ζ(2)/(2π)² = 1/12`, and
+
+  ```lean
+  norm_zetaEMRemainder_one_le_of_re_pos :
+    0 < s.re -> ‖zetaEMRemainder 1 N s‖ ≤
+      (1/12) * ‖(s)₂‖ * ((N+1)^(-σ-2) + (N+1)^(1-σ-2)/(σ+1))
+  ```
+
+  At `s₀`, `N = 100` this is `≈ 1.5·10⁻³`, versus `|ζ(s₀)| ≈ 0.1056`.
 
 ### Euler transformation
 
@@ -132,20 +150,40 @@ Needs:
   `s0 = 1/2+14i`;
 - the resulting Krawczyk contraction `q`.
 
+## Route change (2026-10-27)
+
+**Step 1 below is superseded — do not pursue it.**  The iterated Euler
+transformation for `η` is an *asymptotic* expansion on the critical line: the
+observed error matches `2^{-K}|Δ^K a₀|` (`4.2·10⁻¹¹` at `K = 50`), but the only
+easy rigorous bound is `2^{-K}·Σ_n|Δ^K a_n|`, which grows like `K!` and is
+useless by `K = 50`.  Making it rigorous needs sector/monotonicity control of
+`Δ^K a_n = (-1)^K (s)_K ∫ (n+Σt)^{-s-K}`, which the integrally-derived
+Euler–Maclaurin route avoids entirely.
+
+The `B₂` route is cheaper by six orders of magnitude in term count: `N = 100`
+Euler–Maclaurin atoms plus one `B₂` ball, versus `10⁶` eta pairs.  Steps 3–5 are
+unchanged; step 2 becomes "evaluate `zetaEMGen 1 100` in `Cx`" rather than
+"evaluate a million-term block".
+
 ## Next steps, in order
 
-1. **Finish the Euler analytic bounds** in `EtaEM.lean`:
+0. ~~Relax the `B₂` remainder to `0 < Re s`.~~  **Done** (T293–T300).
+1. *(superseded)* **Finish the Euler analytic bounds** in `EtaEM.lean`:
    - define `a n = (n+1 : ℂ) ^ (-s)` on the critical line;
    - prove finite-difference decay via the integral/MVT bound for `x^{-s}`;
    - prove `Summable (fun n => ‖deltaN K a n‖)`;
    - prove the boundary terms tend to `0`;
    - conclude an explicit `|η(s) - accelerated partial sum| ≤ ε` with
      `K ≈ 50`, `ε ≈ 10^{-10}`.
-2. **Replace the million-term block** with the accelerated finite sum
-   (a few hundred terms), then compute its box with the existing
-   `CpowBox`/`pairBox` layer at a feasible term count.
-3. **ζ value bound.** Use `η(s) = (1 - 2^{1-s}) ζ(s)` and the accelerated
-   `η` box to get `‖ζ(1/2+14i)‖ ≤ 1/8`; feed `hmap_of_zeta_bound`.
+2. **Evaluate `zetaEMGen 1 100` as a rational box.**  Mirror the `Cert.lean`
+   `sumBox` architecture: a fold of `CpowBox` atoms for `Σ_{n≤100} n^{-s}`, the
+   `101^{1-s}/(s-1)` term (needs a complex reciprocal on `Cx`, which exists only
+   on `Interval.lean`'s `ComplexInterval` — port `inv` to `Cx` or bound
+   `|s-1| ≥ 3/4` and use `conj/|·|²` with `Iv.divPos`), and the `B₂` boundary
+   term.  Then `‖ζ(s₀)‖ ≤ |box| + 1/600` via `BoxNorm.norm_le_of_mem_box`,
+   feeding `hmap_of_zeta_bound`.
+3. **ζ value bound.** As above; the `η` transfer is no longer needed for this
+   step, though `Cert.lean`'s `zeta_ne_zero_of_eta_mem` remains the pattern.
 4. **`hC`.** Prove differentiability of `ζ′` and a derivative enclosure on
    `‖w - s0‖ ≤ 1/4`; close the Krawczyk contraction.
 5. **Final zero theorem** from `zeta_zero_of_krawczyk` (T148/T230).

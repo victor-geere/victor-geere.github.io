@@ -369,6 +369,14 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T290 | Theorem | **One-fold difference identity:** `altSum (delta a) N = 2 altSum a N - a 0 + (-1)^N a N`. | `altSum_delta` (`EtaEM.lean`) |
 | T291 | Theorem | **One-fold Euler summation by parts.** | `altSum_eq` (`EtaEM.lean`) |
 | T292 | Theorem | **Iterated Euler transformation with boundary terms.** | `altSum_euler` (`EtaEM.lean`) |
+| T293 | Theorem | **Bernoulli tower vanishes for `Re s > 0`:** `emGShift s N j n → 0` as `n → ∞` whenever `0 < Re s`. | `tendsto_emGShift_zero_general_of_re_pos` (`EMCritical.lean`) |
+| T294 | Theorem | **First Bernoulli tower vanishes for `Re s > 0`.** | `tendsto_emGShift_one_zero_of_re_pos` (`EMCritical.lean`) |
+| T295 | Theorem | **Finite `B₁`/`B₂` bridge:** `Σ_{k<n} ∫ (x-k-½)·emG₁ = ½·B₂(0)·(emG₁ n - emG₁ 0) - ½ Σ_{k<n} ∫ B₂(x-k)·emG₂`, for every `s` and `n`. | `sum_correction_eq_B2` (`EMCritical.lean`) |
+| T296 | Theorem | **`B₂` series identity at `Re s > 0`:** the first-order correction series equals the `B₂` boundary minus half the `B₂` series (previously only for `Re s > 1`). | `tsum_correction_first_eq_of_re_pos` (`EMCritical.lean`) |
+| T297 | Theorem | **`K = 1` Euler–Maclaurin at `Re s > 0`:** `zetaEM N s = zetaEMGen 1 N s - ½·Σ' B₂ series`. | `zetaEM_eq_gen_one_of_re_pos` (`EMCritical.lean`) |
+| T298 | Theorem | **`K = 1` remainder at `Re s > 0`:** `zetaEMRemainder 1 N s = -½·Σ' B₂ series`. | `zetaEMRemainder_one_of_re_pos` (`EMCritical.lean`) |
+| T299 | Theorem | **`B₂` constant:** `2·Re ζ(2)/(2π)² = 1/12`. | `emConst_two` (`EMCritical.lean`) |
+| T300 | Theorem | **`B₂` remainder bound on the critical line:** `‖zetaEMRemainder 1 N s‖ ≤ (1/12)·‖(s)₂‖·((N+1)^(-σ-2) + (N+1)^(1-σ-2)/(σ+1))` for `0 < Re s`. | `norm_zetaEMRemainder_one_le_of_re_pos` (`EMCritical.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

@@ -2467,3 +2467,41 @@ noncomputable, so an external certificate emitter is required.
 Added `EtaEM.lean`: forward differences, the one-fold summation-by-parts
 identity, and the finite iterated Euler transformation with explicit boundary
 terms. This is the algebraic core of the alternating-tail acceleration.
+
+### 2026-10-27 — Phase I.256: the `B₂` remainder on the critical line
+
+`EulerMaclaurin.lean` proves the general-`K` Euler–Maclaurin error bound only
+for `1 < Re s`, which excludes the critical line and therefore blocks the
+`1/2 + 14i` Krawczyk target. The sharp `B₂` series bound already needed only
+`0 < Re s`; what was gated was the *identification* of `zetaEMRemainder 1` with
+that series.
+
+Added `EMCritical.lean`, which closes the gap without touching the existing
+`Re s > 1` proofs. The key observation is that `sum_tail_first_order` and
+`sum_second_order_shift` have the same left-hand side (and the same
+`∫ (k..k+1) emGShift` and `emGShift 0 n` terms), so subtracting them cancels
+both and gives, for every `s` and `n`,
+
+`Σ_{k<n} ∫ (x-k-½)·emG₁ = ½·B₂(0)·(emG₁ n - emG₁ 0) - ½ Σ_{k<n} ∫ B₂(x-k)·emG₂`.
+
+Every term converges as `n → ∞` for `0 < Re s`, so the identity passes to the
+limit — no divergent intermediate quantities, unlike the `Re s > 1` route,
+which needs `Σ_{n<N} n^{-s}` and `∫_0^N x^{-s}`. That yields T296–T300,
+culminating in the `K = 1` bound
+
+`‖zetaEMRemainder 1 N s‖ ≤ (1/12)·‖(s)₂‖·((N+1)^(-σ-2) + (N+1)^(1-σ-2)/(σ+1))`
+
+for `0 < Re s`, with the constant `2·Re ζ(2)/(2π)² = 1/12` proved exactly.
+
+Numerically this is the unlock for step 3 of the handoff: at `s₀ = 1/2+14i`
+and `N = 100` the bound is `≈1.5·10⁻³`, so `|ζ(s₀)| ≈ 0.1056` is pinned to
+within `0.2%`, comfortably below the `1/8` required by `hmap_of_zeta_bound`.
+The next step is to replace the noncomputable `zetaEMGen 1 N` by a rational
+`Cx` fold over `CpowBox` atoms and evaluate it.
+
+A separate numerical finding, recorded because it changes the plan: the handoff's
+Euler-acceleration route for `η` (steps 1–2) is *not* needed. Measured at
+`0.5+14i`, the iterated-difference error is `≈2^{-K}|Δ^K a₀|` (4.2·10⁻¹¹ at
+`K = 50`), but it is an asymptotic, not convergent, expansion — the rigorous
+bound `2^{-K}·Σ_n|Δ^K a_n|` grows like `K!`. The Euler–Maclaurin route reaches
+`10⁻³⁰` at `N = K = 20` with eighteen atoms instead of a million terms.
