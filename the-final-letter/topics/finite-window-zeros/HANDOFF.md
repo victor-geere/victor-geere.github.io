@@ -274,11 +274,24 @@ theorem zeta_zero_fifth_ball ... (hC : ...) (hmap : ...) :
 So the *entire* remaining obligation for a certified zero is the single
 hypothesis `hC`.  Exactly:
 
-**Exactly one hypothesis remains:**
+**Exactly one hypothesis remains**, and it is now reduced to two explicit
+numerical inputs (T327–T329):
 
 ```lean
-hC : ∀ z ∈ Metric.closedBall s14 (1/5), ‖1 - Y * deriv riemannZeta z‖ ≤ 1/4
+theorem zeta_zero_14_of_bounds
+    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ 1/1000)          -- point enclosure of ζ′
+    (h2 : ∀ z ∈ closedBall s14 (1/5),
+            ‖deriv riemannZeta z - deriv riemannZeta s14‖ ≤ 47/250) :  -- ζ′ Lipschitz
+    ∃ z ∈ closedBall s14 (1/5), riemannZeta z = 0
 ```
+
+Everything else is discharged: `Yk ≠ 0` (T327), the map condition
+(`hmap_zeta_fifth`), the ball avoids `1` (`fifth_ball_ne_one`), and `hC`
+follows by the triangle inequality (`hC_of_bounds`, T328):
+`10⁻³ + 1.29·(47/250) = 0.24352 ≤ 1/4`.
+
+The **true** values are `‖1 − Ykζ′(s14)‖ ≈ 10⁻¹⁰` and the Lipschitz constant
+`0.1517`, so `h1` has a factor-`10⁶` slack and `h2` has 24% slack.
 
 ### The remaining blocker
 

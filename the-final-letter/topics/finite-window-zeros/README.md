@@ -403,6 +403,9 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T324 | Theorem | **Map condition at radius `1/5`:** `‖Yk·ζ(s0)‖ + (1/4)·(1/5) ≤ 1/5`; a zero in the `1/5`-ball is stronger than in the `1/4`-ball. | `hmap_zeta_fifth` (`EMBox14.lean`) |
 | T325 | Theorem | **The `1/5`-ball avoids `1`.** | `fifth_ball_ne_one` (`EMBox14.lean`) |
 | T326 | Theorem | **Krawczyk target at radius `1/5`:** reduces to `hC` alone; `hmap` and the `z ≠ 1` condition are discharged. | `zeta_zero_fifth_ball` (`EMBox14.lean`) |
+| T327 | Theorem | **`Yk ≠ 0`** (`|Re Yk| = 1.24`). | `Yk_ne_zero` (`EMBox14.lean`) |
+| T328 | Theorem | **`hC` from two numerical inputs:** a `10⁻³` point enclosure of `ζ′(s14)` and a `47/250`-Lipschitz bound on `ζ′` give `hC`; `10⁻³ + 1.29·(47/250) = 0.24352 ≤ 1/4`. | `hC_of_bounds` (`EMBox14.lean`) |
+| T329 | Theorem | **Final zero theorem, conditional on two explicit numerical inputs:** `∃ z ∈ ball(s14, 1/5), ζ z = 0`. All other Krawczyk hypotheses are discharged. | `zeta_zero_14_of_bounds` (`EMBox14.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

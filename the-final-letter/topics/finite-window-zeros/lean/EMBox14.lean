@@ -450,4 +450,57 @@ theorem zeta_zero_fifth_ball {Y : ℂ} (hY : Y ≠ 0)
   FiniteWindowZeros.zeta_zero_of_krawczyk (x0 := s14) (r := 1/5) (q := 1/4)
     (by norm_num) (by norm_num) (by norm_num) hY fifth_ball_ne_one hC hmap
 
+/-- `Yk ≠ 0`: its real part is `1.24`, so the modulus is at least `1`. -/
+theorem Yk_ne_zero : Yk ≠ 0 := by
+  intro h
+  have h0 : Complex.normSq Yk = 0 := by rw [h]; simp
+  rw [Yk] at h0
+  norm_num [Complex.normSq_apply, Complex.add_re, Complex.add_im,
+    Complex.mul_re, Complex.mul_im] at h0
+
+/-- **`hC` from two numerical inputs.**  If `ζ′` is pinned at `s14` to `10⁻³`
+and is `47/250`-Lipschitz on the `1/5`-ball, then the Krawczyk derivative
+condition holds:
+
+`‖1 - Yk ζ′(z)‖ ≤ 10⁻³ + 1.29·(47/250) = 0.24352 ≤ 1/4`.
+
+The true Lipschitz constant is `0.1517`, so the second hypothesis has 24%
+slack. -/
+theorem hC_of_bounds
+    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ (1 / 1000 : ℝ))
+    (h2 : ∀ z ∈ Metric.closedBall s14 (1/5),
+      ‖deriv riemannZeta z - deriv riemannZeta s14‖ ≤ (47 / 250 : ℝ)) :
+    ∀ z ∈ Metric.closedBall s14 (1/5), ‖1 - Yk * deriv riemannZeta z‖ ≤ (1/4 : ℝ) := by
+  intro z hz
+  have hvar := h2 z hz
+  have hY := norm_Yk_le
+  calc ‖1 - Yk * deriv riemannZeta z‖
+      = ‖(1 - Yk * deriv riemannZeta s14)
+          - Yk * (deriv riemannZeta z - deriv riemannZeta s14)‖ := by
+        congr 1
+        ring
+    _ ≤ ‖1 - Yk * deriv riemannZeta s14‖
+          + ‖Yk * (deriv riemannZeta z - deriv riemannZeta s14)‖ := norm_sub_le _ _
+    _ ≤ (1 / 1000 : ℝ) + 1.29 * (47 / 250 : ℝ) := by
+        have hm : ‖Yk * (deriv riemannZeta z - deriv riemannZeta s14)‖ ≤
+            1.29 * (47 / 250 : ℝ) := by
+          rw [norm_mul]
+          exact mul_le_mul hY hvar (norm_nonneg _) (by norm_num)
+        linarith
+    _ ≤ (1 / 4 : ℝ) := by norm_num
+
+/-- **A certified zero at `1/2 + 14i`, conditional on two explicit numerical
+inputs.**  These are the only remaining obligations:
+
+1. `‖1 - Yk·ζ′(1/2+14i)‖ ≤ 10⁻³` — a *point* enclosure of `ζ′`;
+2. `ζ′` is `47/250`-Lipschitz on the `1/5`-ball — true constant `0.1517`.
+
+No RH, twin-prime, Chowla or infinite Weil-positivity claim is made. -/
+theorem zeta_zero_14_of_bounds
+    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ (1 / 1000 : ℝ))
+    (h2 : ∀ z ∈ Metric.closedBall s14 (1/5),
+      ‖deriv riemannZeta z - deriv riemannZeta s14‖ ≤ (47 / 250 : ℝ)) :
+    ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0 :=
+  zeta_zero_fifth_ball (Y := Yk) Yk_ne_zero (hC_of_bounds h1 h2) hmap_zeta_fifth
+
 end FiniteWindowZeros

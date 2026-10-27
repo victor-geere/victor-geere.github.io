@@ -2727,3 +2727,30 @@ lemma.
 
 Note on the radius: `r = 1/5` is *stronger* than `r = 1/4`, so nothing is
 weakened by the change; `zeta_zero_quarter_ball` is simply superseded.
+
+### 2026-10-27 — Phase I.268: the zero theorem is stated, conditional on two numbers
+
+Reduced `hC` to two explicit numerical inputs and stated the final theorem
+(T327–T329):
+
+```lean
+theorem zeta_zero_14_of_bounds
+    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ 1/1000)
+    (h2 : ∀ z ∈ closedBall s14 (1/5),
+            ‖deriv riemannZeta z - deriv riemannZeta s14‖ ≤ 47/250) :
+    ∃ z ∈ closedBall s14 (1/5), riemannZeta z = 0
+```
+
+`hC` itself is then pure algebra: `10⁻³ + 1.29·(47/250) = 0.24352 ≤ 1/4`.
+
+This is the interface the remaining work needs, and it shows how much slack
+there is: the true point error is `~10⁻¹⁰` (six orders under the `1/1000`
+budget) and the true Lipschitz constant is `0.1517` (24% under `47/250`).  So
+the outstanding enclosure does not need to be sharp — it needs only to exist.
+That materially lowers the risk on the last step, which in round 12 looked like
+a 9%-margin problem.
+
+`h1` and `h2` both still require a derivative Euler–Maclaurin enclosure,
+specifically a bound on `deriv (deriv riemannZeta)` (for `h2`) and a point
+enclosure of `ζ′` (for `h1`).  The blocker is a second-derivative analogue of
+the T305 remainder bound; nothing else stands in the way.
