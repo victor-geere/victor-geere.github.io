@@ -483,6 +483,12 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T404 | Theorem | **Linearity over finite sums:** `iteratedDeriv n (Σ_{i∈I} f i) = Σ iteratedDeriv n (f i)` (same `Finset.sum_apply` bridge as T400). | `iteratedDeriv_finset_sum` (`EMTaylor.lean`) |
 | T405 | Theorem | ****Polynomials are smooth:**** `ContDiff ℂ n (fun s => p.eval s)` (from `Polynomial.contDiff_aeval`). | `contDiff_polynomial_eval` (`EMTaylor.lean`) |
 | T406 | Theorem | ****`Ψ₃` split into five terms** (`def psiTerm : Fin 5 → ℂ → ℂ`):** `21(s−1)⁻¹`, `1/2`, `s/252`, `P₃(−s)/(720·9261)`, `−P₅(−s)/(30240·4084101)`. | `Psi3_eq_sum` (`EMTaylor.lean`) |
+| T407 | Theorem | **`d^n (fun x => x) = if n=0 then s else if n=1 then 1 else 0`** (syntactic form of `iteratedDeriv_id` for `fun x => x`). | `iteratedDeriv_fun_id'` (`EMTaylor.lean`) |
+| T408 | Theorem | **Term 0 of `Ψ₃`:** `d^j (21(s−1)⁻¹) = 21·d^j (s−1)⁻¹`. | `iteratedDeriv_psiTerm_zero` (`EMTaylor.lean`) |
+| T409 | Theorem | **Term 1 of `Ψ₃`:** `d^j (1/2) = if j=0 then 1/2 else 0`. | `iteratedDeriv_psiTerm_one` (`EMTaylor.lean`) |
+| T410 | Theorem | **Term 2 of `Ψ₃`:** `d^j (s/252) = if j=0 then s/252 else if j=1 then 1/252 else 0`. | `iteratedDeriv_psiTerm_two` (`EMTaylor.lean`) |
+| T411 | Theorem | **Term 3 of `Ψ₃`:** `d^j (P₃(−s)/(720·9261)) = (1/(720·9261))·d^j P₃(−s)`. | `iteratedDeriv_psiTerm_three` (`EMTaylor.lean`) |
+| T412 | Theorem | **Term 4 of `Ψ₃`:** `d^j (−P₅(−s)/(30240·4084101)) = −(1/(30240·4084101))·d^j P₅(−s)`. | `iteratedDeriv_psiTerm_four` (`EMTaylor.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

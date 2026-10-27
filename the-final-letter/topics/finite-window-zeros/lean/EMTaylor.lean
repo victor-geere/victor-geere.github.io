@@ -276,4 +276,44 @@ theorem Psi3_eq_sum : Psi3 = fun s => ∑ i : Fin 5, psiTerm i s := by
   ring
 
 
+/-- Term 0: the pole factor, scaled by `21`. -/
+theorem iteratedDeriv_psiTerm_zero (j : ℕ) (s : ℂ) :
+    iteratedDeriv j (psiTerm 0) s
+      = 21 * iteratedDeriv j (fun s : ℂ => (s - 1)⁻¹) s := by
+  simp [psiTerm]
+
+/-- Term 1: the constant `1/2`. -/
+theorem iteratedDeriv_psiTerm_one (j : ℕ) (s : ℂ) :
+    iteratedDeriv j (psiTerm 1) s = if j = 0 then (1 / 2 : ℂ) else 0 := by
+  simp [psiTerm, iteratedDeriv_const]
+
+/-- `d^n/ds^n (fun x => x)` (the `id` version with matching syntax). -/
+theorem iteratedDeriv_fun_id' (n : ℕ) (s : ℂ) :
+    iteratedDeriv n (fun x : ℂ => x) s = if n = 0 then s else if n = 1 then 1 else 0 := by
+  have h : (fun x : ℂ => x) = id := rfl
+  rw [h, iteratedDeriv_id]
+
+/-- Term 2: `s/252`. -/
+theorem iteratedDeriv_psiTerm_two (j : ℕ) (s : ℂ) :
+    iteratedDeriv j (psiTerm 2) s =
+      if j = 0 then s / 252 else if j = 1 then (1 / 252 : ℂ) else 0 := by
+  obtain (_ | _ | j) := j <;> simp [psiTerm, iteratedDeriv_fun_id']
+
+/-- Term 3: `P₃(-s)/(720·9261)`. -/
+theorem iteratedDeriv_psiTerm_three (j : ℕ) (s : ℂ) :
+    iteratedDeriv j (psiTerm 3) s
+      = (1 / (720 * 9261 : ℂ)) *
+          iteratedDeriv j (fun s : ℂ => (descPochhammer ℂ 3).eval (-s)) s := by
+  simp [psiTerm]
+  ring
+
+/-- Term 4: `-P₅(-s)/(30240·4084101)`. -/
+theorem iteratedDeriv_psiTerm_four (j : ℕ) (s : ℂ) :
+    iteratedDeriv j (psiTerm 4) s
+      = (-(1 / (30240 * 4084101 : ℂ))) *
+          iteratedDeriv j (fun s : ℂ => (descPochhammer ℂ 5).eval (-s)) s := by
+  simp [psiTerm]
+  ring
+
+
 end FiniteWindowZeros

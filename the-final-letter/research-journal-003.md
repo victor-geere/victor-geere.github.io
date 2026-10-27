@@ -622,3 +622,30 @@ Cauchy on the `1/2`-ball: `|R₃^{(k)}| ≤ k!·6·10⁻⁵/0.5^k`, i.e. `/k!` g
 
 `|c_k|` bounds only need ~30% accuracy for the sum `Σ_{k=2..6} k|c_k|r^{k−1}`
 to stay below `0.14`, so the boxes can be coarse.
+
+### 2026-10-27 — I.304: the five `Ψ₃` term derivatives (T407–T412)
+
+Each `psiTerm` is differentiated by the `@[simp]` field lemmas
+`iteratedDeriv_const_mul_field`, `iteratedDeriv_mul_const_field`,
+`iteratedDeriv_const`, `iteratedDeriv_id` — so **no `ContDiffAt` obligations**
+for the term derivatives:
+
+```
+d^j (21(s−1)⁻¹)            = 21 · d^j (s−1)⁻¹
+d^j (1/2)                  = if j = 0 then 1/2 else 0
+d^j (s/252)                = if j = 0 then s/252 else if j = 1 then 1/252 else 0
+d^j (P₃(−s)/(720·9261))    = (1/(720·9261)) · d^j P₃(−s)
+d^j (−P₅(−s)/(30240·4084101)) = −(1/(30240·4084101)) · d^j P₅(−s)
+```
+
+Frictions: `iteratedDeriv_id` is stated for `id`, not for `fun x => x`, so it
+does not fire syntactically — added `iteratedDeriv_fun_id'` (same statement with
+the lambda) and used `obtain (_|_|j) := j` case splits.  The `/(720*9261)`
+shape needs `simp` then `ring` (the goal becomes `A / C = C⁻¹ * A`).
+
+**Only step left for `Ψ₃^{(j)}`:** combine T404 (`iteratedDeriv_finset_sum`),
+`Psi3_eq_sum` (T406) and T407–T412.  T404 needs a `ContDiffAt ℂ j` proof for
+each `psiTerm i`; the only non-obvious ones are
+`ContDiffAt.inv` for term 0 (`sub_ne_zero.mpr hs`) and
+`contDiffAt_polynomial_eval_neg` (T405) for terms 3–4.  Then
+`d^j Ψ₃(s14)` follows from T402/T403.
