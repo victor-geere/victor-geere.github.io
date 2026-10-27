@@ -227,9 +227,15 @@ What is still missing for step 3 is the *membership* proof, not the
 2. `Complex.cpow_add` to rewrite `21^{1-s}/(s-1)` and `(1/12)s·21^{-(s+1)}`
    as `21^{-s}` times the rational scalar;
 3. the cast bridge `((n+1 : ℝ) : ℂ) = (((n+1 : ℕ) : ℝ) : ℂ)` for `csPow_mem`;
-4. `hrem : |zetaEMRemainder 2 20 s14| <= 1/200` from T305, with
-   `2 Re ζ(4)/(2π)^4 = 1/720`, `|(s)_4| <= 65000` and `21^{-9/2} <= 21^{-4}`;
-5. `hb4 : |B₄ term| <= 1/1000`, i.e. `|P₃| <= 4320` and `21^{-7/2} <= 21^{-3}`.
+4. `hrem : |zetaEMRemainder 2 20 s14| <= 6500/1750329` (`= 3.714e-3`) from
+   T305, using `2 Re ζ(4)/(2π)^4 = 1/720`, `|(s)_4| <= 65000`,
+   `21^{-9/2} <= 21^{-4}` and `21^{-7/2}/(7/2) <= 21^{-3}/3`;
+5. `hb4 : |B₄ term| <= 2/3087` (`= 6.479e-4`), i.e. `|P₃| <= 4320` and
+   `21^{-7/2} <= 21^{-3}`.
+
+Both exact rationals are computed and checked by `python3 emit_em.py --tail`
+(which prints `PASS` against the `1/200` and `1/1000` budgets).  Total:
+`11/100 + 6500/1750329 + 2/3087 = 0.114361 < 1/8`, margin `1.06·10⁻²`.
 
 ## Next steps, in order
 

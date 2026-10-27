@@ -122,3 +122,31 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
+
+
+# ---------------------------------------------------------------- remainder
+
+def tail_bounds(n_terms: int = 20, k_order: int = 2) -> None:
+    """The two rational bounds the Lean assembly needs (T306, T307).
+
+    * `zetaEMRemainder 2 20` (T305) with
+      `2 Re zeta(4)/(2 pi)^4 = |B_4|/4! = 1/720`,
+      `||(s)_4|| <= 14.5*15.5*16.5*17.5 = 64896.6 <= 65000`,
+      `21^(-9/2) <= 21^(-4)`, `21^(-7/2)/(7/2) <= 21^(-3)/3`.
+    * the `B_4` boundary term with `||P_3|| <= 4320` and `21^(-7/2) <= 21^(-3)`.
+    """
+    b = n_terms + 1
+    bf = F(b)
+    # T306: (1/720) * 65000 * (b^-4 + b^-3 / 3)
+    bound_rem = F(65000, 720) * (bf ** -4 + bf ** -3 / 3)
+    # T307: (1/720) * 4320 * b^-3
+    bound_b4 = F(4320, 720) * bf ** -3
+    print(f"T306  ||zetaEMRemainder 2 {n_terms} s14|| <= {bound_rem} = {float(bound_rem):.3e}"
+          f"   (budget 1/200 = {float(F(1,200)):.3e})  {'PASS' if bound_rem <= F(1,200) else 'FAIL'}")
+    print(f"T307  ||B4 boundary term||       <= {bound_b4} = {float(bound_b4):.3e}"
+          f"   (budget 1/1000 = {float(F(1,1000)):.3e})  {'PASS' if bound_b4 <= F(1,1000) else 'FAIL'}")
+    print(f"total with box corner 11/100: {float(F(11,100) + bound_rem + bound_b4):.6f}  (target 0.125)")
+
+
+if __name__ == "__main__" and "--tail" in sys.argv:
+    tail_bounds()

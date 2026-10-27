@@ -2639,3 +2639,19 @@ single failing `native_decide`.  The cheap discriminator is to check the box
 centre against the true value first — one line of `mpmath` — before bisecting
 the radius.  Two rounds of bisection would have been avoided by computing
 `|centre - ζ(s0)|` at the start.
+
+### 2026-10-27 — Phase I.263: exact rational budgets for the step-3 assembly
+
+Added `tail_bounds` to `python/emit_em.py` (`python3 emit_em.py --tail`), which
+computes the two tail bounds the Lean assembly needs, in exact rationals:
+
+* `||zetaEMRemainder 2 20 s14|| <= 6500/1750329 = 3.714e-3` (budget `1/200`),
+  from T305 with `2 Re ζ(4)/(2π)^4 = 1/720`, `||(s)_4|| <= 65000`,
+  `21^(-9/2) <= 21^(-4)`, `21^(-7/2)/(7/2) <= 21^(-3)/3`;
+* `||B₄ boundary term|| <= 2/3087 = 6.479e-4` (budget `1/1000`), from
+  `||P₃|| <= 4320` and `21^(-7/2) <= 21^(-3)`.
+
+Combined with the verified box corner `11/100` this gives
+`|ζ(1/2+14i)| <= 0.114361`, comfortably under `1/8` with a `1.06·10⁻²` margin.
+Fixing the exact rationals *before* writing the Lean avoids the usual failure
+mode of discovering at the end that a crude bound was too weak.
