@@ -2816,3 +2816,28 @@ plan turned out to rest on an untested assumption about interval arithmetic
 (after the mirror-as-width-predictor error and the miscalculated pole scalar).
 Probing the primitive with one `native_decide` before designing around it has
 been the only reliable way to find these.
+
+### 2026-10-27 — Phase I.271: `h2`'s risk item is closed; no circle subdivision
+
+Round 16 flagged the disk bound `sup |sum a_j w^j| <= 0.188` as the design risk.
+Prototyping with 30-digit coefficients settles it: the naive modulus sum
+`sum_{k=2..8} k|c_k| r^(k-1)` equals `0.13928`, which is *exactly* the true
+`sup|zeta'(z) - zeta'(s0)|` on the ball — the triangle inequality is tight
+because the terms nearly align at `w = r`.  Budget is `0.188`, so 26% margin and
+**no circle subdivision is needed**.
+
+Taylor remainders (`sum_{n<=20} (log n)^m n^{-0.3}`, no cancellation needed):
+
+  K=5: 2*2134*0.2^5/120 = 0.0114  -> total 0.1507
+  K=6: 2*5782*0.2^6/720 = 0.0010  -> total 0.1403
+
+Also located the differentiability route: `AnalyticAt.fderiv` and
+`AnalyticOnNhd.iteratedFDeriv` in `Mathlib/Analysis/Calculus/FDeriv/Analytic.lean`
+give that every `deriv^[k] zeta` is analytic, hence differentiable.  So the MVT
+lemma already in `Krawczyk.lean` plus an induction suffices; no bespoke Taylor
+theorem is required.
+
+The design is now settled.  What remains is bulk: point enclosures of
+`c_k = zeta^(k)(s14)/k!` for `k = 1..5`, differentiating `zetaEMGen 1 20`
+explicitly.  In a pleasing reversal of round 15, `Cx.inv` turns out not to be
+needed at all — the pole factor `(s0-1)^{-k}` is exactly rational at a point.

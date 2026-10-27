@@ -264,55 +264,65 @@ follows by the triangle inequality (`hC_of_bounds`, T328):
 The **true** values are `‖1 − Ykζ′(s14)‖ ≈ 10⁻¹⁰` and the Lipschitz constant
 `0.1517`, so `h1` has a factor-`10⁶` slack and `h2` has 24% slack.
 
-### The remaining work for `h2` — CORRECTED in round 16
+### The remaining work for `h2` — resolved design (round 17)
 
-**Retracted: the round-15 plan (M_R, `Cx.inv`, a `G″` box over the disk) cannot
-work.** It assumed that a `CpowBox` enclosure over a 2D rectangle stays tight.
-It does not. Measured in Lean (T-probe, `native_decide`):
+**Retracted (round 16): the round-15 `M_R`/`Cx.inv`/`G″`-box plan.**  A
+`CpowBox` enclosure over a 2D rectangle is hopeless: probed in Lean, a *single*
+atom `20^{-S}` over `[0.3,0.7]×[13.8,14.2]` already has width `≥ 0.1`
+(`≥ 0.01` over a half-width-`0.02` rectangle).  Interval arithmetic captures no
+cancellation over a region, so **no statement quantifying over a 2D region can
+be certified with this layer at all**.
 
-| region | width of a *single* atom `20^{-S}` |
+**Chosen route: a Taylor model**, needing only *point* enclosures plus crude
+modulus bounds.  With `c_k = ζ^{(k)}(s14)/k!` and `r = |w| = 1/5`:
+
+```
+||ζ'(z) - ζ'(s14)|| ≤ Σ_{k=2..K} k·|c_k|·r^(k-1)  +  2·sup|G^{(K+1)}|·r^K/K!
+```
+
+Measured (`mpmath`, 30 digits):
+
+| quantity | value |
 |---|---|
-| ball's bounding rect `[0.3,0.7]×[13.8,14.2]` | `≥ 0.1` |
-| small rect of half-width `0.02` | `≥ 0.01` |
+| `Σ k|c_k| r^(k-1)`, `K=8` | **`0.13928`** |
+| true `sup|ζ'(z) - ζ'(s14)|` on the ball | `0.13928` |
+| true `sup|P(w)|` of the Taylor polynomial | `0.13928` |
+| budget (T329) | `0.188` |
 
-So summing 20 atoms gives a width `≥ 2` for `ζ` itself over the ball, against
-`|ζ| ≈ 0.1`: interval arithmetic over a 2D region captures **no cancellation**
-because the sum's width is the sum of the term widths. For `G″` the weights
-`(log n)²` make it far worse. Hence `sup‖G″‖` cannot be bounded this way, and
-**no** statement quantifying over a 2D region can be certified with this layer.
+**The triangle inequality is exactly tight here** — the terms at `w = r`
+nearly align — so the naive modulus sum needs **no circle subdivision**, which
+was the main risk in round 16.  It has 26% margin.
 
-**The correct technique is a Taylor model**, which needs only *point*
-enclosures plus a crude modulus-sum bound on one high derivative. Measured:
+Taylor remainder (`sup|G^{(m)}| ≤ Σ_{n≤20} (log n)^m n^{-0.3}`, a modulus sum
+that needs no cancellation because `r^m/m!` kills it):
 
-| Taylor degree | crude bound on `‖G^{(m)}‖` over the ball | remainder `≤` |
-|---|---|---|
-| 3 | `3.0·10²` | `2.0·10⁻²` |
-| 5 | `2.1·10³` | `1.9·10⁻⁴` |
-| 6 | `5.8·10³` | `1.5·10⁻⁵` |
-| 7 | `1.6·10⁴` | `1.0·10⁻⁶` |
+| `K` | `sup|G^{(K+1)}|` | `2·sup·r^K/K!` | total |
+|---|---|---|---|
+| 5 | `2134` | `0.0114` | `0.1507` ✓ |
+| 6 | `5782` | `0.0010` | `0.1403` ✓ |
 
-(the bound is just `Σ_{n≤20} (log n)^m · n^{-0.3}`, no cancellation needed,
-because `0.2^m/m!` kills it). The true degree-7 Taylor error on the ball is
-`3.6·10⁻¹¹`, so the model is not the bottleneck.
+**Differentiability route found.**  `Mathlib/Analysis/Calculus/FDeriv/Analytic.lean`
+has `AnalyticAt.fderiv` (`AnalyticAt 𝕜 f x → AnalyticAt 𝕜 (fderiv 𝕜 f) x`)
+and `AnalyticOnNhd.iteratedFDeriv`.  So `differentiableAt_riemannZeta` →
+`analyticAt` → analytic `fderiv` → differentiable `deriv` → the `HasDerivAt`
+that `norm_sub_le_of_deriv_bound` wants.  No bespoke Taylor theorem needed: the
+MVT lemma `norm_sub_le_of_deriv_bound` in `Krawczyk.lean` plus the induction
+"Taylor inequality" is enough, and each step only needs `deriv^[k] ζ`
+differentiable, which `iteratedFDeriv` gives.
 
-Concretely, `h2` then follows from:
+Concretely, the remaining pieces are
 
-1. **Point enclosures** of `ζ^{(k)}(s14)/k!` for `k = 1..6`, via the explicit
-   differentiated `zetaEMGen 1 20` at the point (only `cpowBox` at `S14`, and
-   `(s14-1)^{-k}` is *exactly rational* at a point, so **no `Cx.inv` is
-   needed**), plus `|R^{(k)}(s14)| ≤ k!·M_R/ρ^k` by Cauchy on the tiny
-   remainder (`M_R ≈ 3.1·10⁻³`, `ρ = 0.25`).
-2. A modulus-sum bound `‖G^{(7)}‖ ≤ 5.8·10³` over the ball — pure real
-   arithmetic, no boxes.
-3. Taylor's theorem for `ℂ`-valued functions (need to locate Mathlib's form).
-4. `sup_{|w|≤0.2} |Σ a_j w^j| ≤ 0.188` where `a_j` are the enclosed
-   coefficient combinations `-Yk·(j+1)·c_{j+1}`. The naive modulus sum gives
-   `≈ 0.25`, which is **too loose**; this needs either a finer norm (subdivide
-   the boundary circle into arcs and use `native_decide` per arc) or a higher
-   Taylor degree to shrink the tail.
+1. **Point enclosures of `c_k = ζ^{(k)}(s14)/k!` for `k = 1..5`.**  Differentiate
+   `zetaEMGen 1 20` explicitly; at the point `S14` only `cpowBox` is needed and
+   `(s14-1)^{-k}` is *exactly rational*, so **no `Cx.inv` is needed**.  Add
+   `k!·M_R/ρ^k` for the remainder `R` (`M_R ≈ 3.1·10⁻³`, `ρ = 0.25`).
+2. The modulus bounds `sup|G^{(6)}| ≤ 2134` over the ball (real arithmetic).
+3. Taylor inequality via `norm_sub_le_of_deriv_bound`, using `AnalyticAt.fderiv`.
+4. Assemble `h2`; `h1` comes from the same `c_1`.
+5. `zeta_zero_14_of_bounds h1 h2` → the certified zero.
+6. Ledger rows, `STATUS.md` counts, journal entry.
 
-Item 4 is now the delicate part, and note it is a **1D** problem (a circle),
-which interval arithmetic *can* handle — unlike items that previously failed.
+Item 1 is the bulk.  Item 3 is formally delicate but the lemmas exist.
 
 ### What this does *not* give
 
@@ -320,28 +330,17 @@ which interval arithmetic *can* handle — unlike items that previously failed.
 (`‖1 - Yk·ζ′‖ ≤ 1/4` on `‖w-s0‖ ≤ 1/4`) is still open, so **no zero is
 certified yet**. No RH or infinite-positivity claim is made anywhere.
 
-## Next steps, in order (current — round 16)
+## Next steps, in order (current — round 17)
 
-The only outstanding obligation is T329's two hypotheses (`h1`, `h2`). The
-route is a **Taylor model**; the old `M_R`/`Cx.inv`/`G″`-box plan is retracted
-(see "The remaining work for `h2` — CORRECTED").
+See "The remaining work for `h2` — resolved design" above.  In short:
 
-1. Point enclosures of `ζ^{(k)}(s14)` for `k = 1..6`: differentiate
-   `zetaEMGen 1 20` explicitly, evaluate at the point `S14` with `cpowBox`,
-   use exact rational `(s14-1)^{-k}`, and add `k!·M_R/ρ^k` for the remainder
-   (`M_R` from T305 at `K=2`, `N=20`; `ρ = 0.25`).
-2. The modulus-sum bound `‖G^{(7)}‖ ≤ 5.8·10³` over the ball (real arithmetic).
-3. Taylor's theorem in ℂ (find the Mathlib form; `ftaylorSeries` /
-   `HasFTaylorSeriesUpTo` or a bespoke induction).
-4. The circle bound `sup_{|w|≤0.2}|Σ a_j w^j| ≤ 0.188` (1D; subdivide into
-   arcs if the naive modulus sum `≈0.25` is too loose).
-5. `h1` falls out of the same coefficient set (`c_1` gives `ζ′(s14)`).
-6. `zeta_zero_14_of_bounds h1 h2` → the certified zero.
-7. Ledger rows (README + index.html), `STATUS.md` counts, journal entry.
+1. Point enclosures of `c_k = ζ^{(k)}(s14)/k!`, `k = 1..5` (the bulk of the work;
+   no `Cx.inv` needed).
+2. Modulus bounds `sup|G^{(6)}| ≤ 2134` over the `1/5`-ball.
+3. Taylor inequality via `norm_sub_le_of_deriv_bound` + `AnalyticAt.fderiv`.
+4. `h2`, then `h1` from `c_1`, then `zeta_zero_14_of_bounds h1 h2`.
 
-**Realistic size**: this is a new layer, not plumbing. Budget several rounds.
-Do not start until item 1's enclosure has been probed at a point — that part is
-known to work, but the constants need checking.
+Budget: several rounds.  Probe item 1's enclosure numerically before writing it.
 
 ## Hard rules
 
