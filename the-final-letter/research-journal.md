@@ -2682,3 +2682,13 @@ Three things made this cheap once the arithmetic bug was gone:
 
 `hmap` is therefore discharged.  `hC` — a derivative enclosure `‖1 - Yk·ζ′‖ ≤
 1/4` on the radius-1/4 disk — remains, and no zero is certified yet.
+
+### 2026-10-27 — Phase I.265: `hC` scoping
+
+Recorded the design constraints for step 4 in `HANDOFF.md`. The Krawczyk
+contraction target `‖1 - Yk·ζ′‖ ≤ 1/4` on `‖z-s14‖ ≤ 1/4` has only a 9% margin
+(sampled maximum `0.2295`), and Cauchy from a `ζ` bound is provably
+inadequate: `|ζ″| ≤ 32M` with `M ≥ 0.1056` gives a bound of `≈1.1`, four times
+too large. A direct `ζ′` enclosure over the disk is therefore required, which
+means a derivative analogue of the T305 remainder bound — the one piece with no
+existing support in `EulerMaclaurin.lean`.

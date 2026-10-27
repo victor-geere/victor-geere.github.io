@@ -221,6 +221,51 @@ Sequence: `ζ = zetaEM 20` (`zeta_eq_zetaEM_of_im`), `= zetaEMGen 2 + rem₂`,
 `zetaEMGen 2 = zetaEMGen 1 + B₄`, `zetaEMGen 1 ∈ Bzeta`, then three triangle
 inequalities.
 
+## Step 4 (`hC`): design analysis
+
+```lean
+hC : ∀ z ∈ Metric.closedBall s14 (1/4), ‖1 - Yk * deriv riemannZeta z‖ ≤ 1/4
+```
+
+**Numerically the target is tight.** Sampling 2001 points on the circle
+`|z-s14| = 1/4` gives `max ‖1 - Yk·ζ′‖ = 0.2295` against the budget `0.25` —
+a margin of only `0.0205`, i.e. 9%. Since `‖1 - Yk·ζ′(s14)‖` itself is
+`~10⁻¹⁰` (`Yk` is a 10-digit rational for `1/ζ′`), essentially the whole
+`0.2295` is *variation* over the disk, so the derivative enclosure must
+resolve `ζ′` to ~`10⁻²` absolute.
+
+**Cauchy is not adequate.** If `|ζ| ≤ M` on `D(s14, 1/2)` then for
+`z ∈ D(s14, 1/4)`, `|ζ″(z)| ≤ 2M/(1/4)² = 32M`, and `M ≥ |ζ(s14)| = 0.1056`,
+so `32M ≥ 3.4`. Then
+
+`‖1 - Yk ζ′(z)‖ ≤ ‖1 - Yk ζ′(s14)‖ + (1/4)·|Yk|·sup|ζ″| ≥ 1.29·(1/4)·3.4 ≈ 1.1`,
+
+four times too large. The mean-value route cannot work; a **direct `ζ′`
+enclosure over the disk** is required.
+
+**Sketch of the required layer.** Enclose over the rectangle
+`Re ∈ [1/4, 3/4]`, `Im ∈ [13.75, 14.25]` (which contains the disk):
+
+1. `n^{-s}` over that rectangle — reuse `cpowBox`, but note the side
+   conditions change (`Re ≤ 3/4`, `Im ≤ 14.25`); `kI = 48` still suffices
+   since `14.25·log 21 / 48 = 0.904 ≤ 1`.
+2. `log n` enclosures — `logIvRat` already provides these, and they are the
+   only new ingredient: `d/ds n^{-s} = -log(n)·n^{-s}`.
+3. The pole term `21^{1-s}/(s-1)` and the `21^{-s}` multiples, differentiated,
+   plus `B₄`; all are `21^{-s}` times rational functions of `s`, so the same
+   single-atom trick applies with a different rational scalar *depending on s*
+   (a box, not a point).
+4. The derivative of `zetaEMRemainder`, bounded by differentiating the
+   `S_even` series bound — this needs a `K`-derivative analogue of T305 and is
+   the genuinely analytical piece.
+
+Item 4 is the main risk and has no existing support in
+`EulerMaclaurin.lean`. A cheaper fallback: bound `‖ζ′‖` over the disk from a
+`ζ` enclosure on a *slightly larger* rectangle via Cauchy on the boundary
+against a `ζ` box that is tight to `10⁻⁵`; the loss factor is
+`2/(separation)`, and a rectangle-based Cauchy estimate with a thin frame may
+be competitive with item 4. Neither approach has been tried.
+
 ### What this does *not* give
 
 `hmap` was the last *numerical* premise of the Krawczyk step. `hC`
