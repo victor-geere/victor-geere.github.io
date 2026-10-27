@@ -406,6 +406,8 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T327 | Theorem | **`Yk ≠ 0`** (`|Re Yk| = 1.24`). | `Yk_ne_zero` (`EMBox14.lean`) |
 | T328 | Theorem | **`hC` from two numerical inputs:** a `10⁻³` point enclosure of `ζ′(s14)` and a `47/250`-Lipschitz bound on `ζ′` give `hC`; `10⁻³ + 1.29·(47/250) = 0.24352 ≤ 1/4`. | `hC_of_bounds` (`EMBox14.lean`) |
 | T329 | Theorem | **Final zero theorem, conditional on two explicit numerical inputs:** `∃ z ∈ ball(s14, 1/5), ζ z = 0`. All other Krawczyk hypotheses are discharged. | `zeta_zero_14_of_bounds` (`EMBox14.lean`) |
+| T330 | Theorem | **`d/dz b^z = b^z·log b`** for `b ≠ 0`, built from `Complex.cpow_def` (Mathlib has no such lemma). | `hasDerivAt_cpow_exp` (`EMDeriv.lean`) |
+| T331 | Theorem | **`d/dz b^(-z) = -(b^(-z)·log b)`** for `b ≠ 0`; the derivative of each `n^{-s}` term. | `hasDerivAt_cpow_neg` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

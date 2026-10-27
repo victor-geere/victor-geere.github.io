@@ -2841,3 +2841,27 @@ The design is now settled.  What remains is bulk: point enclosures of
 `c_k = zeta^(k)(s14)/k!` for `k = 1..5`, differentiating `zetaEMGen 1 20`
 explicitly.  In a pleasing reversal of round 15, `Cx.inv` turns out not to be
 needed at all — the pole factor `(s0-1)^{-k}` is exactly rational at a point.
+
+### 2026-10-27 — Phase I.272: `deriv` of `b^z` and `b^{-z}` (first derivative layer)
+
+Added `EMDeriv.lean` (T330–T331), the gate for the `ζ′` enclosure:
+
+  hasDerivAt_cpow_exp  d/dz b^z  = b^z * log b        (b != 0)
+  hasDerivAt_cpow_neg  d/dz b^-z = -(b^-z * log b)
+
+Mathlib has neither.  The proof goes through `Complex.cpow_def`, which is
+*piecewise*:
+
+  b ^ z = if b = 0 then (if z = 0 then 1 else 0) else exp (log b * z)
+
+so the rewrite needs `if_neg hb` and then a targeted `mul_comm (log b) s` for
+the argument order.  Three attempts were lost to `simp`/`rw` not matching
+(`Complex.exp` vs `NormedSpace.exp`, and an untargeted `mul_comm` hitting the
+wrong occurrence) before reading the actual statement of `cpow_def` settled it
+in one line — the recurring lesson of this dossier: read the lemma, do not
+guess its shape.
+
+The sum lemma `d/ds sum_{n<N} (n+1)^{-s}` was attempted and deferred: `HasDerivAt.sum`
+returns the sum of *functions*, so it needs `Finset.sum_apply` and
+`Finset.sum_neg_distrib` to reshape both the function and the derivative value.
+That belongs with the next increment.
