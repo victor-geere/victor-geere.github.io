@@ -16,7 +16,7 @@ The well-posed replacement for OP-3: for every log-arc rule `A_I`, is `C_I(x) = 
 The tensor programme reduces the RH positivity to Weil positivity for `W`. A proof would close RH; a counterexample would refute it. The current `W` has the correct spectral resolution; the positivity is the open statement.
 
 **Why it matters:** it is the exact form of the missing arithmetic positivity on the RH side.
-**Status:** open/classical. See [`summary/10`](../../summary/10-prime-spectrum-tensor/17-theorem-c-weil-criterion.md).
+**Status:** open/classical. See [`summary/10`](../../summary/10-prime-spectrum-tensor/17-theorem-c-weil-criterion.md); a route assessment of the five proposed capture mechanisms, and the recommended finite first target, is in [`topics/prime-spectrum-tensor/WEIL-POSITIVITY.md`](../../topics/prime-spectrum-tensor/WEIL-POSITIVITY.md).
 
 ### R3. Prove or refute `(M)` in a class that contains `ζ`
 
