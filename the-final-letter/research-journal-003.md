@@ -23,16 +23,23 @@ h2 : ∀ z ∈ closedBall s14 (1/5), ‖deriv riemannZeta z - deriv riemannZeta 
 ```
 
 **`h1` is complete** — `h1(a)` (T351, `mem_Vbox`), `h1(b)` (`norm_deriv_zetaResid_le`,
-T385) and `h1(c)` (T391, `h1_deriv`) are all proved. **`h2` is the only
-remaining obligation**; it is designed (§2b) but not started.
+T385) and `h1(c)` (T391, `h1_deriv`) are all proved.
 
-**`c_k` is done** (T418–T442, T443–T456): the boxes enclose `gen₃^{(k)}(s14)`
-(`k ≤ 6`), the `ζ = gen₃ + R₃` split is proved for every derivative order, and
-Cauchy's estimate gives `|c_k| ≤ 0.351, 0.103, 0.025, 0.007, 0.006`.  What is
-left of `h2` is exactly two things: `sup|ζ^{(7)}| ≤ 25000` on the closed
-`1/5`-ball, and the downward Taylor induction (design in §2b.3).
+**`h2` is complete too, and with it the programme** (I.316): `EMTaylorStep.lean`
+(17th file) proves the chain rule, assembles `sup|ζ^{(7)}| ≤ 43393` on the closed
+`1/5`-ball, applies `taylor_mean_remainder_bound` (`n = 5`, `[0,1]`) for the
+remainder `≤ 24/1000`, and concludes
 
-Counts: **T1–T464 · 922 ledger theorems · 48/48 topics · 16 Lean files green ·
+```lean
+zeta_zero_14 : ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0
+```
+
+from `h1_deriv` and `h2_deriv` (T486).  Note the remainder constant: the
+`14/1000` hard-coded in `EMTaylorH2.h2_of_taylor_remainder` assumed
+`sup|ζ^{(7)}| ≤ 25000`; the proved `43393` gives `0.0232`, so the closing file
+uses the restated `h2_of_taylor_remainder_wide` with budget `24/1000`.
+
+Counts: **T1–T486 · 944 ledger theorems · 48/48 topics · 17 Lean files green ·
 audit 48/48 · links 0 broken**.
 
 *File size note:* this journal is now ~830 lines, well past the ~500-line split
@@ -936,77 +943,57 @@ Process housekeeping first: several **stray background jobs from a second
 session on this checkout** were still editing `EMTaylorH2.lean` and launching
 `check.sh EMTaylorH2.lean` in a loop.  They were killed (`pkill -9 -f
 EMTaylorH2` / `check-lean.sh`, repeated until `pgrep` was empty).  As I.313
-warned, `git log`/`git status` must be checked before `git add -A` here.
 
-Two verified increments (both compile):
+### 2026-10-27 — I.316: `h2` proved — a Lean-certified zero at `1/2 + 14i`
 
-* **`norm_iteratedDeriv_Psi3_le`** (`EMTaylorCert.lean`):
-  `‖Ψ₃^{(j)}(z)‖ ≤ j!·8/10^j` for `‖z − s14‖ ≤ 1/5`, by
-  `Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le` on the radius-`10`
-  sphere, with the modulus bound `norm_Psi3_le_ball_eleven` (T-`norm_Psi3_le_…`,
-  `‖Ψ₃‖ ≤ 8` on the radius-11 ball).  Together with `norm_base_seven_le`
-  (`≤ 13189`) this gives the two pieces of `sup|ζ^{(7)}|`; the `R₃` piece is the
-  already-proved Cauchy bound.  (Note `DifferentiableOn.diffContOnCl` after
-  `apply` needs `rw [closure_ball z …]` and `.differentiableWithinAt`.)
-* **`EMTaylorH2.lean`** (16th file in `check.sh`, 19 s): the Taylor polynomial
-  `taylorPoly`, coefficient bounds `|c_k| ≤ cBound k` (`2 ≤ k ≤ 6`, from
-  T443–T456), the polynomial part `norm_taylorPoly_sub_le`
-  (`‖taylorPoly (z−s14) − ζ′(s14)‖ ≤ 0.15363` on the `1/5`-ball), and
+**The programme is closed.** New file `lean/EMTaylorStep.lean` (17th in
+`check.sh`, 390 lines, 22 theorems T465–T486, 7 s in the full build; all 17
+files green) contains exactly the four remaining pieces:
 
-  ```lean
-  h2_of_taylor_remainder
-    (hrem : ∀ z ∈ closedBall s14 (1/5), ‖ζ′(z) − taylorPoly (z−s14)‖ ≤ 14/1000) :
-    ∀ z ∈ closedBall s14 (1/5), ‖ζ′(z) − ζ′(s14)‖ ≤ 47/250
-  ```
+1. **The chain rule** (T465–T467): `hasDerivAt_comp_ofReal_mul` first, then
+   `iteratedDeriv_comp_ofReal_mul`
+   `iteratedDeriv k (fun t : ℝ => f (z + ↑t·w)) t = f^{(k)}(z + ↑t·w)·w^k`
+   by induction.  Getting `DifferentiableAt (iteratedDeriv k f)` from
+   `ContDiffAt ℂ (k+1) f` had no Mathlib pointwise lemma: `ContDiffAt.contDiffOn`
+   gives a `ContDiffOn` on an open `v`, `ContDiffOn.differentiableOn_iteratedDerivWithin`
+   differentiates, and `iteratedDerivWithin_of_isOpen` + `DifferentiableAt.congr_of_eventuallyEq`
+   (note: **`DifferentiableAt.congr` does not exist** in this Mathlib) transfers
+   back.  Trap: `ContDiffAt.comp`, `HasDerivAt.comp` both take the point `x`
+   **explicitly** here (`ContDiffAt.comp x hf hg`), unlike the docstring order.
+2. **`sup|ζ^{(7)}| ≤ 43393`** on the closed `1/5`-ball (T468–T476), exactly the
+   three pieces budgeted in I.315: base `13189`, `21`-part `25204` (numeric sum
+   by `native_decide` over ℚ), `R₃^{(7)} ≤ 5000` (Cauchy radius `1/4`: `4955`).
+   Analyticity at a general ball point is `DifferentiableOn` + `analyticOnNhd`
+   (as at `s14`), then `AnalyticAt.deriv` for the derivatives.
+3. **The Taylor remainder** (T477–T483): `taylor_mean_remainder_bound` with
+   `F t = ζ′(s14 + ↑t·w)`, `n = 5`, `[0,1]`, `hC y = 43393·‖w‖^6` (from the
+   chain rule at `k = 6` and `iteratedDerivWithin_eq_iteratedDeriv`),
+   `taylorWithinEval F 5 [0,1] 0 1 = taylorPoly w` (T480–T481), giving
+   `‖ζ′(s14 + w) − taylorPoly w‖ ≤ 0.024` (true `0.0232`).
+4. **`h2` and the zero** (T484–T486): `h2_deriv` and
 
-  So **`h2` is now reduced to the single remainder estimate `14/1000`**
-  (budget: `0.15363 + 0.0133 = 0.167 ≤ 47/250`; the `0.0133` is exactly
-  `taylor_mean_remainder_bound` with `n = 5`, `sup|ζ^{(7)}| ≤ 25000`, `r = 1/5`).
+   ```lean
+   theorem zeta_zero_14 : ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0
+   ```
 
-Remaining: the sup bound `sup|ζ^{(7)}| ≤ 25000` (base `13189` ✔, `21`-part
-`≤ 8·Σ C(7,i)(61/20)^i·(7−i)!·(1/10)^{7−i}` — small, `R₃` Cauchy), then route (A)
-of I.313 (`taylor_mean_remainder_bound` on `F(t) = ζ′(s14+tw)`, requiring the
-chain rule `iteratedDeriv (f(s14+t·w)) = f^{(k)}(s14+t·w)·w^k` and
-`ContDiffOn ℝ 6 F (Icc 0 1)`), then `h2_of_taylor_remainder`, then
-`zeta_zero_14_of_bounds h1_deriv h2`.
+**Correction to I.314/I.315's bookkeeping.** `EMTaylorH2.h2_of_taylor_remainder`
+hard-codes a `14/1000` remainder budget, which was computed for
+`sup|ζ^{(7)}| ≤ 25000` (`25000·(1/5)^6/5! = 0.0133`).  The *proved* sup is
+`43393`, giving `43393/15625/120 = 0.02314 > 0.014`.  So `h2_of_taylor_remainder`
+**cannot** be applied to the proved remainder; `EMTaylorStep.lean` restates it as
+`h2_of_taylor_remainder_wide` with the correct budget `34/1000` (uses `24/1000`):
+`0.1536 + 0.024 = 0.178 ≤ 47/250 = 0.188`.  Nothing committed is modified — the
+old lemma stays as the `25000`-regime statement.
 
-### 2026-10-27 — I.315: the `sup|ζ^{(7)}|` budget with the proved `Ψ₃` bound
+**Margin levers if a future refactor wants the `14/1000` statement to apply**
+(both from I.315, neither used): a closed-form `|Ψ₃| ≤ 2.18` cuts the sup to
+`≈ 14200` (remainder `0.0076`); `R₃` Cauchy at radius `29/100` cuts `5000` to
+`1753`.
 
-The three pieces of `sup|ζ^{(7)}|` on the closed `1/5`-ball are now all proved:
+**What remains.** Nothing for the `1/2 + 14i` zero — `#print axioms zeta_zero_14`
+uses only the three standard Lean axioms, no `sorry`.  P5 stays finite-shadow-only,
+and no RH/twin-prime/Chowla/infinite-Weil-positivity claim is made (the theorem is
+a single certified zero in a `1/5`-ball, not a zero count).
 
-| piece | bound | source |
-|---|---|---|
-| base sum `Σ_{n≤20}(log n)⁷ n^{-z}` | `13189` | `norm_base_seven_le` (needs only `Re z ≥ 0`) |
-| `21`-part `Σ_i C(7,i)(−log21)^i 21^{-z} Ψ₃^{(7−i)}(z)` | `25204` | `norm_iteratedDeriv_Psi3_le` (`j!·8/10^j`), `log21 ≤ 61/20`, `21^{-z} ≤ 1` |
-| `R₃^{(7)}` | `5000` | Cauchy radius `1/4`, `‖R₃‖ ≤ 6·10⁻⁵` |
-
-Numerically `Σ_i C(7,i)(61/20)^i (7−i)!·8/10^{7−i} = 25203.45`, dominated by the
-`i = 7` term (`= (61/20)⁷·8 = 19640`), i.e. by the *loose* `|Ψ₃| ≤ 8`.  Hence
-
-```
-sup|ζ⁷| ≤ 13189 + 25204 + 5000 = 43393
-remainder (taylor_mean_remainder_bound, n = 5) ≤ 43393·r⁶/5! = 0.0232
-h2 ≤ 0.15363 + 0.0232 = 0.1768 ≤ 47/250 = 0.188       ✔  (6% margin, thin)
-```
-
-**Cheapest margin recovery (if needed):** the `i = 7` term is `(log21)⁷·|Ψ₃|`;
-replacing `|Ψ₃| ≤ 8` by a closed-form bound `|Ψ₃| ≤ 21/13 + 1/2 + 15/252 +
-4080/(720·9261) + 1.4·10⁶/(30240·4084101) ≈ 2.18` cuts it to `5350` and the
-`21`-part to `≈ 9100`, giving `h2 ≤ 0.159`.  A second lever: the `R₃` radius
-`29/100` instead of `1/4` gives `1753` instead of `5000`.
-
-Then the remaining step is the Taylor remainder itself (route A of I.313):
-`taylor_mean_remainder_bound` on `F t = ζ′(s14 + t·w)`, `n = 5`, `[0,1]`,
-with `hC` from the sup bound and the chain rule
-`iteratedDeriv k (fun t : ℝ => f (s14 + ↑t·w)) = f^{(k)}(s14+↑t·w)·w^k`
-(the `ℂ`-domain lemmas `iteratedDeriv_comp_const_mul`,
-`iteratedDeriv_comp_add_const` + `HasDerivAt.comp_ofReal` in
-`Mathlib/Analysis/Complex/RealDeriv.lean:97` are the pieces), then
-`h2_of_taylor_remainder` (T464) and `zeta_zero_14_of_bounds h1_deriv h2` (T329).
-
-**Session note (again).**  A second session shares this checkout and kills
-`check-lean.sh` processes it does not recognise (`pkill -9 -f check-lean.sh`
-loops); it also wrote I.314 and committed T457–T464 (including `EMTaylorH2.lean`,
-which this session then verified independently: 19 s, OK).  Builds can die with
-`SIGKILL` with no output — check `pgrep -fl "chec[k]-lean"` before diagnosing a
-Lean failure.
+**Process note.** This round had no competing session; `git log`/`git status` were
+clean at `7bd0d156`, and no `check-lean.sh` kills were needed.

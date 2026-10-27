@@ -19,7 +19,19 @@ theorem zeta_ne_zero_segment {s : ℂ} (hs : Cx.mem s Sseg) :
     riemannZeta s ≠ 0
 ```
 
-for `Sseg = {1/2 + it : t ∈ [5, 5.000003]}`. These are finite-window
+for `Sseg = {1/2 + it : t ∈ [5, 5.000003]}`.
+
+**A second zero is certified at `1/2 + 14i`** (T465–T486, `EMTaylorStep.lean`,
+I.316): the Krawczyk chain for `s14 = 1/2 + 14i` is closed and
+
+```lean
+theorem zeta_zero_14 : ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0
+```
+
+holds with no numerical hypothesis left. This is a single certified zero in a
+`1/5`-ball, not a zero count, and not a statement about RH.
+
+These are finite-window
 zero-free statements, not a zero count and not a statement about RH. Wider
 segments and P4 remain open.
 **Source:** P3/R14 of [`status.html`](../../status.html) §7; the eta/zeta identity
@@ -541,6 +553,28 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T462 | Theorem | ****Polynomial part of `h2`:**** `‖taylorPoly (z−s14) − ζ′(s14)‖ ≤ 0.15363` on the `1/5`-ball. | `norm_taylorPoly_sub_le` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
 | T463 | Theorem | ****`h2` from a Taylor remainder:**** a uniform bound `14/1000` on `‖ζ′ − taylorPoly‖` gives `‖ζ′(z) − ζ′(s14)‖ ≤ 47/250`. | `norm_deriv_sub_le_of_taylor_remainder` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
 | T464 | Theorem | ****`h2` reduced to one remainder estimate:**** `(∀ z, ‖ζ′(z) − taylorPoly (z−s14)‖ ≤ 14/1000) → h2`. | `h2_of_taylor_remainder` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T465 | Theorem | **First-derivative chain rule** for `t ↦ f (z + t·w)`: the derivative is `f′(z + t·w)·w`. | `hasDerivAt_comp_ofReal_mul` (`EMTaylorStep.lean`) |
+| T466 | Theorem | **The `m`-th iterated derivative of a `C^{m+1}` function is differentiable.** | `differentiableAt_iteratedDeriv_of_contDiffAt` (`EMTaylorStep.lean`) |
+| T467 | Theorem | **Iterated chain rule:** `iteratedDeriv k (fun t => f (z + t·w)) t = f^{(k)}(z + t·w)·w^k`. | `iteratedDeriv_comp_ofReal_mul` (`EMTaylorStep.lean`) |
+| T468 | Theorem | **Analyticity of `ζ` on the `1/2`-ball:** `AnalyticAt ℂ riemannZeta z` for `‖z − s14‖ < 1/2`. | `analyticAt_riemannZeta_ball` (`EMTaylorStep.lean`) |
+| T469 | Theorem | **All iterated derivatives of `ζ` are analytic on the `1/2`-ball.** | `analyticAt_iteratedDeriv_zeta_ball` (`EMTaylorStep.lean`) |
+| T470 | Theorem | **`ζ′` is analytic on the `1/2`-ball.** | `analyticAt_deriv_zeta_ball` (`EMTaylorStep.lean`) |
+| T471 | Theorem | **The numeric `21`-part bound:** `Σ_{i≤7} C(7,i)(61/20)^i (7−i)!·8/10^{7−i} ≤ 25204`, by `native_decide` in `ℚ`. | `psi_part_rat_le` (`EMTaylorStep.lean`) |
+| T472 | Theorem | **The `21`-part of `ζ^{(7)}`:** `‖Σ_i C(7,i)(−log21)^i 21^{-z} Ψ₃^{(7−i)}(z)‖ ≤ 25204` on the `1/5`-ball (from T457 and `log21 ≤ 61/20`). | `norm_psi_part_seven_le` (`EMTaylorStep.lean`) |
+| T473 | Theorem | **`R₃` is `DiffContOnCl` on the radius-`1/4` ball at any point of the `1/5`-ball.** | `diffContOnCl_remainder_quarter` (`EMTaylorStep.lean`) |
+| T474 | Theorem | **Cauchy for `R₃^{(7)}`:** `‖R₃^{(7)}‖ ≤ 5000` on the `1/5`-ball (radius `1/4`, ‖R₃‖ ≤ 6·10⁻⁵). | `norm_iteratedDeriv_remainder_seven_le` (`EMTaylorStep.lean`) |
+| T475 | Theorem | **`gen₃^{(7)}`:** `≤ 13189 + 25204 = 38393` on the `1/5`-ball (T468 base sum + T472). | `norm_gen3_seven_le` (`EMTaylorStep.lean`) |
+| T476 | Theorem | **The supremum bound `sup|ζ^{(7)}| ≤ 43393`** on the closed `1/5`-ball (38393 + 5000), journal I.315. | `norm_iteratedDeriv_seven_le` (`EMTaylorStep.lean`) |
+| T477 | Theorem | **Affine ball bound:** `|y| ≤ 1` and `‖w‖ ≤ 1/5` give `‖(s14 + y·w) − s14‖ ≤ 1/5`. | `norm_affine_sub_le` (`EMTaylorStep.lean`) |
+| T478 | Theorem | **Chain rule for `ζ′`:** `iteratedDeriv k (fun t => ζ′(s14 + t·w)) t = ζ^{(k+1)}(s14 + t·w)·w^k`. | `iteratedDeriv_comp_zeta` (`EMTaylorStep.lean`) |
+| T479 | Theorem | **`t ↦ ζ′(s14 + t·w)` is `C^6` at every `y` with `|y| ≤ 1`.** | `contDiffAt_zeta_deriv_comp` (`EMTaylorStep.lean`) |
+| T480 | Theorem | **Taylor coefficients of `ζ′`:** `Σ_{k<6} (k!)⁻¹ ζ^{(k+1)}(s14) w^k = taylorPoly w`, i.e. `ζ^{(k+1)}(s14)/k! = (k+1)c_{k+1}`. | `sum_coef_eq_taylorPoly` (`EMTaylorStep.lean`) |
+| T481 | Theorem | **The Lagrange polynomial is `taylorPoly`:** `taylorWithinEval F 5 [0,1] 0 1 = taylorPoly w`. | `taylorWithinEval_eq_taylorPoly` (`EMTaylorStep.lean`) |
+| T482 | Theorem | **The Taylor remainder:** `‖ζ′(s14 + w) − taylorPoly w‖ ≤ 0.024` for `‖w‖ ≤ 1/5`, from `taylor_mean_remainder_bound` (`n = 5`, `[0,1]`, sup 43393); true value `0.0232`. | `norm_deriv_sub_taylorPoly_le` (`EMTaylorStep.lean`) |
+| T483 | Theorem | **The remainder on the closed `1/5`-ball** (`w = z − s14`). | `hrem_closedBall` (`EMTaylorStep.lean`) |
+| T484 | Theorem | **`h2` from the remainder:** a bound `24/1000` gives `‖ζ′(z) − ζ′(s14)‖ ≤ 47/250` (`0.1536 + 0.024 = 0.178 ≤ 0.188`). | `h2_of_taylor_remainder_wide` (`EMTaylorStep.lean`) |
+| T485 | Theorem | **`h2` proved:** `‖ζ′(z) − ζ′(s14)‖ ≤ 47/250` on the closed `1/5`-ball. | `h2_deriv` (`EMTaylorStep.lean`) |
+| T486 | Theorem | **A Lean-certified zero of `ζ` at `1/2 + 14i`:** `∃ z ∈ closedBall s14 (1/5), riemannZeta z = 0` (from T485 and `h1_deriv`). | `zeta_zero_14` (`EMTaylorStep.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |
