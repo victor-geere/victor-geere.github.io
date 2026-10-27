@@ -413,4 +413,29 @@ theorem mem_logBoxPow (N b k : ℕ) (hb : 1 ≤ b) :
       exact Cx.mem_mul ih (mem_logBox' N b hb)
 
 
+/-- One atom of the `k`-th derivative sum: `(log n)^k · n^{-s14}`. -/
+def derivAtomPow (k n : ℕ) : Cx :=
+  (cpowBox 20 16 48 24 n S14).mul (logBoxPow 20 n k)
+
+/-- Fold of `derivAtomPow k` over `n = 1..M`. -/
+def dsPowPow (k : ℕ) : ℕ → Cx
+  | 0 => ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+  | (M + 1) => (dsPowPow k M).add (derivAtomPow k (M + 1))
+
+theorem dsPowPow_mem (k M : ℕ)
+    (h : ∀ n, n < M → CpowConditions 20 16 48 24 (n + 1) S14) :
+    (dsPowPow k M).mem
+      (∑ n ∈ Finset.range M,
+        ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14)) * ((Complex.log (((n + 1 : ℕ) : ℝ) : ℂ)) ^ k)) := by
+  induction M with
+  | zero => simp [dsPowPow, Cx.mem, Iv.memR]
+  | succ M ih =>
+      rw [dsPowPow, Finset.sum_range_succ]
+      apply Cx.mem_add
+      · exact ih (fun n hn => h n (by omega))
+      · obtain ⟨hb, hk, hkI, hn, he1, he2, hI1, hI2⟩ := h M (by omega)
+        exact Cx.mem_mul (cpowBox_mem hb mem_S14 hk hkI hn he1 he2 hI1 hI2)
+          (mem_logBoxPow 20 (M + 1) k (by omega))
+
+
 end FiniteWindowZeros

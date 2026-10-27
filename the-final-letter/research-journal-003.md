@@ -740,3 +740,25 @@ piece of the `c_k` box: the base-sum term is `(log n)^k n^{-s14}`, i.e.
 **Remaining box work:** `dsPowPow k` (fold of those atoms), the `21^{-s14}`-side
 `scalarBox k` (a `ℂ`-box from the exact `S_k` values of I.303), the `R₃`
 correction, and `corner`/`native_decide` tests for the six `c_k`.
+
+### 2026-10-27 — I.310: the base-sum box for `c_k` (T417)
+
+`derivAtomPow k n = cpowBox 20 16 48 24 n S14 × logBoxPow 20 n k`, its fold
+`dsPowPow k`, and `dsPowPow_mem : (dsPowPow k M).mem (Σ_{n<M} n^{-s14}(log n)^k)`
+— the exact analogue of `dsPow`/`dsPow_mem` (T341) with the log box raised to
+the `k`-th power.  **Trap:** do *not* `rw [mul_comm]` before `Cx.mem_mul`; the
+box product's factor order must match the sum term's order, otherwise
+`Cx.mem_mul` expects the log membership against the `cpowBox`.
+
+So the `c_k` enclosure is now:
+
+```
+c_k ≈ ( (dsPowPow k 20) + (cpowBox 21 S14) × (scalarBox k) + R₃-ball ) / k!
+```
+
+with only the `21^{-s14}`-side `scalarBox k` (from the exact `S_k`, I.303) and
+the numeric `R₃` correction left.  Suggestion for the `scalarBox`:
+`S_k = Σ_{j≤k} C(k,j) Ψ₃^{(j)}(s14) (−log21)^{k−j}`; build it as
+`ptBox (Re S_k) (Im S_k)` for each `k = 1..6` (the exact rationals are in I.303)
+times `logBoxPow`-powers of `log21`, or — simpler — use `native_decide` on the
+final corner as `Vbox` did.
