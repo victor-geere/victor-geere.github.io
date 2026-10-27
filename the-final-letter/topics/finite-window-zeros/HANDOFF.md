@@ -198,44 +198,34 @@ with `2·Re ζ(4)/(2π)^4 = |B_4|/4! = 1/720` rational and
 `K = 1` needs `N >= 40` (42 atoms, remainder `9·10⁻³`) because
 `(1/12)||(s)_2||` is much larger; `K = 2` at `N = 20` costs 24 atoms instead.
 
-## Step 3 status: box evaluated, membership still to prove
+## Step 3: DONE
 
-**Correction (round 7).**  Rounds 5–6 recorded a "`expIBox` is too lossy at
-height 14" blocker.  That diagnosis was **wrong**.  The real cause was an
-arithmetic slip in this file: the pole scalar was written for `N+1 = 11`
-(`-22/785 - 616i/785`) while the box uses `N+1 = 21`, so `Bzeta` was centred on
-the wrong point.  With the correct factor `21/(s-1) = -42/785 - 1176i/785` the
-corner test passes immediately; no shared-library change is needed and
-`CpowBox.lean` is untouched.
+```lean
+theorem zeta_norm_le_eighth : ‖riemannZeta s14‖ ≤ (1 / 8 : ℝ)
+theorem hmap_zeta :
+    ‖Yk * riemannZeta s14‖ + (1/4 : ℝ) * (1/4 : ℝ) ≤ (1/4 : ℝ)
+```
 
-Working configuration, all verified by `native_decide`:
+Both proved with no `sorry` in `lean/EMBox14.lean` (T306–T321).  The enclosure
+is 21 atoms — `csPow 20` plus a single `21^{-s}` atom — with
 
-| item | value |
-|---|---|
-| parameters | `(N_log, k, kI, n) = (20, 16, 48, 24)` |
-| atoms | 21 (`csPow 20` plus one `21^{-s}` atom) |
-| scalar | `1/2 + s/252 + 21/(s-1) = 177437/395640 - (20383/14130)i` |
-| box centre | `|.| = 0.105689`, within `9.3·10⁻⁵` of `ζ(s0)` |
-| corner test | `<= 11/100` **passes** |
+* parameters `(N_log, k, kI, n) = (20, 16, 48, 24)`;
+* `Σ_{n=1}^{20} n^{-s}`, `21^{1-s}/(s-1)`, `21^{-s}/2` and
+  `(1/12)s·21^{-(s+1)}` collapsed onto that one atom via `Complex.cpow_add`;
+* scalar `1/2 + s/252 + 21/(s-1) = 177437/395640 - (20383/14130)i`
+  (the pole factor is exactly `(-2-56i)/785` at a point box);
+* corner `≤ 11/100` (`native_decide`), remainder `≤ 1/250` (T313), `B₄`
+  boundary `≤ 1/1000` (T314); total `0.114361 < 1/8`.
 
-Remaining budget: `11/100 + 1/1000 (B₄) + 1/200 (remainder) = 0.116 < 1/8`.
+Sequence: `ζ = zetaEM 20` (`zeta_eq_zetaEM_of_im`), `= zetaEMGen 2 + rem₂`,
+`zetaEMGen 2 = zetaEMGen 1 + B₄`, `zetaEMGen 1 ∈ Bzeta`, then three triangle
+inequalities.
 
-What is still missing for step 3 is the *membership* proof, not the
-*computation*: `Cx.mem (zetaEMGen 1 20 s14) Bzeta`, which needs
+### What this does *not* give
 
-1. `zetaEMGen_one`/`zetaBase` unfolding plus `emGShift s N 0 0 = (N+1)^{-s}`;
-2. `Complex.cpow_add` to rewrite `21^{1-s}/(s-1)` and `(1/12)s·21^{-(s+1)}`
-   as `21^{-s}` times the rational scalar;
-3. the cast bridge `((n+1 : ℝ) : ℂ) = (((n+1 : ℕ) : ℝ) : ℂ)` for `csPow_mem`;
-4. `hrem : |zetaEMRemainder 2 20 s14| <= 6500/1750329` (`= 3.714e-3`) from
-   T305, using `2 Re ζ(4)/(2π)^4 = 1/720`, `|(s)_4| <= 65000`,
-   `21^{-9/2} <= 21^{-4}` and `21^{-7/2}/(7/2) <= 21^{-3}/3`;
-5. `hb4 : |B₄ term| <= 2/3087` (`= 6.479e-4`), i.e. `|P₃| <= 4320` and
-   `21^{-7/2} <= 21^{-3}`.
-
-Both exact rationals are computed and checked by `python3 emit_em.py --tail`
-(which prints `PASS` against the `1/200` and `1/1000` budgets).  Total:
-`11/100 + 6500/1750329 + 2/3087 = 0.114361 < 1/8`, margin `1.06·10⁻²`.
+`hmap` was the last *numerical* premise of the Krawczyk step. `hC`
+(`‖1 - Yk·ζ′‖ ≤ 1/4` on `‖w-s0‖ ≤ 1/4`) is still open, so **no zero is
+certified yet**. No RH or infinite-positivity claim is made anywhere.
 
 ## Next steps, in order
 

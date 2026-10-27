@@ -2655,3 +2655,30 @@ Combined with the verified box corner `11/100` this gives
 `|ζ(1/2+14i)| <= 0.114361`, comfortably under `1/8` with a `1.06·10⁻²` margin.
 Fixing the exact rationals *before* writing the Lean avoids the usual failure
 mode of discovering at the end that a crude bound was too weak.
+
+### 2026-10-27 — Phase I.264: step 3 complete — `‖ζ(1/2+14i)‖ ≤ 1/8`
+
+Closed step 3 of the handoff.  `EMBox14.lean` now proves, with no `sorry`:
+
+```lean
+theorem zeta_norm_le_eighth : ‖riemannZeta s14‖ ≤ (1 / 8 : ℝ)
+theorem hmap_zeta : ‖Yk * riemannZeta s14‖ + (1/4)*(1/4) ≤ 1/4
+```
+
+The route: `ζ = zetaEM 20 s14` by `zeta_eq_zetaEM_of_im`; `zetaEM 20 =
+zetaEMGen 2 + zetaEMRemainder 2` by definition; `zetaEMGen 2 = zetaEMGen 1 +
+B₄` by `zetaEMGen_succ`; then `zetaEMGen 1` is enclosed in a 21-atom fold and
+the two tails are bounded (T313, T314).  Total `0.114361 < 1/8`.
+
+Three things made this cheap once the arithmetic bug was gone:
+
+* the pole factor is **exact** at a point box (`1/(s₀-1) = (-2-56i)/785`,
+  since `|s₀-1|² = 785/4`), so no interval division was needed anywhere;
+* `Complex.cpow_add` collapses all three `21`-terms onto a *single* atom
+  `21^{-s}`, which keeps every atom at `Im = 14` — the `Im = 15` and `Im = 17`
+  atoms are measurably wider (`powNat kI` amplification grows with the scaled
+  imaginary argument), so avoiding them was essential, not cosmetic;
+* the leading constant `2·Re ζ(4)/(2π)^4 = |B₄|/4! = 1/720` is rational.
+
+`hmap` is therefore discharged.  `hC` — a derivative enclosure `‖1 - Yk·ζ′‖ ≤
+1/4` on the radius-1/4 disk — remains, and no zero is certified yet.

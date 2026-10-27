@@ -382,6 +382,22 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T303 | Theorem | **Even Bernoulli series recurrence at `Re s > 0`.** | `S_even_succ_of_re_pos` (`EMCritical.lean`) |
 | T304 | Theorem | **`zetaEMRemainder K N s = -(1/(2K)!)·S_even K N s` at `Re s > 0`** (previously only `Re s > 1`). | `zetaEMRemainder_eq_factorial_of_re_pos` (`EMCritical.lean`) |
 | T305 | Theorem | **General-`K` Euler–Maclaurin remainder bound on the critical line:** `‖zetaEMRemainder K N s‖ ≤ (2·Re ζ(2K)/(2π)^{2K})·‖(s)_{2K}‖·((N+1)^(-σ-2K) + (N+1)^(1-σ-2K)/(σ+2K-1))` for `0 < Re s`. | `norm_zetaEMRemainder_le_of_re_pos` (`EMCritical.lean`) |
+| T306 | Theorem | **Point box:** `ptBox q r` contains every `z` with `re = q`, `im = r`; used for rational scalars. | `ptBox, mem_ptBox` (`EMBox14.lean`) |
+| T307 | Theorem | **Exact pole factor at a point box:** `1/(s14-1) = (-2-56i)/785`, since `|s14-1|² = 785/4`. No interval division is needed. | `inv_s14_sub_one` (`EMBox14.lean`) |
+| T308 | Theorem | **Pole box membership:** `s14-1` lies in `S2box`. | `mem_S2box` (`EMBox14.lean`) |
+| T309 | Theorem | **Base-sum fold:** `csPow M` contains `Σ_{n<M} (n+1)^{-s14}`. | `csPow, csPow_mem` (`EMBox14.lean`) |
+| T310 | Theorem | **Base-sum checker:** `sumOK M = true` gives all `CpowConditions`. | `sumOK, sumOK_conditions` (`EMBox14.lean`) |
+| T311 | Theorem | **Corner norm of the box:** `‖corner(Bzeta)‖ ≤ 11/100`, by `native_decide`. | `corner_Bzeta` (`EMBox14.lean`) |
+| T312 | Theorem | **Pochhammer norm bounds:** `‖(s)₃‖ ≤ 4320` and `‖(s)₄‖ ≤ 65000` at `s14`, by triangle inequality. | `norm_descPochhammer_three_le, norm_descPochhammer_four_le` (`EMBox14.lean`) |
+| T313 | Theorem | **`K=2` remainder at `1/2+14i`:** `‖zetaEMRemainder 2 20 s14‖ ≤ 1/250`. | `norm_remainder_two_le` (`EMBox14.lean`) |
+| T314 | Theorem | **`B₄` boundary term:** `‖-(emCoef 2)·emGShift s14 20 3 0‖ ≤ 1/1000`. | `norm_b4term_le` (`EMBox14.lean`) |
+| T315 | Theorem | **Expansion of `zetaEMGen 1 20 s14`** into its four explicit pieces. | `zetaEMGen_one_expand` (`EMBox14.lean`) |
+| T316 | Theorem | **`cpow` shifts:** `21^{1-s} = 21^{-s}·21` and `21^{-(s+1)} = 21^{-s}·21⁻¹` via `Complex.cpow_add`. | `cpow_21_one_sub, cpow_21_neg_succ` (`EMBox14.lean`) |
+| T317 | Theorem | **Rational scalar:** `21/(s-1) + 1/2 + s/252 = 177437/395640 - (20383/14130)i` at `s14`. | `scalar_eq` (`EMBox14.lean`) |
+| T318 | Theorem | **Three-term collapse:** the three `(N+1)`-terms equal `21^{-s14}` times the rational scalar. | `three_terms_eq` (`EMBox14.lean`) |
+| T319 | Theorem | **Box membership:** `zetaEMGen 1 20 s14` lies in the folded box `Bzeta`. | `mem_Bzeta` (`EMBox14.lean`) |
+| T320 | Theorem | **Step 3:** `‖ζ(1/2+14i)‖ ≤ 1/8`. | `zeta_norm_le_eighth` (`EMBox14.lean`) |
+| T321 | Theorem | **Krawczyk map condition:** `‖Yk·ζ(1/2+14i)‖ + (1/4)² ≤ 1/4`; `hmap` is discharged. | `hmap_zeta` (`EMBox14.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |
