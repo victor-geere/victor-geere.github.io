@@ -398,4 +398,19 @@ theorem iteratedDeriv_gen3 (k : ℕ) {s : ℂ} (hs : s ≠ 1) :
     iteratedDeriv_mul_pow21 k Psi3 s (contDiffAt_Psi3 _ hs)]
 
 
+/-- The `k`-th power of the `log b` point box. -/
+def logBoxPow (N b : ℕ) : ℕ → Cx
+  | 0 => ptBox 1 0
+  | (k + 1) => (logBoxPow N b k).mul ⟨logIvRat N b, (⟨0, 0⟩ : Iv)⟩
+
+theorem mem_logBoxPow (N b k : ℕ) (hb : 1 ≤ b) :
+    (logBoxPow N b k).mem ((Complex.log (((b : ℕ) : ℝ) : ℂ)) ^ k) := by
+  induction k with
+  | zero => simpa [logBoxPow] using (mem_ptBox (q := 1) (r := 0) (by simp) (by simp) :
+      (ptBox 1 0).mem (1 : ℂ))
+  | succ k ih =>
+      rw [logBoxPow, pow_succ]
+      exact Cx.mem_mul ih (mem_logBox' N b hb)
+
+
 end FiniteWindowZeros

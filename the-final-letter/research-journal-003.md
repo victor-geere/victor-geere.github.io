@@ -727,3 +727,16 @@ Both obstacles of I.307 solved:
 **Next:** evaluate at `s = s14`, build the boxes
 `(dsPowPow k) + cpowBox 21 S14 · scalarBox k` (exact `Ψ₃^{(j)}(s14)` and `S_k` in
 I.303), add the `R₃` Cauchy correction, and bound `|c_k|`.
+
+### 2026-10-27 — I.309: box powers of `log b` (T416)
+
+`logBoxPow N b k` = the `k`-th power of the `log b` point box (`ptBox 1 0` at
+`k = 0`, then `Cx.mul` with `⟨logIvRat N b, 0⟩`), with
+`mem_logBoxPow : (logBoxPow N b k).mem ((Complex.log ↑b)^k)`.  This is the first
+piece of the `c_k` box: the base-sum term is `(log n)^k n^{-s14}`, i.e.
+`logBoxPow 20 n k × cpowBox 20 16 48 24 n S14` (the same `derivAtom` pattern as
+`Vbox`, with the plain log box replaced by its `k`-th power).
+
+**Remaining box work:** `dsPowPow k` (fold of those atoms), the `21^{-s14}`-side
+`scalarBox k` (a `ℂ`-box from the exact `S_k` values of I.303), the `R₃`
+correction, and `corner`/`native_decide` tests for the six `c_k`.

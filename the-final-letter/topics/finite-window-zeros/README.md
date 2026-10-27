@@ -492,6 +492,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T413 | Theorem | **`Ψ₃^{(j)}` closed form:** `d^j Ψ₃ = 21(−1)^j j!((s−1)^{j+1})⁻¹ + [j=0]/2 + [j=0]s/252 + [j=1]/252 + (P₃^{(j)}(−s))/(720·9261) − (P₅^{(j)}(−s))/(30240·4084101)` scaled by `(−1)^j`, for `s ≠ 1`. | `iteratedDeriv_Psi3` (`EMTaylor.lean`) |
 | T414 | Theorem | **`Ψ₃` is smooth off the pole:** `ContDiffAt ℂ n Ψ₃ s` for `s ≠ 1` (needed for the `iteratedDeriv` add/mul rules). | `contDiffAt_Psi3` (`EMTaylor.lean`) |
 | T415 | Theorem | **`K = 3` generator, `k`-th derivative:** `d^k zetaEMGen 3 20 = Σ_{n≤20}(−log n)^k n^{−s} + Σ_{i≤k} C(k,i)(−log21)^i 21^{−s}·Ψ₃^{(k−i)}(s)` for `s ≠ 1`. | `iteratedDeriv_gen3` (`EMTaylor.lean`) |
+| T416 | Theorem | **Powers of the `log` box:** `logBoxPow N b k` contains `(Complex.log ↑b)^k` (needed for `(log n)^k` in `c_k`). | `logBoxPow`, `mem_logBoxPow` (`EMTaylor.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |
