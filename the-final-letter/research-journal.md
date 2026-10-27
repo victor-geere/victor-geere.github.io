@@ -2505,3 +2505,24 @@ Euler-acceleration route for `η` (steps 1–2) is *not* needed. Measured at
 `K = 50`), but it is an asymptotic, not convergent, expansion — the rigorous
 bound `2^{-K}·Σ_n|Δ^K a_n|` grows like `K!`. The Euler–Maclaurin route reaches
 `10⁻³⁰` at `N = K = 20` with eighteen atoms instead of a million terms.
+
+### 2026-10-27 — Phase I.257: general-`K` remainder on the critical line
+
+Extended `EMCritical.lean` from `K = 1` to every `K >= 1`. The `Re s > 1` chain
+`tsum_B_even_succ → S_even_succ → zetaEMRemainder_eq_factorial` carried the
+strong hypothesis only through `tendsto_emGShift_zero_general`, which is what
+T293 relaxed; the telescoping identities themselves use only
+`tendsto_sum_Bn_shift` (already `0 < Re s`) and `sum_B_even_eq_mul` (no
+hypothesis at all). Seeding the induction with the relaxed `K = 1` case
+therefore gives T301–T305:
+
+`‖zetaEMRemainder K N s‖ ≤ (2 Re ζ(2K)/(2π)^{2K})·‖(s)_{2K}‖·((N+1)^(-σ-2K) + (N+1)^(1-σ-2K)/(σ+2K-1))`
+
+for `0 < Re s`.  This is the general form the handoff asked for at `K ≈ 50` on
+the eta side, now available for Euler–Maclaurin instead.
+
+Term-count consequence: with `K = 4`, `N = 10` the bound is `~4·10⁻⁵` with
+**12** `CpowBox` atoms, where `K = 1`, `N = 100` would need 101.  Since
+`2 Re ζ(2K)/(2π)^{2K} = |B_{2K}|/(2K)!` is rational (`1/1209600` at `K = 4`),
+the whole remainder bound is rational too, so it drops straight into a
+`native_decide` certificate.
