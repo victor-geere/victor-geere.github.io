@@ -251,4 +251,29 @@ theorem iteratedDeriv_finset_sum {ι : Type*} (I : Finset ι) (f : ι → ℂ �
   rw [hfun, iteratedDeriv_sum (n := n) (x := s) (I := I) (f := f) hf]
 
 
+/-- Polynomials are smooth. -/
+theorem contDiff_polynomial_eval (p : Polynomial ℂ) (n : WithTop ℕ∞) :
+    ContDiff ℂ n (fun s : ℂ => p.eval s) := by
+  have h := Polynomial.contDiff_aeval (R := ℂ) (𝕜 := ℂ) p n
+  simpa using h
+
+theorem contDiffAt_polynomial_eval_neg (p : Polynomial ℂ) (n : WithTop ℕ∞) (s : ℂ) :
+    ContDiffAt ℂ n (fun s : ℂ => p.eval (-s)) s :=
+  (contDiff_polynomial_eval p n).contDiffAt.comp s (by fun_prop)
+
+/-- Decomposition of `Ψ₃` into five explicit terms. -/
+def psiTerm : Fin 5 → ℂ → ℂ
+  | 0 => fun s => 21 * (s - 1)⁻¹
+  | 1 => fun s => (1 / 2 : ℂ)
+  | 2 => fun s => s / 252
+  | 3 => fun s => (descPochhammer ℂ 3).eval (-s) / (720 * 9261)
+  | 4 => fun s => -((descPochhammer ℂ 5).eval (-s) / (30240 * 4084101))
+
+theorem Psi3_eq_sum : Psi3 = fun s => ∑ i : Fin 5, psiTerm i s := by
+  funext s
+  simp only [Psi3, psiTerm, Fin.sum_univ_five]
+  rw [div_eq_mul_inv]
+  ring
+
+
 end FiniteWindowZeros

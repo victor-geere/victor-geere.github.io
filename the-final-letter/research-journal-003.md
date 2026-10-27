@@ -551,3 +551,24 @@ constants for 1–2, and for `fun s => p.eval (-s)` one still needs a
 `ContDiffAt` fact for polynomial evaluation — check `Polynomial.contDiff`
 (`Mathlib/Analysis/Calculus/Deriv/Polynomial.lean` has only `hasDerivAt`;
 look in `Mathlib/Analysis/Polynomial/*` or use `fun_prop`).
+
+### 2026-10-27 — I.302: smoothness of polynomial evaluation and the `Ψ₃` split (T405–T406)
+
+`contDiff_polynomial_eval : ContDiff ℂ n (fun s => p.eval s)` — from Mathlib's
+`Polynomial.contDiff_aeval` (`Mathlib/Analysis/Calculus/ContDiff/Polynomial.lean`,
+the *only* lemma in that file) with a `simpa` (`aeval` = `eval` under the
+identity algebra).  Then `contDiffAt_polynomial_eval_neg` by composition, which
+supplies the last `ContDiffAt` obligation for the `Ψ₃` derivative.
+
+`Psi3_eq_sum : Psi3 = fun s => ∑ i : Fin 5, psiTerm i s` with
+`def psiTerm : Fin 5 → ℂ → ℂ` (five explicit terms), by
+`simp only [Psi3, psiTerm, Fin.sum_univ_five]; rw [div_eq_mul_inv]; ring`.
+
+**So the only missing piece for `Ψ₃^{(j)}(s14)` is the term-by-term
+computation** (`iteratedDeriv_Psi3`), for which every ingredient now exists:
+`iteratedDeriv_finset_sum` (T404), `iteratedDeriv_inv_sub_one` (T402),
+`iteratedDeriv_polynomial_neg` (T403), `iteratedDeriv_const_mul`
+(`Lemmas.lean:368`), `iteratedDeriv_const`, `iteratedDeriv_fun_id`
+(`Lemmas.lean:410`), and the `ContDiffAt` facts (incl. T405).  Watch the shape of
+`iteratedDeriv_const_mul` (`c * f x` vs `f x * c`) and rewrite `… / C` to
+`… * C⁻¹` before applying it.
