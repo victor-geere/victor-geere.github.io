@@ -2946,3 +2946,26 @@ dossier repeatedly: the terms render as `↑(↑20 + 1)` and `21 ^ (-(s + ↑0))
 so the rewrite lemmas must be stated as `((↑(20:ℕ) : ℝ) + 1 : ℝ)` and
 `-(s + (↑(0:ℕ) : ℂ))`, not with bare numerals.  A final `ring` turned out to be
 redundant once the exponent rewrite closed the goal.
+
+### 2026-10-27 — Phase I.278: the Euler–Maclaurin expression is fully differentiated
+
+`hasDerivAt_zetaEMGen_one` (T339):
+
+  d/ds zetaEMGen 1 20 s
+    = -sum (n+1)^(-s) log(n+1)
+      + 21^(1-s) (-log21/(s-1) - 1/(s-1)^2)
+      - log21 * 21^(-s) / 2
+      + (1/12) (21^(-(s+1)) - s log21 21^(-(s+1)))
+
+assembled from T330-T338 by `HasDerivAt.add/sub/div_const/const_mul/mul`.  One
+presentation note: `convert hall using 1` left only the *value* goal (the
+function arguments unified definitionally), so a single `ring` closed it — but
+I first tried `funext`/`ext` there, wasting two attempts.  The lesson from T333
+(composites need `rfl`) does not generalise to sums: pointwise function
+addition unifies syntactically, so checking which goal `convert` actually
+leaves is cheaper than guessing.
+
+`deriv (zetaEMGen 1 20) s14` is therefore now an explicit expression.  What
+remains for `h1`: enclose that expression in a box at `s14` (atoms are ~1e-9
+tight, so unconstrained), add the Cauchy bound on `deriv (zetaEMRemainder 2 20)`
+(`<= 0.0125`), and assemble.

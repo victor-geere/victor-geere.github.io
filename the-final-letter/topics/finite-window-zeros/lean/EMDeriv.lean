@@ -165,4 +165,33 @@ theorem zetaEMGen_one_fun (s : ℂ) :
   rw [h1, h2]
   rw [show (-(s + (↑(0 : ℕ) : ℂ)) : ℂ) = -s by norm_num]
 
+/-- **The derivative of `zetaEMGen 1 20`**, in explicit form. -/
+theorem hasDerivAt_zetaEMGen_one (s : ℂ) (hs : s ≠ 1) :
+    HasDerivAt (zetaEMGen 1 20)
+      (-(∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-s)) * Complex.log ((((n + 1 : ℝ)) : ℂ)))
+        + (21 : ℂ) ^ (1 - s) * (-(Complex.log 21) / (s - 1) - 1 / (s - 1) ^ 2)
+        - Complex.log 21 * (21 : ℂ) ^ (-s) / 2
+        + (1 / 12 : ℂ) * ((21 : ℂ) ^ (-(s + 1)) + s * (-(Complex.log 21) * (21 : ℂ) ^ (-(s + 1))))) s := by
+  have hfun : zetaEMGen 1 20 = fun z : ℂ =>
+      (∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+        + (21 : ℂ) ^ (1 - z) / (z - 1) + (21 : ℂ) ^ (-z) / 2
+        + (1 / 12 : ℂ) * z * (21 : ℂ) ^ (-(z + 1)) :=
+    funext zetaEMGen_one_fun
+  rw [hfun]
+  have hsum := hasDerivAt_sum_cpow 20 s
+  have hpole := hasDerivAt_pole s hs
+  have hpow := hasDerivAt_pow21_neg s
+  have hhalf : HasDerivAt (fun z : ℂ => (21 : ℂ) ^ (-z) / 2)
+      (-(Complex.log 21) * (21 : ℂ) ^ (-s) / 2) s := hpow.div_const 2
+  have hz : HasDerivAt (fun z : ℂ => z) (1 : ℂ) s := hasDerivAt_id s
+  have hsh := hasDerivAt_cpow_neg_shift (b := (21 : ℂ)) (by norm_num) 1 s
+  have hb2 : HasDerivAt (fun z : ℂ => (1 / 12 : ℂ) * z * (21 : ℂ) ^ (-(z + 1)))
+      ((1 / 12 : ℂ) * ((21 : ℂ) ^ (-(s + 1)) + s * (-(Complex.log 21) * (21 : ℂ) ^ (-(s + 1))))) s := by
+    have h := (hz.const_mul (1 / 12 : ℂ)).mul hsh
+    convert h using 1
+    ring
+  have hall := ((hsum.add hpole).add hhalf).add hb2
+  convert hall using 1
+  ring
+
 end FiniteWindowZeros
