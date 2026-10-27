@@ -189,4 +189,125 @@ theorem norm_c_six :
   refine le_trans h ?_
   norm_num
 
+/-! ## Geometry of the closed `1/5`-ball -/
+
+theorem norm_le_fifteen_of_ball_fifth {z : ℂ} (hz : ‖z - s14‖ ≤ (1 / 5 : ℝ)) : ‖z‖ ≤ 15 := by
+  have h2 : ‖s14‖ ≤ (14.5 : ℝ) := norm_s14_le
+  calc ‖z‖ = ‖(z - s14) + s14‖ := by rw [sub_add_cancel]
+    _ ≤ ‖z - s14‖ + ‖s14‖ := norm_add_le _ _
+    _ ≤ 1 / 5 + 14.5 := by linarith
+    _ ≤ 15 := by norm_num
+
+theorem re_nonneg_of_ball_fifth {z : ℂ} (hz : ‖z - s14‖ ≤ (1 / 5 : ℝ)) : 0 ≤ z.re := by
+  have h := Complex.abs_re_le_norm (z - s14)
+  rw [Complex.sub_re] at h
+  have hsre : s14.re = (1 / 2 : ℝ) := by norm_num [s14]
+  rw [hsre] at h
+  have := (abs_le.mp (le_trans h hz)).1
+  linarith
+
+theorem norm_sub_one_ge_of_ball_fifth {z : ℂ} (hz : ‖z - s14‖ ≤ (1 / 5 : ℝ)) :
+    (13 : ℝ) ≤ ‖z - 1‖ := by
+  have h14 : (14 : ℝ) ≤ ‖s14 - 1‖ := by
+    have hsq : ‖s14 - 1‖ ^ 2 = (785 : ℝ) / 4 := by
+      rw [← Complex.normSq_eq_norm_sq]
+      simp [s14, Complex.normSq_apply]
+      norm_num
+    have hnn : (0 : ℝ) ≤ ‖s14 - 1‖ := norm_nonneg _
+    nlinarith
+  have h := norm_sub_norm_le (s14 - 1) (s14 - z)
+  have hzb : ‖s14 - z‖ = ‖z - s14‖ := norm_sub_rev s14 z
+  rw [hzb] at h
+  rw [show z - 1 = (s14 - 1) - (s14 - z) by ring]
+  linarith
+
+theorem ne_one_of_ball_fifth {z : ℂ} (hz : ‖z - s14‖ ≤ (1 / 5 : ℝ)) : z ≠ 1 := by
+  intro h
+  have h13 := norm_sub_one_ge_of_ball_fifth hz
+  rw [h] at h13
+  norm_num at h13
+
+/-! ## Upper bounds for `log n` and `log 21`, from the certified `log` boxes -/
+
+theorem norm_ofReal_eq (x : ℝ) : ‖((x : ℂ))‖ = |x| := by simp
+
+theorem log_natCast_le_logIvRat (n : ℕ) (hn : 1 ≤ n) :
+    Real.log (n : ℝ) ≤ (((logIvRat 20 n).hi : ℚ) : ℝ) :=
+  (logIvRat_mem (N := 20) hn).2
+
+theorem log21_le : Real.log 21 ≤ (61 / 20 : ℝ) := by
+  have h := (logIvRat_mem (N := 20) (b := 21) (by norm_num)).2
+  have h2 : (logIvRat 20 21).hi ≤ (61 / 20 : ℚ) := by native_decide
+  have h3 : (((logIvRat 20 21).hi : ℚ) : ℝ) ≤ ((61 / 20 : ℚ) : ℝ) := by exact_mod_cast h2
+  have h4 : ((61 / 20 : ℚ) : ℝ) = (61 / 20 : ℝ) := by norm_num
+  calc Real.log 21 ≤ (((logIvRat 20 21).hi : ℚ) : ℝ) := h
+    _ ≤ ((61 / 20 : ℚ) : ℝ) := h3
+    _ = (61 / 20 : ℝ) := h4
+
+theorem log21_pow_le (i : ℕ) : (Real.log 21) ^ i ≤ ((61 / 20 : ℝ)) ^ i :=
+  pow_le_pow_left₀ (Real.log_nonneg (by norm_num)) log21_le i
+
+theorem base_seven_sum_le :
+    (∑ n ∈ Finset.range 20, ((logIvRat 20 (n + 1)).hi : ℚ) ^ 7) ≤ (13189 : ℚ) := by
+  native_decide
+
+/-! ## The base-sum bound on the ball -/
+
+theorem base_sum_cast_z (k : ℕ) (z : ℂ) :
+    (∑ n ∈ Finset.range 20,
+        (-Complex.log ((((n + 1 : ℝ)) : ℂ))) ^ k * ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+      = ∑ n ∈ Finset.range 20,
+        (-Complex.log ((((n + 1 : ℕ) : ℝ) : ℂ))) ^ k * ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-z)) := by
+  apply Finset.sum_congr rfl
+  intro n hn
+  have hc : ((((n + 1 : ℕ) : ℝ)) : ℂ) = ((((n + 1 : ℝ)) : ℂ)) := by push_cast; ring
+  rw [hc]
+
+theorem norm_base_seven_le {z : ℂ} (hre : 0 ≤ z.re) :
+    ‖∑ n ∈ Finset.range 20,
+        (-Complex.log ((((n + 1 : ℕ) : ℝ) : ℂ))) ^ 7 * ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-z))‖
+      ≤ (13189 : ℝ) := by
+  refine (norm_sum_le _ _).trans ?_
+  have hterm : ∀ n ∈ Finset.range 20,
+      ‖(-Complex.log ((((n + 1 : ℕ) : ℝ) : ℂ))) ^ 7 * ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-z))‖
+        ≤ (((logIvRat 20 (n + 1)).hi : ℚ) : ℝ) ^ 7 := by
+    intro n hn
+    have hb1 : (1 : ℝ) ≤ ((n + 1 : ℕ) : ℝ) := by
+      exact_mod_cast Nat.succ_le_succ (Nat.zero_le n)
+    have hbpos : (0 : ℝ) < ((n + 1 : ℕ) : ℝ) := by linarith
+    have hlogeq : Complex.log ((((n + 1 : ℕ) : ℝ)) : ℂ)
+        = ((Real.log ((n + 1 : ℕ) : ℝ) : ℝ) : ℂ) :=
+      (Complex.ofReal_log (le_of_lt hbpos)).symm
+    simp only [norm_mul, norm_pow, norm_neg, hlogeq, RCLike.norm_ofReal,
+      Complex.norm_cpow_eq_rpow_re_of_pos hbpos, norm_ofReal_eq,
+      abs_of_nonneg (Real.log_nonneg hb1)]
+    have hexp : (-z).re ≤ 0 := by
+      simp only [Complex.neg_re]
+      linarith
+    have hpow1 : ((n + 1 : ℕ) : ℝ) ^ (-z).re ≤ 1 := by
+      calc ((n + 1 : ℕ) : ℝ) ^ (-z).re ≤ ((n + 1 : ℕ) : ℝ) ^ (0 : ℝ) :=
+            Real.rpow_le_rpow_of_exponent_le hb1 hexp
+        _ = 1 := Real.rpow_zero _
+    have hlog7 : (Real.log ((n + 1 : ℕ) : ℝ)) ^ 7
+        ≤ (((logIvRat 20 (n + 1)).hi : ℚ) : ℝ) ^ 7 :=
+      pow_le_pow_left₀ (Real.log_nonneg hb1)
+        (log_natCast_le_logIvRat (n + 1) (by omega)) 7
+    have hhi : (0 : ℝ) ≤ (((logIvRat 20 (n + 1)).hi : ℚ) : ℝ) :=
+      le_trans (Real.log_nonneg hb1) (log_natCast_le_logIvRat (n + 1) (by omega))
+    have hbase : (0 : ℝ) ≤ ((n + 1 : ℕ) : ℝ) := le_of_lt hbpos
+    have hmid : (0 : ℝ) ≤ ((n + 1 : ℕ) : ℝ) ^ (-z).re := Real.rpow_nonneg hbase _
+    have hright : (0 : ℝ) ≤ (((logIvRat 20 (n + 1)).hi : ℚ) : ℝ) ^ 7 := pow_nonneg hhi 7
+    calc (Real.log ((n + 1 : ℕ) : ℝ)) ^ 7 * ((n + 1 : ℕ) : ℝ) ^ (-z).re
+        ≤ (((logIvRat 20 (n + 1)).hi : ℚ) : ℝ) ^ 7 * 1 :=
+          mul_le_mul hlog7 hpow1 hmid hright
+      _ = (((logIvRat 20 (n + 1)).hi : ℚ) : ℝ) ^ 7 := by ring
+  refine (Finset.sum_le_sum hterm).trans ?_
+  have hcast : (∑ n ∈ Finset.range 20, (((logIvRat 20 (n + 1)).hi : ℚ) : ℝ) ^ 7)
+      = (((∑ n ∈ Finset.range 20, ((logIvRat 20 (n + 1)).hi : ℚ) ^ 7) : ℚ) : ℝ) := by
+    push_cast
+    rfl
+  rw [hcast]
+  have h := base_seven_sum_le
+  exact_mod_cast h
+
 end FiniteWindowZeros
