@@ -475,6 +475,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T396 | Theorem | ****`K = 3` generator, explicit:**** `zetaEMGen 3 20 s` as its six pieces (base sum, pole, half, `B₂`, `B₄`, `B₆`). | `zetaEMGen_three_explicit` (`EMTaylor.lean`) |
 | T397 | Theorem | ****Factorization of `zetaEMGen 3 20`:**** `Σ_{n≤20} n^{-s} + 21^{-s}·Ψ₃(s)` with `Ψ₃` rational (`def Psi3`); every derivative at `s14` is thus a Gaussian rational times a power of `log 21`. | `gen3_eq_sum_psi` (`EMTaylor.lean`) |
 | T398 | Theorem | **`iteratedDeriv k (b^{-s}) = (-log b)^k · b^{-s}`** (`b ≠ 0`): the exponential factor of every Taylor coefficient (powers of `log 21`, moments `(log n)^k`). | `iteratedDeriv_cpow_neg` (`EMTaylor.lean`) |
+| T399 | Theorem | **`s ↦ b^{-s}` is `C^∞` for `b ≠ 0`** (via `b^{-s} = exp(-s·log b)`), the differentiability input for `iteratedDeriv` of the base sum. | `contDiffAt_cpow_neg` (`EMTaylor.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

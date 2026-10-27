@@ -114,4 +114,13 @@ theorem iteratedDeriv_cpow_neg (b : ℂ) (hb : b ≠ 0) (k : ℕ) :
       rw [h.deriv]
       ring
 
+/-- `s ↦ b^{-s}` is `C^∞` for `b ≠ 0`. -/
+theorem contDiffAt_cpow_neg (b : ℂ) (hb : b ≠ 0) (n : WithTop ℕ∞) (s : ℂ) :
+    ContDiffAt ℂ n (fun s : ℂ => b ^ (-s)) s := by
+  have hfun : (fun s : ℂ => b ^ (-s)) = fun s => Complex.exp (-s * Complex.log b) := by
+    funext z
+    rw [Complex.cpow_def, if_neg hb, mul_comm]
+  rw [hfun]
+  exact Complex.contDiff_exp.contDiffAt.comp s (by fun_prop)
+
 end FiniteWindowZeros
