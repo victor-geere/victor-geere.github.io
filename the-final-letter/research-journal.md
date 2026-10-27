@@ -2934,3 +2934,15 @@ Still open for `h1`: the function identity
 `zetaEMGen 1 20 s = Σ + pole + 21^(-s)/2 + (1/12)s·21^(-(s+1))` as an equality
 of *functions of `s`* (only the `s14` instance exists, as T315), the assembly
 into a box, and the Cauchy bound on `deriv (zetaEMRemainder 2 20)`.
+
+### 2026-10-27 — Phase I.277: the Euler–Maclaurin expression as a function
+
+`zetaEMGen_one_fun` (T338): T315 generalised from `s14` to a variable `s`.
+Needed because a derivative is a statement about a *neighbourhood*, so the
+`s14`-instance is not enough.
+
+Two cast traps, both the `Nat.cast`-vs-`OfNat` pattern that has bitten this
+dossier repeatedly: the terms render as `↑(↑20 + 1)` and `21 ^ (-(s + ↑0))`,
+so the rewrite lemmas must be stated as `((↑(20:ℕ) : ℝ) + 1 : ℝ)` and
+`-(s + (↑(0:ℕ) : ℂ))`, not with bare numerals.  A final `ring` turned out to be
+redundant once the exponent rewrite closed the goal.

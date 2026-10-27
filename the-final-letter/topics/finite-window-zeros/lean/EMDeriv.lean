@@ -151,4 +151,18 @@ theorem hasDerivAt_cpow_neg_shift {b : ℂ} (hb : b ≠ 0) (c s : ℂ) :
   convert h using 1
   ring
 
+/-- **The explicit Euler–Maclaurin expression, as a function of `s`.**  This is
+T315 with `s14` replaced by a variable, which is what the derivative needs. -/
+theorem zetaEMGen_one_fun (s : ℂ) :
+    zetaEMGen 1 20 s =
+      (∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-s)))
+        + (21 : ℂ) ^ (1 - s) / (s - 1) + (21 : ℂ) ^ (-s) / 2
+        + (1 / 12 : ℂ) * s * (21 : ℂ) ^ (-(s + 1)) := by
+  rw [zetaEMGen_one, zetaBase]
+  simp only [emGShift, descPochhammer, Polynomial.eval_one, one_mul]
+  have h1 : (((↑(20 : ℕ) : ℝ) + 1 : ℝ) : ℂ) = (21 : ℂ) := by norm_num
+  have h2 : (((0 : ℝ) + (↑(20 : ℕ) : ℝ) + 1 : ℝ) : ℂ) = (21 : ℂ) := by norm_num
+  rw [h1, h2]
+  rw [show (-(s + (↑(0 : ℕ) : ℂ)) : ℂ) = -s by norm_num]
+
 end FiniteWindowZeros
