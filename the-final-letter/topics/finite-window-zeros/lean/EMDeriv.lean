@@ -262,4 +262,46 @@ theorem pow21_neg_succ (s : ℂ) : (21 : ℂ) ^ (-(s + 1)) = (21 : ℂ) ^ (-s) /
     Complex.cpow_add _ _ (by norm_num : (21 : ℂ) ≠ 0), Complex.cpow_neg_one,
     div_eq_mul_inv]
 
+/-! ## The scalar identities behind `Vbox` -/
+
+/-- Coefficient of `log 21` in the `ζ′` scalar. -/
+def A1c : ℂ := ((-177437 / 395640 : ℝ) : ℂ) + ((20383 / 14130 : ℝ) : ℂ) * Complex.I
+
+/-- Constant part of the `ζ′` scalar. -/
+def A0c : ℂ := ((17190769 / 155288700 : ℝ) : ℂ) + ((-4704 / 616225 : ℝ) : ℂ) * Complex.I
+
+theorem s14_ne_one : s14 ≠ 1 := by
+  intro h
+  have him := congrArg Complex.im h
+  simp [s14] at him
+
+theorem A1_eq : 21 * (-1 / (s14 - 1)) - 1 / 2 - s14 / 252 = A1c := by
+  rw [show (-1 : ℂ) / (s14 - 1) = -1 * (1 / (s14 - 1)) by ring, inv_s14_sub_one,
+    show s14 / 252 = s14 * (1 / 252 : ℂ) by ring]
+  apply Complex.ext <;>
+    simp [A1c, s14, Complex.add_re, Complex.add_im, Complex.mul_re, Complex.mul_im,
+      Complex.neg_re, Complex.neg_im, Complex.sub_re, Complex.sub_im,
+      Complex.I_re, Complex.I_im] <;>
+    norm_num
+
+theorem A0_eq : 21 * (-1 / (s14 - 1) ^ 2) + 1 / 252 = A0c := by
+  rw [show (-1 : ℂ) / (s14 - 1) ^ 2 = -((1 / (s14 - 1)) ^ 2) by
+        rw [one_div_pow]; ring,
+    inv_s14_sub_one]
+  apply Complex.ext <;>
+    simp [A0c, s14, pow_two, Complex.add_re, Complex.add_im, Complex.mul_re, Complex.mul_im,
+      Complex.neg_re, Complex.neg_im, Complex.sub_re, Complex.sub_im,
+      Complex.I_re, Complex.I_im] <;>
+    norm_num
+
+/-- **The `ζ′` scalar, factored.**  The `21`-part of T339 at `s14` is
+`21^{-s14}` times `log21·A1 + A0`. -/
+theorem scalar_eq_deriv :
+    21 * (-Complex.log 21 / (s14 - 1) - 1 / (s14 - 1) ^ 2) - Complex.log 21 / 2
+      + (1 / 12) * (1 / 21 - s14 * Complex.log 21 / 21)
+    = Complex.log 21 * A1c + A0c := by
+  have h1 := A1_eq
+  have h0 := A0_eq
+  linear_combination Complex.log 21 * h1 + h0
+
 end FiniteWindowZeros

@@ -185,3 +185,30 @@ Split the journal. 001 is at 3033 lines and dominated by the step-1–3 history;
 reading it costs more context than it saves. From here, append to 002 only.
 State, next steps, exact constants and traps are all above; nothing else is
 needed to continue.
+
+### 2026-10-27 — I.283: `h1(a)` scalar identities done (T344–T347)
+
+Started `h1(a)` and finished its algebraic heart.  The `21`-part of T339 at `s14`
+is `21^{1-s}·(-log21/(s-1) - 1/(s-1)²) - log21·21^{-s}/2 + (1/12)(21^{-(s+1)} -
+s·log21·21^{-(s+1)})`; folding with T342/T343 turns it into `21^{-s14}` times
+
+    21·(-log21/(s14-1) - 1/(s14-1)²) - log21/2 + (1/12)(1/21 - s14·log21/21)
+
+which is `log21·A1c + A0c` with the exact Gaussian rationals
+
+    A0c = 17190769/155288700 - (4704/616225)i
+    A1c = -177437/395640 + (20383/14130)i
+
+(T344–T347, `EMDeriv.lean`).  Split into two rational identities `A1_eq`, `A0_eq`
+(each by `Complex.ext` + `norm_num` after `inv_s14_sub_one`), then recombined by
+`linear_combination log21 * A1_eq + A0_eq`.
+
+Two frictions: `A0_eq` needed `pow_two` in the simp set, because `simp` renders
+`((…)^2).re` without expanding the square; and `scalar_eq` collided with the
+`EMBox14` name of the same shape, so it is `scalar_eq_deriv` here.  Worth
+checking for name clashes before appending to a file in the same namespace.
+
+**Next**: the membership `Cx.mem (V at s14) Vbox`.  The scalar side is now a
+single object (`log21·A1c + A0c`, matching `scalarBox` via `mem_ptBox` +
+`mem_logBox`), so what remains is the `dsPow_mem`/`mem_neg`/`mem_add` wiring and
+the `Complex.ofReal_log` bridge from `↑(Real.log b)` to `Complex.log ↑b`.
