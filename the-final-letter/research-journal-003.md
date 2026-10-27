@@ -572,3 +572,53 @@ computation** (`iteratedDeriv_Psi3`), for which every ingredient now exists:
 (`Lemmas.lean:410`), and the `ContDiffAt` facts (incl. T405).  Watch the shape of
 `iteratedDeriv_const_mul` (`c * f x` vs `f x * c`) and rewrite `… / C` to
 `… * C⁻¹` before applying it.
+
+### 2026-10-27 — I.303: exact `Ψ₃^{(j)}(s14)` and the `c_k` targets
+
+Computed in `sympy` (exact rationals, `s14 = 1/2 + 14i`,
+`Ψ₃ = 21/(s−1) + 1/2 + s/252 + P₃(−s)/(720·9261) − P₅(−s)/(30240·4084101)`):
+
+| j | `Ψ₃^{(j)}(s14)` |
+|---|---|
+| 0 | `39765388134947/88640021191680 − (31957632314371/22160005297920)i` |
+| 1 | `26981771701667341/243538458224140800 − (1849142049389/241605613317600)i` |
+| 2 | `38985956058659131/23897211213243816000 + (12952590191792761/853471829044422000)i` |
+| 3 | `−10127609715859404893/3126551800399399260000 + (25995669568631621/55831282149989272500)i` |
+| 4 | `−101763989839147157867/613585790828382104775000 − (20144741568085642927/21913778243870789456250)i` |
+| 5 | `15691992412343226121901/48166484580027995224837500 − (3316669526016/46800224473278125)i` |
+| 6 | `1297363014162432/36738176211523328125 + (5083137461477376/36738176211523328125)i` |
+
+These are the coefficients of the `21^{-s}` scalar box
+`S_k = Σ_{j≤k} C(k,j) Ψ₃^{(j)}(s14)(−log21)^{k−j}`; numerically
+
+```
+S₁ = −1.25503281554 + 4.38294686730i
+S₂ =  3.48530250391 − 13.3055023049i
+S₃ = −9.59732356944 + 40.3460147226i
+S₄ = 26.1675372490 − 122.201521268i
+S₅ = −70.5108666751 + 369.711616564i
+S₆ = 187.286523146 − 1117.28922378i
+```
+
+and the resulting Taylor coefficients (sanity check against §2b):
+
+```
+|c₁| = 0.7756597116   |c₂| = 0.3189210681   |c₃| = 0.0917586578
+|c₄| = 0.0208557904   |c₅| = 0.0039905647   |c₆| = 0.0006668747
+```
+
+**How to build the `c_k` enclosure (next session).**
+`c_k = ( gen3^{(k)}(s14) + R₃^{(k)}(s14) ) / k!` with
+`gen3^{(k)}(s14) = −Σ_{n≤20}(log n)^k n^{-s14} + 21^{-s14}·S_k`
+(`iteratedDeriv_sum_cpow` T400 + `iteratedDeriv_mul_pow21` T401 + `iteratedDeriv_Psi3`
+still to prove).  The box is
+`(dsPowPow k).neg.add ((cpowBox 20 16 48 24 21 S14).mul scalarBox k)`
+where `scalarBox k` is the point box chain `logIvRat`-powers (T342/T344-style),
+exactly as `Vbox` does for `k = 1`.  `R₃^{(k)}(s14)` is bounded by repeated
+Cauchy on the `1/2`-ball: `|R₃^{(k)}| ≤ k!·6·10⁻⁵/0.5^k`, i.e. `/k!` gives
+`≤ 6·10⁻⁵/0.5^k` — for `k = 2` that is `2.4·10⁻⁴`, only `0.075%` of
+`|c₂| = 0.3189`, and it grows to `0.0038` for `k = 6` where the term
+`k|c_k|r^{k−1}` is only `1.3·10⁻⁶`, so the crude Cauchy correction is harmless.
+
+`|c_k|` bounds only need ~30% accuracy for the sum `Σ_{k=2..6} k|c_k|r^{k−1}`
+to stay below `0.14`, so the boxes can be coarse.
