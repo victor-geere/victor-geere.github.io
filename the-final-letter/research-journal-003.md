@@ -97,23 +97,46 @@ The `0.35`-ball lemmas (T354–T358) are kept; the `1/2`-ball versions (T365–T
 are new lemmas with the same proof shape and the exact consecutive products as
 constants.
 
-### 2b. `h2` — Taylor model (design settled, round 17 of 001)
+### 2b. `h2` — Taylor model (design settled; numbers re-probed in I.294)
 
 ```
 ‖ζ′(z) − ζ′(s14)‖ ≤ Σ_{k=2..K} k·|c_k|·r^{k−1} + 2·sup|G^{(K+1)}|·r^K/K!
 ```
 
-Measured (`mpmath`, 30 digits): `Σ k|c_k| r^{k−1} = 0.13928` for `K = 8`, which
-is **exactly** the true sup — the triangle inequality is tight, so no circle
-subdivision is needed. `r = 1/5`, budget `0.188`, 26% margin. Taylor remainders:
-`K=5 → 0.0114`, `K=6 → 0.0010`.
+The true sup over the closed `1/5`-ball is `0.1392795`, and the Taylor partial
+sums converge to it almost immediately (probe I.294):
+
+| `k` | `|c_k|` | `k|c_k|` |
+|---|---|---|
+| 1 | 0.7756596937 | 0.7756596937 |
+| 2 | 0.3189210388 | 0.6378420776 |
+| 3 | 0.0917586240 | 0.2752758719 |
+| 4 | 0.0208557606 | 0.0834230423 |
+| 5 | 0.0039905438 | 0.0199527188 |
+| 6 | 0.0006668628 | 0.0040011768 |
+| 7 | 9.9619·10⁻⁵ | 6.9733·10⁻⁴ |
+
+`Σ_{k=2..4} = 0.1392468`, `Σ_{k=2..6} = 0.1392800`. **`K = 6` is the right
+choice**: with the crude `sup|ζ^{(7)}| ≲ 6400` (see below) the remainder is
+`2·6400·(1/5)^6/6! = 1.14·10⁻³`, so the total is `≤ 0.1404 ≤ 0.188` — 25%
+margin. `K = 5` (remainder `1.1·10⁻²`, total `0.151`) also passes; `K = 6` is
+safer for one extra coefficient.
 
 Pieces:
-1. point enclosures of `c_k = ζ^{(k)}(s14)/k!`, `k = 1..5` — differentiate
-   `zetaEMGen 3 20` (§2c), **no `Cx.inv` needed**: `(s14−1)^{−k}` is exactly
-   rational at a point;
-2. modulus bounds `sup|G^{(6)}| ≤ 2134` over the ball
-   (`Σ_{n≤20} (log n)^m n^{−0.3}`, no cancellation needed);
+1. point enclosures of `c_k = ζ^{(k)}(s14)/k!`, `k = 2..6`.  Only *upper bounds*
+   on `|c_k|` are needed (no `Cx.inv`): factor the generator as
+   `zetaEMGen 3 20 s = Σ_{n≤20} n^{-s} + 21^{-s}·Ψ(s)` with
+   `Ψ(s) = 21/(s−1) + 1/2 + s/252 + P₃(−s)/(720·9261) − P₅(−s)/(30240·4084101)`
+   a *rational* function of `s`.  Then
+   `ζ^{(k)}(s14) = −Σ log^k n·n^{-s14} + 21^{-s14}·Σ_{j≤k} binom(k,j) Ψ^{(j)}(s14)(−log21)^{k−j}`,
+   and the second factor is a Gaussian-rational polynomial in `log21` (T344–T347
+   is the `k = 1` case).  A single induction gives `d^k[21^{-s}Ψ(s)]`.
+2. modulus bound on `ζ^{(K+1)}` over the `1/2`-ball (the *larger* ball is fine):
+   `Σ_{n≤20} (log n)^7 n^{-0.3} = 6400`-ish, the `21`-part is `≲ 1`, and the
+   `R₃` derivative by repeated Cauchy on the `0.35`-ball,
+   `|R₃^{(m)}(z)| ≤ m!·6·10⁻⁵/0.15^m`, which is harmless because it is multiplied
+   by `r^K/K!` with `r = 1/5 < 0.15`.  (Probe: the *true* `sup|ζ^{(6)}|` on the
+   ball is `0.592`; the crude `2134`/`6400` numbers are what Lean will use.)
 3. Taylor inequality via `norm_sub_le_of_deriv_bound` (in `Krawczyk.lean`) plus
    `AnalyticAt.fderiv` / `AnalyticOnNhd.iteratedFDeriv` to get that every
    `deriv^[k] ζ` is differentiable.
@@ -316,13 +339,20 @@ Suggested decomposition (see §2b for the design):
    `21^{-s14}` times a scalar box in the *ring* `ℚ[log 21]`, so build
    `scalarBox` analogues with `Cx.mul` powers of `logIvRat 20 21` (widths are
    tiny at a point — trap #3 does not bite).
-3. `sup_{1/5-ball}|G^{(6)}| ≤ 2134` from `Σ_{n≤20} (log n)^6 n^{-0.3}` plus the
-   tail; only moduli, no cancellation.
+3. `sup|ζ^(K+1)|` over the ball from `Σ_{n≤20} (log n)^{K+1} n^{-0.3}` plus
+   the `21`-part and a repeated-Cauchy bound on `R₃`; only moduli, no
+   cancellation.  For `K = 6`: crude sup `≲ 10⁴` gives remainder `≤ 2·10⁴·(1/5)^6/6! = 3.6·10⁻³`.
 4. Taylor inequality via `norm_sub_le_of_deriv_bound` + `AnalyticAt.fderiv`
    (iteration), as in §2b.3.
 5. `h2`, then `zeta_zero_14_of_bounds h1_deriv h2`, then the unconditional
    `∃ z ∈ closedBall s14 (1/5), ζ z = 0`.
 
-Numbers already measured (30 dps): `Σ_{k=2..8} k|c_k| r^{k−1} = 0.13928` for
-`r = 1/5` (equals the true sup, so no subdivision), `K = 5` remainder `0.0114`,
-`K = 6` remainder `0.0010`; budget `0.188`, true Lipschitz `0.1517`.
+Numbers probed this round (30 dps): the true sup of `|ζ′(z) − ζ′(s14)|` over the
+closed `1/5`-ball is **`0.1392795`**, and `Σ_{k=2..K} k|c_k| r^{k−1}` is already
+`0.1392468` at `K = 4` and `0.1392800` at `K = 6` — the triangle inequality is
+essentially *tight* (`|c_k|` falls off like `k!`), so no circle subdivision is
+needed and even a crude `sup|ζ^(7)|` leaves ≥25% margin.  Use **`K = 6`**.
+The individual coefficients are tabulated in §2b; the key design simplification
+is the factorization `zetaEMGen 3 20 s = Σ n^{-s} + 21^{-s}·Ψ(s)` with `Ψ`
+rational, which reduces every `c_k` to Gaussian rationals times powers of
+`log 21`, i.e. one induction plus point-box arithmetic.
