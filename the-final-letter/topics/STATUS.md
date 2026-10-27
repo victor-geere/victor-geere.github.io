@@ -1,6 +1,6 @@
 # Reconstruction status
 
-48 topics · 923 ledger theorems · 393 tested computations · 457 pytest tests · 48/48 Lean builds OK.
+48 topics · 922 ledger theorems · 393 tested computations · 457 pytest tests · 48/48 Lean builds OK.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|

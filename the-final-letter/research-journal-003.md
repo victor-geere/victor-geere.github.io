@@ -32,7 +32,7 @@ Cauchy's estimate gives `|c_k| ≤ 0.351, 0.103, 0.025, 0.007, 0.006`.  What is
 left of `h2` is exactly two things: `sup|ζ^{(7)}| ≤ 25000` on the closed
 `1/5`-ball, and the downward Taylor induction (design in §2b.3).
 
-Counts: **T1–T456 · 914 ledger theorems · 48/48 topics · 15 Lean files green ·
+Counts: **T1–T464 · 922 ledger theorems · 48/48 topics · 16 Lean files green ·
 audit 48/48 · links 0 broken**.
 
 *File size note:* this journal is now ~830 lines, well past the ~500-line split
