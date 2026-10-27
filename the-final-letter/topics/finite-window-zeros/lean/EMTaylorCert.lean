@@ -351,4 +351,111 @@ theorem iteratedDeriv_zeta_eq_gen3_add_at (k : ℕ) {z : ℂ} (hz : ‖z - s14�
   exact iteratedDeriv_add (contDiffAt_gen3 hne k) (contDiffAt_remainder_at k hz)
 
 
+/-! ## Modulus bound for `Ψ₃` on a radius-`11` ball -/
+
+theorem fourteen_le_norm_s14_sub_one : (14 : ℝ) ≤ ‖s14 - 1‖ := by
+  have hsq : ‖s14 - 1‖ ^ 2 = (785 : ℝ) / 4 := by
+    rw [← Complex.normSq_eq_norm_sq]
+    simp [s14, Complex.normSq_apply]
+    norm_num
+  nlinarith [norm_nonneg (s14 - 1), hsq]
+
+theorem norm_Psi3_le_ball_eleven {z : ℂ} (hz : ‖z - s14‖ ≤ (11 : ℝ)) :
+    ‖Psi3 z‖ ≤ (8 : ℝ) := by
+  have hz1 : (3 : ℝ) ≤ ‖z - 1‖ := by
+    have h14 := fourteen_le_norm_s14_sub_one
+    have h := norm_sub_norm_le (s14 - 1) (s14 - z)
+    have hzb : ‖s14 - z‖ = ‖z - s14‖ := norm_sub_rev s14 z
+    rw [hzb] at h
+    rw [show z - 1 = (s14 - 1) - (s14 - z) by ring]
+    linarith
+  have hz26 : ‖z‖ ≤ (26 : ℝ) := by
+    have h2 : ‖s14‖ ≤ (15 : ℝ) := norm_s14_le_fifteen
+    have h3 : ‖z‖ = ‖(z - s14) + s14‖ := by rw [sub_add_cancel]
+    have h4 : ‖(z - s14) + s14‖ ≤ ‖z - s14‖ + ‖s14‖ := norm_add_le _ _
+    linarith
+  have p1 : ‖z + 1‖ ≤ (27 : ℝ) := by
+    have h := norm_add_le z (1 : ℂ)
+    have h1 : ‖(1 : ℂ)‖ = 1 := by norm_num
+    rw [h1] at h
+    linarith
+  have p2 : ‖z + 2‖ ≤ (28 : ℝ) := by
+    have h := norm_add_le z (2 : ℂ)
+    have h2 : ‖(2 : ℂ)‖ = 2 := by norm_num
+    rw [h2] at h
+    linarith
+  have p3 : ‖z + 3‖ ≤ (29 : ℝ) := by
+    have h := norm_add_le z (3 : ℂ)
+    have h3 : ‖(3 : ℂ)‖ = 3 := by norm_num
+    rw [h3] at h
+    linarith
+  have p4 : ‖z + 4‖ ≤ (30 : ℝ) := by
+    have h := norm_add_le z (4 : ℂ)
+    have h4 : ‖(4 : ℂ)‖ = 4 := by norm_num
+    rw [h4] at h
+    linarith
+  have e0 : ‖-z‖ = ‖z‖ := norm_neg z
+  have e1 : ‖-z - 1‖ = ‖z + 1‖ := by rw [show -z - 1 = -(z + 1) by ring, norm_neg]
+  have e2 : ‖-z - 2‖ = ‖z + 2‖ := by rw [show -z - 2 = -(z + 2) by ring, norm_neg]
+  have e3 : ‖-z - 3‖ = ‖z + 3‖ := by rw [show -z - 3 = -(z + 3) by ring, norm_neg]
+  have e4 : ‖-z - 4‖ = ‖z + 4‖ := by rw [show -z - 4 = -(z + 4) by ring, norm_neg]
+  have hP3 : ‖(descPochhammer ℂ 3).eval (-z)‖ ≤ 26 * 27 * 28 := by
+    rw [show (descPochhammer ℂ 3).eval (-z) = (-z) * (-z - 1) * (-z - 2) from by
+      simp [descPochhammer]; ring]
+    rw [norm_mul, norm_mul, e0, e1, e2]
+    exact mul_le_mul (mul_le_mul hz26 p1 (norm_nonneg _) (by norm_num)) p2
+      (norm_nonneg _) (by norm_num)
+  have hP5 : ‖(descPochhammer ℂ 5).eval (-z)‖ ≤ 26 * 27 * 28 * 29 * 30 := by
+    rw [show (descPochhammer ℂ 5).eval (-z) =
+        (-z) * (-z - 1) * (-z - 2) * (-z - 3) * (-z - 4) from by
+      simp [descPochhammer]; ring]
+    rw [norm_mul, norm_mul, norm_mul, norm_mul, e0, e1, e2, e3, e4]
+    exact mul_le_mul (mul_le_mul (mul_le_mul (mul_le_mul hz26 p1 (norm_nonneg _) (by norm_num))
+      p2 (norm_nonneg _) (by norm_num)) p3 (norm_nonneg _) (by norm_num)) p4
+      (norm_nonneg _) (by norm_num)
+  have hb1 : ‖21 / (z - 1)‖ ≤ (7 : ℝ) := by
+    rw [norm_div]
+    have h21 : ‖(21 : ℂ)‖ = 21 := by norm_num
+    rw [h21, div_le_iff₀ (by linarith : (0 : ℝ) < ‖z - 1‖)]
+    nlinarith
+  have hb3 : ‖z / 252‖ ≤ (26 : ℝ) / 252 := by
+    rw [norm_div]
+    have h252 : ‖(252 : ℂ)‖ = 252 := by norm_num
+    rw [h252]
+    exact div_le_div_of_nonneg_right hz26 (by norm_num)
+  have hb4 : ‖(descPochhammer ℂ 3).eval (-z) / (720 * 9261)‖ ≤ (26 * 27 * 28) / (720 * 9261) := by
+    rw [norm_div]
+    have hc : ‖(720 * 9261 : ℂ)‖ = (720 * 9261 : ℝ) := by
+      rw [show (720 * 9261 : ℂ) = (((720 * 9261 : ℝ)) : ℂ) by norm_num]
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (by norm_num)]
+    rw [hc]
+    exact div_le_div_of_nonneg_right hP3 (by norm_num)
+  have hb5 : ‖(descPochhammer ℂ 5).eval (-z) / (30240 * 4084101)‖ ≤
+      (26 * 27 * 28 * 29 * 30) / (30240 * 4084101) := by
+    rw [norm_div]
+    have hc : ‖(30240 * 4084101 : ℂ)‖ = (30240 * 4084101 : ℝ) := by
+      rw [show (30240 * 4084101 : ℂ) = (((30240 * 4084101 : ℝ)) : ℂ) by norm_num]
+      rw [Complex.norm_real, Real.norm_eq_abs, abs_of_nonneg (by norm_num)]
+    rw [hc]
+    exact div_le_div_of_nonneg_right hP5 (by norm_num)
+  have hb2 : ‖(1 / 2 : ℂ)‖ ≤ (1 / 2 : ℝ) := by norm_num
+  have hbound : ‖21 / (z - 1) + 1 / 2 + z / 252
+      + (descPochhammer ℂ 3).eval (-z) / (720 * 9261)
+      - (descPochhammer ℂ 5).eval (-z) / (30240 * 4084101)‖ ≤
+      ‖21 / (z - 1)‖ + ‖(1 / 2 : ℂ)‖ + ‖z / 252‖
+        + ‖(descPochhammer ℂ 3).eval (-z) / (720 * 9261)‖
+        + ‖(descPochhammer ℂ 5).eval (-z) / (30240 * 4084101)‖ := by
+    have h5 := norm_sub_le (21 / (z - 1) + 1 / 2 + z / 252
+      + (descPochhammer ℂ 3).eval (-z) / (720 * 9261))
+      ((descPochhammer ℂ 5).eval (-z) / (30240 * 4084101))
+    have h4 := norm_add_le (21 / (z - 1) + 1 / 2 + z / 252)
+      ((descPochhammer ℂ 3).eval (-z) / (720 * 9261))
+    have h3 := norm_add_le (21 / (z - 1) + 1 / 2) (z / 252)
+    have h2 := norm_add_le (21 / (z - 1)) (1 / 2 : ℂ)
+    linarith
+  rw [Psi3]
+  refine hbound.trans ?_
+  nlinarith [hb1, hb2, hb3, hb4, hb5]
+
+
 end FiniteWindowZeros
