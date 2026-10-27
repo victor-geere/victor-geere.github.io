@@ -311,3 +311,34 @@ when two rewrites interact, put the one that *creates* the pattern last.
 See §2a of this journal for the plan; the `Real.rpow` bounds on `21^-3.5` and
 `21^-5.5` are the only unfamiliar ingredient (T307 in `EMBox14.lean` shows the
 pattern: `Real.rpow_le_rpow_of_exponent_le` plus an integer-exponent evaluation).
+
+### 2026-10-27 — I.288: `rpow` bounds for `h1(b)` (T352–T353)
+
+Started `h1(b)`.  The only unfamiliar ingredient was the `rpow` bounds, and
+they came out in one line each by dominating with an integer exponent
+(`Real.rpow_le_rpow_of_exponent_le`, base `21 > 1`, then `pow21_neg_three` from
+T306 or `Real.rpow_intCast` + `norm_num`):
+
+    pow21_neg_seven_half   : 21^(-7/2)  <= 1/9261      (dominated by 21^-3)
+    pow21_neg_eleven_half  : 21^(-11/2) <= 1/4084101   (dominated by 21^-5)
+
+Both first try — the T307 pattern transfers directly.
+
+**Numbers for the rest of `h1(b)`** (checked by hand this round; re-check before
+writing Lean):
+
+    |B4'| <= (1/720) (|P3'| + log21 |P3|) 21^-3.5
+           <= (1/720)(919 + 4*3708)/9261 = 2.36e-3
+    |B6'| <= (1/30240)(|P5'| + log21 |P5|) 21^-5.5
+           <= (1/30240)(722950 + 4*2.34e7)/4084101 = 7.6e-4
+    |R3'| <= 2 M_R/0.45 = 1.77e-4
+    total <= 3.3e-3,  times |Yk| = 4.3e-3  <= h1 budget 5e-3  OK but tight
+
+The `|P3'| <= 919`, `|P5'| <= 722950` bounds come from `P_j(s) = prod_{i<j}(-s-i)`
+and `P_j' = -(sum over one factor dropped)`, each remaining product bounded by
+`17.5^...` / `19.5^...` using `|s14 + i| <= 14.5 + i`.
+
+**Margin is thin (4.3e-3 vs 5e-3).**  If it fails, options in order: (i) use
+`|P3| <= 3708` (proved) rather than 4320; (ii) tighten `log21 <= 4` to
+`log21 <= 3.05`; (iii) drop the `B6` term entirely by using `K = 2` for the
+*generator* and `K = 3` only for the remainder — `B4'` alone is 2.4e-3.

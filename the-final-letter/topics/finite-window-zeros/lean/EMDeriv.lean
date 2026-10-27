@@ -369,4 +369,25 @@ theorem mem_Vbox : Cx.mem (deriv (zetaEMGen 1 20) s14) Vbox := by
       convert hsum using 1
       ring
 
+/-! ## `rpow` bounds for the residual ball (`h1(b)`) -/
+
+/-- `21^(-7/2) <= 1/9261 = 21^(-3)`. -/
+theorem pow21_neg_seven_half : (21 : ℝ) ^ (-(7 : ℝ) / 2) ≤ 1 / 9261 := by
+  have h1 : (21 : ℝ) ^ (-(7 : ℝ) / 2) ≤ (21 : ℝ) ^ (-(3 : ℝ)) := by
+    apply Real.rpow_le_rpow_of_exponent_le (by norm_num)
+    norm_num
+  rw [pow21_neg_three] at h1
+  exact h1
+
+/-- `21^(-11/2) <= 1/4084101 = 21^(-5)`. -/
+theorem pow21_neg_eleven_half : (21 : ℝ) ^ (-(11 : ℝ) / 2) ≤ 1 / 4084101 := by
+  have h1 : (21 : ℝ) ^ (-(11 : ℝ) / 2) ≤ (21 : ℝ) ^ (-(5 : ℝ)) := by
+    apply Real.rpow_le_rpow_of_exponent_le (by norm_num)
+    norm_num
+  have h5 : (21 : ℝ) ^ (-(5 : ℝ)) = 1 / 4084101 := by
+    rw [show (-(5 : ℝ)) = ((-5 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]
+    norm_num
+  rw [h5] at h1
+  exact h1
+
 end FiniteWindowZeros
