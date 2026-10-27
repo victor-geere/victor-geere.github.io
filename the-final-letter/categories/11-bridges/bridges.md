@@ -36,7 +36,7 @@ A bridge is a proposed route from the available data to the far side of a wall. 
 
 **Status.** Open. The CCM programme reduces it to Conjecture 1 (the ground-state eigenvector is a prime sum). The canonical programme’s tensor work reaches Weil positivity instead. No operator is constructed.
 
-**Verdict.** A bridge in principle; the far side is a conjecture.
+**Verdict.** A bridge in principle; the far side is a conjecture. The dossier-side survey, with the finite truncation as the first step, is in [`bridge-to-weil-positivity.md`](../../bridge-to-weil-positivity.md).
 
 ## B5 — Heat flow / de Bruijn–Newman
 

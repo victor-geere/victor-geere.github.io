@@ -96,7 +96,7 @@ These are recorded with the source's status. None is a theorem of this folder.
 
 ## Open items and gaps
 
-1. **RH / Weil positivity.** The statement `⟨W, f*f̌⟩ ≥ 0` for all `f` in the cone is equivalent to RH and remains open. This folder does not assume it, prove it, or use it. A route assessment of the five proposed capture mechanisms, with a recommended finite first target, is in [`WEIL-POSITIVITY.md`](WEIL-POSITIVITY.md).
+1. **RH / Weil positivity.** The statement `⟨W, f*f̌⟩ ≥ 0` for all `f` in the cone is equivalent to RH and remains open. This folder does not assume it, prove it, or use it. A route assessment of the five proposed capture mechanisms, with a recommended finite first target, is in [`WEIL-POSITIVITY.md`](WEIL-POSITIVITY.md); the survey of which topic dossier supplies the positivity is in [`../../bridge-to-weil-positivity.md`](../../bridge-to-weil-positivity.md).
 2. **Explicit formula.** Formalising Lemmas 2.1–2.4 (Fourier transform of the square, `Φ̂ = ½ Ξ_cos`, contour shift, Weil explicit formula) is the main analytic gap.
 3. **Infinite spectral resolution.** The companion's Theorem A and Theorem C are analytic identities on the cone; the Lean file only treats a finite positive atomic model.
 4. **Joint non-vanishing.** The surviving open statement of `tensor.md` Corollary 6.2 — that `K(α,·)` and `S(α,·)` never vanish jointly for `α ≠ 0` — is exactly RH and is not formalised.

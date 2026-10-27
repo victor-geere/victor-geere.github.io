@@ -2,7 +2,8 @@
 
 **Status:** speculative source blueprint; reconstructed elementary formal core + exact computation layer. The CCM Conjecture 1, the self-adjointness assertion, the torsion-distribution limit, and the trace formula are preserved as source claims and open items, not proved here.  
 **Inventory:** [Scraps](../../scraps.html) item 22 · [Topic index](../README.md).  
-**Source:** [`archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html`](../../archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html) (a 2025 geometric blueprint; the same directory also holds its `.tex` source and a companion `rh-ccm-conjecture1-generalised-helix.tex`).
+**Source:** [`archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html`](../../archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html) (a 2025 geometric blueprint; the same directory also holds its `.tex` source and a companion `rh-ccm-conjecture1-generalised-helix.tex`).  
+**Bridge assessment:** [`../../bridge-to-weil-positivity.md`](../../bridge-to-weil-positivity.md) ranks this dossier as the best available route to Weil positivity (B4), with the finite truncation as the first concrete step.
 
 ## Provenance and status of the source
 
