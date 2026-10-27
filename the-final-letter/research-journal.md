@@ -2617,3 +2617,25 @@ re-implementation of `CpowBox` as a width predictor.  It agreed on the
 `[-1,1]` admissibility constraint (pure rational arithmetic) but not on the
 width, and the discrepancy was only found by bisecting the Lean values
 directly.  For this layer, Lean's own `native_decide` is the faster oracle.
+
+### 2026-10-27 — Phase I.262: correction — the box was miscalculated, not lossy
+
+Rounds 5 and 6 recorded that `expIBox` is "too lossy at height 14" and that a
+change to the shared `CpowBox.lean` was required.  **That was wrong, and the
+claim is retracted.**  The actual defect was arithmetic in `EMBox14.lean`: the
+pole scalar was carried over from the abandoned `N = 50` plan, so `Bzeta`
+multiplied `21^{-s}` by `11/(s-1)` instead of `21/(s-1)`.  The box was centred
+on the wrong point, which is why raising the Taylor order, lengthening the log
+series, and removing atoms all failed to help — none of them could move the
+centre.
+
+With `21/(s-1) = -42/785 - 1176i/785` the corner test passes at `11/100` on
+the first attempt, using `(20,16,48,24)` and 21 atoms.  `CpowBox.lean` needs no
+change and no other topic's certificate is affected.
+
+Methodological note, more useful than the false alarm: a box that fails a
+corner test can be loose *or* mis-centred, and the two look identical from a
+single failing `native_decide`.  The cheap discriminator is to check the box
+centre against the true value first — one line of `mpmath` — before bisecting
+the radius.  Two rounds of bisection would have been avoided by computing
+`|centre - ζ(s0)|` at the start.

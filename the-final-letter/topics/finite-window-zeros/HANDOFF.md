@@ -198,35 +198,38 @@ with `2·Re ζ(4)/(2π)^4 = |B_4|/4! = 1/720` rational and
 `K = 1` needs `N >= 40` (42 atoms, remainder `9·10⁻³`) because
 `(1/12)||(s)_2||` is much larger; `K = 2` at `N = 20` costs 24 atoms instead.
 
-## Blocker: `expIBox` is too lossy at height 14
+## Step 3 status: box evaluated, membership still to prove
 
-**Root cause (round 6).**  At `Im = 14` the `[-1,1]` admissibility condition
-forces `kI >= 52`, and `expIBox kI n` then pays a width amplification from its
-`kI` *sequential* `Cx.mul` steps that dominates every other error term.
-`expIBox` is adequate at height 5 (`Cert.lean`, `kI = 32`) and inadequate here.
+**Correction (round 7).**  Rounds 5–6 recorded a "`expIBox` is too lossy at
+height 14" blocker.  That diagnosis was **wrong**.  The real cause was an
+arithmetic slip in this file: the pole scalar was written for `N+1 = 11`
+(`-22/785 - 616i/785`) while the box uses `N+1 = 21`, so `Bzeta` was centred on
+the wrong point.  With the correct factor `21/(s-1) = -42/785 - 1176i/785` the
+corner test passes immediately; no shared-library change is needed and
+`CpowBox.lean` is untouched.
 
-Ruled out by direct measurement:
+Working configuration, all verified by `native_decide`:
 
-| hypothesis | test | result |
-|---|---|---|
-| one bad atom | bisect at radius `1/2` | `csPow 20`, `21^{-s}`, pole atom all pass |
-| atom layout | collapse to a single `21^{-s}` atom at `Im = 14` | still `> 0.12` |
-| Taylor order | `n`: 20 → 24 | no change |
-| log series | `N_log`: 14 → 20 | no change |
+| item | value |
+|---|---|
+| parameters | `(N_log, k, kI, n) = (20, 16, 48, 24)` |
+| atoms | 21 (`csPow 20` plus one `21^{-s}` atom) |
+| scalar | `1/2 + s/252 + 21/(s-1) = 177437/395640 - (20383/14130)i` |
+| box centre | `|.| = 0.105689`, within `9.3·10⁻⁵` of `ζ(s0)` |
+| corner test | `<= 11/100` **passes** |
 
-The mirror `python/emit_em.py` does **not** reproduce this, so it is usable for
-parameter *admissibility* only, never for width.
+Remaining budget: `11/100 + 1/1000 (B₄) + 1/200 (remainder) = 0.116 < 1/8`.
 
-**Fix (in the shared layer, not here).**  `expIBox` should raise its enclosure
-to the `k`-th power by repeated squaring rather than `k` sequential `Cx.mul`
-steps: that replaces a width factor of order `2^k` with `2 log₂ k`.
-`CpowBox.lean` lives under `partial-sum-plus-tail/lean` and is imported by
-other topics, so the change needs an audit of every certificate that uses it
-(`Cert`, `Seg`, `ZetaBox14`, `FixedBox`, `BlockCert`, `EMBox14`).
+What is still missing for step 3 is the *membership* proof, not the
+*computation*: `Cx.mem (zetaEMGen 1 20 s14) Bzeta`, which needs
 
-`lean/EMBox14.lean` currently contributes the infrastructure only (`ptBox`,
-`inv_s14_sub_one`, `csPow`/`csPow_mem`, the single-atom `Bzeta`); it proves no
-ζ bound.
+1. `zetaEMGen_one`/`zetaBase` unfolding plus `emGShift s N 0 0 = (N+1)^{-s}`;
+2. `Complex.cpow_add` to rewrite `21^{1-s}/(s-1)` and `(1/12)s·21^{-(s+1)}`
+   as `21^{-s}` times the rational scalar;
+3. the cast bridge `((n+1 : ℝ) : ℂ) = (((n+1 : ℕ) : ℝ) : ℂ)` for `csPow_mem`;
+4. `hrem : |zetaEMRemainder 2 20 s14| <= 1/200` from T305, with
+   `2 Re ζ(4)/(2π)^4 = 1/720`, `|(s)_4| <= 65000` and `21^{-9/2} <= 21^{-4}`;
+5. `hb4 : |B₄ term| <= 1/1000`, i.e. `|P₃| <= 4320` and `21^{-7/2} <= 21^{-3}`.
 
 ## Next steps, in order
 

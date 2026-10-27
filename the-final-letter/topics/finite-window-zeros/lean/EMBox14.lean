@@ -70,11 +70,11 @@ theorem mem_S2box : Cx.mem (s14 - 1) S2box := by
 /-- The folded box for `Σ_{n<M} (n+1)^{-s}`. -/
 def csPow : ℕ → Cx
   | 0 => ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
-  | (M + 1) => (csPow M).add (cpowBox 20 16 64 24 (M + 1) S14)
+  | (M + 1) => (csPow M).add (cpowBox 20 16 48 24 (M + 1) S14)
 
 /-- **Fold soundness** for the base sum. -/
 theorem csPow_mem (M : ℕ)
-    (h : ∀ n, n < M → CpowConditions 20 16 64 24 (n + 1) S14) :
+    (h : ∀ n, n < M → CpowConditions 20 16 48 24 (n + 1) S14) :
     (csPow M).mem (∑ n ∈ Finset.range M, ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14))) := by
   induction M with
   | zero => simp [csPow, Cx.mem, Iv.memR]
@@ -86,10 +86,10 @@ theorem csPow_mem (M : ℕ)
         exact cpowBox_mem hb mem_S14 hk hkI hn he1 he2 hI1 hI2
 
 /-- Boolean check of the base-sum side conditions. -/
-def sumOK (M : ℕ) : Bool := (List.range M).all (fun n => CpowOK 20 16 64 24 (n + 1) S14)
+def sumOK (M : ℕ) : Bool := (List.range M).all (fun n => CpowOK 20 16 48 24 (n + 1) S14)
 
 theorem sumOK_conditions {M : ℕ} (h : sumOK M = true) :
-    ∀ n, n < M → CpowConditions 20 16 64 24 (n + 1) S14 := fun n hn =>
+    ∀ n, n < M → CpowConditions 20 16 48 24 (n + 1) S14 := fun n hn =>
   CpowConditions_of_OK (List.all_eq_true.mp h n (List.mem_range.mpr hn))
 
 /-! ## The full box -/
@@ -99,53 +99,25 @@ theorem sumOK_conditions {M : ℕ} (h : sumOK M = true) :
 Every `(N+1)`-term is a rational multiple of `21^{-s}`:
 `21^{1-s}/(s-1) = 21^{-s}·(21/(s-1))` and `(1/12)s·21^{-(s+1)} = 21^{-s}·(s/252)`,
 so the scalar collapses to `1/2 + s/252 + 21/(s-1)`, whose value at `s0` is
-`187517/395640 - (10303/14130)i`.  This keeps every atom at `Im = 14`: the
+`177437/395640 - (20383/14130)i`.  This keeps every atom at `Im = 14`: the
 separate `Im = 15` and `Im = 17` atoms were the wide ones (round-5 diagnosis). -/
 def Bzeta : Cx :=
   (csPow 20).add
-    ((cpowBox 20 16 64 24 21 S14).mul (ptBox (187517 / 395640) (-10303 / 14130)))
+    ((cpowBox 20 16 48 24 21 S14).mul (ptBox (177437 / 395640) (-20383 / 14130)))
 
 /-! ## Evaluation of the certificate -/
 
 example : sumOK 20 = true := by native_decide
 
-example : CpowOK 20 16 64 24 21 S14 = true := by native_decide
+example : CpowOK 20 16 48 24 21 S14 = true := by native_decide
 
-/-! ## Open: `expIBox` is too lossy at height 14
+example : (maxAbsIv Bzeta.re) ^ 2 + (maxAbsIv Bzeta.im) ^ 2 ≤ ((11 / 100 : ℚ)) ^ 2 := by
+  native_decide
 
-`native_decide` evaluates every atom (the checks above pass, 22 s), but the
-corner test
-
-```
-(maxAbsIv Bzeta.re) ^ 2 + (maxAbsIv Bzeta.im) ^ 2 <= (3/25)^2
-```
-
-comes out **false**.
-
-What has been ruled out, by direct measurement:
-
-* **Not a single bad atom.**  Bisecting at radius `1/2`: `csPow 20`, the
-  `21^{-s}` atom and the pole atom each pass.  Only the atom at `Im = 17` was
-  grossly wide (round 5), which motivated the redesign below.
-* **Not the atom layout.**  `Bzeta` now uses a *single* `21^{-s}` atom at
-  `Im = 14`, absorbing the pole and `B₂` boundary terms into one rational
-  scalar (`1/2 + s/252 + 21/(s-1)`).  Removing the `Im = 15` and `Im = 17`
-  atoms does **not** restore tightness: the corner still exceeds `0.12`.
-* **Not the Taylor order or the log series.**  Raising `n` from 20 to 24 and
-  `N_log` from 14 to 20 changes nothing.
-
-Conclusion: at `Im = 14` the admissibility condition forces `kI >= 52`, and
-`expIBox` then pays a width amplification from its **`kI` sequential
-multiplications** that dwarfs everything else.  `expIBox` is adequate at
-height 5 (`Cert.lean`, `kI = 32`) and inadequate here; the Python mirror does
-not reproduce this, so it must not be used as a width predictor.
-
-The fix is in the shared layer, not in this file: `expIBox` should raise its
-enclosure to the `k`-th power by **repeated squaring** rather than `k`
-sequential `Cx.mul` steps, which replaces a factor of order `2^{k}` in the
-width by `2 log₂ k`.  That is a change to
-`partial-sum-plus-tail/lean/CpowBox.lean`, which other topics build on, so it
-needs its own audit of the affected certificates.
--/
+/-- **The corner test.**  Together with the certified remainder (`B₄` boundary
+term `<= 6·21⁻³ < 1/1000` and `zetaEMRemainder 2 20` bounded via T305) this
+gives `|ζ(1/2+14i)| <= 11/100 + 1/1000 + 1/200 < 1/8`. -/
+example : (maxAbsIv Bzeta.re) ^ 2 + (maxAbsIv Bzeta.im) ^ 2 ≤ ((11 / 100 : ℚ)) ^ 2 := by
+  native_decide
 
 end FiniteWindowZeros
