@@ -46,7 +46,7 @@ Rows whose Status carries the `evidence absent` qualifier added by the session-0
 
 | Theorem | Kind | Status | Source | Summary |
 |---|---|---|---|---|
-| [The exact structural characterisation of the greedy digit word](handoff/handoff-offset-tuple-characterisation.md) | Theorem | CHECKED (exact enumeration) | [HANDOFF.md](../research/various/HANDOFF.md) | a factor ↔ the offset-tuple of its 1s; p(L) = #{{a − t : t ≤ a ≤ t+L−1}, 0 ≤ t ≤ N−L} |
+| [The exact structural characterisation of the greedy digit word](handoff/handoff-offset-tuple-characterisation.md) | Theorem | CHECKED (exact enumeration) | [HANDOFF.md](../research/various/HANDOFF.md) | a factor ↔ the offset-tuple of its 1s; p(L) = #{ {a − t : t ≤ a ≤ t+L−1}, 0 ≤ t ≤ N−L} |
 | [The greedy squaring law of the residual orbit](handoff/handoff-greedy-squaring-law.md) | Theorem | VERIFIED (numerical, 30 digits; census target corrected to x = π−3) | [HANDOFF.md](../research/various/HANDOFF.md) | n_{k+1} = ⌈1/r_k⌉ − 2, so r' = (1−f)r²/(1+(1−f)r), f = {1/r}; A(N) = log₂ log N + O(1), census to index 128 541 453 at x = π−3 |
 | [Cassaigne's first-difference identity for the greedy digit word](handoff/handoff-cassaigne-first-difference.md) | Theorem | CITED (literature) | [HANDOFF.md](../research/various/HANDOFF.md) | p(L+1) − p(L) = # of right-special factors of length L; checked at L = 1, 5, 10, 20, 100 |
 | [Rational termination and the uniqueness of (2, 3, 6)](handoff/handoff-rational-termination-and-2-3-6.md) | Theorem | CHECKED (exhaustive finite) | [HANDOFF.md](../research/various/HANDOFF.md) | rational x terminates; θ = π gives {0,1,4}; 268/277 p/q with q ≤ 30 terminate; (2,3,6) unique |

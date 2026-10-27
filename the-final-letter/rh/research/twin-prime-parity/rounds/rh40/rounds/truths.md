@@ -47,7 +47,7 @@ length-`L` factors, `RS(L)` the count of right-special factors of length `L`.
 
 | id | statement | status | evidence |
 |---|---|---|---|
-| B1 | **Definition of record.** The factor at window start `t` of length `L` is the offset tuple `{a − t : a ∈ ones, t ≤ a ≤ t+L−1}`; two windows give the same factor **iff** these tuples agree. Hence `p(L) = #{{a−t : …} : 0 ≤ t ≤ N−L}` | `VERIFIED` | exhaustive, B2 |
+| B1 | **Definition of record.** The factor at window start `t` of length `L` is the offset tuple `{a − t : a ∈ ones, t ≤ a ≤ t+L−1}`; two windows give the same factor **iff** these tuples agree. Hence `p(L) = #{ {a−t : …} : 0 ≤ t ≤ N−L}` | `VERIFIED` | exhaustive, B2 |
 | B2 | `p_offset == p_bruteforce` (offset-tuple count equals bit-string factor count) for **every** word of length 12 with 0–4 ones and every `L` | `VERIFIED` | `verify_agentB.py` B-d: 9 528 exhaustive cases, 0 divergences |
 | B3 | The same equivalence holds deep in the right-edge decay regime, where a lossy sparse encoding might have diverged: all `L ∈ [792, 1399]` at `N = 1400` | `VERIFIED` | `verify_agentB.py` B-d: 608 cases, 0 divergences |
 | B4 | `factor_set` and `p_offset` **raise** on `L > N` instead of silently returning an empty set (defect found by Agent B, fixed) | `VERIFIED` | `code/digitword.py` |

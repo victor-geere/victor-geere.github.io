@@ -15,6 +15,7 @@
 | [viz.html](viz.html) | Nested spheres visualisation | Interactive Three.js fibres, Hausdorff tube, Hilbert zoom |
 | [projection.html](projection.html) | Stereographic projection | North-pole chart of \(S^2\) onto the equatorial plane \(\mathbb{C}\) |
 | [tensor.html](tensor.html) | The prime-spectrum tensor | Pairing on \(\mathbb{R}\) that replaces RH as a question about \(\xi\); not a proof |
+| [knowledge-stewards.html](knowledge-stewards.html) | Historic knowledge stewards | Hierarchy of custodians of knowledge by faculty of thought, from pre-modern times to the age of compression |
 
 ---
 

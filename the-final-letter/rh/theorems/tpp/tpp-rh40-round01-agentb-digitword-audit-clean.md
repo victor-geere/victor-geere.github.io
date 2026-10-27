@@ -12,7 +12,7 @@
 ## Hypotheses and notation
 
 - `digitword.py` (`rh40/code/digitword.py`) is the programme's definition of record; its entry points named here are `p_offset` (the offset-tuple count), `p_bruteforce` (the bit-string count), `factor_set`, `right_special_factors` and `slopes`.
-- The two live definitions of `p(L)` are `p(L) = #{{{a − t : a in ones, t <= a <= t + L − 1}} : 0 <= t <= N − L}` (offset-tuple) and the number of distinct bit-string factors; the audit checks they agree.
+- The two live definitions of `p(L)` are `p(L) = #{ { {a − t : a in ones, t <= a <= t + L − 1}} : 0 <= t <= N − L}` (offset-tuple) and the number of distinct bit-string factors; the audit checks they agree.
 - "701 decay-regime L of 1/pi" are the `L` values in the decay regime of the word `1/pi (2,13,607)`, `N = 1400`.
 - The two defects are documentation-level: a stale docstring listing the false §3.1 runs `((11,592,2),(593,604,3))`, and `factor_set(L>N)` returning `set()` where `p_offset` raises.
 
