@@ -438,3 +438,20 @@ from `HasFPowerSeriesOnBall.fderiv`.  For the *remainder* the `ℝ`-side theorem
 analyticity of `ζ` on the ball is extracted via
 `DifferentiableOn.hasFPowerSeriesOnBall` (the same lemma used inside
 `hasSum_taylorSeries_on_ball`).
+
+### 2026-10-27 — I.296: the exponential factor of the Taylor coefficients (T398)
+
+`iteratedDeriv_cpow_neg : iteratedDeriv k (fun s => b^(-s)) = fun s => (-log b)^k * b^(-s)`
+for `b ≠ 0` (induction on `k`, using `hasDerivAt_cpow_neg` and
+`HasDerivAt.const_mul`).  This is one of the two factors of every Taylor
+coefficient: with `b = 21` it gives the powers of `log 21` in
+`Σ_{j≤k} C(k,j) Ψ₃^{(j)}(s14) (-log21)^{k-j}`, and with `b = n` it gives the
+moments `(log n)^k` of the base sum.
+
+Remaining for `c_k`: (i) `iteratedDeriv_sum` over the 20 base atoms (needs
+`ContDiffAt` of `s ↦ n^{-s}`, which must be assembled by hand — Mathlib has no
+`ContDiffAt` lemma for `Complex.cpow`, so go through
+`fun s => Complex.exp (-s * Complex.log b)`); (ii) the Leibniz formula for
+`21^{-s}·Ψ₃(s)` (or the packaged `iteratedDeriv (fun s => 21^{-s} * g s)`);
+(iii) `Ψ₃^{(j)}(s14)` for `j ≤ 6` as boxes from `1/(s14-1) = (-2-56i)/785`
+and the polynomial derivatives of `P₃`, `P₅`.

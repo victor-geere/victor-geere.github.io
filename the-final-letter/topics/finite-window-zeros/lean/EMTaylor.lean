@@ -90,4 +90,28 @@ theorem gen3_eq_sum_psi (s : ℂ) :
   field_simp
   ring
 
+
+
+/-! ## Iterated derivatives of `b^{-s}` -/
+
+/-- **`iteratedDeriv k (b^{-s}) = (-log b)^k · b^{-s}`** for `b ≠ 0`.
+
+This is the exponential factor of every Taylor coefficient of the generator: for
+`b = 21` it produces the powers of `log 21`, and for `b = n` it produces the
+moments `(log n)^k` of the base sum. -/
+theorem iteratedDeriv_cpow_neg (b : ℂ) (hb : b ≠ 0) (k : ℕ) :
+    iteratedDeriv k (fun s : ℂ => b ^ (-s)) =
+      fun s => (-Complex.log b) ^ k * b ^ (-s) := by
+  induction k with
+  | zero =>
+      funext s
+      rw [iteratedDeriv_zero]
+      simp
+  | succ k ih =>
+      rw [iteratedDeriv_succ, ih]
+      funext s
+      have h := (hasDerivAt_cpow_neg hb s).const_mul ((-Complex.log b) ^ k)
+      rw [h.deriv]
+      ring
+
 end FiniteWindowZeros
