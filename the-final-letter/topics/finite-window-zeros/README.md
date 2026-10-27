@@ -424,6 +424,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T345 | Theorem | **`A1` identity:** `21·(-1/(s14-1)) - 1/2 - s14/252 = A1c = -177437/395640 + (20383/14130)i`. | `A1_eq` (`EMDeriv.lean`) |
 | T346 | Theorem | **`A0` identity:** `21·(-1/(s14-1)²) + 1/252 = A0c = 17190769/155288700 - (4704/616225)i`. | `A0_eq` (`EMDeriv.lean`) |
 | T347 | Theorem | **`ζ′` scalar factored:** the `21`-part of T339 at `s14` is `log21·A1c + A0c`. | `scalar_eq_deriv` (`EMDeriv.lean`) |
+| T348 | Theorem | **`log` bridge:** `↑(Real.log b) = Complex.log ↑b`, linking `dsPow_mem`'s `Real.log` to T339's `Complex.log`. | `ofReal_log_natCast` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

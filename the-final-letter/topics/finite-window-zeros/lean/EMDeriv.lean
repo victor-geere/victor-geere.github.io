@@ -304,4 +304,10 @@ theorem scalar_eq_deriv :
   have h0 := A0_eq
   linear_combination Complex.log 21 * h1 + h0
 
+/-- **The `log` bridge.**  `dsPow_mem` records `↑(Real.log b)`; T339 uses
+`Complex.log ↑b`.  This is the rewrite between them. -/
+theorem ofReal_log_natCast (b : ℕ) (hb : 1 ≤ b) :
+    ((Real.log (b : ℝ) : ℝ) : ℂ) = Complex.log ((b : ℝ) : ℂ) :=
+  Complex.ofReal_log (by positivity)
+
 end FiniteWindowZeros

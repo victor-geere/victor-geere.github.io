@@ -212,3 +212,21 @@ checking for name clashes before appending to a file in the same namespace.
 single object (`log21·A1c + A0c`, matching `scalarBox` via `mem_ptBox` +
 `mem_logBox`), so what remains is the `dsPow_mem`/`mem_neg`/`mem_add` wiring and
 the `Complex.ofReal_log` bridge from `↑(Real.log b)` to `Complex.log ↑b`.
+
+### 2026-10-27 — I.284: the `log` bridge (T348); journal policy updated
+
+`ofReal_log_natCast` (T348): `↑(Real.log b) = Complex.log ↑b` for `b ≥ 1`,
+one line from `Complex.ofReal_log`.  This is the rewrite that lets
+`dsPow_mem`'s value (phrased with `Real.log`) meet T339's expression (phrased
+with `Complex.log`); it is the last trap in `h1(a)`.
+
+**Journal policy (new).**  This file is the live journal.  Append every
+increment here.  When it passes ~500 lines, split the same way 001 was split:
+create `research-journal-003.md` carrying live state + exact constants + traps +
+next steps, leave dated history in 002, and add a pointer at the top of 002.
+Currently 218 lines, so no split yet.
+
+**Next**: the `h1(a)` membership wiring — `dsPow_mem` + `mem_neg` + `Cx.mem_add`
+on the sum side, `cpowBox_mem` × `scalarBox` (`mem_ptBox`, `mem_logBox`,
+`Cx.mem_mul`) on the `21^{-s14}` side, then `scalar_eq_deriv` to match the
+scalar and `ofReal_log_natCast` to match the logs.
