@@ -375,3 +375,19 @@ Next: `h1(b)` in Lean is now
 2. `M_R(K=3)` over that ball (a T306-shaped statement),
 3. three `norm_deriv_le_of_norm_le_on_ball` applications,
 4. assemble `h1` with `mem_Vbox` (T351) and `Yk`.
+
+### 2026-10-27 — I.290: `P₃` bound on the Cauchy ball (T354–T355)
+
+`norm_le_ball` and `norm_P3_ball` (T354/T355): on `‖s - s14‖ ≤ 0.35`,
+`‖s‖ ≤ 14.85` and `‖P₃(s)‖ ≤ 4500`.  Proved with the triangle inequality against
+the point bounds already in `EMBox14` (`norm_s14_le`, `norm_s14_add_one_le`,
+`norm_s14_add_two_le`), replacing `14.5, 15.5, 16.5` by `14.85, 15.85, 16.85`.
+
+Small friction: `norm_add_le (s - s14) (s14 + 1)` yields
+`‖s - s14 + (s14 + 1)‖ ≤ …`, which `simpa` will not reshape to `‖s + 1‖ ≤ …`;
+a `rwa [show s - s14 + (s14 + 1) = s + 1 by ring] at h0` does it.
+
+**Remaining in `h1(b)`**: `norm_P5_ball` (same shape, product of 5 factors,
+bound `≤ 2.6e7`), `M_R(K=3)` over the `0.35`-ball, three
+`norm_deriv_le_of_norm_le_on_ball` applications, then `h1` assembly with
+`mem_Vbox` + `Yk`.

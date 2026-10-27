@@ -390,4 +390,44 @@ theorem pow21_neg_eleven_half : (21 : ℝ) ^ (-(11 : ℝ) / 2) ≤ 1 / 4084101 :
   rw [h5] at h1
   exact h1
 
+/-! ## Pochhammer bounds on the radius-`0.35` ball (`h1(b)`) -/
+
+/-- On the `0.35`-ball, `|s| <= 14.85`. -/
+theorem norm_le_ball {s : ℂ} (hs : ‖s - s14‖ ≤ (0.35 : ℝ)) : ‖s‖ ≤ (14.85 : ℝ) := by
+  have h1 : ‖s‖ ≤ ‖s - s14‖ + ‖s14‖ := by
+    have h := norm_add_le (s - s14) s14
+    simpa using h
+  have h2 : ‖s14‖ ≤ (14.5 : ℝ) := norm_s14_le
+  linarith
+
+/-- On the `0.35`-ball, `‖P₃(s)‖ <= 4500`. -/
+theorem norm_P3_ball {s : ℂ} (hs : ‖s - s14‖ ≤ (0.35 : ℝ)) :
+    ‖(descPochhammer ℂ 3).eval (-s)‖ ≤ (4500 : ℝ) := by
+  have h3 : (descPochhammer ℂ 3).eval (-s) = (-s) * (-s - 1) * (-s - 2) := by
+    simp [descPochhammer]
+    ring
+  rw [h3, norm_mul, norm_mul]
+  have hA : ‖-s‖ = ‖s‖ := norm_neg s
+  have hB : ‖-s - 1‖ = ‖s + 1‖ := by rw [show -s - 1 = -(s + 1) by ring, norm_neg]
+  have hC : ‖-s - 2‖ = ‖s + 2‖ := by rw [show -s - 2 = -(s + 2) by ring, norm_neg]
+  rw [hA, hB, hC]
+  have p1 : ‖s‖ ≤ (14.85 : ℝ) := norm_le_ball hs
+  have p2 : ‖s + 1‖ ≤ (15.85 : ℝ) := by
+    have h : ‖s + 1‖ ≤ ‖s - s14‖ + ‖s14 + 1‖ := by
+      have h0 := norm_add_le (s - s14) (s14 + 1)
+      rwa [show s - s14 + (s14 + 1) = s + 1 by ring] at h0
+    have h' : ‖s14 + 1‖ ≤ (15.5 : ℝ) := norm_s14_add_one_le
+    linarith
+  have p3 : ‖s + 2‖ ≤ (16.85 : ℝ) := by
+    have h : ‖s + 2‖ ≤ ‖s - s14‖ + ‖s14 + 2‖ := by
+      have h0 := norm_add_le (s - s14) (s14 + 2)
+      rwa [show s - s14 + (s14 + 2) = s + 2 by ring] at h0
+    have h' : ‖s14 + 2‖ ≤ (16.5 : ℝ) := norm_s14_add_two_le
+    linarith
+  have m1 : ‖s‖ * ‖s + 1‖ ≤ 14.85 * 15.85 :=
+    mul_le_mul p1 p2 (norm_nonneg _) (by norm_num)
+  have m2 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ ≤ 14.85 * 15.85 * 16.85 :=
+    mul_le_mul m1 p3 (norm_nonneg _) (by norm_num)
+  exact m2.trans (by norm_num)
+
 end FiniteWindowZeros
