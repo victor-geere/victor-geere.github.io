@@ -70,11 +70,11 @@ theorem mem_S2box : Cx.mem (s14 - 1) S2box := by
 /-- The folded box for `Σ_{n<M} (n+1)^{-s}`. -/
 def csPow : ℕ → Cx
   | 0 => ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
-  | (M + 1) => (csPow M).add (cpowBox 14 16 64 20 (M + 1) S14)
+  | (M + 1) => (csPow M).add (cpowBox 20 16 64 24 (M + 1) S14)
 
 /-- **Fold soundness** for the base sum. -/
 theorem csPow_mem (M : ℕ)
-    (h : ∀ n, n < M → CpowConditions 14 16 64 20 (n + 1) S14) :
+    (h : ∀ n, n < M → CpowConditions 20 16 64 24 (n + 1) S14) :
     (csPow M).mem (∑ n ∈ Finset.range M, ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14))) := by
   induction M with
   | zero => simp [csPow, Cx.mem, Iv.memR]
@@ -86,79 +86,66 @@ theorem csPow_mem (M : ℕ)
         exact cpowBox_mem hb mem_S14 hk hkI hn he1 he2 hI1 hI2
 
 /-- Boolean check of the base-sum side conditions. -/
-def sumOK (M : ℕ) : Bool := (List.range M).all (fun n => CpowOK 14 16 64 20 (n + 1) S14)
+def sumOK (M : ℕ) : Bool := (List.range M).all (fun n => CpowOK 20 16 64 24 (n + 1) S14)
 
 theorem sumOK_conditions {M : ℕ} (h : sumOK M = true) :
-    ∀ n, n < M → CpowConditions 14 16 64 20 (n + 1) S14 := fun n hn =>
+    ∀ n, n < M → CpowConditions 20 16 64 24 (n + 1) S14 := fun n hn =>
   CpowConditions_of_OK (List.all_eq_true.mp h n (List.mem_range.mpr hn))
 
 /-! ## The full box -/
 
-/-- The enclosure of `zetaEMGen 1 20 s14` plus the `B₄` boundary ball.
+/-- The enclosure of `zetaEMGen 1 20 s14`, using a **single** `21^{-s}` atom.
 
-* `csPow 20` — `Σ_{n=1}^{20} n^{-s}`;
-* `cpowBox 21 S14 · 1/2` — the `(N+1)^{-s}/2` half-step;
-* `cpowBox 21 S2box · 1/(s-1)` — the pole term;
-* `cpowBox 21 S17box · ball 6` — the `B₄` boundary term, `|P₃/720| <= 6`. -/
+Every `(N+1)`-term is a rational multiple of `21^{-s}`:
+`21^{1-s}/(s-1) = 21^{-s}·(21/(s-1))` and `(1/12)s·21^{-(s+1)} = 21^{-s}·(s/252)`,
+so the scalar collapses to `1/2 + s/252 + 21/(s-1)`, whose value at `s0` is
+`187517/395640 - (10303/14130)i`.  This keeps every atom at `Im = 14`: the
+separate `Im = 15` and `Im = 17` atoms were the wide ones (round-5 diagnosis). -/
 def Bzeta : Cx :=
-  ((csPow 20).add ((cpowBox 14 16 64 20 21 S14).mul (ptBox (1 / 2) 0))).add
-    (((cpowBox 14 16 64 20 21 S2box).mul (ptBox (-2 / 785) (-56 / 785))).add
-      ((cpowBox 14 16 64 20 21 S17box).mul (ball 6)))
+  (csPow 20).add
+    ((cpowBox 20 16 64 24 21 S14).mul (ptBox (187517 / 395640) (-10303 / 14130)))
 
-/-! ## Evaluation of the certificate
-
-These are the `native_decide` steps.  Together they say that all twenty-three
-atoms satisfy the `CpowBox` side conditions and that the folded box has corner
-norm at most `3/25 = 0.12`, leaving `1/8 - 3/25 = 1/200` for the certified
-Euler–Maclaurin remainder. -/
+/-! ## Evaluation of the certificate -/
 
 example : sumOK 20 = true := by native_decide
 
-example : CpowOK 14 16 64 20 21 S14 = true := by native_decide
+example : CpowOK 20 16 64 24 21 S14 = true := by native_decide
 
-example : CpowOK 14 16 64 20 21 S2box = true := by native_decide
+/-! ## Open: `expIBox` is too lossy at height 14
 
-example : CpowOK 14 16 64 20 21 S17box = true := by native_decide
-
-/-! ## Open: the corner test does not yet hold
-
-`native_decide` *does* evaluate the box (the three checks above pass), but
+`native_decide` evaluates every atom (the checks above pass, 22 s), but the
+corner test
 
 ```
-(maxAbsIv Bzeta.re) ^ 2 + (maxAbsIv Bzeta.im) ^ 2 <= (1/2)^2
+(maxAbsIv Bzeta.re) ^ 2 + (maxAbsIv Bzeta.im) ^ 2 <= (3/25)^2
 ```
 
-comes out **false**, and so does every radius up to `1`; radius `3` passes.
-The exact rational mirror `python/emit_em.py` predicts a corner of `0.10570`
-for the same atoms and the same parameters, so the two differ by a factor of
-ten somewhere.
+comes out **false**.
 
-The likely suspects, in order:
+What has been ruled out, by direct measurement:
 
-1. `expIvGeneral`/`expIBox` in `PST/Transcend.lean` and `PST/CpowBox.lean` may
-   not match the mirror's `exp_iv_general`/`exp_i_box` (the mirror's `exp_rem`
-   is `(n+1)/(n!·n)`; check the Lean definition).
-2. `logIvRat 14 21` may differ from the mirror's `log_iv_rat`.
-3. `Iv.mul`'s `min4`/`max4` corner selection, if either mirror mis-models it.
+* **Not a single bad atom.**  Bisecting at radius `1/2`: `csPow 20`, the
+  `21^{-s}` atom and the pole atom each pass.  Only the atom at `Im = 17` was
+  grossly wide (round 5), which motivated the redesign below.
+* **Not the atom layout.**  `Bzeta` now uses a *single* `21^{-s}` atom at
+  `Im = 14`, absorbing the pole and `B₂` boundary terms into one rational
+  scalar (`1/2 + s/252 + 21/(s-1)`).  Removing the `Im = 15` and `Im = 17`
+  atoms does **not** restore tightness: the corner still exceeds `0.12`.
+* **Not the Taylor order or the log series.**  Raising `n` from 20 to 24 and
+  `N_log` from 14 to 20 changes nothing.
 
-**Localised (round 5).**  Bisecting the four components separately at radius
-`1/2`: `csPow 20`, `cpowBox 21 S14 · 1/2` and `cpowBox 21 S2box · 1/(s-1)` all
-pass, but `cpowBox 21 S17box · ball 6` **fails**.  So the wide atom is the one
-with `Im = 17`; the `Im = 14` atoms are fine.  The box width therefore grows
-with `|Im|` much faster than the mirror predicts — consistent with the
-`powNat kI` width amplification being worse in Lean than in
-`emit_blocks.cx_pow`, which is where the mirror and Lean diverge.
+Conclusion: at `Im = 14` the admissibility condition forces `kI >= 52`, and
+`expIBox` then pays a width amplification from its **`kI` sequential
+multiplications** that dwarfs everything else.  `expIBox` is adequate at
+height 5 (`Cert.lean`, `kI = 32`) and inadequate here; the Python mirror does
+not reproduce this, so it must not be used as a width predictor.
 
-**The fix does not need that atom at all.**  The `B₄` boundary term is
-`P₃ · 21^(-(s0+3))` with `|P₃/720| <= 6` and `|21^(-(s0+3))| = 21^(-7/2)`, so
-`|B₄ term| <= 6 · 21^(-3) < 1/1000`.  Replacing the atom by that rational bound
-needs one `Real.rpow` inequality (`21^(-(7/2)) <= 21^(-3)`) and the norm bound
-on `P₃`, and removes the wide atom entirely.
-
-Until this is resolved the box cannot certify anything: a corner of `>1` is
-compatible with `ζ(s0) ≠ 0` but not with `|ζ(s0)| <= 1/8`.  The infrastructure
-above (`ptBox`, `mem_ptBox`, `inv_s14_sub_one`, `mem_S2box`, `csPow_mem`,
-`sumOK_conditions`) is independent of the discrepancy and is reused as-is.
+The fix is in the shared layer, not in this file: `expIBox` should raise its
+enclosure to the `k`-th power by **repeated squaring** rather than `k`
+sequential `Cx.mul` steps, which replaces a factor of order `2^{k}` in the
+width by `2 log₂ k`.  That is a change to
+`partial-sum-plus-tail/lean/CpowBox.lean`, which other topics build on, so it
+needs its own audit of the affected certificates.
 -/
 
 end FiniteWindowZeros

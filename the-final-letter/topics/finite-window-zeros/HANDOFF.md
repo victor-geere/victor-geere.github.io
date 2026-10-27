@@ -198,27 +198,35 @@ with `2·Re ζ(4)/(2π)^4 = |B_4|/4! = 1/720` rational and
 `K = 1` needs `N >= 40` (42 atoms, remainder `9·10⁻³`) because
 `(1/12)||(s)_2||` is much larger; `K = 2` at `N = 20` costs 24 atoms instead.
 
-## Blocker: the Lean box is wider than the mirror
+## Blocker: `expIBox` is too lossy at height 14
 
-`EMBox14.lean` evaluates the box with `native_decide` (26 s, all atom side
-conditions pass), but the corner norm is **> 1**, while the exact-rational
-mirror `python/emit_em.py` predicts `0.10570` for the same atoms and the same
-`(14,16,64,20)` parameters — a factor-ten disagreement.
+**Root cause (round 6).**  At `Im = 14` the `[-1,1]` admissibility condition
+forces `kI >= 52`, and `expIBox kI n` then pays a width amplification from its
+`kI` *sequential* `Cx.mul` steps that dominates every other error term.
+`expIBox` is adequate at height 5 (`Cert.lean`, `kI = 32`) and inadequate here.
 
-**Localised.** Bisecting the four components separately at radius `1/2`:
-`csPow 20`, `cpowBox 21 S14 · 1/2` and `cpowBox 21 S2box · 1/(s-1)` all pass;
-`cpowBox 21 S17box · ball 6` **fails**. The wide atom is the one with `Im = 17`;
-the `Im = 14` atoms are fine. Box width grows with `|Im|` much faster than
-`emit_blocks.cx_pow` predicts, so the mirror and Lean diverge in the
-`powNat kI` amplification.
+Ruled out by direct measurement:
 
-**Planned fix: delete that atom.** The `B₄` boundary term is `P₃·21^(-(s0+3))`
-with `|P₃/720| <= 6` and `|21^(-(s0+3))| = 21^(-7/2)`, hence `<= 6·21^(-3) <
-1/1000`. Bounding it rationally (one `Real.rpow` monotonicity step plus a norm
-bound on `P₃`) removes the wide atom; the remaining 22 atoms are all tight.
+| hypothesis | test | result |
+|---|---|---|
+| one bad atom | bisect at radius `1/2` | `csPow 20`, `21^{-s}`, pole atom all pass |
+| atom layout | collapse to a single `21^{-s}` atom at `Im = 14` | still `> 0.12` |
+| Taylor order | `n`: 20 → 24 | no change |
+| log series | `N_log`: 14 → 20 | no change |
 
-Until then step 3 cannot be closed: a corner of `>1` is consistent with
-`ζ(s0) ≠ 0` but not with `|ζ(s0)| ≤ 1/8`.
+The mirror `python/emit_em.py` does **not** reproduce this, so it is usable for
+parameter *admissibility* only, never for width.
+
+**Fix (in the shared layer, not here).**  `expIBox` should raise its enclosure
+to the `k`-th power by repeated squaring rather than `k` sequential `Cx.mul`
+steps: that replaces a width factor of order `2^k` with `2 log₂ k`.
+`CpowBox.lean` lives under `partial-sum-plus-tail/lean` and is imported by
+other topics, so the change needs an audit of every certificate that uses it
+(`Cert`, `Seg`, `ZetaBox14`, `FixedBox`, `BlockCert`, `EMBox14`).
+
+`lean/EMBox14.lean` currently contributes the infrastructure only (`ptBox`,
+`inv_s14_sub_one`, `csPow`/`csPow_mem`, the single-atom `Bzeta`); it proves no
+ζ bound.
 
 ## Next steps, in order
 

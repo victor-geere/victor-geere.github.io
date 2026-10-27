@@ -2589,3 +2589,31 @@ should be used only for the parameter *admissibility* question.
 The intended fix sidesteps the problem rather than fighting it: the `B₄`
 boundary term is numerically negligible (`<= 6·21^(-3) < 1/1000`), so it never
 needed an atom.  Bounding it directly leaves 22 tight atoms.
+
+### 2026-10-27 — Phase I.261: `expIBox` is the limiting factor at height 14
+
+Round 6 ruled out three explanations for the loose enclosure by measurement:
+
+* **atom layout** — rewriting `Bzeta` to use a *single* `21^{-s}` atom
+  (absorbing the pole and `B₂` terms into the rational scalar
+  `1/2 + s/252 + 21/(s-1) = 187517/395640 - (10303/14130)i`, via
+  `Complex.cpow_add`) removes the `Im = 15`/`Im = 17` atoms but does *not*
+  restore tightness;
+* **Taylor order** — raising `n` 20 → 24 changes nothing;
+* **log series** — raising `N_log` 14 → 20 changes nothing.
+
+What remains is the `kI` dependence itself.  The `[-1,1]` condition forces
+`kI >= 52` at `Im = 14`, and `expIBox` pays a factor of order `2^k` in width
+from its `k` sequential `Cx.mul` steps.  At height 5 (`kI = 32`) this is
+tolerable; at height 14 it is not.
+
+The fix belongs in `partial-sum-plus-tail/lean/CpowBox.lean`: use repeated
+squaring for `powNat kI` rather than `kI` sequential multiplications.  That
+file is shared with five other certificates, so the change needs its own
+regression pass.
+
+Methodological note: two rounds were lost to trusting an exact-rational Python
+re-implementation of `CpowBox` as a width predictor.  It agreed on the
+`[-1,1]` admissibility constraint (pure rational arithmetic) but not on the
+width, and the discrepancy was only found by bisecting the Lean values
+directly.  For this layer, Lean's own `native_decide` is the faster oracle.
