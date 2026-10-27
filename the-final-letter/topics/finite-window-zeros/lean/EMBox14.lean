@@ -462,12 +462,12 @@ theorem Yk_ne_zero : Yk ≠ 0 := by
 and is `47/250`-Lipschitz on the `1/5`-ball, then the Krawczyk derivative
 condition holds:
 
-`‖1 - Yk ζ′(z)‖ ≤ 10⁻³ + 1.29·(47/250) = 0.24352 ≤ 1/4`.
+`‖1 - Yk ζ′(z)‖ ≤ 1/200 + 1.29·(47/250) = 0.24752 ≤ 1/4`.
 
 The true Lipschitz constant is `0.1517`, so the second hypothesis has 24%
 slack. -/
 theorem hC_of_bounds
-    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ (1 / 1000 : ℝ))
+    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ (1 / 200 : ℝ))
     (h2 : ∀ z ∈ Metric.closedBall s14 (1/5),
       ‖deriv riemannZeta z - deriv riemannZeta s14‖ ≤ (47 / 250 : ℝ)) :
     ∀ z ∈ Metric.closedBall s14 (1/5), ‖1 - Yk * deriv riemannZeta z‖ ≤ (1/4 : ℝ) := by
@@ -481,7 +481,7 @@ theorem hC_of_bounds
         ring
     _ ≤ ‖1 - Yk * deriv riemannZeta s14‖
           + ‖Yk * (deriv riemannZeta z - deriv riemannZeta s14)‖ := norm_sub_le _ _
-    _ ≤ (1 / 1000 : ℝ) + 1.29 * (47 / 250 : ℝ) := by
+    _ ≤ (1 / 200 : ℝ) + 1.29 * (47 / 250 : ℝ) := by
         have hm : ‖Yk * (deriv riemannZeta z - deriv riemannZeta s14)‖ ≤
             1.29 * (47 / 250 : ℝ) := by
           rw [norm_mul]
@@ -492,12 +492,12 @@ theorem hC_of_bounds
 /-- **A certified zero at `1/2 + 14i`, conditional on two explicit numerical
 inputs.**  These are the only remaining obligations:
 
-1. `‖1 - Yk·ζ′(1/2+14i)‖ ≤ 10⁻³` — a *point* enclosure of `ζ′`;
+1. `‖1 - Yk·ζ′(1/2+14i)‖ ≤ 1/200` — a *point* enclosure of `ζ′`;
 2. `ζ′` is `47/250`-Lipschitz on the `1/5`-ball — true constant `0.1517`.
 
 No RH, twin-prime, Chowla or infinite Weil-positivity claim is made. -/
 theorem zeta_zero_14_of_bounds
-    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ (1 / 1000 : ℝ))
+    (h1 : ‖1 - Yk * deriv riemannZeta s14‖ ≤ (1 / 200 : ℝ))
     (h2 : ∀ z ∈ Metric.closedBall s14 (1/5),
       ‖deriv riemannZeta z - deriv riemannZeta s14‖ ≤ (47 / 250 : ℝ)) :
     ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0 :=

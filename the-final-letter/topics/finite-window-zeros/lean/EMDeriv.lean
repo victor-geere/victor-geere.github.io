@@ -17,6 +17,7 @@ noncomputable section
 namespace FiniteWindowZeros
 
 open Filter Topology
+open PartialTail
 
 /-- **`d/dz b^z = b^z · log b`** for `b ≠ 0`. -/
 theorem hasDerivAt_cpow_exp {b : ℂ} (hb : b ≠ 0) (s : ℂ) :
@@ -193,5 +194,59 @@ theorem hasDerivAt_zetaEMGen_one (s : ℂ) (hs : s ≠ 1) :
   have hall := ((hsum.add hpole).add hhalf).add hb2
   convert hall using 1
   ring
+
+/-! ## The `ζ′` enclosure
+
+`deriv (zetaEMGen 1 20) s14` is T339's expression at `s14`.  Every `21`-power in
+it is a rational multiple of the single atom `21^{-s14}`, so the whole enclosure
+is `-Σ n^{-s14} log n` plus one atom times a rational-scalar box. -/
+
+/-- `n^{-s14} · log n` — one atom of the derivative sum. -/
+def derivAtom (n : ℕ) : Cx :=
+  (cpowBox 20 16 48 24 n S14).mul ⟨logIvRat 20 n, ⟨0, 0⟩⟩
+
+/-- The fold of `derivAtom` over `n = 1..M`. -/
+def dsPow : ℕ → Cx
+  | 0 => ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+  | (M + 1) => (dsPow M).add (derivAtom (M + 1))
+
+/-- The rational scalar multiplying `21^{-s14}`:
+`A0 + A1·log 21` with
+`A0 = 17190769/155288700 - (4704/616225)i` and
+`A1 = -177437/395640 + (20383/14130)i`. -/
+def scalarBox : Cx :=
+  (ptBox (17190769 / 155288700) (-4704 / 616225)).add
+    ((ptBox (-177437 / 395640) (20383 / 14130)).mul ⟨logIvRat 20 21, ⟨0, 0⟩⟩)
+
+/-- Enclosure of `deriv (zetaEMGen 1 20) s14`. -/
+def Vbox : Cx :=
+  (dsPow 20).neg.add ((cpowBox 20 16 48 24 21 S14).mul scalarBox)
+
+theorem mem_logBox (N b : ℕ) (hb : 1 ≤ b) :
+    (⟨logIvRat N b, (⟨0, 0⟩ : Iv)⟩ : Cx).mem (((Real.log (b : ℝ)) : ℝ) : ℂ) := by
+  refine ⟨?_, ?_⟩
+  · exact logIvRat_mem hb
+  · simp only [Iv.memR, Complex.ofReal_im]
+    norm_num
+
+/-- **Fold soundness** for the derivative sum. -/
+theorem dsPow_mem (M : ℕ)
+    (h : ∀ n, n < M → CpowConditions 20 16 48 24 (n + 1) S14) :
+    (dsPow M).mem
+      (∑ n ∈ Finset.range M,
+        ((((n + 1 : ℕ) : ℝ) : ℂ) ^ (-s14)) * (((Real.log ((n + 1 : ℕ) : ℝ)) : ℝ) : ℂ)) := by
+  induction M with
+  | zero => simp [dsPow, Cx.mem, Iv.memR]
+  | succ M ih =>
+      rw [dsPow, Finset.sum_range_succ]
+      apply Cx.mem_add
+      · exact ih (fun n hn => h n (by omega))
+      · obtain ⟨hb, hk, hkI, hn, he1, he2, hI1, hI2⟩ := h M (by omega)
+        exact Cx.mem_mul (cpowBox_mem hb mem_S14 hk hkI hn he1 he2 hI1 hI2)
+          (mem_logBox 20 (M + 1) (by omega))
+
+-- `ζ′(s14) ≈ 0.7482337 + 0.2044365i`, so `|V| ≈ 0.776`.
+example : (maxAbsIv Vbox.re) ^ 2 + (maxAbsIv Vbox.im) ^ 2 ≤ ((4 / 5 : ℚ)) ^ 2 := by
+  native_decide
 
 end FiniteWindowZeros

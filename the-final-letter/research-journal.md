@@ -2991,3 +2991,32 @@ Worth noting how this was nearly missed: T320–T339 were all built assuming
 (T306).  Differentiating tightens the requirement by three orders of magnitude,
 because Cauchy on `R` divides by only `rho`, not by `rho^k`.  A value certificate
 and a derivative certificate need different `K`.
+
+### 2026-10-27 — Phase I.280: the `ζ′` enclosure is defined and its corner checked
+
+Built the enclosure of `deriv (zetaEMGen 1 20) s14` (T340-T341 plus definitions):
+
+* `derivAtom n = cpowBox 20 16 48 24 n S14 × logIvRat 20 n`, folded by `dsPow`;
+* every `21`-power in T339's expression is a *rational* multiple of the single
+  atom `21^{-s14}`, so the remaining part is
+  `21^{-s14} · (A0 + A1·log21)` with
+  `A0 = 17190769/155288700 - (4704/616225)i`,
+  `A1 = -177437/395640 + (20383/14130)i`
+  (computed exactly; `A1` is the negation of the value-box scalar, a useful
+  consistency check);
+* `Vbox = -(dsPow 20) + cpowBox 21 S14 × scalarBox`, and its corner is verified
+  `<= 4/5` by `native_decide` against the true `|ζ′(s14)| = 0.77560`.
+
+Two design corrections this round:
+
+1. **T328/T329's `h1` budget was too tight at `1/1000`.**  The achievable error
+   is `|Yk|·(|V - ζ′| + |B₄′+B₆′+R₃′|) ≈ 1.1e-3` (V differs from ζ′ by
+   `2.8e-4`, the `B`-term derivatives contribute `~3.5e-4`, `R₃′ <= 1.8e-4`).
+   Loosened `h1` to `1/200`, still giving `1/200 + 1.29·(47/250) = 0.24752 <= 1/4`.
+2. **The `K=3` finding from round 23 is confirmed and absorbed**: the crude
+   bound route bounds `B₄′+B₆′` by moduli rather than computing `P₅, P₅′`
+   symbolically, and the remainder is taken at `K=3`.
+
+Remaining for `h1`: the *membership* proof `Cx.mem (T339 at s14) Vbox` (needs
+`Complex.cpow_add` to fold the `21`-powers onto one atom, and the scalar
+arithmetic), the ball for `B₄′+B₆′+R₃′`, and the final assembly.
