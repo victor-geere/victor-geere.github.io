@@ -969,3 +969,44 @@ of I.313 (`taylor_mean_remainder_bound` on `F(t) = ζ′(s14+tw)`, requiring the
 chain rule `iteratedDeriv (f(s14+t·w)) = f^{(k)}(s14+t·w)·w^k` and
 `ContDiffOn ℝ 6 F (Icc 0 1)`), then `h2_of_taylor_remainder`, then
 `zeta_zero_14_of_bounds h1_deriv h2`.
+
+### 2026-10-27 — I.315: the `sup|ζ^{(7)}|` budget with the proved `Ψ₃` bound
+
+The three pieces of `sup|ζ^{(7)}|` on the closed `1/5`-ball are now all proved:
+
+| piece | bound | source |
+|---|---|---|
+| base sum `Σ_{n≤20}(log n)⁷ n^{-z}` | `13189` | `norm_base_seven_le` (needs only `Re z ≥ 0`) |
+| `21`-part `Σ_i C(7,i)(−log21)^i 21^{-z} Ψ₃^{(7−i)}(z)` | `25204` | `norm_iteratedDeriv_Psi3_le` (`j!·8/10^j`), `log21 ≤ 61/20`, `21^{-z} ≤ 1` |
+| `R₃^{(7)}` | `5000` | Cauchy radius `1/4`, `‖R₃‖ ≤ 6·10⁻⁵` |
+
+Numerically `Σ_i C(7,i)(61/20)^i (7−i)!·8/10^{7−i} = 25203.45`, dominated by the
+`i = 7` term (`= (61/20)⁷·8 = 19640`), i.e. by the *loose* `|Ψ₃| ≤ 8`.  Hence
+
+```
+sup|ζ⁷| ≤ 13189 + 25204 + 5000 = 43393
+remainder (taylor_mean_remainder_bound, n = 5) ≤ 43393·r⁶/5! = 0.0232
+h2 ≤ 0.15363 + 0.0232 = 0.1768 ≤ 47/250 = 0.188       ✔  (6% margin, thin)
+```
+
+**Cheapest margin recovery (if needed):** the `i = 7` term is `(log21)⁷·|Ψ₃|`;
+replacing `|Ψ₃| ≤ 8` by a closed-form bound `|Ψ₃| ≤ 21/13 + 1/2 + 15/252 +
+4080/(720·9261) + 1.4·10⁶/(30240·4084101) ≈ 2.18` cuts it to `5350` and the
+`21`-part to `≈ 9100`, giving `h2 ≤ 0.159`.  A second lever: the `R₃` radius
+`29/100` instead of `1/4` gives `1753` instead of `5000`.
+
+Then the remaining step is the Taylor remainder itself (route A of I.313):
+`taylor_mean_remainder_bound` on `F t = ζ′(s14 + t·w)`, `n = 5`, `[0,1]`,
+with `hC` from the sup bound and the chain rule
+`iteratedDeriv k (fun t : ℝ => f (s14 + ↑t·w)) = f^{(k)}(s14+↑t·w)·w^k`
+(the `ℂ`-domain lemmas `iteratedDeriv_comp_const_mul`,
+`iteratedDeriv_comp_add_const` + `HasDerivAt.comp_ofReal` in
+`Mathlib/Analysis/Complex/RealDeriv.lean:97` are the pieces), then
+`h2_of_taylor_remainder` (T464) and `zeta_zero_14_of_bounds h1_deriv h2` (T329).
+
+**Session note (again).**  A second session shares this checkout and kills
+`check-lean.sh` processes it does not recognise (`pkill -9 -f check-lean.sh`
+loops); it also wrote I.314 and committed T457–T464 (including `EMTaylorH2.lean`,
+which this session then verified independently: 19 s, OK).  Builds can die with
+`SIGKILL` with no output — check `pgrep -fl "chec[k]-lean"` before diagnosing a
+Lean failure.
