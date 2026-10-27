@@ -330,4 +330,9 @@ theorem mem_logBox' (N b : ℕ) (hb : 1 ≤ b) :
   rw [← ofReal_log_natCast b hb]
   exact mem_logBox N b hb
 
+/-- **The cast bridge for the `21` base.**  `cpowBox`/`logIvRat` are keyed by
+`b : ℕ`, so their values are phrased with `(((21:ℕ):ℝ):ℂ)`; the derivative
+lemmas use `(21:ℂ)`.  This is the rewrite between them. -/
+theorem cpow21_base : (21 : ℂ) = (((↑(21 : ℕ) : ℝ)) : ℂ) := by norm_num
+
 end FiniteWindowZeros

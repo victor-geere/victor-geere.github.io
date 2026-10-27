@@ -262,3 +262,30 @@ then every object in the membership speaks the same dialect), or insert a
 Note: `grep sorry` in `EMDeriv.lean` only hits the header prose line; the audit
 strips block comments, so that is not a violation (other files carry the same
 line).
+
+### 2026-10-27 — I.286: `21` base cast bridge (T350)
+
+`cpow21_base` (T350): `(21:ℂ) = (((21:ℕ):ℝ):ℂ)`.  Together with `mem_logBox'`
+(T349) this closes the cast gap of I.285 from both sides, so the `h1(a)`
+membership no longer needs any restructuring — just `rw [cpow21_base]` in the
+goal after `rw [V_eq]`, and the `log`/`cpow`/box values all speak the same
+dialect.
+
+Recipe for the next session (nothing else is missing):
+
+```lean
+theorem mem_Vbox : Cx.mem (deriv (zetaEMGen 1 20) s14) Vbox := by
+  rw [(hasDerivAt_zetaEMGen_one s14 s14_ne_one).deriv, V_eq, Vbox, cpow21_base]
+  -- sum side: bridge dsPow_mem's summand to the (↑↑(n+1)) form, then mem_neg
+  -- 21 side:  cpowBox_mem (CpowOK 20 16 48 24 21 S14) × (mem_ptBox + mem_mul + mem_logBox')
+  -- finish with convert / ring, and Complex.ofReal_log for the log of ↑↑21
+```
+
+Watch two things: `rw [cpow21_base]` rewrites *every* `(21:ℂ)` in the goal,
+including inside `A1c`'s numerals (harmless, it is a numeral equality); and the
+`n+1` cast in `dsPow_mem` (`↑↑(n+1)`) vs `V_eq` (`↑n + 1`) needs the same
+`Finset.sum_congr` + `push_cast; ring` bridge already used in T332/T336.
+
+Round budget note: two consecutive rounds have produced one small lemma each,
+because context ran out mid-proof.  The membership is ~40 lines and should be
+done in one go with a fresh window rather than spread over three partial ones.
