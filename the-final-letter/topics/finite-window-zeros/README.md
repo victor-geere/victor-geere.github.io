@@ -480,6 +480,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T401 | Theorem | ****Leibniz with `21^{-s}`:**** `iteratedDeriv k (21^{-s}·g(s)) = Σ_i C(k,i) (−log21)^i 21^{-s} · g^{(k−i)}`. | `iteratedDeriv_mul_pow21` (`EMTaylor.lean`) |
 | T402 | Theorem | ****Pole factor, `j`-th derivative:**** `iteratedDeriv j ((s−1)⁻¹) = (−1)^j j! ((s−1)^{j+1})⁻¹` for `s ≠ 1`. | `iteratedDeriv_inv_sub_one` (`EMTaylor.lean`) |
 | T403 | Theorem | **Polynomial factor, `j`-th derivative:** `d^j/ds^j p(−s) = (−1)^j p^{(j)}(−s)` (`polyIter` = `j`-fold formal derivative). | `iteratedDeriv_polynomial_neg`, `PolyD`, `polyIter` (`EMTaylor.lean`) |
+| T404 | Theorem | **Linearity over finite sums:** `iteratedDeriv n (Σ_{i∈I} f i) = Σ iteratedDeriv n (f i)` (same `Finset.sum_apply` bridge as T400). | `iteratedDeriv_finset_sum` (`EMTaylor.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

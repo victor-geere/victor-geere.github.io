@@ -240,4 +240,15 @@ theorem iteratedDeriv_polynomial_neg (p : Polynomial ℂ) (j : ℕ) :
       rw [hd, show polyIter (j + 1) p = Polynomial.derivative (polyIter j p) from rfl]
       ring
 
+/-- **Linearity of `iteratedDeriv` over a finite sum.** -/
+theorem iteratedDeriv_finset_sum {ι : Type*} (I : Finset ι) (f : ι → ℂ → ℂ) (n : ℕ) (s : ℂ)
+    (hf : ∀ i ∈ I, ContDiffAt ℂ (n : WithTop ℕ∞) (f i) s) :
+    iteratedDeriv n (fun z : ℂ => ∑ i ∈ I, f i z) s
+      = ∑ i ∈ I, iteratedDeriv n (f i) s := by
+  have hfun : (fun z : ℂ => ∑ i ∈ I, f i z) = ∑ i ∈ I, f i := by
+    funext z
+    simp [Finset.sum_apply]
+  rw [hfun, iteratedDeriv_sum (n := n) (x := s) (I := I) (f := f) hf]
+
+
 end FiniteWindowZeros

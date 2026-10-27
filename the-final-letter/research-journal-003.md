@@ -520,3 +520,34 @@ linearity of `iteratedDeriv` (`iteratedDeriv_add`, `iteratedDeriv_const_mul`,
 both needing `ContDiffAt` of each summand — obtainable from
 `ContDiffAt.inv`/`ContDiffAt.add`/`fun_prop`), then the boxes for
 `c_k = (gen3^{(k)}(s14) + R3^{(k)}(s14))/k!`.
+
+### 2026-10-27 — I.301: linearity over finite sums (T404)
+
+`iteratedDeriv_finset_sum` — general `ι`, `Finset ι`, same `Finset.sum_apply`
+bridge as T400; this is what lets `Ψ₃` be split into its five terms and
+differentiated term by term.
+
+**Recipe for `Ψ₃^{(j)}(s14)`** (next):
+```lean
+def psiTerm : Fin 5 → ℂ → ℂ
+  | 0 => fun s => 21 * (s - 1)⁻¹
+  | 1 => fun s => (1/2 : ℂ)
+  | 2 => fun s => s / 252
+  | 3 => fun s => (descPochhammer ℂ 3).eval (-s) / (720 * 9261)
+  | 4 => fun s => -((descPochhammer ℂ 5).eval (-s) / (30240 * 4084101))
+theorem Psi3_eq_sum : Psi3 = fun s => ∑ i : Fin 5, psiTerm i s
+theorem iteratedDeriv_Psi3 (j) (s) (hs : s ≠ 1) :
+  iteratedDeriv j Psi3 s
+    = 21 * (-1)^j * j! * ((s-1)^(j+1))⁻¹
+      + (if j = 1 then (1/252:ℂ) else 0)
+      + (1/(720*9261)) * ((-1)^j * ((polyIter j (P3Poly)).eval (-s)))
+      - (1/(30240*4084101)) * ((-1)^j * ((polyIter j (P5Poly)).eval (-s)))
+```
+using `iteratedDeriv_finset_sum` (T404), `iteratedDeriv_inv_sub_one` (T402),
+`iteratedDeriv_polynomial_neg` (T403), `iteratedDeriv_const_mul`
+(`Lemmas.lean:368`) and `iteratedDeriv_fun_id`-style facts for `s/252`.  The
+`ContDiffAt` obligations: `ContDiffAt.inv` (`Operations.lean:800`) for term 0,
+constants for 1–2, and for `fun s => p.eval (-s)` one still needs a
+`ContDiffAt` fact for polynomial evaluation — check `Polynomial.contDiff`
+(`Mathlib/Analysis/Calculus/Deriv/Polynomial.lean` has only `hasDerivAt`;
+look in `Mathlib/Analysis/Polynomial/*` or use `fun_prop`).
