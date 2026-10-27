@@ -41,7 +41,8 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
 | `lean/FixedBox.lean` | T264–T276, T283–T288: snapped boxes and folds, block values, block fold membership. |
 | `lean/BlockCert.lean` | T289: `blockFold_1e6` at `B = M = 1000`. |
 | `lean/EtaEM.lean` | T290–T292: forward differences and the iterated Euler transformation. |
-| `lean/EMCritical.lean` | T293–T300: the `B₂` remainder on the critical line (`0 < Re s`). |
+| `lean/EMCritical.lean` | T293–T305: the Euler–Maclaurin remainder on the critical line (`0 < Re s`, every `K`). |
+| `python/emit_em.py` | Reference emitter for the `zetaEMGen 1 N` box at `1/2+14i`; calibrates the `CpowBox` parameters. |
 | `lean/Cert.lean`, `lean/Seg.lean` | P3 certificates for `1/2+5i`. |
 | `python/emit_blocks.py` | Python rational mirror of the `CpowBox` layer (reference emitter). |
 
@@ -165,6 +166,37 @@ Euler–Maclaurin atoms plus one `B₂` ball, versus `10⁶` eta pairs.  Steps 3
 unchanged; step 2 becomes "evaluate `zetaEMGen 1 100` in `Cx`" rather than
 "evaluate a million-term block".
 
+## Step-3 calibration (done; parameters are known-good)
+
+`python/emit_em.py` mirrors the `CpowBox` layer in exact rational arithmetic and
+pins down the parameters, which are **not** the ones `Cert.lean` uses:
+
+* The `[-1,1]` side condition forces `kI >= |Im s| log b`, i.e. `>= 52` at
+  `Im s = 14`, `b = 41`.  `Cert.lean`'s `kI = 32` is fine at height 5 and
+  **fails here**.
+* `expIBox` forms `exp(i t/kI)^kI` by *sequential* interval multiplication, so
+  the box width is amplified by roughly `2^(kI/2)`.  At `kI = 64` a Taylor
+  order of 12 leaves a box of width `50.5` — useless — because `expRem` is
+  swamped by the amplification.
+
+Measured corners of the enclosure of `zetaEMGen 1 N (1/2+14i)`:
+
+| `(N_log, k, kI, n)` | `N` | `\|corner\|` | verdict |
+|---|---|---|---|
+| `(10, 10, 64, 12)` | 20 | `50.5` | fails the side condition budget |
+| `(14, 16, 64, 20)` | 20 | `0.10569740` | tight and correct (`\|ζ\| = 0.1056263`) |
+
+Working configuration: **`(14, 16, 64, 20)`**, `N = 20`, `K = 2`.
+The `K = 2` remainder bound (T305) is `8.0·10⁻⁴`, so
+
+`|ζ(s0)| <= 0.1057 + 0.0008 = 0.1065 <= 1/8`,
+
+with `2·Re ζ(4)/(2π)^4 = |B_4|/4! = 1/720` rational and
+`P_3 = (descPochhammer ℂ 3).eval (-s0) = 7041/8 + (5327/2)i`.
+
+`K = 1` needs `N >= 40` (42 atoms, remainder `9·10⁻³`) because
+`(1/12)||(s)_2||` is much larger; `K = 2` at `N = 20` costs 24 atoms instead.
+
 ## Next steps, in order
 
 0. ~~Relax the `B₂` remainder to `0 < Re s`.~~  **Done** (T293–T300).
@@ -175,7 +207,10 @@ unchanged; step 2 becomes "evaluate `zetaEMGen 1 100` in `Cx`" rather than
    - prove the boundary terms tend to `0`;
    - conclude an explicit `|η(s) - accelerated partial sum| ≤ ε` with
      `K ≈ 50`, `ε ≈ 10^{-10}`.
-2. **Evaluate `zetaEMGen 1 100` as a rational box.**  Mirror the `Cert.lean`
+2. **Evaluate `zetaEMGen 2 20` as a rational box** (24 atoms, params
+   `(14,16,64,20)`, see the calibration section).  Note the pole term is exact
+   at the point: `1/(s0-1) = (-2 - 56i)/785`, so **no interval division is
+   needed**.  *Superseded detail:*  Mirror the `Cert.lean`
    `sumBox` architecture: a fold of `CpowBox` atoms for `Σ_{n≤100} n^{-s}`, the
    `101^{1-s}/(s-1)` term (needs a complex reciprocal on `Cx`, which exists only
    on `Interval.lean`'s `ComplexInterval` — port `inv` to `Cx` or bound

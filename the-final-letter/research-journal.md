@@ -2526,3 +2526,28 @@ Term-count consequence: with `K = 4`, `N = 10` the bound is `~4·10⁻⁵` with
 `2 Re ζ(2K)/(2π)^{2K} = |B_{2K}|/(2K)!` is rational (`1/1209600` at `K = 4`),
 the whole remainder bound is rational too, so it drops straight into a
 `native_decide` certificate.
+
+### 2026-10-27 — Phase I.258: calibrating the `zetaEMGen` box at `1/2+14i`
+
+Added `python/emit_em.py`, an exact-rational mirror of the `CpowBox` layer for
+the step-3 enclosure of `zetaEMGen 1 N (1/2+14i)`, and used it to find the
+parameters.  Two constraints bite, neither of them visible from `Cert.lean`:
+
+1. `cpowBox` requires the scaled exponent in `[-1,1]`, so
+   `kI >= |Im s| log b`.  At `Im s = 14` and `b = 41` that is `>= 52`; the
+   `kI = 32` of `paramsFast`/`pairParams` is admissible at height 5 only.
+2. `expIBox kI n` computes `exp(i t/kI)^kI` by *sequential* interval
+   multiplication, not by repeated squaring, so the box width grows like
+   `2^(kI/2)` and `expRem n` must beat that.  At `kI = 64`, `n = 12` the box
+   for `ζ` came out with corner norm `50.5` — a factor 500 too wide and
+   entirely useless — while `n = 20` gives `0.10570`, correct to `1e-4`.
+
+With `(N_log, k, kI, n) = (14, 16, 64, 20)` and `N = 20`, `K = 2`, the certified
+remainder is `8.0·10⁻⁴`, so `|ζ(s₀)| <= 0.1065 <= 1/8` and the step-3 target is
+reachable with 24 atoms rather than the 10⁶ pairs of the original plan.
+
+The lesson worth recording: the `CpowBox` parameter regime is not portably
+reusable across heights.  At height 14 the imaginary-exponent split dominates
+the cost, and a naive transplant of the height-5 parameters produces a box that
+silently *passes* the side conditions while being far too wide to exclude
+anything.
