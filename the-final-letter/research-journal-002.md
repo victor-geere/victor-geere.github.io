@@ -391,3 +391,18 @@ a `rwa [show s - s14 + (s14 + 1) = s + 1 by ring] at h0` does it.
 bound `≤ 2.6e7`), `M_R(K=3)` over the `0.35`-ball, three
 `norm_deriv_le_of_norm_le_on_ball` applications, then `h1` assembly with
 `mem_Vbox` + `Yk`.
+
+### 2026-10-27 — I.291: `P₅` ball bound (T356–T357)
+
+`norm_P5_ball`: on `‖s - s14‖ ≤ 0.35`, `‖P₅(s)‖ ≤ 2·10⁶` (true product bound
+`14.85·15.85·16.85·17.85·18.85 = 1.334·10⁶`).  Factored out a generic triangle
+step, `ball_add_le` (T356): `‖s - s14‖ ≤ r` and `‖s14 + t‖ ≤ c` give
+`‖s + t‖ ≤ r + c`.
+
+Trap #4 again, in a new disguise: `ball_add_le` was first stated with the shift
+as `(k : ℕ)` cast to ℂ, and `norm_s14_add_one_le : ‖s14 + 1‖ ≤ 15.5` refused to
+match because its `1` is `OfNat`, not `Nat.cast`.  Stating the shift as `t : ℂ`
+fixes it — **when a lemma is polymorphic over a shift, take a `ℂ`, not a `ℕ`**.
+
+`h1(b)` now needs only: `M_R(K=3)` over the `0.35`-ball, three
+`norm_deriv_le_of_norm_le_on_ball` applications, and the `h1` assembly.

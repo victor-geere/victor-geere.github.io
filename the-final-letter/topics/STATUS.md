@@ -1,6 +1,6 @@
 # Reconstruction status
 
-48 topics · 813 ledger theorems · 393 tested computations · 457 pytest tests · 48/48 Lean builds OK.
+48 topics · 815 ledger theorems · 393 tested computations · 457 pytest tests · 48/48 Lean builds OK.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
@@ -35,7 +35,7 @@
 | [finite-explicit-formula](finite-explicit-formula/README.md) | 27 | 6 | 14 | 2 | OK |
 | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | 52 | 14 | 2 | 14 | OK |
 | [euler-maclaurin](euler-maclaurin/README.md) | 8 | 4 | 0 | 18 | OK |
-| [finite-window-zeros](finite-window-zeros/README.md) | 355 | 11 | 0 | 18 | OK |
+| [finite-window-zeros](finite-window-zeros/README.md) | 357 | 11 | 0 | 18 | OK |
 | [periodic-orbits](periodic-orbits/README.md) | 7 | 7 | 8 | 7 | OK |
 | [phase-interference](phase-interference/README.md) | 7 | 7 | 8 | 7 | OK |
 | [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 11 | 7 | 9 | 7 | OK |
