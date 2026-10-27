@@ -1,5 +1,10 @@
 # Research journal — Euler–Maclaurin Lean layer and Objective III status
 
+> **Continued in [`research-journal-002.md`](research-journal-002.md).**
+> That file is the live journal: current state, exact next steps, pre-computed
+> constants, and the traps already paid for. This file is the history up to
+> entry I.282 and need not be read in order to continue the work.
+
 **Started:** 25 October 2026
 **Goal:** update proof layer C, `STATUS.md`, and all `the-final-letter/`
 documentation to include the Euler–Maclaurin Lean layer; create a new
