@@ -13,6 +13,7 @@ Complete file-level index of `the-final-letter/`. The single-page [`index.html`]
 - [TABLE-OF-CONTENTS.md](TABLE-OF-CONTENTS.md) — This index.
 - [index.html](index.html) — Single-page HTML with MathJax.
 - [status.html](status.html) — Research status: the two walls, how Objective III applies to them, outstanding items, bridges and roadmap.
+- [topical-value.html](topical-value.html) — Topical value: what four dossiers (finite-window-zeros, partial-sum-plus-tail, geometric DQPT, finite explicit formula) are actually worth.
 - [EVIDENCE.md](EVIDENCE.md) — What was imported, what is a snapshot, and how to check the links.
 - [scraps.html](scraps.html) — Inventory of research programmes not yet harvested.
 - [topics/](topics/index.html) — Reconstructed research programmes, one folder per scraps item.

@@ -41,6 +41,7 @@ The numbered sections are grouped under [categories/](categories/README.md); the
 | Scraps — unharvested programmes | [scraps.html](scraps.html) |
 | Third objective — certified evaluation | [topics/partial-sum-plus-tail](topics/partial-sum-plus-tail/README.md) · [Euler–Maclaurin annex](topics/euler-maclaurin/README.md) · [proof ledger C](categories/05-proofs/proofs.md#c-the-certified-evaluation-layer) |
 | Research status — walls, bridges, roadmap | [status.html](status.html) |
+| Topical value — what four dossiers are worth | [topical-value.html](topical-value.html) |
 | Topic folders | [topics/](topics/index.html) · [status](topics/STATUS.md) |
 | Paper bundle | [geometric-dynamical-phase-transitions/](geometric-dynamical-phase-transitions/README.md) |
 
