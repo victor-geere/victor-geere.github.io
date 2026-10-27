@@ -885,3 +885,47 @@ evaluation needed — `n^{-z} ≤ 1` on `Re z ≥ 0`) + `21`-part `≤ 6500`
 (`log 21 ≤ 61/20` from `logIvRat`, and `Ψ₃^{(j)}` bounds from the T413 closed
 form with polynomial derivatives by Cauchy on a radius-`10` ball) + `R₃^{(7)}`
 `≤ 1800` (Cauchy, radius `29/100` around each point).
+
+### 2026-10-27 — I.313: the Taylor remainder — MVT induction does **not** give the factorial
+
+While proving the `h2` remainder I tried the obvious discrete induction:
+
+```
+Claim(m):  ‖g^{(m)}(w)‖ ≤ 2C·r^{K+1−m}/(K+1−m)!      (g^{(j)}(0) = 0, j ≤ K)
+Step:      ‖g^{(m)}(w)‖ ≤ ‖g^{(m+1)}‖·r ≤ 2C·r^{K−m}/(K−m)!·r
+                         = 2C·r^{K+1−m}/(K−m)!   ≠  2C·r^{K+1−m}/(K+1−m)!
+```
+
+The step loses the factor `K+1−m` **every time**: the honest output of `K`
+mean-value-theorem steps is `2C·r^K` (no factorial), which at `K = 6`,
+`C = 25000` is `3.2` — useless against the `0.034` left in the budget.  So the
+MVT route (`norm_sub_le_of_deriv_bound` iterated) is a **dead end**; this was
+caught before any of it was added to the build.  (The bogus attempt was
+committed by accident in `8c10577b` — swept up by a concurrent `git add -A`
+from another session on the same checkout — and is removed again in the next
+commit.  `check.sh` never listed it, so the build stayed green.)
+
+**The factorial needs a Lagrange/integral remainder.**  Two viable routes:
+
+* **(A) Mathlib's `taylor_mean_remainder_bound`** (`Analysis/Calculus/Taylor.lean`,
+  vector-valued, `E = ℂ`) applied to `F(t) = ζ′(s14 + t·w)`, `n = 5`,
+  `a = 0`, `b = 1`: the Taylor polynomial is `Σ_{k≤5} c_{k+1} w^k` and the
+  remainder is `≤ C/5!` with `C = sup_{t∈[0,1]} ‖F^{(6)}(t)‖ = sup|ζ^{(7)}|·r^6`.
+  With `sup|ζ^{(7)}| ≤ 25000` and `r = 1/5`: `C = 1.6`, remainder `≤ 0.0133`,
+  total `0.15363 + 0.0133 = 0.167 ≤ 47/250` ✔ (11% margin).  Bookkeeping: the
+  chain rule `iteratedDerivWithin k (fun t : ℝ => f (s14 + t·w)) = f^{(k)}(s14+t·w)·w^k`
+  and `ContDiffOn ℝ 6 F (Icc 0 1)`.  Useful Mathlib lemmas found for this:
+  `iteratedDeriv_comp_const_mul`, `iteratedDeriv_comp_add_const`
+  (`IteratedDeriv/Lemmas.lean` 394–480, phrased over `ℂ`).
+* **(B) Power-series tail** (`Complex.hasSum_taylorSeries_on_ball` +
+  `HasFPowerSeriesOnBall.fderiv`): `|c_k| ≤ M/ρ^k` by Cauchy on the radius-`ρ`
+  ball, `M = sup|ζ|` on the `1/2`-ball (`≤ 12` by termwise bounds), giving
+  `Σ_{k>K} k|c_k|r^{k−1} ≤ (M/r)·c^{K+1}((K+1)−Kc)/(1−c)^2` with `c = r/ρ = 2/5`.
+  `K = 12` gives `0.0092` ✓, but requires the boxes `c_7..c_12` (mechanical) and
+  a bridge from `iteratedFDeriv`-based series to `iteratedDeriv`.
+
+**Concurrency note.**  Two sessions were working the same checkout in this round
+(commits `66cffb00`, `8c10577b` interleaved with I.312's).  Future rounds should
+check `git log`/`git status` and the file mtimes before editing `EMTaylorCert.lean`
+or `check.sh`; `git add -A` will otherwise sweep up another session's in-progress
+files.
