@@ -425,3 +425,16 @@ iteratedDeriv k ζ (s14+t·w) · w^k` for `k ≤ K+1` (induction with the chain
 rule), `ContDiffOn ℝ (K+1)` of the parametrised function from analyticity of
 `ζ` on the ball, and `iteratedDerivWithin_eq_iteratedDeriv` on the interior of
 `[0,1]`.
+
+**API shortcut found while writing I.295.** For complex functions one can avoid
+the `ContDiffOn`/`iteratedDerivWithin` bookkeeping entirely:
+`Complex.hasSum_taylorSeries_on_ball`
+(`Mathlib/Analysis/Complex/TaylorSeries.lean`) needs only
+`DifferentiableOn ℂ f (Metric.ball c r)` and gives the exact series
+`ζ(s14+w) = Σ (n!)⁻¹ (iteratedDeriv n ζ s14) w^n`; the derivative series follows
+from `HasFPowerSeriesOnBall.fderiv`.  For the *remainder* the `ℝ`-side theorem
+`taylor_mean_remainder_bound` is still the most convenient, but its
+`hf : ContDiffOn ℝ (n+1) …` can be fed from `AnalyticOn.contDiffOn` once
+analyticity of `ζ` on the ball is extracted via
+`DifferentiableOn.hasFPowerSeriesOnBall` (the same lemma used inside
+`hasSum_taylorSeries_on_ball`).
