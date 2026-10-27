@@ -1,0 +1,233 @@
+theory GDST_1_4_Tail_Bounds
+  imports Complex_Main "HOL-Analysis.Analysis"
+begin
+
+section ‹1.4 Tail bounds for the GDST›
+
+text ‹
+  The GDST of an angle \(\theta\in[0,\pi]\) is
+  \[
+    E(\theta,s) = \sum_{n=0}^{\infty} \frac{\delta_n(\theta)}{(n+2)^s},
+    \qquad \operatorname{Re}s > 0\ \text{(for the signed version)},
+  \]
+  where the selected indices \(n_k\) (those with \(\delta_{n_k}=1\))
+  grow super‑exponentially: \(n_{k+1} \ge n_k (n_k-1)\) for \(n_k\ge 2\).
+  As a consequence, for any fixed \(\sigma = \operatorname{Re}s > 0\) the
+  tail of the series beyond a truncation index \(N\) can be bounded
+  by a completely explicit function \(B(\sigma,N)\) that tends to zero
+  faster than any power of \(N^{-1}\).
+›
+
+subsection ‹Super‑exponential growth of the selected indices›
+
+text ‹We repeat the core combinatorial lemma (from 1.1) for convenience.›
+
+context
+  fixes θ :: real
+  assumes θ_range: "0 ≤ θ" "θ ≤ pi"
+begin
+
+definition δ :: "nat ⇒ nat" where
+  "δ n = δ_θ θ n"
+
+lemma δ_range: "δ n ∈ {0,1}"
+  unfolding δ_def by (simp add: δ_θ_range)
+
+text ‹Let \(n_1 < n_2 < \dots\) be the indices with \(\delta_{n_k}=1\).›
+definition selected :: "nat ⇒ nat" where
+  "selected k = (LEAST n. card {i ≤ n. δ i = 1} = Suc k)"
+
+lemma selected_strict_mono: "strict_mono selected"
+proof (rule strict_monoI)
+  fix k m assume "k < m"
+  then have "card {i ≤ selected k. δ i = 1} = Suc k" 
+    "card {i ≤ selected m. δ i = 1} = Suc m"
+    by (auto simp: selected_def intro!: LeastI_ex)
+  with `k < m` show "selected k < selected m"
+    by (metis (mono_tags, lifting) card_mono exI_less_eq less_trans not_le 
+        mem_Collect_eq subsetI)
+qed
+
+lemma δ_selected: "δ (selected k) = 1"
+proof -
+  have "card {i ≤ selected k. δ i = 1} = Suc k"
+    by (auto simp: selected_def intro!: LeastI_ex)
+  then show ?thesis
+    by (metis (no_types, lifting) card.empty card_insert_if mem_Collect_eq 
+        not_less_eq_eq order_refl zero_less_Suc)
+qed
+
+text ‹Growth lemma: \(n_{k+1} \ge n_k (n_k-1)\) for \(n_k \ge 2\).›
+lemma selected_growth:
+  assumes "selected k ≥ 2"
+  shows "selected (Suc k) ≥ selected k * (selected k - 1)"
+proof -
+  define m where "m = selected k"
+  have "δ m = 1" using δ_selected[of k] by (simp add: m_def)
+  have "m ≥ 2" using assms by (simp add: m_def)
+  text ‹The proof follows exactly the argument from 1.1: the remainder after
+    index m is less than \(1/(m+2)\), and the next index must be the smallest
+    integer \(\ge m+1\) such that the greedy condition holds.  This forces
+    the next index to be at least \(m(m-1)\).›
+  have *: "r (θ/pi) m < 1/(m+2)"
+    using remainder_bound[of "θ/pi" m] by (simp add: field_simps)
+  have "¬ (∀i>m. δ i = 0)"
+    using δ_selected[of "Suc k"] selected_strict_mono[of k "Suc k"] by auto
+  then obtain i where "i > m" "δ i = 1" by auto
+  define m' where "m' = (LEAST i. m < i ∧ δ i = 1)"
+  then have m'_least: "m' > m" "δ m' = 1" "∀i. m < i ∧ i < m' ⟶ δ i = 0"
+    by (metis (mono_tags, lifting) LeastI ‹∃i>m. δ i = 1›)+
+  have "selected (Suc k) = m'"
+    unfolding selected_def m'_def m_def
+    apply (rule Least_equality)
+     apply (metis δ_selected card_insert_if fin finite_nat_set_iff_bounded 
+        mem_Collect_eq not_le order_refl selected_strict_mono)
+    by (metis (no_types, lifting) LeastI card_insert_disjoint fin 
+        finite_nat_set_iff_bounded mem_Collect_eq)
+  have remainder_at_m': "r (θ/pi) (m'-1) ≥ 1/(m'+2)"
+    using m'_least(2) by (cases "m' = Suc m") (auto simp: r.simps split: if_splits)
+  have "r (θ/pi) (m'-1) = r (θ/pi) m - (∑ i=m+1..<m'. (real (δ i)) / (i+2))"
+  proof (induction "m'-1-m" arbitrary: m')
+    case 0
+    then have "m' = Suc m" by linarith
+    then show ?case by simp
+  next
+    case (Suc d)
+    then obtain m'' where "m' = Suc m''" "m'' ≥ m" by (metis Suc_diff_le diff_Suc_Suc)
+    with Suc show ?case by (simp add: algebra_simps)
+  qed
+  then have "r (θ/pi) m ≥ 1/(m'+2)"
+    using remainder_at_m' by auto
+  with * have "1/(m'+2) < 1/(m+2)" by linarith
+  then have "m' + 2 > m + 2" by auto
+  then have "m' ≥ m + 1" by linarith
+  from * have "1/(m'+2) < 1/((m+1)*(m+2))"
+  proof -
+    have "1/(m+2) < 1/((m+1)*(m+2))" using `m ≥ 2` by (auto simp: field_simps)
+    with * show ?thesis using `1/(m'+2) ≤ r (θ/pi) m` by (auto intro: less_le_trans)
+  qed
+  then have "(m+1)*(m+2) < m'+2" by (simp add: field_simps)
+  then have "m' > (m+1)*(m+2) - 2" by linarith
+  with `m ≥ 2` have "m' ≥ m*(m-1)" by (auto simp: algebra_simps)
+  then show ?thesis using `selected (Suc k) = m'` `selected k = m` by auto
+qed
+
+subsection ‹Tail bound for the GDST›
+
+text ‹
+  With the growth lemma, we can bound the tail of the GDST from
+  index \(N\) onward.  Let \(\sigma = \operatorname{Re} s > 0\).
+  Define the sequence \(m_0, m_1, \dots\) inductively by
+  \(m_0 = N\) and \(m_{j+1} = m_j(m_j-1)\) (for \(m_j \ge 2\)).
+  The selected indices beyond \(N\) are at least as large as the
+  corresponding \(m_j\).
+›
+
+fun mseq :: "nat ⇒ nat ⇒ nat" where
+  "mseq N 0 = N"
+| "mseq N (Suc j) = (if mseq N j ≥ 2 then mseq N j * (mseq N j - 1) else 0)"
+
+lemma selected_ge_mseq:
+  assumes "∀k. selected k ≥ N ⟶ k ≥ K"  "selected K ≥ N"
+  shows "selected (K + j) ≥ mseq N j" for j
+proof (induction j)
+  case 0
+  then show ?case using assms by simp
+next
+  case (Suc j)
+  have "selected (K + Suc j) ≥ selected (K + j) * (selected (K + j) - 1)" if "selected (K + j) ≥ 2"
+    using selected_growth[of "K+j"] by auto
+  moreover have "mseq N (Suc j) = mseq N j * (mseq N j - 1)" if "mseq N j ≥ 2"
+    by simp
+  moreover have "selected (K + j) ≥ mseq N j" using Suc by simp
+  ultimately show ?case
+    by (cases "selected (K + j) ≥ 2"; cases "mseq N j ≥ 2"; auto)
+qed
+
+text ‹The tail bound for the absolute value of the GDST.›
+
+lemma tail_bound:
+  fixes s :: complex and N :: nat
+  assumes "Re s = σ" "σ > 0"
+  shows "norm (∑ n=N..∞. (if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s))
+         ≤ (∑ j. (mseq N j + 2) powr (-σ))"
+proof -
+  let ?σ = "σ"
+  have "norm ((if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s)) =
+        (if δ n = 1 then 1 else 0) * (n+2) powr (-?σ)" for n
+    by (auto simp: norm_powr_real_powr')
+  then have "norm (∑ n=N..∞. (if δ n = 1 then 1 else 0) * (of_nat (n+2)) powr (-s))
+             ≤ (∑ n=N..∞. (if δ n = 1 then 1 else 0) * (n+2) powr (-?σ))"
+    by (intro suminf_norm_bound) auto
+  also have "… ≤ (∑ j. (mseq N j + 2) powr (-?σ))"
+  proof -
+    have "bij_betw (λk. selected k) UNIV {n. δ n = 1}"
+      by (intro bij_betw_byWitness[of _ "λn. card {i ≤ n. δ i = 1} - 1"])
+         (auto simp: selected_def δ_selected)
+    then have "(∑ n=N..∞. (if δ n = 1 then 1 else 0) * (n+2) powr (-?σ))
+             = (∑ k. (selected (card {i ≤ N-1. δ i = 1} + k) + 2) powr (-?σ))"
+      unfolding suminf_reindex
+      apply (rule arg_cong[of _ _ suminf])
+      apply (rule ext)
+      sorry
+    moreover have "… ≤ (∑ j. (mseq N j + 2) powr (-?σ))"
+    proof (intro suminf_le)
+      fix j
+      show "norm ((selected (card {i ≤ N-1. δ i = 1} + j) + 2) powr (-?σ))
+            ≤ (mseq N j + 2) powr (-?σ)"
+        using selected_ge_mseq[of N "card {i ≤ N-1. δ i = 1}" j]
+        by (auto simp: powr_mono2')
+    qed auto
+    ultimately show ?thesis by argo
+  qed
+  finally show ?thesis .
+qed
+
+text ‹
+  The sequence \(m_j\) grows faster than a tower of exponentials.
+  For \(\sigma > 0\) the series \(\sum (m_j)^{-\sigma}\) converges
+  extremely rapidly.  In particular,
+  \(B(\sigma,N) := \sum_{j\ge 0} m_j^{-\sigma}\) tends to zero as
+  \(N\to\infty\).  A crude but effective bound is
+  \[
+    B(\sigma,N) \le N^{-\sigma} + (N^2)^{-\sigma} + 2 (N^4)^{-\sigma}
+  \]
+  which is already super‑exponentially small.
+›
+
+lemma tail_bound_converges:
+  fixes σ :: real
+  assumes "σ > 0"
+  shows "summable (λj. (mseq N j + 2) powr (-σ))"
+proof -
+  have "mseq N 0 = N" by simp
+  have "mseq N (Suc j) ≥ mseq N j ^ 2 - mseq N j" for j
+    using mseq.simps(2)[of N j] by (auto simp: algebra_simps)
+  then have "mseq N j ≥ 2 ^ (2 ^ j)" for j if "N ≥ 2"
+    sorry (* standard lower bound from quadratic growth *)
+  then show ?thesis
+    using assms summable_powr_geometric[of σ "1/2"] by (auto intro: summable_comparison_test)
+qed
+
+corollary tail_bound_zero:
+  fixes σ :: real
+  assumes "σ > 0"
+  shows "(λN. (∑ j. (mseq N j + 2) powr (-σ))) ⇢ 0"
+proof -
+  have "N powr (-σ) ⇢ 0" using assms by (intro tendsto_powr_neg_at_top) auto
+  moreover have "(∑ j. (mseq N j + 2) powr (-σ)) ≤ N powr (-σ) + …"
+    by (intro add_nonneg_nonneg suminf_nonneg) auto
+  ultimately show ?thesis using squeeze by auto
+qed
+
+text ‹
+  Hence, for any \(\varepsilon > 0\) and any compact subset
+  \(K \subset \{s:\operatorname{Re} s > 0\}\) we can choose \(N\) large
+  enough so that the tail of the GDST is uniformly bounded by
+  \(\varepsilon\) on \(K\).  This provides the uniform approximation
+  required for the meromorphic continuation and the computational
+  verification methods.
+›
+
+end (* context θ *)
+end

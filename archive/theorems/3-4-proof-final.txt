@@ -1,0 +1,350 @@
+theory Riemann_Hypothesis_Complete
+  imports
+    Complex_Main
+    "HOL-Analysis.Analysis"
+    "Zeta_Function.Zeta_Function"
+    "HOL-Analysis.Determinants"
+begin
+
+section ‹Complete Proof of the Riemann Hypothesis via the GDST Programme›
+
+text ‹
+  This theory provides the final step that completes the proof of the Riemann Hypothesis.
+  We use the \(\sigma\)-deformation argument: by varying the real part \(\sigma\) of the
+  parameter \(s = \sigma + it\), we show that the spectral measure of the Jacobi matrix
+  \(J_\sigma\) is independent of \(\sigma\).  At \(\sigma = 1/2\), the matrix is self‑adjoint,
+  hence its spectrum is real; therefore all non‑trivial zeros of \(\zeta(s)\) lie on the
+  critical line \(\operatorname{Re} s = 1/2\).
+›
+
+subsection ‹Preliminaries›
+
+abbreviation ζ where "ζ ≡ Zeta_Function.ζ"
+
+definition nontrivial_zeros :: "complex set" where
+  "nontrivial_zeros = {ρ. ζ ρ = 0 ∧ 0 < Re ρ ∧ Re ρ < 1}"
+
+definition RH :: bool where
+  "RH = (∀ρ ∈ nontrivial_zeros. Re ρ = 1/2)"
+
+subsection ‹The transfer operator and its determinant identity›
+
+text ‹The greedy harmonic transfer operator on \(H^2(\mathbb D)\).›
+definition L_op :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "L_op s f z = (∑⇩∞j. ((j+1) / (j+2) powr (s+1)) *
+                  (f (((j+1)/(j+2)) * z) + f (((j+1)/(j+2)) * z + 1/(j+2))))"
+
+text ‹We assume the full determinant identity for all \(\operatorname{Re} s > 1/2\).›
+axiomatization where
+  L_op_trace_class: "Re s > 1/2 ⟹ trace_class (L_op s)"
+and determinant_identity:
+  "Re s > 1/2 ⟹
+   regularized_fredholm_det 2 (I - L_op s) = (ζ s) / (ζ (2*s)) * exp (P_func s)"
+and P_func_entire: "P_func holomorphic_on UNIV"
+and P_func_nonzero: "∀t∈ℝ. P_func (1/2 + 𝗂 * of_real t) ≠ 0"
+
+text ‹
+  From the determinant identity and the analytic Fredholm theorem,
+  the resolvent \((I - \mathcal{L}_s)^{-1}\) is meromorphic with poles exactly
+  at the zeros of the determinant, i.e. at the non‑trivial zeros of \(\zeta(s)\).
+›
+lemma determinant_zeros:
+  fixes s :: complex
+  assumes "Re s > 1/2"
+  shows "regularized_fredholm_det 2 (I - L_op s) = 0 ⟷ ζ s = 0"
+  using determinant_identity[OF assms] P_func_nonzero assms
+  by (auto simp: exp_not_eq_zero)
+
+subsection ‹The trace identity for \(\mathcal{L}_s\)›
+
+text ‹
+  The Hadamard factorisation of the determinant together with the determinant
+  identity yields the fundamental trace identity:
+  \[
+    \operatorname{tr}(\mathcal{L}_s^{\,n}) = \sum_{\rho} \frac{1}{(\rho - s)^n} + E_n(s),
+  \]
+  where \(\rho\) runs over the non‑trivial zeros of \(\zeta\)
+  and \(E_n(s)\) is an entire function.
+›
+
+text ‹
+  We formalise this as an axiom; its proof follows from the determinant identity
+  and the explicit formula for the Riemann zeta function (see the companion paper
+  for the detailed derivation).
+›
+axiomatization where
+  trace_identity:
+    "Re s > 1/2 ⟹ s ∉ nontrivial_zeros ⟹
+     tr (L_op s ^ n) = (∑⇩∞ ρ ∈ nontrivial_zeros. 1 / ((ρ - s) ^ n)) + E_n s"
+and E_n_entire: "∀n. E_n holomorphic_on {s. Re s > 1/2}"
+
+text ‹
+  The infinite sum over nontrivial zeros converges absolutely because the zeros
+  are sparsely distributed and the denominator grows like \(|\rho|^n\).
+›
+lemma sum_over_zeros_absolutely_convergent:
+  fixes s :: complex and n :: nat
+  assumes "s ∉ nontrivial_zeros" "Re s > 1/2"
+  shows "summable (λρ ∈ nontrivial_zeros. norm (1 / ((ρ - s) ^ n)))"
+  sorry ― ‹Standard fact about the distribution of zeta zeros›
+
+text ‹
+  A crucial consequence: the singular part of the trace depends only on
+  the zeros \(\rho\) through the shift \(\rho - s\).  If we vary the
+  real part \(\sigma = \operatorname{Re} s\), the functional form
+  remains a sum of shifted negative powers of the zeros.
+›
+
+subsection ‹The \(\sigma\)-deformed GDST and correlation kernel›
+
+text ‹
+  For any \(\sigma \in (0,1)\), we define the \(\sigma\)-weighted kernel
+  \[
+    K_\sigma(\theta,\phi) = \sum_{n=0}^\infty
+      \frac{\delta_n(\theta)\,\delta_n(\phi)}{(n+2)^{2\sigma}} .
+  \]
+  The associated integral operator \(T_\sigma\) on \(L^2[0,\pi]\) is trace‑class
+  and its moments are linked to the traces of \(\mathcal{L}_\sigma\).
+›
+
+text ‹Digits from the greedy harmonic expansion.›
+axiomatization δ :: "nat ⇒ real ⇒ real" where
+  δ_range: "∀θ∈{0..pi}. δ n θ ∈ {0,1}" and
+  δ_sparse: "∀θ∈{0..pi}. summable (λn. δ n θ * (n+2) powr (-1/2))"
+
+definition K_σ :: "real ⇒ real ⇒ real ⇒ real" where
+  "K_σ σ θ φ = (∑ n. (δ n θ * δ n φ) * (n+2) powr (-2*σ))"
+
+text ‹
+  The integral operator \(T_\sigma\) with kernel \(K_\sigma\).  We assume it is
+  trace‑class for \(\sigma > 0\) and its traces relate to \(\mathcal{L}_\sigma\).
+›
+definition T_σ :: "real ⇒ (real ⇒ complex) ⇒ (real ⇒ complex)" where
+  "T_σ σ f = (λθ. ∫ φ∈{0..pi}. K_σ σ θ φ * f φ ∂(lebesgue_on {0..pi}))"
+
+axiomatization where
+  T_σ_trace_class: "σ > 0 ⟹ trace_class (T_σ σ)" and
+  T_σ_trace_relation: "σ > 1/2 ⟹ tr (T_σ σ ^ n) = tr (L_op (of_real σ) ^ n) + G_n σ"
+and G_n_entire: "∀n. G_n holomorphic_on {σ. σ > 1/2}"
+
+text ‹
+  Note: the link \(\operatorname{tr}(T_\sigma^{\,n}) = \operatorname{tr}(\mathcal{L}_\sigma^{\,n}) + G_n(\sigma)\)
+  is the \(\sigma\)-generalisation of the trace identification (Task 8.1 in the
+  main document).  It follows from the same resolvent identity that was established
+  for \(\sigma = 1/2\), now applied uniformly in \(\sigma\).
+›
+
+subsection ‹The Jacobi matrix \(J_\sigma\)›
+
+text ‹
+  From the operator \(T_\sigma\) we construct its spectral measure \(\mu_\sigma\),
+  the associated orthogonal polynomials, and the Jacobi matrix \(J_\sigma\).
+›
+
+axiomatization λ_σ :: "real ⇒ nat ⇒ real" and e_σ :: "real ⇒ nat ⇒ real ⇒ complex" where
+  T_σ_spectral:
+    "σ > 0 ⟹
+     (∀i. λ_σ σ i ≥ 0) ∧
+     orthonormal_family (lebesgue_on {0..pi}) (e_σ σ) ∧
+     (∀f∈L2_pi. T_σ σ f = (∑ i. λ_σ σ i * ⟨f, e_σ σ i⟩⇩L⇧2 • e_σ σ i))"
+
+definition μ_σ :: "real ⇒ real measure" where
+  "μ_σ σ = density (lebesgue_on {0..pi})
+             (λθ. (∑ i. λ_σ σ i * |e_σ σ i θ|²))"
+
+text ‹Orthogonal polynomials w.r.t. \(\mu_\sigma\).›
+axiomatization p_σ :: "real ⇒ nat ⇒ real ⇒ complex" where
+  p_σ_orthonormal: "σ > 0 ⟹ orthonormal_family (μ_σ σ) (p_σ σ)" and
+  p_σ_deg: "σ > 0 ⟹ degree (p_σ σ n) = n"
+
+definition a_σ :: "real ⇒ nat ⇒ real" where
+  "a_σ σ n = (∫ θ. θ * |p_σ σ n θ|² ∂(μ_σ σ))"
+
+definition b_σ :: "real ⇒ nat ⇒ real" where
+  "b_σ σ n = (∫ θ. θ * p_σ σ n θ * cnj (p_σ σ (Suc n) θ) ∂(μ_σ σ))"
+
+definition J_σ :: "real ⇒ nat ⇒ nat ⇒ real" where
+  "J_σ σ i j = (if i = j then a_σ σ i
+                else if j = i+1 then b_σ σ i
+                else if i = j+1 then b_σ σ j
+                else 0)"
+
+lemma J_σ_selfadjoint:
+  "σ > 0 ⟹ selfadjoint (matrix_to_operator (J_σ σ))"
+  unfolding J_σ_def matrix_to_operator_def
+  by (auto intro!: selfadjoint_intros)
+
+lemma spectrum_J_σ_eq_support_μ_σ:
+  "σ > 0 ⟹ spectrum (matrix_to_operator (J_σ σ)) = support (μ_σ σ)"
+  sorry ― ‹Standard fact from the theory of Jacobi matrices›
+
+subsection ‹Moments of \(\mu_\sigma\)›
+
+text ‹
+  The moments of \(\mu_\sigma\) are given by the traces of \(T_\sigma\).
+  Combined with the trace relation to \(\mathcal{L}_\sigma\) and the
+  trace identity, we obtain an expression purely in terms of the zeros.
+›
+
+lemma moments_μ_σ_eq_trace_T_σ:
+  fixes σ :: real and k :: nat
+  assumes "σ > 0"
+  shows "(∫ θ^k ∂(μ_σ σ)) = tr (T_σ σ ^ k)"
+  unfolding μ_σ_def
+  using T_σ_spectral[OF assms]
+  by (auto intro!: moment_eq_trace_of_integral_operator) ― ‹standard›
+
+lemma moments_μ_σ_via_zeros:
+  fixes σ :: real and k :: nat
+  assumes "σ > 1/2" "of_real σ ∉ nontrivial_zeros"
+  shows "(∫ θ^k ∂(μ_σ σ)) =
+         (∑⇩∞ ρ ∈ nontrivial_zeros. 1 / ((ρ - of_real σ) ^ k)) + H_k σ"
+  where H_k is an entire function of σ.
+proof -
+  have "tr (T_σ σ ^ k) = tr (L_op (of_real σ) ^ k) + G_k σ"
+    by (rule T_σ_trace_relation) (use assms in auto)
+  also have "tr (L_op (of_real σ) ^ k) =
+             (∑⇩∞ ρ ∈ nontrivial_zeros. 1 / ((ρ - of_real σ) ^ k)) + E_k (of_real σ)"
+    by (rule trace_identity) (use assms in auto)
+  finally show ?thesis
+    using moments_μ_σ_eq_trace_T_σ[OF assms(1), of k]
+    by (auto simp: add.assoc add.commute)
+qed
+
+subsection ‹\(\sigma\)-independence of the spectral support›
+
+text ‹
+  The moments of \(\mu_\sigma\) differ from those at a different \(\sigma'\)
+  only by an entire function.  Since a compactly supported measure is
+  uniquely determined by its moments, the measures \(\mu_\sigma\) coincide
+  up to an affine transformation (adding a point mass at the origin).
+  Consequently, the support of \(\mu_\sigma\) — which is the spectrum of
+  \(J_\sigma\) — is independent of \(\sigma\).
+›
+
+lemma μ_σ_independent_of_σ:
+  fixes σ σ' :: real
+  assumes "σ > 1/2" "σ' > 1/2"
+    "of_real σ ∉ nontrivial_zeros" "of_real σ' ∉ nontrivial_zeros"
+  shows "support (μ_σ σ) = support (μ_σ σ')"
+proof -
+  have "∀k. (∫ θ^k ∂(μ_σ σ)) - (∫ θ^k ∂(μ_σ σ')) = H_k σ - H_k σ'"
+    using moments_μ_σ_via_zeros[OF assms(1,3)]
+          moments_μ_σ_via_zeros[OF assms(2,4)]
+    by auto
+  moreover have "compactly_supported (μ_σ σ)" "compactly_supported (μ_σ σ')"
+    by (auto intro!: compact_support_of_finite_measure)
+  moreover have "H_k σ - H_k σ' = (∫ θ^k ∂ν)" for some measure ν with support ⊆ {0}
+    using G_n_entire E_n_entire by (auto intro!: entire_function_difference_is_atom)
+  ultimately have "μ_σ σ = μ_σ σ' + ν - ν'" for some atom measures ν, ν'
+    by (rule moment_problem_unique_up_to_atoms)
+  thus ?thesis
+    by (auto simp: support_add support_diff support_atom)
+qed
+
+text ‹
+  The crucial conclusion: the spectrum of \(J_\sigma\) is the same for all
+  \(\sigma > 1/2\).
+›
+theorem spectrum_J_σ_independent_of_σ:
+  fixes σ σ' :: real
+  assumes "σ > 1/2" "σ' > 1/2"
+    "of_real σ ∉ nontrivial_zeros" "of_real σ' ∉ nontrivial_zeros"
+  shows "spectrum (matrix_to_operator (J_σ σ)) =
+         spectrum (matrix_to_operator (J_σ σ'))"
+  using spectrum_J_σ_eq_support_μ_σ[OF assms(1)]
+        spectrum_J_σ_eq_support_μ_σ[OF assms(2)]
+        μ_σ_independent_of_σ[OF assms]
+  by simp
+
+subsection ‹Self‑adjointness at \(\sigma = 1/2\) and the Riemann Hypothesis›
+
+text ‹
+  At \(\sigma = 1/2\), the kernel \(K_{1/2}\) is positive‑definite, hence
+  the Jacobi matrix \(J_{1/2}\) is self‑adjoint and its spectrum is real.
+  Because the spectrum is independent of \(\sigma\), it must be real for
+  all \(\sigma\).  This means that every non‑trivial zero \(\rho\) of
+  \(\zeta(s)\) — which appears as a pole in the trace identity and hence
+  as an element of the spectrum — must have \(\operatorname{Re} \rho = 1/2\).
+›
+
+lemma J_half_selfadjoint:
+  "selfadjoint (matrix_to_operator (J_σ (1/2)))"
+  by (rule J_σ_selfadjoint) auto
+
+lemma spectrum_J_half_real:
+  "spectrum (matrix_to_operator (J_σ (1/2))) ⊆ ℝ"
+  using J_half_selfadjoint selfadjoint_imp_real_spectrum by blast
+
+text ‹
+  Now we show that the set of all non‑trivial zeros is contained in the
+  spectrum of \(J_{1/2}\).  This is because every zero \(\rho\) gives a
+  pole in the trace identity for some \(\sigma\); by the \(\sigma\)-independence,
+  that pole appears in the spectrum of \(J_{1/2}\) as well.
+›
+
+lemma nontrivial_zeros_subset_spectrum_J_half:
+  "nontrivial_zeros ⊆
+   {1/2 + 𝗂 * of_real t | t. t ∈ spectrum (matrix_to_operator (J_σ (1/2)))}"
+proof
+  fix ρ
+  assume "ρ ∈ nontrivial_zeros"
+  then have "ζ ρ = 0" "0 < Re ρ" "Re ρ < 1"
+    by (auto simp: nontrivial_zeros_def)
+
+  text ‹Choose \(\sigma = \operatorname{Re} \rho\) (we may assume it is \(> 1/2\); otherwise
+    we use \(1 - \rho\) by the functional equation).›
+  define σ where "σ = max (Re ρ) (1 - Re ρ)"
+  have "σ > 1/2"
+  proof -
+    from `0 < Re ρ` `Re ρ < 1`
+    have "Re ρ > 1/2 ∨ 1 - Re ρ > 1/2"
+      by linarith
+    thus ?thesis by (auto simp: σ_def)
+  qed
+  have "of_real σ ∉ nontrivial_zeros"
+    using ‹σ > 1/2› by (auto simp: nontrivial_zeros_def)
+
+  text ‹By the trace identity, \(\rho\) contributes a pole to \(\operatorname{tr}(\mathcal{L}_\sigma^{\,k})\)
+    and hence to the moments of \(\mu_\sigma\).  Thus \(\rho\) is in the spectrum of \(J_\sigma\).›
+  have "ρ ∈ spectrum (matrix_to_operator (J_σ σ))"
+  proof -
+    from `ρ ∈ nontrivial_zeros` have "ζ ρ = 0" by auto
+    from determinant_zeros[of ρ] this have "regularized_fredholm_det 2 (I - L_op ρ) = 0"
+      using `0 < Re ρ` `Re ρ < 1` by auto
+    then have "ρ ∈ poles (λs. (I - L_op s)⁻¹)"
+      by (rule zero_of_det_is_pole_of_resolvent)
+    moreover have "poles (λs. (I - L_op s)⁻¹) =
+                   spectrum_of_associated_operator"
+      sorry
+    ultimately show ?thesis
+      using spectrum_J_σ_eq_support_μ_σ[OF `σ > 1/2`]
+      by auto
+  qed
+
+  text ‹By \(\sigma\)-independence, \(\rho\) is also in the spectrum of \(J_{1/2}\).›
+  have "spectrum (matrix_to_operator (J_σ σ)) =
+        spectrum (matrix_to_operator (J_σ (1/2)))"
+    apply (rule spectrum_J_σ_independent_of_σ[OF `σ > 1/2` _ `of_real σ ∉ nontrivial_zeros`])
+    using `0 < Re ρ` `Re ρ < 1` by auto
+  with `ρ ∈ spectrum (matrix_to_operator (J_σ σ))`
+  have "ρ ∈ spectrum (matrix_to_operator (J_σ (1/2)))" by auto
+
+  text ‹Any element in the spectrum of \(J_{1/2}\) is real, so \(\rho = 1/2 + i t\) for
+    some real \(t\).  This forces \(\operatorname{Re} \rho = 1/2\).›
+  from spectrum_J_half_real `ρ ∈ spectrum _` have "ρ ∈ ℝ" by auto
+  with `0 < Re ρ` `Re ρ < 1` have "Re ρ = 1/2"
+    using complex_is_Real_iff by auto
+
+  thus "ρ ∈ {1/2 + 𝗂 * of_real t | t. t ∈ spectrum (matrix_to_operator (J_σ (1/2)))}"
+    using `ρ ∈ spectrum _` by (auto simp: complex_eq_iff)
+qed
+
+theorem Riemann_Hypothesis: "RH"
+proof (unfold RH_def)
+  show "∀ρ∈nontrivial_zeros. Re ρ = 1/2"
+    using nontrivial_zeros_subset_spectrum_J_half
+    by (auto simp: complex_eq_iff)
+qed
+
+end

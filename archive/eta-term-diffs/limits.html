@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+<head>
+  <title>Harmonics</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="lib/math.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import * as THREE from './lib/three.module.js';
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        getMaterial,
+        drawAxis,
+        makeSimpleCurve,
+        buildScene,
+        newVec,
+        getPerspectiveCamera,
+        getCustomMaterial, getMaterialOptions,
+        getOrthoCamera
+    } from './modules/threetools.js';
+    import {
+        roundTo, scaleVectors, subVectorsXY, addVectors,
+        subVectors, moveVectors, addVectorArray, subtractVectorArray
+    } from './modules/mathtools.js';
+
+    let formula = '';
+    let formulas = [];
+
+    function setFormula(text, numerator, k, a, b) {
+        if (formulas.length > 1) {
+            formulas.splice(0, 1);
+        }
+        formulas.push(text);
+        const title = `1/(n1...n2)^(a + bi)`;
+        document.getElementById('floatingText').innerHTML = `${title}<br><span>${formulas[0]}</span> <br> <span>${formulas[1]}</span>`
+    }
+
+    function fn(r) {
+        const n = roundTo(r, 3);
+        const sign = n < 0 ? '-' : '+';
+        const nAbs = Math.abs(n);
+        if (nAbs === 0) {
+            return '+ 0.000';
+        }
+        const nAbsStr = `${nAbs}0000000`.substr(0, 5);
+        return `${sign} ${nAbsStr}`;
+    }
+
+    function getEta(numerator, k, a, b) {
+        const baseFactor = gui.controllers.ctrlBaseFactor.getValue();
+        const kx = k * baseFactor;
+        const text = `${numerator}/(${kx}^(${a} + ${b}i))`;
+        const result = math.evaluate(text);
+
+        let formattedText = `${numerator}/(${roundTo(kx, 3)}^(${fn(a)} bi))`;
+        setFormula(`${formattedText}`, numerator, k, a, b);
+
+        return result;
+    }
+
+    function makeRing(innerRadius, outerRadius, colorN) {
+        const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 8, 2);
+        const options = getMaterialOptions();
+        options.side = THREE.DoubleSide;
+        options.transparent = true;
+        options.opacity = 0.2;
+        options.wireframe = false;
+        const material = getCustomMaterial(rainbow, colorN, options);
+        const mesh = new THREE.Mesh(geometry, material);
+        let obj = { mesh: mesh, geo: geometry };
+        sceneInfo.addObject(obj);
+        return obj;
+    }
+
+    function getTerm(n) {
+        return 1/math.sqrt(n);
+    }
+
+    function drawArches() {
+        sceneInfo.clear();
+        let terms = [];
+        let prevTerm = { inner: 1, outer: 1 };
+        let k = 1;
+        for (let n = 0; n < 60; n++) {
+            k++;
+            let thisTerm = getTerm(k);
+            terms.push({
+                inner: prevTerm.inner - thisTerm,
+                outer: prevTerm.outer + thisTerm
+            });
+            let r = makeRing(0.5, 1.5, n);
+            r.geo.translate(n * 0.1, 0, n/10);
+            prevTerm = terms[n];
+        }
+        console.log(terms);
+    }
+
+    function onResize() {
+        drawChoice();
+    }
+
+    /**
+     * animate objects per frame
+     */
+    function updateObjects() {
+        if (sceneInfo.hasChanged) {
+            let offset = gui.controllers.ctrlOffset.getValue();
+            let speed = gui.controllers.ctrlLoopSpeed.getValue();
+            sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+        }
+    }
+
+    function animationLoop() {
+        sceneInfo.animationLoopId = requestAnimationFrame(animationLoop);
+        updateObjects();
+        sceneInfo.render();
+    }
+
+    function hasChanged() {
+        sceneInfo.hasChanged = gui.controllers.ctrlLoopIm.getValue();
+    }
+
+    function popGui(gui) {
+        gui.options.load = gui.parameters;
+        const datGui = new dat.GUI(gui.options);
+        gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop', false, true).onChange(hasChanged);
+        gui.controllers.ctrlLoopSpeed = datGui.add(gui.parameters, 'Loop Speed', 0, 1.9, 0.1).onChange(hasChanged);
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.05).onChange(hasChanged);
+        gui.controllers.ctrlOffset = datGui.add(gui.parameters, 'Offset', 2, 120, 0.1).onChange(drawChoice);
+
+        gui.controllers.ctrlX = datGui.add(gui.parameters, 'X', 0, 90, 1).onChange(drawChoice);
+        gui.controllers.ctrlY = datGui.add(gui.parameters, 'Y', 0, 90, 1).onChange(drawChoice);
+        gui.controllers.ctrlZ = datGui.add(gui.parameters, 'Z', 0, 90, 1).onChange(drawChoice);
+
+        gui.controllers.ctrlLineX = datGui.add(gui.parameters, 'Line X', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLineY = datGui.add(gui.parameters, 'Line Y', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLineZ = datGui.add(gui.parameters, 'Line Z', 0, 360, 1).onChange(drawChoice);
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: true, closeOnTop: false},
+        controllers: {
+            ctrlLoopIm: null,
+            ctrlLoopSpeed: null,
+            ctrlScale: null,
+            ctrlOffset: null,
+            ctrlX: null,
+            ctrlY: null,
+            ctrlZ: null,
+            ctrlLineX: null,
+            ctrlLineY: null,
+            ctrlLineZ: null,
+        },
+        parameters: {
+            'Loop': true,
+            'Loop Speed': 1,
+            'Scale': 5,
+            'Offset': 20,
+            'X': 0,
+            'Y': 0,
+            'Z': 0,
+            'Line X': 0,
+            'Line Y': 0,
+            'Line Z': 0,
+        }
+    };
+
+    function drawChoice() {
+        switch (type) {
+            case CIRCLES:
+                break;
+            case ARCHES:
+                drawArches();
+                break;
+        }
+    }
+
+    const CIRCLES = 1;
+    const ARCHES = 2;
+    let type = ARCHES;
+
+    const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
+    let sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
+    window.addEventListener("resize", onResize);
+    popGui(gui);
+    drawAxis(sceneInfo.scene, 40, getMaterial(colorsGrey, 1));
+    drawChoice();
+    sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+    animationLoop();
+
+</script>
+
+</body>
+</html>

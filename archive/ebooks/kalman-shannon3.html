@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A comprehensive guide to optimizing portfolio rebalancing using Kalman filters, Shannon's Ghost, and related techniques for volatility harvesting in cryptocurrency markets.">
+    <title>Kalman Filter and Shannon’s Ghost: Optimizing Volatility-Harvesting Rebalancing in Cryptocurrency Markets</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        main {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 0.5em;
+        }
+        h2 {
+            font-size: 1.6em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 48px;
+        }
+        h3 {
+            font-size: 1.3em;
+            color: #34495e;
+        }        
+        p.subtitle {
+            font-size: 1.3em;
+            color: #34495e;
+        }
+        a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            padding-left: 24px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .formula {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .formula-explanation {
+            font-style: italic;
+            color: #666;
+            margin: 4px 0 20px 0;
+            font-size: 0.9em;
+        }
+        .caption {
+            font-style: italic;
+            color: #64748b;
+            margin-top: -8px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .diagram {
+            text-align: center;
+            margin: 40px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #e0e7ff;
+        }
+        .cc {
+            text-align: center;
+            font-size: 0.9em;
+            margin-top: 60px;
+            color: #777;
+        }
+        @media (max-width: 600px) {
+            main {
+                padding: 20px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<main>
+    <h1>Kalman Filter and Shannon’s Ghost Hybrid</h1>
+    <p class="subtitle">Harvesting volatility via rebalancing in Forex Markets by rebalancing operational wallets during a mean reverting regime and funding operational wallets from reserves during a trending regime in the context of market making.</p>
+
+    <h2>Table of Contents</h2>
+    <ul>
+        <li><a href="#abstract">Abstract/Executive Summary</a></li>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#efficient-frontier">The Efficient Frontier and Portfolio Optimization</a></li>
+        <li><a href="#rebalancing-strategies">Optimum Rebalancing Strategies</a></li>
+        <li><a href="#black-litterman">Black-Litterman Model</a></li>
+        <li><a href="#kalman-filter">Kalman Filter in Finance</a></li>
+        <li><a href="#shannons-ghost">Shannon's Ghost and Volatility Harvesting</a></li>
+        <li><a href="#hybrid-system">The Hybrid System: Kalman + Ghost + Fractional Kelly</a></li>
+        <li><a href="#drift-volatility">Drift, Volatility, and Mean Reversion in Crypto Assets</a></li>
+        <li><a href="#fractional-kelly">Fractional Kelly Criterion</a></li>
+        <li><a href="#hmm">Hidden Markov Models (HMM)</a></li>
+        <li><a href="#market-making">Market-Making and Order Sizing</a></li>
+        <li><a href="#asset-allocation">Asset Allocation in Crypto Indices</a></li>
+        <li><a href="#crypto-comparison">Performance Across Major Coins</a></li>
+        <li><a href="#market-outlook">Bitcoin Market Outlook</a></li>
+        <li><a href="#critical-analysis">Critical Analysis</a></li>
+        <li><a href="#adjacent-concepts">Relevant Adjacent Concepts and Key Thinkers</a></li>
+        <li><a href="#references">References</a></li>
+        <li><a href="#further-reading">Further Reading</a></li>
+        <li><a href="#appendices">Appendices</a></li>
+        <li><a href="#index">Index of Key Terms</a></li>
+    </ul>
+
+    <section id="abstract">
+        <h2>Abstract/Executive Summary</h2>
+        <p>In the volatile world of cryptocurrency markets, investors face the persistent challenge of balancing risk and return while harvesting profits from price fluctuations. Traditional portfolio management struggles with noisy data, unpredictable regime changes from mean-reverting to trending, and high volatility, often leading to suboptimal rebalancing decisions that erode gains or amplify losses. This paper addresses this problem by synthesizing advanced mathematical and financial techniques to create a robust framework for volatility-harvesting by rebalancing volatile and stable assets. Drawing from concepts like the <a href="https://en.wikipedia.org/wiki/Efficient_frontier">efficient frontier</a>, Kalman filters for noise reduction, and Shannon's Ghost for exploiting volatility without directional bets, we present a hybrid system tailored for assets like Bitcoin (BTC), Ethereum (ETH), Solana (SOL), and Polkadot (DOT) paired with the Tether USD stable coin (USDT).</p>
+        <p>The core problem statement is: How can investors systematically achieve asymptotic profitability in high-volatility environments where negative drifts and market noise dominate? Conventional strategies, such as static rebalancing thresholds, fail to adapt to real-time signals, resulting in missed opportunities or excessive risk exposure. This guide proposes solutions by integrating state estimation (via Kalman filters) with volatility harvesting (Shannon's Ghost) and risk-adjusted sizing (fractional Kelly criterion). For instance, by splitting portfolios into operational and reserve floats, the system dynamically adjusts allocations based on smoothed estimates of drift (μ) and volatility (σ), ensuring rebalancing optimally when volatility sufficiently offsets potential downsides.</p>
+        <p>Through detailed explanations, mathematical derivations, and practical examples from 2024–2025 crypto data, readers will learn to implement these tools. We cover foundational theories, hybrid implementations, regime detection with Hidden Markov Models (HMM), and market-making strategies, while providing comparisons across major coins. The framework's strengths lie in its data-driven adaptability, but it also acknowledges limitations like assumption of Gaussian noise and slippage in illiquid markets. Ultimately, this paper equips practitioners with a self-contained, actionable methodology to navigate crypto's chaos, backed by historical performance insights (e.g., SOL's 60% YTD return with 80% volatility making it ideal for harvesting). By the end, investors can refine their approaches, incorporating critical analysis and adjacent concepts for long-term success in evolving financial landscapes.</p>
+    </section>
+
+    <section id="introduction">
+        <h2>Introduction</h2>
+        <p>This paper combines insights from portfolio optimization, advanced filtering, and volatility-harvesting strategies to provide a practical framework for rebalancing in cryptocurrency markets. It distills discussions on using mathematical models to achieve consistent profits amid noise and volatility.</p>
+        <p>Comprehensive detail: Building on modern portfolio theory, we explore how rebalancing maintains optimal allocations. In crypto, where assets like BTC exhibit extreme swings, techniques like Kalman filtering smooth data for better decisions, while Shannon's Ghost harvests volatility passively. The hybrid approach aims for asymptotic profitability, such as 10% targets, by adapting to market regimes.</p>
+        <h3>Key Challenges in Crypto Rebalancing</h3>
+        <p>High volatility amplifies gains but increases risk of drawdowns.</p>
+        <ul>
+            <li>Noisy price data obscures true trends.</li>
+            <li>Negative drifts in assets like DOT require volatility thresholds for viability.</li>
+            <li>Need for dynamic sizing to avoid overexposure.</li>
+        </ul>
+    </section>
+
+    <section id="efficient-frontier">
+        <h2>The Efficient Frontier and Portfolio Optimization</h2>
+        <p>The <a href="https://en.wikipedia.org/wiki/Efficient_frontier">efficient frontier</a> represents optimal portfolios maximizing returns for given risk levels, guiding rebalancing to correct drifts and maintain positions on this curve.</p>
+        <p>Comprehensive detail: Harry Markowitz's theory uses mean-variance optimization to balance assets. In practice, algorithms analyze historical data for correlations and volatilities, triggering rebalances at deviations (e.g., 5-10% in a 60/40 portfolio).</p>
+        <h3>Application in Crypto</h3>
+        <p>Crypto's high correlations challenge diversification, but rebalancing to the frontier harvests volatility premiums.</p>
+        <div class="diagram">
+            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" alt="Efficient Frontier Diagram">
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#3b82f6"/>
+                        <stop offset="100%" stop-color="#10b981"/>
+                    </linearGradient>
+                </defs>
+                <path d="M50,250 Q200,50 350,200" stroke="url(#grad)" stroke-width="4" fill="none"/>
+                <circle cx="200" cy="120" r="8" fill="#1e40af"/>
+                <text x="210" y="115" font-size="14" fill="#1e40af">Target Portfolio</text>
+                <text x="60" y="280" font-size="14">Risk →</text>
+                <text x="10" y="50" font-size="14" transform="rotate(-90 10 50)">Return ↑</text>
+            </svg>
+            <p class="caption">The Efficient Frontier with a drifting portfolio (blue dot) needing rebalancing</p>
+        </div>
+    </section>
+
+    <section id="rebalancing-strategies">
+        <h2>Optimum Rebalancing Strategies</h2>
+        <p>Rebalancing restores target allocations using thresholds or dynamic signals, with base assets like bonds or USD anchoring volatile ones.</p>
+        <p>Comprehensive detail: In crypto, use 5% deviation thresholds for operational floats, rebalancing hourly. Reserves fund at 10% signals, ensuring liquidity for volatility harvesting.</p>
+        <h3>Threshold vs. Calendar Rebalancing</h3>
+        <p>Thresholds adapt to market moves; calendar (e.g., quarterly) is simpler but less responsive.</p>
+        <ul>
+            <li>Split floats: 25% operational BTC/USD, 25% reserves.</li>
+            <li>Monitor with filters for optimal timing.</li>
+        </ul>
+    </section>
+
+    <section id="black-litterman">
+        <h2>Black-Litterman Model</h2>
+        <p>The <a href="https://en.wikipedia.org/wiki/Black%E2%80%93Litterman_model">Black-Litterman model</a> integrates market equilibrium with investor views via Bayesian updates to refine efficient frontier weights.</p>
+        <p>Comprehensive detail: Starts with CAPM priors, adjusts for views (e.g., crypto outperforms by 5%). Useful for incorporating qualitative insights into quantitative rebalancing.</p>
+        <div class="formula">
+            \[ \mathbf{\mu}_{BL} = \left[ (\tau \Sigma)^{-1} + P^T \Omega^{-1} P \right]^{-1} \left[ (\tau \Sigma)^{-1} \Pi + P^T \Omega^{-1} Q \right] \]
+        </div>
+        <p class="formula-explanation">Where: \(\mathbf{\mu}_{BL}\) is the posterior expected returns; \(\tau\) is uncertainty scalar; \(\Sigma\) is covariance matrix; \(\Pi\) is prior returns; \(P\) is view matrix; \(\Omega\) is view uncertainty; \(Q\) is view vector.</p>
+    </section>
+
+    <section id="kalman-filter">
+        <h2>Kalman Filter in Finance</h2>
+        <p>The <a href="https://en.wikipedia.org/wiki/Kalman_filter">Kalman filter</a> estimates true states (e.g., prices) from noisy observations, smoothing data for rebalancing signals.</p>
+        <p>Comprehensive detail: Recursive predict-update cycle reduces error. In crypto, it estimates drift and volatility, signaling tops-ups or profit locks (e.g., toward $80k BTC targets).</p>
+        <div class="formula">
+            \[ \hat{x}_k = F \hat{x}_{k-1} + K_k (z_k - H \hat{x}_{k-1}) \]
+        </div>
+        <p class="formula-explanation">Where: \(\hat{x}_k\) is state estimate; \(F\) is transition matrix; \(K_k\) is Kalman gain; \(z_k\) is measurement; \(H\) is measurement matrix.</p>
+        <div class="diagram">
+            <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" alt="Kalman Filter Smoothing Diagram">
+                <polyline points="20,150 60,130 100,170 140,110 180,145 220,90 260,140 300,100 340,160 380,80 420,130 460,100" fill="none" stroke="#94a3b8" stroke-width="3"/>
+                <polyline points="20,150 60,140 100,145 140,138 180,142 220,135 260,138 300,132 340,140 380,125 420,130 460,120" fill="none" stroke="#3b82f6" stroke-width="4"/>
+                <text x="250" y="50" text-anchor="middle" font-size="16" fill="#1e40af">Smoothed Kalman Estimate</text>
+            </svg>
+            <p class="caption">Raw BTC price (gray) vs Kalman-smoothed path (blue)</p>
+        </div>
+    </section>
+
+    <section id="shannons-ghost">
+        <h2>Shannon's Ghost and Volatility Harvesting</h2>
+        <p><a href="https://www.investopedia.com/terms/v/volatility.asp">Shannon's Ghost</a> rebalances between volatile assets and cash to harvest profits from fluctuations, even with zero drift, by buying low and selling high.</p>
+        <p>Comprehensive detail: Inspired by information theory, it exploits mean reversion. Integrate with Kalman for signal smoothing; threshold at 80-95% of profit targets.</p>
+        <div class="diagram">
+            <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg" alt="Shannon's Ghost Diagram">
+                <rect x="50" y="50" width="100" height="150" fill="#fbbf24"/>
+                <rect x="250" y="50" width="100" height="150" fill="#34d399"/>
+                <path d="M100,125 L300,125" stroke="#64748b" stroke-width="6" marker-end="url(#arrow)"/>
+                <text x="200" y="100" text-anchor="middle" font-size="18" fill="#1e40af">Volatility → Profit</text>
+            </svg>
+            <p class="caption">Ghost rebalancing transfers wealth from volatile side to stable side by applying flow in one direction and friction in the opposite direction. In practive this is achieved with the rebalancing algorithm.</p>
+        </div>
+    </section>
+
+    <section id="hybrid-system">
+        <h2>The Hybrid System: Kalman + Ghost + Fractional Kelly</h2>
+        <p>This hybrid combines Kalman for estimation, Ghost for harvesting, and Kelly for sizing, splitting floats for operational efficiency.</p>
+        <p>Comprehensive detail: Kalman monitors reserves for μ and σ; Ghost rebalances operational floats. Adjust Kelly fractions based on regimes.</p>
+        <ul>
+            <li>25% Operational BTC – Ghost volatile leg</li>
+            <li>25% Operational USD – Ghost stable leg</li>
+            <li>25% Reserve BTC – Kalman input</li>
+            <li>25% Reserve USD – Funding</li>
+        </ul>
+    </section>
+
+    <section id="drift-volatility">
+        <h2>Drift, Volatility, and Mean Reversion in Crypto Assets</h2>
+        <p><a href="https://www.investopedia.com/terms/d/driftrate.asp">Drift</a> (μ) is trend rate; <a href="https://www.investopedia.com/terms/v/volatility.asp">volatility</a> (σ) measures fluctuations; <a href="https://en.wikipedia.org/wiki/Mean_reversion_(finance)">mean reversion</a> pulls prices back.</p>
+        <p>Comprehensive detail: Breakeven σ overcomes negative μ. For DOT: μ ≈ -0.01%/hour; σ ≈ 85% annualized, viable if >53%.</p>
+        <div class="formula">
+            \[ \sigma > \sqrt{2 |\mu| / \kappa} \]
+        </div>
+        <p class="formula-explanation">Where: \(\sigma\) is volatility; \(\mu\) is drift; \(\kappa\) is mean-reversion speed (e.g., 0.02 for crypto).</p>
+    </section>
+
+    <section id="fractional-kelly">
+        <h2>Fractional Kelly Criterion</h2>
+        <p>The <a href="https://en.wikipedia.org/wiki/Kelly_criterion">fractional Kelly</a> scales bets for growth-risk balance using edge over variance.</p>
+        <p>Comprehensive detail: Use 0.25-0.75 fractions; low in reversion, high in trends. Ties to order sizing (7.5% of float).</p>
+        <div class="formula">
+            \[ f^* = \frac{\mu}{\sigma^2} \]
+            \[ f_{\text{used}} = c \cdot f^* \]
+        </div>
+        <p class="formula-explanation">Where: \(f^*\) is full Kelly; \(\mu\) is expected return; \(\sigma^2\) is variance; \(c\) is fraction (0.25-0.75).</p>
+    </section>
+
+    <section id="hmm">
+        <h2>Hidden Markov Models (HMM)</h2>
+        <p><a href="https://en.wikipedia.org/wiki/Hidden_Markov_model">HMM</a> infers hidden regimes (bull/bear) from observations for strategy adjustments.</p>
+        <p>Comprehensive detail: In efficient pairs like EUR-USD, detects vol changes; in crypto, flags for Kelly tweaks. Marginal in low-edge markets.</p>
+    </section>
+
+    <section id="market-making">
+        <h2>Market-Making and Order Sizing</h2>
+        <p><a href="https://www.investopedia.com/terms/m/marketmaker.asp">Market-making</a> profits from bid-ask spreads; size orders at 15-30% of float.</p>
+        <p>Comprehensive detail: Automate with human oversight. Crypto yields: 1-3% monthly retail; 2-10% for firms, net of costs.</p>
+    </section>
+
+    <section id="asset-allocation">
+        <h2>Asset Allocation in Crypto Indices</h2>
+        <p>Allocate to mirror indices like CoinDesk (65% BTC, 25% ETH) for diversified exposure.</p>
+        <p>Comprehensive detail: Rebalance dynamically using filters to maintain weights amid volatility.</p>
+    </section>
+
+    <section id="crypto-comparison">
+        <h2>Performance Across Major Coins (2024–2025)</h2>
+        <p>Compare coins for Ghost viability based on returns, vol, and drift.</p>
+        <p>Comprehensive detail: BTC excellent with positive μ; ETH good near zero; SOL best with high vol; DOT viable but risky.</p>
+        <table>
+            <tr><th>Coin</th><th>YTD Return</th><th>Ann. Vol</th><th>Drift μ (hourly)</th><th>Ghost Viable?</th></tr>
+            <tr><td>BTC-USD</td><td>+40 %</td><td>50 %</td><td>positive</td><td>Excellent</td></tr>
+            <tr><td>ETH-USD</td><td>~0 %</td><td>60 %</td><td>near zero</td><td>Good</td></tr>
+            <tr><td>SOL-USD</td><td>+60 %</td><td>80 %</td><td>positive</td><td>Best</td></tr>
+            <tr><td>DOT-USD</td><td>–45 %</td><td>85 %</td><td>–0.01 %/h</td><td>Viable but risky</td></tr>
+        </table>
+    </section>
+
+    <section id="market-outlook">
+        <h2>Bitcoin Market Outlook – November 2025</h2>
+        <p>BTC at ~$92k post-correction; short-term pain, long-term $150k+ by 2026.</p>
+        <p>Comprehensive detail: Futures contango, elevated put skew, IV ~60%. Bearish signals but rebound potential.</p>
+    </section>
+
+    <section id="critical-analysis">
+        <h2>Critical Analysis</h2>
+        <p>Strengths: Adaptive to noise/volatility, harvests profits passively. Weaknesses: Kalman assumes Gaussian noise, ignoring fat tails; slippage in illiquid crypto erodes gains. Counterarguments: In efficient markets, HMM/Kalman add marginal value due to randomness. Biases: Over-optimism in backtests; real-world fees/taxes reduce 10% targets. Requires robust risk controls to prevent blowups.</p>
+    </section>
+
+    <section id="adjacent-concepts">
+        <h2>Relevant Adjacent Concepts and Key Thinkers</h2>
+        <p>Monte Carlo simulations for risk; ARIMA for forecasting; options hedging; transaction cost analysis.</p>
+        <ul>
+            <li>Harry Markowitz: Modern portfolio theory via efficient frontier.</li>
+            <li>Rudolf Kalman: Filter for state estimation in noise.</li>
+            <li>Claude Shannon: Information theory inspiring Ghost rebalancing.</li>
+            <li>John Kelly: Criterion for optimal betting sizing.</li>
+            <li>Leonard Baum: HMM for sequence/regime modeling.</li>
+        </ul>
+    </section>
+
+    <section id="references">
+        <h2>References</h2>
+        <ul>
+            <li><a href="https://www.jstor.org/stable/2975974">Markowitz, H. (1952). Portfolio Selection. Journal of Finance.</a></li>
+            <li><a href="https://www.cfainstitute.org/en/research/financial-analysts-journal/1992/global-portfolio-optimization">Black, F., & Litterman, R. (1992). Global Portfolio Optimization. Financial Analysts Journal.</a></li>
+            <li><a href="https://arc.aiaa.org/doi/10.2514/8.4084">Kalman, R. E. (1960). A New Approach to Linear Filtering and Prediction Problems.</a></li>
+            <li><a href="https://www3.nd.edu/~jnl/ee565/documents/ece565_shannon1948.pdf">Shannon, C. E. (1948). A Mathematical Theory of Communication.</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process">Ornstein-Uhlenbeck process</a> for mean reversion.</li>
+            <li><a href="https://ieeexplore.ieee.org/document/1054228">Kelly, J. L. (1956). A New Interpretation of Information Rate.</a></li>
+            <li><a href="https://www.wiley.com/en-us/Advances+in+Financial+Machine+Learning-p-9781119482086">Lopez de Prado, M. Advances in Financial Machine Learning.</a></li>
+            <li><a href="https://www.wiley.com/en-us/Quantitative+Trading%3A+How+to+Build+Your+Own+Algorithmic+Trading+Business%2C+2nd+Edition-p-9781119800064">Chan, E. Quantitative Trading.</a></li>
+        </ul>
+    </section>
+
+    <section id="further-reading">
+        <h2>Further Reading</h2>
+        <ul>
+            <li><a href="https://www.wiley.com/en-us/Quantitative+Trading%3A+How+to+Build+Your+Own+Algorithmic+Trading+Business%2C+2nd+Edition-p-9781119800064">"Quantitative Trading" by Ernie Chan</a>.</li>
+            <li><a href="https://www.wiley.com/en-us/Advances+in+Financial+Machine+Learning-p-9781119482086">"Advances in Financial Machine Learning" by Marcos Lopez de Prado</a>.</li>
+            <li><a href="https://www.coindesk.com/indices">"CoinDesk Market Index" documentation</a>.</li>
+            <li><a href="https://www.deribit.com">"Deribit" options data analyses</a>.</li>
+        </ul>
+    </section>
+
+    <section id="appendices">
+        <h2>Appendices</h2>
+        <p>No additional appendices required for this synthesis.</p>
+    </section>
+
+    <section id="index">
+        <h2>Index of Key Terms</h2>
+        <ul>
+            <li><a href="https://www.investopedia.com/terms/d/driftrate.asp">Drift (μ)</a></li>
+            <li><a href="https://www.investopedia.com/terms/e/efficientfrontier.asp">Efficient Frontier</a></li>
+            <li><a href="https://www.investopedia.com/terms/k/kalman-filter.asp">Kalman Filter</a></li>
+            <li><a href="https://www.investopedia.com/terms/k/kellycriterion.asp">Kelly Criterion</a></li>
+            <li><a href="https://www.investopedia.com/terms/m/meanreversion.asp">Mean Reversion</a></li>
+            <li><a href="https://www.investopedia.com/terms/v/volatility.asp">Volatility (σ)</a></li>
+        </ul>
+    </section>
+
+    <div class="cc">
+        <p>© 2025 – This work is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA 4.0</a></p>
+        <p>To convert to PDF/EPUB: Print this page from your browser (Ctrl+P → Save as PDF) or use tools like Calibre or pandoc.</p>
+    </div>
+</main>
+</body>
+</html>

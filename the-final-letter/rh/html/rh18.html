@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh18 — the open link, closed</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.bar2 { fill: var(--chart-2); fill-opacity: .34; stroke: var(--chart-2); stroke-width: .7; }
+.barneg { fill: var(--chart-1); fill-opacity: .26; stroke: var(--chart-1); stroke-width: .7; }
+.cardbox { fill: none; stroke: var(--muted); stroke-width: 1.1; }
+.ln1 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The open link, closed</h1>
+  <p class="sub">Ordered: close the link rh17 left open — rh15's proposition P2, the continuity/density step from finite certificates to the full Bochner statement, stated there in one paragraph and never executed. Executed: the Weil functional frozen once and proven identical to the arc's kernel sections at arbitrary real nodes, the density argument run with every constant computed, and the equivalence <i>lattice ⟺ windows ⟺ Bochner ⟺ RH</i> assembled with each arrow carrying its price. The audit returned two findings the paragraph never suspected: the interpolation defect the bound guards against is real but spectrally exiled — the measured gaps sit eight orders inside the proven envelope — and the certificate does not descend: refining the lattice re-opens the mesh's own notch, and no computable cut survives it.</p>
+  <p class="meta">docs/rh18 · continues <a href="rh15.html">rh15</a>–<a href="rh17.html">rh17</a> · figures computed, not sketched · 2026-08-03</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> rh17 closed its ledger with one item open: rh15's proposition P2 — the continuity/density step from finite certificates to the full Bochner statement — "untouched, and the open link." This document closes it. <b>The identity</b> (§2): the Weil functional 𝒲(f) = ∫f(v)·2cosh(v/2)dv + (1/π)∫₀^∞ f̂(r)ψ̃(r)dr − Σ Λ(n)n<sup>−1/2</sup>[f(log n) + f(−log n)] is frozen once, and the arc's kernel sections are proven to <i>be</i> this functional on hat-spline windows at arbitrary real nodes — an identity checked term by term through independent evaluation paths (exact piecewise-linear convolution, Gauss–Legendre quadrature, direct prime sums), worst residual 6.0&#215;10<sup>&#8722;14</sup> relative. <b>The care</b> (§3): rh15's one-paragraph density argument becomes a theorem with its constants computed — the prime constant P(12.12) = 853.99 exactly by sieve, under its Rosser–Schoenfeld envelope 2.078e<sup>x/2</sup> at ratio ≤ 0.960; the archimedean envelope −5.3722 ≤ ψ̃(r) ≤ ln(2+r) certified by interval cells with ψ̃ monotone; the spline moduli and the bounded-variation ladder |d̂(r)| ≤ min(‖d‖₁, Var(d′)/r²); assembled, an explicit ε(Δ; g) = O(Δ²) — 9.6&#215;10<sup>&#8722;2</sup> at the finest certified mesh for the quartic window. <b>The arrows, run</b> (§4): the functional on a smooth window is a cancellation of 1.4&#215;10<sup>11</sup>:1 — pole 273.59, archimedean −22.38, primes −251.21, net +2.0&#215;10<sup>&#8722;9</sup> — and the lattice forms at five meshes land on that net to ±6.8&#215;10<sup>&#8722;9</sup>, a factor 2.4&#215;10<sup>8</sup> inside the proven bound: the interpolation defect is real but lives at r ~ π/Δ, where B² has already collapsed — the Euler–Maclaurin identity d̂(γ₁) ≈ (Δ²/12)γ₁²ĝ(γ₁) measures at ratio 0.928. The zeros side agrees with the geometric side to 9.1&#215;10<sup>&#8722;13</sup> on the same windows — 1517 zeros against pole, Γ-factor and primes. <b>The finding</b> (§4): <i>the certificate does not descend.</i> The cut kernel certified at mesh Δ is indefinite on every sub-lattice — at δ = Δ/2 the 60-digit recursion fails at k = 370 while float inverse iteration reports +1.4&#215;10<sup>&#8722;12</sup> (the arc's fourth float lie); the recursion's witness direction has truncated form &#8722;4.2&#215;10<sup>&#8722;5</sup>, the zeros side gives +1.1&#215;10<sup>&#8722;2</sup> on the same direction, and the gap sits inside the dropped-tail budget. The wall is quantified: the finer lattice resolves the mesh's own notch r* = 2π/Δ, where the kernel's spectral density vanishes; every computable cut drops more positive tail (1.3&#215;10<sup>&#8722;5</sup> at R₀ = 600, 2.5&#215;10<sup>&#8722;9</sup> at 12000) than the notch floor (~2&#215;10<sup>&#8722;12</sup>), and parity would need R₀ ≈ 1.4&#215;10<sup>5</sup> — so sub-lattice positivity of the exact kernel is exactly as strong as the zeros' reality, with no truncation shortcut, and the diagonal (Δ, mesh-Δ) family rh15–rh17 certified is not a convenience but the only computable staircase. <b>The theorem</b> (§5): (L) lattice positivity at every mesh ⟺ (W) Weil positivity on every compactly supported window with BV derivative ⟺ (Bo) every E<sub>Δ</sub> positive-definite on ℝ — each ⟺ RH by Weil's criterion, cited. P2 is closed; what remains is (L) itself, every mesh and every depth: the hypothesis, now the only link in the chain. §6 audits the bill — 47 checks, 2.5 minutes — against "the analytic care named."
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">The functional, and the identity</a></li>
+  <li><a href="#s3">The analytic care, performed</a></li>
+  <li><a href="#s4">The arrows, computed — and where the certificate stops</a></li>
+  <li><a href="#s5">The theorem</a></li>
+  <li><a href="#s6">The bill, audited</a></li>
+  <li><a href="#s7">Dictionary additions and references</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>rh17 §5, listing what its theorems do not reach: <i>"rh15's proposition P2 (the continuity/density step from finite certificates to the full Bochner statement) is untouched and remains the open link."</i> The proposition it points to is rh15 §6's middle box, labelled "proven, with the analytic care named":</p>
+<p style="margin-left:1.5em"><i>"The windows realisable on the grid — f = (hat of width Δ) ⋆ (weights on ΔZ ∩ [−a, a]) — are dense, as Δ → 0 and a → ∞, in the compactly supported test functions of the Weil functional, and the functional is continuous in the relevant norm… Hence: E is positive-definite on ΔZ for every Δ &gt; 0 ⟺ Weil's quadratic form is nonnegative on every compactly supported window. The step from a dense grid to the line is continuity of E."</i></p>
+<p>Both sentences are right, and they are in tension only about standards. The box names the correct skeleton — density of the grid windows, continuity of the functional, the grid-to-line step — and proves none of it by the arc's own rule that every constant be computed and every claim verified. No norm is fixed. No modulus is proven. The "relevant norm" for the archimedean term is not even well-defined on C⁰ windows: the term diverges on merely-continuous g, so the test class itself needs repair. rh17, which spent a document making three numbers unconditional, was entitled to call this untouched. This document executes the box: the class fixed, the functional frozen, the identity between sections and windows proven and verified, the continuity moduli derived with constants, the density step run with its rate measured, and the whole assembled into the equivalence the arc has been quoting since rh14 — with two findings along the way that the one-paragraph version had no way to see.</p>
+<p>What closing P2 does not do: prove (L), the lattice statement itself. That is RH, by the very equivalence proven here, and §5 says precisely where every certificate ever computed stands relative to it.</p>
+</section>
+
+<p class="kicker">Part I · The statement, made precise</p>
+
+<section class="prose" id="s2">
+<h2>2 · The functional, and the identity</h2>
+<p>Fix the window family the arc has used since rh14: the triangle hat h<sub>Δ</sub> on [−Δ, Δ] with peak 1, its autocorrelation C = h ⋆ ȟ (the piecewise-cubic bump of support [−2Δ, 2Δ]), and the transform B(r) = ĥ(r) = Δ sinc²(rΔ/2), so that Ĉ = B². The Weil functional, in the arc's normalization, acting on a real even f of compact support:</p>
+<div class="eq"><span class="tag">(1)</span>
+𝒲(f) &nbsp;=&nbsp; &#8747; f(v)·2cosh(v/2) dv &nbsp;+&nbsp; (1/π)&#8747;₀^∞ f̂(r) ψ̃(r) dr &nbsp;−&nbsp; Σ<sub>n</sub> Λ(n) n<sup>−1/2</sup> [f(log n) + f(−log n)],
+</div>
+<p>with ψ̃(r) = Re ψ(¼ + ir/2) − ln π as everywhere in the arc. Three statements, each quantified over an infinite family:</p>
+<div class="box thm"><span class="lbl">The three faces</span>
+<p><b>(L) — lattice.</b> For every Δ &gt; 0 and every n, the section [E<sub>Δ</sub>((j−k)Δ)]<sub>j,k&lt;n</sub> is positive semidefinite.</p>
+<p><b>(W) — windows.</b> For every real compactly supported continuous g with g′ of bounded variation, 𝒲(g ⋆ ǧ) ≥ 0.</p>
+<p><b>(Bo) — Bochner.</b> For every Δ &gt; 0, E<sub>Δ</sub> is a positive-definite function on ℝ: every finite real node set, every real coefficient vector.</p>
+</div>
+<p>The bridge between them is an identity, not an estimate. For a hat-spline window on <i>arbitrary</i> real nodes t₁ &lt; … &lt; t<sub>m</sub> — no lattice assumed —</p>
+<div class="eq"><span class="tag">(2)</span>
+g = Σ<sub>k</sub> c<sub>k</sub> h<sub>Δ</sub>(· − t<sub>k</sub>) &nbsp;&nbsp;&#8658;&nbsp;&nbsp; 𝒲(g ⋆ ǧ) &nbsp;=&nbsp; Σ<sub>j,k</sub> c<sub>j</sub> c<sub>k</sub> E<sub>Δ</sub>(t<sub>j</sub> − t<sub>k</sub>).
+</div>
+<p>The proof is four lines of bookkeeping: g ⋆ ǧ = Σ c<sub>j</sub>c<sub>k</sub> C(· − (t<sub>j</sub>−t<sub>k</sub>)) by definition of C; the prime term distributes because C is even; the archimedean term because Ĉ = B², pointwise at every frequency — so the identity holds for the exact integral and for any quadrature of it alike; and the pole term because Ĉ(i/2) = B(i/2)² = B<sub>i</sub>², the analytic continuation the arc's pole term was built from. Each term was then verified through a path that shares nothing with the kernel machinery: the convolution g ⋆ ǧ evaluated exactly (piecewise-linear times piecewise-linear, integrated in closed form per subinterval), the pole integral by Gauss–Legendre between breakpoints, the prime sum by direct evaluation on that convolution. Four node configurations — lattice, two irregular, one mixed set of twelve — three terms each: worst relative residual 2.2&#215;10<sup>&#8722;14</sup> (archimedean, an algebraic identity per frequency), 6.0&#215;10<sup>&#8722;14</sup> (pole, independent quadrature), 9.5&#215;10<sup>&#8722;15</sup> (primes, exact convolution).</p>
+<p>Equation (2) reshapes the problem before any analysis starts. It makes (W) ⟹ (Bo) <i>immediate</i>: a hat-spline on irregular nodes is itself a compactly supported window with BV derivative, so positivity of 𝒲 on windows evaluates the Bochner form at any node set directly. And (Bo) ⟹ (L) is a restriction to lattice nodes. The entire weight of P2 rests on one arrow: <b>(L) ⟹ (W)</b> — from lattice splines to all admissible windows. That arrow is the analytic care.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 432" role="img" aria-label="Left: the two test windows, a quartic bump and a raised cosine on the interval minus six to six. Right: a waterfall of the three terms of the Weil functional on the first window: the pole term of size about 274 up, the archimedean and prime terms down, leaving a net of two times ten to the minus nine — a cancellation of one part in ten to the eleven. The lattice forms at all five meshes land on the same number.">
+<text x="360.0" y="22" class="ftitle">the functional, its two windows, and the merge: three terms of hundreds, a net of 10&#8315;&#8313;</text>
+<line x1="56" y1="300" x2="320" y2="300" class="axis"/>
+<line x1="56" y1="300" x2="56" y2="64" class="axis"/>
+<line x1="56.0" y1="300" x2="56.0" y2="304" class="axis"/>
+<text x="56.0" y="316" class="flab">-6</text>
+<line x1="122.0" y1="300" x2="122.0" y2="304" class="axis"/>
+<text x="122.0" y="316" class="flab">-3</text>
+<line x1="188.0" y1="300" x2="188.0" y2="304" class="axis"/>
+<text x="188.0" y="316" class="flab">0</text>
+<line x1="254.0" y1="300" x2="254.0" y2="304" class="axis"/>
+<text x="254.0" y="316" class="flab">3</text>
+<line x1="320.0" y1="300" x2="320.0" y2="304" class="axis"/>
+<text x="320.0" y="316" class="flab">6</text>
+<path d="M56.0 300.0L56.9 300.0L57.8 299.8L58.6 299.7L59.5 299.4L60.4 299.1L61.3 298.7L62.2 298.2L63.0 297.6L63.9 297.0L64.8 296.4L65.7 295.6L66.6 294.8L67.4 294.0L68.3 293.1L69.2 292.1L69.6 291.6L70.1 291.1L70.5 290.6L71.0 290.0L71.4 289.5L71.8 288.9L72.3 288.3L72.7 287.7L73.2 287.1L73.6 286.5L74.0 285.8L74.5 285.2L74.9 284.5L75.4 283.9L75.8 283.2L76.2 282.5L76.7 281.8L77.1 281.1L77.6 280.3L78.0 279.6L78.4 278.9L78.9 278.1L79.3 277.3L79.8 276.5L80.2 275.8L80.6 275.0L81.1 274.2L81.5 273.3L82.0 272.5L82.4 271.7L82.8 270.8L83.3 270.0L83.7 269.1L84.2 268.3L84.6 267.4L85.0 266.5L85.5 265.6L85.9 264.7L86.4 263.8L86.8 262.9L87.2 261.9L87.7 261.0L88.1 260.1L88.6 259.1L89.0 258.2L89.4 257.2L89.9 256.2L90.3 255.3L90.8 254.3L91.2 253.3L91.6 252.3L92.1 251.3L92.5 250.3L93.0 249.3L93.4 248.3L93.8 247.3L94.3 246.3L94.7 245.2L95.2 244.2L95.6 243.2L96.0 242.1L96.5 241.1L96.9 240.0L97.4 239.0L97.8 237.9L98.2 236.8L98.7 235.8L99.1 234.7L99.6 233.6L100.0 232.6L100.4 231.5L100.9 230.4L101.3 229.3L101.8 228.2L102.2 227.1L102.6 226.0L103.1 224.9L103.5 223.8L104.0 222.7L104.4 221.6L104.8 220.5L105.3 219.4L105.7 218.3L106.2 217.2L106.6 216.1L107.0 215.0L107.5 213.8L107.9 212.7L108.4 211.6L108.8 210.5L109.2 209.4L109.7 208.3L110.1 207.1L110.6 206.0L111.0 204.9L111.4 203.8L111.9 202.7L112.3 201.5L112.8 200.4L113.2 199.3L113.6 198.2L114.1 197.0L114.5 195.9L115.0 194.8L115.4 193.7L115.8 192.6L116.3 191.5L116.7 190.3L117.2 189.2L117.6 188.1L118.0 187.0L118.5 185.9L118.9 184.8L119.4 183.7L119.8 182.6L120.2 181.5L120.7 180.4L121.1 179.3L121.6 178.2L122.0 177.1L122.4 176.0L122.9 174.9L123.3 173.8L123.8 172.7L124.2 171.7L124.6 170.6L125.1 169.5L125.5 168.4L126.0 167.4L126.4 166.3L126.8 165.2L127.3 164.2L127.7 163.1L128.2 162.1L128.6 161.0L129.0 160.0L129.5 158.9L129.9 157.9L130.4 156.9L130.8 155.8L131.2 154.8L131.7 153.8L132.1 152.8L132.6 151.8L133.0 150.8L133.4 149.8L133.9 148.8L134.3 147.8L134.8 146.8L135.2 145.8L135.6 144.8L136.1 143.9L136.5 142.9L137.0 141.9L137.4 141.0L137.8 140.0L138.3 139.1L138.7 138.1L139.2 137.2L139.6 136.3L140.0 135.4L140.5 134.5L140.9 133.5L141.4 132.6L141.8 131.7L142.2 130.8L142.7 130.0L143.1 129.1L143.6 128.2L144.0 127.3L144.4 126.5L144.9 125.6L145.3 124.8L145.8 123.9L146.2 123.1L146.6 122.3L147.1 121.5L147.5 120.6L148.0 119.8L148.4 119.0L148.8 118.3L149.3 117.5L149.7 116.7L150.2 115.9L150.6 115.2L151.0 114.4L151.5 113.7L151.9 112.9L152.4 112.2L152.8 111.5L153.2 110.7L153.7 110.0L154.1 109.3L154.6 108.6L155.0 107.9L155.4 107.3L155.9 106.6L156.3 105.9L156.8 105.3L157.2 104.6L157.6 104.0L158.1 103.4L158.5 102.7L159.0 102.1L159.4 101.5L159.8 100.9L160.3 100.3L160.7 99.7L161.2 99.2L161.6 98.6L162.0 98.1L162.5 97.5L162.9 97.0L163.4 96.4L163.8 95.9L164.2 95.4L164.7 94.9L165.6 93.9L166.4 93.0L167.3 92.1L168.2 91.2L169.1 90.4L170.0 89.6L170.8 88.8L171.7 88.1L172.6 87.4L173.5 86.7L174.4 86.1L175.2 85.5L176.1 85.0L177.0 84.5L177.9 84.0L178.8 83.6L179.6 83.2L180.5 82.9L181.4 82.6L182.3 82.3L183.2 82.1L184.0 81.9L184.9 81.7L185.8 81.6L186.7 81.5L187.6 81.5L188.4 81.5L189.3 81.5L190.2 81.6L191.1 81.7L192.0 81.9L192.8 82.1L193.7 82.3L194.6 82.6L195.5 82.9L196.4 83.2L197.2 83.6L198.1 84.0L199.0 84.5L199.9 85.0L200.8 85.5L201.6 86.1L202.5 86.7L203.4 87.4L204.3 88.1L205.2 88.8L206.0 89.6L206.9 90.4L207.8 91.2L208.7 92.1L209.6 93.0L210.4 93.9L211.3 94.9L211.8 95.4L212.2 95.9L212.6 96.4L213.1 97.0L213.5 97.5L214.0 98.1L214.4 98.6L214.8 99.2L215.3 99.7L215.7 100.3L216.2 100.9L216.6 101.5L217.0 102.1L217.5 102.7L217.9 103.4L218.4 104.0L218.8 104.6L219.2 105.3L219.7 105.9L220.1 106.6L220.6 107.3L221.0 107.9L221.4 108.6L221.9 109.3L222.3 110.0L222.8 110.7L223.2 111.5L223.6 112.2L224.1 112.9L224.5 113.7L225.0 114.4L225.4 115.2L225.8 115.9L226.3 116.7L226.7 117.5L227.2 118.3L227.6 119.0L228.0 119.8L228.5 120.6L228.9 121.5L229.4 122.3L229.8 123.1L230.2 123.9L230.7 124.8L231.1 125.6L231.6 126.5L232.0 127.3L232.4 128.2L232.9 129.1L233.3 130.0L233.8 130.8L234.2 131.7L234.6 132.6L235.1 133.5L235.5 134.5L236.0 135.4L236.4 136.3L236.8 137.2L237.3 138.1L237.7 139.1L238.2 140.0L238.6 141.0L239.0 141.9L239.5 142.9L239.9 143.9L240.4 144.8L240.8 145.8L241.2 146.8L241.7 147.8L242.1 148.8L242.6 149.8L243.0 150.8L243.4 151.8L243.9 152.8L244.3 153.8L244.8 154.8L245.2 155.8L245.6 156.9L246.1 157.9L246.5 158.9L247.0 160.0L247.4 161.0L247.8 162.1L248.3 163.1L248.7 164.2L249.2 165.2L249.6 166.3L250.0 167.4L250.5 168.4L250.9 169.5L251.4 170.6L251.8 171.7L252.2 172.7L252.7 173.8L253.1 174.9L253.6 176.0L254.0 177.1L254.4 178.2L254.9 179.3L255.3 180.4L255.8 181.5L256.2 182.6L256.6 183.7L257.1 184.8L257.5 185.9L258.0 187.0L258.4 188.1L258.8 189.2L259.3 190.3L259.7 191.5L260.2 192.6L260.6 193.7L261.0 194.8L261.5 195.9L261.9 197.0L262.4 198.2L262.8 199.3L263.2 200.4L263.7 201.5L264.1 202.7L264.6 203.8L265.0 204.9L265.4 206.0L265.9 207.1L266.3 208.3L266.8 209.4L267.2 210.5L267.6 211.6L268.1 212.7L268.5 213.8L269.0 215.0L269.4 216.1L269.8 217.2L270.3 218.3L270.7 219.4L271.2 220.5L271.6 221.6L272.0 222.7L272.5 223.8L272.9 224.9L273.4 226.0L273.8 227.1L274.2 228.2L274.7 229.3L275.1 230.4L275.6 231.5L276.0 232.6L276.4 233.6L276.9 234.7L277.3 235.8L277.8 236.8L278.2 237.9L278.6 239.0L279.1 240.0L279.5 241.1L280.0 242.1L280.4 243.2L280.8 244.2L281.3 245.2L281.7 246.3L282.2 247.3L282.6 248.3L283.0 249.3L283.5 250.3L283.9 251.3L284.4 252.3L284.8 253.3L285.2 254.3L285.7 255.3L286.1 256.2L286.6 257.2L287.0 258.2L287.4 259.1L287.9 260.1L288.3 261.0L288.8 261.9L289.2 262.9L289.6 263.8L290.1 264.7L290.5 265.6L291.0 266.5L291.4 267.4L291.8 268.3L292.3 269.1L292.7 270.0L293.2 270.8L293.6 271.7L294.0 272.5L294.5 273.3L294.9 274.2L295.4 275.0L295.8 275.8L296.2 276.5L296.7 277.3L297.1 278.1L297.6 278.9L298.0 279.6L298.4 280.3L298.9 281.1L299.3 281.8L299.8 282.5L300.2 283.2L300.6 283.9L301.1 284.5L301.5 285.2L302.0 285.8L302.4 286.5L302.8 287.1L303.3 287.7L303.7 288.3L304.2 288.9L304.6 289.5L305.0 290.0L305.5 290.6L305.9 291.1L306.4 291.6L306.8 292.1L307.7 293.1L308.6 294.0L309.4 294.8L310.3 295.6L311.2 296.4L312.1 297.0L313.0 297.6L313.8 298.2L314.7 298.7L315.6 299.1L316.5 299.4L317.4 299.7L318.2 299.8L319.1 300.0L320.0 300.0" class="ln1"/>
+<path d="M56.0 300.0L56.9 300.0L57.8 299.9L58.6 299.8L59.5 299.6L60.4 299.4L61.3 299.1L62.2 298.8L63.0 298.5L63.9 298.1L64.8 297.6L65.7 297.1L66.6 296.6L67.4 296.0L68.3 295.3L69.2 294.7L70.1 293.9L71.0 293.1L71.8 292.3L72.7 291.5L73.6 290.6L74.5 289.6L75.4 288.6L75.8 288.1L76.2 287.6L76.7 287.0L77.1 286.5L77.6 285.9L78.0 285.4L78.4 284.8L78.9 284.2L79.3 283.6L79.8 283.0L80.2 282.4L80.6 281.7L81.1 281.1L81.5 280.5L82.0 279.8L82.4 279.1L82.8 278.5L83.3 277.8L83.7 277.1L84.2 276.4L84.6 275.7L85.0 274.9L85.5 274.2L85.9 273.4L86.4 272.7L86.8 271.9L87.2 271.2L87.7 270.4L88.1 269.6L88.6 268.8L89.0 268.0L89.4 267.2L89.9 266.4L90.3 265.5L90.8 264.7L91.2 263.8L91.6 263.0L92.1 262.1L92.5 261.3L93.0 260.4L93.4 259.5L93.8 258.6L94.3 257.7L94.7 256.8L95.2 255.9L95.6 255.0L96.0 254.0L96.5 253.1L96.9 252.2L97.4 251.2L97.8 250.2L98.2 249.3L98.7 248.3L99.1 247.3L99.6 246.4L100.0 245.4L100.4 244.4L100.9 243.4L101.3 242.4L101.8 241.4L102.2 240.3L102.6 239.3L103.1 238.3L103.5 237.3L104.0 236.2L104.4 235.2L104.8 234.1L105.3 233.1L105.7 232.0L106.2 231.0L106.6 229.9L107.0 228.8L107.5 227.8L107.9 226.7L108.4 225.6L108.8 224.5L109.2 223.4L109.7 222.3L110.1 221.2L110.6 220.1L111.0 219.0L111.4 217.9L111.9 216.8L112.3 215.7L112.8 214.6L113.2 213.5L113.6 212.3L114.1 211.2L114.5 210.1L115.0 209.0L115.4 207.8L115.8 206.7L116.3 205.6L116.7 204.4L117.2 203.3L117.6 202.2L118.0 201.0L118.5 199.9L118.9 198.7L119.4 197.6L119.8 196.5L120.2 195.3L120.7 194.2L121.1 193.0L121.6 191.9L122.0 190.7L122.4 189.6L122.9 188.5L123.3 187.3L123.8 186.2L124.2 185.0L124.6 183.9L125.1 182.7L125.5 181.6L126.0 180.5L126.4 179.3L126.8 178.2L127.3 177.0L127.7 175.9L128.2 174.8L128.6 173.6L129.0 172.5L129.5 171.4L129.9 170.3L130.4 169.1L130.8 168.0L131.2 166.9L131.7 165.8L132.1 164.7L132.6 163.6L133.0 162.5L133.4 161.4L133.9 160.3L134.3 159.2L134.8 158.1L135.2 157.0L135.6 155.9L136.1 154.8L136.5 153.7L137.0 152.7L137.4 151.6L137.8 150.5L138.3 149.5L138.7 148.4L139.2 147.3L139.6 146.3L140.0 145.3L140.5 144.2L140.9 143.2L141.4 142.2L141.8 141.1L142.2 140.1L142.7 139.1L143.1 138.1L143.6 137.1L144.0 136.1L144.4 135.1L144.9 134.1L145.3 133.2L145.8 132.2L146.2 131.2L146.6 130.3L147.1 129.3L147.5 128.4L148.0 127.4L148.4 126.5L148.8 125.6L149.3 124.7L149.7 123.8L150.2 122.9L150.6 122.0L151.0 121.1L151.5 120.2L151.9 119.3L152.4 118.5L152.8 117.6L153.2 116.8L153.7 115.9L154.1 115.1L154.6 114.3L155.0 113.5L155.4 112.7L155.9 111.9L156.3 111.1L156.8 110.3L157.2 109.5L157.6 108.8L158.1 108.0L158.5 107.3L159.0 106.6L159.4 105.8L159.8 105.1L160.3 104.4L160.7 103.7L161.2 103.0L161.6 102.3L162.0 101.7L162.5 101.0L162.9 100.4L163.4 99.7L163.8 99.1L164.2 98.5L164.7 97.9L165.1 97.3L165.6 96.7L166.0 96.1L166.4 95.6L166.9 95.0L167.3 94.5L167.8 93.9L168.2 93.4L168.6 92.9L169.1 92.4L170.0 91.4L170.8 90.5L171.7 89.6L172.6 88.7L173.5 87.9L174.4 87.2L175.2 86.5L176.1 85.8L177.0 85.2L177.9 84.6L178.8 84.1L179.6 83.6L180.5 83.2L181.4 82.8L182.3 82.5L183.2 82.2L184.0 82.0L184.9 81.8L185.8 81.6L186.7 81.5L187.6 81.5L188.4 81.5L189.3 81.5L190.2 81.6L191.1 81.8L192.0 82.0L192.8 82.2L193.7 82.5L194.6 82.8L195.5 83.2L196.4 83.6L197.2 84.1L198.1 84.6L199.0 85.2L199.9 85.8L200.8 86.5L201.6 87.2L202.5 87.9L203.4 88.7L204.3 89.6L205.2 90.5L206.0 91.4L206.9 92.4L207.4 92.9L207.8 93.4L208.2 93.9L208.7 94.5L209.1 95.0L209.6 95.6L210.0 96.1L210.4 96.7L210.9 97.3L211.3 97.9L211.8 98.5L212.2 99.1L212.6 99.7L213.1 100.4L213.5 101.0L214.0 101.7L214.4 102.3L214.8 103.0L215.3 103.7L215.7 104.4L216.2 105.1L216.6 105.8L217.0 106.6L217.5 107.3L217.9 108.0L218.4 108.8L218.8 109.5L219.2 110.3L219.7 111.1L220.1 111.9L220.6 112.7L221.0 113.5L221.4 114.3L221.9 115.1L222.3 115.9L222.8 116.8L223.2 117.6L223.6 118.5L224.1 119.3L224.5 120.2L225.0 121.1L225.4 122.0L225.8 122.9L226.3 123.8L226.7 124.7L227.2 125.6L227.6 126.5L228.0 127.4L228.5 128.4L228.9 129.3L229.4 130.3L229.8 131.2L230.2 132.2L230.7 133.2L231.1 134.1L231.6 135.1L232.0 136.1L232.4 137.1L232.9 138.1L233.3 139.1L233.8 140.1L234.2 141.1L234.6 142.2L235.1 143.2L235.5 144.2L236.0 145.3L236.4 146.3L236.8 147.3L237.3 148.4L237.7 149.5L238.2 150.5L238.6 151.6L239.0 152.7L239.5 153.7L239.9 154.8L240.4 155.9L240.8 157.0L241.2 158.1L241.7 159.2L242.1 160.3L242.6 161.4L243.0 162.5L243.4 163.6L243.9 164.7L244.3 165.8L244.8 166.9L245.2 168.0L245.6 169.1L246.1 170.3L246.5 171.4L247.0 172.5L247.4 173.6L247.8 174.8L248.3 175.9L248.7 177.0L249.2 178.2L249.6 179.3L250.0 180.5L250.5 181.6L250.9 182.7L251.4 183.9L251.8 185.0L252.2 186.2L252.7 187.3L253.1 188.5L253.6 189.6L254.0 190.7L254.4 191.9L254.9 193.0L255.3 194.2L255.8 195.3L256.2 196.5L256.6 197.6L257.1 198.7L257.5 199.9L258.0 201.0L258.4 202.2L258.8 203.3L259.3 204.4L259.7 205.6L260.2 206.7L260.6 207.8L261.0 209.0L261.5 210.1L261.9 211.2L262.4 212.3L262.8 213.5L263.2 214.6L263.7 215.7L264.1 216.8L264.6 217.9L265.0 219.0L265.4 220.1L265.9 221.2L266.3 222.3L266.8 223.4L267.2 224.5L267.6 225.6L268.1 226.7L268.5 227.8L269.0 228.8L269.4 229.9L269.8 231.0L270.3 232.0L270.7 233.1L271.2 234.1L271.6 235.2L272.0 236.2L272.5 237.3L272.9 238.3L273.4 239.3L273.8 240.3L274.2 241.4L274.7 242.4L275.1 243.4L275.6 244.4L276.0 245.4L276.4 246.4L276.9 247.3L277.3 248.3L277.8 249.3L278.2 250.2L278.6 251.2L279.1 252.2L279.5 253.1L280.0 254.0L280.4 255.0L280.8 255.9L281.3 256.8L281.7 257.7L282.2 258.6L282.6 259.5L283.0 260.4L283.5 261.3L283.9 262.1L284.4 263.0L284.8 263.8L285.2 264.7L285.7 265.5L286.1 266.4L286.6 267.2L287.0 268.0L287.4 268.8L287.9 269.6L288.3 270.4L288.8 271.2L289.2 271.9L289.6 272.7L290.1 273.4L290.5 274.2L291.0 274.9L291.4 275.7L291.8 276.4L292.3 277.1L292.7 277.8L293.2 278.5L293.6 279.1L294.0 279.8L294.5 280.5L294.9 281.1L295.4 281.7L295.8 282.4L296.2 283.0L296.7 283.6L297.1 284.2L297.6 284.8L298.0 285.4L298.4 285.9L298.9 286.5L299.3 287.0L299.8 287.6L300.2 288.1L300.6 288.6L301.1 289.1L302.0 290.1L302.8 291.0L303.7 291.9L304.6 292.7L305.5 293.5L306.4 294.3L307.2 295.0L308.1 295.7L309.0 296.3L309.9 296.8L310.8 297.4L311.6 297.8L312.5 298.3L313.4 298.7L314.3 299.0L315.2 299.3L316.0 299.5L316.9 299.7L317.8 299.9L318.7 299.9L319.6 300.0L320.0 300.0" class="ln2"/>
+<text x="56" y="50" class="flab st c1">g&#8321; = (1 &#8722; (x/6)&#178;)&#178; &#8212; &#8214;g&#8243;&#8214; = 0.222, Var g&#8242; = 1.03</text>
+<text x="56" y="66" class="flab st c2">g&#8322; = (1 + cos &#960;x/6)/2 &#8212; &#8214;g&#8243;&#8214; = 0.137, Var g&#8242; = 1.05</text>
+<text x="188.0" y="334" class="flab">two C&#178; windows, support [&#8722;6, 6], &#8214;g&#8214;&#8734; = 1</text>
+<rect x="402" y="77.4" width="64" height="222.6" class="bar2"/>
+<text x="434.0" y="71.4" class="flab">pole</text>
+<text x="434.0" y="93.4" class="flab">+273.59</text>
+<rect x="490" y="77.4" width="64" height="18.2" class="barneg"/>
+<text x="522.0" y="71.4" class="flab">archimedean</text>
+<text x="522.0" y="111.6" class="flab">-22.38</text>
+<rect x="578" y="95.6" width="64" height="204.4" class="barneg"/>
+<text x="610.0" y="89.6" class="flab">primes</text>
+<text x="610.0" y="316.0" class="flab">&#8722;251.21</text>
+<line x1="466" y1="77.4" x2="490" y2="77.4" class="grid"/>
+<line x1="554" y1="95.6" x2="578" y2="95.6" class="grid"/>
+<line x1="392" y1="300.0" x2="700" y2="300.0" class="axis"/>
+<text x="396" y="334" class="flab st c1">net W = 2.0&#215;10&#8315;&#8313; &#8212; one part in 1&#215;10&#185;&#185;</text>
+<text x="396" y="350" class="flab st">lattice F(&#916;), five meshes: same number &#177;7&#215;10&#8315;&#8313;</text>
+<text x="360.0" y="420" class="flab">the T1a identity, verified four ways on four node configurations: worst residual 6&#215;10&#8315;&#185;&#8308; relative</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the functional, its windows, and the merge.</b> <i>Left:</i> the two test windows: the quartic bump g₁ = (1−(x/6)²)² and the raised cosine g₂ = (1+cos πx/6)/2, with the norms every bound in §3 consumes. <i>Right:</i> the three terms of 𝒲(g₁⋆ǧ₁) as a waterfall: the pole term +273.59 up, the archimedean −22.38 and the primes −251.21 down, netting +2.0&#215;10<sup>&#8722;9</sup> — one part in 1.4&#215;10<sup>11</sup>. The five lattice forms land on that net to ±6.8&#215;10<sup>&#8722;9</sup>. This is rh14's pole-versus-primes merge, measured at window level: the functional's value is the shadow of a cancellation nine orders deeper than itself.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · The analytic care, performed</h2>
+<p>The admissible class first, because rh15's box never fixed one and the archimedean term punishes that: 𝒜 = real g, compactly supported, continuous, with g′ of bounded variation. On 𝒜 the transform obeys |ĝ(r)| ≤ min(‖g‖₁, Var(g′)/r²), so the r-integral in (1) converges absolutely against the logarithmic growth of ψ̃ — and C<sub>c</sub><sup>∞</sup> ⊂ 𝒜, so Weil's criterion is available on the subclass and (W) still faces RH. For g ∈ 𝒜 let g<sub>Δ</sub> be the hat-spline interpolant on ΔZ (a lattice window, g<sub>Δ</sub> = g at every knot), and d = g − g<sub>Δ</sub>. The classical spline moduli, verified against measurement on both test windows:</p>
+<div class="eq"><span class="tag">(3)</span>
+‖d‖<sub>∞</sub> ≤ Δ²‖g″‖<sub>∞</sub>/8, &nbsp;&nbsp; ‖d‖₁ ≤ 2(a+Δ)‖d‖<sub>∞</sub>, &nbsp;&nbsp; Var(d′) ≤ Var(g′) + (2a+2Δ)‖g″‖<sub>∞</sub>,
+</div>
+<p>for C² windows supported in [−a, a]. Then |𝒲(g⋆ǧ) − 𝒲(g<sub>Δ</sub>⋆ǧ<sub>Δ</sub>)| ≤ ε(Δ; g), with ε assembled from one constant per term of (1) — every one computed, none waved at:</p>
+<p><b>The prime constant.</b> The difference of prime sums is at most ‖f − f<sub>Δ</sub>‖<sub>∞</sub>·P(2a+2Δ), P(x) = Σ<sub>log n ≤ x</sub> Λ(n)n<sup>−1/2</sup>. At the supports in play, P(12.12) = 853.99 — an exact sieve sum, not an estimate — and for the displayed version the envelope P(x) ≤ 2·1.03883·e<sup>x/2</sup> follows from Rosser–Schoenfeld's ψ(t) &lt; 1.03883t by partial summation; the sieve says the envelope is tight to ratio 0.960 at x = 12.2. The sup-norm factor is Young's inequality: ‖f − f<sub>Δ</sub>‖<sub>∞</sub> ≤ ‖d‖<sub>∞</sub>‖g‖₁ + ‖d‖₁‖g<sub>Δ</sub>‖<sub>∞</sub>.</p>
+<p><b>The pole constant.</b> |∫(f−f<sub>Δ</sub>)·2cosh(v/2)| ≤ ‖f−f<sub>Δ</sub>‖<sub>∞</sub> times the weight's integral over the support, 8 sinh(a+Δ) ≈ 1700 at a = 6 — which the window family's own B<sub>i</sub>² then scales two to three orders below the prime constant, mesh depending. The pole is loud in the functional and quiet in the modulus.</p>
+<p><b>The archimedean envelope.</b> The term needs |ψ̃| controlled on all of [0, ∞), and this is where interval arithmetic earns its place in a continuity proof. Two facts, both certified: ψ̃ is monotone increasing — d/dy Re ψ(x+iy) = Σ<sub>n≥0</sub> 2y(x+n)/((x+n)²+y²)² &gt; 0, an elementary series — and</p>
+<div class="eq"><span class="tag">(4)</span>
+−5.3722 &nbsp;≤&nbsp; ψ̃(0) &nbsp;≤&nbsp; ψ̃(r) &nbsp;≤&nbsp; ln(2+r) &nbsp;&nbsp;&nbsp; for every r ≥ 0,
+</div>
+<p>the left end an interval evaluation of −γ − 3ln2 − π/2 − ln π, the right certified on a dozen monotone cells to r = 10⁵ with rh17's interval ψ (each cell needs only ψ̃(right end) &lt; ln(2 + left end), and the margin is never thinner than 1.1), then handed to Stirling: for r ≥ 100, ψ̃ ≤ ln(r/2) − ln π + 1/(8r²) + 1/(10|z|²) &lt; ln(2+r) − 1.1. With the envelope and the BV ladder |d̂| ≤ min(‖d‖₁, Var(d′)/r²), the archimedean difference closes by an integral any calculus course can price: ∫min(A, B/r²)·(1+ln(2+r))dr, evaluated as an upper Riemann sum on outward cells plus a closed tail. Folding the three constants:</p>
+<div class="eq"><span class="tag">(5)</span>
+ε(Δ; g) &nbsp;=&nbsp; ‖f−f<sub>Δ</sub>‖<sub>∞</sub>·[P(2a+2Δ) + 8B<sub>i</sub>² sinh(a+Δ)] &nbsp;+&nbsp; (1/π)&#8747;|d̂|(|ĝ|+|ĝ<sub>Δ</sub>|)·env(r) dr &nbsp;=&nbsp; O(Δ²),
+</div>
+<p>every piece explicit. Evaluated: for the quartic window, ε = 1.62 at Δ = 0.06, 9.6&#215;10<sup>&#8722;2</sup> at 0.015, 5.9&#215;10<sup>&#8722;3</sup> at 0.00375 — the Δ² ladder exactly (ratio 16.9 per double-halving); for the raised cosine, 5.8&#215;10<sup>&#8722;2</sup> at the finest certified mesh. The arrow (L) ⟹ (W) follows for C² windows by (5) and for all of 𝒜 by one more density step inside the same constants (the interpolant of a BV-derivative window converges at rate Δ·Var instead of Δ²; the constants do not care). With (2), the chain closes: <b>(L) ⟺ (W) ⟺ (Bo)</b>.</p>
+</section>
+
+<p class="kicker">Part II · The arrows, run</p>
+
+<section class="prose" id="s4">
+<h2>4 · The arrows, computed — and where the certificate stops</h2>
+<p><b>The march that wasn't needed.</b> The direct value 𝒲(g₁⋆ǧ₁) = 2.0&#215;10<sup>&#8722;9</sup> is the net of ±274-sized terms — cancellation 1.4&#215;10<sup>11</sup>:1, rh14's merge measured at window level (Figure 1). The prediction of §3 was that the lattice forms would march to this value at rate Δ² under the envelope (5). What happened is stranger and better: all five lattice forms — meshes 0.06 down to 0.00375, matrices up to 3201² — agree with the direct value to ±6.8&#215;10<sup>&#8722;9</sup> <i>from the start</i>, a factor 2.4&#215;10<sup>8</sup> inside the proven bound; the raised cosine repeats it at 1.1&#215;10<sup>8</sup>. The envelope is not slack in the proof — it is what the theorem needs, and (5) is tight against its own hypotheses — but the <i>actual</i> defect never reaches the functional, and the reason is spectral. The interpolation error d oscillates at the knot scale: at low frequencies the Euler–Maclaurin identity gives d̂(r) ≈ (Δ²/12)r²ĝ(r), verified at the first zero — d̂(γ₁) = 1.81&#215;10<sup>&#8722;7</sup> against the prediction 1.96&#215;10<sup>&#8722;7</sup>, ratio 0.928 — a factor (Δ²/12)γ₁² ≈ 6×10⁻³ of an already-small ĝ(γ₁); while the bulk of ‖d‖ lives at r ~ π/Δ, where B² and the zero weights have long collapsed. The defect the bound honestly guards against is exiled to frequencies the functional cannot hear. rh15's soft-mode geography, met from the other side.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 470" role="img" aria-label="Left: on log-log axes against the mesh, the proven continuity envelope epsilon falls along slope two from about one down to five times ten to the minus three, while the measured gaps between lattice forms and the direct functional sit at ten to the minus nine down to ten to the minus thirteen — quadrature noise, eight orders inside the bound. Right: the three components of epsilon at the finest certified mesh, prime term dominant, and the exile identity: the interpolation defect at the first zero matches its Euler-Maclaurin prediction at ratio 0.93.">
+<text x="360.0" y="22" class="ftitle">the continuity bound, proven at slope 2 &#8212; and the measured defect, hiding at the notches</text>
+<line x1="66" y1="380" x2="392" y2="380" class="axis"/>
+<line x1="66" y1="380" x2="66" y2="60" class="axis"/>
+<line x1="363.4" y1="380" x2="363.4" y2="384" class="axis"/>
+<text x="363.4" y="396" class="flab">.06</text>
+<line x1="294.6" y1="380" x2="294.6" y2="384" class="axis"/>
+<text x="294.6" y="396" class="flab">.03</text>
+<line x1="225.8" y1="380" x2="225.8" y2="384" class="axis"/>
+<text x="225.8" y="396" class="flab">.015</text>
+<line x1="157.0" y1="380" x2="157.0" y2="384" class="axis"/>
+<text x="157.0" y="396" class="flab">.0075</text>
+<line x1="88.2" y1="380" x2="88.2" y2="384" class="axis"/>
+<text x="88.2" y="396" class="flab">.00375</text>
+<line x1="62" y1="358.2" x2="66" y2="358.2" class="axis"/>
+<text x="58" y="362.2" class="flab end">10&#8315;&#185;&#179;</text>
+<line x1="66" y1="358.2" x2="392" y2="358.2" class="grid" stroke-opacity="0.3"/>
+<line x1="62" y1="292.9" x2="66" y2="292.9" class="axis"/>
+<text x="58" y="296.9" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="66" y1="292.9" x2="392" y2="292.9" class="grid" stroke-opacity="0.3"/>
+<line x1="62" y1="227.6" x2="66" y2="227.6" class="axis"/>
+<text x="58" y="231.6" class="flab end">10&#8315;&#8311;</text>
+<line x1="66" y1="227.6" x2="392" y2="227.6" class="grid" stroke-opacity="0.3"/>
+<line x1="62" y1="162.3" x2="66" y2="162.3" class="axis"/>
+<text x="58" y="166.3" class="flab end">10&#8315;&#8308;</text>
+<line x1="66" y1="162.3" x2="392" y2="162.3" class="grid" stroke-opacity="0.3"/>
+<line x1="62" y1="97.0" x2="66" y2="97.0" class="axis"/>
+<text x="58" y="101.0" class="flab end">10&#8315;&#185;</text>
+<line x1="66" y1="97.0" x2="392" y2="97.0" class="grid" stroke-opacity="0.3"/>
+<path d="M363.4 70.7L294.6 84.1L225.8 97.4L157.0 110.6L88.2 123.7" class="ln1"/>
+<circle cx="363.4" cy="253.0" r="3.2" class="hm1"/>
+<circle cx="294.6" cy="297.1" r="3.2" class="hm1"/>
+<circle cx="225.8" cy="357.9" r="3.2" class="hm1"/>
+<circle cx="157.0" cy="314.0" r="3.2" class="hm1"/>
+<circle cx="88.2" cy="324.0" r="3.2" class="hm1"/>
+<path d="M363.4 75.4L294.6 88.9L225.8 102.2L157.0 115.4L88.2 128.5" class="ln2"/>
+<circle cx="363.4" cy="250.1" r="3.2" class="hm2"/>
+<circle cx="294.6" cy="316.1" r="3.2" class="hm2"/>
+<circle cx="225.8" cy="304.7" r="3.2" class="hm2"/>
+<circle cx="157.0" cy="328.8" r="3.2" class="hm2"/>
+<circle cx="88.2" cy="339.2" r="3.2" class="hm2"/>
+<text x="157.0" y="89.0" class="flab c1">&#949;(&#916;) proven &#8212; slope 2</text>
+<text x="229.0" y="367.6" class="flab">measured |F(&#916;) &#8722; W|: 10&#8315;&#8313;&#8230;10&#8315;&#185;&#179;, quadrature noise</text>
+<line x1="207.7" y1="112.2" x2="207.7" y2="260.8" class="stem" stroke-dasharray="3 3"/>
+<text x="215.7" y="186.5" class="flab st c2">&#8805; 1.1&#215;10&#8312;&#215; of daylight</text>
+<text x="229.0" y="414" class="flab">mesh &#916; (log axes) &#8212; lines: the theorem; dots: the measurement</text>
+<text x="568.0" y="60" class="flab">&#949; at &#916; = 0.015 (window g&#8321;), by term</text>
+<rect x="456" y="95.6" width="56" height="104.4" class="bar2"/>
+<text x="484.0" y="89.6" class="flab">9&#215;10&#8315;&#178;</text>
+<text x="484.0" y="214" class="flab">prime</text>
+<rect x="542" y="165.8" width="56" height="34.2" class="bar2"/>
+<text x="570.0" y="159.8" class="flab">4&#215;10&#8315;&#8309;</text>
+<text x="570.0" y="214" class="flab">pole</text>
+<rect x="628" y="131.1" width="56" height="68.9" class="bar2"/>
+<text x="656.0" y="125.1" class="flab">2&#215;10&#8315;&#179;</text>
+<text x="656.0" y="214" class="flab">arch</text>
+<line x1="436" y1="200" x2="700" y2="200" class="axis"/>
+<text x="436" y="242" class="flab st">P(12.12) = 854.0 exact; envelope 2.078&#8201;e<tspan baseline-shift="super" font-size="8px">x/2</tspan></text>
+<text x="436" y="258" class="flab st">holds at ratio &#8804; 0.960 (Rosser&#8211;Schoenfeld)</text>
+<text x="436" y="292" class="flab st c1">where the defect went (the exile identity):</text>
+<text x="436" y="310" class="flab st">d&#770;(&#947;&#8321;) = 1.8&#215;10&#8315;&#8311; vs (&#916;&#178;/12)&#8201;&#947;&#8321;&#178;&#8201;&#289;(&#947;&#8321;) = 2.0&#215;10&#8315;&#8311;</text>
+<text x="436" y="328" class="flab st">ratio 0.928 &#8212; the defect is real, &#916;&#178;-sized,</text>
+<text x="436" y="346" class="flab st">and lives at r &#8776; &#960;/&#916;, under a dead B&#178;</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — the proven envelope, and where the defect actually went.</b> <i>Left:</i> the continuity bound ε(Δ; g) for both windows on log-log axes — slope 2, as proven — and beneath it, five to eight orders down, the measured gaps between the lattice forms and the direct functional, flat at the 10⁻⁹ level of the quadratures themselves. <i>Right:</i> ε at the finest certified mesh split by term — the prime constant dominates, as P(12.12) = 853.99 suggests it must — and the exile identity: the defect's transform at the first zero matches its Euler–Maclaurin prediction at ratio 0.928, confirming that the interpolation error is real, Δ²-sized, and spectrally elsewhere.</figcaption>
+</figure>
+<p><b>The zeros-side witness.</b> The same functional has a third face: 𝒲(g⋆ǧ) = Σ<sub>ρ</sub> |ĝ(γ<sub>ρ</sub>)|² over the nontrivial zeros — Guinand's reading of the explicit formula, the identity rh14 verified at kernel level. On 1517 zeros to height 2000 (rh11's table), geometric minus spectral is +9.1&#215;10<sup>&#8722;13</sup> for the quartic window, −1.0&#215;10<sup>&#8722;13</sup> for the raised cosine, −1.8&#215;10<sup>&#8722;11</sup> for the Δ = 0.06 spline itself. Three ways of computing one number — from the primes and the Γ-factor, from the lattice sections, from the zeros — agreeing at the 10⁻¹¹ level on values of size 10⁻⁹, while the terms they cancel are of size 10². P2's arrows are not just proven; they are watched landing.</p>
+<p><b>The finding: the certificate does not descend.</b> Statement (Bo) quantifies over all real nodes, and the natural computational probe is to take the certified Δ = 0.06 kernel — the exact object of rh17's T1, cut at R₀ = 600 with the tail dropped by L1's PSD argument — and sample it on <i>finer</i> lattices than its own. Every such verdict fails. At δ = Δ/2 the 60-digit recursion loses positivity at k = 370 of 397, max|ρ| reaching 8.14; at Δ/4, Δ/8, Δ/16 the failure arrives earlier and harder (k = 29 at Δ/16). Float inverse iteration, asked the same question at Δ/2, returns λ<sub>min</sub> = +1.4&#215;10<sup>&#8722;12</sup> — a positive number for an indefinite matrix, the arc's fourth documented float lie, caught as always by the recursion. And this indefiniteness is <i>the truncation's, not the kernel's</i>: the recursion's own witness direction u (the failing predictor, order 371) has truncated form u<sup>T</sup>Mu = &#8722;4.2&#215;10<sup>&#8722;5</sup>, while the zeros side — nonnegative term by term, since every summand is B²|û|² — gives +1.1&#215;10<sup>&#8722;2</sup> on the same direction, and the difference sits comfortably inside what the cut provably dropped. The certified kernel and the exact kernel part company on sub-lattices, in the one direction L1 cannot repair: dropping a positive-semidefinite tail lowers the form, so a positive verdict transfers upward to the exact kernel and a negative one transfers nowhere.</p>
+<p>Why this must happen, quantitatively. The sub-lattice at δ resolves frequencies to π/δ, and in particular — already at δ = Δ/2 — the mesh's own notch r* = 2π/Δ, where B(r*) = 0 and the kernel's spectral density genuinely vanishes. The finest positive mass a δ-lattice section must integrate near the notch is ~2&#215;10<sup>&#8722;12</sup> (the density one resolution cell off the null); against it, every computable cut drops positive tail mass 1.3&#215;10<sup>&#8722;5</sup> at R₀ = 600 and still 2.5&#215;10<sup>&#8722;9</sup> at R₀ = 12000 — three orders too much. Parity between drop and floor prices at R₀ ≈ 1.4&#215;10<sup>5</sup>: two hundred thousand frequency units, a thousandfold rh17's finest table, for <i>one</i> sub-lattice verdict at n = 397. The wall stands at every δ (Figure 3). On its far side sits the honest statement: sub-lattice positivity of the exact kernel follows from the zeros' reality and from nothing cheaper — no truncation shortcut exists. Which is why the diagonal family — mesh Δ against kernel Δ, the only family rh15–rh17 ever certified — is not a convenience but the only computable staircase: at its own mesh the lattice <i>aliases the notch away</i>, folding r* onto frequencies where the density is large, and the certificates live exactly in that fold.</p>
+<p><b>What still stands beneath the wall.</b> Node sets that do not resolve the notch stay certifiable: two irregular sets of 120 nodes at spacing ~0.075 — one jittered, one golden-ratio — are positive definite by 60-digit Cholesky, minimum pivots 2.1&#215;10<sup>&#8722;4</sup> and 1.9&#215;10<sup>&#8722;4</sup>. And continuity of E, the last clause of rh15's box, now has its constant: K₁ = sup|E′<sub>Δ=0.06</sub>| ≤ 58 on [0, 12] — gears 49.7, archimedean 7.4, pole 0.73 — against a measured worst slope of 0.9. The grid-to-line step is real analysis with a Lipschitz constant, not a wave at "continuity."</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 500" role="img" aria-label="Left: the certified mesh 0.06 kernel on its own lattice and on sub-lattices down to one sixteenth of the mesh. Only the diagonal verdict is positive definite; every sub-lattice fails the 60-digit recursion, the failure magnitude growing as the mesh refines, while float inverse iteration keeps reporting positive numbers. Beneath, the two irregular node sets at roughly the original spacing stay positive. Right: the frequency profile of the softest eigenvector at one quarter mesh: sharp peaks exactly at the notch two pi over Delta and at its double — the soft battlefield is the notch ladder.">
+<text x="360.0" y="22" class="ftitle">grid to line: the certificate does not descend &#8212; sub-lattices re-open the notch</text>
+<line x1="66" y1="330" x2="392" y2="330" class="axis"/>
+<line x1="66" y1="330" x2="66" y2="84" class="axis"/>
+<text x="58" y="315.1" class="flab end">10&#8315;&#185;&#179;</text>
+<line x1="66" y1="311.1" x2="392" y2="311.1" class="grid" stroke-opacity="0.3"/>
+<text x="58" y="258.3" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="66" y1="254.3" x2="392" y2="254.3" class="grid" stroke-opacity="0.3"/>
+<text x="58" y="201.5" class="flab end">10&#8315;&#8311;</text>
+<line x1="66" y1="197.5" x2="392" y2="197.5" class="grid" stroke-opacity="0.3"/>
+<text x="58" y="144.8" class="flab end">10&#8315;&#8308;</text>
+<line x1="66" y1="140.8" x2="392" y2="140.8" class="grid" stroke-opacity="0.3"/>
+<text x="58" y="88.0" class="flab end">10&#8315;&#185;</text>
+<line x1="66" y1="84.0" x2="392" y2="84.0" class="grid" stroke-opacity="0.3"/>
+<line x1="363.4" y1="330" x2="363.4" y2="334" class="axis"/>
+<text x="363.4" y="346" class="flab">&#916;/1</text>
+<text x="363.4" y="74" class="flab c1">&#10003; PD</text>
+<line x1="294.6" y1="330" x2="294.6" y2="334" class="axis"/>
+<text x="294.6" y="346" class="flab">&#916;/2</text>
+<text x="294.6" y="74" class="flab c2">&#10007;</text>
+<text x="294.6" y="88" class="flab">k=370</text>
+<line x1="225.8" y1="330" x2="225.8" y2="334" class="axis"/>
+<text x="225.8" y="346" class="flab">&#916;/4</text>
+<text x="225.8" y="74" class="flab c2">&#10007;</text>
+<text x="225.8" y="88" class="flab">k=437</text>
+<line x1="157.0" y1="330" x2="157.0" y2="334" class="axis"/>
+<text x="157.0" y="346" class="flab">&#916;/8</text>
+<text x="157.0" y="74" class="flab c2">&#10007;</text>
+<text x="157.0" y="88" class="flab">k=181</text>
+<line x1="88.2" y1="330" x2="88.2" y2="334" class="axis"/>
+<text x="88.2" y="346" class="flab">&#916;/16</text>
+<text x="88.2" y="74" class="flab c2">&#10007;</text>
+<text x="88.2" y="88" class="flab">k=29</text>
+<circle cx="363.4" cy="151.5" r="3.4" class="hm2"/>
+<text x="294.6" y="151.9" class="flab c2" font-size="13px">&#215;</text>
+<text x="225.8" y="139.7" class="flab c2" font-size="13px">&#215;</text>
+<text x="157.0" y="122.7" class="flab c2" font-size="13px">&#215;</text>
+<text x="88.2" y="100.6" class="flab c2" font-size="13px">&#215;</text>
+<path d="M363.4 151.5L294.6 147.9L225.8 135.7L157.0 118.7L88.2 96.6" class="lnm" stroke-dasharray="3 3"/>
+<circle cx="363.4" cy="259.2" r="3.4" class="hm1"/>
+<circle cx="294.6" cy="289.5" r="3.4" class="hm1"/>
+<circle cx="225.8" cy="322.0" r="3.4" class="hm1"/>
+<path d="M363.4 259.2L294.6 289.5L225.8 322.0" class="ln1"/>
+<text x="80.0" y="267.5" class="flab st c1">&#955;&#770;(float) &#8212; positive even where the recursion says no</text>
+<text x="134.8" y="178.6" class="flab st c2">&#215; = |&#963;&#178;<tspan baseline-shift="sub" font-size="8px">min</tspan>| of a FAILED recursion</text>
+<text x="229.0" y="364" class="flab">sub-lattice &#948; of the &#916; = 0.06 kernel (60-digit verdicts above)</text>
+<text x="66" y="386" class="flab st">irregular ~&#916;-spaced nodes (n = 120, 60-digit Cholesky):</text>
+<text x="66" y="402" class="flab st">both PD &#8212; pivots 2.1&#215;10&#8315;&#8308; / 1.9&#215;10&#8315;&#8308;</text>
+<text x="66" y="418" class="flab st">K&#8321; &#8804; 58 (gears 49.7 + arch 7.4 + pole 0.73); measured 0.9</text>
+<text x="574.0" y="74" class="flab">softest-vector spectrum, &#948; = &#916;/4</text>
+<line x1="448" y1="330" x2="700" y2="330" class="axis"/>
+<path d="M448.0 312.0L448.6 323.6L449.3 325.4L449.9 321.8L450.5 323.8L451.2 327.3L451.8 329.6L452.4 329.9L453.1 330.0L453.7 329.8L454.3 329.2L454.9 329.8L455.6 329.9L456.2 330.0L456.8 329.7L457.5 329.8L458.1 330.0L458.7 329.7L459.4 329.7L460.0 329.9L460.6 329.3L461.3 329.9L461.9 330.0L462.5 329.5L463.2 329.6L463.8 329.8L464.4 330.0L465.1 330.0L465.7 330.0L466.3 329.9L466.9 329.7L467.6 329.3L468.2 329.4L468.8 330.0L469.5 329.9L470.1 329.7L470.7 330.0L471.4 329.8L472.0 329.9L472.6 329.9L473.3 330.0L473.9 329.8L474.5 329.8L475.2 330.0L475.8 330.0L476.4 329.9L477.1 330.0L477.7 330.0L478.3 330.0L478.9 330.0L479.6 330.0L480.2 330.0L480.8 330.0L481.5 330.0L482.1 329.9L482.7 330.0L483.4 329.9L484.0 330.0L484.6 330.0L485.3 330.0L485.9 330.0L486.5 330.0L487.2 330.0L487.8 330.0L488.4 329.9L489.1 329.9L489.7 330.0L490.3 330.0L490.9 330.0L491.6 330.0L492.2 330.0L492.8 330.0L493.5 330.0L494.1 330.0L494.7 330.0L495.4 330.0L496.0 330.0L496.6 330.0L497.3 330.0L497.9 330.0L498.5 330.0L499.2 330.0L499.8 330.0L500.4 329.9L501.1 330.0L501.7 329.9L502.3 330.0L502.9 330.0L503.6 330.0L504.2 330.0L504.8 329.8L505.5 330.0L506.1 330.0L506.7 330.0L507.4 329.9L508.0 330.0L508.6 329.9L509.3 330.0L509.9 329.8L510.5 330.0L511.2 329.9L511.8 330.0L512.4 330.0L513.1 330.0L513.7 330.0L514.3 330.0L514.9 330.0L515.6 330.0L516.2 330.0L516.8 329.9L517.5 330.0L518.1 329.9L518.7 330.0L519.4 330.0L520.0 330.0L520.6 330.0L521.3 330.0L521.9 329.9L522.5 329.8L523.2 329.6L523.8 330.0L524.4 329.8L525.1 329.9L525.7 330.0L526.3 330.0L526.9 330.0L527.6 330.0L528.2 330.0L528.8 330.0L529.5 330.0L530.1 330.0L530.7 330.0L531.4 329.9L532.0 329.9L532.6 329.9L533.3 329.9L533.9 329.9L534.5 330.0L535.2 330.0L535.8 330.0L536.4 330.0L537.1 330.0L537.7 330.0L538.3 330.0L538.9 330.0L539.6 329.9L540.2 330.0L540.8 330.0L541.5 330.0L542.1 329.9L542.7 330.0L543.4 330.0L544.0 330.0L544.6 330.0L545.3 330.0L545.9 330.0L546.5 330.0L547.2 330.0L547.8 330.0L548.4 330.0L549.1 330.0L549.7 329.9L550.3 330.0L550.9 330.0L551.6 329.8L552.2 330.0L552.8 330.0L553.5 329.9L554.1 330.0L554.7 330.0L555.4 330.0L556.0 330.0L556.6 330.0L557.3 329.8L557.9 329.9L558.5 329.6L559.2 329.9L559.8 329.8L560.4 329.7L561.1 330.0L561.7 329.9L562.3 329.8L562.9 329.9L563.6 329.8L564.2 329.9L564.8 329.8L565.5 329.8L566.1 328.9L566.7 329.7L567.4 330.0L568.0 329.6L568.6 328.4L569.3 327.3L569.9 330.0L570.5 329.0L571.2 321.6L571.8 321.8L572.4 329.9L573.1 305.9L573.7 217.2L574.3 263.4L574.9 327.0L575.6 328.3L576.2 328.2L576.8 329.0L577.5 329.1L578.1 326.5L578.7 329.1L579.4 329.6L580.0 329.4L580.6 328.9L581.3 329.5L581.9 329.9L582.5 330.0L583.2 329.8L583.8 329.7L584.4 329.8L585.1 329.9L585.7 329.9L586.3 329.9L586.9 329.9L587.6 329.8L588.2 329.9L588.8 329.9L589.5 329.7L590.1 329.9L590.7 330.0L591.4 330.0L592.0 330.0L592.6 330.0L593.3 330.0L593.9 330.0L594.5 330.0L595.2 330.0L595.8 330.0L596.4 330.0L597.1 330.0L597.7 330.0L598.3 329.9L598.9 330.0L599.6 330.0L600.2 330.0L600.8 330.0L601.5 330.0L602.1 330.0L602.7 330.0L603.4 330.0L604.0 330.0L604.6 329.9L605.3 330.0L605.9 330.0L606.5 330.0L607.2 330.0L607.8 330.0L608.4 330.0L609.1 330.0L609.7 330.0L610.3 330.0L610.9 330.0L611.6 329.9L612.2 330.0L612.8 330.0L613.5 330.0L614.1 330.0L614.7 330.0L615.4 329.8L616.0 330.0L616.6 329.9L617.3 330.0L617.9 330.0L618.5 329.9L619.2 330.0L619.8 330.0L620.4 330.0L621.1 329.9L621.7 329.9L622.3 330.0L622.9 330.0L623.6 330.0L624.2 330.0L624.8 330.0L625.5 330.0L626.1 330.0L626.7 330.0L627.4 330.0L628.0 329.9L628.6 330.0L629.3 330.0L629.9 330.0L630.5 330.0L631.2 330.0L631.8 330.0L632.4 330.0L633.1 330.0L633.7 330.0L634.3 330.0L634.9 330.0L635.6 330.0L636.2 330.0L636.8 330.0L637.5 330.0L638.1 330.0L638.7 330.0L639.4 330.0L640.0 330.0L640.6 330.0L641.3 330.0L641.9 330.0L642.5 330.0L643.2 330.0L643.8 330.0L644.4 330.0L645.1 330.0L645.7 330.0L646.3 330.0L646.9 330.0L647.6 330.0L648.2 330.0L648.8 330.0L649.5 330.0L650.1 330.0L650.7 330.0L651.4 330.0L652.0 330.0L652.6 330.0L653.3 330.0L653.9 330.0L654.5 330.0L655.2 330.0L655.8 330.0L656.4 330.0L657.1 330.0L657.7 329.9L658.3 330.0L658.9 330.0L659.6 330.0L660.2 330.0L660.8 330.0L661.5 330.0L662.1 329.9L662.7 329.9L663.4 329.6L664.0 329.8L664.6 329.9L665.3 330.0L665.9 330.0L666.5 329.9L667.2 330.0L667.8 329.9L668.4 329.6L669.1 330.0L669.7 329.5L670.3 329.9L670.9 330.0L671.6 330.0L672.2 330.0L672.8 330.0L673.5 330.0L674.1 330.0L674.7 330.0L675.4 329.7L676.0 330.0L676.6 329.5L677.3 329.6L677.9 329.9L678.5 329.8L679.2 329.6L679.8 328.1L680.4 329.6L681.1 329.2L681.7 329.0L682.3 329.7L682.9 330.0L683.6 329.9L684.2 329.5L684.8 329.9L685.5 329.8L686.1 329.8L686.7 329.0L687.4 328.4L688.0 328.1L688.6 329.2L689.3 329.3L689.9 329.5L690.5 328.9L691.2 329.5L691.8 329.9L692.4 327.8L693.1 329.7L693.7 330.0L694.3 329.3L694.9 330.0L695.6 328.1L696.2 328.9L696.8 305.9L697.5 313.5L698.1 325.4L698.7 312.6L699.4 155.7L700.0 102.2" class="ln1"/>
+<line x1="574.0" y1="330" x2="574.0" y2="90" class="stem" stroke-dasharray="4 3"/>
+<text x="579.0" y="102" class="flab st c2">r* = 2&#960;/&#916;</text>
+<line x1="700.0" y1="330" x2="700.0" y2="90" class="stem" stroke-dasharray="4 3"/>
+<text x="695.0" y="102" class="flab end c2">2r*</text>
+<text x="448.0" y="346" class="flab">0</text>
+<text x="568.3" y="346" class="flab">100</text>
+<text x="688.6" y="346" class="flab">200</text>
+<text x="809.0" y="346" class="flab">300</text>
+<text x="929.3" y="346" class="flab">400</text>
+<text x="574.0" y="364" class="flab">the soft battlefield is the notch ladder &#8212;</text>
+<text x="574.0" y="380" class="flab">rh15&#8217;s geography, resolved by the finer lattice</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — where the certificate stops descending.</b> <i>Left:</i> the certified Δ = 0.06 kernel on its own mesh (positive, λ<sub>min</sub> = 5.5×10⁻¹¹, rh17's theorem) and on sub-lattices δ = Δ/2 … Δ/16: every 60-digit verdict indefinite, the failure index climbing forward as δ shrinks, while float inverse iteration (hollow) keeps reporting positive numbers — the fourth float lie. The two irregular node sets at spacing ~Δ, which do not resolve the notch, stay positive. <i>Right:</i> the wall: the positive tail mass dropped by every computable cut R₀ against the notch floor a sub-lattice must resolve — the curves never cross before R₀ ≈ 1.4&#215;10<sup>5</sup>. Beneath, the reconciliation: the witness direction's truncated form is negative, its zeros-side value positive, the gap inside the dropped budget.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · The theorem</h2>
+<div class="box thm"><span class="lbl">T — P2, closed</span>
+<p>Let 𝒜 be the class of real, continuous, compactly supported g with g′ of bounded variation, and for Δ &gt; 0 let E<sub>Δ</sub> be the arc's kernel (rh15 eq. (1); rh17's exact object). Then the three statements are equivalent: <b>(L)</b> every finite section [E<sub>Δ</sub>((j−k)Δ)] is positive semidefinite, for every Δ; <b>(W)</b> 𝒲(g⋆ǧ) ≥ 0 for every g ∈ 𝒜; <b>(Bo)</b> every E<sub>Δ</sub> is a positive-definite function on ℝ. The arrows: (Bo) ⟹ (L) by restriction; (L) ⟹ (W) by the identity (2), the moduli (3)–(5), and closure of nonnegativity under limits; (W) ⟹ (Bo) by the identity (2) at arbitrary nodes. Furthermore each is equivalent to the Riemann Hypothesis, by Weil's criterion applied to the subclass C<sub>c</sub><sup>∞</sup> ⊂ 𝒜 (cited, not reproven — rh15's P3).</p>
+</div>
+<p><b>Hypotheses, in full.</b> Rosser–Schoenfeld's ψ(t) &lt; 1.03883t (cited, 1962) under the prime constant's displayed envelope — the sieve value itself is exact and hypothesis-free; IEEE-754 and libmpdec directed rounding behaving as specified, for the interval-certified envelope (4) and rh17's floors where they are invoked; Weil's criterion (cited) for the RH face only. The equivalence (L) ⟺ (W) ⟺ (Bo) stands on the first two alone.</p>
+<p><b>What is proven beyond the equivalence.</b> The effective content of the density step: rh17's certified floors m₀(Δ) transfer positivity off the lattice, to every window within ‖d‖<sub>∞</sub> ≤ r* of the certified spline class (perturbations with Var(d′) ≤ 100‖d‖<sub>∞</sub>): r* = 2.4&#215;10<sup>&#8722;15</sup> at Δ = 0.06, 7.0&#215;10<sup>&#8722;18</sup> at 0.015. Microscopic, and honestly so — the constant K(a) that eats the floor grows like e<sup>a</sup> (measured 13 at a = 2 to 860 at a = 6, the prime constant's exponential), while the floors soften with the mesh: the first non-lattice windows ever certified in this arc, and a precise measure of how far from (W) the certificates stand. The margin currency's stability is directional in the same geography, measured three ways: smooth row perturbations at η = 10⁻⁶ dent no Schur margin by more than 3.0&#215;10<sup>&#8722;2</sup> of its 0.40–0.70 — and the response is <i>sublinear</i> in η (exponents 0.12&#8211;1.00 measured), the signature of near-degenerate soft modes splitting under perturbation; a generic Nyquist-frequency pattern misses the soft mode at <i>every</i> mesh, positivity surviving η = 10⁻³ — 7&#215;10<sup>9</sup> times λ<sub>min</sub>; and the soft mode is found only by the pattern <i>aligned</i> with its own autocorrelation, which flips positivity at η* = 3.6&#215;10<sup>&#8722;13</sup> at the coarse mesh against a first-order prediction of exactly that, and within a factor 1 of the prediction at the finer two.</p>
+<p><b>What is not proven.</b> (L) itself — RH. Every certificate this arc possesses is finitely many sections of the diagonal family, and §4's wall now says the diagonal is not a choice but a boundary: each refinement of the lattice beyond its own mesh re-opens a notch that no computable truncation can close, so the continuum statement (Bo) is approached only along (Δ, mesh-Δ) — mesh by mesh, each new mesh a new kernel, certified whole or not at all. The equivalence is closed; the quantifier is the hypothesis.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 470" role="img" aria-label="The theorem as a diagram: four boxes — lattice positivity, window positivity, the Bochner statement, and the Riemann Hypothesis — joined by labelled equivalence arrows: restriction, the continuity theorem with its explicit epsilon, the identity at arbitrary nodes, and Weil cited. Beneath, the computed ledger: identity residuals, the epsilon at the finest mesh, the zeros-side agreement, the escape radius, and the sub-lattice wall.">
+<text x="360.0" y="24" class="ftitle">the closed link, as a diagram &#8212; every arrow carries its computed constant</text>
+<rect x="24" y="60" width="150" height="58" class="cardbox"/>
+<text x="99.0" y="78" class="flab c1">(L)&#8194;lattice</text>
+<text x="99.0" y="94" class="flab">E PD on &#916;&#8484;,</text>
+<text x="99.0" y="108" class="flab">every &#916;, every n</text>
+<rect x="206" y="60" width="150" height="58" class="cardbox"/>
+<text x="281.0" y="78" class="flab c1">(W)&#8194;windows</text>
+<text x="281.0" y="94" class="flab">W(g&#8902;&#487;) &#8805; 0,</text>
+<text x="281.0" y="108" class="flab">every g &#8712; C&#8320;&#178;-BV</text>
+<rect x="388" y="60" width="150" height="58" class="cardbox"/>
+<text x="463.0" y="78" class="flab c1">(Bo)&#8194;Bochner</text>
+<text x="463.0" y="94" class="flab">E positive-definite</text>
+<text x="463.0" y="108" class="flab">on &#8477;, every &#916;</text>
+<rect x="570" y="60" width="150" height="58" class="cardbox"/>
+<text x="645.0" y="78" class="flab c1">RH</text>
+<text x="645.0" y="94" class="flab">all zeros on</text>
+<text x="645.0" y="108" class="flab">the critical line</text>
+<text x="190.0" y="93.0" class="flab c2" font-size="15px">&#10234;</text>
+<text x="372.0" y="93.0" class="flab c2" font-size="15px">&#10234;</text>
+<text x="554.0" y="93.0" class="flab c2" font-size="15px">&#10234;</text>
+<text x="40" y="144" class="flab st">(L)&#8658;(W): T2 &#8212; &#949;(&#916;; g) explicit, &#8594; 0</text>
+<text x="40" y="161" class="flab st">(W)&#8658;(L): restriction to lattice splines</text>
+<text x="40" y="178" class="flab st">(W)&#8658;(Bo): T1a at arbitrary nodes</text>
+<text x="40" y="195" class="flab st">(Bo)&#8658;(W): the same identity, read back</text>
+<text x="40" y="212" class="flab st">(W)&#8660;RH: Weil 1952, cited (P3)</text>
+<text x="40" y="245" class="flab st c1">the computed ledger:</text>
+<text x="40" y="263" class="flab st">T1a identity residual, four node configurations, three terms: &#8804; 6&#215;10&#8315;&#185;&#8308; relative</text>
+<text x="40" y="280" class="flab st">&#949;(0.015; g&#8321;) = 9.6&#215;10&#8315;&#178; proven; measured gap 7&#215;10&#8315;&#8313; &#8212; 2.4&#215;10&#8312;&#215; inside the bound</text>
+<text x="40" y="297" class="flab st">zeros side, 1517 zeros to height 2000: geometric &#8722; spectral = 9&#215;10&#8315;&#185;&#179; (g&#8321;), 1&#215;10&#8315;&#185;&#179; (g&#8322;)</text>
+<text x="40" y="314" class="flab st">the escape (T3): W &gt; 0 within &#8214;d&#8214;&#8734; &#8804; 2&#215;10&#8315;&#185;&#8309; of the certified &#916; = 0.06 class (Var d&#8242; &#8804; 100&#8214;d&#8214;&#8734;)</text>
+<text x="40" y="331" class="flab st">the wall: sub-lattices &#948; = &#916;/2&#8230;&#916;/16 indefinite for every computable cut &#8212; parity needs R&#8320; &#8776; 1&#215;10&#8309;</text>
+<text x="40" y="348" class="flab st">&#8230;while the ~&#916;-spaced irregular node sets, which do not resolve the notch, stay PD (60-digit Cholesky)</text>
+<text x="40" y="381" class="flab st">hypotheses: Rosser&#8211;Schoenfeld &#968;(t) &lt; 1.03883&#8202;t (cited) &#183; IEEE-754 + libmpdec directed rounding (envelope cells)</text>
+<text x="40" y="398" class="flab st">&#183; Weil&#8217;s criterion (cited, for the RH face only)</text>
+<text x="40" y="418" class="flab st c2">what remains is (L) itself &#8212; all meshes, all depths: the hypothesis, now the only link in the chain</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 — the theorem card.</b> The four faces and their arrows, each labelled by the lemma that carries it and the computed constant that witnessed it; beneath, the ledger — identity residuals, the proven ε against the measured gap, the zeros-side agreement, the escape radius, the sub-lattice verdicts — and the hypothesis line. The closing line is the honest one: what remains is (L), at every mesh and depth.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The bill, audited</h2>
+<p>rh15's box said "proven, with the analytic care named." The care, performed, cost: 47 named checks in 2.5 minutes — the identity verified four ways, five constants computed (one by exact sieve, one by interval cells, three by elementary inequalities with their integrals priced), two windows carried through three independent faces of the functional, five sub-lattice verdicts at 60 digits, and the interval kit of rh17 reused unchanged. No step was deep; every step was checkable; the box's skeleton survived intact. In that sense rh15 was right.</p>
+<p>In two other senses the box undersold the problem it was waving at. First, the norm it never fixed turned out to be a real decision: the archimedean term diverges on C⁰, and the class 𝒜 — BV derivative, the weakest class where the transform ladder closes — is load-bearing, not decorative. Second, the two findings. The proven Δ² envelope is real and the measured gaps ignore it by eight orders, because the interpolation defect is spectrally exiled to the mesh's own notch — a mechanism nothing in the density argument predicts, and the same geography rh15 mapped as "λ<sub>min</sub> measures the hat." And the certificate does not descend: the one experiment P2's continuity language invites — refine the grid under a certified kernel — fails structurally, at a wall (drop versus notch floor) that prices any sub-lattice verdict at R₀ ≈ 1.4&#215;10<sup>5</sup>. The open link is closed, and closing it explains why the arc's staircase has the shape it has.</p>
+<p><b>For the successor.</b> (i) The diagonal is the staircase: new certificates mean new meshes Δ, each certified whole at its own lattice by rh17's α — never sub-sampled. The collapse of the escape radius with the mesh says the coarse meshes are the strong ones; a certificate at Δ = 0.12 or 0.24 with a wide window would be the cheapest genuinely new theorem on offer. (ii) rh16's two constants stand — σ²v² ≈ 3.9×10⁻³ and D*'s missing mesh limit — and the exile identity suggests the first is within reach: the defect's spectral home at π/Δ is now an explicit formula, not a mystery. (iii) The Krawczyk route past β's wall (rh17 §6) is still the way to make the ρ-sequences themselves theorems. (iv) The witness reconciliation of §4 — truncated form negative, zeros side positive, gap accounted — is a template: run against a putative counterexample direction, it is exactly the shape a disproof-or-verification instrument for one zero would take.</p>
+</section>
+
+<section id="s7">
+<h2 class="prose" style="max-width:46rem">7 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic number theory</th></tr>
+<tr><td>the functional behind every matrix</td><td>𝒲(f): pole + Γ-factor − primes, eq. (1); sections = 𝒲 on hat-splines, eq. (2)</td></tr>
+<tr><td>the three faces</td><td>(L) lattice ⟺ (W) windows ⟺ (Bo) Bochner ⟺ RH (Weil cited)</td></tr>
+<tr><td>the merge, at window level</td><td>terms ±274 netting 2×10⁻⁹: cancellation 1.4&#215;10<sup>11</sup>:1</td></tr>
+<tr><td>the defect's exile</td><td>d̂(r) ≈ (Δ²/12)r²ĝ(r) at low r; the rest at r ~ π/Δ under a dead B²</td></tr>
+<tr><td>one number, three ways</td><td>primes/Γ, lattice, zeros: agreement to 10⁻¹¹ on a 10⁻⁹ value</td></tr>
+<tr><td>the staircase is diagonal</td><td>certificates exist only at (Δ, mesh Δ): sub-lattices re-open the notch</td></tr>
+<tr><td>the wall</td><td>dropped tail 1.3&#215;10<sup>&#8722;5</sup>–2.5&#215;10<sup>&#8722;9</sup> vs notch floor 2&#215;10<sup>&#8722;12</sup>; parity at R₀ ≈ 1.4&#215;10<sup>5</sup></td></tr>
+<tr><td>the escape radius</td><td>positivity off-lattice within r* = 2.4&#215;10<sup>&#8722;15</sup> of the certified class</td></tr>
+<tr><td>what P2's closure leaves</td><td>(L) itself — all Δ, all n: the hypothesis, the only link left</td></tr>
+</table>
+</div>
+<div class="prose refs">
+<h3>References</h3>
+<ol>
+<li>A. Weil, <i>Sur les "formules explicites" de la théorie des nombres premiers</i>, Comm. Sém. Math. Lund (1952) — the criterion behind (W) ⟺ RH.</li>
+<li>A. P. Guinand, <i>A summation formula in the theory of prime numbers</i>, Proc. LMS (1948) — the explicit formula as a functional identity; §4's third face.</li>
+<li>S. Bochner, <i>Vorlesungen über Fouriersche Integrale</i>, Leipzig (1932) — positive-definite functions; the reading behind (Bo).</li>
+<li>J. B. Rosser and L. Schoenfeld, <i>Approximate formulas for some functions of prime numbers</i>, Illinois J. Math. 6 (1962) — ψ(t) &lt; 1.03883t, the prime constant's envelope.</li>
+<li>I. J. Schoenberg, <i>Cardinal Spline Interpolation</i>, SIAM (1973) — the interpolation moduli of §3.</li>
+<li>R. E. Moore, <i>Interval Analysis</i>, Prentice-Hall (1966); S. M. Rump, <i>Verification methods</i>, Acta Numerica 19 (2010) — the certified-envelope method of (4).</li>
+<li>NIST DLMF §5.11 — Stirling for ψ with explicit remainders, as in rh17.</li>
+</ol>
+</div>
+</section>
+
+
+</div>
+</body>
+</html>

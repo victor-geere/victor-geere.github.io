@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finite-window zeros — P3 attack</title>
+<style>
+  :root { --ink:#1a202c; --muted:#555; --rule:#d8d8d8; --bg:#fcfcfb; --accent:#1a5fb4; --panel:#f3f5f7; }
+  body { font-family: Georgia, serif; max-width: 980px; margin: 2.4rem auto; padding: 0 1.3rem;
+         line-height: 1.65; color: var(--ink); background: var(--bg); }
+  h1 { font-size: 2rem; margin-bottom: .2rem; }
+  h2 { margin-top: 2.3rem; border-bottom: 1px solid var(--rule); padding-bottom: .25rem; }
+  h3 { margin-top: 1.6rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: #f1f3f5; padding: .08rem .25rem; border-radius: 3px; font-size: .93em; }
+  pre { background: var(--panel); padding: .8rem 1rem; border-radius: 6px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--rule); padding: .42rem .55rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  .status { background: #fff6e5; border: 1px solid #ecd39a; padding: .8rem 1rem; border-radius: 8px; }
+  .note { background: #fbfbf7; border-left: 4px solid #c9b458; padding: .7rem 1rem; }
+  .muted { color: var(--muted); font-size: .93rem; }
+  .footer { margin-top: 2.5rem; border-top: 1px solid var(--rule); padding-top: .9rem; font-size: .92rem; }
+</style>
+</head>
+<body>
+
+<h1>Finite-window zeros</h1>
+<p class="muted">A P3 dossier of <a href="../../index.html">The Final Letter</a>.</p>
+
+<p class="status"><strong>Status: P3 has a point and a thin segment.</strong> The finite algebra,
+the pair estimate, the identity <code>(1-2^{1-s})ζ(s) = η(s)</code> for every
+<code>0 &lt; Re s</code>, <code>s ≠ 1</code>, the tail bound and the verified complex-power
+atom are Lean-proved. <code>Cert.lean</code> assembles a 100-pair certificate and proves
+<code>ζ(1/2 + 5i) ≠ 0</code> with no atom hypothesis. This is a pointwise finite-window
+theorem, not a zero count and not a statement about RH; a segment remains open.</p>
+
+<h2>Provenance</h2>
+<p>P3/R14 of <a href="../../status.html">status.html</a> §7. The eta/zeta identity is the
+standard alternating-series identity; the programme proves it for <code>Re s &gt; 1</code> in
+<a href="../partial-sum-plus-tail/lean/SourceClaims.lean"><code>SourceClaims.lean</code></a>.
+Inventoried as item 47 in <a href="../../scraps.html">scraps.html</a>.</p>
+
+<h2>What the dossier is</h2>
+<p>P3 asks for one theorem whose numerical premise is discharged by a Lean certificate. The
+chosen finite-window object is a segment of the critical line, reached through the grouped
+alternating (eta) series</p>
+<pre><code>η(s) = Σ_{n≥1} (-1)^{n-1} n^{-s}
+     = Σ_{m≥0} ((2m+1)^{-s} - (2m+2)^{-s}).</code></pre>
+<p>The pairing is absolutely convergent for <code>Re s &gt; 0</code>, and the classical identity</p>
+<pre><code>(1 - 2^{1-s}) ζ(s) = η(s)        (E)</code></pre>
+<p>holds for <code>Re s &gt; 0</code>. A certified rectangle for <code>η</code> plus a certified
+lower bound for <code>|1 - 2^{1-s}|</code> encloses <code>ζ</code> on the same window; a box
+that excludes zero certifies nonvanishing there. This is a finite-window statement. It does
+not assert RH and cannot decide an off-window zero.</p>
+
+<h2>Objects</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th><th>Where</th></tr></thead>
+<tbody>
+<tr><td><code>altPartial s N</code></td><td><code>Σ_{n&lt;N} (-1)^n / (n+1)^s</code></td><td><code>lean/Topic.lean</code></td></tr>
+<tr><td><code>pairTerm s m</code></td><td><code>(2m+1)^{-s} - (2m+2)^{-s}</code></td><td><code>lean/Topic.lean</code></td></tr>
+<tr><td><code>pairPartial s M</code></td><td><code>Σ_{m&lt;M} pairTerm s m</code></td><td><code>lean/Topic.lean</code></td></tr>
+<tr><td><code>pair_tail_bound</code></td><td><code>|s|[(2M+1)^{-p} + (2M+1)^{1-p}/(2(p-1))]</code>, <code>p = σ+1</code></td><td><code>python/programme.py</code></td></tr>
+<tr><td><code>eta_enclosure</code></td><td>interval box for η on a rectangle plus tail radius</td><td><code>python/programme.py</code></td></tr>
+<tr><td><code>factor_enclosure</code></td><td>interval box for <code>1 - 2^{1-s}</code></td><td><code>python/programme.py</code></td></tr>
+<tr><td><code>zeta_enclosure</code></td><td><code>η</code>-box divided by the factor, inflated by <code>tail/|f|</code></td><td><code>python/programme.py</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td><strong>Zero-isolation feasibility probe:</strong> floating winding number <code>1</code> around <code>Re ∈ [0.4,0.6]</code>, <code>Im ∈ [14.0,14.3]</code>. Not a certificate.</td><td><code>python/zero_probe.py</code></td></tr>
+<tr><td>C8</td><td>Computation</td><td><strong>First-zero ordinate:</strong> 50-digit numerical value from <code>mpmath.zeta</code>. Not a certificate.</td><td><code>python/zero_probe.py</code></td></tr>
+<tr><td>C9</td><td>Computation</td><td><strong>Euler–Maclaurin interval zeta:</strong> rigorous box on <code>Re &gt; 0</code>, width <code>~5·10⁻³⁰</code> at <code>1/2+14i</code>.</td><td><code>python/accelerated.py</code></td></tr>
+<tr><td>C10</td><td>Computation</td><td><strong>Cauchy derivative bound:</strong> <code>|ζ′| ≤ M/pad</code>; numerically <code>≈34</code> for <code>pad=0.05</code> (too coarse for Krawczyk).</td><td><code>python/accelerated.py</code></td></tr>
+<tr><td>C11</td><td>Computation</td><td><strong>Numerical Krawczyk zero isolation:</strong> on <code>Re ∈ [0.499,0.501]</code>, <code>Im ∈ [14.1345,14.1349]</code>, the Krawczyk image is strictly inside the rectangle. The Krawczyk theorem is not yet formalised.</td><td><code>python/accelerated.py</code></td></tr>
+</tbody>
+</table>
+
+<h2>Theorem ledger</h2>
+<p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a>
+with no <code>sorry</code>, <code>axiom</code> or <code>admit</code>. Every
+<strong>Computation</strong> row is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.
+Nothing here asserts RH.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>Finite regrouping: the alternating partial sum over <code>2M</code> terms equals the sum of the <code>M</code> adjacent odd/even pairs.</td><td><code>altPartial_two_mul</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>Pair estimate: for <code>Re s ≥ σ &gt; 0</code>, <code>‖pairTerm s m‖ ≤ ‖s‖(2m+1)^{-σ-1}</code>.</td><td><code>norm_pairTerm_le</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>The majorant <code>m ↦ (2m+1)^{-p}</code> is summable for <code>p &gt; 1</code>.</td><td><code>summable_pairMajorant</code>, <code>summable_pairMajorant'</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>The grouped eta series is summable for <code>Re s &gt; 0</code>.</td><td><code>summable_pairTerm</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>Eta identity on <code>Re s &gt; 1</code>: <code>(1-2^{1-s})ζ(s)=η(s)</code>, by splitting into odd and even terms.</td><td><code>etaGrouped_eq_one_sub_two_cpow_mul_zeta</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>The identity on the upper quadrant <code>Re s &gt; 0</code>, <code>Im s &gt; 0</code>, by the identity theorem.</td><td><code>..._of_im_pos</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>The same on the lower quadrant.</td><td><code>..._of_im_neg</code></td></tr>
+<tr><td>T8</td><td>Theorem</td><td>The identity for every <code>0 &lt; Re s</code>, <code>s ≠ 1</code>, by continuity on the real axis.</td><td><code>..._of_re_pos</code></td></tr>
+<tr><td>T9</td><td>Theorem</td><td>Transfer: a nonzero eta value (or an enclosing set excluding zero) certifies <code>ζ(s) ≠ 0</code>.</td><td><code>zeta_ne_zero_of_eta_ne_zero</code>, <code>zeta_ne_zero_of_eta_mem</code></td></tr>
+<tr><td>T10</td><td>Theorem</td><td>Tail comparison <code>Σ_{m≥0}(2(m+M)+1)^{-p} ≤ (2M+1)^{-p} + (2M+1)^{1-p}/(2(p-1))</code>, <code>p &gt; 1</code>.</td><td><code>tsum_pairMajorant_add_le</code></td></tr>
+<tr><td>T11</td><td>Theorem</td><td>Norm tail bound for the grouped eta tail after <code>M</code> pairs.</td><td><code>norm_tsum_pairTerm_tail_le</code></td></tr>
+<tr><td>T12</td><td>Theorem</td><td><strong>P3 instance:</strong> <code>ζ(1/2 + 5i) ≠ 0</code>, certified by a 100-pair rational enclosure, the tail bound and a box-excludes-zero test. No atom hypothesis.</td><td><code>zeta_half_plus_five_ne_zero</code> (<code>Cert.lean</code>)</td></tr>
+<tr><td>T13</td><td>Theorem</td><td><strong>P3 thin segment:</strong> <code>ζ(1/2+it) ≠ 0</code> for every <code>t ∈ [5, 5.000003]</code>.</td><td><code>zeta_ne_zero_segment</code> (<code>Seg.lean</code>)</td></tr>
+<tr><td>T14</td><td>Theorem</td><td><strong>Complex mean value inequality:</strong> derivative bound on a segment implies the Lipschitz bound.</td><td><code>norm_sub_le_of_deriv_bound</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T15</td><td>Theorem</td><td><strong>Newton-map Lipschitz bound:</strong> <code>‖(x-Yf x)-(y-Yf y)‖ ≤ q‖x-y‖</code> when <code>‖1-Yf′‖ ≤ q</code>.</td><td><code>norm_newton_sub_le</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T16</td><td>Theorem</td><td><strong>Newton map preserves the ball:</strong> under <code>‖Yf(x₀)‖+qr ≤ r</code>, the Newton map sends the closed ball into itself.</td><td><code>newton_mapsTo_closedBall</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T17</td><td>Theorem</td><td><strong>Krawczyk zero existence:</strong> a self-mapping <code>q</code>-contraction Newton map has a zero in the closed ball.</td><td><code>exists_zero_of_krawczyk</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T18</td><td>Theorem</td><td><strong>First Euler–Maclaurin brick:</strong> <code>∫₀¹ B₁(x) dx = 0</code>.</td><td><code>integral_bernoulli_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T19</td><td>Theorem</td><td><strong>General Bernoulli integral:</strong> <code>∫₀¹ B_n(x) dx = 0</code> for every <code>n ≥ 1</code>.</td><td><code>integral_bernoulli</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T20</td><td>Theorem</td><td><strong>Periodic Bernoulli integral:</strong> <code>∫<sub>k</sub><sup>k+1</sup> B_n({x}) dx = 0</code> for every integer <code>k</code>.</td><td><code>integral_periodicBernoulli</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T21</td><td>Theorem</td><td><strong>Continuity away from integers:</strong> <code>B_n({x})</code> is continuous at every non-integer <code>x</code>.</td><td><code>continuousAt_periodicBernoulli_of_not_int</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T22</td><td>Theorem</td><td><strong>Continuity at integers:</strong> for <code>n ≥ 2</code>, <code>B_n({x})</code> is continuous at every integer.</td><td><code>continuousAt_periodicBernoulli_int</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T23</td><td>Theorem</td><td><strong>One-step summation by parts:</strong> the <code>∫₀¹ f B_n</code> identity for <code>f ∈ C¹</code>.</td><td><code>sum_by_parts_zero_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T24</td><td>Theorem</td><td><strong>Base Euler–Maclaurin identity:</strong> <code>∫₀¹ (x−1/2)f′ = (f(1)+f(0))/2 − ∫₀¹ f</code>.</td><td><code>integral_B1_mul_deriv</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T25</td><td>Theorem</td><td><strong>Interval Euler–Maclaurin identity:</strong> <code>∫<sub>k</sub><sup>k+1</sup> (x−k−1/2)f′ = (f(k+1)+f(k))/2 − ∫<sub>k</sub><sup>k+1</sup> f</code>.</td><td><code>integral_B1_mul_deriv_int</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T26</td><td>Theorem</td><td><strong>Finite Euler–Maclaurin summation:</strong> the first-order summation formula with integral remainder.</td><td><code>sum_range_euler_maclaurin</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T27</td><td>Theorem</td><td><strong>Two-step Bernoulli expansion:</strong> the <code>B_n, B_{n+1}, B_{n+2}</code> correction on <code>[0,1]</code>.</td><td><code>sum_by_parts_two_step</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T28</td><td>Theorem</td><td><strong>Three-step Bernoulli expansion:</strong> the <code>B_n</code> through <code>B_{n+3}</code> correction on <code>[0,1]</code>.</td><td><code>sum_by_parts_three_step</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T29</td><td>Theorem</td><td><strong>General Euler–Maclaurin expansion:</strong> the recursive <code>K</code>-correction expansion for any <code>K</code>.</td><td><code>integral_eq_emExpansion</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T30</td><td>Theorem</td><td><strong>Derivative of the shifted power:</strong> <code>(x+1)<sup>−σ</sup></code> has derivative <code>−σ(x+1)<sup>−σ−1</sup></code> on <code>x ≥ 0</code>.</td><td><code>hasDerivAt_one_add_rpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T31</td><td>Theorem</td><td><strong>Complex power derivative:</strong> <code>x<sup>−s</sup></code> has derivative <code>−s x<sup>−s−1</sup></code> for <code>x &gt; 0</code>.</td><td><code>hasDerivAt_cpow_neg</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T32</td><td>Theorem</td><td><strong>Complex one-step summation by parts:</strong> the Bernoulli identity for <code>ℂ</code>-valued <code>f</code>.</td><td><code>sum_by_parts_zero_one_complex</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T33</td><td>Theorem</td><td><strong>Complex general Euler–Maclaurin expansion:</strong> the recursive <code>K</code>-correction expansion for <code>ℂ</code>-valued functions.</td><td><code>integral_eq_emExpansionC</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T34</td><td>Theorem</td><td><strong>Pochhammer recurrence:</strong> <code>D<sub>j+1</sub>(−s) = D<sub>j</sub>(−s)(−s−j)</code>.</td><td><code>emG_succ</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T35</td><td>Theorem</td><td><strong>Derivative of the <code>emG</code> sequence:</strong> <code>d/dx emG(s,j) = emG(s,j+1)</code> on <code>x ≥ 0</code>.</td><td><code>hasDerivAt_emG</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T36</td><td>Theorem</td><td><strong>Complex EM for the <code>emG</code> tower:</strong> <code>∫₀¹ emG(s,0)B_n = emExpansionC n K (emG s)</code>.</td><td><code>integral_emG_eq_emExpansionC</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T37</td><td>Theorem</td><td><strong>Complex EM for <code>(x+1)<sup>−s</sup></code>:</strong> <code>∫₀¹ (x+1)<sup>−s</sup>B_n = emExpansionC n K (emG s)</code>.</td><td><code>integral_cpow_eq_emExpansionC</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T38</td><td>Theorem</td><td><strong>Complex continuity translation:</strong> shifting a <code>ℂ</code>-valued function by an integer preserves continuity.</td><td><code>continuousOn_comp_add_int_complex</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T39</td><td>Theorem</td><td><strong>Complex integrability translation:</strong> the same shift preserves interval integrability.</td><td><code>intervalIntegrable_comp_add_int_complex</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T40</td><td>Theorem</td><td><strong>Complex base identity:</strong> <code>∫₀¹ (x−1/2)f′ = (f(1)+f(0))/2 − ∫₀¹ f</code> for <code>ℂ</code>-valued <code>f</code>.</td><td><code>integral_B1_mul_deriv_complex</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T41</td><td>Theorem</td><td><strong>Complex interval identity:</strong> the same identity on <code>[k,k+1]</code>.</td><td><code>integral_B1_mul_deriv_int_complex</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T42</td><td>Theorem</td><td><strong>Complex finite EM:</strong> the finite sum formula for <code>ℂ</code>-valued functions.</td><td><code>sum_range_euler_maclaurin_complex</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T43</td><td>Theorem</td><td><strong>Complex finite EM on <code>[0,∞)</code>:</strong> differentiability only for <code>x ≥ 0</code>.</td><td><code>sum_range_euler_maclaurin_complex_nonneg</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T44</td><td>Theorem</td><td><strong>EM for <code>(k+1)<sup>−s</sup></code>:</strong> the first-order finite formula.</td><td><code>sum_shifted_cpow_euler_maclaurin</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T45</td><td>Theorem</td><td><strong>Norm of <code>x<sup>−s</sup></code>:</strong> <code>‖x<sup>−s</sup>‖ = x<sup>−Re s</sup></code>.</td><td><code>norm_cpow_neg_ofReal</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T46</td><td>Theorem</td><td><strong>Pointwise correction bound:</strong> the integrand estimate.</td><td><code>norm_correction_integrand_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T47</td><td>Theorem</td><td><strong>Integral correction bound:</strong> the per-interval estimate.</td><td><code>norm_integral_correction_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T48</td><td>Theorem</td><td><strong>Summed correction bound:</strong> the sum of T47.</td><td><code>norm_sum_correction_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T49</td><td>Theorem</td><td><strong>Crude weight bound:</strong> <code>Σ(k+1)<sup>−σ−1</sup> ≤ n</code>.</td><td><code>sum_shifted_rpow_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T50</td><td>Theorem</td><td><strong>Finite value enclosure:</strong> remainder <code>≤ n‖s‖/2</code>.</td><td><code>finite_sum_enclosure</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T51</td><td>Theorem</td><td><strong>Monotonicity of the weight:</strong> antitone on <code>[0,∞)</code>.</td><td><code>antitoneOn_shifted_rpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T52</td><td>Theorem</td><td><strong>Tail integral bound:</strong> <code>∫<sub>a</sub><sup>b</sup>x<sup>−σ−1</sup> ≤ 1/σ</code>.</td><td><code>integral_rpow_neg_le_inv</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T53</td><td>Theorem</td><td><strong>Sharp weight bound:</strong> <code>Σ(k+1)<sup>−σ−1</sup> ≤ 1+1/σ</code>.</td><td><code>sum_shifted_rpow_le_inv</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T54</td><td>Theorem</td><td><strong>Uniform correction bound:</strong> independent of <code>n</code>.</td><td><code>norm_sum_correction_le_uniform</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T55</td><td>Theorem</td><td><strong>Uniform finite value enclosure:</strong> uniform remainder.</td><td><code>finite_sum_enclosure_uniform</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T56</td><td>Theorem</td><td><strong>Bound on <code>B₂</code>:</strong> <code>|B₂(x)| ≤ 1/6</code>.</td><td><code>abs_BR_two_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T57</td><td>Theorem</td><td><strong>Second-order interval identity:</strong> <code>∫<sub>k</sub><sup>k+1</sup> B₁({x})f′ = (1/12)(f′(k+1)−f′(k)) − (1/2)∫B₂({x})f″</code>.</td><td><code>integral_B1_mul_deriv_int_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T58</td><td>Theorem</td><td><strong>Telescoping sum:</strong> <code>Σ<sub>k&lt;n</sub>(g(k+1)−g(k)) = g(n)−g(0)</code>.</td><td><code>sum_range_sub_complex</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T59</td><td>Theorem</td><td><strong>Natural-index second-order identity:</strong> T57 with <code>k : ℕ</code>.</td><td><code>integral_B1_mul_deriv_nat</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T60</td><td>Theorem</td><td><strong><code>emG</code> telescoping:</strong> the first-derivative telescoping sum.</td><td><code>sum_range_emG_one_sub</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T61</td><td>Theorem</td><td><strong>Summed second-order correction:</strong> the telescoped <code>B₁</code>–<code>B₂</code> identity.</td><td><code>sum_correction_second_order</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T62</td><td>Theorem</td><td><strong>Second-order finite EM formula:</strong> the finite sum with <code>B₁</code> and <code>B₂</code> corrections.</td><td><code>sum_second_order</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T63</td><td>Theorem</td><td><strong>Norm of <code>emG(s,2)</code>:</strong> <code>‖emG(s,2,x)‖ = ‖s‖‖s+1‖(x+1)<sup>−Re s−2</sup></code>.</td><td><code>norm_emG_two</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T64</td><td>Theorem</td><td><strong>Pointwise <code>B₂</code> integrand bound:</strong> <code>‖emG(s,2,x)B₂({x})‖ ≤ (1/6)‖s‖‖s+1‖(k+1)<sup>−Re s−2</sup></code>.</td><td><code>norm_B2_correction_integrand_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T65</td><td>Theorem</td><td><strong>Integral <code>B₂</code> bound:</strong> the per-interval estimate.</td><td><code>norm_integral_B2_correction_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T66</td><td>Theorem</td><td><strong>Summed <code>B₂</code> bound:</strong> the sum of T65.</td><td><code>norm_sum_B2_correction_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T67</td><td>Theorem</td><td><strong><code>B₂</code> weight bound:</strong> <code>Σ(k+1)<sup>−σ−2</sup> ≤ 1+1/(σ+1)</code>.</td><td><code>sum_B2_weights_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T68</td><td>Theorem</td><td><strong>Second-order finite value enclosure:</strong> remainder <code>≤ (1/12)‖s‖‖s+1‖(1+1/(σ+1))</code>.</td><td><code>finite_sum_enclosure_second_order</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T69</td><td>Theorem</td><td><strong>Exact shifted-power integral:</strong> <code>∫₀^n (x+1)<sup>−s</sup> = ((n+1)<sup>1−s</sup>−1)/(1−s)</code>.</td><td><code>integral_cpow_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T70</td><td>Theorem</td><td><strong>Vanishing tail weight:</strong> for <code>σ &gt; 1</code>, <code>(n+1)<sup>1−σ</sup> → 0</code>.</td><td><code>tendsto_shifted_rpow_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T71</td><td>Theorem</td><td><strong>Summable <code>B₂</code> weights:</strong> for <code>σ &gt; −1</code>, <code>Σ(n+1)<sup>−σ−2</sup></code> converges.</td><td><code>summable_shifted_rpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T72</td><td>Theorem</td><td><strong>Summable <code>B₂</code> correction:</strong> the <code>B₂</code> integral series converges absolutely for <code>σ &gt; −1</code>.</td><td><code>summable_B2_correction</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T73</td><td>Theorem</td><td><strong>Convergent <code>B₂</code> partial sums:</strong> <code>Σ<sub>k&lt;n</sub>∫B₂f″ → ∑'</code> for <code>σ &gt; −1</code>.</td><td><code>tendsto_sum_B2_correction</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T74</td><td>Theorem</td><td><strong>Complex tail limit:</strong> <code>(n+1)<sup>1−s</sup> → 0</code> for <code>Re s &gt; 1</code>.</td><td><code>tendsto_cpow_shift_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T75</td><td>Theorem</td><td><strong>Integral limit:</strong> <code>∫₀^n (x+1)<sup>−s</sup> → 1/(s−1)</code> for <code>Re s &gt; 1</code>.</td><td><code>tendsto_integral_cpow_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T76</td><td>Theorem</td><td><strong>Inverse-square decay:</strong> <code>(n+1)<sup>−2</sup> → 0</code>.</td><td><code>tendsto_shifted_rpow_neg_two</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T77</td><td>Theorem</td><td><strong>Norm of <code>emG(s,1)</code>:</strong> <code>‖emG(s,1,x)‖ = ‖s‖(x+1)<sup>−Re s−1</sup></code>.</td><td><code>norm_emG_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T78</td><td>Theorem</td><td><strong><code>f′</code> tends to zero:</strong> <code>emG(s,1,n) → 0</code> for <code>Re s &gt; 1</code>.</td><td><code>tendsto_emG_one_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T79</td><td>Theorem</td><td><strong>Weight limit:</strong> <code>(n+1)<sup>−s</sup> → 0</code> for <code>Re s &gt; 1</code>.</td><td><code>tendsto_cpow_neg_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T80</td><td>Theorem</td><td><strong>Finite-sum limit:</strong> the second-order expression converges for <code>Re s &gt; 1</code>.</td><td><code>tendsto_sum_shifted_cpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T81</td><td>Theorem</td><td><strong>Second-order continuation of <code>ζ</code>:</strong> for <code>Re s &gt; 1</code>, <code>ζ(s)</code> equals the second-order EM expression.</td><td><code>zeta_eq_second_order</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T82</td><td>Theorem</td><td><strong>Shifted <code>emG</code> recurrence:</strong> the Pochhammer factor recurrence for the tail tower.</td><td><code>emGShift_succ</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T83</td><td>Theorem</td><td><strong>Shifted <code>emG</code> derivative:</strong> <code>d/dx emGShift(s,N,j) = emGShift(s,N,j+1)</code>.</td><td><code>hasDerivAt_emGShift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T84</td><td>Theorem</td><td><strong>First-order tail formula:</strong> EM for <code>Σ<sub>k&lt;n</sub>(k+N+1)<sup>−s</sup></code>.</td><td><code>sum_tail_first_order</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T85</td><td>Theorem</td><td><strong>Shifted first-derivative norm:</strong> <code>‖emGShift(s,N,1,x)‖ = ‖s‖(x+N+1)<sup>−Re s−1</sup></code>.</td><td><code>norm_emGShift_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T86</td><td>Theorem</td><td><strong>Shifted correction bound:</strong> <code>‖(x−k−1/2)emGShift(s,N,1,x)‖ ≤ ‖s‖/2·(k+N+1)<sup>−Re s−1</sup></code>.</td><td><code>norm_tail_correction_integrand_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T87</td><td>Theorem</td><td><strong>Shifted integral bound:</strong> the per-interval estimate.</td><td><code>norm_integral_tail_correction_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T88</td><td>Theorem</td><td><strong>Shifted summed bound:</strong> the sum of T87.</td><td><code>norm_sum_tail_correction_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T89</td><td>Theorem</td><td><strong>Shifted weight bound:</strong> <code>Σ(k+N+1)<sup>−σ−1</sup> ≤ 1+1/σ</code>.</td><td><code>sum_tail_weights_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T90</td><td>Theorem</td><td><strong>Tail integral:</strong> <code>∫<sub>Ioi c</sub> x<sup>−s</sup> = c<sup>1−s</sup>/(s−1)</code> for <code>Re s &gt; 1</code>.</td><td><code>integral_Ioi_cpow_neg</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T91</td><td>Theorem</td><td><strong>Shifted tail integral limit:</strong> <code>∫₀^n (x+N+1)<sup>−s</sup> → (N+1)<sup>1−s</sup>/(s−1)</code> for <code>Re s &gt; 1</code>.</td><td><code>tendsto_integral_tail_cpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T92</td><td>Theorem</td><td><strong>Summable tail weights:</strong> for <code>σ &gt; 0</code>, <code>Σ(k+N+1)<sup>−σ−1</sup></code> converges.</td><td><code>summable_tail_rpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T93</td><td>Theorem</td><td><strong>Summable tail correction:</strong> the shifted correction series converges absolutely for <code>σ &gt; 0</code>.</td><td><code>summable_tail_correction</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T94</td><td>Theorem</td><td><strong>Shifted weight limit:</strong> <code>emGShift(s,N,0,n) → 0</code> for <code>Re s &gt; 1</code>.</td><td><code>tendsto_emGShift_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T95</td><td>Theorem</td><td><strong>Convergent shifted correction:</strong> the shifted correction partial sums tend to the <code>tsum</code>.</td><td><code>tendsto_sum_tail_correction</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T96</td><td>Theorem</td><td><strong>Fixed-<code>N</code> tail limit:</strong> the shifted tail sum converges to the fixed-<code>N</code> expression for <code>Re s &gt; 1</code>.</td><td><code>tendsto_sum_tail</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T97</td><td>Theorem</td><td><strong>Fixed-<code>N</code> Euler–Maclaurin for <code>ζ</code>:</strong> the finite prefix plus fixed-<code>N</code> tail expression for <code>Re s &gt; 1</code>.</td><td><code>zeta_eq_fixed_N</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T98</td><td>Theorem</td><td><strong>Entire finite prefix:</strong> <code>s ↦ Σ<sub>n&lt;N</sub>(n+1)<sup>−s</sup></code> is differentiable on <code>ℂ</code>.</td><td><code>differentiable_fixed_prefix</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T99</td><td>Theorem</td><td><strong>Integrand analyticity:</strong> for <code>x ≥ 0</code>, <code>s ↦ emGShift(s,N,1,x)</code> is entire.</td><td><code>differentiable_emGShift_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T100</td><td>Theorem</td><td><strong>Derivative in <code>s</code>:</strong> explicit <code>∂<sub>s</sub> emGShift(s,N,1,x)</code>.</td><td><code>hasDerivAt_emGShift_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T101</td><td>Theorem</td><td><strong>Pole-term analyticity:</strong> <code>s ↦ (N+1)<sup>1−s</sup>/(s−1)</code> is differentiable away from <code>s = 1</code>.</td><td><code>differentiableAt_pole_term</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T102</td><td>Theorem</td><td><strong>Integrand continuity in <code>x</code>:</strong> <code>x ↦ emGShift(s,N,1,x)</code> is continuous on <code>[0,∞)</code>.</td><td><code>continuousOn_emGShift_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T103</td><td>Theorem</td><td><strong>Interval integrability:</strong> <code>x ↦ emGShift(s,N,1,x)</code> is interval-integrable on <code>[k,k+1]</code>.</td><td><code>intervalIntegrable_emGShift_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T104</td><td>Theorem</td><td><strong>Integrand measurability:</strong> the correction integrand is AE-strongly-measurable on <code>(k,k+1]</code>.</td><td><code>aestronglyMeasurable_correction_integrand</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T105</td><td>Theorem</td><td><strong><code>s</code>-derivative continuity:</strong> <code>x ↦ ∂<sub>s</sub> emGShift(s,N,1,x)</code> is continuous on <code>(k,k+1]</code>.</td><td><code>continuousOn_sDeriv_emGShift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T106</td><td>Theorem</td><td><strong><code>s</code>-derivative measurability:</strong> the same function is AE-strongly-measurable.</td><td><code>aestronglyMeasurable_sDeriv_emGShift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T107</td><td>Theorem</td><td><strong>Log majorant integrability:</strong> <code>x ↦ 1 + |log(x+N+1)|</code> is interval-integrable.</td><td><code>intervalIntegrable_log_bound</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T108</td><td>Theorem</td><td><strong>Joint continuity:</strong> <code>(s,x) ↦ ∂<sub>s</sub> emGShift(s,N,1,x)</code> is continuous on <code>closedBall(0,R) × [k,k+1]</code>.</td><td><code>continuousOn_sDeriv_pair</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T109</td><td>Theorem</td><td><strong>Uniform derivative bound:</strong> exists <code>C</code> with <code>‖∂<sub>s</sub> emGShift(s,N,1,x)‖ ≤ C</code> on <code>‖s‖ ≤ R</code>, <code>x ∈ [k,k+1]</code>.</td><td><code>exists_sDeriv_bound</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T110</td><td>Theorem</td><td><strong>Correction interval integrability:</strong> <code>x ↦ (x−k−1/2)emGShift(s,N,1,x)</code> is interval-integrable.</td><td><code>intervalIntegrable_correction</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T111</td><td>Theorem</td><td><strong>Parametric differentiability:</strong> <code>s ↦ ∫<sub>k</sub><sup>k+1</sup>(x−k−1/2)emGShift(s,N,1,x)</code> is differentiable at every <code>s₀</code>.</td><td><code>differentiableAt_correction_integral</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T112</td><td>Theorem</td><td><strong>Uniform strip bound:</strong> <code>‖∫‖ ≤ (R/2)(k+N+1)<sup>−ρ−1</sup></code> on <code>Re s ≥ ρ</code>, <code>‖s‖ ≤ R</code>.</td><td><code>norm_correction_le_on</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T113</td><td>Theorem</td><td><strong>Local analyticity of the correction series:</strong> differentiable on a ball intersected with <code>Re s &gt; ρ</code>.</td><td><code>differentiableOn_tsum_correction</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T114</td><td>Theorem</td><td><strong>Global analyticity of the correction series:</strong> differentiable on <code>{Re s &gt; 0}</code>.</td><td><code>differentiableOn_correction</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T115</td><td>Theorem</td><td><strong>Entire zero-level tower:</strong> <code>s ↦ emGShift(s,N,0,x)</code> is entire for <code>x ≥ 0</code>.</td><td><code>differentiable_emGShift_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T116</td><td>Definition</td><td><strong>Fixed-<code>N</code> expression:</strong> <code>zetaEM N s</code>.</td><td><code>zetaEM</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T117</td><td>Theorem</td><td><strong>Analyticity of <code>zetaEM</code>:</strong> differentiable on <code>{Re s &gt; 0} \ {1}</code>.</td><td><code>differentiableOn_zetaEM</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T118</td><td>Theorem</td><td><strong>Agreement on <code>Re s &gt; 1</code>:</strong> <code>ζ(s) = zetaEM N s</code>.</td><td><code>zeta_eq_zetaEM_of_one_lt</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T119</td><td>Theorem</td><td><strong>Continuation into the critical strip:</strong> for <code>Re s &gt; 0</code> and <code>1 &lt; Im s &lt; 20</code>, <code>ζ(s) = zetaEM N s</code>.</td><td><code>zeta_eq_zetaEM_of_im</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T120</td><td>Theorem</td><td><strong>Bernoulli evaluation:</strong> <code>(BR n)(0) = bernoulli n</code> as a real number.</td><td><code>BR_eval_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T121</td><td>Theorem</td><td><strong>Bernoulli polynomial identification:</strong> <code>(BR n)(x) = bernoulliFun n x</code>.</td><td><code>BR_eval_eq_bernoulliFun</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T122</td><td>Theorem</td><td><strong>Uniform Bernoulli bound:</strong> <code>bernoulliFun k</code> is bounded on <code>[0,1]</code>.</td><td><code>exists_bernoulliFun_bound</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T123</td><td>Theorem</td><td><strong>Fourier character norm:</strong> <code>‖fourier n x‖ = 1</code>.</td><td><code>norm_fourier_unit</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T124</td><td>Theorem</td><td><strong>Fourier term norm:</strong> <code>‖(1/n^k) fourier n x‖ = 1/|n|^k</code>.</td><td><code>norm_fourier_term</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T125</td><td>Theorem</td><td><strong><code>ℤ</code>-sum decomposition:</strong> <code>Σ<sub>n:ℤ</sub>1/|n|<sup>k</sup> = 2Σ<sub>n≥1</sub>1/n<sup>k</sup></code>.</td><td><code>tsum_int_inv_abs_pow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T126</td><td>Theorem</td><td><strong>Inverse-power sum is <code>Re ζ(k)</code>:</strong> <code>Σ<sub>n≥1</sub>1/n<sup>k</sup> = Re ζ(k)</code>.</td><td><code>zeta_nat_eq_tsum_inv_pow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T127</td><td>Theorem</td><td><strong>Fourier series norm bound:</strong> <code>‖Σ<sub>n:ℤ</sub>1/n<sup>k</sup> fourier n x‖ ≤ 2 Re ζ(k)</code>.</td><td><code>norm_fourier_series_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T128</td><td>Theorem</td><td><strong>Periodic Bernoulli bound:</strong> <code>|B<sub>k</sub>(x)| ≤ k!/(2π)<sup>k</sup> · 2 Re ζ(k)</code>.</td><td><code>abs_bernoulliFun_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T129</td><td>Theorem</td><td><strong>Periodic bound at any real:</strong> <code>|B<sub>k</sub>({x})| ≤ k!/(2π)<sup>k</sup> · 2 Re ζ(k)</code>.</td><td><code>abs_bernoulliFun_fract_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T130</td><td>Theorem</td><td><strong>Norm of <code>emGShift</code>:</strong> <code>‖emGShift(s,N,j,x)‖ = ‖(s)<sub>j</sub>‖(x+N+1)<sup>−Re s−j</sup></code>.</td><td><code>norm_emGShift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T131</td><td>Theorem</td><td><strong>Nonnegativity:</strong> <code>0 ≤ Re ζ(n)</code> for natural <code>n ≥ 2</code>.</td><td><code>zeta_re_nonneg</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T132</td><td>Theorem</td><td><strong>Pointwise Bernoulli–tower bound.</strong></td><td><code>norm_bernoulli_mul_emGShift_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T133</td><td>Theorem</td><td><strong>Integral Bernoulli–tower bound.</strong></td><td><code>norm_integral_bernoulli_mul_emGShift_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T134</td><td>Theorem</td><td><strong>Summed Bernoulli–tower bound.</strong></td><td><code>norm_sum_bernoulli_mul_emGShift_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T135</td><td>Theorem</td><td><strong>General tail weight bound:</strong> <code>Σ(k+N+1)<sup>−σ−j</sup> ≤ 1+1/(σ+j−1)</code>.</td><td><code>sum_tail_rpow_le_inv_general</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T136</td><td>Theorem</td><td><strong>Coarse general remainder bound:</strong> the <code>j</code>-th Bernoulli sum is bounded by <code>C<sub>j</sub>‖(s)<sub>j</sub>‖(1+1/(σ+j−1))</code>.</td><td><code>norm_general_correction_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T137</td><td>Theorem</td><td><strong>Shifted antitonicity:</strong> <code>x ↦ (x+N+1)<sup>−σ</sup></code> is antitone on <code>[0,∞)</code>.</td><td><code>antitoneOn_shifted_rpow_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T138</td><td>Theorem</td><td><strong>Shifted continuity:</strong> <code>x ↦ (x+N+1)<sup>−σ</sup></code> is continuous on <code>[0,∞)</code>.</td><td><code>continuousOn_shifted_rpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T139</td><td>Theorem</td><td><strong>Real tail integral:</strong> <code>∫<sub>Ioi c</sub> x<sup>−σ</sup> = c<sup>1−σ</sup>/(σ−1)</code> for <code>σ &gt; 1</code>.</td><td><code>integral_Ioi_rpow_neg</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T140</td><td>Theorem</td><td><strong>Shifted integrability:</strong> <code>x ↦ (x+N+1)<sup>−σ</sup></code> is integrable on <code>(0,∞)</code>.</td><td><code>integrableOn_shift_rpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T141</td><td>Theorem</td><td><strong>Shifted tail integral:</strong> <code>∫<sub>Ioi 0</sub>(x+N+1)<sup>−σ</sup> = (N+1)<sup>1−σ</sup>/(σ−1)</code>.</td><td><code>integral_Ioi_shift_rpow</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T142</td><td>Theorem</td><td><strong>Sharp tail bound:</strong> <code>Σ<sub>k</sub>(k+N+1)<sup>−σ</sup> ≤ (N+1)<sup>−σ</sup> + (N+1)<sup>1−σ</sup>/(σ−1)</code>.</td><td><code>tsum_shift_rpow_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T143</td><td>Theorem</td><td><strong>Sharp general remainder:</strong> the <code>j</code>-th Bernoulli sum is bounded by <code>C<sub>j</sub>‖(s)<sub>j</sub>‖((N+1)<sup>−σ−j</sup>+(N+1)<sup>1−σ−j</sup>/(σ+j−1))</code>.</td><td><code>norm_general_correction_le_sharp</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T144</td><td>Theorem</td><td><strong>Sharp <code>B₂</code> series bound:</strong> infinite <code>B₂</code> correction with sharp <code>N</code>-decay.</td><td><code>norm_tsum_correction_le_sharp</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T145</td><td>Theorem</td><td><strong>First-order correction bound:</strong> <code>(‖s‖/2)((N+1)<sup>−σ−1</sup>+(N+1)<sup>−σ</sup>/σ)</code>.</td><td><code>norm_tsum_correction_first_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T146</td><td>Theorem</td><td><strong>Certified <code>ζ</code> value enclosure:</strong> explicit base plus T145 error on the first-zero strip.</td><td><code>norm_zeta_sub_base_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T147</td><td>Theorem</td><td><strong>Boundary derivative:</strong> explicit <code>∂<sub>s</sub> emGShift(s,N,0,x)</code>.</td><td><code>hasDerivAt_emGShift_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T148</td><td>Theorem</td><td><strong>Krawczyk for <code>ζ</code>:</strong> the abstract Krawczyk criterion with <code>f = ζ</code>, <code>f′ = deriv ζ</code>.</td><td><code>zeta_zero_of_krawczyk</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T149</td><td>Definition</td><td><strong>Explicit base:</strong> <code>zetaBase N s</code>.</td><td><code>zetaBase</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T150</td><td>Theorem</td><td><strong>Base decomposition:</strong> <code>zetaEM = zetaBase + correction</code>.</td><td><code>zetaEM_eq_base_add</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T151</td><td>Theorem</td><td><strong>Base analyticity:</strong> differentiable on <code>{Re s &gt; 0} \ {1}</code>.</td><td><code>differentiableOn_zetaBase</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T152</td><td>Theorem</td><td><strong>Error against <code>zetaBase</code>:</strong> <code>‖ζ − zetaBase‖</code> obeys the T146 bound.</td><td><code>norm_zeta_sub_zetaBase_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T153</td><td>Theorem</td><td><strong>Cauchy derivative estimate:</strong> <code>‖deriv f c‖ ≤ 2M/R</code> from a uniform bound on a ball.</td><td><code>norm_deriv_le_of_norm_le_on_ball</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T154</td><td>Theorem</td><td><strong>Conditional <code>ζ′</code> enclosure:</strong> <code>‖deriv ζ s₀‖ ≤ ‖deriv zetaBase s₀‖ + 2M/R</code> from an error bound on a ball.</td><td><code>norm_deriv_zeta_le_of_bound</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T155</td><td>Theorem</td><td><strong>Uniform error bound:</strong> a closed ball inside the strip has a uniform bound for <code>‖ζ − zetaBase‖</code>.</td><td><code>exists_error_bound_ball</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T156</td><td>Theorem</td><td><strong>General uniform error bound:</strong> same, with explicit outer radius <code>R₁</code>.</td><td><code>exists_error_bound_ball'</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T157</td><td>Theorem</td><td><strong>First-zero ball bound:</strong> a uniform bound for <code>‖ζ − zetaBase‖</code> on <code>closedBall(1/2+14i, 1/8)</code>.</td><td><code>exists_error_bound_first_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T158</td><td>Theorem</td><td><strong>Concrete <code>ζ′</code> bound:</strong> <code>‖deriv ζ(s₀)‖ ≤ ‖deriv zetaBase s₀‖ + 16M</code> at <code>s₀ = 1/2+14i</code>.</td><td><code>deriv_zeta_bound_first_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T159</td><td>Definition/Theorem</td><td><strong>Bernoulli coefficients:</strong> <code>emCoef j = B<sub>2j</sub>/(2j)!</code>, with <code>emCoef 1 = 1/12</code>.</td><td><code>emCoef</code>, <code>emCoef_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T160</td><td>Theorem</td><td><strong>Second Bernoulli coefficient:</strong> <code>emCoef 2 = −1/720</code>.</td><td><code>emCoef_two</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T161</td><td>Definition</td><td><strong>General-<code>K</code> expression:</strong> <code>zetaEMGen K N s = zetaBase + Σ(−emCoef(j+1)) emGShift(s,N,2j+1,0)</code>.</td><td><code>zetaEMGen</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T162</td><td>Theorem</td><td><strong><code>K = 1</code> value:</strong> <code>zetaEMGen 1 = zetaBase + (1/12)s(N+1)<sup>−s−1</sup></code>.</td><td><code>zetaEMGen_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T163</td><td>Theorem</td><td><strong><code>K = 0</code> base case:</strong> <code>zetaEMGen 0 = zetaBase</code>.</td><td><code>zetaEMGen_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T164</td><td>Theorem</td><td><strong>General-<code>K</code> recurrence:</strong> <code>zetaEMGen (K+1) = zetaEMGen K − emCoef(K+1)emGShift(s,N,2K+1,0)</code>.</td><td><code>zetaEMGen_succ</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T165</td><td>Theorem</td><td><strong>Shifted telescoping:</strong> <code>Σ(emGShift(k+1)−emGShift(k)) = emGShift(n)−emGShift(0)</code>.</td><td><code>sum_range_emGShift_one_sub</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T166</td><td>Theorem</td><td><strong>Shifted correction identity:</strong> the second-order <code>B₂</code> correction for <code>emGShift</code>.</td><td><code>sum_correction_second_order_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T167</td><td>Theorem</td><td><strong>Shifted second-order EM formula:</strong> the <code>emGShift</code> analogue of T62.</td><td><code>sum_second_order_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T168</td><td>Theorem</td><td><strong>Shifted first tower limit:</strong> <code>emGShift(s,N,1,n) → 0</code> for <code>Re s &gt; 1</code>.</td><td><code>tendsto_emGShift_one_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T169</td><td>Theorem</td><td><strong>Boundary coefficient:</strong> <code>c₁(0−emGShift(s,N,1,0)) = (1/12)s(N+1)<sup>−s−1</sup></code>.</td><td><code>c1_emGShift_one_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T170</td><td>Theorem</td><td><strong><code>K=1</code> difference form:</strong> <code>zetaEMGen 1 − zetaBase = (1/12)s(N+1)<sup>−s−1</sup></code>.</td><td><code>zetaEMGen_one_sub_base</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T171</td><td>Theorem</td><td><strong>Shifted <code>B₂</code> summability.</strong></td><td><code>summable_B2_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T172</td><td>Theorem</td><td><strong>Shifted <code>B₂</code> convergence:</strong> partial sums tend to the <code>tsum</code>.</td><td><code>tendsto_sum_B2_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T173</td><td>Theorem</td><td><strong>Correction-series bridge:</strong> the first-order correction <code>tsum</code> equals the <code>1/12</code> boundary term minus half the <code>B₂</code> <code>tsum</code>.</td><td><code>tsum_correction_first_eq</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T174</td><td>Theorem</td><td><strong><code>zetaEM</code> bridge:</strong> <code>zetaEM = zetaEMGen 1 − (1/2)Σ'∫B₂emGShift(s,N,2)</code>.</td><td><code>zetaEM_eq_gen_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T175</td><td>Definition</td><td><strong>General-<code>K</code> remainder:</strong> <code>zetaEMRemainder K N s = zetaEM N s − zetaEMGen K N s</code>.</td><td><code>zetaEMRemainder</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T176</td><td>Theorem</td><td><strong><code>K=0</code> remainder:</strong> the first-order correction series.</td><td><code>zetaEMRemainder_zero</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T177</td><td>Theorem</td><td><strong><code>K=1</code> remainder:</strong> <code>−(1/2)Σ'∫B₂emGShift(s,N,2)</code>.</td><td><code>zetaEMRemainder_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T178</td><td>Theorem</td><td><strong>Remainder recurrence:</strong> <code>R(K+1) = R(K) + emCoef(K+1)emGShift(s,N,2K+1,0)</code>.</td><td><code>zetaEMRemainder_succ</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T179</td><td>Theorem</td><td><strong><code>B₃(0) = 0</code>.</strong></td><td><code>BR_eval_zero_three</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T180</td><td>Theorem</td><td><strong><code>B₄(0) = −1/30</code>.</strong></td><td><code>BR_eval_zero_four</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T181</td><td>Theorem</td><td><strong><code>B₃(1) = 0</code>.</strong></td><td><code>BR_eval_one_three</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T182</td><td>Theorem</td><td><strong>Derivative of <code>B₃</code>:</strong> <code>d/dx B₃(x) = 3 B₂(x)</code>.</td><td><code>hasDerivAt_BR_three</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T183</td><td>Theorem</td><td><strong>Derivative of shifted <code>B₃</code>:</strong> <code>d/dx B₃(x−k) = 3 B₂(x−k)</code>.</td><td><code>hasDerivAt_BR_three_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T184</td><td>Theorem</td><td><strong><code>B₂</code> integration by parts:</strong> <code>∫B₂f = −(1/3)∫B₃f′</code> on <code>[k,k+1]</code>.</td><td><code>integral_B2_mul_eq</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T185</td><td>Theorem</td><td><strong>Derivative of shifted <code>B₄</code>:</strong> <code>d/dx B₄(x−k) = 4B₃(x−k)</code>.</td><td><code>hasDerivAt_BR_four_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T186</td><td>Theorem</td><td><strong><code>B₄(1) = −1/30</code>.</strong></td><td><code>BR_eval_one_four</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T187</td><td>Theorem</td><td><strong><code>B₃</code> integration by parts:</strong> <code>∫B₃f′ = (B₄(0)/4)(f′(k+1)−f′(k)) − (1/4)∫B₄f″</code>.</td><td><code>integral_B3_mul_deriv_eq</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T188</td><td>Theorem</td><td><strong>General Bernoulli endpoint equality:</strong> for <code>n ≠ 1</code>, <code>B_n(1) = B_n(0)</code>.</td><td><code>BR_eval_one_eq_eval_zero_of_ne_one</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T189</td><td>Theorem</td><td><strong>General shifted Bernoulli derivative:</strong> <code>d/dx B_{n+1}(x−k) = (n+1)B_n(x−k)</code>.</td><td><code>hasDerivAt_BR_succ_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T190</td><td>Theorem</td><td><strong>General Bernoulli integration by parts:</strong> <code>∫B_nf = (B_{n+1}(0)/(n+1))(f(k+1)−f(k)) − (1/(n+1))∫B_{n+1}f′</code>.</td><td><code>integral_BR_mul_eq</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T191</td><td>Theorem</td><td><strong>Summed general IBP:</strong> <code>Σ_{k&lt;m}∫B_nf = (B_{n+1}(0)/(n+1))(f(m)−f(0)) − (1/(n+1))Σ∫B_{n+1}f′</code>.</td><td><code>sum_integral_BR_mul_eq</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T192</td><td>Theorem</td><td><strong><code>emGShift</code> continuity:</strong> <code>ContinuousOn (emGShift(s,N,j)) (uIcc k (k+1))</code>.</td><td><code>continuousOn_emGShift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T193</td><td>Theorem</td><td><strong><code>emGShift</code> interval integrability.</strong></td><td><code>intervalIntegrable_emGShift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T194</td><td>Theorem</td><td><strong>K=2 finite identity:</strong> <code>Σ∫B₂ emGShift(2) = (1/360)(emGShift(3,m)−emGShift(3,0)) + (1/12)Σ∫B₄ emGShift(4)</code>.</td><td><code>sum_B2_eq_sum_B4</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T195</td><td>Theorem</td><td><strong>General tower limit:</strong> <code>emGShift(s,N,j,n) → 0</code> for <code>Re s &gt; 1</code>, any <code>j</code>.</td><td><code>tendsto_emGShift_zero_general</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T196</td><td>Theorem</td><td><strong><code>B₄</code> summability.</strong></td><td><code>summable_B4_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T197</td><td>Theorem</td><td><strong><code>B₄</code> convergence:</strong> partial sums tend to the <code>tsum</code>.</td><td><code>tendsto_sum_B4_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T198</td><td>Theorem</td><td><strong><code>B₂</code> to <code>B₄</code> series:</strong> <code>Σ'∫B₂emGShift(2) = (1/360)(−emGShift(3,0)) + (1/12)Σ'∫B₄emGShift(4)</code>.</td><td><code>tsum_B2_eq_B4</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T199</td><td>Theorem</td><td><strong><code>K=1</code> remainder closed form:</strong> <code>R₁ = (1/720)emGShift(3,0) − (1/24)Σ'∫B₄emGShift(4)</code>.</td><td><code>zetaEMRemainder_one_eq</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T200</td><td>Theorem</td><td><strong><code>K=2</code> remainder:</strong> <code>R₂ = −(1/24)Σ'∫B₄emGShift(4)</code>.</td><td><code>zetaEMRemainder_two_eq</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T201</td><td>Theorem</td><td><strong>Odd Bernoulli endpoint zero:</strong> for odd <code>n &gt; 1</code>, <code>B_n(0) = 0</code>.</td><td><code>BR_eval_zero_odd</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T202</td><td>Theorem</td><td><strong>Third Bernoulli coefficient:</strong> <code>emCoef 3 = 1/30240</code>.</td><td><code>emCoef_three</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T203</td><td>Theorem</td><td><strong>Multiplied IBP:</strong> <code>(n+1)∫B_nf = B_{n+1}(0)(f(k+1)−f(k)) − ∫B_{n+1}f′</code>.</td><td><code>integral_BR_mul_eq_mul</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T204</td><td>Theorem</td><td><strong>Summed multiplied IBP:</strong> <code>(n+1)Σ∫B_nf = B_{n+1}(0)(f(m)−f(0)) − Σ∫B_{n+1}f′</code>.</td><td><code>sum_integral_BR_mul_eq_mul</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T205</td><td>Theorem</td><td><strong>Division-free recurrence:</strong> <code>((2K+1)(2K+2))S₂ₖ = −B_{2K+2}(0)(g(m)−g(0)) + S₂ₖ₊₂</code>.</td><td><code>sum_B_even_eq_mul</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T206</td><td>Theorem</td><td><strong>General <code>B_n</code> summability.</strong></td><td><code>summable_Bn_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T207</td><td>Theorem</td><td><strong>General <code>B_n</code> convergence:</strong> partial sums tend to the <code>tsum</code>.</td><td><code>tendsto_sum_Bn_shift</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T208</td><td>Theorem</td><td><strong><code>tsum</code> recurrence:</strong> <code>S_{2K+2} = (2K+1)(2K+2)S_{2K} − B_{2K+2}(0)emGShift(s,N,2K+1,0)</code>.</td><td><code>tsum_B_even_succ</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T209</td><td>Theorem</td><td><strong>Factorial base case:</strong> <code>R₁ = −(1/2!)S₂</code>.</td><td><code>zetaEMRemainder_one_factorial</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T210</td><td>Theorem</td><td><strong>Even-step recurrence:</strong> <code>R_{k+1} = R_k + emCoef(k+1)emGShift(s,N,2k+1,0)</code>.</td><td><code>zetaEMRemainder_succ_even</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T211</td><td>Definition/Theorem</td><td><strong><code>S_even</code> abbreviation:</strong> <code>S_even k = Σ'∫B_{2k}emGShift(2k)</code>, with <code>S_even(k+1) = ((2k+1)(2k+2))S_even k − B_{2k+2}(0)emGShift(2k+1,0)</code>.</td><td><code>S_even</code>, <code>S_even_succ</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T212</td><td>Theorem</td><td><strong>Factorial remainder formula:</strong> <code>R_K = −(1/(2K)!)S_even K</code>.</td><td><code>zetaEMRemainder_eq_factorial</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T213</td><td>Theorem</td><td><strong>Sharp <code>S_even</code> bound:</strong> <code>‖S_even K‖ ≤ (2K)!/(2π)<sup>2K</sup>·2Re ζ(2K)·‖(s)<sub>2K</sub>‖·((N+1)<sup>−σ−2K</sup>+(N+1)<sup>1−σ−2K</sup>/(σ+2K−1))</code>.</td><td><code>norm_S_even_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T214</td><td>Theorem</td><td><strong>Sharp remainder bound:</strong> <code>‖R_K‖ ≤ (2Re ζ(2K)/(2π)<sup>2K</sup>)·‖(s)<sub>2K</sub>‖·((N+1)<sup>−σ−2K</sup>+(N+1)<sup>1−σ−2K</sup>/(σ+2K−1))</code>.</td><td><code>norm_zetaEMRemainder_le</code> (<code>EulerMaclaurin.lean</code>)</td></tr>
+<tr><td>T215</td><td>Definition/Theorem</td><td><strong>Rational interval layer:</strong> <code>RatInterval</code> with exact, negation, addition, subtraction, nonnegative multiplication, and containment lemmas.</td><td><code>RatInterval</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T216</td><td>Theorem</td><td><strong>Interval powers and reciprocals:</strong> <code>powNat</code> and <code>invPos</code> with containment lemmas.</td><td><code>RatInterval.powNat</code>, <code>RatInterval.invPos</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T217</td><td>Theorem</td><td><strong>Interval division:</strong> <code>divPos</code> with containment lemma.</td><td><code>RatInterval.divPos</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T218</td><td>Theorem</td><td><strong>Negative integer interval power:</strong> <code>zpowNeg</code> with containment lemma.</td><td><code>RatInterval.zpowNeg</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T219</td><td>Theorem</td><td><strong>Rational square-root bounds:</strong> <code>lo² ≤ a ≤ hi²</code> gives <code>lo ≤ √a ≤ hi</code>.</td><td><code>sqrt_rat_bounds</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T220</td><td>Theorem</td><td><strong>Rational <code>π</code> enclosure:</strong> <code>piInterval</code> contains <code>π</code> to 20 decimal places.</td><td><code>piInterval</code>, <code>piInterval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T221</td><td>Theorem</td><td><strong>Complex containment:</strong> <code>containsComplex</code> and <code>containsComplex_ofReal</code>.</td><td><code>containsComplex</code>, <code>containsComplex_ofReal</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T222</td><td>Theorem</td><td><strong><code>ζ(2)</code> enclosure:</strong> <code>zeta2Interval</code> contains <code>Re ζ(2)</code>.</td><td><code>zeta2Interval</code>, <code>zeta2Interval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T223</td><td>Theorem</td><td><strong><code>ζ(4)</code> enclosure:</strong> <code>zeta4Interval</code> contains <code>Re ζ(4) = π⁴/90</code>.</td><td><code>zeta4Interval</code>, <code>zeta4Interval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T224</td><td>Theorem</td><td><strong><code>ζ(6)</code> enclosure:</strong> <code>zeta6Interval</code> contains <code>Re ζ(6) = π⁶/945</code>.</td><td><code>zeta6Interval</code>, <code>zeta6Interval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T225</td><td>Theorem</td><td><strong>Square-root interval constructor:</strong> <code>sqrtInterval a lo hi</code> with containment of <code>√a</code>.</td><td><code>sqrtInterval</code>, <code>sqrtInterval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T226</td><td>Theorem</td><td><strong><code>(2π)<sup>−2</sup></code> enclosure:</strong> <code>invTwoPiSqInterval</code> contains <code>(2π)<sup>−2</sup> = 1/(4π²)</code>.</td><td><code>invTwoPiSqInterval</code>, <code>invTwoPiSqInterval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T227</td><td>Theorem</td><td><strong><code>(2π)<sup>−4</sup></code> enclosure:</strong> <code>invTwoPiFourthInterval</code> contains <code>(2π)<sup>−4</sup></code>.</td><td><code>invTwoPiFourthInterval</code>, <code>invTwoPiFourthInterval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T228</td><td>Theorem</td><td><strong><code>rpow</code>/<code>sqrt</code> bridge:</strong> <code>x^(1/2) = √x</code>.</td><td><code>rpow_half_eq_sqrt</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T229</td><td>Theorem</td><td><strong><code>√201</code> enclosure:</strong> rational interval for <code>(201)^{-1/2}</code>-type factors.</td><td><code>sqrt201Interval</code>, <code>sqrt201Interval_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T230</td><td>Theorem</td><td><strong>Concrete Krawczyk target:</strong> existence of a zero in <code>closedBall(1/2+14i, 1/4)</code> from <code>q=1/4</code> contraction hypotheses.</td><td><code>zeta_zero_quarter_ball</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T231</td><td>Theorem</td><td><strong><code>h1</code> discharged:</strong> <code>closedBall(1/2+14i, 1/4)</code> avoids <code>1</code>.</td><td><code>quarter_ball_ne_one</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T232</td><td>Definition/Theorem</td><td><strong>Rational <code>Y</code>:</strong> <code>Yk = 1.2436403768 − 0.3397942771 i</code>, with <code>‖Yk‖ ≤ 2</code>.</td><td><code>Yk</code>, <code>norm_Yk_le_two</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T233</td><td>Theorem</td><td><strong><code>hmap</code> reduction:</strong> <code>‖ζ(1/2+14i)‖ ≤ 1/16</code> implies the Krawczyk map condition.</td><td><code>hmap_of_zeta_bound</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T234</td><td>Theorem</td><td><strong>Complex interval layer:</strong> <code>ComplexInterval</code> with <code>contains</code>, <code>add</code>, <code>neg</code>, <code>sub</code> and containment lemmas.</td><td><code>ComplexInterval</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T235</td><td>Theorem</td><td><strong>Coarse interval multiplication:</strong> <code>mulCoarse</code> with absolute-endpoint bounds.</td><td><code>RatInterval.mulCoarse</code>, <code>mulCoarse_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T236</td><td>Theorem</td><td><strong>Complex interval multiplication:</strong> <code>ComplexInterval.mul</code> with containment.</td><td><code>ComplexInterval.mul</code>, <code>mul_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T237</td><td>Theorem</td><td><strong>Nonnegative square enclosure:</strong> <code>sqNonneg</code> contains <code>x²</code>.</td><td><code>RatInterval.sqNonneg</code>, <code>sqNonneg_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T238</td><td>Theorem</td><td><strong>Reciprocal avoiding zero:</strong> <code>invAvoid</code> with containment of <code>x⁻¹</code>.</td><td><code>RatInterval.invAvoid</code>, <code>invAvoid_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T239</td><td>Theorem</td><td><strong>Complex conjugation:</strong> <code>ComplexInterval.conj</code> with containment.</td><td><code>ComplexInterval.conj</code>, <code>conj_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T240</td><td>Theorem</td><td><strong>Coarse <code>|z|²</code> upper enclosure:</strong> <code>normSqUpper</code> contains <code>Complex.normSq z</code>.</td><td><code>ComplexInterval.normSqUpper</code>, <code>normSqUpper_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T241</td><td>Theorem</td><td><strong>Absolute lower bound:</strong> <code>absLower ≤ |x|</code> on an interval avoiding zero.</td><td><code>RatInterval.absLower</code>, <code>absLower_le_abs</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T242</td><td>Theorem</td><td><strong><code>|z|²</code> lower bound:</strong> <code>normSqLower ≤ Complex.normSq z</code>.</td><td><code>ComplexInterval.normSqLower</code>, <code>normSqLower_le</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T243</td><td>Theorem</td><td><strong>Real-to-complex embedding:</strong> <code>ofReal</code> contains <code>(x : ℂ)</code>.</td><td><code>ComplexInterval.ofReal</code>, <code>ofReal_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T244</td><td>Theorem</td><td><strong>Complex inverse:</strong> <code>ComplexInterval.inv</code> contains <code>z⁻¹</code>.</td><td><code>ComplexInterval.inv</code>, <code>inv_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T245</td><td>Theorem</td><td><strong><code>|cos x| ≤ 1</code>.</strong></td><td><code>abs_cos_le_one</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T246</td><td>Theorem</td><td><strong><code>|sin x| ≤ 1</code>.</strong></td><td><code>abs_sin_le_one</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T247</td><td>Theorem</td><td><strong><code>exp</code> monotonicity.</strong></td><td><code>exp_le_exp</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T248</td><td>Theorem</td><td><strong><code>log</code> monotonicity.</strong></td><td><code>log_le_log</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T249</td><td>Theorem</td><td><strong>Tighter <code>Y</code> bound:</strong> <code>‖Yk‖ ≤ 3/2</code>, and <code>hmap</code> reduced to <code>‖ζ(1/2+14i)‖ ≤ 1/8</code>.</td><td><code>norm_Yk_le_three_halves</code>, <code>hmap_of_zeta_bound</code> (<code>Krawczyk.lean</code>)</td></tr>
+<tr><td>T250</td><td>Theorem</td><td><strong><code>1/2+14i</code> eta box assembly:</strong> <code>S14</code>, <code>s14</code>, and the conditional box membership for <code>Σ_{m&lt;M} pairTerm</code>.</td><td><code>S14</code>, <code>etaPartial_mem_box</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T251</td><td>Theorem</td><td><strong>High-precision 14i parameters:</strong> <code>params14</code> with <code>N=12, k=12, kI=128, n=16</code>, and <code>allOK (params14 100) S14</code>.</td><td><code>params14</code>, <code>allOK_100</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T252</td><td>Theorem</td><td><strong><code>params14</code> fold value:</strong> <code>sumValue (params14 M) = Σ pairTerm</code>.</td><td><code>sumValue_params14</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T253</td><td>Theorem</td><td><strong><code>params14</code> box membership:</strong> conditional eta partial-sum box at <code>1/2+14i</code>.</td><td><code>etaPartial_mem_box14</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T254</td><td>Theorem</td><td><strong>Concrete <code>M=100</code> box:</strong> eta partial sum at <code>1/2+14i</code> lies in <code>sumBox (params14 100) S14</code>.</td><td><code>etaPartial_100_mem14</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T255</td><td>Theorem</td><td><strong><code>M=1000</code> checker pass</strong> at <code>1/2+14i</code>.</td><td><code>allOK_1000</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T256</td><td>Theorem</td><td><strong><code>M=10000</code> checker pass</strong> at <code>1/2+14i</code>.</td><td><code>allOK_10000</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T257</td><td>Theorem</td><td><strong><code>M=100000</code> checker pass</strong> at <code>1/2+14i</code>.</td><td><code>allOK_100000</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T258</td><td>Theorem</td><td><strong>Fast parameters:</strong> <code>paramsFast</code> with <code>N=10,k=10,kI=256,n=12</code>, and <code>allOK (paramsFast 10000) S14</code>.</td><td><code>paramsFast</code>, <code>allOK_fast_10000</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T259</td><td>Theorem</td><td><strong>Million-term check:</strong> <code>allOK (paramsFast 1000000) S14 = true</code> (standalone build, ≈639 s).</td><td><code>allOK_fast_1000000</code> (<code>BigCheck.lean</code>)</td></tr>
+<tr><td>T260</td><td>Theorem</td><td><strong><code>‖s14‖ ≤ 15</code>.</strong></td><td><code>norm_s14_le_fifteen</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T261</td><td>Theorem</td><td><strong>Tail bound at <code>1/2+14i</code>:</strong> <code>‖Σ' pairTerm s14 (m+1000000)‖ ≤ 1/64</code>.</td><td><code>tail_s14_1e6</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T262</td><td>Theorem</td><td><strong>Box absolute-endpoint bound:</strong> <code>|x| ≤ maxAbsIv I</code> for <code>x ∈ I</code>.</td><td><code>abs_le_maxAbsIv</code> (<code>BoxNorm.lean</code>)</td></tr>
+<tr><td>T263</td><td>Theorem</td><td><strong>Box norm bound:</strong> <code>‖z‖ ≤ R</code> for <code>z</code> in a box whose corner norm-square is ≤ <code>R²</code>.</td><td><code>norm_le_of_mem_box</code> (<code>BoxNorm.lean</code>)</td></tr>
+<tr><td>T264</td><td>Theorem</td><td><strong>Grid floor:</strong> <code>gridDown g q ≤ q</code>.</td><td><code>gridDown_le</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T265</td><td>Theorem</td><td><strong>Grid ceiling:</strong> <code>q ≤ gridUp g q</code>.</td><td><code>le_gridUp</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T266</td><td>Theorem</td><td><strong>Snapped interval:</strong> <code>snap g I</code> contains every point of <code>I</code>.</td><td><code>snap</code>, <code>snap_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T267</td><td>Theorem</td><td><strong>Snapped addition:</strong> <code>addSnap g I J</code> contains <code>x+y</code>.</td><td><code>addSnap</code>, <code>addSnap_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T268</td><td>Theorem</td><td><strong>Snapped real box:</strong> <code>snapIv</code> preserves <code>memR</code>.</td><td><code>snapIv</code>, <code>snapIv_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T269</td><td>Theorem</td><td><strong>Snapped complex box:</strong> <code>snapCx</code> preserves <code>Cx.mem</code>.</td><td><code>snapCx</code>, <code>snapCx_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T270</td><td>Theorem</td><td><strong>Snapped fold:</strong> <code>foldSnap</code> contains <code>sumValue</code> of the pair list.</td><td><code>foldSnap</code>, <code>foldSnap_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T271</td><td>Theorem</td><td><strong>Integer grid floor:</strong> <code>gridDownInt g q ≤ q</code>.</td><td><code>gridDownInt_le</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T272</td><td>Theorem</td><td><strong>Integer grid ceiling:</strong> <code>q ≤ gridUpInt g q</code>.</td><td><code>le_gridUpInt</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T273</td><td>Theorem</td><td><strong>Integer snapped interval:</strong> <code>snapInt</code> contains every point.</td><td><code>snapInt</code>, <code>snapInt_contains</code> (<code>Interval.lean</code>)</td></tr>
+<tr><td>T274</td><td>Theorem</td><td><strong>Integer snapped real box:</strong> <code>snapIvInt</code> preserves <code>memR</code>.</td><td><code>snapIvInt</code>, <code>snapIvInt_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T275</td><td>Theorem</td><td><strong>Integer snapped complex box:</strong> <code>snapCxInt</code> preserves <code>Cx.mem</code>.</td><td><code>snapCxInt</code>, <code>snapCxInt_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T276</td><td>Theorem</td><td><strong>Integer snapped fold:</strong> <code>foldSnapInt</code> contains <code>sumValue</code>.</td><td><code>foldSnapInt</code>, <code>foldSnapInt_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T277</td><td>Theorem</td><td><strong>Block parameters:</strong> <code>sumValue (paramsBlock off M) = Σ_{i&lt;M} pairTerm (off+i)</code>.</td><td><code>paramsBlock</code>, <code>sumValue_paramsBlock</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T278</td><td>Theorem</td><td><strong>Block split:</strong> <code>paramsFast (off+M) = paramsFast off ++ paramsBlock off M</code>.</td><td><code>paramsFast_eq_append</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T279</td><td>Theorem</td><td><strong>Block checker:</strong> <code>allOK (paramsFast N)</code> implies <code>allOK (paramsBlock off M)</code> when <code>off+M ≤ N</code>.</td><td><code>allOK_paramsBlock</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T280</td><td>Theorem</td><td><strong>Block box membership:</strong> the block partial sum lies in <code>sumBox (paramsBlock off M)</code>.</td><td><code>blockBox_mem</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T281</td><td>Theorem</td><td><strong>Snapped block fold:</strong> <code>foldBlocks</code> with membership from paired values.</td><td><code>foldBlocks</code>, <code>foldBlocks_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T282</td><td>Theorem</td><td><strong>Block sum identity:</strong> <code>Σ_{j&lt;B}Σ_{i&lt;M} pairTerm s (j*M+i) = Σ_{m&lt;B*M} pairTerm s m</code>.</td><td><code>sum_blocks_eq</code> (<code>ZetaBox14.lean</code>)</td></tr>
+<tr><td>T283</td><td>Theorem</td><td><strong>List-range sum bridge:</strong> <code>(List.map f (range B)).sum = Σ_{j&lt;B} f j</code>.</td><td><code>list_sum_range</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T284</td><td>Theorem</td><td><strong>Block values as a Finset sum.</strong></td><td><code>blockVals_sum_finset</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T285</td><td>Theorem</td><td><strong>Block values total:</strong> <code>(blockVals B M s).sum = Σ_{m&lt;B*M} pairTerm s m</code>.</td><td><code>blockVals_sum</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T286</td><td>Theorem</td><td><strong>Pair fold:</strong> <code>foldPairs</code> contains the sum of paired values.</td><td><code>foldPairs</code>, <code>foldPairs_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T287</td><td>Theorem</td><td><strong>Block pairs membership:</strong> every block value lies in its block box.</td><td><code>blockPairs</code>, <code>blockPairs_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T288</td><td>Theorem</td><td><strong>Block fold membership:</strong> the million-term block sum lies in <code>foldPairs</code>.</td><td><code>blockFold_mem</code> (<code>FixedBox.lean</code>)</td></tr>
+<tr><td>T289</td><td>Theorem</td><td><strong>Million-term block instance:</strong> <code>B=M=1000</code> at <code>1/2+14i</code>.</td><td><code>blockFold_1e6</code> (<code>BlockCert.lean</code>)</td></tr>
+<tr><td>T290</td><td>Theorem</td><td><strong>One-fold difference identity:</strong> <code>altSum (delta a) N = 2 altSum a N - a 0 + (-1)^N a N</code>.</td><td><code>altSum_delta</code> (<code>EtaEM.lean</code>)</td></tr>
+<tr><td>T291</td><td>Theorem</td><td><strong>One-fold Euler summation by parts.</strong></td><td><code>altSum_eq</code> (<code>EtaEM.lean</code>)</td></tr>
+<tr><td>T292</td><td>Theorem</td><td><strong>Iterated Euler transformation with boundary terms.</strong></td><td><code>altSum_euler</code> (<code>EtaEM.lean</code>)</td></tr>
+<tr><td>T293</td><td>Theorem</td><td><strong>**Bernoulli tower vanishes for `Re s > 0`:** `emGShift s N j n → 0` as `n → ∞` whenever `0 < Re s`.</strong></td><td><code>tendsto_emGShift_zero_general_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T294</td><td>Theorem</td><td><strong>**First Bernoulli tower vanishes for `Re s > 0`.**</strong></td><td><code>tendsto_emGShift_one_zero_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T295</td><td>Theorem</td><td><strong>**Finite `B₁`/`B₂` bridge:** `Σ_{k<n} ∫ (x-k-½)·emG₁ = ½·B₂(0)·(emG₁ n - emG₁ 0) - ½ Σ_{k<n} ∫ B₂(x-k)·emG₂`, for every `s` and `n`.</strong></td><td><code>sum_correction_eq_B2</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T296</td><td>Theorem</td><td><strong>**`B₂` series identity at `Re s > 0`:** the first-order correction series equals the `B₂` boundary minus half the `B₂` series (previously only for `Re s > 1`).</strong></td><td><code>tsum_correction_first_eq_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T297</td><td>Theorem</td><td><strong>**`K = 1` Euler–Maclaurin at `Re s > 0`:** `zetaEM N s = zetaEMGen 1 N s - ½·Σ' B₂ series`.</strong></td><td><code>zetaEM_eq_gen_one_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T298</td><td>Theorem</td><td><strong>**`K = 1` remainder at `Re s > 0`:** `zetaEMRemainder 1 N s = -½·Σ' B₂ series`.</strong></td><td><code>zetaEMRemainder_one_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T299</td><td>Theorem</td><td><strong>**`B₂` constant:** `2·Re ζ(2)/(2π)² = 1/12`.</strong></td><td><code>emConst_two</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T300</td><td>Theorem</td><td><strong>**`B₂` remainder bound on the critical line:** `‖zetaEMRemainder 1 N s‖ ≤ (1/12)·‖(s)₂‖·((N+1)^(-σ-2) + (N+1)^(1-σ-2)/(σ+1))` for `0 < Re s`.</strong></td><td><code>norm_zetaEMRemainder_one_le_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T301</td><td>Theorem</td><td><strong>**`K = 1` remainder, factorial form, at `Re s > 0`.**</strong></td><td><code>zetaEMRemainder_one_factorial_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T302</td><td>Theorem</td><td><strong>**`B_{2K} → B_{2K+2}` telescoping series identity at `Re s > 0`.**</strong></td><td><code>tsum_B_even_succ_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T303</td><td>Theorem</td><td><strong>**Even Bernoulli series recurrence at `Re s > 0`.**</strong></td><td><code>S_even_succ_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T304</td><td>Theorem</td><td><strong>**`zetaEMRemainder K N s = -(1/(2K)!)·S_even K N s` at `Re s > 0`** (previously only `Re s > 1`).</strong></td><td><code>zetaEMRemainder_eq_factorial_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>T305</td><td>Theorem</td><td><strong>**General-`K` Euler–Maclaurin remainder bound on the critical line:** `‖zetaEMRemainder K N s‖ ≤ (2·Re ζ(2K)/(2π)^{2K})·‖(s)_{2K}‖·((N+1)^(-σ-2K) + (N+1)^(1-σ-2K)/(σ+2K-1))` for `0 < Re s`.</strong></td><td><code>norm_zetaEMRemainder_le_of_re_pos</code> (<code>EMCritical.lean</code>)</td></tr>
+<tr><td>C1</td><td>Computation</td><td>Regrouping agrees at <code>s = 2, 3, 3/2, 2+i/3</code> to <code>&lt; 10^{-30}</code>.</td><td><code>test_finite_regrouping_is_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>Pair estimate on a grid, to <code>&lt; 10^{-25}</code>.</td><td><code>test_pair_estimate_holds</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>Tail bound positive and decreasing with <code>M</code>.</td><td><code>test_tail_bound_positive_and_decreasing</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>Point enclosure at <code>1/2 + 5i</code> (<code>M = 2000</code>) contains <code>ζ</code> and excludes zero.</td><td><code>test_point_enclosure_excludes_zero</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>Enclosure at <code>s = 2</code> (<code>M = 3000</code>) contains <code>π²/6</code>.</td><td><code>test_enclosure_at_two_contains_pi_squared_over_six</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>Edge cases: factor zero at <code>s = 1</code>, zero tail, bad <code>M</code>, <code>σ ≤ 0</code>, box distance/width.</td><td><code>test_factor_contains_zero_at_one</code>, <code>test_tail_bound_edge_cases</code>, <code>test_invalid_inputs</code>, <code>test_box_distance_and_width</code></td></tr>
+</tbody>
+</table>
+
+<h2>Open items</h2>
+<ol>
+<li><s>Lean continuation of (E).</s> <strong>Done</strong> (T5–T8).</li>
+<li><s>Lean tail bound.</s> <strong>Done</strong> (T10–T11).</li>
+<li><s>Lean enclosure certificate.</s> <strong>Done</strong> for <code>1/2+5i</code> (<code>Cert.lean</code>, T12).</li>
+<li><strong>A real segment.</strong> Subdivide <code>t ∈ [0,10]</code>, certify each box, and obtain a critical-line zero-free window.</li>
+<li><strong>P4 link.</strong> The same certificate is the expensive input to the truncated explicit formula.</li>
+</ol>
+
+<div class="note"><strong>Honesty note.</strong> The Python point certificate is a computation,
+not a kernel-checked theorem. The identity (E) is now a theorem of this dossier (T5–T8), but the
+Lean enclosure that would discharge its numerical premise is still missing. No zero-free segment, no finite-window zero count, and no statement about RH is
+claimed.</div>
+
+<h2>Python and Lean</h2>
+<pre><code>cd the-final-letter/topics/finite-window-zeros
+python3 -m pytest -q tests     # 9 passed
+./lean/check.sh                # [check] OK Topic.lean</code></pre>
+
+<p class="footer"><a href="../../scraps.html">Scraps</a> ·
+<a href="../README.md">Topics</a> ·
+<a href="../../status.html">Status §7</a> ·
+<a href="../partial-sum-plus-tail/README.md">Objective III</a> ·
+<a href="../../categories/05-proofs/proofs.md#c-the-certified-evaluation-layer">Proof ledger C</a></p>
+
+</body>
+</html>

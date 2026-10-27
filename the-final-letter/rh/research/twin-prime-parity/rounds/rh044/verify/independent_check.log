@@ -1,0 +1,316 @@
+rh044 independent verification -- auditor script
+wall start 2026-10-04 01:36:33
+numpy 2.5.0 ; mpmath 1.3.0 ; python 3.13.13
+
+PASS [ISO-1] no rh0*/rh4*/smoothed_zeta module imported (found: none)
+PASS [ISO-2] auditor script imports nothing from the round: import lines are import sys; import time; import math; import numpy as np; from mpmath import (mp, mpf, mpc, exp, log, sqrt, pi, cos, quad, inf, gamma,; import mpmath as _mpmath_mod
+
+==============================================================================
+C1  sharp cutoff:  |S_N(1/2+it) - zeta(1/2+it)| / sqrt(N)  ->  ?
+==============================================================================
+working precision dps=60;  zeta(s) from mpmath (method 1)
+
+t = 14.134725141734692855
+  zeta(1/2+it) = (1.16674887389e-16 - 7.32888188373e-16j)   |zeta| = 7.421e-16
+  claimed constant 1/sqrt(2t)      = 0.18807943794349980761
+  |1/(s-1)| = 1/sqrt(1/4+t^2)      = 0.070703527731812225343
+  ratio claimed/true = sqrt(2t)/sqrt(1/4+t^2) = 0.37592375065
+       N |S_N-zeta|/sqrtN   x|s-1| (->1) x sqrt(2t) (claim) EM bound |s-1|    |S_N|/sqrtN
+     100  0.07093859156    1.003324641   0.3771735621    1.229617123  0.07093859156
+    1000  0.07072179028    1.000258298   0.3760208508    1.021389985  0.07072179028
+   10000  0.07070530119    1.000025083     0.37593318    1.002123281  0.07070530119
+  100000  0.07070370455    1.000002501   0.3759246908    1.000212171  0.07070370455
+PASS [C1-corr-bound t=14.1347251417] |S_N-zeta|*|s-1|/sqrt(N) <= EM bound for every N=1e2..1e5 (N=1e5: measured 1.00000250083 <= bound 1.00021217095)
+PASS [C1-claim-refuted t=14.1347251417] |S_N-zeta|*sqrt(2t)/sqrt(N) has rigorous upper bound 0.3760035107 at N=1e5 (< 1): the claimed limit 1 is impossible; measured 0.3759246908
+PASS [C1-true-const-6dig t=14.1347251417] measured |S_N-zeta|/sqrt(N) = 0.070703704549342 vs 1/|s-1| = 0.070703527731812 ; normalised dev 2.501e-6 = 5.60 digits
+PASS [C1-claim-const-wrong t=14.1347251417] 1/sqrt(2t) = 0.188079437943 vs true 0.0707035277318 : relative error 1.66011 (>0.5), factor 2.6601139
+PASS [C1-SN-failure-mode t=14.1347251417] |S_N|*|s-1|/sqrt(N) = 1.00000250083 -> 1, i.e. S_N itself ~ sqrt(N)/|s-1| = 22.3584186241 (claimed sqrt(N)/sqrt(2t) = 59.4759404946); zero visible only after cancellation (|zeta|=7.421e-16 << |S_N|=22.358475)
+
+t = 21.022039638771556014
+  zeta(1/2+it) = (2.53997676563e-16 + 1.13278951195e-15j)   |zeta| = 1.161e-15
+  claimed constant 1/sqrt(2t)      = 0.15422244244852869686
+  |1/(s-1)| = 1/sqrt(1/4+t^2)      = 0.047555674161092234295
+  ratio claimed/true = sqrt(2t)/sqrt(1/4+t^2) = 0.308357677431
+       N |S_N-zeta|/sqrtN   x|s-1| (->1) x sqrt(2t) (claim) EM bound |s-1|    |S_N|/sqrtN
+     100  0.04776148882    1.004327868   0.3096922086    1.370877229  0.04776148882
+    1000  0.04756843711    1.000268379   0.3084404342    1.032096552  0.04756843711
+   10000   0.0475568718    1.000025184   0.3083654431    1.003159743   0.0475568718
+  100000  0.04755579314    1.000002502   0.3083584489    1.000315475  0.04755579314
+PASS [C1-corr-bound t=21.0220396388] |S_N-zeta|*|s-1|/sqrt(N) <= EM bound for every N=1e2..1e5 (N=1e5: measured 1.00000250184 <= bound 1.00031547523)
+PASS [C1-claim-refuted t=21.0220396388] |S_N-zeta|*sqrt(2t)/sqrt(N) has rigorous upper bound 0.3084549566 at N=1e5 (< 1): the claimed limit 1 is impossible; measured 0.3083584489
+PASS [C1-true-const-6dig t=21.0220396388] measured |S_N-zeta|/sqrt(N) = 0.047555793137745 vs 1/|s-1| = 0.047555674161092 ; normalised dev 2.502e-6 = 5.60 digits
+PASS [C1-claim-const-wrong t=21.0220396388] 1/sqrt(2t) = 0.154222442449 vs true 0.0475556741611 : relative error 2.24299 (>0.5), factor 3.2429872
+PASS [C1-SN-failure-mode t=21.0220396388] |S_N|*|s-1|/sqrt(N) = 1.00000250184 -> 1, i.e. S_N itself ~ sqrt(N)/|s-1| = 15.0384246014 (claimed sqrt(N)/sqrt(2t) = 48.7694184452); zero visible only after cancellation (|zeta|=1.161e-15 << |S_N|=15.038462)
+
+
+==============================================================================
+C2  smoothed sums S_N^phi = sum_{n<=N} phi(n/N) n^{-s}  (s = 1/2 + i t1)
+==============================================================================
+t = t1 = 14.134725141734692855 ;  zeta = (1.16674887389e-16 - 7.32888188373e-16j)
+
+M_phi(s) = int_0^1 phi(u) u^{-s} du   (the exact asymptotic constant, for sharp: 1/(1-s))
+  sharp(1)             |M_phi| = 0.070703527731812   phi(1) = 1.0
+     N:                 100          1000         10000        100000
+     |E|:        0.70938592     2.2364194     7.0705301     22.358475
+     |E|*sqrtN:     7.0938592      70.72179     707.05301     7070.3705
+     |E|/sqrtN: 0.07093859156 0.07072179028 0.07070530119 0.07070370455
+     -> |M_phi| = 0.0707035277318 ; |E|*sqrtN maximum over N=1e2..1e5 = 7070.3705
+     ratio (|E|/sqrtN at N=1e5) / |M_phi| = 1.00000250083
+
+  phi1=u(1-u)          |M_phi| = 0.0049012243364555   phi(1) = 0.0
+     N:                 100          1000         10000        100000
+     |E|:       0.038149969    0.15413514    0.49016449     1.5499154
+     |E|*sqrtN:    0.38149969     4.8741811     49.016449     490.12629
+     |E|/sqrtN:0.0038149968810.0048741810540.0049016449290.004901262937
+     -> |M_phi| = 0.00490122433646 ; |E|*sqrtN maximum over N=1e2..1e5 = 490.12629
+     ratio (|E|/sqrtN at N=1e5) / |M_phi| = 1.00000787563
+
+  phi2=(u(1-u))^3      |M_phi| = 0.00011771844884381   phi(1) = 0.0
+     N:                 100          1000         10000        100000
+     |E|:      0.0011820044   0.003722578   0.011771845   0.037225842
+     |E|*sqrtN:   0.011820044    0.11771825     1.1771845     11.771845
+     |E|/sqrtN:0.00011820043620.00011771825370.00011771844870.0001177184488
+     -> |M_phi| = 0.000117718448844 ; |E|*sqrtN maximum over N=1e2..1e5 = 11.771845
+     ratio (|E|/sqrtN at N=1e5) / |M_phi| = 1.0
+
+  phi3=(1-cos2piu)/2   |M_phi| = 0.0079729834623675   phi(1) = 0.0
+     N:                 100          1000         10000        100000
+     |E|:       0.080023218    0.25209285    0.79729803     2.5212787
+     |E|*sqrtN:    0.80023218     7.9718758     79.729803     797.29835
+     |E|/sqrtN:0.0080023218320.0079718757920.0079729802840.007972983465
+     -> |M_phi| = 0.00797298346237 ; |E|*sqrtN maximum over N=1e2..1e5 = 797.29835
+     ratio (|E|/sqrtN at N=1e5) / |M_phi| = 1.00000000031
+
+  phiE=exp(-u)         |M_phi| = 0.02614237769993   phi(1) = 0.36787944
+     N:                 100          1000         10000        100000
+     |E|:        0.26786937    0.82593079     2.6140505     8.2669203
+     |E|*sqrtN:     2.6786937     26.118225     261.40505     2614.2297
+     |E|/sqrtN: 0.02678693658 0.02611822495 0.02614050518 0.02614229738
+     -> |M_phi| = 0.0261423776999 ; |E|*sqrtN maximum over N=1e2..1e5 = 2614.2297
+     ratio (|E|/sqrtN at N=1e5) / |M_phi| = 0.999996927592
+
+  phiE0=exp(-u)-1/e    |M_phi| = 0.0018482105114697   phi(1) = 0.0
+     N:                 100          1000         10000        100000
+     |E|:       0.029464461   0.059473411    0.18480399    0.58444377
+     |E|*sqrtN:    0.29464461     1.8807144     18.480399     184.81735
+     |E|/sqrtN:0.0029464460860.001880714375 0.001848039850.001848173493
+     -> |M_phi| = 0.00184821051147 ; |E|*sqrtN maximum over N=1e2..1e5 = 184.81735
+     ratio (|E|/sqrtN at N=1e5) / |M_phi| = 0.999979970721
+
+C2 verdict data:
+  sharp(1)              |E|/sqrtN(N=1e5)=0.07070370455   |M_phi|=0.07070352773   rel.diff=2.501e-6   max(|E|sqrtN)=7070.3705
+  phi1=u(1-u)           |E|/sqrtN(N=1e5)=0.004901262937   |M_phi|=0.004901224336   rel.diff=7.876e-6   max(|E|sqrtN)=490.12629
+  phi2=(u(1-u))^3       |E|/sqrtN(N=1e5)=0.0001177184488   |M_phi|=0.0001177184488   rel.diff=8.348e-14   max(|E|sqrtN)=11.771845
+  phi3=(1-cos2piu)/2    |E|/sqrtN(N=1e5)=0.007972983465   |M_phi|=0.007972983462   rel.diff=3.147e-10   max(|E|sqrtN)=797.29835
+  phiE=exp(-u)          |E|/sqrtN(N=1e5)=0.02614229738   |M_phi|=0.0261423777   rel.diff=3.072e-6   max(|E|sqrtN)=2614.2297
+  phiE0=exp(-u)-1/e     |E|/sqrtN(N=1e5)=0.001848173493   |M_phi|=0.001848210511   rel.diff=2.003e-5   max(|E|sqrtN)=184.81735
+PASS [C2-const-law phi1=u(1-u)] |E|/sqrt(N) -> |M_phi(s)| : measured 0.0049012629367 vs exact 0.00490122433646 (rel.diff 7.876e-6)
+PASS [C2-bound-refuted phi1=u(1-u)] |E|*sqrt(N) is NOT bounded: it grows from 0.3815 (N=1e2) to 490.126 (N=1e5) (max 490.126); the claimed O(N^{-1/2}) error is refuted, true law |E| ~ sqrt(N)*|M_phi|
+PASS [C2-const-law phi2=(u(1-u))^3] |E|/sqrt(N) -> |M_phi(s)| : measured 0.000117718448844 vs exact 0.000117718448844 (rel.diff 8.348e-14)
+PASS [C2-bound-refuted phi2=(u(1-u))^3] |E|*sqrt(N) is NOT bounded: it grows from 0.01182 (N=1e2) to 11.7718 (N=1e5) (max 11.7718); the claimed O(N^{-1/2}) error is refuted, true law |E| ~ sqrt(N)*|M_phi|
+PASS [C2-const-law phi3=(1-cos2piu)/2] |E|/sqrt(N) -> |M_phi(s)| : measured 0.00797298346488 vs exact 0.00797298346237 (rel.diff 3.147e-10)
+PASS [C2-bound-refuted phi3=(1-cos2piu)/2] |E|*sqrt(N) is NOT bounded: it grows from 0.800232 (N=1e2) to 797.298 (N=1e5) (max 797.298); the claimed O(N^{-1/2}) error is refuted, true law |E| ~ sqrt(N)*|M_phi|
+PASS [C2-const-law phiE=exp(-u)] |E|/sqrt(N) -> |M_phi(s)| : measured 0.0261422973799 vs exact 0.0261423776999 (rel.diff 3.072e-6)
+PASS [C2-bound-refuted phiE=exp(-u)] |E|*sqrt(N) is NOT bounded: it grows from 2.67869 (N=1e2) to 2614.23 (N=1e5) (max 2614.23); the claimed O(N^{-1/2}) error is refuted, true law |E| ~ sqrt(N)*|M_phi|
+PASS [C2-const-law phiE0=exp(-u)-1/e] |E|/sqrt(N) -> |M_phi(s)| : measured 0.00184817349315 vs exact 0.00184821051147 (rel.diff 2.003e-5)
+PASS [C2-bound-refuted phiE0=exp(-u)-1/e] |E|*sqrt(N) is NOT bounded: it grows from 0.294645 (N=1e2) to 184.817 (N=1e5) (max 184.817); the claimed O(N^{-1/2}) error is refuted, true law |E| ~ sqrt(N)*|M_phi|
+PASS [C2-sharp-diverges] sharp cutoff: |E|*sqrt(N) grows to 7070.3705 at N=1e5 (-> infinity like sqrt(N)) -- this part of the claim holds
+
+local log-log exponents p in |E| ~ N^p over the last decade N=1e4..1e5: sharp(1):0.5000, phi1=u(1-u):0.5000, phi2=(u(1-u))^3:0.5000, phi3=(1-cos2piu)/2:0.5000, phiE=exp(-u):0.5000, phiE0=exp(-u)-1/e:0.5000
+(full-range N=1e2..1e5 slopes, biased by the O(N^{-1/2}) subleading term: sharp(1):0.4995, phi1=u(1-u):0.5363, phi2=(u(1-u))^3:0.4994, phi3=(1-cos2piu)/2:0.4995, phiE=exp(-u):0.4965, phiE0=exp(-u)-1/e:0.4325)
+PASS [C2-same-exponent] every weight (including the phi(1)!=0 ones) has the SAME exponent ~ +1/2 in the last decade; no weight shows the claimed -1/2 (local slopes: sharp(1):0.5000, phi1=u(1-u):0.5000, phi2=(u(1-u))^3:0.5000, phi3=(1-cos2piu)/2:0.5000, phiE=exp(-u):0.5000, phiE0=exp(-u)-1/e:0.5000)
+
+NOTE (C2): the standard proof-sketch 'smoothing kills the sqrt(N) fluctuation' is FALSE for
+the finite sum sum_{n<=N} phi(n/N) n^{-s}: the leading term is N^{1-s} M_phi(s), so
+|S_N^phi - zeta| = sqrt(N)|M_phi(s)| + O(N^{-1/2}).  Smoothing only rescales the
+constant: sharp 0.07070353 (1/|s-1|) -> phi1 0.00490122, phi2 0.00011772, phi3 0.00797298,
+phiE 0.02614238, phiE0 0.00184821.  A bounded ratio needs M_phi(s)=0 (degenerate),
+which none of the listed weights satisfies.
+
+==============================================================================
+C3  theta identity / exponential accuracy (functional equation)
+==============================================================================
+working precision dps=160
+
+own incomplete-gamma cross-checks (dps=160):
+  a = 1/4 + i t1/2, y = pi :
+    own series  Gamma(a,y) = (-0.00774372818816958968361578352078 + 0.00155825873179561664534233596188j)
+    own quad    Gamma(a,y) = (-0.00774372818816958968361578352078 + 0.00155825873179561664534233596188j)
+    mpmath      Gamma(a,y) = (-0.00774372818816958968361578352078 + 0.00155825873179561664534233596188j)
+PASS [C3-gamma-independent] auditor's own incomplete-gamma (series and quadrature) agrees with mpmath's gammainc to 2.65e-163
+
+rigorous tail bound on the theta identity (per point, using Re(s)):
+  |int_X^inf (x^{s/2-1}+x^{(1-s)/2-1}) psi(x) dx| <= sum_n [X^b1/(a_n) + X^b2/(a_n)] e^{-a_n X},
+  b1=Re(s)/2-1, b2=Re(1-s)/2-1, a_n=pi n^2 (b>0 uses X^b e^{-aX}/(a-b/X));
+  at s=1/2+i t1 (b1=b2=-3/4) this is (2/(pi X^{3/4})) S(X), S(X)=sum_n n^-2 e^{-pi n^2 X}.
+       X      B_Lambda(1/2+it1)       B_Lambda*e^{piX}            B_zeta(s=2)            B_zeta(s=4)
+     4.0           7.8492781e-7             0.22507908             3.92326e-6             4.79545e-5
+     8.0          1.6276154e-12             0.13383282             1.2699e-11             3.1853e-10
+    16.0          1.1769784e-23            0.079577472            1.50214e-22             7.5858e-21
+    32.0           1.035081e-45            0.047317048            2.19963e-44            2.22127e-42
+    34.0          1.8470341e-48            0.045213792            4.10572e-47            4.40473e-45
+PASS [C3-tail-decay] B_Lambda(X) follows the e^{-pi X} law with the X^{-3/4} algebraic prefactor (ratios match e^{-pi dX}(X/X')^{-3/4} within a factor 2)
+PASS [C3-tail-tolerance-X34] at X=34 the rigorous tail bound is below 1e-40 at all three points (s=2: 4.11e-47, s=4: 4.4e-45, zero: 1.06e-43)
+
+classical identity (functional equation), implemented independently:
+  pi^{-s/2}Gamma(s/2) zeta(s) = 1/(s(s-1)) + (1/2)[A(s)+A(1-s)],
+  A(s) = int_1^inf x^{s/2-1}(theta(x)-1) dx,  theta(x)=sum_{n in Z} e^{-pi n^2 x}.
+  s=2          theta-route (gammainc)  = (1.64493406684822643647241516665 + 0.0j)
+               theta-route (own gamma) = (1.64493406684822643647241516665 + 0.0j)
+               mpmath zeta             = (1.64493406684822643647241516665 + 0.0j)
+               |diff| = 5.679e-69 (gammainc), 5.679e-69 (own) ; series remainder bound 5.707e-69
+  s=4          theta-route (gammainc)  = (1.08232323371113819151600369654 + 0.0j)
+               theta-route (own gamma) = (1.08232323371113819151600369654 + 0.0j)
+               mpmath zeta             = (1.08232323371113819151600369654 + 0.0j)
+               |diff| = 1.784e-68 (gammainc), 1.784e-68 (own) ; series remainder bound 1.793e-68
+  s=1/2+i t1   theta-route (gammainc)  = (1.16674887389328205147996527318e-16 - 7.32888188372844041181110806062e-16j)
+               theta-route (own gamma) = (1.16674887389328205147996527318e-16 - 7.32888188372844041181110806062e-16j)
+               mpmath zeta             = (1.16674887389328205147996527318e-16 - 7.32888188372844041181110806062e-16j)
+               |diff| = 1.035e-64 (gammainc), 1.035e-64 (own) ; series remainder bound 1.042e-64
+PASS [C3-corrected-identity] the corrected classical theta identity reproduces zeta to < 1e-40 at s=2,4,1/2+i t1 (max |diff| = 1.035e-64)
+PASS [C3-corrected-identity-own-gamma] the same identity with the auditor's OWN incomplete gamma (own series for P(a,y)=gamma(a,y)/Gamma(a)) reproduces zeta to < 1e-40 (max |diff| = 1.035e-64)
+
+claimed identity (as stated):  zeta(s) = 1/(s-1) + 1/s + [A(s)+A(1-s)]
+  s=2          RHS - zeta = (-0.0977365156516 + 0.0j)   |diff| = 0.09774
+  s=4          RHS - zeta = (-0.446332024798 + 0.0j)   |diff| = 0.4463
+  s=1/2+i t1   RHS - zeta = (0.00999797766745 - 0.141318666303j)   |diff| = 0.1417
+PASS [C3-claimed-identity-REFUTED] the identity as stated is FALSE: at s=2 it returns 1.547197551197 (= zeta(2) - 0.097736515650), at s=4 zeta(4) - 0.446332024800, at the zero 0.009997977667 - 0.141318666303i instead of ~0.  The correct identity is the pi^{-s/2}Gamma(s/2) one above (witness numbers in the lines above).
+
+truncated identity at X=34 (integral to X only; series evaluated, tail bounded):
+  s=2          |zeta_trunc(34)-zeta| = 4.105e-47   <=  bound 4.106e-47   : ok
+  s=4          |zeta_trunc(34)-zeta| = 4.404e-45   <=  bound 4.405e-45   : ok
+  s=1/2+i t1   |zeta_trunc(34)-zeta| = 1.039e-43   <=  bound 1.06e-43   : ok
+PASS [C3-truncated-X34] the truncated theta identity at X=34 is accurate to the rigorous e^{-pi*34} tail bound (< 1e-40) at all three points
+
+  s=2          own quad int_1^34 = (0.02751138983600537497822 + 0.0j) ; series = (0.02751138983600537497822 + 0.0j) ; |diff| = 1.82e-69
+  s=4          own quad int_1^34 = (0.03626840470033088660279 + 0.0j) ; series = (0.03626840470033088660279 + 0.0j) ; |diff| = 1.83e-69
+  s=1/2+i t1   own quad int_1^34 = (0.004998988833723140389601 + 0.0107622495757282583647j) ; series = (0.004998988833723140389601 + 0.0107622495757282583647j) ; |diff| = 1.81e-69
+PASS [C3-own-quadrature] auditor's own quadrature of the theta integral agrees with the exact incomplete-gamma series to 1.83e-69
+
+honest negative: the one-sided (Dirichlet-side) tail is NOT small.
+  For phi_e(u)=e^{-u}:  S_N^{phi_e} - zeta = -N^{1-s} M(s) + O(N^{-1/2}) with
+  M(s)=int_0^1 e^{-u}u^{-s}du; the *Dirichlet tail* int_N^inf x^{-s}e^{-x/N}dx =
+  N^{1-s} int_1^inf e^{-u}u^{-s}du ~ N^{1-s} (algebraic, no e^{-cN} factor).
+  M_e(s)              = (-0.00092398329203745 + 0.026126043839086j)   |M_e| = 0.0261423776999
+  int_1^inf e^{-u}u^{-s}du = (0.000923983147482 - 0.0261260432868j)   |.| = 0.0261423771429   (O(1), so tail = O(sqrt N))
+         N             |E_meas|         |N^{1-s}M_e|   |tail_int*N^{1-s}|  rel.diff(1-3)
+       100           0.26786937           0.26142378           0.26142377      0.0240624
+      1000           0.82593079           0.82669457           0.82669455    0.000924747
+     10000            2.6140505            2.6142378            2.6142377     7.16329e-5
+    100000            8.2669203            8.2669457            8.2669455     3.07242e-6
+PASS [C3-one-sided-no-exponential] the measured phi_e smoothed error tracks the exact algebraic tail N^{1-s} M_e(s) to within the O(1/N) subleading oscillation (<=5% at every N); no exponential accuracy without the functional equation
+
+==============================================================================
+C4  zero localisation: two independent evaluators; sharp partial-sum roots
+==============================================================================
+functional-equation phase check: Z(t)=e^{i theta(t)} zeta(1/2+it) must be real
+  max |Im Z(t)| over t in {5,20,30,35} = 3.35e-61
+PASS [C4-Z-real] Z(t) is real to 3.35e-61 (functional equation satisfied numerically)
+  Z sign changes in (0,35): 5  (brackets: 5 ...)
+  count of Z-zeros with t<30: 3 ; with t<35: 5
+
+first five zeros (>=25 digits), method 1 = mpmath mp.zeta, method 2 = auditor theta route
+   k              t (mp.zeta route)                t (theta route)    |t1-t2| |zeta| there
+   1 14.1347251417346937904572519836 14.1347251417346937904572519836        0.0   3.22e-44
+   2 21.0220396387715549926284795939 21.0220396387715549926284795939        0.0   3.72e-44
+   3 25.0108575801456887632137909926 25.0108575801456887632137909926        0.0   3.58e-44
+   4 30.4248761258595132103118975306 30.4248761258595132103118975306        0.0   3.69e-44
+   5 32.9350615877391896906623689641 32.9350615877391896906623689641        0.0    3.6e-44
+PASS [C4-two-methods-agree] the two independent evaluators agree on all five zeros to >=25 digits, and |zeta(1/2+i t_k)| < 1e-25 at every root
+
+comparison with the tabulated values (table carries 15 decimals only):
+  t1: computed 14.13472514173469379045725   tabulated 14.134725141734693   |diff| = 9.356e-16
+  t2: computed 21.02203963877155499262848   tabulated 21.022039638771555   |diff| = 1.021e-15
+  t3: computed 25.01085758014568876321379   tabulated 25.010857580145688   |diff| = 6.196e-16
+  t4: computed 30.4248761258595132103119   tabulated 30.424876125859513   |diff| = 8.112e-16
+  t5: computed 32.93506158773918969066237   tabulated 32.935061587739190   |diff| = 1.989e-15
+PASS [C4-table] all five computed zeros agree with the tabulated values to the table's own precision (15 decimals); the two routes agree to every printed digit (bisection floor ~1e-44, set by the working precision)
+
+roots of Re S_N(1/2+it) for the SHARP partial sum (N=1e3,1e4,1e5):
+  identity S_N(s) = zeta(s) - zeta(s,N+1) checked against direct summation:
+    N=  1000  |direct - (zeta-zeta(s,N+1))| = 6.9e-49
+PASS [C4-hurwitz-id-N1000] exact identity S_N(s)=zeta(s)-zeta(s,N+1) holds to 6.9e-49 at N=1000
+    N= 10000  |direct - (zeta-zeta(s,N+1))| = 2.74e-48
+PASS [C4-hurwitz-id-N10000] exact identity S_N(s)=zeta(s)-zeta(s,N+1) holds to 2.74e-48 at N=10000
+  N=  1000 :  60 roots of Re S_N in (0,35) ; first 5 roots:
+            0.303990  0.831067  1.313519  1.775872  2.247048
+            first root (high precision) = 0.30398962938075962652
+            t_first * log N = 2.09988596711   |  pi/2 + atan(2 t_first) = 2.1170622812
+  N= 10000 : 102 roots of Re S_N in (0,35) ; first 5 roots:
+            0.213724  0.607659  0.971834  1.324726  1.674698
+            first root (high precision) = 0.21372366869791011375
+            t_first * log N = 1.96846773426   |  pi/2 + atan(2 t_first) = 1.97473806346
+  N=100000 : 128 roots of Re S_N in (0,35) ; first 5 roots:
+            0.163744  0.475442  0.768512  1.052936  1.333331
+            first root (high precision) = 0.16374362993142480677
+            t_first * log N = 1.88516820676   |  pi/2 + atan(2 t_first) = 1.88727621999
+
+  sharp first roots vs the true first zeta zero t1 = 14.134725141734692855:
+PASS [C4-sharp-not-zeta] the first root of Re S_N is at 0.30399 (N=1e3), 0.213724 (1e4), 0.163744 (1e5) -- far from every zeta zero (t1=14.13...); the sharp partial sum sees no zero
+  model check N=  1000 : |t log N - (pi/2+atan 2t)| = 0.01718
+  model check N= 10000 : |t log N - (pi/2+atan 2t)| = 0.00627
+  model check N=100000 : |t log N - (pi/2+atan 2t)| = 0.002108
+PASS [C4-first-root-scaling] t_first*log N = 2.099886 (1e3), 1.9684677 (1e4), 1.8851682 (1e5), decreasing toward pi/2 = 1.5707963 (t_first ~ 1/log N); the finite-N model pi/2+atan(2 t_first) matches to 0.01718 / 0.00627 / 0.002108 (the O(1/log N) correction shrinks)
+PASS [C4-sharp-root-count] root counts of Re S_N in (0,35): N=1000:60, N=10000:102, N=100000:128 (density ~ log N / pi: 77.0, 102.6, 128.3)
+
+==============================================================================
+C5  zero count N(T) for T=30 vs Riemann-von Mangoldt main term
+==============================================================================
+  independent count of on-line zeros: N(30) = 3 , N(35) = 5
+  Riemann-von Mangoldt main term (T/2pi)log(T/2pi e) + 7/8 at T=30 = 3.56465638149708
+  theta(T)/pi + 1 (equivalent form) = 3.56487744436142
+  difference N(30) - main term = -0.56465638   (= S(30)/pi, the O(log T) fluctuation)
+  for context: N(35) = 5 , main term = 4.87161693872 , difference = 0.128383
+PASS [C5-intervals] the five zeros lie in the intervals [(14, 15), (21, 22), (25, 26), (30, 31), (32, 33)] (computed: ['14.1347251417347', '21.0220396387716', '25.0108575801457', '30.4248761258595', '32.9350615877392'])
+PASS [C5-count-vs-main] N(30) = 3 and the Riemann-von Mangoldt main term = 3.564656381 differ by -0.564656 = S(30)/pi, within the expected O(log T) fluctuation (|diff| <= 1). Note the main term does NOT round to the true count (round(3.565)=4 != 3): the main term alone does not determine N(30).
+
+==============================================================================
+SUMMARY
+==============================================================================
+
+43/43 auditor checks pass
+
+claim-level verdicts (a REFUTED claim is recorded above as a PASSED refutation check):
+  C1 REFUTED as stated   (constant wrong by 2.66x at t1; the O(sqrt N) structure is right)
+  C2 REFUTED as stated   (|E|sqrt(N) unbounded; sharp-divergence sub-claim true)
+  C3 REFUTED as stated   (identity off by 1/s; corrected identity VERIFIED < 1e-40)
+  C4 VERIFIED
+  C5 VERIFIED (caveat: the main term does not round to the true count)
+  -> 3 of 5 round claims refuted as stated; 2 verified.
+  The exit code tracks the auditor's own checks (all resolved); a REFUTED verdict is
+  not an auditor failure, so this run exits 0.  A FAIL line would mean an unresolved
+  auditor check.
+
+verdicts:
+  C1  REFUTED as stated.  |S_N-zeta|/sqrt(N) -> 1/sqrt(1/4+t^2) = 1/|s-1|,
+      NOT 1/sqrt(2t).  t=t1: true 0.07070352773 vs claimed 0.1880794379 (factor 2.66011).
+      The claim |S_N|*sqrt(2t)/sqrt(N) -> 1 is false; the true limit is
+      sqrt(2t)/sqrt(1/4+t^2) = 0.3759237506 (t=t1).  Rigorous EM upper bound at N=1e5: 0.37600351.
+      CORRECT STATEMENT: |S_N(1/2+it)-zeta(1/2+it)| = sqrt(N)/|s-1| + O(N^{-1/2}),
+      so at a zero S_N itself is ~ sqrt(N)/|s-1| and the zero appears only after cancellation.
+  C2  REFUTED.  For every weight |S_N^phi - zeta| = sqrt(N)|M_phi(s)| + O(N^{-1/2}),
+      M_phi(s)=int_0^1 phi(u)u^{-s}du; the ratio |E|sqrt(N) is unbounded (grows like N^{1/2}),
+      not bounded.  Max |E|sqrt(N) over N=1e2..1e5: sharp 7070.37, phi1 490.126, phi2 11.7718, phi3 797.298, phiE 2614.23, phiE0 184.817.
+      No weight has a different exponent; all are +1/2 (smoothing rescales the constant only).
+  C3  REFUTED as stated / VERIFIED after correction.  The stated identity
+      zeta = 1/(s-1)+1/s+[A(s)+A(1-s)] is FALSE (at s=2 it gives 1.547197551197).
+      The classical identity pi^{-s/2}Gamma(s/2)zeta(s) = 1/(s(s-1)) + (1/2)[A(s)+A(1-s)]
+      is VERIFIED to < 1e-40 at s=2,4,1/2+i t1; tail bound decays as e^{-pi X}.
+  C4  VERIFIED.  Five zeros from both routes agree to >=25 digits and with the table;
+      sharp partial sums have first roots 0.303990/0.213724/0.163744 (N=1e3/1e4/1e5),
+      counts 60/102/128 in (0,35), t_first*log N -> pi/2 (1/log N scaling).
+  C5  VERIFIED (with a caveat).  N(30)=3, main term 3.564656 (difference -0.564656 = S(30)/pi);
+      the main term rounds to 4, so it does not by itself give the count.  Five zeros in the
+      expected intervals.
+
+reading notes:
+  * C1: the constant is exactly 1/|s-1| = 1/sqrt(1/4+t^2).  'Six digits at N<=1e5' is not
+    attainable from a single N: the O(N^{-1/2}) oscillating correction caps the empirical
+    agreement at 5.60 digits (N=1e5).  The constant itself is exact; the sequence converges.
+  * C2: a bounded |E|sqrt(N) would require M_phi(s)=0 for the given s (degenerate);
+    none of the listed weights satisfies it, so the claimed O(N^{-1/2}) error law is false.
+  * C3: the honest negative stands -- the phi_e smoothed error equals the algebraic tail
+    N^{1-s}M_e(s) to within the O(1/N) subleading oscillation (2.4% at N=1e2, 3e-6 at 1e5).
+
+runtime 88.3 s ; final N/M = 43/43 ; exit code 0
+EXIT_CODE=0

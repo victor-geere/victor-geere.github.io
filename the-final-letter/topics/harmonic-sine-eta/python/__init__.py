@@ -1,0 +1,38 @@
+"""Harmonic sine and the eta function computation package."""
+from .programme import (
+    alternating_harmonic_partial,
+    complex_partial,
+    cosine_partial,
+    eta_partial,
+    eta_partial_even_exact,
+    eta_term,
+    eta_via_zeta,
+    eta_zero_residual,
+    even_factorisation_holds,
+    even_factorisation_rhs,
+    first_critical_zero,
+    greedy_condition_holds,
+    greedy_condition_values,
+    harmonic_partial,
+    sine_partial,
+    weight,
+)
+
+__all__ = [
+    "alternating_harmonic_partial",
+    "complex_partial",
+    "cosine_partial",
+    "eta_partial",
+    "eta_partial_even_exact",
+    "eta_term",
+    "eta_via_zeta",
+    "eta_zero_residual",
+    "even_factorisation_holds",
+    "even_factorisation_rhs",
+    "first_critical_zero",
+    "greedy_condition_holds",
+    "greedy_condition_values",
+    "harmonic_partial",
+    "sine_partial",
+    "weight",
+]

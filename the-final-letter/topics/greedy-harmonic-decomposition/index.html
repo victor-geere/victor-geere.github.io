@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greedy harmonic decomposition — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:940px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+</style></head><body>
+
+<h1>Greedy harmonic decomposition</h1>
+<p class="sub">A reconstructed research programme: formal core, exact computation, source claims</p>
+
+<div class="top"><p><strong>Status.</strong> Formal core and computation layer reconstructed. Source claims are preserved separately. The full reconstruction, theorem ledger, and provenance are in <a href="README.md">README.md</a>.</p></div>
+
+<h2>What the programme is</h2>
+<p>The greedy harmonic decomposition writes a target angle <code>θ ∈ [0, π]</code> as a sub-sum of the harmonic angles <code>α_n = π/(n+2)</code>. At step <code>n</code> it selects <code>α_n</code> when the residual is at least <code>α_n</code>; the resulting binary word reconstructs <code>sin θ</code>. The threshold paper proves <code>θ_n* = α_n</code> and gives closed forms for the correlation kernel <code>K(n,m)</code>.</p>
+
+<h2>Theorem ledger</h2>
+<p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code> or <code>axiom</code>. Every <strong>Computation</strong> row is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td><code>0 &lt; α n</code></td><td><code>GHD.alpha_pos</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td><code>n ↦ α n</code> is strictly antitone</td><td><code>GHD.alpha_strictAnti</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td><code>α n → 0</code></td><td><code>GHD.alpha_tendsto_zero</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td><code>(n+2) α n = π</code></td><td><code>GHD.scaled_alpha</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>The diagonal kernel is positive for <code>0 &lt; t &lt; π</code></td><td><code>GHD.Kdiag_pos</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td><code>Kdiag t = Kdiag (π − t)</code></td><td><code>GHD.Kdiag_symm</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td><code>Kdiag (π/2) = π/12</code></td><td><code>GHD.Kdiag_half</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>Exact recursion gives <code>θ n* = α n</code> for <code>n ≤ 40</code></td><td><code>test_threshold_identity_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>At <code>θ = α n</code>, exactly index <code>n</code> is selected among the first <code>n+1</code></td><td><code>test_threshold_at_own_angle_selects</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>Residual bound <code>0 ≤ θ − θ_N ≤ π/(N+2)</code> on a grid</td><td><code>test_residual_bound</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>Closed-form diagonal kernel equals the integral</td><td><code>test_diagonal_kernel_matches_integral</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>Closed-form off-diagonal kernel equals the integral</td><td><code>test_off_diagonal_kernel_matches_integral</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>Diagonal kernel symmetry and half-value</td><td><code>test_diagonal_kernel_symmetry_and_half_value</code></td></tr>
+</tbody>
+</table>
+
+<h2>Source claims preserved separately</h2>
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>Harmonic reconstruction <code>sin θ = lim s_N</code> with <code>O(1/N)</code> rate</td><td>Source theorem, proof sketch</td><td>Not formalised; the finite greedy layer is tested.</td></tr>
+<tr><td>Selection monotonicity</td><td>Source lemma</td><td>Not formalised.</td></tr>
+<tr><td>Full threshold identity <code>θ n* = α n</code></td><td>Source theorem by induction</td><td>Verified exactly for <code>n ≤ 40</code>; the order facts are in Lean.</td></tr>
+<tr><td>Selection density <code>D(N,θ) = (θ/π) log(N+2) + O(1)</code></td><td>Source lemma</td><td>Not formalised; exact harmonic targets can terminate early.</td></tr>
+<tr><td>Asymptotic threshold distribution</td><td>Source theorem (4.3)</td><td>Proved in the source; not formalised here.</td></tr>
+</tbody>
+</table>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> implements <code>alpha</code>, <code>greedy_digits</code>, <code>thresholds</code>, <code>Kdiag</code>, <code>Koff</code>, <code>kernel_integral</code>, and the residual check.</p>
+<pre><code>python3 -m pytest the-final-letter/topics/greedy-harmonic-decomposition/tests -q</code></pre>
+<p>Recorded result: <strong>10 passed</strong>.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> defines <code>GHD.alpha</code> and <code>GHD.Kdiag</code> and proves T1–T7.</p>
+<pre><code>the-final-letter/topics/greedy-harmonic-decomposition/lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK Topic.lean</code>.</p>
+
+<h2>Open items</h2>
+<ol>
+<li>Formalise the threshold induction over the greedy selection tree.</li>
+<li>Formalise the <code>O(1/N)</code> sine reconstruction.</li>
+<li>Give a precise statement of the selection-density lemma before formalising it.</li>
+<li>Prove positive semidefiniteness of the full kernel matrix, not only positivity of one diagonal entry.</li>
+</ol>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../archive/maths/rh/research/greedy-harmonic/greedy-harmonic-decomposition.html">Source paper: correlation structure</a></li>
+<li><a href="../../archive/maths/rh/research/greedy-harmonic/greedy-harmonic-thresholds.html">Source paper: exact thresholds</a></li>
+<li><a href="../../scraps.html">Scraps inventory</a> · item 11</li>
+<li><a href="../README.md">Topic index</a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

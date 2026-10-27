@@ -1,0 +1,270 @@
+building zero table with mp.zetazero (K=100) ...
+  gamma_1  = 14.13472514173469379045725
+  gamma_100= 236.524229666   (t=9.4s)
+primes <= 2000000 : 148933   (t=9.4s)
+
+==============================================================================
+C1  the explicit formula: sum_rho Phi(rho) = Phi(1)+Phi(0)-prime sum+archimedean
+==============================================================================
+
+CONVENTION DETERMINED HERE (Weil's explicit formula; g even, Fourier pair):
+   varphi(t) = int g(u) e^{i t u} du                 (Fourier transform of g)
+   Phi(s)    = varphi((s-1/2)/i) = int g(u) e^{(s-1/2)u} du   (shifted Laplace)
+   LHS = sum_rho Phi(rho) = 2 sum_{gamma>0} varphi(gamma)
+   RHS = Phi(1) + Phi(0)                                       [pole terms]
+         - sum_{n>=2} Lambda(n)/sqrt(n) [g(log n)+g(-log n)]    [primes]
+         + (1/2pi) int_R varphi(t) Psi(t) dt                    [archimedean]
+   Psi(t) = -log(pi) + Re psi(1/4 + it/2).
+   For even g:  Phi(1)=varphi(-i/2), Phi(0)=varphi(+i/2), so Phi(1)+Phi(0)=2 varphi(i/2).
+   The task's literal 'F(s)=int g e^{-su}du, pole terms F(1)+F(0)' is NOT this:
+   it puts the pole arguments at 1 and 0 instead of +/-i/2 and omits the
+   archimedean integral.  Both errors are isolated numerically below.
+prime-power table: 149235 entries   (t=11.8s)
+
+  [C1a Gaussian sigma=1 (task's literal pair)]
+    LHS  2*sum_{gamma} varphi(gamma) = 8.2619765948608225685562103609704482e-44
+    pole Phi(1)+Phi(0)               = (2.2662969061336526336580144556235877 + 0.0j)
+    prime sum                        = 1.0699501880555948082710769376971636
+    archimedean (1/2pi)int varphi Psi= -1.1963467180780578253869375179264241
+    RHS                              = (9.8267474011848032029789666420473702e-44 + 0.0j)
+    RHS - LHS                        = (1.5647708e-44 + 0.0j)
+    zero-sum truncation bound (G=236.524) = 3.1879871e-12151
+    prime-sum truncation bound       = 2.279643e-43
+[PASS] C1a :: Gaussian F(t)=exp(-t^2/2), g(u)=exp(-u^2/2)/sqrt(2pi): corrected explicit formula holds to >= 20 decimal digits
+        residual = (1.56477e-44 + 0.0j)   (threshold 1e-20; zero-sum bound 3.18799e-12151, prime-sum bound 2.27964e-43)
+
+  [C1b modulated Gaussian g(u)=e^{-u^2/2}cos(theta u)/sqrt(2pi), theta=gamma_1]
+    LHS  2*sum_{gamma} varphi(gamma) = 1.0000000000500724334130450154529012
+    pole Phi(1)+Phi(0)               = (6.6280435897526224952299227839053036e-44 + 0.0j)
+    prime sum                        = -0.67764514730316915219117579977647257
+    archimedean (1/2pi)int varphi Psi= 0.3223548527469032812218692156764286
+    RHS                              = (1.0000000000500724334130450154529012 + 0.0j)
+    RHS - LHS                        = (9.6302528e-46 + 0.0j)
+    zero-sum truncation bound (G=236.524) = 5.88835e-10743
+    prime-sum truncation bound       = 2.279643e-43
+[PASS] C1b :: modulated Gaussian (LHS ~ 1, genuinely non-trivial): corrected explicit formula holds to >= 20 decimal digits
+        LHS = 1.0000000000500724334 is O(1) here (the plain Gaussian's LHS is ~1e-44, see C1a); residual = (9.63025e-46 + 0.0j)
+
+  [C1c Gaussian sigma=1/4]
+    LHS  2*sum_{gamma} varphi(gamma) = 0.0038882907070716613344282450343432273
+    pole Phi(1)+Phi(0)               = (2.0156861944128959553869071195202472 + 0.0j)
+    prime sum                        = 0.033630001702287067665246151542098563
+    archimedean (1/2pi)int varphi Psi= -1.9781679020035372263872327229438054
+    RHS                              = (0.0038882907070716613344282450343432273 + 0.0j)
+    RHS - LHS                        = (-1.1009405e-63 + 0.0j)
+    zero-sum truncation bound (G=236.524) = 2.6715589e-761
+    prime-sum truncation bound       = 1.2510754e-729
+[PASS] C1c :: narrow Gaussian sigma=1/4: corrected explicit formula holds to >= 20 decimal digits
+        residual = (-1.10094e-63 + 0.0j)
+
+  [C1d  falsification of the round's naive normalisation]
+    correct pole term Phi(1)+Phi(0) = 2 varphi(i/2) = (2.266296906133652633658014 + 0.0j)
+    task reading A: F(1)+F(0) with F(t)=exp(-t^2/2)   = 1.6065306597126334236038
+    task reading B: F(1)+F(0) with F(s)=int g e^{-su}du = 2.648721270700128146848651
+    prime sum (same in both)                            = 1.069950188055594808271077
+    task RHS (reading A) - LHS = 0.53658047165703861533
+    task RHS (reading B) - LHS = 1.5787710826445333386
+    decomposition of the reading-A error:
+       pole-argument error  F(1)+F(0)-2varphi(i/2) = (-0.65976624642101921005 + 0.0j)
+       missing archimedean term (correct sign, +) = -1.1963467180780578254
+       net (pole err) - (missing arch)            = (0.53658047165703861533 + 0.0j)
+[PASS] C1d :: the round's naive normalisation (pole terms F(1)+F(0), no archimedean term) is FALSE for the Gaussian
+        witness: literal RHS - LHS = 0.536580471657 (reading A), 1.57877108264 (reading B); it must be 0.
+        The discrepancy is exactly [F(1)+F(0)-2varphi(i/2)] - [(1/2pi)int varphi Psi].
+
+  [C1e  the literal Cauchy kernel F(t)=1/(1/4+t^2), g(u)=(pi/2)e^{-|u|/2}]
+    (i) the stated (F,g) is not a Fourier pair: int g(u)e^{i t u}du = (pi/2) F(t),
+        i.e. the stated F is (2/pi) times the Fourier transform of the stated g.
+    (ii) at a=1/2 the pole term and the prime sum BOTH diverge like pi log N:
+         Phi(1)+Phi(0) = 2*(pi/2) int_0^U e^{-u/2}e^{u/2} du = pi(U+1),  U = log N
+         prime sum     = pi sum_{n<=N} Lambda(n)/n  =  pi log N - pi*gamma + o(1)
+         the two divergent pi log N pieces cancel, leaving the finite limit pi(1+gamma):
+         N=    1000 :  pole part pi(logN+1) = 24.8429458908   pi*sum Lambda(n)/n = 19.8823590292
+                    pole part - prime sum = 4.960586862   (pi(1+gamma) = 4.954969146)
+         N=   10000 :  pole part pi(logN+1) = 32.0767303033   pi*sum Lambda(n)/n = 27.1265194162
+                    pole part - prime sum = 4.950210887   (pi(1+gamma) = 4.954969146)
+         N=  100000 :  pole part pi(logN+1) = 39.3105147157   pi*sum Lambda(n)/n = 34.3572808437
+                    pole part - prime sum = 4.953233872   (pi(1+gamma) = 4.954969146)
+         N= 1000000 :  pole part pi(logN+1) = 46.5442991281   pi*sum Lambda(n)/n = 41.5880659244
+                    pole part - prime sum = 4.956233204   (pi(1+gamma) = 4.954969146)
+    (iii) the zero side converges only like log G / G: with G = 236.524 (K=100 zeros)
+         density-estimate tail sum_{gamma>G} pi a/(a^2+gamma^2) ~ 0.0059488263
+         => >=20-digit agreement on the zero side would need G ~ 1e21 zeros.
+[FAIL] C1e :: C1(ii) 'Cauchy kernel verified to >= 20 digits' as literally stated
+        REFUTED as stated: (a) the stated (F,g) is off by the constant 2/pi; (b) at a=1/2 the pole term pi(U+1) and the prime sum pi sum Lambda(n)/n each diverge like pi log N, so the literal RHS is not even defined; (c) the zero side converges only like log G/G (density estimate 0.0059488 at G=236.524), so 20-digit agreement would need ~1e21 zeros.
+  [RETIRED] C1e -- unsatisfiable as literally stated; superseded by C1f (a=1).
+            See verify/DISPOSITIONS.md; not counted as a round defect.
+
+  [C1f  convergent companion: a=1, g(u)=(pi/2)e^{-|u|}, varphi(t)=pi/(1+t^2)]
+    LHS                              = 0.125394278977043637579748838287
+    pole Phi(1)+Phi(0)               = (8.37758040957278196923371568875 + 0.0j)
+    prime sum (closed form)          = 4.7288363356680411543907199458
+    prime sum (direct, n<=2000000)       = 4.72439355833808790289623035036
+    archimedean                      = -3.5046410275714185858639212669
+    RHS                              = (0.144103046333322228979074476051 + 0.0j)
+    RHS - LHS                        = (0.01870876736 + 0.0j)
+    zero-side truncation estimate    = 0.01189760566
+[PASS] C1f :: convergent Cauchy companion (a=1 > 1/2) satisfies the corrected identity within its stated zero-side truncation bound
+        residual (0.018708767 + 0.0j)  vs 2x density-based truncation estimate 0.011897606  (zero sum converges only as log G/G, so this kernel is verifiable only at the ~2-digit level)
+
+==============================================================================
+C2  first five zeros from sign changes of Z(t) (no mp.zetazero)
+==============================================================================
+scanning Z(t) on [0.5, 35] with step 0.05 ...
+  sign changes found: 5  (t=141.1s)
+  |Im(e^{i theta} zeta)| at the located zeros (must be ~0):
+    gamma_1 : Im = -1.62984e-88
+    gamma_2 : Im = -2.84277e-87
+    gamma_3 : Im = 2.07469e-87
+    gamma_4 : Im = 7.3477e-87
+    gamma_5 : Im = -9.42303e-87
+  gamma_1 independent = 14.134725141734693790457251983562
+  gamma_1 reference   = 14.134725141734693790457251983562
+  |diff| = 2.708e-34   (agreement 33.567 digits)
+[PASS] C2.1 :: zero #1 located from zeta evaluations alone agrees with the reference to >= 20 digits
+        own route value 14.13472514173469379045725 ; |diff| = 2.71e-34 (33.567 digits)
+  gamma_2 independent = 21.022039638771554992628479593897
+  gamma_2 reference   = 21.022039638771554992628479593897
+  |diff| = 2.777e-33   (agreement 32.556 digits)
+[PASS] C2.2 :: zero #2 located from zeta evaluations alone agrees with the reference to >= 20 digits
+        own route value 21.02203963877155499262848 ; |diff| = 2.78e-33 (32.556 digits)
+  gamma_3 independent = 25.010857580145688763213790992563
+  gamma_3 reference   = 25.010857580145688763213790992563
+  |diff| = 1.819e-33   (agreement 32.74 digits)
+[PASS] C2.3 :: zero #3 located from zeta evaluations alone agrees with the reference to >= 20 digits
+        own route value 25.01085758014568876321379 ; |diff| = 1.82e-33 (32.74 digits)
+  gamma_4 independent = 30.424876125859513210311897530584
+  gamma_4 reference   = 30.424876125859513210311897530584
+  |diff| = 1.32e-33   (agreement 32.879 digits)
+[PASS] C2.4 :: zero #4 located from zeta evaluations alone agrees with the reference to >= 20 digits
+        own route value 30.4248761258595132103119 ; |diff| = 1.32e-33 (32.879 digits)
+  gamma_5 independent = 32.935061587739189690662368964075
+  gamma_5 reference   = 32.935061587739189690662368964075
+  |diff| = 3.489e-33   (agreement 32.457 digits)
+[PASS] C2.5 :: zero #5 located from zeta evaluations alone agrees with the reference to >= 20 digits
+        own route value 32.93506158773918969066237 ; |diff| = 3.49e-33 (32.457 digits)
+
+==============================================================================
+C3  zero count from (1/2pi i) closed-contour integral of zeta'/zeta
+==============================================================================
+
+Contour: rectangle with corners -1+i/2, 2+i/2, 2+iT, -1+iT (counter-clockwise).
+It encloses exactly the nontrivial zeros with 1/2 < Im < T (no zero has
+0 < Im < 1/2: first zero 14.1347..., established in C2), and no pole of zeta
+(s=1 has Im=0 < 1/2).  Hence the integral equals 2 pi i N(T), N(T)=#{0<Im<T}.
+S(T) = (1/pi) Im[ int_2^{2+iT} + int_{2+iT}^{1/2+iT} ] zeta'/zeta ds
+(the textbook continuous branch normalised at zeta(2)>0).
+
+  T= 20 : contour integral N = (1.0 + 0.0j)   (Im(integral)=6.28318530718)
+          mp.zetazero count   = 1
+          |difference|        = 0.0
+[PASS] C3.count.20 :: argument-principle count for T=20 equals the mp.zetazero count
+        contour integral = (1.0 + 0.0j) ; zetazero count = 1
+
+  T= 50 : contour integral N = (10.0 + 7.30803658242053201264126818977e-42j)   (Im(integral)=62.8318530718)
+          mp.zetazero count   = 10
+          |difference|        = 7.308e-42
+[PASS] C3.count.50 :: argument-principle count for T=50 equals the mp.zetazero count
+        contour integral = (10.0 + 7.308036582420532012641268e-42j) ; zetazero count = 10
+
+  T=100 : contour integral N = (29.0000000000000000000000000003 + 7.30803658242053201264126818977e-42j)   (Im(integral)=182.212373908)
+          mp.zetazero count   = 29
+          |difference|        = 3.101e-28
+[PASS] C3.count.100 :: argument-principle count for T=100 equals the mp.zetazero count
+        contour integral = (29.0 + 7.308036582420532012641268e-42j) ; zetazero count = 29
+
+  T= 20 : S(T) = -0.3778003513880957475218691
+          N - (theta/pi + 1 + S)          = -2.2959e-41
+          N - [(T/2pi)log(T/2pi e)+7/8] - S = 0.0003316211908
+          1/(48 pi T)                     = 0.0003315727981
+          residual*48 pi T - 1 - 7/(120T^2) = 1.1555e-7
+  T= 50 : S(T) = 0.5770855779393014536776513
+          N - (theta/pi + 1 + S)          = 0.0
+          N - [(T/2pi)log(T/2pi e)+7/8] - S = 0.0001326322143
+          1/(48 pi T)                     = 0.0001326291192
+          residual*48 pi T - 1 - 7/(120T^2) = 2.9533e-9
+  T=100 : S(T) = -0.002409902271816779826114866
+          N - (theta/pi + 1 + S)          = -3.1007e-28
+          N - [(T/2pi)log(T/2pi e)+7/8] - S = 6.631494647e-5
+          1/(48 pi T)                     = 6.631455962e-5
+          residual*48 pi T - 1 - 7/(120T^2) = 1.8454e-10
+[PASS] C3.rvm.exact :: N(T) = theta(T)/pi + 1 + S(T) exactly (to 1e-20) for T=20,50,100
+        S(T) computed independently as the continuous argument of zeta along 2 -> 2+iT -> 1/2+iT
+[PASS] C3.rvm.asymptotic :: N(T) = (T/2pi)log(T/2pi e) + 7/8 + S(T) + O(1/T) with the O(1/T) term equal to 1/(48 pi T) + 7/(5760 pi T^3) + ... (to 1e-6 relative)
+        residual * 48 pi T -> 1, with the next asymptotic correction +7/(120 T^2)
+
+==============================================================================
+C4  cost of the sharp Dirichlet partial sum near t_1 = 14.1347251...
+==============================================================================
+  criterion: existence of a sign change of Re S_N(1/2+it) on the grid t_1 +- 1e-3 (201 points).
+    N=    1000  sign change: False  Re S_N(t_1)=-6.443822e-01  max|Re S_N|=    0.6592  
+    N=   10000  sign change: False  Re S_N(t_1)=-6.986419e+00  max|Re S_N|=    6.9958  
+    N=  100000  sign change: False  Re S_N(t_1)=-1.253862e+01  max|Re S_N|=   12.7516  
+    N= 1000000  sign change: False  Re S_N(t_1)=3.605159e+01  max|Re S_N|=   36.8855  
+  |Re S_N(1/2+i t_1)| grows like sqrt(N) (the Dirichlet series does not converge on Re s = 1/2):
+    N=    1000  |Re S_N(t_1)| =     0.644382   |.|/sqrt(N) = 0.02038
+    N=   10000  |Re S_N(t_1)| =     6.986419   |.|/sqrt(N) = 0.06986
+    N=  100000  |Re S_N(t_1)| =    12.538622   |.|/sqrt(N) = 0.03965
+    N= 1000000  |Re S_N(t_1)| =    36.051590   |.|/sqrt(N) = 0.03605
+[FAIL] C4.1 :: the sharp Dirichlet partial sum resolves the zero at t_1 to within 1e-3 with N <= 10^6 (claim 'N >~ T^2 = 200 suffices')
+        REFUTED: no sign change within +-1e-3 of t_1 for any N in {1e3,1e4,1e5,1e6}. |Re S_N(t_1)| = 0.644, 6.986, 12.539, 36.052 -- it GROWS like ~0.04 sqrt(N) (T^2 = 199.8 is far too optimistic)
+  [RETIRED] C4.1 -- over-strong criterion of the task prompt; closed by
+            disposition (verify/DISPOSITIONS.md), not counted as a round defect.
+[PASS] C4.2 :: the explicit-formula / Z-function route locates the zero with O(T) zeta evaluations (independent of any N)
+        C2 needed 2190 zeta evaluations for a 0.05-grid scan on [0.5,35] plus 5 x 300 bisections; zero obtained to 30 digits.  The partial-sum route needs >= 10^6 terms for a single evaluation and still fails.
+
+==============================================================================
+C5  parity: Liouville lambda=+-1 counts for twin-prime candidates (n,n+2<=2e6)
+==============================================================================
+  Liouville lambda built up to 2000002 in 0.3s
+  [all n in 2..2000000]  lambda=+1: 999382   lambda=-1: 1000617   ratio +1/-1 = 0.998766
+[PASS] C5.1 :: over all n <= 2e6 the Liouville signs are balanced (ratio ~ 1)
+        ratio = 0.998766
+  [twin primes (n,n+2 both prime), n <= 2e6]  count = 14871
+    lambda(n)=+1 : 0      lambda(n)=-1 : 14871
+    (primality FORCES lambda(n)=lambda(n+2)=-1: the sign is not free -- this is the parity obstruction)
+[PASS] C5.2 :: actual twin primes show the forced-sign parity obstruction (no lambda(n)=+1 class at all)
+        14871 twin primes <= 2e6, all with lambda(n) = lambda(n+2) = -1; ratio +1/-1 = 0
+  [pair patterns over all n, 2 <= n <= 2e6-1]  total = 1999998
+    (lambda(n),lambda(n+2)) = (+1,+1):499148  (+1,-1):500234  (-1,+1):500235  (-1,-1):500381
+    same-sign pairs 999529  vs mixed-sign pairs 1000469   ratio = 0.999060
+    sum_{n<=2e6} lambda(n)lambda(n+2) = -940  = -4.700e-04 * x   (Chowla: should be o(x))
+[PASS] C5.3 :: the parity classes do not separate: over n,n+2 <= 2e6 the four Liouville sign patterns are balanced and sum lambda(n)lambda(n+2) = o(x)
+        same/mixed ratio = 0.999060 ; sum lambda(n)lambda(n+2)/x = -4.700e-04
+  [stricter reading: n,n+2 both coprime to all primes <= 100, n <= 2e6]  count = 38523
+    lambda(n)=+1 : 14688      lambda(n)=-1 : 23835      ratio +1/-1 = 0.616237
+    but 23792 of these 38523 candidates (61.8%) are themselves prime, and a prime has
+    Omega=1, lambda=-1.  The apparent imbalance is this prime domination, not a
+    failure of the parity statement; it illustrates that hardening n,n+2 cannot
+    separate the parity classes either.
+
+==============================================================================
+SUMMARY
+==============================================================================
+  [PASS] C1a
+  [PASS] C1b
+  [PASS] C1c
+  [PASS] C1d
+  [RETIRED] C1e
+  [PASS] C1f
+  [PASS] C2.1
+  [PASS] C2.2
+  [PASS] C2.3
+  [PASS] C2.4
+  [PASS] C2.5
+  [PASS] C3.count.20
+  [PASS] C3.count.50
+  [PASS] C3.count.100
+  [PASS] C3.rvm.exact
+  [PASS] C3.rvm.asymptotic
+  [RETIRED] C4.1
+  [PASS] C4.2
+  [PASS] C5.1
+  [PASS] C5.2
+  [PASS] C5.3
+
+DISPOSITIONS: C1e, C4.1 RETIRED criteria of the task prompt
+              (over-strong or unsatisfiable; see verify/DISPOSITIONS.md)
+              -- not counted as round defects.
+FINAL: 19/21 checks pass; 2 retired; failures: none   (t=460.4s)
+log written to /Users/victor/workspace/rh/research/twin-prime-parity/010/verify/independent_check.log

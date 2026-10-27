@@ -1,0 +1,26 @@
+# Remark F.13 (Assessment)
+
+| Field | Value |
+|---|---|
+| Type | Remark |
+| Status | Remark (assessment) |
+| Source | [publication.html Addendum F](publication.html#addf) · Addendum F. Quantum answers: where the physics literature sits against each gap |
+| Proof in source | no separate proof block |
+
+## Statement
+
+Nothing in this addendum proves the Riemann hypothesis or changes the status of any statement in Sections 1–14 or Addenda B–E. What it does is sort the remaining work into four bins by what each item would consume, and the sorting is the content.
+
+*Exact, done here.* Lemma F.1 (the observable of [\[11\]](publication.html#ref-wei) is the period-two polygon), Proposition F.2 (the three scales are free-energy densities with latent drop \(\sigma\)), Proposition F.3 (clock-register protocol), Lemma F.5 (the Connes–Consani window is the prime-free regime), Lemma F.6 (the (M)-locus is a finite set inside the additive basis), Lemma F.8 (clock zeros), Corollary F.9 (uniform depth and speed on the window for \(\varepsilon>13/194\), unconditionally), Lemma F.10 (Landau–Gonek on the register). Of these, F.2 and F.9 change how the paper should be read: the balanced family is the set of transitions registered at the critical depth, and the first time the polygon is summed over zeros it returns \(\Lambda\).
+
+*Tractable, not done.* Items that can be carried out with the present toolbox and would sharpen the polygon without touching the zeros. (a) A Gonek–Ledoan theorem for \(\eta_N^{(N^2)}\): \(N_\eta(\sigma,T)\ll TN^{2(1-2\sigma)}\log^6T\) for \(\sigma\ge\tfrac12+1/\log T\), by the mean-value estimate of Section 7 and Littlewood's lemma as in [\[40\]](publication.html#ref-partialsums); it quantifies the clustering of Section F.7 and is additive. (b) The transfer-operator form of the nested fibres (Remark F.12): write \(\eta_N^{(N^2)}\) as a trace over the \(N\)-spin chain of Lemma 4.3.3 and compute the sign of the induced couplings numerically for small \(N\); a negative coupling at any \(N\) settles Open item F.4 in the negative for that representation. (c) The heat-flowed polygon \(\sum c_m e^{\tau(\log m)^2}m^{-s}\), the register form of \(H_\tau\) in Section F.4: tabulate its zeros against \(\tau\) on the window and record whether the clock zeros and the near-line zeros respond differently, which is the only way the polygon can see \(\Lambda\) of Section F.4 at all. (d) The twist form of Lemma F.8: the zero-free region is used only to bound \(\lvert\zeta\rvert\) from below on the Rouché circle, and Lemma 9.4 does the same at any clock point whose circle avoids the zeros of the limit function; so the lemma transfers to the Davenport–Heilbronn twist at every clock point not within \(r_k\) of a zero of \(f\), and the exceptional clock points are a finite computation at each \(N\).
+
+*Conditional.* Uniform slow passage for \(\varepsilon\le13/194\) and along the vanishing aperture (Lindelöf, or the random-matrix moments of [\[43\]](publication.html#ref-hko)); uniformity of the isolation clause (a pair-correlation bound on zeros with a neighbour within \(N^{-\kappa}\), [\[38\]](publication.html#ref-gue)); a Lee–Yang property for the polygon (Open item F.4, which needs an interacting representation with a sign, not a reweighting). Each of these is a statement about \(\zeta\) that is expected to be true, that would make a theorem of the paper uniform or a family confined, and that does not by itself move an atom of \(\nu\).
+
+*Out of reach, and why.* Every quantum result that passes the litmus of Addendum C does so for one reason — it consumes the Euler product as a periodic-orbit structure (Section F.3), as ferromagnetic positivity (Section F.2), as the sign of \(\Lambda\) (Remark F.11), or as an inner product (Selberg, function fields) — and every one of them is, at present, a theorem about a different zeta function, a theorem in the regime where primes do not enter (Lemma F.5), a one-sided bound (\(\Lambda\ge0\)), or a candidate operator whose self-adjointness is the open step. Remark C.15 said that multiplicativity is known to reach within \(o(1)\) of \(\sigma=1\); Lemma F.10 says the same thing from inside the construction: the polygon's pointwise control lives on \(T\le N^{1/2-\varepsilon}\), the von Mangoldt sum lives on \(T\gg N^4\log N\), and the two regimes do not meet. Closing the gap means producing a statement that is pointwise in the zeros (Corollary 12.3 is) and uses the sign of \(\Lambda\) (Lemma F.10 does), in one regime. No such statement is in the literature surveyed here, and none is claimed.
+
+*What a future reader should try first.* In order of expected return: item (b), because it is a finite computation whose negative answer closes a door and whose positive answer opens the only one in this addendum that passes the litmus; item (c), because the heat flow is the one deformation for which the Riemann hypothesis is known to be a boundary (\(\Lambda=0\) if true), and the register form has not been looked at; then item (a), which is bookkeeping.
+
+## Proof
+
+_No separate proof is given in the source. The statement is either a definition, a remark, a cited result, or is argued inline in the surrounding section._

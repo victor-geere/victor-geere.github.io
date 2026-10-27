@@ -1,0 +1,36 @@
+"""GDST paper series exact-computation package."""
+from .programme import (
+    alpha,
+    alpha_angle,
+    complement_residual,
+    digits,
+    dirichlet_weight,
+    invariant_residual,
+    monotonicity_counterexample,
+    next_index_lower_bound,
+    pi_example,
+    projected_next_index_ge_quadratic,
+    rejected_sum,
+    remainder_bound_holds,
+    run,
+    selected_sum,
+    total_sum,
+)
+
+__all__ = [
+    "alpha",
+    "alpha_angle",
+    "complement_residual",
+    "digits",
+    "dirichlet_weight",
+    "invariant_residual",
+    "monotonicity_counterexample",
+    "next_index_lower_bound",
+    "pi_example",
+    "projected_next_index_ge_quadratic",
+    "rejected_sum",
+    "remainder_bound_holds",
+    "run",
+    "selected_sum",
+    "total_sum",
+]

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonic sine and the eta function — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:980px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.6rem;font-size:1.08rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.warn{background:#fff6e5;border:1px solid #e8c98a;padding:.9rem 1.1rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+pre{background:#f1f3f5;padding:.8rem 1rem;border-radius:6px;overflow-x:auto}
+</style>
+</head>
+<body>
+
+<h1>Harmonic sine and the eta function</h1>
+<p class="sub">A fragment reconstructed into a finite formal core, exact computation, and an honest ledger of source claims</p>
+
+<div class="top">
+<p><strong>Status.</strong> Fragment reconstructed into a small Lean core and an exact sympy layer. The archived source’s uniqueness claim for <code>α = 1/2</code> is preserved as an archived/speculative source claim and is <strong>not</strong> a theorem of this reconstruction. Full dossier: <a href="README.md">README.md</a>.</p>
+</div>
+
+<h2>What the programme is</h2>
+<p>The source proposes a <strong>non-greedy harmonic sine reconstruction</strong>. It fixes the alternating signs <code>(-1)^(n-1)</code> and studies</p>
+<pre><code>S_α(θ) = Σ (-1)^(n-1) n^(-α) sin(θ log n)
+C_α(θ) = Σ (-1)^(n-1) n^(-α) cos(θ log n)</code></pre>
+<p>These are the imaginary and real parts of the Dirichlet eta function <code>η(α+iθ)</code>. The source then imposes a greedy angular condition on the partial sums <code>S_N</code>,</p>
+<pre><code>Re(conj(S_(N-1)) · w_N) ≤ 0 for all N,   w_N = N^(-α) e^(iθ log N),</code></pre>
+<p>together with <code>η(α+iθ) = 0</code>, and asserts that this forces <code>α = 1/2</code>.</p>
+<p>This folder reconstructs the <strong>finite algebra</strong> the programme actually uses: positive decreasing weights, the period-two alternating sign, pairing of adjacent terms, and the finite factorisation of even eta truncations. Convergence, analytic continuation, zero-free regions and the uniqueness argument are recorded as source claims and open items.</p>
+
+<h2>Provenance and source status</h2>
+<table>
+<thead><tr><th>Item</th><th>Detail</th></tr></thead>
+<tbody>
+<tr><td>Canonical source</td><td><a href="../../archive/maths/rh/research/harmonic-sine-eta/harmonic-sine-eta-v2.html"><code>harmonic-sine-eta-v2.html</code></a> — “Harmonic Sine Reconstruction and the Dirichlet Eta Function”</td></tr>
+<tr><td>TeX source</td><td><code>harmonic-sine-eta-v2.tex</code> in the same folder; HTML and TeX agree</td></tr>
+<tr><td>Companion</td><td><a href="../../archive/maths/rh/research/harmonic-sine-eta/infinite-series-sin-cos.html"><code>infinite-series-sin-cos.html</code></a> / <code>.tex</code></td></tr>
+<tr><td>Inventory</td><td><a href="../../scraps.html">Scraps</a> item 16, described as “Fragment; eta companion”</td></tr>
+<tr><td>Archived status</td><td><strong>Fragment / archived speculative claim.</strong> Not a proved paper and not a duplicate of a proved result.</td></tr>
+<tr><td>Related topics</td><td>Non-greedy, unlike the greedy reconstruction of <a href="../greedy-harmonic-decomposition/README.md">item 11</a>; distinct from the superseded <a href="../harmonic-sine/README.md">harmonic-sine claim</a>.</td></tr>
+</tbody>
+</table>
+
+<h2>Reconstructed objects and notation</h2>
+<p>The series index is <code>n ≥ 1</code>; the Lean truncation index runs over <code>0, …, N−1</code>.</p>
+<table>
+<thead><tr><th>Object</th><th>Definition</th><th>Lean name</th></tr></thead>
+<tbody>
+<tr><td>Weight</td><td><code>weight α n = (n+1)^(-α)</code></td><td><code>HarmonicEta.weight</code></td></tr>
+<tr><td>Eta term</td><td><code>etaTerm α n = (-1)^n · weight α n</code></td><td><code>HarmonicEta.etaTerm</code></td></tr>
+<tr><td>Eta truncation</td><td><code>etaPartial α N = Σ_(n&lt;N) etaTerm α n = Σ_(k=1)^N (-1)^(k-1) k^(-α)</code></td><td><code>HarmonicEta.etaPartial</code></td></tr>
+<tr><td>Cosine truncation</td><td><code>cosPartial α θ N = Σ_(n&lt;N) (-1)^n (n+1)^(-α) cos(θ log(n+1))</code></td><td><code>HarmonicEta.cosPartial</code></td></tr>
+<tr><td>Sine truncation</td><td><code>sinPartial α θ N = Σ_(n&lt;N) (-1)^n (n+1)^(-α) sin(θ log(n+1))</code></td><td><code>HarmonicEta.sinPartial</code></td></tr>
+<tr><td>Positive harmonic sum</td><td><code>H_N(α) = Σ_(n=1)^N n^(-α)</code></td><td><code>(range N).sum (weight α)</code></td></tr>
+<tr><td>Greedy condition</td><td><code>Re(conj(S_(N-1)) · w_N) ≤ 0</code> for all <code>N</code></td><td><code>programme.greedy_condition_holds</code></td></tr>
+</tbody>
+</table>
+
+<h2>Theorem ledger</h2>
+<p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every <strong>Computation</strong> row has a passing test in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. Source claims and open items are not theorems of this reconstruction.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>The weight is positive: for <code>α &gt; 0</code>, <code>0 &lt; weight α n</code>.</td><td><code>HarmonicEta.weight_pos</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>The weight is strictly decreasing: <code>weight α (n+1) &lt; weight α n</code> for <code>α &gt; 0</code>.</td><td><code>HarmonicEta.weight_lt_succ</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>The alternating sign has period two: <code>(-1)^(n+2) = (-1)^n</code>.</td><td><code>HarmonicEta.sign_period_two</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>Pairing adjacent terms: <code>etaPartial α (2N) = Σ_(k&lt;N) (weight α (2k) − weight α (2k+1))</code>.</td><td><code>HarmonicEta.etaPartial_two_mul</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>Finite even factorisation: <code>A_(2N)(α) = H_(2N)(α) − 2^(1−α) H_N(α)</code>.</td><td><code>HarmonicEta.etaPartial_even_factor</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>Even eta truncations are positive for <code>α &gt; 0</code>, <code>N &gt; 0</code>.</td><td><code>HarmonicEta.etaPartial_even_pos</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>At <code>θ = 0</code>: <code>cosPartial α 0 N = etaPartial α N</code> and <code>sinPartial α 0 N = 0</code>.</td><td><code>HarmonicEta.cos_sin_at_zero</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>The finite even factorisation holds exactly for rational <code>α</code> and small <code>N</code>.</td><td><code>test_even_factorisation_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>Even eta truncations are strictly positive for several <code>α &gt; 0</code> and <code>N</code>; invalid <code>α ≤ 0</code> and index <code>0</code> are rejected.</td><td><code>test_even_partial_sums_positive_and_input_validation</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>The complex eta truncation equals <code>C_α(θ) + i S_α(θ)</code> to <code>1e-20</code>.</td><td><code>test_cosine_sine_decomposition_numeric</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td><code>η(s) = (1 − 2^(1−s)) ζ(s)</code> for real <code>s &gt; 1</code>, to <code>1e-25</code>.</td><td><code>test_eta_zeta_factorisation_numeric</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td><code>η(1/2 + iγ₁) = 0</code> at <code>γ₁ ≈ 14.1347</code>, residual below <code>1e-30</code>.</td><td><code>test_eta_zero_on_critical_line</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>Alternating harmonic partial sums approach <code>log 2</code> with error <code>&lt; 1/(N+1)</code>.</td><td><code>test_alternating_harmonic_limit</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>Consecutive eta terms alternate in sign (period-two sign word).</td><td><code>test_alternating_signs</code></td></tr>
+<tr><td>C8</td><td>Computation (edge case)</td><td>At <code>θ = 0</code> the greedy condition fails: <code>Re(conj(S_(N-1)) w_N) &gt; 0</code> for every <code>N ≥ 2</code>.</td><td><code>test_greedy_condition_edge_theta_zero</code></td></tr>
+</tbody>
+</table>
+<p>Two auxiliary <code>private</code> lemmas (<code>sum_range_pair</code>, <code>sum_range_odd_weight</code>) support T4–T5 and are not counted as programme theorems.</p>
+
+<h2>Source claims preserved separately</h2>
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td><code>S_α</code> and <code>C_α</code> converge for all <code>α &gt; 0</code> and equal the imaginary/real parts of <code>η(α+iθ)</code>.</td><td>Source claim; standard background</td><td>Not formalised. Finite truncations and the <code>θ = 0</code> reduction are formalised; convergence and the limit are not.</td></tr>
+<tr><td>Greedy condition plus <code>η(α+iθ) = 0</code> characterises admissible <code>(α, θ)</code>.</td><td>Source claim</td><td>The condition is implemented and tested; the characterisation is not proved.</td></tr>
+<tr><td>For <code>α &gt; 1/2</code>, <code>η(α+iθ)</code> has no zeros by the “classical zero-free region”.</td><td>Source claim; <strong>unsupported as stated</strong></td><td>The classical region is <code>Re(s) &gt; 1</code>, not <code>Re(s) &gt; 1/2</code>; a zero-free <code>Re(s) &gt; 1/2</code> would already give RH.</td></tr>
+<tr><td>For <code>α &lt; 1/2</code>, zeros exist by the functional equation but fail the greedy condition.</td><td>Source claim; speculative</td><td>Needs analytic continuation; failure of the greedy condition is asserted, not proved.</td></tr>
+<tr><td>At <code>α = 1/2</code>, critical-line zeros satisfy the greedy condition (Riemann–Siegel); partial sums are of order <code>n^(-1/4)</code>.</td><td>Source claim; unproved</td><td>No Riemann–Siegel estimate is formalised or numerically verified here.</td></tr>
+<tr><td>Therefore <code>α = 1/2</code> is the unique admissible exponent, giving a new characterisation of the non-trivial zeros “without assuming RH”.</td><td>Archived claim</td><td><strong>Not a theorem.</strong> The argument uses an unproved zero-free half-plane and would encode critical-line information. It remains speculative.</td></tr>
+</tbody>
+</table>
+
+<div class="warn">
+<p><strong>Honesty note.</strong> The source is a short fragment. Its headline uniqueness assertion is not a proof, and its zero-free-region step is misstated. The genuine, checkable content is the finite alternating-series algebra formalised as T1–T7 and the exact computations C1–C8. Nothing here proves the Riemann hypothesis, and no archived claim is upgraded to a theorem.</p>
+</div>
+
+<h2>Open items and known gaps</h2>
+<ol>
+<li><strong>Convergence and real/imaginary identification.</strong> Formalise convergence of <code>S_α</code>, <code>C_α</code> for <code>α &gt; 0</code> and the identity with <code>η(α+iθ)</code>.</li>
+<li><strong>Analytic continuation and functional equation.</strong> Needed for the claims about zeros with <code>α &lt; 1/2</code>; neither is formalised.</li>
+<li><strong>Zero-free region.</strong> Replace the source’s <code>Re(s) &gt; 1/2</code> assertion with the correct classical <code>Re(s) &gt; 1</code>, then determine what survives for <code>1/2 &lt; α ≤ 1</code>.</li>
+<li><strong>Greedy condition at zeros.</strong> Decide rigorously whether <code>Re(conj(S_(N-1)) w_N) ≤ 0</code> holds at any zero, and whether it can select a unique exponent. The <code>θ = 0</code> edge case shows the condition is not vacuous.</li>
+<li><strong>Uniqueness of <code>α = 1/2</code>.</strong> No complete proof is given; excluding <code>α &lt; 1/2</code> without assuming the conclusion would need a quantitative Riemann–Siegel estimate.</li>
+<li><strong>Relation to RH.</strong> Any claim that the admissible zeros are exactly the critical-line zeros is at least as strong as RH; it is not claimed here.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> implements <code>weight</code>, <code>eta_term</code>, <code>eta_partial</code>, <code>harmonic_partial</code>, <code>even_factorisation_holds</code>, <code>complex_partial</code>, <code>sine_partial</code>, <code>cosine_partial</code>, <code>eta_via_zeta</code>, <code>eta_zero_residual</code>, <code>first_critical_zero</code>, <code>greedy_condition_values</code>, and <code>alternating_harmonic_partial</code>.</p>
+<pre><code>cd the-final-letter/topics/harmonic-sine-eta
+python3 -m pytest -q tests</code></pre>
+<p>Recorded result: <strong>8 passed</strong>, under 20 seconds. <code>eta_via_zeta</code> and <code>eta_zero_residual</code> use the analytic-continuation identity only as a numerical cross-check.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens the <code>HarmonicEta</code> namespace, defines the five finite objects, and proves T1–T7 with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/harmonic-sine-eta
+./lean/check.sh 2>&1 | tee lean/BUILD.log</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a>. The checker is <a href="../tools/check-lean.sh"><code>../tools/check-lean.sh</code></a>, using the local Mathlib at <code>~/lean/mathlib4</code>.</p>
+<h3>What is not formalised</h3>
+<ul>
+<li>Convergence of the sine/cosine series and identification with <code>η</code>.</li>
+<li>Analytic continuation, functional equation, and zero-free regions.</li>
+<li>The Riemann–Siegel formula and partial-sum estimates at zeros.</li>
+<li>The greedy-condition characterisation and uniqueness of <code>α = 1/2</code>.</li>
+<li>Any statement about RH, twin primes, Chowla, Sarnak, or Elliott.</li>
+</ul>
+<p>See <a href="lean/README.md"><code>lean/README.md</code></a> for the declaration-by-declaration account.</p>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../archive/maths/rh/research/harmonic-sine-eta/harmonic-sine-eta-v2.html">Source HTML</a> and <a href="../../archive/maths/rh/research/harmonic-sine-eta/harmonic-sine-eta-v2.tex">TeX source</a></li>
+<li><a href="../../archive/maths/rh/research/harmonic-sine-eta/infinite-series-sin-cos.html">Companion: infinite series of sine and cosine</a></li>
+<li><a href="../../scraps.html">Scraps inventory</a> · item 16</li>
+<li><a href="../README.md">Topic index</a> · <a href="../greedy-harmonic-decomposition/README.md">Completed pilot</a></li>
+<li><a href="../../summary/12-open-problems/withdrawn-and-refuted.md">Withdrawn-and-refuted ledger</a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body>
+</html>

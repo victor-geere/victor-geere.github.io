@@ -1,0 +1,1803 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh27a — the half-turn, and a wall that was not there</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.barx { fill-opacity: .13; stroke-width: 1.1; stroke-dasharray: 3 2; }
+.barx.hm1 { stroke: var(--chart-1); fill: var(--chart-1); }
+.barx.hm3 { stroke: var(--chart-3); fill: var(--chart-3); }
+.barx.hmo { stroke: var(--muted); fill: var(--muted); }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.cardbox { fill: none; stroke: var(--muted); stroke-width: 1.1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The same theorem, with a longer sum</h1>
+  <p class="sub">rh26 restored the archimedean tail on [600, 4800] in floating point and watched every failing sub-lattice section come back to nonnegative. Turning that into certificates looked like it needed a new error analysis over eight times as many quadrature nodes. It needed neither. <b>(a)</b> rh17 proved both halves and never put them together: L2 bounds the trapezoid's aliasing error on the <i>whole</i> half-line, so the rule is certified independently of where the sum stops, and L1 says everything past r₊ = 6.289836 is a positive combination of cosine kernels, so stopping early only ever lowers λ<sub>min</sub>. A bigger cut is the same theorem with a longer sum. <b>(b)</b> What it does need is to be affordable, and rh26 §2's half-turn split is what pays: the certificate is issued per block, the map to blocks is an orthogonal similarity so the radius transfers unchanged, and n³ becomes n³/4 — measured at 3.81×. <b>(c)</b> With that, Δ/4, Δ/8 and Δ/16 are certified at depth 18, at n = 301, 601 and 1201. rh26's ladder had them stopping at 10.80, 6.66 and 6.61 with the cut at 600 — not for want of budget, but because the section stopped being positive there. The certified staircase is now a level column: five meshes, one depth.</p>
+  <p class="meta">docs/rh27a · continues <a href="rh17.html">rh17</a>, <a href="rh25.html">rh25</a>–<a href="rh26.html">rh26</a> · figures computed, not sketched · 2026-08-03</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> <b>(a) The cut</b> (§2). rh17 §1 states two lemmas and uses each once. L1: ψ̃(r) = Re ψ(¼ + ir/2) − ln π is positive past r₊ = 6.289836, so the archimedean tail beyond any cut R ≥ r₊ is a positive combination of cosine kernels — positive semidefinite, "and never needs a bound at all". L2: the infinite-trapezoid aliasing error at step h = 0.05 carries the factor 2/(e<sup>16π</sup> − 1) = 2.96&#215;10&#8315;&#178;&#178;, a statement about the rule on the whole half-line and not about any particular truncation. Together they say a longer sum is not a new theorem. What a longer sum buys is arithmetic, and it is measured rather than bounded: the weight still dropped at v = 0 falls from 3.12&#215;10&#8315;&#179; at R = 600 to 7.63&#215;10&#8315;&#8310; at 4800 — 409× — while the aliasing factor sits 15 orders below the smallest of them at every cut tried. The quadrature was never the constraint. <b>(b) The split, spent</b> (§3). rh26 measured the half-turn's 3.8× on the dense route and then used the whole section anyway. Here backend α is issued per block. With U = [[I, J],[I, −J]]/√2 orthogonal, U T U′ = diag(B₊, B₋), so a perturbation of T maps to a perturbation of the blocks of no larger norm and rh24's binned radius transfers with no change at all; λ<sub>min</sub> is the smaller of the two verified floors. Measured at three sizes the saving is 3.81×, which is what makes a 1201-node section at the finest mesh affordable. It buys nothing for the O(n²) Toeplitz recursion — the blocks are Toeplitz-plus-Hankel — and that is said in the same breath. <b>(c) The descent</b> (§4). Three certificates, all at depth 18: Δ/4 at n = 301, floor 1.1976&#215;10&#8315;&#179;; Δ/8 at n = 601, floor 5.8600&#215;10&#8315;&#8309;; Δ/16 at n = 1201, floor 3.1594&#215;10&#8315;&#8313;. rh26 certified those same meshes at 9, 4.5 and 2.25 and its ladder showed the cut at 600 could not have been pushed past 10.80, 6.66 and 6.61 on them at any price. Adding Δ and Δ/2, already at 18, the certified set is five meshes at one depth. <b>The conjunction</b> (§5). The Δ lattice alone resolves only to π/Δ = 13.1, which is <i>below</i> the first zero at 14.1347 — on its own it separates no zero at all. Δ/2 is the first rung that reaches past γ₁, and Δ/16 resolves 84 of the 1517 cached zeros. It is still a column at one support, and five points against every support and every mesh and every depth is measure zero, exactly as before. 33 named checks in 1612 seconds.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order</a></li>
+  <li><a href="#s2">(a) A bigger cut needs no new error analysis</a></li>
+  <li><a href="#s3">(b) The parity split, spent</a></li>
+  <li><a href="#s4">(c) The descent, certified at depth 18</a></li>
+  <li><a href="#s5">The conjunction, and where this leaves it</a></li>
+  <li><a href="#s6">The bill, and what is left</a></li>
+  <li><a href="#s7">Dictionary additions and references</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order</h2>
+<p>rh26 §6 listed a bigger cut first and priced it as the expensive one: "a certified arch over eight times as many quadrature nodes, which is the single most expensive thing in §5 and would want a better inner loop before it is attempted." The price was right and the reasoning behind it was not. The expensive part was assumed to be a new error analysis over the longer range. There is none to do.</p>
+
+<p><b>The ground.</b> No new sieve: every kernel row here comes off the same pass over the 6,448,870 prime powers rh22–rh26 used, through rh25's tabulated generator, with rh26's gear-mass histogram supplying the radius at every node. One window throughout — rh25's searched notch-free optimum at M = 16 — because §4's question is about the lattice, not the window, and changing both at once would answer neither. rh26's λ<sub>min</sub> on the Δ lattice and rh26's certified floor on Δ/2 are reproduced before anything is built on them.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · (a) A bigger cut needs no new error analysis</h2>
+<p>The certified kernel row is pole + arch − comb, and the arch is the one term that is an integral rather than a sum:</p>
+
+<div class="eq"><span class="tag">(1)</span>
+A(v) = (1/π)∫<sub>0</sub><sup>∞</sup> |ĥ(r)|² ψ̃(r) cos(rv) dr &nbsp;≈&nbsp; (H/π) Σ<sub>j=0</sub><sup>J</sup> ″ |ĥ(jH)|² ψ̃(jH) cos(jHv),
+</div>
+
+<p>with H = 0.05 and the double prime the trapezoid's half-weight at the ends. Two things have to be justified: the <i>rule</i> — trapezoid instead of the integral — and the <i>truncation</i> — stopping at J instead of infinity. rh17 §1 justified both, separately, and the arc has since treated a longer sum as though it reopened the first.</p>
+
+<p><b>L2 is about the rule, not the range.</b> rh17's second lemma bounds the aliasing error of the infinite trapezoid at step h. The integrand extends analytically in r as far as the nearest pole of ψ(¼ + ir/2), at |Im r| = ½; rh17 works inside that at a = 0.4, where the modulus it needs grows only like e<sup>0.4v</sup>, and the Poisson aliasing then carries the factor 2/(e<sup>2πa/h</sup> − 1) =</p>
+
+<div class="eq"><span class="tag">(2)</span>
+2/(e<sup>16π</sup> − 1) = 2.96&#215;10&#8315;&#178;&#178; &nbsp;&nbsp; at h = 0.05.
+</div>
+
+<p>That statement is about Σ<sub>j∈ℤ</sub> against ∫<sub>ℝ</sub>. It says nothing about J, and changing J does not touch it.</p>
+
+<p><b>L1 is about the range, and it is one-sided.</b> ψ̃ crosses zero at r₊ = 6.289836 — a whisker above 2π = 6.283185 — and increases thereafter, so for J ≥ r₊/H every term dropped from the sum is a nonnegative multiple of cos(jHv), and the dropped part of the row is a positive semidefinite Toeplitz form. Truncating lowers λ<sub>min</sub> and can never raise it. rh26 §3 used this to explain why the cut at 600 manufactured false negatives; the same sentence, read forwards, says that any J at all gives a valid lower bound, and a larger J gives a better one.</p>
+
+<p>So the two together: <b>the quadrature rule is certified once, for every J; the truncation is free, for every J; and a bigger cut is the same theorem with a longer sum.</b> It costs arithmetic and nothing else. That is checked and not asserted — every one of the 96,001 interval nodes of the AT table is verified nonnegative past r₊, which is L1 made concrete on the object the certificate actually uses.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 420" role="img" aria-label="Left: on logarithmic axes, the archimedean weight still dropped by a cut at R falls like R to the minus three, while the trapezoid aliasing bound is flat and fifteen orders below it. Right: for each sub-lattice, the eigenvalue, the certified radius and the floor.">
+<text x="360.0" y="21" class="ftitle">the quadrature was never the constraint &#8212; where the sum stops is</text>
+<line x1="58" y1="243.1" x2="330" y2="243.1" class="grid"/>
+<text x="52" y="246.6" class="flab end">10&#8315;&#178;&#178;</text>
+<line x1="58" y1="207.5" x2="330" y2="207.5" class="grid"/>
+<text x="52" y="211.0" class="flab end">10&#8315;&#185;&#8312;</text>
+<line x1="58" y1="171.8" x2="330" y2="171.8" class="grid"/>
+<text x="52" y="175.3" class="flab end">10&#8315;&#185;&#8308;</text>
+<line x1="58" y1="136.2" x2="330" y2="136.2" class="grid"/>
+<text x="52" y="139.7" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="58" y1="100.5" x2="330" y2="100.5" class="grid"/>
+<text x="52" y="104.0" class="flab end">10&#8315;&#8310;</text>
+<line x1="58" y1="64.9" x2="330" y2="64.9" class="grid"/>
+<text x="52" y="68.4" class="flab end">10&#8315;&#178;</text>
+<text x="58.0" y="267" class="flab mid">100</text>
+<text x="158.8" y="267" class="flab mid">1000</text>
+<text x="259.6" y="267" class="flab mid">10&#8308;</text>
+<line x1="58" y1="252" x2="330" y2="252" class="axis"/>
+<line x1="58" y1="56" x2="58" y2="252" class="axis"/>
+<path d="M97.4 60.0L127.1 67.2L144.7 73.9L157.2 74.4L166.9 78.2L174.8 79.4L181.6 81.3L187.4 82.9L192.5 83.7L197.1 85.7L201.3 85.9L205.1 87.4L208.6 88.0L211.8 88.9L214.8 89.7L217.6 90.1L220.3 91.3L222.8 91.4L225.2 92.3L227.4 92.7L229.5 93.2L231.6 93.8L233.5 94.1L235.4 94.9L237.2 95.0L238.9 95.6L240.5 95.9L242.1 96.3L243.6 96.7L245.1 96.9L246.6 97.5L247.9 97.6L249.3 98.0L250.6 98.3L251.9 98.6L253.1 98.9L254.3 99.0L255.5 99.5L256.6 99.5L257.7 99.9L258.8 100.1L259.8 100.3L260.9 100.6L261.9 100.7L262.9 101.0L263.8 101.1L264.8 101.4L265.7 101.5L266.6 101.7L267.5 101.9L268.3 102.0L269.2 102.2L270.0 102.3L270.8 102.5L271.6 102.6L272.4 102.7L273.2 102.9L274.0 103.0L274.7 103.2L275.4 103.2L276.2 103.4L276.9 103.5L277.6 103.6L278.3 103.7L278.9 103.8L279.6 103.9L280.3 104.0L280.9 104.1L281.6 104.1L282.2 104.2L282.8 104.3L283.4 104.4L284.0 104.5L284.6 104.5L285.2 104.6L285.8 104.7L286.4 104.8L286.9 104.8L287.5 104.9L288.0 105.0L288.6 105.0L289.1 105.1L289.6 105.1L290.2 105.2L290.7 105.2L291.2 105.3L291.7 105.3L292.2 105.4L292.7 105.4L293.2 105.5L293.7 105.5L294.1 105.6L294.6 105.6L295.1 105.6L295.6 105.7L296.0 105.7L296.5 105.7L296.9 105.8L297.4 105.8L297.8 105.8L298.2 105.9L298.7 105.9L299.1 105.9L299.5 106.0L299.9 106.0L300.3 106.0L300.8 106.0L301.2 106.1L301.6 106.1L302.0 106.1L302.4 106.1L302.8 106.2L303.1 106.2L303.5 106.2L303.9 106.2L304.3 106.2L304.7 106.3L305.0 106.3L305.4 106.3L305.8 106.3L306.1 106.3L306.5 106.4L306.9 106.4L307.2 106.4L307.6 106.4L307.9 106.4L308.3 106.4L308.6 106.4L308.9 106.5L309.3 106.5L309.6 106.5L309.9 106.5L310.3 106.5L310.6 106.5L310.9 106.5L311.3 106.6L311.6 106.6L311.9 106.6L312.2 106.6L312.5 106.6L312.8 106.6L313.1 106.6L313.4 106.6L313.8 106.6L314.1 106.6L314.4 106.6L314.7 106.7L315.0 106.7L315.2 106.7L315.5 106.7L315.8 106.7L316.1 106.7L316.4 106.7L316.7 106.7L317.0 106.7L317.3 106.7L317.5 106.7L317.8 106.7L318.1 106.8L318.4 106.8L318.6 106.8L318.9 106.8L319.2 106.8L319.4 106.8L319.7 106.8L320.0 106.8L320.2 106.8L320.5 106.8L320.8 106.8L321.0 106.8L321.3 106.8L321.5 106.8L321.8 106.8L322.0 106.8L322.3 106.8L322.5 106.8L322.8 106.8L323.0 106.9L323.3 106.9L323.5 106.9L323.8 106.9L324.0 106.9L324.2 106.9L324.5 106.9L324.7 106.9L325.0 106.9L325.2 106.9L325.4 106.9L325.7 106.9L325.9 106.9L326.1 106.9L326.3 106.9L326.6 106.9L326.8 106.9L327.0 106.9L327.2 106.9L327.5 106.9L327.7 106.9L327.9 106.9L328.1 106.9" class="ln1"/>
+<line x1="58" y1="238.9" x2="330" y2="238.9" class="ln0 lnd"/>
+<line x1="136.4" y1="56" x2="136.4" y2="252" class="rule"/>
+<text x="132" y="222" class="flab end c4">R&#8320; = 600</text>
+<line x1="227.4" y1="56" x2="227.4" y2="252" class="rule"/>
+<text x="223" y="240" class="flab end c4">4800</text>
+<text x="255" y="89" class="flab end hm3">weight dropped past R</text>
+<text x="268" y="217" class="flab mid hm1">trapezoid aliasing at h = 0.05</text>
+<text x="194" y="286" class="flab mid">cut point R</text>
+<line x1="430" y1="234.2" x2="700" y2="234.2" class="grid"/>
+<text x="424" y="237.7" class="flab end">10&#8315;&#185;&#178;</text>
+<line x1="430" y1="198.5" x2="700" y2="198.5" class="grid"/>
+<text x="424" y="202.0" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="430" y1="162.9" x2="700" y2="162.9" class="grid"/>
+<text x="424" y="166.4" class="flab end">10&#8315;&#8312;</text>
+<line x1="430" y1="127.3" x2="700" y2="127.3" class="grid"/>
+<text x="424" y="130.8" class="flab end">10&#8315;&#8310;</text>
+<line x1="430" y1="91.6" x2="700" y2="91.6" class="grid"/>
+<text x="424" y="95.1" class="flab end">10&#8315;&#8308;</text>
+<line x1="430" y1="56.0" x2="700" y2="56.0" class="grid"/>
+<text x="424" y="59.5" class="flab end">10&#8315;&#178;</text>
+<line x1="430" y1="252" x2="700" y2="252" class="axis"/>
+<line x1="430" y1="56" x2="430" y2="252" class="axis"/>
+<line x1="475.0" y1="187.9" x2="475.0" y2="72.3" class="stem"/>
+<circle cx="475.0" cy="72.3" r="4" class="hm3"/>
+<circle cx="475.0" cy="72.4" r="2.6" class="hm4"/>
+<rect x="470.0" y="185.9" width="10" height="4" class="bar hm1"/>
+<text x="475" y="267" class="flab mid">&#916;/4</text>
+<line x1="565.0" y1="182.6" x2="565.0" y2="95.7" class="stem"/>
+<circle cx="565.0" cy="95.7" r="4" class="hm3"/>
+<circle cx="565.0" cy="95.8" r="2.6" class="hm4"/>
+<rect x="560.0" y="180.6" width="10" height="4" class="bar hm1"/>
+<text x="565" y="267" class="flab mid">&#916;/8</text>
+<line x1="655.0" y1="177.2" x2="655.0" y2="168.6" class="stem"/>
+<circle cx="655.0" cy="168.6" r="4" class="hm3"/>
+<circle cx="655.0" cy="171.8" r="2.6" class="hm4"/>
+<rect x="650.0" y="175.2" width="10" height="4" class="bar hm1"/>
+<text x="655" y="267" class="flab mid">&#916;/16</text>
+<text x="475" y="61" class="flab mid hm3">&#955;<tspan dy="3">min</tspan></text>
+<text x="655" y="193" class="flab mid hm1">radius &#961;</text>
+<text x="565" y="286" class="flab mid">sub-lattice, all at depth 18</text>
+<text x="26" y="370" class="flab st">rh17 proved both halves and never put them together. L2 certifies the trapezoid on the WHOLE half-line, so the rule</text>
+<text x="26" y="388" class="flab st">does not care where the sum stops; L1 says what is past r&#8330; = 6.2898 is positive, so stopping early only lowers &#955;<tspan dy="3">min</tspan><tspan dy="-3">.</tspan></text>
+<text x="26" y="406" class="flab st">Moving the cut from 600 to 4800 divides the dropped weight by 409 and buys depth 18 on three more rungs.</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 · The quadrature was never the constraint.</b> Left: the archimedean weight a cut at R still discards, against R, on logarithmic axes — it falls like R⁻³ — with the aliasing factor of (2) drawn flat beneath it. Right: for each sub-lattice certified here, λ<sub>min</sub>, the certified radius ρ, and the floor between them.</figcaption>
+</figure>
+
+<p><b>What the longer sum buys, measured.</b> The weight still dropped at v = 0, as the cut moves:</p>
+
+<div class="eq"><span class="tag">(3)</span>
+R = 600: 3.12&#215;10&#8315;&#179; &nbsp;·&nbsp; 1200: 3.19&#215;10&#8315;&#8308; &nbsp;·&nbsp; 2400: 4.64&#215;10&#8315;&#8309; &nbsp;·&nbsp; 4800: 7.63&#215;10&#8315;&#8310; &nbsp;·&nbsp; 9600: 1.18&#215;10&#8315;&#8310; &nbsp;·&nbsp; 19200: 3.18&#215;10&#8315;&#8311;
+</div>
+
+<p>Quadrupling the cut divides it by 67.3 — the R⁻³ the envelope predicts, since |ĥ|² decays like r⁻⁴ and ψ̃ like ln r. Moving from 600 to 4800 divides it by 409. Against that, the aliasing factor of (2) is 15 orders below even the weight dropped at a cut of 19200. There is no cut in this range at which the rule is the binding error, and there never was.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · (b) The parity split, spent</h2>
+<p>rh26 §2 established that E<sub>h</sub> is even, hence every section T<sub>h</sub> is exactly centrosymmetric, hence Cantoni–Butler splits it; measured the dense route getting 3.8× faster; and then issued its certificates on the whole section. Here the split is spent.</p>
+
+<p>The reason it can be is that the change of basis is <i>orthogonal</i>. With J the exchange matrix and</p>
+
+<div class="eq"><span class="tag">(4)</span>
+U = (1/√2)[[I, J],[I, −J]] &nbsp;(bordered by 1 at the centre when n is odd), &nbsp;&nbsp; U U′ = I, &nbsp;&nbsp; U T<sub>h</sub> U′ = diag(B₊, B₋),
+</div>
+
+<p>any perturbation E of T maps to U E U′, of exactly the same norm. So rh24's binned radius ρ — which bounds ‖E‖ through an ℓ¹ row-sum against the gear mass — applies to each block unchanged, with no factor to re-derive. And λ<sub>min</sub>(T) = min(λ<sub>min</sub>(B₊), λ<sub>min</sub>(B₋)), so a floor for each block is a floor for the section:</p>
+
+<div class="eq"><span class="tag">(5)</span>
+λ<sub>min</sub>(T<sub>exact</sub>) ≥ min<sub>±</sub> ( s − ‖B<sub>±</sub> − sI − R′<sub>±</sub>R<sub>±</sub>‖ ) − ρ.
+</div>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 400" role="img" aria-label="Left: a schematic of the orthogonal similarity that block-diagonalises a centrosymmetric section into an even and an odd block. Right: measured seconds for the verified Cholesky against section size, whole section versus the two blocks, on logarithmic axes.">
+<text x="360.0" y="21" class="ftitle">rh26 measured the split; here it is what pays for the certificates</text>
+<rect x="62" y="62" width="128.0" height="128.0" class="cardbox"/>
+<line x1="62" y1="83.3" x2="190.0" y2="83.3" class="grid"/>
+<line x1="83.3" y1="62" x2="83.3" y2="190.0" class="grid"/>
+<line x1="62" y1="104.7" x2="190.0" y2="104.7" class="grid"/>
+<line x1="104.7" y1="62" x2="104.7" y2="190.0" class="grid"/>
+<line x1="62" y1="126.0" x2="190.0" y2="126.0" class="grid"/>
+<line x1="126.0" y1="62" x2="126.0" y2="190.0" class="grid"/>
+<line x1="62" y1="147.3" x2="190.0" y2="147.3" class="grid"/>
+<line x1="147.3" y1="62" x2="147.3" y2="190.0" class="grid"/>
+<line x1="62" y1="168.7" x2="190.0" y2="168.7" class="grid"/>
+<line x1="168.7" y1="62" x2="168.7" y2="190.0" class="grid"/>
+<text x="126" y="52" class="flab mid">T<tspan dy="3">h</tspan><tspan dy="-3"> &#8212; centrosymmetric</tspan></text>
+<text x="210" y="130" class="flab mid c4">U T U&#8242;</text>
+<rect x="242.0" y="62" width="64.0" height="64.0" class="bar hm3" fill-opacity="0.5"/>
+<rect x="306.0" y="126.0" width="64.0" height="64.0" class="bar hm1" fill-opacity="0.5"/>
+<rect x="242.0" y="62" width="128.0" height="128.0" class="cardbox"/>
+<text x="274" y="98" class="flab mid hm3">B&#8314;</text>
+<text x="338" y="162" class="flab mid hm1">B&#8315;</text>
+<text x="306" y="52" class="flab mid">even and odd, half the order each</text>
+<text x="152" y="216" class="flab mid">U is orthogonal, so the radius transfers unchanged</text>
+<line x1="452" y1="214" x2="700" y2="214" class="axis"/>
+<line x1="452" y1="82" x2="452" y2="214" class="axis"/>
+<text x="492.0" y="229" class="flab mid">76</text>
+<text x="608.1" y="229" class="flab mid">151</text>
+<text x="656.5" y="229" class="flab mid">201</text>
+<path d="M492.0 169.3L608.1 117.6L656.5 97.5" class="lnm"/>
+<circle cx="492.0" cy="169.3" r="3" class="hmo"/>
+<circle cx="608.1" cy="117.6" r="3" class="hmo"/>
+<circle cx="656.5" cy="97.5" r="3" class="hmo"/>
+<path d="M492.0 198.5L608.1 145.9L656.5 130.0" class="ln1"/>
+<circle cx="492.0" cy="198.5" r="3" class="hm3"/>
+<circle cx="608.1" cy="145.9" r="3" class="hm3"/>
+<circle cx="656.5" cy="130.0" r="3" class="hm3"/>
+<text x="496" y="160" class="flab st hmo">whole section</text>
+<text x="496" y="215" class="flab st hm3">two blocks</text>
+<text x="576" y="248" class="flab mid">section size n</text>
+<text x="428" y="72" class="flab st">seconds, 40-digit verified Cholesky</text>
+<text x="26" y="330" class="flab st">Two matrices of half the order cost 2(n/2)&#179; = n&#179;/4, and the measurement agrees: 3.81&#215; over the three sizes.</text>
+<text x="26" y="348" class="flab st">That is what makes the 1201-node section at the finest mesh affordable at all.</text>
+<text x="26" y="366" class="flab st">The blocks are Toeplitz-plus-Hankel, so this buys nothing for the O(n&#178;) recursion &#8212; only for the dense route,</text>
+<text x="26" y="384" class="flab st">which is the one backend &#945; uses.</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 · What the split is worth.</b> Left: the orthogonal similarity of (4) takes a centrosymmetric section to two blocks of half the order. Right: measured seconds for the 40-digit verified Cholesky against section size, whole section against the two blocks.</figcaption>
+</figure>
+
+<p>Measured at three sizes the saving is 3.81× — 2(n/2)³ = n³/4, as arithmetic says it should be — and it is what makes the 1201-node section at the finest mesh affordable at all. Two things are worth saying against it. The blocks are Toeplitz-plus-Hankel, not Toeplitz, so the O(n²) Levinson/Durbin recursion the arc uses for its fast λ<sub>min</sub> does not survive the split and gains nothing; the saving is confined to the dense route, which happens to be the one backend α needs. And the split is a constant factor, not a change of order: it moves the affordable section size by about 1.6×, which was the difference between reaching depth 18 at Δ/16 and not.</p>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · (c) The descent, certified at depth 18</h2>
+<p>Backend α, unchanged, with the sum run to J = 96,000 instead of 12,000 and the Cholesky issued per block:</p>
+
+<div class="eq"><span class="tag">(6)</span>
+&#916;/4 &nbsp; n = 301, v = 18.00 &nbsp; &#955;<sub>min</sub> = 1.2097&#215;10&#8315;&#179; &nbsp; &#961; = 3.98&#215;10&#8315;&#185;&#8304; &nbsp; floor 1.1976&#215;10&#8315;&#179; &nbsp; [8 s]<br>
+&#916;/8 &nbsp; n = 601, v = 18.00 &nbsp; &#955;<sub>min</sub> = 5.9193&#215;10&#8315;&#8309; &nbsp; &#961; = 7.89&#215;10&#8315;&#185;&#8304; &nbsp; floor 5.8600&#215;10&#8315;&#8309; &nbsp; [457 s]<br>
+&#916;/16 &nbsp; n = 1201, v = 18.00 &nbsp; &#955;<sub>min</sub> = 4.7799&#215;10&#8315;&#8313; &nbsp; &#961; = 1.57&#215;10&#8315;&#8313; &nbsp; floor 3.1594&#215;10&#8315;&#8313; &nbsp; [1123 s]
+</div>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 400" role="img" aria-label="For each of five meshes, the depth reached with the cut at 600 and with the cut at 4800, and the certified depths of rh26 and of this document, which form a flat line at eighteen.">
+<text x="360.0" y="21" class="ftitle">the certified column, levelled &#8212; five meshes, one depth</text>
+<line x1="58" y1="240.0" x2="700" y2="240.0" class="grid"/>
+<text x="52" y="243.5" class="flab end">0</text>
+<line x1="58" y1="182.2" x2="700" y2="182.2" class="grid"/>
+<text x="52" y="185.7" class="flab end">6</text>
+<line x1="58" y1="124.3" x2="700" y2="124.3" class="grid"/>
+<text x="52" y="127.8" class="flab end">12</text>
+<line x1="58" y1="66.5" x2="700" y2="66.5" class="grid"/>
+<text x="52" y="70.0" class="flab end">18</text>
+<line x1="58" y1="240" x2="700" y2="240" class="axis"/>
+<line x1="58" y1="52" x2="58" y2="240" class="axis"/>
+<text x="122" y="256" class="flab mid">&#916;</text>
+<rect x="92.2" y="66.5" width="60" height="0.0" class="barx hmo"/>
+<rect x="92.2" y="66.5" width="60" height="173.5" class="bar hmo"/>
+<text x="251" y="256" class="flab mid">&#916;/2</text>
+<rect x="220.6" y="66.5" width="60" height="0.0" class="barx hmo"/>
+<rect x="220.6" y="66.5" width="60" height="173.5" class="bar hmo"/>
+<text x="379" y="256" class="flab mid">&#916;/4</text>
+<rect x="349.0" y="66.5" width="60" height="69.4" class="barx hmo"/>
+<rect x="349.0" y="135.9" width="60" height="104.1" class="bar hmo"/>
+<text x="507" y="256" class="flab mid">&#916;/8</text>
+<rect x="477.4" y="66.2" width="60" height="109.6" class="barx hmo"/>
+<rect x="477.4" y="175.8" width="60" height="64.2" class="bar hmo"/>
+<text x="636" y="256" class="flab mid">&#916;/16</text>
+<rect x="605.8" y="66.2" width="60" height="110.1" class="barx hmo"/>
+<rect x="605.8" y="176.2" width="60" height="63.8" class="bar hmo"/>
+<path d="M122.2 66.5L250.6 66.5L379.0 153.2L507.4 196.6L635.8 218.3" class="ln0 lnd"/>
+<circle cx="122.2" cy="66.5" r="4" class="hm1"/>
+<circle cx="250.6" cy="66.5" r="4" class="hm1"/>
+<circle cx="379.0" cy="153.2" r="4" class="hm1"/>
+<circle cx="507.4" cy="196.6" r="4" class="hm1"/>
+<circle cx="635.8" cy="218.3" r="4" class="hm1"/>
+<path d="M122.2 66.5L250.6 66.5L379.0 66.5L507.4 66.5L635.8 66.5" class="ln4"/>
+<circle cx="122.2" cy="66.5" r="4.6" class="hm4"/>
+<circle cx="250.6" cy="66.5" r="4.6" class="hm4"/>
+<circle cx="379.0" cy="66.5" r="4.6" class="hm4"/>
+<circle cx="507.4" cy="66.5" r="4.6" class="hm4"/>
+<circle cx="635.8" cy="66.5" r="4.6" class="hm4"/>
+<text x="379" y="56" class="flab mid c4">certified here, R&#8321; = 4800</text>
+<text x="559" y="215" class="flab mid hm1">certified by rh26, R&#8320; = 600</text>
+<text x="122" y="274" class="flab mid hmo">grey: positivity&#8217;s own limit at 600</text>
+<text x="24" y="42" class="flab st">depth v</text>
+<text x="26" y="302" class="flab st">At R&#8320; = 600 the section stopped being positive at v = 10.80, 6.66 and 6.61 on the three finest meshes, so no budget</text>
+<text x="26" y="320" class="flab st">could have certified them at 18. With the cut at 4800 all three are, floors 1.198&#215;10&#8315;&#179;, 5.860&#215;10&#8315;&#8309; and</text>
+<text x="26" y="338" class="flab st">3.159&#215;10&#8315;&#8313;, the last at n = 1201. rh18&#8217;s staircase is now a level column.</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 · The certified column, levelled.</b> Grey bars: rh26's ladder — solid to the depth the section stayed positive with the cut at 600, outlined to where it reached with the tail restored. Circles: the certified depths, rh26's in the lower line and this document's along the top at 18.</figcaption>
+</figure>
+
+<p><b>What was not a budget problem.</b> rh26 §5 certified those three meshes at depths 9, 4.5 and 2.25 and said the shortfall was a cost cap: "They are not where positivity stops." That was true, and it left the impression that a larger budget would have gone deeper. It would not have gone <i>this</i> deep. rh26 §4's own ladder, at R₀ = 600, has the section losing positivity at v = 10.80 on Δ/4, 6.66 on Δ/8 and 6.61 on Δ/16. Past those depths there was nothing to certify at that cut, at any price. What moved is the cut, not the budget — and the budget only had to move by the factor §3 supplies.</p>
+
+<p><b>What the three floors are.</b> 1.1976&#215;10&#8315;&#179;, 5.8600&#215;10&#8315;&#8309; and 3.1594&#215;10&#8315;&#8313;, against radii of 3.98&#215;10&#8315;&#185;&#8304;, 7.89&#215;10&#8315;&#185;&#8304; and 1.57&#215;10&#8315;&#8313;. The margins run 3.0&#215;10&#8310;, 7.5&#215;10&#8308; and 3.0&#215;10&#8304; — comfortable at Δ/4 and Δ/8, and thinner at Δ/16, where the floor is 3.1594&#215;10&#8315;&#8313; and the weight still dropped past 4800 is what would decide any attempt to go deeper. That is the honest boundary of this document: Δ/16 at depth 18 is certified, and Δ/16 at depth 36 would need a bigger cut again, by (3) roughly a factor of four in R.</p>
+
+<p>All three sections are confirmed positive definite in exact 60-digit arithmetic by an independent route that shares no code with backend α, and at Δ/4 the 60-digit inertia bisection also reproduces the float λ<sub>min</sub> that chose the shift. At the two deeper sections that bisection is not run: it is a hundred and forty Durbin passes at O(n²) in Decimal, which at n = 1201 costs more than the certificate it would check. That is a gap in the double-checking, not in the certificate — backend α's floor does not depend on either — and it is stated rather than quietly skipped.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · The conjunction, and where this leaves it</h2>
+<p>The arc's target is a conjunction: E<sub>h</sub> positive definite on every lattice, at every depth, for every window — which by rh18 §5 is equivalent to RH. Every document since rh15 has added points to a set that has to become all of them. It is worth saying at each step exactly what the shape of that set now is.</p>
+
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 410" role="img" aria-label="Left: the certified set in the support-versus-mesh plane, a single column of five points at one support against the diagonal rh18 described. Right: the frequency band each mesh resolves and how many of the 1517 cached zeros fall inside it.">
+<text x="360.0" y="21" class="ftitle">what a level column is &#8212; and what it still is not</text>
+<text x="62.0" y="265" class="flab mid">&#916;</text>
+<text x="56" y="253.5" class="flab end">&#916;</text>
+<text x="127.0" y="265" class="flab mid">&#916;/2</text>
+<text x="56" y="206.0" class="flab end">&#916;/2</text>
+<text x="192.0" y="265" class="flab mid">&#916;/4</text>
+<text x="56" y="158.5" class="flab end">&#916;/4</text>
+<text x="257.0" y="265" class="flab mid">&#916;/8</text>
+<text x="56" y="111.0" class="flab end">&#916;/8</text>
+<text x="322.0" y="265" class="flab mid">&#916;/16</text>
+<text x="56" y="63.5" class="flab end">&#916;/16</text>
+<line x1="62" y1="250" x2="322" y2="250" class="axis"/>
+<line x1="62" y1="60" x2="62" y2="250" class="axis"/>
+<path d="M62.0 250.0L127.0 202.5L192.0 155.0L257.0 107.5L322.0 60.0" class="lnm lnd"/>
+<circle cx="62.0" cy="250.0" r="3" class="hmo"/>
+<circle cx="127.0" cy="202.5" r="3" class="hmo"/>
+<circle cx="192.0" cy="155.0" r="3" class="hmo"/>
+<circle cx="257.0" cy="107.5" r="3" class="hmo"/>
+<circle cx="322.0" cy="60.0" r="3" class="hmo"/>
+<text x="192" y="131" class="flab mid hmo">rh18&#8217;s diagonal</text>
+<circle cx="62.0" cy="250.0" r="4.6" class="hm4"/>
+<circle cx="62.0" cy="202.5" r="4.6" class="hm4"/>
+<circle cx="62.0" cy="155.0" r="4.6" class="hm4"/>
+<circle cx="62.0" cy="107.5" r="4.6" class="hm4"/>
+<circle cx="62.0" cy="60.0" r="4.6" class="hm4"/>
+<line x1="62.0" y1="250.0" x2="62.0" y2="60.0" class="ln4"/>
+<text x="74" y="159" class="flab st c4">the certified column</text>
+<text x="192" y="284" class="flab mid">window support</text>
+<text x="22" y="48" class="flab st">sample mesh</text>
+<line x1="420" y1="239.9" x2="700" y2="239.9" class="grid"/>
+<line x1="420" y1="163.6" x2="700" y2="163.6" class="grid"/>
+<line x1="420" y1="77.3" x2="700" y2="77.3" class="grid"/>
+<text x="414" y="253.5" class="flab end">10</text>
+<text x="414" y="167.1" class="flab end">100</text>
+<text x="414" y="80.8" class="flab end">1000</text>
+<line x1="420" y1="250" x2="700" y2="250" class="axis"/>
+<line x1="420" y1="60" x2="420" y2="250" class="axis"/>
+<line x1="420" y1="237.0" x2="427" y2="237.0" class="grid"/>
+<line x1="420" y1="222.1" x2="427" y2="222.1" class="grid"/>
+<line x1="420" y1="215.6" x2="427" y2="215.6" class="grid"/>
+<line x1="420" y1="208.3" x2="427" y2="208.3" class="grid"/>
+<line x1="420" y1="205.3" x2="427" y2="205.3" class="grid"/>
+<line x1="420" y1="200.3" x2="427" y2="200.3" class="grid"/>
+<line x1="420" y1="197.2" x2="427" y2="197.2" class="grid"/>
+<line x1="420" y1="195.0" x2="427" y2="195.0" class="grid"/>
+<line x1="420" y1="191.2" x2="427" y2="191.2" class="grid"/>
+<line x1="420" y1="189.8" x2="427" y2="189.8" class="grid"/>
+<line x1="420" y1="187.5" x2="427" y2="187.5" class="grid"/>
+<line x1="420" y1="185.1" x2="427" y2="185.1" class="grid"/>
+<line x1="420" y1="183.2" x2="427" y2="183.2" class="grid"/>
+<line x1="420" y1="182.3" x2="427" y2="182.3" class="grid"/>
+<line x1="420" y1="179.7" x2="427" y2="179.7" class="grid"/>
+<line x1="420" y1="178.6" x2="427" y2="178.6" class="grid"/>
+<line x1="420" y1="177.3" x2="427" y2="177.3" class="grid"/>
+<line x1="420" y1="175.9" x2="427" y2="175.9" class="grid"/>
+<line x1="420" y1="174.1" x2="427" y2="174.1" class="grid"/>
+<line x1="420" y1="173.4" x2="427" y2="173.4" class="grid"/>
+<line x1="420" y1="172.3" x2="427" y2="172.3" class="grid"/>
+<line x1="420" y1="170.7" x2="427" y2="170.7" class="grid"/>
+<line x1="420" y1="169.8" x2="427" y2="169.8" class="grid"/>
+<line x1="420" y1="168.7" x2="427" y2="168.7" class="grid"/>
+<line x1="420" y1="168.1" x2="427" y2="168.1" class="grid"/>
+<line x1="420" y1="166.6" x2="427" y2="166.6" class="grid"/>
+<line x1="420" y1="165.7" x2="427" y2="165.7" class="grid"/>
+<line x1="420" y1="165.2" x2="427" y2="165.2" class="grid"/>
+<line x1="420" y1="164.1" x2="427" y2="164.1" class="grid"/>
+<line x1="420" y1="163.1" x2="427" y2="163.1" class="grid"/>
+<line x1="420" y1="162.3" x2="427" y2="162.3" class="grid"/>
+<line x1="420" y1="161.6" x2="427" y2="161.6" class="grid"/>
+<line x1="420" y1="161.0" x2="427" y2="161.0" class="grid"/>
+<line x1="420" y1="159.7" x2="427" y2="159.7" class="grid"/>
+<line x1="420" y1="159.4" x2="427" y2="159.4" class="grid"/>
+<line x1="420" y1="158.6" x2="427" y2="158.6" class="grid"/>
+<line x1="420" y1="158.0" x2="427" y2="158.0" class="grid"/>
+<line x1="420" y1="157.2" x2="427" y2="157.2" class="grid"/>
+<line x1="420" y1="156.4" x2="427" y2="156.4" class="grid"/>
+<line x1="420" y1="155.9" x2="427" y2="155.9" class="grid"/>
+<line x1="420" y1="155.5" x2="427" y2="155.5" class="grid"/>
+<line x1="420" y1="154.5" x2="427" y2="154.5" class="grid"/>
+<line x1="420" y1="153.9" x2="427" y2="153.9" class="grid"/>
+<line x1="420" y1="153.5" x2="427" y2="153.5" class="grid"/>
+<line x1="420" y1="152.8" x2="427" y2="152.8" class="grid"/>
+<line x1="420" y1="152.4" x2="427" y2="152.4" class="grid"/>
+<line x1="420" y1="151.5" x2="427" y2="151.5" class="grid"/>
+<line x1="420" y1="151.1" x2="427" y2="151.1" class="grid"/>
+<line x1="420" y1="150.7" x2="427" y2="150.7" class="grid"/>
+<line x1="420" y1="150.2" x2="427" y2="150.2" class="grid"/>
+<line x1="420" y1="149.4" x2="427" y2="149.4" class="grid"/>
+<line x1="420" y1="149.1" x2="427" y2="149.1" class="grid"/>
+<line x1="420" y1="148.4" x2="427" y2="148.4" class="grid"/>
+<line x1="420" y1="148.2" x2="427" y2="148.2" class="grid"/>
+<line x1="420" y1="147.7" x2="427" y2="147.7" class="grid"/>
+<line x1="420" y1="146.9" x2="427" y2="146.9" class="grid"/>
+<line x1="420" y1="146.6" x2="427" y2="146.6" class="grid"/>
+<line x1="420" y1="146.3" x2="427" y2="146.3" class="grid"/>
+<line x1="420" y1="145.7" x2="427" y2="145.7" class="grid"/>
+<line x1="420" y1="145.3" x2="427" y2="145.3" class="grid"/>
+<line x1="420" y1="144.7" x2="427" y2="144.7" class="grid"/>
+<line x1="420" y1="144.4" x2="427" y2="144.4" class="grid"/>
+<line x1="420" y1="143.9" x2="427" y2="143.9" class="grid"/>
+<line x1="420" y1="143.8" x2="427" y2="143.8" class="grid"/>
+<line x1="420" y1="143.0" x2="427" y2="143.0" class="grid"/>
+<line x1="420" y1="142.7" x2="427" y2="142.7" class="grid"/>
+<line x1="420" y1="142.3" x2="427" y2="142.3" class="grid"/>
+<line x1="420" y1="141.9" x2="427" y2="141.9" class="grid"/>
+<line x1="420" y1="141.6" x2="427" y2="141.6" class="grid"/>
+<line x1="420" y1="141.1" x2="427" y2="141.1" class="grid"/>
+<line x1="420" y1="140.6" x2="427" y2="140.6" class="grid"/>
+<line x1="420" y1="140.4" x2="427" y2="140.4" class="grid"/>
+<line x1="420" y1="140.1" x2="427" y2="140.1" class="grid"/>
+<line x1="420" y1="139.7" x2="427" y2="139.7" class="grid"/>
+<line x1="420" y1="139.2" x2="427" y2="139.2" class="grid"/>
+<line x1="420" y1="139.0" x2="427" y2="139.0" class="grid"/>
+<line x1="420" y1="138.5" x2="427" y2="138.5" class="grid"/>
+<line x1="420" y1="138.2" x2="427" y2="138.2" class="grid"/>
+<line x1="420" y1="138.0" x2="427" y2="138.0" class="grid"/>
+<line x1="420" y1="137.4" x2="427" y2="137.4" class="grid"/>
+<line x1="420" y1="137.2" x2="427" y2="137.2" class="grid"/>
+<line x1="420" y1="136.9" x2="427" y2="136.9" class="grid"/>
+<line x1="420" y1="136.6" x2="427" y2="136.6" class="grid"/>
+<line x1="420" y1="136.2" x2="427" y2="136.2" class="grid"/>
+<line x1="420" y1="135.9" x2="427" y2="135.9" class="grid"/>
+<line x1="420" y1="135.5" x2="427" y2="135.5" class="grid"/>
+<line x1="420" y1="135.2" x2="427" y2="135.2" class="grid"/>
+<line x1="420" y1="135.0" x2="427" y2="135.0" class="grid"/>
+<line x1="420" y1="134.7" x2="427" y2="134.7" class="grid"/>
+<line x1="420" y1="134.2" x2="427" y2="134.2" class="grid"/>
+<line x1="420" y1="133.9" x2="427" y2="133.9" class="grid"/>
+<line x1="420" y1="133.8" x2="427" y2="133.8" class="grid"/>
+<line x1="420" y1="133.4" x2="427" y2="133.4" class="grid"/>
+<line x1="420" y1="133.2" x2="427" y2="133.2" class="grid"/>
+<line x1="420" y1="132.8" x2="427" y2="132.8" class="grid"/>
+<line x1="420" y1="132.5" x2="427" y2="132.5" class="grid"/>
+<line x1="420" y1="132.2" x2="427" y2="132.2" class="grid"/>
+<line x1="420" y1="132.1" x2="427" y2="132.1" class="grid"/>
+<line x1="420" y1="131.8" x2="427" y2="131.8" class="grid"/>
+<line x1="420" y1="131.3" x2="427" y2="131.3" class="grid"/>
+<line x1="420" y1="131.2" x2="427" y2="131.2" class="grid"/>
+<line x1="420" y1="130.9" x2="427" y2="130.9" class="grid"/>
+<line x1="420" y1="130.6" x2="427" y2="130.6" class="grid"/>
+<line x1="420" y1="130.4" x2="427" y2="130.4" class="grid"/>
+<line x1="420" y1="130.2" x2="427" y2="130.2" class="grid"/>
+<line x1="420" y1="129.7" x2="427" y2="129.7" class="grid"/>
+<line x1="420" y1="129.6" x2="427" y2="129.6" class="grid"/>
+<line x1="420" y1="129.3" x2="427" y2="129.3" class="grid"/>
+<line x1="420" y1="129.1" x2="427" y2="129.1" class="grid"/>
+<line x1="420" y1="128.8" x2="427" y2="128.8" class="grid"/>
+<line x1="420" y1="128.5" x2="427" y2="128.5" class="grid"/>
+<line x1="420" y1="128.3" x2="427" y2="128.3" class="grid"/>
+<line x1="420" y1="128.0" x2="427" y2="128.0" class="grid"/>
+<line x1="420" y1="127.8" x2="427" y2="127.8" class="grid"/>
+<line x1="420" y1="127.7" x2="427" y2="127.7" class="grid"/>
+<line x1="420" y1="127.3" x2="427" y2="127.3" class="grid"/>
+<line x1="420" y1="127.0" x2="427" y2="127.0" class="grid"/>
+<line x1="420" y1="126.9" x2="427" y2="126.9" class="grid"/>
+<line x1="420" y1="126.7" x2="427" y2="126.7" class="grid"/>
+<line x1="420" y1="126.4" x2="427" y2="126.4" class="grid"/>
+<line x1="420" y1="126.2" x2="427" y2="126.2" class="grid"/>
+<line x1="420" y1="125.9" x2="427" y2="125.9" class="grid"/>
+<line x1="420" y1="125.6" x2="427" y2="125.6" class="grid"/>
+<line x1="420" y1="125.5" x2="427" y2="125.5" class="grid"/>
+<line x1="420" y1="125.3" x2="427" y2="125.3" class="grid"/>
+<line x1="420" y1="125.1" x2="427" y2="125.1" class="grid"/>
+<line x1="420" y1="124.7" x2="427" y2="124.7" class="grid"/>
+<line x1="420" y1="124.6" x2="427" y2="124.6" class="grid"/>
+<line x1="420" y1="124.4" x2="427" y2="124.4" class="grid"/>
+<line x1="420" y1="124.1" x2="427" y2="124.1" class="grid"/>
+<line x1="420" y1="124.0" x2="427" y2="124.0" class="grid"/>
+<line x1="420" y1="123.8" x2="427" y2="123.8" class="grid"/>
+<line x1="420" y1="123.5" x2="427" y2="123.5" class="grid"/>
+<line x1="420" y1="123.2" x2="427" y2="123.2" class="grid"/>
+<line x1="420" y1="123.1" x2="427" y2="123.1" class="grid"/>
+<line x1="420" y1="123.0" x2="427" y2="123.0" class="grid"/>
+<line x1="420" y1="122.7" x2="427" y2="122.7" class="grid"/>
+<line x1="420" y1="122.5" x2="427" y2="122.5" class="grid"/>
+<line x1="420" y1="122.2" x2="427" y2="122.2" class="grid"/>
+<line x1="420" y1="122.1" x2="427" y2="122.1" class="grid"/>
+<line x1="420" y1="121.8" x2="427" y2="121.8" class="grid"/>
+<line x1="420" y1="121.7" x2="427" y2="121.7" class="grid"/>
+<line x1="420" y1="121.5" x2="427" y2="121.5" class="grid"/>
+<line x1="420" y1="121.2" x2="427" y2="121.2" class="grid"/>
+<line x1="420" y1="121.1" x2="427" y2="121.1" class="grid"/>
+<line x1="420" y1="120.9" x2="427" y2="120.9" class="grid"/>
+<line x1="420" y1="120.7" x2="427" y2="120.7" class="grid"/>
+<line x1="420" y1="120.5" x2="427" y2="120.5" class="grid"/>
+<line x1="420" y1="120.3" x2="427" y2="120.3" class="grid"/>
+<line x1="420" y1="120.1" x2="427" y2="120.1" class="grid"/>
+<line x1="420" y1="119.9" x2="427" y2="119.9" class="grid"/>
+<line x1="420" y1="119.8" x2="427" y2="119.8" class="grid"/>
+<line x1="420" y1="119.6" x2="427" y2="119.6" class="grid"/>
+<line x1="420" y1="119.4" x2="427" y2="119.4" class="grid"/>
+<line x1="420" y1="119.1" x2="427" y2="119.1" class="grid"/>
+<line x1="420" y1="119.0" x2="427" y2="119.0" class="grid"/>
+<line x1="420" y1="118.9" x2="427" y2="118.9" class="grid"/>
+<line x1="420" y1="118.7" x2="427" y2="118.7" class="grid"/>
+<line x1="420" y1="118.4" x2="427" y2="118.4" class="grid"/>
+<line x1="420" y1="118.4" x2="427" y2="118.4" class="grid"/>
+<line x1="420" y1="118.1" x2="427" y2="118.1" class="grid"/>
+<line x1="420" y1="117.9" x2="427" y2="117.9" class="grid"/>
+<line x1="420" y1="117.8" x2="427" y2="117.8" class="grid"/>
+<line x1="420" y1="117.6" x2="427" y2="117.6" class="grid"/>
+<line x1="420" y1="117.5" x2="427" y2="117.5" class="grid"/>
+<line x1="420" y1="117.2" x2="427" y2="117.2" class="grid"/>
+<line x1="420" y1="117.0" x2="427" y2="117.0" class="grid"/>
+<line x1="420" y1="116.9" x2="427" y2="116.9" class="grid"/>
+<line x1="420" y1="116.7" x2="427" y2="116.7" class="grid"/>
+<line x1="420" y1="116.6" x2="427" y2="116.6" class="grid"/>
+<line x1="420" y1="116.4" x2="427" y2="116.4" class="grid"/>
+<line x1="420" y1="116.3" x2="427" y2="116.3" class="grid"/>
+<line x1="420" y1="116.0" x2="427" y2="116.0" class="grid"/>
+<line x1="420" y1="115.9" x2="427" y2="115.9" class="grid"/>
+<line x1="420" y1="115.8" x2="427" y2="115.8" class="grid"/>
+<line x1="420" y1="115.6" x2="427" y2="115.6" class="grid"/>
+<line x1="420" y1="115.5" x2="427" y2="115.5" class="grid"/>
+<line x1="420" y1="115.2" x2="427" y2="115.2" class="grid"/>
+<line x1="420" y1="115.1" x2="427" y2="115.1" class="grid"/>
+<line x1="420" y1="115.0" x2="427" y2="115.0" class="grid"/>
+<line x1="420" y1="114.8" x2="427" y2="114.8" class="grid"/>
+<line x1="420" y1="114.7" x2="427" y2="114.7" class="grid"/>
+<line x1="420" y1="114.6" x2="427" y2="114.6" class="grid"/>
+<line x1="420" y1="114.3" x2="427" y2="114.3" class="grid"/>
+<line x1="420" y1="114.2" x2="427" y2="114.2" class="grid"/>
+<line x1="420" y1="114.0" x2="427" y2="114.0" class="grid"/>
+<line x1="420" y1="113.9" x2="427" y2="113.9" class="grid"/>
+<line x1="420" y1="113.7" x2="427" y2="113.7" class="grid"/>
+<line x1="420" y1="113.6" x2="427" y2="113.6" class="grid"/>
+<line x1="420" y1="113.4" x2="427" y2="113.4" class="grid"/>
+<line x1="420" y1="113.2" x2="427" y2="113.2" class="grid"/>
+<line x1="420" y1="113.1" x2="427" y2="113.1" class="grid"/>
+<line x1="420" y1="113.0" x2="427" y2="113.0" class="grid"/>
+<line x1="420" y1="112.9" x2="427" y2="112.9" class="grid"/>
+<line x1="420" y1="112.7" x2="427" y2="112.7" class="grid"/>
+<line x1="420" y1="112.5" x2="427" y2="112.5" class="grid"/>
+<line x1="420" y1="112.4" x2="427" y2="112.4" class="grid"/>
+<line x1="420" y1="112.3" x2="427" y2="112.3" class="grid"/>
+<line x1="420" y1="112.1" x2="427" y2="112.1" class="grid"/>
+<line x1="420" y1="112.0" x2="427" y2="112.0" class="grid"/>
+<line x1="420" y1="111.8" x2="427" y2="111.8" class="grid"/>
+<line x1="420" y1="111.6" x2="427" y2="111.6" class="grid"/>
+<line x1="420" y1="111.5" x2="427" y2="111.5" class="grid"/>
+<line x1="420" y1="111.4" x2="427" y2="111.4" class="grid"/>
+<line x1="420" y1="111.2" x2="427" y2="111.2" class="grid"/>
+<line x1="420" y1="111.2" x2="427" y2="111.2" class="grid"/>
+<line x1="420" y1="110.9" x2="427" y2="110.9" class="grid"/>
+<line x1="420" y1="110.8" x2="427" y2="110.8" class="grid"/>
+<line x1="420" y1="110.7" x2="427" y2="110.7" class="grid"/>
+<line x1="420" y1="110.5" x2="427" y2="110.5" class="grid"/>
+<line x1="420" y1="110.4" x2="427" y2="110.4" class="grid"/>
+<line x1="420" y1="110.3" x2="427" y2="110.3" class="grid"/>
+<line x1="420" y1="110.2" x2="427" y2="110.2" class="grid"/>
+<line x1="420" y1="110.0" x2="427" y2="110.0" class="grid"/>
+<line x1="420" y1="109.8" x2="427" y2="109.8" class="grid"/>
+<line x1="420" y1="109.8" x2="427" y2="109.8" class="grid"/>
+<line x1="420" y1="109.6" x2="427" y2="109.6" class="grid"/>
+<line x1="420" y1="109.5" x2="427" y2="109.5" class="grid"/>
+<line x1="420" y1="109.4" x2="427" y2="109.4" class="grid"/>
+<line x1="420" y1="109.2" x2="427" y2="109.2" class="grid"/>
+<line x1="420" y1="109.1" x2="427" y2="109.1" class="grid"/>
+<line x1="420" y1="108.9" x2="427" y2="108.9" class="grid"/>
+<line x1="420" y1="108.8" x2="427" y2="108.8" class="grid"/>
+<line x1="420" y1="108.7" x2="427" y2="108.7" class="grid"/>
+<line x1="420" y1="108.6" x2="427" y2="108.6" class="grid"/>
+<line x1="420" y1="108.4" x2="427" y2="108.4" class="grid"/>
+<line x1="420" y1="108.3" x2="427" y2="108.3" class="grid"/>
+<line x1="420" y1="108.2" x2="427" y2="108.2" class="grid"/>
+<line x1="420" y1="108.1" x2="427" y2="108.1" class="grid"/>
+<line x1="420" y1="107.9" x2="427" y2="107.9" class="grid"/>
+<line x1="420" y1="107.8" x2="427" y2="107.8" class="grid"/>
+<line x1="420" y1="107.7" x2="427" y2="107.7" class="grid"/>
+<line x1="420" y1="107.5" x2="427" y2="107.5" class="grid"/>
+<line x1="420" y1="107.4" x2="427" y2="107.4" class="grid"/>
+<line x1="420" y1="107.3" x2="427" y2="107.3" class="grid"/>
+<line x1="420" y1="107.2" x2="427" y2="107.2" class="grid"/>
+<line x1="420" y1="107.1" x2="427" y2="107.1" class="grid"/>
+<line x1="420" y1="106.9" x2="427" y2="106.9" class="grid"/>
+<line x1="420" y1="106.8" x2="427" y2="106.8" class="grid"/>
+<line x1="420" y1="106.7" x2="427" y2="106.7" class="grid"/>
+<line x1="420" y1="106.6" x2="427" y2="106.6" class="grid"/>
+<line x1="420" y1="106.4" x2="427" y2="106.4" class="grid"/>
+<line x1="420" y1="106.4" x2="427" y2="106.4" class="grid"/>
+<line x1="420" y1="106.2" x2="427" y2="106.2" class="grid"/>
+<line x1="420" y1="106.1" x2="427" y2="106.1" class="grid"/>
+<line x1="420" y1="105.9" x2="427" y2="105.9" class="grid"/>
+<line x1="420" y1="105.9" x2="427" y2="105.9" class="grid"/>
+<line x1="420" y1="105.8" x2="427" y2="105.8" class="grid"/>
+<line x1="420" y1="105.6" x2="427" y2="105.6" class="grid"/>
+<line x1="420" y1="105.5" x2="427" y2="105.5" class="grid"/>
+<line x1="420" y1="105.4" x2="427" y2="105.4" class="grid"/>
+<line x1="420" y1="105.3" x2="427" y2="105.3" class="grid"/>
+<line x1="420" y1="105.1" x2="427" y2="105.1" class="grid"/>
+<line x1="420" y1="105.1" x2="427" y2="105.1" class="grid"/>
+<line x1="420" y1="105.0" x2="427" y2="105.0" class="grid"/>
+<line x1="420" y1="104.9" x2="427" y2="104.9" class="grid"/>
+<line x1="420" y1="104.7" x2="427" y2="104.7" class="grid"/>
+<line x1="420" y1="104.6" x2="427" y2="104.6" class="grid"/>
+<line x1="420" y1="104.5" x2="427" y2="104.5" class="grid"/>
+<line x1="420" y1="104.4" x2="427" y2="104.4" class="grid"/>
+<line x1="420" y1="104.3" x2="427" y2="104.3" class="grid"/>
+<line x1="420" y1="104.2" x2="427" y2="104.2" class="grid"/>
+<line x1="420" y1="104.1" x2="427" y2="104.1" class="grid"/>
+<line x1="420" y1="103.9" x2="427" y2="103.9" class="grid"/>
+<line x1="420" y1="103.8" x2="427" y2="103.8" class="grid"/>
+<line x1="420" y1="103.7" x2="427" y2="103.7" class="grid"/>
+<line x1="420" y1="103.6" x2="427" y2="103.6" class="grid"/>
+<line x1="420" y1="103.5" x2="427" y2="103.5" class="grid"/>
+<line x1="420" y1="103.4" x2="427" y2="103.4" class="grid"/>
+<line x1="420" y1="103.2" x2="427" y2="103.2" class="grid"/>
+<line x1="420" y1="103.2" x2="427" y2="103.2" class="grid"/>
+<line x1="420" y1="103.1" x2="427" y2="103.1" class="grid"/>
+<line x1="420" y1="102.9" x2="427" y2="102.9" class="grid"/>
+<line x1="420" y1="102.9" x2="427" y2="102.9" class="grid"/>
+<line x1="420" y1="102.8" x2="427" y2="102.8" class="grid"/>
+<line x1="420" y1="102.6" x2="427" y2="102.6" class="grid"/>
+<line x1="420" y1="102.5" x2="427" y2="102.5" class="grid"/>
+<line x1="420" y1="102.4" x2="427" y2="102.4" class="grid"/>
+<line x1="420" y1="102.3" x2="427" y2="102.3" class="grid"/>
+<line x1="420" y1="102.3" x2="427" y2="102.3" class="grid"/>
+<line x1="420" y1="102.1" x2="427" y2="102.1" class="grid"/>
+<line x1="420" y1="102.0" x2="427" y2="102.0" class="grid"/>
+<line x1="420" y1="101.9" x2="427" y2="101.9" class="grid"/>
+<line x1="420" y1="101.8" x2="427" y2="101.8" class="grid"/>
+<line x1="420" y1="101.7" x2="427" y2="101.7" class="grid"/>
+<line x1="420" y1="101.6" x2="427" y2="101.6" class="grid"/>
+<line x1="420" y1="101.5" x2="427" y2="101.5" class="grid"/>
+<line x1="420" y1="101.4" x2="427" y2="101.4" class="grid"/>
+<line x1="420" y1="101.2" x2="427" y2="101.2" class="grid"/>
+<line x1="420" y1="101.2" x2="427" y2="101.2" class="grid"/>
+<line x1="420" y1="101.1" x2="427" y2="101.1" class="grid"/>
+<line x1="420" y1="101.0" x2="427" y2="101.0" class="grid"/>
+<line x1="420" y1="100.9" x2="427" y2="100.9" class="grid"/>
+<line x1="420" y1="100.8" x2="427" y2="100.8" class="grid"/>
+<line x1="420" y1="100.7" x2="427" y2="100.7" class="grid"/>
+<line x1="420" y1="100.6" x2="427" y2="100.6" class="grid"/>
+<line x1="420" y1="100.5" x2="427" y2="100.5" class="grid"/>
+<line x1="420" y1="100.4" x2="427" y2="100.4" class="grid"/>
+<line x1="420" y1="100.3" x2="427" y2="100.3" class="grid"/>
+<line x1="420" y1="100.3" x2="427" y2="100.3" class="grid"/>
+<line x1="420" y1="100.1" x2="427" y2="100.1" class="grid"/>
+<line x1="420" y1="100.0" x2="427" y2="100.0" class="grid"/>
+<line x1="420" y1="99.9" x2="427" y2="99.9" class="grid"/>
+<line x1="420" y1="99.8" x2="427" y2="99.8" class="grid"/>
+<line x1="420" y1="99.7" x2="427" y2="99.7" class="grid"/>
+<line x1="420" y1="99.6" x2="427" y2="99.6" class="grid"/>
+<line x1="420" y1="99.6" x2="427" y2="99.6" class="grid"/>
+<line x1="420" y1="99.4" x2="427" y2="99.4" class="grid"/>
+<line x1="420" y1="99.3" x2="427" y2="99.3" class="grid"/>
+<line x1="420" y1="99.2" x2="427" y2="99.2" class="grid"/>
+<line x1="420" y1="99.2" x2="427" y2="99.2" class="grid"/>
+<line x1="420" y1="99.1" x2="427" y2="99.1" class="grid"/>
+<line x1="420" y1="99.0" x2="427" y2="99.0" class="grid"/>
+<line x1="420" y1="98.8" x2="427" y2="98.8" class="grid"/>
+<line x1="420" y1="98.7" x2="427" y2="98.7" class="grid"/>
+<line x1="420" y1="98.7" x2="427" y2="98.7" class="grid"/>
+<line x1="420" y1="98.6" x2="427" y2="98.6" class="grid"/>
+<line x1="420" y1="98.5" x2="427" y2="98.5" class="grid"/>
+<line x1="420" y1="98.4" x2="427" y2="98.4" class="grid"/>
+<line x1="420" y1="98.4" x2="427" y2="98.4" class="grid"/>
+<line x1="420" y1="98.2" x2="427" y2="98.2" class="grid"/>
+<line x1="420" y1="98.1" x2="427" y2="98.1" class="grid"/>
+<line x1="420" y1="98.0" x2="427" y2="98.0" class="grid"/>
+<line x1="420" y1="98.0" x2="427" y2="98.0" class="grid"/>
+<line x1="420" y1="97.9" x2="427" y2="97.9" class="grid"/>
+<line x1="420" y1="97.8" x2="427" y2="97.8" class="grid"/>
+<line x1="420" y1="97.7" x2="427" y2="97.7" class="grid"/>
+<line x1="420" y1="97.6" x2="427" y2="97.6" class="grid"/>
+<line x1="420" y1="97.5" x2="427" y2="97.5" class="grid"/>
+<line x1="420" y1="97.4" x2="427" y2="97.4" class="grid"/>
+<line x1="420" y1="97.3" x2="427" y2="97.3" class="grid"/>
+<line x1="420" y1="97.3" x2="427" y2="97.3" class="grid"/>
+<line x1="420" y1="97.2" x2="427" y2="97.2" class="grid"/>
+<line x1="420" y1="97.0" x2="427" y2="97.0" class="grid"/>
+<line x1="420" y1="97.0" x2="427" y2="97.0" class="grid"/>
+<line x1="420" y1="96.9" x2="427" y2="96.9" class="grid"/>
+<line x1="420" y1="96.8" x2="427" y2="96.8" class="grid"/>
+<line x1="420" y1="96.7" x2="427" y2="96.7" class="grid"/>
+<line x1="420" y1="96.7" x2="427" y2="96.7" class="grid"/>
+<line x1="420" y1="96.5" x2="427" y2="96.5" class="grid"/>
+<line x1="420" y1="96.5" x2="427" y2="96.5" class="grid"/>
+<line x1="420" y1="96.3" x2="427" y2="96.3" class="grid"/>
+<line x1="420" y1="96.3" x2="427" y2="96.3" class="grid"/>
+<line x1="420" y1="96.2" x2="427" y2="96.2" class="grid"/>
+<line x1="420" y1="96.1" x2="427" y2="96.1" class="grid"/>
+<line x1="420" y1="96.0" x2="427" y2="96.0" class="grid"/>
+<line x1="420" y1="95.9" x2="427" y2="95.9" class="grid"/>
+<line x1="420" y1="95.8" x2="427" y2="95.8" class="grid"/>
+<line x1="420" y1="95.8" x2="427" y2="95.8" class="grid"/>
+<line x1="420" y1="95.7" x2="427" y2="95.7" class="grid"/>
+<line x1="420" y1="95.6" x2="427" y2="95.6" class="grid"/>
+<line x1="420" y1="95.5" x2="427" y2="95.5" class="grid"/>
+<line x1="420" y1="95.5" x2="427" y2="95.5" class="grid"/>
+<line x1="420" y1="95.3" x2="427" y2="95.3" class="grid"/>
+<line x1="420" y1="95.3" x2="427" y2="95.3" class="grid"/>
+<line x1="420" y1="95.2" x2="427" y2="95.2" class="grid"/>
+<line x1="420" y1="95.1" x2="427" y2="95.1" class="grid"/>
+<line x1="420" y1="95.1" x2="427" y2="95.1" class="grid"/>
+<line x1="420" y1="94.9" x2="427" y2="94.9" class="grid"/>
+<line x1="420" y1="94.8" x2="427" y2="94.8" class="grid"/>
+<line x1="420" y1="94.8" x2="427" y2="94.8" class="grid"/>
+<line x1="420" y1="94.7" x2="427" y2="94.7" class="grid"/>
+<line x1="420" y1="94.6" x2="427" y2="94.6" class="grid"/>
+<line x1="420" y1="94.6" x2="427" y2="94.6" class="grid"/>
+<line x1="420" y1="94.5" x2="427" y2="94.5" class="grid"/>
+<line x1="420" y1="94.4" x2="427" y2="94.4" class="grid"/>
+<line x1="420" y1="94.3" x2="427" y2="94.3" class="grid"/>
+<line x1="420" y1="94.2" x2="427" y2="94.2" class="grid"/>
+<line x1="420" y1="94.1" x2="427" y2="94.1" class="grid"/>
+<line x1="420" y1="94.1" x2="427" y2="94.1" class="grid"/>
+<line x1="420" y1="94.0" x2="427" y2="94.0" class="grid"/>
+<line x1="420" y1="93.9" x2="427" y2="93.9" class="grid"/>
+<line x1="420" y1="93.8" x2="427" y2="93.8" class="grid"/>
+<line x1="420" y1="93.7" x2="427" y2="93.7" class="grid"/>
+<line x1="420" y1="93.6" x2="427" y2="93.6" class="grid"/>
+<line x1="420" y1="93.6" x2="427" y2="93.6" class="grid"/>
+<line x1="420" y1="93.5" x2="427" y2="93.5" class="grid"/>
+<line x1="420" y1="93.4" x2="427" y2="93.4" class="grid"/>
+<line x1="420" y1="93.4" x2="427" y2="93.4" class="grid"/>
+<line x1="420" y1="93.2" x2="427" y2="93.2" class="grid"/>
+<line x1="420" y1="93.2" x2="427" y2="93.2" class="grid"/>
+<line x1="420" y1="93.1" x2="427" y2="93.1" class="grid"/>
+<line x1="420" y1="93.0" x2="427" y2="93.0" class="grid"/>
+<line x1="420" y1="93.0" x2="427" y2="93.0" class="grid"/>
+<line x1="420" y1="92.9" x2="427" y2="92.9" class="grid"/>
+<line x1="420" y1="92.8" x2="427" y2="92.8" class="grid"/>
+<line x1="420" y1="92.7" x2="427" y2="92.7" class="grid"/>
+<line x1="420" y1="92.6" x2="427" y2="92.6" class="grid"/>
+<line x1="420" y1="92.6" x2="427" y2="92.6" class="grid"/>
+<line x1="420" y1="92.5" x2="427" y2="92.5" class="grid"/>
+<line x1="420" y1="92.5" x2="427" y2="92.5" class="grid"/>
+<line x1="420" y1="92.4" x2="427" y2="92.4" class="grid"/>
+<line x1="420" y1="92.3" x2="427" y2="92.3" class="grid"/>
+<line x1="420" y1="92.2" x2="427" y2="92.2" class="grid"/>
+<line x1="420" y1="92.1" x2="427" y2="92.1" class="grid"/>
+<line x1="420" y1="92.1" x2="427" y2="92.1" class="grid"/>
+<line x1="420" y1="92.0" x2="427" y2="92.0" class="grid"/>
+<line x1="420" y1="91.9" x2="427" y2="91.9" class="grid"/>
+<line x1="420" y1="91.9" x2="427" y2="91.9" class="grid"/>
+<line x1="420" y1="91.8" x2="427" y2="91.8" class="grid"/>
+<line x1="420" y1="91.6" x2="427" y2="91.6" class="grid"/>
+<line x1="420" y1="91.6" x2="427" y2="91.6" class="grid"/>
+<line x1="420" y1="91.5" x2="427" y2="91.5" class="grid"/>
+<line x1="420" y1="91.5" x2="427" y2="91.5" class="grid"/>
+<line x1="420" y1="91.4" x2="427" y2="91.4" class="grid"/>
+<line x1="420" y1="91.3" x2="427" y2="91.3" class="grid"/>
+<line x1="420" y1="91.2" x2="427" y2="91.2" class="grid"/>
+<line x1="420" y1="91.2" x2="427" y2="91.2" class="grid"/>
+<line x1="420" y1="91.1" x2="427" y2="91.1" class="grid"/>
+<line x1="420" y1="91.0" x2="427" y2="91.0" class="grid"/>
+<line x1="420" y1="90.9" x2="427" y2="90.9" class="grid"/>
+<line x1="420" y1="90.9" x2="427" y2="90.9" class="grid"/>
+<line x1="420" y1="90.8" x2="427" y2="90.8" class="grid"/>
+<line x1="420" y1="90.7" x2="427" y2="90.7" class="grid"/>
+<line x1="420" y1="90.6" x2="427" y2="90.6" class="grid"/>
+<line x1="420" y1="90.6" x2="427" y2="90.6" class="grid"/>
+<line x1="420" y1="90.5" x2="427" y2="90.5" class="grid"/>
+<line x1="420" y1="90.4" x2="427" y2="90.4" class="grid"/>
+<line x1="420" y1="90.4" x2="427" y2="90.4" class="grid"/>
+<line x1="420" y1="90.3" x2="427" y2="90.3" class="grid"/>
+<line x1="420" y1="90.2" x2="427" y2="90.2" class="grid"/>
+<line x1="420" y1="90.2" x2="427" y2="90.2" class="grid"/>
+<line x1="420" y1="90.1" x2="427" y2="90.1" class="grid"/>
+<line x1="420" y1="90.0" x2="427" y2="90.0" class="grid"/>
+<line x1="420" y1="90.0" x2="427" y2="90.0" class="grid"/>
+<line x1="420" y1="89.9" x2="427" y2="89.9" class="grid"/>
+<line x1="420" y1="89.8" x2="427" y2="89.8" class="grid"/>
+<line x1="420" y1="89.7" x2="427" y2="89.7" class="grid"/>
+<line x1="420" y1="89.7" x2="427" y2="89.7" class="grid"/>
+<line x1="420" y1="89.6" x2="427" y2="89.6" class="grid"/>
+<line x1="420" y1="89.5" x2="427" y2="89.5" class="grid"/>
+<line x1="420" y1="89.5" x2="427" y2="89.5" class="grid"/>
+<line x1="420" y1="89.4" x2="427" y2="89.4" class="grid"/>
+<line x1="420" y1="89.4" x2="427" y2="89.4" class="grid"/>
+<line x1="420" y1="89.2" x2="427" y2="89.2" class="grid"/>
+<line x1="420" y1="89.2" x2="427" y2="89.2" class="grid"/>
+<line x1="420" y1="89.1" x2="427" y2="89.1" class="grid"/>
+<line x1="420" y1="89.1" x2="427" y2="89.1" class="grid"/>
+<line x1="420" y1="89.0" x2="427" y2="89.0" class="grid"/>
+<line x1="420" y1="88.9" x2="427" y2="88.9" class="grid"/>
+<line x1="420" y1="88.8" x2="427" y2="88.8" class="grid"/>
+<line x1="420" y1="88.8" x2="427" y2="88.8" class="grid"/>
+<line x1="420" y1="88.7" x2="427" y2="88.7" class="grid"/>
+<line x1="420" y1="88.6" x2="427" y2="88.6" class="grid"/>
+<line x1="420" y1="88.6" x2="427" y2="88.6" class="grid"/>
+<line x1="420" y1="88.5" x2="427" y2="88.5" class="grid"/>
+<line x1="420" y1="88.5" x2="427" y2="88.5" class="grid"/>
+<line x1="420" y1="88.4" x2="427" y2="88.4" class="grid"/>
+<line x1="420" y1="88.3" x2="427" y2="88.3" class="grid"/>
+<line x1="420" y1="88.2" x2="427" y2="88.2" class="grid"/>
+<line x1="420" y1="88.2" x2="427" y2="88.2" class="grid"/>
+<line x1="420" y1="88.2" x2="427" y2="88.2" class="grid"/>
+<line x1="420" y1="88.0" x2="427" y2="88.0" class="grid"/>
+<line x1="420" y1="88.0" x2="427" y2="88.0" class="grid"/>
+<line x1="420" y1="87.9" x2="427" y2="87.9" class="grid"/>
+<line x1="420" y1="87.8" x2="427" y2="87.8" class="grid"/>
+<line x1="420" y1="87.8" x2="427" y2="87.8" class="grid"/>
+<line x1="420" y1="87.7" x2="427" y2="87.7" class="grid"/>
+<line x1="420" y1="87.7" x2="427" y2="87.7" class="grid"/>
+<line x1="420" y1="87.6" x2="427" y2="87.6" class="grid"/>
+<line x1="420" y1="87.6" x2="427" y2="87.6" class="grid"/>
+<line x1="420" y1="87.4" x2="427" y2="87.4" class="grid"/>
+<line x1="420" y1="87.4" x2="427" y2="87.4" class="grid"/>
+<line x1="420" y1="87.4" x2="427" y2="87.4" class="grid"/>
+<line x1="420" y1="87.3" x2="427" y2="87.3" class="grid"/>
+<line x1="420" y1="87.2" x2="427" y2="87.2" class="grid"/>
+<line x1="420" y1="87.2" x2="427" y2="87.2" class="grid"/>
+<line x1="420" y1="87.1" x2="427" y2="87.1" class="grid"/>
+<line x1="420" y1="87.0" x2="427" y2="87.0" class="grid"/>
+<line x1="420" y1="86.9" x2="427" y2="86.9" class="grid"/>
+<line x1="420" y1="86.9" x2="427" y2="86.9" class="grid"/>
+<line x1="420" y1="86.8" x2="427" y2="86.8" class="grid"/>
+<line x1="420" y1="86.8" x2="427" y2="86.8" class="grid"/>
+<line x1="420" y1="86.7" x2="427" y2="86.7" class="grid"/>
+<line x1="420" y1="86.6" x2="427" y2="86.6" class="grid"/>
+<line x1="420" y1="86.6" x2="427" y2="86.6" class="grid"/>
+<line x1="420" y1="86.5" x2="427" y2="86.5" class="grid"/>
+<line x1="420" y1="86.5" x2="427" y2="86.5" class="grid"/>
+<line x1="420" y1="86.4" x2="427" y2="86.4" class="grid"/>
+<line x1="420" y1="86.3" x2="427" y2="86.3" class="grid"/>
+<line x1="420" y1="86.3" x2="427" y2="86.3" class="grid"/>
+<line x1="420" y1="86.2" x2="427" y2="86.2" class="grid"/>
+<line x1="420" y1="86.1" x2="427" y2="86.1" class="grid"/>
+<line x1="420" y1="86.1" x2="427" y2="86.1" class="grid"/>
+<line x1="420" y1="86.0" x2="427" y2="86.0" class="grid"/>
+<line x1="420" y1="86.0" x2="427" y2="86.0" class="grid"/>
+<line x1="420" y1="85.9" x2="427" y2="85.9" class="grid"/>
+<line x1="420" y1="85.8" x2="427" y2="85.8" class="grid"/>
+<line x1="420" y1="85.8" x2="427" y2="85.8" class="grid"/>
+<line x1="420" y1="85.7" x2="427" y2="85.7" class="grid"/>
+<line x1="420" y1="85.7" x2="427" y2="85.7" class="grid"/>
+<line x1="420" y1="85.6" x2="427" y2="85.6" class="grid"/>
+<line x1="420" y1="85.5" x2="427" y2="85.5" class="grid"/>
+<line x1="420" y1="85.5" x2="427" y2="85.5" class="grid"/>
+<line x1="420" y1="85.4" x2="427" y2="85.4" class="grid"/>
+<line x1="420" y1="85.4" x2="427" y2="85.4" class="grid"/>
+<line x1="420" y1="85.3" x2="427" y2="85.3" class="grid"/>
+<line x1="420" y1="85.2" x2="427" y2="85.2" class="grid"/>
+<line x1="420" y1="85.2" x2="427" y2="85.2" class="grid"/>
+<line x1="420" y1="85.1" x2="427" y2="85.1" class="grid"/>
+<line x1="420" y1="85.0" x2="427" y2="85.0" class="grid"/>
+<line x1="420" y1="85.0" x2="427" y2="85.0" class="grid"/>
+<line x1="420" y1="85.0" x2="427" y2="85.0" class="grid"/>
+<line x1="420" y1="84.9" x2="427" y2="84.9" class="grid"/>
+<line x1="420" y1="84.8" x2="427" y2="84.8" class="grid"/>
+<line x1="420" y1="84.8" x2="427" y2="84.8" class="grid"/>
+<line x1="420" y1="84.7" x2="427" y2="84.7" class="grid"/>
+<line x1="420" y1="84.6" x2="427" y2="84.6" class="grid"/>
+<line x1="420" y1="84.6" x2="427" y2="84.6" class="grid"/>
+<line x1="420" y1="84.5" x2="427" y2="84.5" class="grid"/>
+<line x1="420" y1="84.4" x2="427" y2="84.4" class="grid"/>
+<line x1="420" y1="84.4" x2="427" y2="84.4" class="grid"/>
+<line x1="420" y1="84.3" x2="427" y2="84.3" class="grid"/>
+<line x1="420" y1="84.3" x2="427" y2="84.3" class="grid"/>
+<line x1="420" y1="84.2" x2="427" y2="84.2" class="grid"/>
+<line x1="420" y1="84.2" x2="427" y2="84.2" class="grid"/>
+<line x1="420" y1="84.1" x2="427" y2="84.1" class="grid"/>
+<line x1="420" y1="84.1" x2="427" y2="84.1" class="grid"/>
+<line x1="420" y1="84.0" x2="427" y2="84.0" class="grid"/>
+<line x1="420" y1="83.9" x2="427" y2="83.9" class="grid"/>
+<line x1="420" y1="83.9" x2="427" y2="83.9" class="grid"/>
+<line x1="420" y1="83.8" x2="427" y2="83.8" class="grid"/>
+<line x1="420" y1="83.8" x2="427" y2="83.8" class="grid"/>
+<line x1="420" y1="83.7" x2="427" y2="83.7" class="grid"/>
+<line x1="420" y1="83.6" x2="427" y2="83.6" class="grid"/>
+<line x1="420" y1="83.6" x2="427" y2="83.6" class="grid"/>
+<line x1="420" y1="83.5" x2="427" y2="83.5" class="grid"/>
+<line x1="420" y1="83.5" x2="427" y2="83.5" class="grid"/>
+<line x1="420" y1="83.4" x2="427" y2="83.4" class="grid"/>
+<line x1="420" y1="83.4" x2="427" y2="83.4" class="grid"/>
+<line x1="420" y1="83.3" x2="427" y2="83.3" class="grid"/>
+<line x1="420" y1="83.2" x2="427" y2="83.2" class="grid"/>
+<line x1="420" y1="83.2" x2="427" y2="83.2" class="grid"/>
+<line x1="420" y1="83.1" x2="427" y2="83.1" class="grid"/>
+<line x1="420" y1="83.1" x2="427" y2="83.1" class="grid"/>
+<line x1="420" y1="83.0" x2="427" y2="83.0" class="grid"/>
+<line x1="420" y1="83.0" x2="427" y2="83.0" class="grid"/>
+<line x1="420" y1="82.9" x2="427" y2="82.9" class="grid"/>
+<line x1="420" y1="82.9" x2="427" y2="82.9" class="grid"/>
+<line x1="420" y1="82.8" x2="427" y2="82.8" class="grid"/>
+<line x1="420" y1="82.7" x2="427" y2="82.7" class="grid"/>
+<line x1="420" y1="82.7" x2="427" y2="82.7" class="grid"/>
+<line x1="420" y1="82.7" x2="427" y2="82.7" class="grid"/>
+<line x1="420" y1="82.6" x2="427" y2="82.6" class="grid"/>
+<line x1="420" y1="82.6" x2="427" y2="82.6" class="grid"/>
+<line x1="420" y1="82.5" x2="427" y2="82.5" class="grid"/>
+<line x1="420" y1="82.4" x2="427" y2="82.4" class="grid"/>
+<line x1="420" y1="82.4" x2="427" y2="82.4" class="grid"/>
+<line x1="420" y1="82.3" x2="427" y2="82.3" class="grid"/>
+<line x1="420" y1="82.2" x2="427" y2="82.2" class="grid"/>
+<line x1="420" y1="82.2" x2="427" y2="82.2" class="grid"/>
+<line x1="420" y1="82.2" x2="427" y2="82.2" class="grid"/>
+<line x1="420" y1="82.1" x2="427" y2="82.1" class="grid"/>
+<line x1="420" y1="82.0" x2="427" y2="82.0" class="grid"/>
+<line x1="420" y1="82.0" x2="427" y2="82.0" class="grid"/>
+<line x1="420" y1="81.9" x2="427" y2="81.9" class="grid"/>
+<line x1="420" y1="81.9" x2="427" y2="81.9" class="grid"/>
+<line x1="420" y1="81.8" x2="427" y2="81.8" class="grid"/>
+<line x1="420" y1="81.8" x2="427" y2="81.8" class="grid"/>
+<line x1="420" y1="81.7" x2="427" y2="81.7" class="grid"/>
+<line x1="420" y1="81.7" x2="427" y2="81.7" class="grid"/>
+<line x1="420" y1="81.6" x2="427" y2="81.6" class="grid"/>
+<line x1="420" y1="81.5" x2="427" y2="81.5" class="grid"/>
+<line x1="420" y1="81.5" x2="427" y2="81.5" class="grid"/>
+<line x1="420" y1="81.4" x2="427" y2="81.4" class="grid"/>
+<line x1="420" y1="81.4" x2="427" y2="81.4" class="grid"/>
+<line x1="420" y1="81.4" x2="427" y2="81.4" class="grid"/>
+<line x1="420" y1="81.3" x2="427" y2="81.3" class="grid"/>
+<line x1="420" y1="81.2" x2="427" y2="81.2" class="grid"/>
+<line x1="420" y1="81.2" x2="427" y2="81.2" class="grid"/>
+<line x1="420" y1="81.1" x2="427" y2="81.1" class="grid"/>
+<line x1="420" y1="81.1" x2="427" y2="81.1" class="grid"/>
+<line x1="420" y1="81.0" x2="427" y2="81.0" class="grid"/>
+<line x1="420" y1="81.0" x2="427" y2="81.0" class="grid"/>
+<line x1="420" y1="80.9" x2="427" y2="80.9" class="grid"/>
+<line x1="420" y1="80.9" x2="427" y2="80.9" class="grid"/>
+<line x1="420" y1="80.8" x2="427" y2="80.8" class="grid"/>
+<line x1="420" y1="80.8" x2="427" y2="80.8" class="grid"/>
+<line x1="420" y1="80.7" x2="427" y2="80.7" class="grid"/>
+<line x1="420" y1="80.7" x2="427" y2="80.7" class="grid"/>
+<line x1="420" y1="80.6" x2="427" y2="80.6" class="grid"/>
+<line x1="420" y1="80.5" x2="427" y2="80.5" class="grid"/>
+<line x1="420" y1="80.5" x2="427" y2="80.5" class="grid"/>
+<line x1="420" y1="80.4" x2="427" y2="80.4" class="grid"/>
+<line x1="420" y1="80.4" x2="427" y2="80.4" class="grid"/>
+<line x1="420" y1="80.4" x2="427" y2="80.4" class="grid"/>
+<line x1="420" y1="80.3" x2="427" y2="80.3" class="grid"/>
+<line x1="420" y1="80.3" x2="427" y2="80.3" class="grid"/>
+<line x1="420" y1="80.2" x2="427" y2="80.2" class="grid"/>
+<line x1="420" y1="80.1" x2="427" y2="80.1" class="grid"/>
+<line x1="420" y1="80.1" x2="427" y2="80.1" class="grid"/>
+<line x1="420" y1="80.0" x2="427" y2="80.0" class="grid"/>
+<line x1="420" y1="80.0" x2="427" y2="80.0" class="grid"/>
+<line x1="420" y1="80.0" x2="427" y2="80.0" class="grid"/>
+<line x1="420" y1="79.9" x2="427" y2="79.9" class="grid"/>
+<line x1="420" y1="79.8" x2="427" y2="79.8" class="grid"/>
+<line x1="420" y1="79.8" x2="427" y2="79.8" class="grid"/>
+<line x1="420" y1="79.7" x2="427" y2="79.7" class="grid"/>
+<line x1="420" y1="79.7" x2="427" y2="79.7" class="grid"/>
+<line x1="420" y1="79.6" x2="427" y2="79.6" class="grid"/>
+<line x1="420" y1="79.6" x2="427" y2="79.6" class="grid"/>
+<line x1="420" y1="79.5" x2="427" y2="79.5" class="grid"/>
+<line x1="420" y1="79.5" x2="427" y2="79.5" class="grid"/>
+<line x1="420" y1="79.4" x2="427" y2="79.4" class="grid"/>
+<line x1="420" y1="79.4" x2="427" y2="79.4" class="grid"/>
+<line x1="420" y1="79.3" x2="427" y2="79.3" class="grid"/>
+<line x1="420" y1="79.3" x2="427" y2="79.3" class="grid"/>
+<line x1="420" y1="79.3" x2="427" y2="79.3" class="grid"/>
+<line x1="420" y1="79.2" x2="427" y2="79.2" class="grid"/>
+<line x1="420" y1="79.2" x2="427" y2="79.2" class="grid"/>
+<line x1="420" y1="79.1" x2="427" y2="79.1" class="grid"/>
+<line x1="420" y1="79.0" x2="427" y2="79.0" class="grid"/>
+<line x1="420" y1="79.0" x2="427" y2="79.0" class="grid"/>
+<line x1="420" y1="78.9" x2="427" y2="78.9" class="grid"/>
+<line x1="420" y1="78.9" x2="427" y2="78.9" class="grid"/>
+<line x1="420" y1="78.9" x2="427" y2="78.9" class="grid"/>
+<line x1="420" y1="78.8" x2="427" y2="78.8" class="grid"/>
+<line x1="420" y1="78.7" x2="427" y2="78.7" class="grid"/>
+<line x1="420" y1="78.7" x2="427" y2="78.7" class="grid"/>
+<line x1="420" y1="78.7" x2="427" y2="78.7" class="grid"/>
+<line x1="420" y1="78.6" x2="427" y2="78.6" class="grid"/>
+<line x1="420" y1="78.6" x2="427" y2="78.6" class="grid"/>
+<line x1="420" y1="78.5" x2="427" y2="78.5" class="grid"/>
+<line x1="420" y1="78.5" x2="427" y2="78.5" class="grid"/>
+<line x1="420" y1="78.4" x2="427" y2="78.4" class="grid"/>
+<line x1="420" y1="78.4" x2="427" y2="78.4" class="grid"/>
+<line x1="420" y1="78.3" x2="427" y2="78.3" class="grid"/>
+<line x1="420" y1="78.3" x2="427" y2="78.3" class="grid"/>
+<line x1="420" y1="78.2" x2="427" y2="78.2" class="grid"/>
+<line x1="420" y1="78.2" x2="427" y2="78.2" class="grid"/>
+<line x1="420" y1="78.1" x2="427" y2="78.1" class="grid"/>
+<line x1="420" y1="78.1" x2="427" y2="78.1" class="grid"/>
+<line x1="420" y1="78.0" x2="427" y2="78.0" class="grid"/>
+<line x1="420" y1="78.0" x2="427" y2="78.0" class="grid"/>
+<line x1="420" y1="77.9" x2="427" y2="77.9" class="grid"/>
+<line x1="420" y1="77.9" x2="427" y2="77.9" class="grid"/>
+<line x1="420" y1="77.8" x2="427" y2="77.8" class="grid"/>
+<line x1="420" y1="77.8" x2="427" y2="77.8" class="grid"/>
+<line x1="420" y1="77.8" x2="427" y2="77.8" class="grid"/>
+<line x1="420" y1="77.7" x2="427" y2="77.7" class="grid"/>
+<line x1="420" y1="77.6" x2="427" y2="77.6" class="grid"/>
+<line x1="420" y1="77.6" x2="427" y2="77.6" class="grid"/>
+<line x1="420" y1="77.5" x2="427" y2="77.5" class="grid"/>
+<line x1="420" y1="77.5" x2="427" y2="77.5" class="grid"/>
+<line x1="420" y1="77.5" x2="427" y2="77.5" class="grid"/>
+<line x1="420" y1="77.4" x2="427" y2="77.4" class="grid"/>
+<line x1="420" y1="77.4" x2="427" y2="77.4" class="grid"/>
+<line x1="420" y1="77.3" x2="427" y2="77.3" class="grid"/>
+<line x1="420" y1="77.3" x2="427" y2="77.3" class="grid"/>
+<line x1="420" y1="77.2" x2="427" y2="77.2" class="grid"/>
+<line x1="420" y1="77.2" x2="427" y2="77.2" class="grid"/>
+<line x1="420" y1="77.2" x2="427" y2="77.2" class="grid"/>
+<line x1="420" y1="77.1" x2="427" y2="77.1" class="grid"/>
+<line x1="420" y1="77.1" x2="427" y2="77.1" class="grid"/>
+<line x1="420" y1="77.0" x2="427" y2="77.0" class="grid"/>
+<line x1="420" y1="76.9" x2="427" y2="76.9" class="grid"/>
+<line x1="420" y1="76.9" x2="427" y2="76.9" class="grid"/>
+<line x1="420" y1="76.9" x2="427" y2="76.9" class="grid"/>
+<line x1="420" y1="76.8" x2="427" y2="76.8" class="grid"/>
+<line x1="420" y1="76.8" x2="427" y2="76.8" class="grid"/>
+<line x1="420" y1="76.7" x2="427" y2="76.7" class="grid"/>
+<line x1="420" y1="76.7" x2="427" y2="76.7" class="grid"/>
+<line x1="420" y1="76.6" x2="427" y2="76.6" class="grid"/>
+<line x1="420" y1="76.6" x2="427" y2="76.6" class="grid"/>
+<line x1="420" y1="76.5" x2="427" y2="76.5" class="grid"/>
+<line x1="420" y1="76.5" x2="427" y2="76.5" class="grid"/>
+<line x1="420" y1="76.5" x2="427" y2="76.5" class="grid"/>
+<line x1="420" y1="76.4" x2="427" y2="76.4" class="grid"/>
+<line x1="420" y1="76.3" x2="427" y2="76.3" class="grid"/>
+<line x1="420" y1="76.3" x2="427" y2="76.3" class="grid"/>
+<line x1="420" y1="76.3" x2="427" y2="76.3" class="grid"/>
+<line x1="420" y1="76.2" x2="427" y2="76.2" class="grid"/>
+<line x1="420" y1="76.2" x2="427" y2="76.2" class="grid"/>
+<line x1="420" y1="76.1" x2="427" y2="76.1" class="grid"/>
+<line x1="420" y1="76.1" x2="427" y2="76.1" class="grid"/>
+<line x1="420" y1="76.1" x2="427" y2="76.1" class="grid"/>
+<line x1="420" y1="76.0" x2="427" y2="76.0" class="grid"/>
+<line x1="420" y1="75.9" x2="427" y2="75.9" class="grid"/>
+<line x1="420" y1="75.9" x2="427" y2="75.9" class="grid"/>
+<line x1="420" y1="75.9" x2="427" y2="75.9" class="grid"/>
+<line x1="420" y1="75.8" x2="427" y2="75.8" class="grid"/>
+<line x1="420" y1="75.8" x2="427" y2="75.8" class="grid"/>
+<line x1="420" y1="75.7" x2="427" y2="75.7" class="grid"/>
+<line x1="420" y1="75.7" x2="427" y2="75.7" class="grid"/>
+<line x1="420" y1="75.6" x2="427" y2="75.6" class="grid"/>
+<line x1="420" y1="75.6" x2="427" y2="75.6" class="grid"/>
+<line x1="420" y1="75.5" x2="427" y2="75.5" class="grid"/>
+<line x1="420" y1="75.5" x2="427" y2="75.5" class="grid"/>
+<line x1="420" y1="75.5" x2="427" y2="75.5" class="grid"/>
+<line x1="420" y1="75.4" x2="427" y2="75.4" class="grid"/>
+<line x1="420" y1="75.4" x2="427" y2="75.4" class="grid"/>
+<line x1="420" y1="75.3" x2="427" y2="75.3" class="grid"/>
+<line x1="420" y1="75.3" x2="427" y2="75.3" class="grid"/>
+<line x1="420" y1="75.3" x2="427" y2="75.3" class="grid"/>
+<line x1="420" y1="75.2" x2="427" y2="75.2" class="grid"/>
+<line x1="420" y1="75.2" x2="427" y2="75.2" class="grid"/>
+<line x1="420" y1="75.1" x2="427" y2="75.1" class="grid"/>
+<line x1="420" y1="75.1" x2="427" y2="75.1" class="grid"/>
+<line x1="420" y1="75.0" x2="427" y2="75.0" class="grid"/>
+<line x1="420" y1="75.0" x2="427" y2="75.0" class="grid"/>
+<line x1="420" y1="74.9" x2="427" y2="74.9" class="grid"/>
+<line x1="420" y1="74.9" x2="427" y2="74.9" class="grid"/>
+<line x1="420" y1="74.9" x2="427" y2="74.9" class="grid"/>
+<line x1="420" y1="74.8" x2="427" y2="74.8" class="grid"/>
+<line x1="420" y1="74.8" x2="427" y2="74.8" class="grid"/>
+<line x1="420" y1="74.7" x2="427" y2="74.7" class="grid"/>
+<line x1="420" y1="74.7" x2="427" y2="74.7" class="grid"/>
+<line x1="420" y1="74.6" x2="427" y2="74.6" class="grid"/>
+<line x1="420" y1="74.6" x2="427" y2="74.6" class="grid"/>
+<line x1="420" y1="74.6" x2="427" y2="74.6" class="grid"/>
+<line x1="420" y1="74.5" x2="427" y2="74.5" class="grid"/>
+<line x1="420" y1="74.5" x2="427" y2="74.5" class="grid"/>
+<line x1="420" y1="74.4" x2="427" y2="74.4" class="grid"/>
+<line x1="420" y1="74.4" x2="427" y2="74.4" class="grid"/>
+<line x1="420" y1="74.3" x2="427" y2="74.3" class="grid"/>
+<line x1="420" y1="74.3" x2="427" y2="74.3" class="grid"/>
+<line x1="420" y1="74.3" x2="427" y2="74.3" class="grid"/>
+<line x1="420" y1="74.2" x2="427" y2="74.2" class="grid"/>
+<line x1="420" y1="74.2" x2="427" y2="74.2" class="grid"/>
+<line x1="420" y1="74.1" x2="427" y2="74.1" class="grid"/>
+<line x1="420" y1="74.1" x2="427" y2="74.1" class="grid"/>
+<line x1="420" y1="74.0" x2="427" y2="74.0" class="grid"/>
+<line x1="420" y1="74.0" x2="427" y2="74.0" class="grid"/>
+<line x1="420" y1="74.0" x2="427" y2="74.0" class="grid"/>
+<line x1="420" y1="73.9" x2="427" y2="73.9" class="grid"/>
+<line x1="420" y1="73.9" x2="427" y2="73.9" class="grid"/>
+<line x1="420" y1="73.9" x2="427" y2="73.9" class="grid"/>
+<line x1="420" y1="73.8" x2="427" y2="73.8" class="grid"/>
+<line x1="420" y1="73.7" x2="427" y2="73.7" class="grid"/>
+<line x1="420" y1="73.7" x2="427" y2="73.7" class="grid"/>
+<line x1="420" y1="73.7" x2="427" y2="73.7" class="grid"/>
+<line x1="420" y1="73.6" x2="427" y2="73.6" class="grid"/>
+<line x1="420" y1="73.6" x2="427" y2="73.6" class="grid"/>
+<line x1="420" y1="73.6" x2="427" y2="73.6" class="grid"/>
+<line x1="420" y1="73.5" x2="427" y2="73.5" class="grid"/>
+<line x1="420" y1="73.5" x2="427" y2="73.5" class="grid"/>
+<line x1="420" y1="73.4" x2="427" y2="73.4" class="grid"/>
+<line x1="420" y1="73.4" x2="427" y2="73.4" class="grid"/>
+<line x1="420" y1="73.3" x2="427" y2="73.3" class="grid"/>
+<line x1="420" y1="73.3" x2="427" y2="73.3" class="grid"/>
+<line x1="420" y1="73.3" x2="427" y2="73.3" class="grid"/>
+<line x1="420" y1="73.2" x2="427" y2="73.2" class="grid"/>
+<line x1="420" y1="73.2" x2="427" y2="73.2" class="grid"/>
+<line x1="420" y1="73.1" x2="427" y2="73.1" class="grid"/>
+<line x1="420" y1="73.1" x2="427" y2="73.1" class="grid"/>
+<line x1="420" y1="73.1" x2="427" y2="73.1" class="grid"/>
+<line x1="420" y1="73.0" x2="427" y2="73.0" class="grid"/>
+<line x1="420" y1="73.0" x2="427" y2="73.0" class="grid"/>
+<line x1="420" y1="72.9" x2="427" y2="72.9" class="grid"/>
+<line x1="420" y1="72.9" x2="427" y2="72.9" class="grid"/>
+<line x1="420" y1="72.8" x2="427" y2="72.8" class="grid"/>
+<line x1="420" y1="72.8" x2="427" y2="72.8" class="grid"/>
+<line x1="420" y1="72.8" x2="427" y2="72.8" class="grid"/>
+<line x1="420" y1="72.7" x2="427" y2="72.7" class="grid"/>
+<line x1="420" y1="72.7" x2="427" y2="72.7" class="grid"/>
+<line x1="420" y1="72.7" x2="427" y2="72.7" class="grid"/>
+<line x1="420" y1="72.6" x2="427" y2="72.6" class="grid"/>
+<line x1="420" y1="72.6" x2="427" y2="72.6" class="grid"/>
+<line x1="420" y1="72.5" x2="427" y2="72.5" class="grid"/>
+<line x1="420" y1="72.5" x2="427" y2="72.5" class="grid"/>
+<line x1="420" y1="72.5" x2="427" y2="72.5" class="grid"/>
+<line x1="420" y1="72.4" x2="427" y2="72.4" class="grid"/>
+<line x1="420" y1="72.4" x2="427" y2="72.4" class="grid"/>
+<line x1="420" y1="72.3" x2="427" y2="72.3" class="grid"/>
+<line x1="420" y1="72.3" x2="427" y2="72.3" class="grid"/>
+<line x1="420" y1="72.3" x2="427" y2="72.3" class="grid"/>
+<line x1="420" y1="72.2" x2="427" y2="72.2" class="grid"/>
+<line x1="420" y1="72.2" x2="427" y2="72.2" class="grid"/>
+<line x1="420" y1="72.1" x2="427" y2="72.1" class="grid"/>
+<line x1="420" y1="72.1" x2="427" y2="72.1" class="grid"/>
+<line x1="420" y1="72.1" x2="427" y2="72.1" class="grid"/>
+<line x1="420" y1="72.0" x2="427" y2="72.0" class="grid"/>
+<line x1="420" y1="72.0" x2="427" y2="72.0" class="grid"/>
+<line x1="420" y1="71.9" x2="427" y2="71.9" class="grid"/>
+<line x1="420" y1="71.9" x2="427" y2="71.9" class="grid"/>
+<line x1="420" y1="71.9" x2="427" y2="71.9" class="grid"/>
+<line x1="420" y1="71.8" x2="427" y2="71.8" class="grid"/>
+<line x1="420" y1="71.8" x2="427" y2="71.8" class="grid"/>
+<line x1="420" y1="71.8" x2="427" y2="71.8" class="grid"/>
+<line x1="420" y1="71.7" x2="427" y2="71.7" class="grid"/>
+<line x1="420" y1="71.7" x2="427" y2="71.7" class="grid"/>
+<line x1="420" y1="71.6" x2="427" y2="71.6" class="grid"/>
+<line x1="420" y1="71.6" x2="427" y2="71.6" class="grid"/>
+<line x1="420" y1="71.6" x2="427" y2="71.6" class="grid"/>
+<line x1="420" y1="71.5" x2="427" y2="71.5" class="grid"/>
+<line x1="420" y1="71.5" x2="427" y2="71.5" class="grid"/>
+<line x1="420" y1="71.4" x2="427" y2="71.4" class="grid"/>
+<line x1="420" y1="71.4" x2="427" y2="71.4" class="grid"/>
+<line x1="420" y1="71.4" x2="427" y2="71.4" class="grid"/>
+<line x1="420" y1="71.3" x2="427" y2="71.3" class="grid"/>
+<line x1="420" y1="71.3" x2="427" y2="71.3" class="grid"/>
+<line x1="420" y1="71.2" x2="427" y2="71.2" class="grid"/>
+<line x1="420" y1="71.2" x2="427" y2="71.2" class="grid"/>
+<line x1="420" y1="71.2" x2="427" y2="71.2" class="grid"/>
+<line x1="420" y1="71.2" x2="427" y2="71.2" class="grid"/>
+<line x1="420" y1="71.1" x2="427" y2="71.1" class="grid"/>
+<line x1="420" y1="71.0" x2="427" y2="71.0" class="grid"/>
+<line x1="420" y1="71.0" x2="427" y2="71.0" class="grid"/>
+<line x1="420" y1="71.0" x2="427" y2="71.0" class="grid"/>
+<line x1="420" y1="70.9" x2="427" y2="70.9" class="grid"/>
+<line x1="420" y1="70.9" x2="427" y2="70.9" class="grid"/>
+<line x1="420" y1="70.9" x2="427" y2="70.9" class="grid"/>
+<line x1="420" y1="70.8" x2="427" y2="70.8" class="grid"/>
+<line x1="420" y1="70.8" x2="427" y2="70.8" class="grid"/>
+<line x1="420" y1="70.7" x2="427" y2="70.7" class="grid"/>
+<line x1="420" y1="70.7" x2="427" y2="70.7" class="grid"/>
+<line x1="420" y1="70.7" x2="427" y2="70.7" class="grid"/>
+<line x1="420" y1="70.6" x2="427" y2="70.6" class="grid"/>
+<line x1="420" y1="70.6" x2="427" y2="70.6" class="grid"/>
+<line x1="420" y1="70.6" x2="427" y2="70.6" class="grid"/>
+<line x1="420" y1="70.5" x2="427" y2="70.5" class="grid"/>
+<line x1="420" y1="70.5" x2="427" y2="70.5" class="grid"/>
+<line x1="420" y1="70.5" x2="427" y2="70.5" class="grid"/>
+<line x1="420" y1="70.4" x2="427" y2="70.4" class="grid"/>
+<line x1="420" y1="70.4" x2="427" y2="70.4" class="grid"/>
+<line x1="420" y1="70.3" x2="427" y2="70.3" class="grid"/>
+<line x1="420" y1="70.3" x2="427" y2="70.3" class="grid"/>
+<line x1="420" y1="70.3" x2="427" y2="70.3" class="grid"/>
+<line x1="420" y1="70.2" x2="427" y2="70.2" class="grid"/>
+<line x1="420" y1="70.2" x2="427" y2="70.2" class="grid"/>
+<line x1="420" y1="70.2" x2="427" y2="70.2" class="grid"/>
+<line x1="420" y1="70.1" x2="427" y2="70.1" class="grid"/>
+<line x1="420" y1="70.1" x2="427" y2="70.1" class="grid"/>
+<line x1="420" y1="70.1" x2="427" y2="70.1" class="grid"/>
+<line x1="420" y1="70.0" x2="427" y2="70.0" class="grid"/>
+<line x1="420" y1="70.0" x2="427" y2="70.0" class="grid"/>
+<line x1="420" y1="69.9" x2="427" y2="69.9" class="grid"/>
+<line x1="420" y1="69.9" x2="427" y2="69.9" class="grid"/>
+<line x1="420" y1="69.8" x2="427" y2="69.8" class="grid"/>
+<line x1="420" y1="69.8" x2="427" y2="69.8" class="grid"/>
+<line x1="420" y1="69.8" x2="427" y2="69.8" class="grid"/>
+<line x1="420" y1="69.8" x2="427" y2="69.8" class="grid"/>
+<line x1="420" y1="69.7" x2="427" y2="69.7" class="grid"/>
+<line x1="420" y1="69.7" x2="427" y2="69.7" class="grid"/>
+<line x1="420" y1="69.6" x2="427" y2="69.6" class="grid"/>
+<line x1="420" y1="69.6" x2="427" y2="69.6" class="grid"/>
+<line x1="420" y1="69.6" x2="427" y2="69.6" class="grid"/>
+<line x1="420" y1="69.5" x2="427" y2="69.5" class="grid"/>
+<line x1="420" y1="69.5" x2="427" y2="69.5" class="grid"/>
+<line x1="420" y1="69.5" x2="427" y2="69.5" class="grid"/>
+<line x1="420" y1="69.4" x2="427" y2="69.4" class="grid"/>
+<line x1="420" y1="69.4" x2="427" y2="69.4" class="grid"/>
+<line x1="420" y1="69.3" x2="427" y2="69.3" class="grid"/>
+<line x1="420" y1="69.3" x2="427" y2="69.3" class="grid"/>
+<line x1="420" y1="69.3" x2="427" y2="69.3" class="grid"/>
+<line x1="420" y1="69.3" x2="427" y2="69.3" class="grid"/>
+<line x1="420" y1="69.2" x2="427" y2="69.2" class="grid"/>
+<line x1="420" y1="69.2" x2="427" y2="69.2" class="grid"/>
+<line x1="420" y1="69.1" x2="427" y2="69.1" class="grid"/>
+<line x1="420" y1="69.1" x2="427" y2="69.1" class="grid"/>
+<line x1="420" y1="69.1" x2="427" y2="69.1" class="grid"/>
+<line x1="420" y1="69.0" x2="427" y2="69.0" class="grid"/>
+<line x1="420" y1="69.0" x2="427" y2="69.0" class="grid"/>
+<line x1="420" y1="69.0" x2="427" y2="69.0" class="grid"/>
+<line x1="420" y1="68.9" x2="427" y2="68.9" class="grid"/>
+<line x1="420" y1="68.9" x2="427" y2="68.9" class="grid"/>
+<line x1="420" y1="68.9" x2="427" y2="68.9" class="grid"/>
+<line x1="420" y1="68.8" x2="427" y2="68.8" class="grid"/>
+<line x1="420" y1="68.8" x2="427" y2="68.8" class="grid"/>
+<line x1="420" y1="68.7" x2="427" y2="68.7" class="grid"/>
+<line x1="420" y1="68.7" x2="427" y2="68.7" class="grid"/>
+<line x1="420" y1="68.7" x2="427" y2="68.7" class="grid"/>
+<line x1="420" y1="68.6" x2="427" y2="68.6" class="grid"/>
+<line x1="420" y1="68.6" x2="427" y2="68.6" class="grid"/>
+<line x1="420" y1="68.6" x2="427" y2="68.6" class="grid"/>
+<line x1="420" y1="68.5" x2="427" y2="68.5" class="grid"/>
+<line x1="420" y1="68.5" x2="427" y2="68.5" class="grid"/>
+<line x1="420" y1="68.5" x2="427" y2="68.5" class="grid"/>
+<line x1="420" y1="68.4" x2="427" y2="68.4" class="grid"/>
+<line x1="420" y1="68.4" x2="427" y2="68.4" class="grid"/>
+<line x1="420" y1="68.4" x2="427" y2="68.4" class="grid"/>
+<line x1="420" y1="68.3" x2="427" y2="68.3" class="grid"/>
+<line x1="420" y1="68.3" x2="427" y2="68.3" class="grid"/>
+<line x1="420" y1="68.2" x2="427" y2="68.2" class="grid"/>
+<line x1="420" y1="68.2" x2="427" y2="68.2" class="grid"/>
+<line x1="420" y1="68.2" x2="427" y2="68.2" class="grid"/>
+<line x1="420" y1="68.2" x2="427" y2="68.2" class="grid"/>
+<line x1="420" y1="68.1" x2="427" y2="68.1" class="grid"/>
+<line x1="420" y1="68.1" x2="427" y2="68.1" class="grid"/>
+<line x1="420" y1="68.0" x2="427" y2="68.0" class="grid"/>
+<line x1="420" y1="68.0" x2="427" y2="68.0" class="grid"/>
+<line x1="420" y1="68.0" x2="427" y2="68.0" class="grid"/>
+<line x1="420" y1="67.9" x2="427" y2="67.9" class="grid"/>
+<line x1="420" y1="67.9" x2="427" y2="67.9" class="grid"/>
+<line x1="420" y1="67.9" x2="427" y2="67.9" class="grid"/>
+<line x1="420" y1="67.8" x2="427" y2="67.8" class="grid"/>
+<line x1="420" y1="67.8" x2="427" y2="67.8" class="grid"/>
+<line x1="420" y1="67.7" x2="427" y2="67.7" class="grid"/>
+<line x1="420" y1="67.7" x2="427" y2="67.7" class="grid"/>
+<line x1="420" y1="67.7" x2="427" y2="67.7" class="grid"/>
+<line x1="420" y1="67.7" x2="427" y2="67.7" class="grid"/>
+<line x1="420" y1="67.6" x2="427" y2="67.6" class="grid"/>
+<line x1="420" y1="67.6" x2="427" y2="67.6" class="grid"/>
+<line x1="420" y1="67.6" x2="427" y2="67.6" class="grid"/>
+<line x1="420" y1="67.5" x2="427" y2="67.5" class="grid"/>
+<line x1="420" y1="67.5" x2="427" y2="67.5" class="grid"/>
+<line x1="420" y1="67.4" x2="427" y2="67.4" class="grid"/>
+<line x1="420" y1="67.4" x2="427" y2="67.4" class="grid"/>
+<line x1="420" y1="67.4" x2="427" y2="67.4" class="grid"/>
+<line x1="420" y1="67.4" x2="427" y2="67.4" class="grid"/>
+<line x1="420" y1="67.3" x2="427" y2="67.3" class="grid"/>
+<line x1="420" y1="67.3" x2="427" y2="67.3" class="grid"/>
+<line x1="420" y1="67.2" x2="427" y2="67.2" class="grid"/>
+<line x1="420" y1="67.2" x2="427" y2="67.2" class="grid"/>
+<line x1="420" y1="67.2" x2="427" y2="67.2" class="grid"/>
+<line x1="420" y1="67.2" x2="427" y2="67.2" class="grid"/>
+<line x1="420" y1="67.1" x2="427" y2="67.1" class="grid"/>
+<line x1="420" y1="67.1" x2="427" y2="67.1" class="grid"/>
+<line x1="420" y1="67.1" x2="427" y2="67.1" class="grid"/>
+<line x1="420" y1="67.0" x2="427" y2="67.0" class="grid"/>
+<line x1="420" y1="67.0" x2="427" y2="67.0" class="grid"/>
+<line x1="420" y1="66.9" x2="427" y2="66.9" class="grid"/>
+<line x1="420" y1="66.9" x2="427" y2="66.9" class="grid"/>
+<line x1="420" y1="66.9" x2="427" y2="66.9" class="grid"/>
+<line x1="420" y1="66.9" x2="427" y2="66.9" class="grid"/>
+<line x1="420" y1="66.8" x2="427" y2="66.8" class="grid"/>
+<line x1="420" y1="66.8" x2="427" y2="66.8" class="grid"/>
+<line x1="420" y1="66.7" x2="427" y2="66.7" class="grid"/>
+<line x1="420" y1="66.7" x2="427" y2="66.7" class="grid"/>
+<line x1="420" y1="66.7" x2="427" y2="66.7" class="grid"/>
+<line x1="420" y1="66.6" x2="427" y2="66.6" class="grid"/>
+<line x1="420" y1="66.6" x2="427" y2="66.6" class="grid"/>
+<line x1="420" y1="66.6" x2="427" y2="66.6" class="grid"/>
+<line x1="420" y1="66.6" x2="427" y2="66.6" class="grid"/>
+<line x1="420" y1="66.5" x2="427" y2="66.5" class="grid"/>
+<line x1="420" y1="66.5" x2="427" y2="66.5" class="grid"/>
+<line x1="420" y1="66.4" x2="427" y2="66.4" class="grid"/>
+<line x1="420" y1="66.4" x2="427" y2="66.4" class="grid"/>
+<line x1="420" y1="66.4" x2="427" y2="66.4" class="grid"/>
+<line x1="420" y1="66.4" x2="427" y2="66.4" class="grid"/>
+<line x1="420" y1="66.3" x2="427" y2="66.3" class="grid"/>
+<line x1="420" y1="66.3" x2="427" y2="66.3" class="grid"/>
+<line x1="420" y1="66.3" x2="427" y2="66.3" class="grid"/>
+<line x1="420" y1="66.2" x2="427" y2="66.2" class="grid"/>
+<line x1="420" y1="66.2" x2="427" y2="66.2" class="grid"/>
+<line x1="420" y1="66.1" x2="427" y2="66.1" class="grid"/>
+<line x1="420" y1="66.1" x2="427" y2="66.1" class="grid"/>
+<line x1="420" y1="66.1" x2="427" y2="66.1" class="grid"/>
+<line x1="420" y1="66.1" x2="427" y2="66.1" class="grid"/>
+<line x1="420" y1="66.0" x2="427" y2="66.0" class="grid"/>
+<line x1="420" y1="66.0" x2="427" y2="66.0" class="grid"/>
+<line x1="420" y1="66.0" x2="427" y2="66.0" class="grid"/>
+<line x1="420" y1="65.9" x2="427" y2="65.9" class="grid"/>
+<line x1="420" y1="65.9" x2="427" y2="65.9" class="grid"/>
+<line x1="420" y1="65.9" x2="427" y2="65.9" class="grid"/>
+<line x1="420" y1="65.8" x2="427" y2="65.8" class="grid"/>
+<line x1="420" y1="65.8" x2="427" y2="65.8" class="grid"/>
+<line x1="420" y1="65.8" x2="427" y2="65.8" class="grid"/>
+<line x1="420" y1="65.7" x2="427" y2="65.7" class="grid"/>
+<line x1="420" y1="65.7" x2="427" y2="65.7" class="grid"/>
+<line x1="420" y1="65.7" x2="427" y2="65.7" class="grid"/>
+<line x1="420" y1="65.6" x2="427" y2="65.6" class="grid"/>
+<line x1="420" y1="65.6" x2="427" y2="65.6" class="grid"/>
+<line x1="420" y1="65.6" x2="427" y2="65.6" class="grid"/>
+<line x1="420" y1="65.5" x2="427" y2="65.5" class="grid"/>
+<line x1="420" y1="65.5" x2="427" y2="65.5" class="grid"/>
+<line x1="420" y1="65.5" x2="427" y2="65.5" class="grid"/>
+<line x1="420" y1="65.4" x2="427" y2="65.4" class="grid"/>
+<line x1="420" y1="65.4" x2="427" y2="65.4" class="grid"/>
+<line x1="420" y1="65.4" x2="427" y2="65.4" class="grid"/>
+<line x1="420" y1="65.4" x2="427" y2="65.4" class="grid"/>
+<line x1="420" y1="65.3" x2="427" y2="65.3" class="grid"/>
+<line x1="420" y1="65.3" x2="427" y2="65.3" class="grid"/>
+<line x1="420" y1="65.3" x2="427" y2="65.3" class="grid"/>
+<line x1="420" y1="65.2" x2="427" y2="65.2" class="grid"/>
+<line x1="420" y1="65.2" x2="427" y2="65.2" class="grid"/>
+<line x1="420" y1="65.2" x2="427" y2="65.2" class="grid"/>
+<line x1="420" y1="65.1" x2="427" y2="65.1" class="grid"/>
+<line x1="420" y1="65.1" x2="427" y2="65.1" class="grid"/>
+<line x1="420" y1="65.1" x2="427" y2="65.1" class="grid"/>
+<line x1="420" y1="65.0" x2="427" y2="65.0" class="grid"/>
+<line x1="420" y1="65.0" x2="427" y2="65.0" class="grid"/>
+<line x1="420" y1="65.0" x2="427" y2="65.0" class="grid"/>
+<line x1="420" y1="64.9" x2="427" y2="64.9" class="grid"/>
+<line x1="420" y1="64.9" x2="427" y2="64.9" class="grid"/>
+<line x1="420" y1="64.9" x2="427" y2="64.9" class="grid"/>
+<line x1="420" y1="64.9" x2="427" y2="64.9" class="grid"/>
+<line x1="420" y1="64.8" x2="427" y2="64.8" class="grid"/>
+<line x1="420" y1="64.8" x2="427" y2="64.8" class="grid"/>
+<line x1="420" y1="64.7" x2="427" y2="64.7" class="grid"/>
+<line x1="420" y1="64.7" x2="427" y2="64.7" class="grid"/>
+<line x1="420" y1="64.7" x2="427" y2="64.7" class="grid"/>
+<line x1="420" y1="64.7" x2="427" y2="64.7" class="grid"/>
+<line x1="420" y1="64.6" x2="427" y2="64.6" class="grid"/>
+<line x1="420" y1="64.6" x2="427" y2="64.6" class="grid"/>
+<line x1="420" y1="64.6" x2="427" y2="64.6" class="grid"/>
+<line x1="420" y1="64.5" x2="427" y2="64.5" class="grid"/>
+<line x1="420" y1="64.5" x2="427" y2="64.5" class="grid"/>
+<line x1="420" y1="64.5" x2="427" y2="64.5" class="grid"/>
+<line x1="420" y1="64.4" x2="427" y2="64.4" class="grid"/>
+<line x1="420" y1="64.4" x2="427" y2="64.4" class="grid"/>
+<line x1="420" y1="64.4" x2="427" y2="64.4" class="grid"/>
+<line x1="420" y1="64.4" x2="427" y2="64.4" class="grid"/>
+<line x1="420" y1="64.3" x2="427" y2="64.3" class="grid"/>
+<line x1="420" y1="64.3" x2="427" y2="64.3" class="grid"/>
+<line x1="420" y1="64.2" x2="427" y2="64.2" class="grid"/>
+<line x1="420" y1="64.2" x2="427" y2="64.2" class="grid"/>
+<line x1="420" y1="64.2" x2="427" y2="64.2" class="grid"/>
+<line x1="420" y1="64.2" x2="427" y2="64.2" class="grid"/>
+<line x1="420" y1="64.1" x2="427" y2="64.1" class="grid"/>
+<line x1="420" y1="64.1" x2="427" y2="64.1" class="grid"/>
+<line x1="420" y1="64.1" x2="427" y2="64.1" class="grid"/>
+<line x1="420" y1="64.1" x2="427" y2="64.1" class="grid"/>
+<line x1="420" y1="64.0" x2="427" y2="64.0" class="grid"/>
+<line x1="420" y1="64.0" x2="427" y2="64.0" class="grid"/>
+<line x1="420" y1="63.9" x2="427" y2="63.9" class="grid"/>
+<line x1="420" y1="63.9" x2="427" y2="63.9" class="grid"/>
+<line x1="420" y1="63.9" x2="427" y2="63.9" class="grid"/>
+<line x1="420" y1="63.9" x2="427" y2="63.9" class="grid"/>
+<line x1="420" y1="63.8" x2="427" y2="63.8" class="grid"/>
+<line x1="420" y1="63.8" x2="427" y2="63.8" class="grid"/>
+<line x1="420" y1="63.8" x2="427" y2="63.8" class="grid"/>
+<line x1="420" y1="63.7" x2="427" y2="63.7" class="grid"/>
+<line x1="420" y1="63.7" x2="427" y2="63.7" class="grid"/>
+<line x1="420" y1="63.7" x2="427" y2="63.7" class="grid"/>
+<line x1="420" y1="63.6" x2="427" y2="63.6" class="grid"/>
+<line x1="420" y1="63.6" x2="427" y2="63.6" class="grid"/>
+<line x1="420" y1="63.6" x2="427" y2="63.6" class="grid"/>
+<line x1="420" y1="63.5" x2="427" y2="63.5" class="grid"/>
+<line x1="420" y1="63.5" x2="427" y2="63.5" class="grid"/>
+<line x1="420" y1="63.5" x2="427" y2="63.5" class="grid"/>
+<line x1="420" y1="63.5" x2="427" y2="63.5" class="grid"/>
+<line x1="420" y1="63.4" x2="427" y2="63.4" class="grid"/>
+<line x1="420" y1="63.4" x2="427" y2="63.4" class="grid"/>
+<line x1="420" y1="63.4" x2="427" y2="63.4" class="grid"/>
+<line x1="420" y1="63.3" x2="427" y2="63.3" class="grid"/>
+<line x1="420" y1="63.3" x2="427" y2="63.3" class="grid"/>
+<line x1="420" y1="63.3" x2="427" y2="63.3" class="grid"/>
+<line x1="420" y1="63.2" x2="427" y2="63.2" class="grid"/>
+<line x1="420" y1="63.2" x2="427" y2="63.2" class="grid"/>
+<line x1="420" y1="63.2" x2="427" y2="63.2" class="grid"/>
+<line x1="420" y1="63.2" x2="427" y2="63.2" class="grid"/>
+<line x1="420" y1="63.1" x2="427" y2="63.1" class="grid"/>
+<line x1="420" y1="63.1" x2="427" y2="63.1" class="grid"/>
+<line x1="420" y1="63.1" x2="427" y2="63.1" class="grid"/>
+<line x1="420" y1="63.0" x2="427" y2="63.0" class="grid"/>
+<line x1="420" y1="63.0" x2="427" y2="63.0" class="grid"/>
+<line x1="420" y1="63.0" x2="427" y2="63.0" class="grid"/>
+<line x1="420" y1="63.0" x2="427" y2="63.0" class="grid"/>
+<line x1="420" y1="62.9" x2="427" y2="62.9" class="grid"/>
+<line x1="420" y1="62.9" x2="427" y2="62.9" class="grid"/>
+<line x1="420" y1="62.9" x2="427" y2="62.9" class="grid"/>
+<line x1="420" y1="62.8" x2="427" y2="62.8" class="grid"/>
+<line x1="420" y1="62.8" x2="427" y2="62.8" class="grid"/>
+<line x1="420" y1="62.8" x2="427" y2="62.8" class="grid"/>
+<line x1="420" y1="62.7" x2="427" y2="62.7" class="grid"/>
+<line x1="420" y1="62.7" x2="427" y2="62.7" class="grid"/>
+<line x1="420" y1="62.7" x2="427" y2="62.7" class="grid"/>
+<line x1="420" y1="62.7" x2="427" y2="62.7" class="grid"/>
+<line x1="420" y1="62.6" x2="427" y2="62.6" class="grid"/>
+<line x1="420" y1="62.6" x2="427" y2="62.6" class="grid"/>
+<line x1="420" y1="62.6" x2="427" y2="62.6" class="grid"/>
+<line x1="420" y1="62.5" x2="427" y2="62.5" class="grid"/>
+<line x1="420" y1="62.5" x2="427" y2="62.5" class="grid"/>
+<line x1="420" y1="62.5" x2="427" y2="62.5" class="grid"/>
+<line x1="420" y1="62.5" x2="427" y2="62.5" class="grid"/>
+<line x1="420" y1="62.4" x2="427" y2="62.4" class="grid"/>
+<line x1="420" y1="62.4" x2="427" y2="62.4" class="grid"/>
+<line x1="420" y1="62.4" x2="427" y2="62.4" class="grid"/>
+<line x1="420" y1="62.3" x2="427" y2="62.3" class="grid"/>
+<line x1="420" y1="62.3" x2="427" y2="62.3" class="grid"/>
+<line x1="420" y1="62.3" x2="427" y2="62.3" class="grid"/>
+<line x1="420" y1="62.3" x2="427" y2="62.3" class="grid"/>
+<line x1="420" y1="62.2" x2="427" y2="62.2" class="grid"/>
+<line x1="420" y1="62.2" x2="427" y2="62.2" class="grid"/>
+<line x1="420" y1="62.2" x2="427" y2="62.2" class="grid"/>
+<line x1="420" y1="62.1" x2="427" y2="62.1" class="grid"/>
+<line x1="420" y1="62.1" x2="427" y2="62.1" class="grid"/>
+<line x1="420" y1="62.1" x2="427" y2="62.1" class="grid"/>
+<line x1="420" y1="62.1" x2="427" y2="62.1" class="grid"/>
+<line x1="420" y1="62.0" x2="427" y2="62.0" class="grid"/>
+<line x1="420" y1="62.0" x2="427" y2="62.0" class="grid"/>
+<line x1="420" y1="62.0" x2="427" y2="62.0" class="grid"/>
+<line x1="420" y1="61.9" x2="427" y2="61.9" class="grid"/>
+<line x1="420" y1="61.9" x2="427" y2="61.9" class="grid"/>
+<line x1="420" y1="61.9" x2="427" y2="61.9" class="grid"/>
+<line x1="420" y1="61.9" x2="427" y2="61.9" class="grid"/>
+<line x1="420" y1="61.8" x2="427" y2="61.8" class="grid"/>
+<line x1="420" y1="61.8" x2="427" y2="61.8" class="grid"/>
+<line x1="420" y1="61.8" x2="427" y2="61.8" class="grid"/>
+<line x1="420" y1="61.8" x2="427" y2="61.8" class="grid"/>
+<line x1="420" y1="61.7" x2="427" y2="61.7" class="grid"/>
+<line x1="420" y1="61.7" x2="427" y2="61.7" class="grid"/>
+<line x1="420" y1="61.7" x2="427" y2="61.7" class="grid"/>
+<line x1="420" y1="61.6" x2="427" y2="61.6" class="grid"/>
+<line x1="420" y1="61.6" x2="427" y2="61.6" class="grid"/>
+<line x1="420" y1="61.6" x2="427" y2="61.6" class="grid"/>
+<line x1="420" y1="61.6" x2="427" y2="61.6" class="grid"/>
+<line x1="420" y1="61.5" x2="427" y2="61.5" class="grid"/>
+<line x1="420" y1="61.5" x2="427" y2="61.5" class="grid"/>
+<line x1="420" y1="61.5" x2="427" y2="61.5" class="grid"/>
+<line x1="420" y1="61.4" x2="427" y2="61.4" class="grid"/>
+<line x1="420" y1="61.4" x2="427" y2="61.4" class="grid"/>
+<line x1="420" y1="61.4" x2="427" y2="61.4" class="grid"/>
+<line x1="420" y1="61.3" x2="427" y2="61.3" class="grid"/>
+<line x1="420" y1="61.3" x2="427" y2="61.3" class="grid"/>
+<line x1="420" y1="61.3" x2="427" y2="61.3" class="grid"/>
+<line x1="420" y1="61.3" x2="427" y2="61.3" class="grid"/>
+<line x1="420" y1="61.2" x2="427" y2="61.2" class="grid"/>
+<line x1="420" y1="61.2" x2="427" y2="61.2" class="grid"/>
+<line x1="420" y1="61.2" x2="427" y2="61.2" class="grid"/>
+<line x1="420" y1="61.2" x2="427" y2="61.2" class="grid"/>
+<line x1="420" y1="61.1" x2="427" y2="61.1" class="grid"/>
+<line x1="420" y1="61.1" x2="427" y2="61.1" class="grid"/>
+<line x1="420" y1="61.1" x2="427" y2="61.1" class="grid"/>
+<line x1="420" y1="61.0" x2="427" y2="61.0" class="grid"/>
+<line x1="420" y1="61.0" x2="427" y2="61.0" class="grid"/>
+<line x1="420" y1="61.0" x2="427" y2="61.0" class="grid"/>
+<line x1="420" y1="61.0" x2="427" y2="61.0" class="grid"/>
+<line x1="420" y1="60.9" x2="427" y2="60.9" class="grid"/>
+<line x1="420" y1="60.9" x2="427" y2="60.9" class="grid"/>
+<line x1="420" y1="60.9" x2="427" y2="60.9" class="grid"/>
+<line x1="420" y1="60.9" x2="427" y2="60.9" class="grid"/>
+<line x1="420" y1="60.8" x2="427" y2="60.8" class="grid"/>
+<line x1="420" y1="60.8" x2="427" y2="60.8" class="grid"/>
+<line x1="420" y1="60.8" x2="427" y2="60.8" class="grid"/>
+<line x1="420" y1="60.7" x2="427" y2="60.7" class="grid"/>
+<line x1="420" y1="60.7" x2="427" y2="60.7" class="grid"/>
+<line x1="420" y1="60.7" x2="427" y2="60.7" class="grid"/>
+<line x1="420" y1="60.7" x2="427" y2="60.7" class="grid"/>
+<line x1="420" y1="60.6" x2="427" y2="60.6" class="grid"/>
+<line x1="420" y1="60.6" x2="427" y2="60.6" class="grid"/>
+<line x1="420" y1="60.6" x2="427" y2="60.6" class="grid"/>
+<line x1="420" y1="60.5" x2="427" y2="60.5" class="grid"/>
+<line x1="420" y1="60.5" x2="427" y2="60.5" class="grid"/>
+<line x1="420" y1="60.5" x2="427" y2="60.5" class="grid"/>
+<line x1="420" y1="60.5" x2="427" y2="60.5" class="grid"/>
+<line x1="420" y1="60.4" x2="427" y2="60.4" class="grid"/>
+<line x1="420" y1="60.4" x2="427" y2="60.4" class="grid"/>
+<line x1="420" y1="60.4" x2="427" y2="60.4" class="grid"/>
+<line x1="420" y1="60.3" x2="427" y2="60.3" class="grid"/>
+<line x1="420" y1="60.3" x2="427" y2="60.3" class="grid"/>
+<line x1="420" y1="60.3" x2="427" y2="60.3" class="grid"/>
+<line x1="420" y1="60.3" x2="427" y2="60.3" class="grid"/>
+<line x1="420" y1="60.3" x2="427" y2="60.3" class="grid"/>
+<line x1="420" y1="60.2" x2="427" y2="60.2" class="grid"/>
+<line x1="420" y1="60.2" x2="427" y2="60.2" class="grid"/>
+<line x1="420" y1="60.2" x2="427" y2="60.2" class="grid"/>
+<line x1="420" y1="60.1" x2="427" y2="60.1" class="grid"/>
+<line x1="420" y1="60.1" x2="427" y2="60.1" class="grid"/>
+<line x1="420" y1="60.1" x2="427" y2="60.1" class="grid"/>
+<line x1="420" y1="60.1" x2="427" y2="60.1" class="grid"/>
+<line x1="420" y1="60.0" x2="427" y2="60.0" class="grid"/>
+<line x1="420" y1="60.0" x2="427" y2="60.0" class="grid"/>
+<line x1="420" y1="60.0" x2="427" y2="60.0" class="grid"/>
+<line x1="420" y1="60.0" x2="427" y2="60.0" class="grid"/>
+<line x1="420" y1="59.9" x2="427" y2="59.9" class="grid"/>
+<line x1="420" y1="59.9" x2="427" y2="59.9" class="grid"/>
+<line x1="420" y1="59.9" x2="427" y2="59.9" class="grid"/>
+<line x1="420" y1="59.8" x2="427" y2="59.8" class="grid"/>
+<line x1="420" y1="59.8" x2="427" y2="59.8" class="grid"/>
+<line x1="420" y1="59.8" x2="427" y2="59.8" class="grid"/>
+<line x1="420" y1="59.8" x2="427" y2="59.8" class="grid"/>
+<line x1="420" y1="59.7" x2="427" y2="59.7" class="grid"/>
+<line x1="420" y1="59.7" x2="427" y2="59.7" class="grid"/>
+<line x1="420" y1="59.7" x2="427" y2="59.7" class="grid"/>
+<line x1="420" y1="59.7" x2="427" y2="59.7" class="grid"/>
+<path d="M420.0 239.9L490.0 213.9L560.0 187.9L630.0 161.9L700.0 135.9" class="ln4"/>
+<circle cx="420.0" cy="239.9" r="4" class="hm4"/>
+<text x="420" y="230" class="flab mid c4">0</text>
+<text x="420" y="265" class="flab mid">&#916;</text>
+<circle cx="490.0" cy="213.9" r="4" class="hm4"/>
+<text x="490" y="204" class="flab mid c4">3</text>
+<text x="490" y="265" class="flab mid">&#916;/2</text>
+<circle cx="560.0" cy="187.9" r="4" class="hm4"/>
+<text x="560" y="178" class="flab mid c4">10</text>
+<text x="560" y="265" class="flab mid">&#916;/4</text>
+<circle cx="630.0" cy="161.9" r="4" class="hm4"/>
+<text x="630" y="152" class="flab mid c4">31</text>
+<text x="630" y="265" class="flab mid">&#916;/8</text>
+<circle cx="700.0" cy="135.9" r="4" class="hm4"/>
+<text x="700" y="126" class="flab mid c4">84</text>
+<text x="700" y="265" class="flab mid">&#916;/16</text>
+<text x="560" y="284" class="flab mid">sample mesh &#948;</text>
+<text x="386" y="48" class="flab st">band resolved, &#960;/&#948; &#8212; and the cached zeros inside it</text>
+<text x="26" y="366" class="flab st">Five points at one support, every one at depth 18. The &#916; lattice resolves only to 13.09 &#8212; BELOW &#947;<tspan dy="3">1</tspan><tspan dy="-3"> = 14.1347, so on its own it separates no zero at all;</tspan></text>
+<text x="26" y="384" class="flab st">&#916;/16 reaches 209 and admits 84 of the 1517. That is what refining buys. It is still a column: the conjunction is over</text>
+<text x="26" y="402" class="flab st">every support, mesh and depth, and five points against that is measure zero, exactly as before.</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 · The column, and the band it constrains.</b> Left: the certified set in the (support, mesh) plane — five points at one support, against the diagonal rh18 described as the only computable staircase. Right: the frequency band π/δ each mesh resolves, with the cached zeros drawn as ticks and the count inside each band. The Δ rung sits below the first tick.</figcaption>
+</figure>
+
+<p><b>What is new in kind.</b> Before rh26 the certified set was a diagonal: one point per support, at its own mesh. rh26 made it a column of five points at unequal depths. This document levels the column — five meshes at one depth, 18. The depth matters because it is what fixes how much arithmetic the certificate touches: at v = 18 the comb carries every prime power below e<sup>18</sup>, and the section is a statement about all of them at once.</p>
+
+<p><b>What is new in reach.</b> A lattice of step δ resolves frequencies up to π/δ, and this is where the level column earns its keep. The Δ lattice reaches π/Δ = 13.1 — which is <i>below</i> γ₁ = 14.1347. On the Δ lattice alone the section cannot separate a single zero: every zero the certificate constrains, it constrains only through aliases. Δ/2 reaches 26.2 and admits 3; Δ/4, 10; Δ/8, 31; Δ/16 reaches 209 and admits 84. So refining is not more of the same certificate. It is the first thing in the arc that makes the certified statement about individual zeros rather than about their folded sum, and the level column is the first time that has been done at full depth.</p>
+
+<p><b>What is not new.</b> All five points sit at one support, Δ = 0.24. The conjunction is over every support, every mesh and every depth; the certified set is finite; and a finite set has measure zero in that index set no matter how it is arranged. Nothing here changes that, and the level column is not closer to the conjunction than the staircase was in any sense that admits a measure. What it does change is which <i>direction</i> is now cheap. Refining the mesh at fixed support is, after this document, a matter of arithmetic with a known price — R⁻³ in the cut and n³/4 in the factorisation. Varying the support is not; it needs a new sieve pass per support, and it is the one direction the arc has never moved in. That is rh27b.</p>
+
+<p><b>A direction, named and not attempted.</b> Everything this arc certifies is a statement about a quadratic form. Nothing it has produced is a statement about a zero. There is one bridge between them that is elementary enough to be worth naming. For a real even window g of compact support, ĝ is entire and ĥ = ĝ², so a hypothetical off-line quadruple at ½ ± σ + iγ contributes 4 Re[ĝ(γ + iσ)²] to the Weil functional — negative exactly when |Im ĝ(γ + iσ)| exceeds |Re ĝ(γ + iσ)|, and computable for the arc's actual windows on a (γ, σ) grid. A certified floor bounds what such a contribution could be hidden behind. Whether that can be closed into an explicit zero-free region — a statement of the form "no zero with |β − ½| > σ below height Γ" — depends on bounding the on-line part from above, which nothing here does. It is the only route in sight by which these certificates would say something about ζ rather than about forms, and it is untried.</p>
+
+<p><b>The honest form of the gap.</b> Suppose every rung of this column were certified to every depth — an infinite amount of arithmetic, but nothing new in kind. What would follow is that E<sub>h</sub> is positive definite on δℤ for one window h of support 0.24. rh18 §5's equivalence needs it for <i>every</i> compactly supported window with BV derivative, and the passage from one window to all of them is rh15's density argument, whose constants rh18 computed and whose conclusion needs the family to be dense in the test class. A single support is not dense in supports. So the column, extended to infinity, is not RH; the column extended to infinity <i>and</i> to every support is. That is the shape of the remaining distance, and it is two infinities, not one.</p>
+
+<p>There is a third, smaller, and it should be named too. The column's meshes are Δ/2<sup>k</sup> — a dyadic family, countable and nowhere near all of ℝ₊. rh18 §5's (L) asks for every mesh. What bridges that is rh15's continuity step, whose constants rh18 §3 computed: E<sub>Δ</sub> is continuous in the mesh with an explicit O(Δ²) modulus, so positivity on a set of meshes accumulating at every point gives positivity at every mesh. The dyadic ladder does accumulate at 0 and nowhere else, so even that bridge is not free — it would want a second ladder, at ratios other than 2, to fill in. That is arithmetic of the kind §2 made cheap, and nobody has run it.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · The bill, and what is left</h2>
+<p>33 named checks in 1612 seconds, over the same 6,448,870-gear stream rh22–rh26 used. rh26's λ<sub>min</sub> and rh26's certified floor are reproduced before anything is built on them; r₊ and the aliasing factor are recomputed rather than cited; every node of the certified AT table is verified nonnegative past r₊, which is L1 on the object the certificate uses; the block split is checked to factor both blocks wherever it factors the whole section; and the three certificates are issued from the same backend α rh19 wrote, with two parameters changed and nothing else.</p>
+
+<p><b>Against the order.</b> rh26 asked for a bigger cut and priced it as the hardest item on its list. It was the easiest, once the two lemmas already in rh17 were read together. The cost was arithmetic, and the arithmetic was paid for by a symmetry rh26 had already found and not used. Neither half was new work; the document is what happens when two existing results are put next to each other.</p>
+
+<p><b>What this does not do.</b> It does not touch the conjunction — §5 says so at length and gives the shape of the remaining distance. It certifies one window at one support. It says nothing about the zeros that is not already implied by the certificates rh19 through rh26 issued; a deeper section at a finer mesh is a stronger statement of the same kind, not a different kind.</p>
+
+<p><b>What is left.</b> Three.</p>
+<p><b>(a) The support, which is rh27b.</b> The certified set is a column because every window in the arc since rh14 has had half-support Δ = 0.24. rh21 fixed that by an argument about cost — a wider window pays twice, in the comb and in rh18's K<sub>lin</sub> — made before notch-free windows existed. A second support turns the column into a region and re-runs that argument at the same time.</p>
+<p><b>(b) The cut, once more.</b> (3) says the price of depth is R⁻³: doubling the certified depth at Δ/16 wants roughly four times the cut, which is four times the AT table and four times the row sums, and nothing else. It is a pure arithmetic ladder now, and the only question is where it stops being worth running.</p>
+<p><b>(c) The 60-digit bisection at scale.</b> Every floor in the arc before this one was checked twice: backend α, plus an inertia bisection in exact arithmetic that reproduced λ<sub>min</sub> independently. At n = 601 and above that bisection costs more than the certificate, so the two deeper floors here carry the dense 60-digit positive-definiteness check but not the eigenvalue. Running the bisection on the blocks instead of the section would cost a quarter, which is probably enough; it has not been measured.</p>
+</section>
+
+<section class="prose" id="s7">
+<h2>7 · Dictionary additions and references</h2>
+<dl class="dict">
+<dt>L1, the one-sided cut</dt><dd>rh17 §1: ψ̃ > 0 past r₊ = 6.289836, so truncating the archimedean sum removes a positive semidefinite Toeplitz form. Any truncation gives a valid lower bound on λ<sub>min</sub>; a longer sum gives a better one.</dd>
+<dt>L2, the aliasing bound</dt><dd>rh17 §1: the infinite trapezoid at step h aliases by 2/(e<sup>2πa/h</sup> − 1), which at a = 0.4 and h = 0.05 is 2/(e<sup>16π</sup> − 1) = 2.96&#215;10&#8315;&#178;&#178;; a is taken inside the analyticity strip |Im r| < ½ set by the pole of ψ. A statement about the rule on the whole half-line, independent of where the sum stops.</dd>
+<dt>the level column</dt><dd>the certified set as it now stands: one support Δ = 0.24, five meshes Δ … Δ/16, every one at depth 18. Replaces rh26's column at depths 18, 18, 9, 4.5, 2.25.</dd>
+<dt>issuing α per block</dt><dd>backend α run on B₊ and B₋ separately. Legitimate because U is orthogonal, so the radius transfers with no factor; λ<sub>min</sub> is the smaller of the two floors; the cost is n³/4.</dd>
+<dt>the resolved band</dt><dd>π/δ, the highest frequency a lattice of step δ separates. The number of cached zeros inside it is the arithmetic a section at that mesh actually constrains: 0 at Δ, 84 at Δ/16.</dd>
+</dl>
+<p class="refs">rh15 (the density argument P2) · rh17 (the interval kit, backend α, L1 and L2) · rh18 (the equivalence lattice ⟺ windows ⟺ Bochner ⟺ RH, K<sub>lin</sub>, the sub-lattice closure) · rh19 (streaming comb, the v = 18 horizon) · rh21 (the support argument) · rh22 (the escape radius) · rh24 (the 768-bin radius) · rh25 (the hyperbolic generator, the notch-free search) · rh26 (the half-turn split, the one-sided cut used against rh18's wall, the gear-mass histogram). Cantoni and Butler's block-diagonalisation is cited, not reproved; Weil's positivity criterion likewise; IEEE-754, libmpdec and libm's log within one ulp are assumed.</p>
+</section>
+
+
+</div>
+</body>
+</html>

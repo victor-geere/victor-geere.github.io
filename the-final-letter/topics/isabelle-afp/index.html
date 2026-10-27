@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isabelle / AFP corpus — programme dossier</title>
+<style>
+  :root {
+    --ink: #17202a;
+    --muted: #5d6d7e;
+    --paper: #fbfaf7;
+    --panel: #ffffff;
+    --rule: #d8d2c4;
+    --accent: #1f4e79;
+    --accent-soft: #eaf1f6;
+    --warn: #7d4b12;
+    --warn-soft: #fbf2e3;
+    --good: #1e5b3a;
+    --good-soft: #e8f3ec;
+    --bad: #7b241c;
+    --bad-soft: #f9e9e7;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 17px/1.62 Georgia, "Times New Roman", serif;
+  }
+  main { max-width: 1040px; margin: 0 auto; padding: 42px 24px 72px; }
+  header.hero {
+    border-top: 6px solid var(--accent);
+    background: var(--panel);
+    border-bottom: 1px solid var(--rule);
+    padding: 36px 32px 30px;
+    margin-bottom: 34px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.03);
+  }
+  header.hero h1 { margin: 0 0 10px; font-size: clamp(1.9rem, 4vw, 2.9rem); line-height: 1.15; letter-spacing: -.02em; }
+  .kicker { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .status { color: var(--muted); font-size: .98rem; margin: 0 0 18px; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 24px; font-size: .93rem; color: var(--muted); }
+  .meta a { color: var(--accent); }
+  nav.toc { background: var(--accent-soft); border: 1px solid #cfdde8; padding: 18px 22px; margin: 0 0 34px; border-radius: 4px; }
+  nav.toc strong { display: block; font-family: ui-monospace, Menlo, monospace; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  nav.toc a { color: var(--accent); text-decoration: none; margin-right: 14px; white-space: nowrap; }
+  nav.toc a:hover { text-decoration: underline; }
+  section { margin: 0 0 40px; }
+  h2 { font-size: 1.45rem; margin: 0 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--rule); color: var(--accent); }
+  h3 { font-size: 1.1rem; margin: 24px 0 8px; }
+  p { margin: 0 0 14px; }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+  code { font-size: .88em; background: #f1efe8; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #1f2933; color: #edf2f7; padding: 16px 18px; overflow-x: auto; border-radius: 4px; font-size: .86rem; line-height: 1.55; }
+  pre code { background: none; padding: 0; color: inherit; }
+  .lede { font-size: 1.08rem; color: #2c3e50; }
+  .note { border-left: 4px solid var(--warn); background: var(--warn-soft); padding: 14px 18px; margin: 18px 0; color: #4a351a; }
+  .note strong { color: var(--warn); }
+  .good { border-left: 4px solid var(--good); background: var(--good-soft); padding: 14px 18px; margin: 18px 0; }
+  .good strong { color: var(--good); }
+  .bad { border-left: 4px solid var(--bad); background: var(--bad-soft); padding: 14px 18px; margin: 18px 0; }
+  .table-wrap { overflow-x: auto; margin: 16px 0 8px; border: 1px solid var(--rule); border-radius: 4px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; font-size: .91rem; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+  th { background: #f2efe7; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: #44515e; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #faf8f2; }
+  .kind { display: inline-block; font-family: ui-monospace, Menlo, monospace; font-size: .71rem; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+  .kind.theorem { color: var(--good); background: var(--good-soft); border: 1px solid #bfd8c8; }
+  .kind.computation { color: var(--accent); background: var(--accent-soft); border: 1px solid #c3d6e4; }
+  .kind.source { color: var(--warn); background: var(--warn-soft); border: 1px solid #e5cdab; }
+  .kind.open { color: var(--bad); background: var(--bad-soft); border: 1px solid #e2bbb6; }
+  ul, ol { margin: 0 0 16px 24px; padding: 0; }
+  li { margin: 0 0 7px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; padding: 18px 20px; }
+  .card h3 { margin-top: 0; color: var(--accent); }
+  .small { font-size: .88rem; color: var(--muted); }
+  footer { border-top: 2px solid var(--rule); margin-top: 44px; padding-top: 18px; color: var(--muted); font-size: .9rem; }
+  footer a { margin-right: 12px; }
+  @media (max-width: 640px) {
+    main { padding: 24px 14px 50px; }
+    header.hero { padding: 26px 18px 22px; }
+    th, td { padding: 8px 9px; }
+    body { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header class="hero">
+  <div class="kicker">The Final Letter · Topic dossier · Inventory 37</div>
+  <h1>Isabelle / AFP corpus</h1>
+  <p class="status"><strong>Status:</strong> reconstructed formal core of one AFP entry, plus an exact computation layer. The source is a formal-verification corpus, not a paper, and not a Riemann-hypothesis proof.</p>
+  <div class="meta">
+    <div><strong>Source:</strong> <a href="../../archive/rh-proof/afp-2026-05-08/thys/ROOT">afp-2026-05-08/thys/ROOT</a></div>
+    <div><strong>Entry:</strong> <a href="../../archive/rh-proof/afp-2026-05-08/thys/Isabelle_Marries_Dirac/ROOT">Isabelle_Marries_Dirac/ROOT</a></div>
+    <div><strong>Inventory:</strong> <a href="../../scraps.html">Scraps item 37</a> · <a href="../README.md">topic index</a></div>
+    <div><strong>Verification:</strong> 7 pytest passed · Lean build OK</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <strong>Contents</strong>
+  <a href="#source">What the source is</a>
+  <a href="#reconstructed">Reconstructed objects</a>
+  <a href="#ledger">Theorem ledger</a>
+  <a href="#claims">Source claims</a>
+  <a href="#open">Open items</a>
+  <a href="#python">Python</a>
+  <a href="#lean">Lean</a>
+  <a href="#provenance">Provenance</a>
+</nav>
+
+<section id="source">
+  <h2>What the source is</h2>
+  <p class="lede">The inventory points at a four-line top-level AFP <code>ROOT</code>. The mathematics is in the entry <em>Isabelle_Marries_Dirac</em>, a quantum-information library in Isabelle/HOL.</p>
+
+  <p>The top-level file reads, in full:</p>
+  <pre><code>chapter_definition AFP (AFP)
+  description "
+    Archive of Formal Proofs
+  "</code></pre>
+
+  <p>That names the archive, not a result. The surrounding corpus is large:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>AFP entries (directories under <code>thys/</code>)</td><td>972</td></tr>
+        <tr><td>Files under <code>afp-2026-05-08/</code></td><td>15,424</td></tr>
+        <tr><td>Isabelle theory files (<code>.thy</code>)</td><td>10,068</td></tr>
+        <tr><td>Size on disk</td><td>about 396 MB</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The inventory text says “15,416-file”; the checked tree contains 15,424 files. The discrepancy is recorded below as an open item rather than silently corrected.</p>
+
+  <p>The relevant entry is <code>thys/Isabelle_Marries_Dirac</code>. Its session declares 13 theories and depends on the AFP entries <code>Jordan_Normal_Form</code>, <code>Matrix_Tensor</code>, and <code>VectorSpace</code>. The 13 files total 8,512 lines. The entry <code>README.md</code> says the development uses Isabelle2020; the headers credit Anthony Bordg and Yijun He, with contributions by Hanna Lachnitt.</p>
+
+  <div class="note">
+    <strong>Honest scope statement.</strong> This dossier does not survey the AFP. It reads the top-level <code>ROOT</code>, the entry <code>ROOT</code> and <code>README.md</code>, <code>Basics.thy</code> in full, and the gate, Bell-state, and no-cloning sections of <code>Quantum.thy</code>, <code>Entanglement.thy</code>, and <code>No_Cloning.thy</code>. No claim is made about the other 975 entries.
+  </div>
+</section>
+
+<section id="reconstructed">
+  <h2>What was reconstructed</h2>
+  <p>The archived development defines its gates as concrete <code>2 × 2</code> complex matrices. The reconstruction isolates that finite algebra so it can be checked independently in Lean and sympy.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Object</th><th>Archived definition</th><th>Reconstruction</th></tr></thead>
+      <tbody>
+        <tr><td><code>X</code></td><td><code>[[0,1],[1,0]]</code> (<code>Quantum.thy:1096</code>)</td><td>Lean <code>AFP.X</code>; sympy <code>X</code></td></tr>
+        <tr><td><code>Z</code></td><td><code>[[1,0],[0,-1]]</code> (<code>Quantum.thy:1138</code>)</td><td>Lean <code>AFP.Z</code>; sympy <code>Z</code></td></tr>
+        <tr><td><code>H</code></td><td><code>(1/sqrt 2) • [[1,1],[1,-1]]</code> (<code>Quantum.thy:1158</code>)</td><td>Lean <code>AFP.H = c • H2</code>; sympy <code>H</code></td></tr>
+        <tr><td><code>H2</code>, <code>c</code></td><td>normalisation split used here</td><td>Lean <code>AFP.H2</code>, <code>AFP.c = sqrt 2 / 2</code></td></tr>
+        <tr><td><code>Y</code></td><td><code>[[0,-i],[i,0]]</code></td><td>sympy <code>Y</code> only</td></tr>
+        <tr><td><code>CNOT</code></td><td>controlled-NOT matrix (<code>Quantum.thy:1201</code>)</td><td>sympy <code>CNOT</code> only</td></tr>
+        <tr><td><code>S</code>, <code>T</code></td><td>phase gate and <code>pi/8</code> gate (<code>Quantum.thy:1225</code>, <code>1230</code>)</td><td>sympy <code>S</code>, <code>T</code> only</td></tr>
+        <tr><td>Bell states</td><td><code>bell00</code>, <code>bell01</code>, <code>bell10</code>, <code>bell11</code> (<code>Quantum.thy:1261</code>)</td><td>sympy <code>bell_state("00")</code>, …</td></tr>
+        <tr><td>Product obstruction</td><td>determinant-type condition used in <code>Entanglement.thy</code></td><td>sympy <code>product_obstruction</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The Lean core works with <code>Matrix (Fin 2) (Fin 2) ℂ</code>. It does not reproduce the source's dimension-indexed <code>complex mat</code>, its <code>state</code>/<code>unitary</code>/<code>gate</code> predicates, or its <code>Jordan_Normal_Form</code> matrix representation.</p>
+</section>
+
+<section id="ledger">
+  <h2>Theorem ledger</h2>
+  <p>Every <span class="kind theorem">Theorem</span> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. T1–T2 and T5–T7 are the source's own gate lemmas, re-proved here for the concrete <code>2 × 2</code> matrices; T3–T4 are the normalisation steps those proofs use. Their warrant is the Lean proof, not the archive. Every <span class="kind computation">Computation</span> row is checked by <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. <span class="kind source">Source claim</span> and <span class="kind open">Open / conjecture</span> rows are not theorems of this reconstruction.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test / status</th></tr></thead>
+      <tbody>
+        <tr><td>T1</td><td><span class="kind theorem">Theorem</span></td><td><code>X * X = 1</code></td><td><code>AFP.X_mul_self</code></td></tr>
+        <tr><td>T2</td><td><span class="kind theorem">Theorem</span></td><td><code>Z * Z = 1</code></td><td><code>AFP.Z_mul_self</code></td></tr>
+        <tr><td>T3</td><td><span class="kind theorem">Theorem</span></td><td><code>H2 * H2 = 2 • 1</code></td><td><code>AFP.H2_mul_self</code></td></tr>
+        <tr><td>T4</td><td><span class="kind theorem">Theorem</span></td><td><code>c * c = 1/2</code></td><td><code>AFP.c_sq</code></td></tr>
+        <tr><td>T5</td><td><span class="kind theorem">Theorem</span></td><td><code>H * H = 1</code></td><td><code>AFP.H_mul_self</code></td></tr>
+        <tr><td>T6</td><td><span class="kind theorem">Theorem</span></td><td><code>Hᴴ = H</code></td><td><code>AFP.H_conjTranspose</code></td></tr>
+        <tr><td>T7</td><td><span class="kind theorem">Theorem</span></td><td><code>H * X * H = Z</code></td><td><code>AFP.HXH_eq_Z</code></td></tr>
+        <tr><td>C1</td><td><span class="kind computation">Computation</span></td><td><code>H² = 1</code>, <code>Hᴴ = H</code>, and <code>H</code> is unitary exactly.</td><td><code>test_hadamard_is_involution_and_self_adjoint</code></td></tr>
+        <tr><td>C2</td><td><span class="kind computation">Computation</span></td><td><code>X² = Y² = Z² = 1</code>, <code>HXH = Z</code>, <code>HYH = −Y</code>, <code>HZH = X</code>.</td><td><code>test_pauli_involutions_and_hadamard_conjugation</code></td></tr>
+        <tr><td>C3</td><td><span class="kind computation">Computation</span></td><td><code>CNOT² = 1</code>, <code>CNOTᴴ = CNOT</code>, and <code>CNOT</code> is unitary.</td><td><code>test_cnot_is_involution_and_unitary</code></td></tr>
+        <tr><td>C4</td><td><span class="kind computation">Computation</span></td><td><code>S² = Z</code>, <code>T² = S</code>, <code>T⁴ = Z</code>, <code>T⁸ = 1</code>; composition is order-sensitive.</td><td><code>test_phase_gates_have_the_expected_orders</code></td></tr>
+        <tr><td>C5</td><td><span class="kind computation">Computation</span></td><td>Each Bell vector has norm one and flat probabilities <code>(1/2,0,0,1/2)</code> up to permutation.</td><td><code>test_bell_states_are_normalised_with_half_probabilities</code></td></tr>
+        <tr><td>C6</td><td><span class="kind computation">Computation</span></td><td><code>v0 v3 − v1 v2 ≠ 0</code> for every Bell vector and <code>= 0</code> for product vectors, including a zero factor.</td><td><code>test_product_obstruction_separates_bell_states_from_products</code></td></tr>
+        <tr><td>C7</td><td><span class="kind computation">Computation</span></td><td>Invalid Bell labels, gate names, non-square unitarity tests, and malformed vectors raise <code>ValueError</code>.</td><td><code>test_invalid_inputs_raise_value_error</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Why the split <code>H = c • H2</code> is genuine</h3>
+  <p>The source writes <code>H = 1/sqrt 2 • H2</code>. The Lean proof separates the two ingredients: <code>H2 * H2 = 2 • 1</code> (T3) and <code>c * c = 1/2</code> (T4), so <code>(c • H2) * (c • H2) = (1/2) • (2 • 1) = 1</code> (T5). These are exact rational and quadratic-surd identities, not <code>rfl</code> padding; they are the normalisation argument the source itself performs in <code>H_inv</code>.</p>
+</section>
+
+<section id="claims">
+  <h2>Source claims not promoted to theorems</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Claim</th><th>Archived status</th><th>Reconstruction note</th></tr></thead>
+      <tbody>
+        <tr><td>S1</td><td><code>H * Y * H = −Y</code> (<code>HYH_is_minusY</code>, <code>Quantum.thy:1241</code>)</td><td>Source lemma, <code>[simp]</code></td><td>Checked exactly in sympy (C2); not a Lean theorem here.</td></tr>
+        <tr><td>S2</td><td><code>H * Z * H = X</code> (<code>HZH_is_X</code>, <code>Quantum.thy:1247</code>)</td><td>Source lemma, <code>[simp]</code></td><td>Checked exactly in sympy (C2); not a Lean theorem here.</td></tr>
+        <tr><td>S3</td><td><code>CNOT * CNOT = 1</code>, <code>CNOT</code> is a gate</td><td>Source lemmas, <code>[simp]</code></td><td>Checked in sympy (C3); the Lean file does not define the <code>4 × 4</code> gate.</td></tr>
+        <tr><td>S4</td><td>The four Bell states are entangled (<code>entangled2</code>, <code>Entanglement.thy:31–105</code>)</td><td>Source lemmas</td><td>The finite obstruction is computed (C6); the source's <code>entangled2</code> predicate and its state/tensor definitions are not formalised.</td></tr>
+        <tr><td>S5</td><td>No-cloning theorem (<code>no_cloning</code>, <code>No_Cloning.thy:195</code>)</td><td>Source theorem</td><td>Not formalised. It needs the source's inner-product, tensor, and unitary-evolution infrastructure.</td></tr>
+        <tr><td>S6</td><td>Quantum teleportation correctness</td><td>Source theorem</td><td>Not surveyed beyond the file header; not formalised.</td></tr>
+        <tr><td>S7</td><td>Deutsch–Jozsa correctness</td><td>Source theorem</td><td>Not surveyed beyond the entry <code>ROOT</code>; not formalised.</td></tr>
+        <tr><td>S8</td><td>Measurement, quantum prisoners' dilemma, universal gate sets</td><td>Source definitions and theorems</td><td>Not surveyed; recorded only as corpus contents.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="bad">
+    <strong>No RH claim is present.</strong> None of S1–S8 is used as a theorem of this reconstruction. In particular, no Riemann-hypothesis, GRH, twin-prime, Chowla, Sarnak, or Elliott claim appears in the entry inspected, and none is asserted here.
+  </div>
+</section>
+
+<section id="open">
+  <h2>Open items and gaps</h2>
+  <ol>
+    <li><strong>The AFP is not surveyed.</strong> 972 entries and 10,068 theory files remain outside this dossier. The inventory item is a corpus, not a single result.</li>
+    <li><strong>The source predicates are not in Lean.</strong> A faithful translation would define <code>state</code>, <code>unitary</code>, <code>gate</code>, and the dimension-indexed matrix type, then prove the gate lemmas at the source's level of generality. The present Lean core is deliberately the concrete <code>2 × 2</code> shadow.</li>
+    <li><strong>Bell entanglement is not a Lean theorem.</strong> Only the determinant-type obstruction is computed. A Lean proof would need a vector-space definition of product state and a proof that no pair of unit vectors tensors to a Bell vector.</li>
+    <li><strong>No-cloning is not formalised.</strong> This is the most substantial theorem in the entry and would require the Cauchy–Schwarz and inner-product development of <code>No_Cloning.thy</code>.</li>
+    <li><strong>CNOT and phase-gate algebra is computational only.</strong> C3 and C4 are exact sympy checks, not Lean theorems.</li>
+    <li><strong>No connection to the RH programme was found.</strong> The entry is a quantum-computing library. Its placement under <code>archive/rh-proof/</code> is a filing fact, not evidence of an RH proof. This is recorded as a negative finding.</li>
+    <li><strong>File-count discrepancy.</strong> The inventory says 15,416 files; the checked tree has 15,424. The difference is unexplained and immaterial to the mathematics, but it is not hidden.</li>
+    <li><strong>Cold-cache build cost.</strong> The first Mathlib import on a cold filesystem cache can take several minutes; the Lean build itself is 5–7 seconds once the oleans are warm.</li>
+  </ol>
+</section>
+
+<section id="python">
+  <h2>Python layer</h2>
+  <p><a href="python/programme.py"><code>python/programme.py</code></a> is an exact sympy model. It contains the gate matrices <code>X</code>, <code>Y</code>, <code>Z</code>, <code>H</code>, <code>CNOT</code>, <code>S</code>, <code>T</code>; the helpers <code>gate</code>, <code>gate_sequence</code>, <code>dagger</code>, <code>matrix_equal</code>, <code>is_unitary</code>, <code>kron</code>; the Bell-state functions <code>bell_state</code>, <code>norm_squared</code>, <code>is_normalised</code>, <code>measurement_probabilities</code>; and the product-state functions <code>product_obstruction</code>, <code>is_product_state</code>, <code>product_state</code>.</p>
+  <p>The module has no import-time side effects and raises <code>ValueError</code> on invalid shapes or labels. It uses exact surds and <code>exp(I*pi/4)</code>, not floating point.</p>
+  <pre><code>cd the-final-letter/topics/isabelle-afp
+python3 -m pytest -q tests
+# 7 passed in about 0.2 s</code></pre>
+  <p>Example:</p>
+  <pre><code>from python.programme import H, X, Z, matrix_equal, bell_state, product_obstruction
+assert matrix_equal(H * X * H, Z)
+assert product_obstruction(bell_state("00")) != 0</code></pre>
+</section>
+
+<section id="lean">
+  <h2>Lean layer</h2>
+  <p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens the <code>AFP</code> namespace, and proves T1–T7. It uses only <code>Matrix (Fin 2) (Fin 2) ℂ</code>, <code>Fin</code> case analysis, <code>ring</code>, <code>norm_num</code>, and the exact identity <code>Real.sq_sqrt</code>.</p>
+  <pre><code>cd the-final-letter/topics/isabelle-afp
+./lean/check.sh
+# [check] OK Topic.lean</code></pre>
+  <p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK Topic.lean</code>.</p>
+  <p>The Lean file does <strong>not</strong> contain <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. What it does not formalise is set out in <a href="lean/README.md"><code>lean/README.md</code></a>: the source's state/unitary/gate predicates, the dimension-indexed matrix type, CNOT, the phase gates, Bell entanglement, no-cloning, teleportation, Deutsch–Jozsa, and the rest of the AFP.</p>
+  <div class="good">
+    <strong>Complete formal core.</strong> All seven Lean theorems compile against Mathlib with no gaps. The Python suite covers every Computation row and the invalid-input edge case.
+  </div>
+</section>
+
+<section id="provenance">
+  <h2>Provenance and links</h2>
+  <ul>
+    <li>Inventory item 37: <a href="../../scraps.html"><code>scraps.html</code></a>.</li>
+    <li>All topic folders: <a href="../README.md"><code>topics/README.md</code></a>.</li>
+    <li>Top-level AFP chapter: <a href="../../archive/rh-proof/afp-2026-05-08/thys/ROOT"><code>thys/ROOT</code></a>.</li>
+    <li>Entry session: <a href="../../archive/rh-proof/afp-2026-05-08/thys/Isabelle_Marries_Dirac/ROOT"><code>Isabelle_Marries_Dirac/ROOT</code></a>.</li>
+    <li>Entry notes: <a href="../../archive/rh-proof/afp-2026-05-08/thys/Isabelle_Marries_Dirac/README.md"><code>Isabelle_Marries_Dirac/README.md</code></a>.</li>
+    <li>Gate definitions and lemmas: <a href="../../archive/rh-proof/afp-2026-05-08/thys/Isabelle_Marries_Dirac/Quantum.thy"><code>Quantum.thy</code></a>.</li>
+    <li>Entanglement argument: <a href="../../archive/rh-proof/afp-2026-05-08/thys/Isabelle_Marries_Dirac/Entanglement.thy"><code>Entanglement.thy</code></a>.</li>
+    <li>No-cloning: <a href="../../archive/rh-proof/afp-2026-05-08/thys/Isabelle_Marries_Dirac/No_Cloning.thy"><code>No_Cloning.thy</code></a>.</li>
+    <li>Programme standard: <a href="../PROGRAMME-STANDARD.md"><code>PROGRAMME-STANDARD.md</code></a>.</li>
+  </ul>
+</section>
+
+<footer>
+  <a href="../README.md">Back to the topic index</a>
+  <a href="../../scraps.html">Scraps</a>
+  <a href="../../index.html">The Final Letter</a>
+  <div class="small" style="margin-top:10px">Reconstructed dossier for inventory item 37. Source claims are preserved with their archived status; no RH, GRH, twin-prime, Chowla, Sarnak, or Elliott statement is presented as proved.</div>
+</footer>
+
+</main>
+</body>
+</html>

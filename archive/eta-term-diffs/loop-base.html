@@ -1,0 +1,234 @@
+<!doctype html>
+<html >
+<head>
+  <title>Harmonics</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="lib/math.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import * as THREE from './lib/three.module.js';
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        getMaterial,
+        drawAxis,
+        makeSimpleCurve,
+        buildScene,
+        newVec,
+        getPerspectiveCamera,
+        getOrthoCamera
+    } from './modules/threetools.js';
+    import {
+        roundTo, scaleVectors, subVectorsXY, addVectors,
+        subVectors, moveVectors, addVectorArray, subtractVectorArray
+    } from './modules/mathtools.js';
+
+    let formula = '';
+    let formulas = [];
+
+    function setFormula(text, numerator, k, a, b) {
+        if (formulas.length > 1) {
+            formulas.splice(0, 1);
+        }
+        formulas.push(text);
+        const title = `1/(n1...n2)^(a + bi)`;
+        document.getElementById('floatingText').innerHTML = `${title}<br><span>${formulas[0]}</span> <br> <span>${formulas[1]}</span>`
+    }
+
+    function fn(r) {
+        const n = roundTo(r, 3);
+        const sign = n < 0 ? '-' : '+';
+        const nAbs = Math.abs(n);
+        if (nAbs === 0) {
+            return '+ 0.000';
+        }
+        const nAbsStr = `${nAbs}0000000`.substr(0, 5);
+        return `${sign} ${nAbsStr}`;
+    }
+
+    function getEta(numerator, k, a, b) {
+        const baseFactor = gui.controllers.ctrlBaseFactor.getValue();
+        const kx = k * baseFactor;
+        const text = `${numerator}/(${kx}^(${a} + ${b}i))`;
+        const result = math.evaluate(text);
+
+        let formattedText = `${numerator}/(${roundTo(kx, 3)}^(${fn(a)} bi))`;
+        setFormula(`${formattedText}`, numerator, k, a, b);
+
+        return result;
+    }
+
+    function getPoints(x, y, im, nPoints, radiusX) {
+        const points = {
+            neg: [],
+            pos: []
+        };
+        let realPart = gui.controllers.ctrlReal.getValue();
+        let imInc = gui.controllers.ctrlImInc1.getValue() + gui.controllers.ctrlImInc2.getValue() + gui.controllers.ctrlImInc3.getValue();
+
+        let n = 1;
+        while (n++ < nPoints) {
+            let coords = getEta(1, n, realPart, im);
+            if (n % 2 === 1) {
+                points.pos.push(newVec(coords.re * radiusX + x, coords.im * radiusX + y + 5, n / 10));
+            } else {
+                points.neg.push(newVec(coords.re * radiusX + x, coords.im * radiusX + y - 5, n / 10));
+            }
+        }
+        points.diff = subtractVectorArray(points.pos, points.neg);
+        return points;
+    }
+
+    function makeArch(points, colorN=30) {
+        return {
+            pos: makeSimpleCurve(points.pos, getMaterial(rainbow, colorN)),
+            neg: makeSimpleCurve(points.neg, getMaterial(rainbow, colorN)),
+            diff: makeSimpleCurve(points.diff, getMaterial(rainbow, colorN))
+        }
+    }
+
+    function drawSum(radiusFactor) {
+        let curve1 = sceneInfo.objects[0].curvePoints;
+        let curve2 = sceneInfo.objects[1].curvePoints;
+        let curve3 = [];
+        if (curve1.length === curve2.length) {
+            for (let i = 0; i < curve1.length; i++) {
+                curve3.push(subVectorsXY(curve1[i], curve2[i]));
+            }
+        }
+        moveVectors(curve3, 5, 0, 0);
+        const pivot = new THREE.Vector3(0, 0, 0);
+
+        let curveObj3 = makeSimpleCurve(curve3, getMaterial(rainbow, 20));
+        sceneInfo.addObject(curveObj3);
+    }
+
+    function drawArches() {
+        sceneInfo.clear();
+
+        const offset = gui.controllers.ctrlOffset.getValue();
+        const diffs = gui.controllers.ctrlDiffs.getValue();
+
+        const nPoints = gui.controllers.ctrlPoints.getValue();
+        const points1 = getPoints(-10, 0, offset, nPoints, 4);
+        moveVectors(points1.diff, -10, -10, 0);
+        let arch1 = makeArch(points1, 20);
+
+        sceneInfo.addObject(arch1.neg);
+        sceneInfo.addObject(arch1.pos);
+        sceneInfo.addObject(arch1.diff);
+
+        const points2 = getPoints( 10, 0, offset + diffs, nPoints, 4,);
+        moveVectors(points2.diff, 10, -10, 0);
+        let arch2 = makeArch(points2, 40);
+
+        sceneInfo.addObject(arch2.neg);
+        sceneInfo.addObject(arch2.pos);
+        sceneInfo.addObject(arch2.diff);
+
+        // drawSum(radiusFactor);
+        sceneInfo.render();
+    }
+
+    function onResize() {
+        drawChoice();
+    }
+
+    /**
+     * animate objects per frame
+     */
+    function updateObjects() {
+        if (sceneInfo.hasChanged) {
+            let offset = gui.controllers.ctrlOffset.getValue();
+            let speed = gui.controllers.ctrlLoopSpeed.getValue();
+            sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+        }
+    }
+
+    function animationLoop() {
+        sceneInfo.animationLoopId = requestAnimationFrame(animationLoop);
+        updateObjects();
+        sceneInfo.render();
+    }
+
+    function hasChanged() {
+        sceneInfo.hasChanged = gui.controllers.ctrlLoopIm.getValue();
+    }
+
+    function popGui(gui) {
+        gui.options.load = gui.parameters;
+        const datGui = new dat.GUI(gui.options);
+        gui.controllers.ctrlLoopIm = datGui.add(gui.parameters, 'Loop', false, true).onChange(hasChanged);
+        gui.controllers.ctrlLoopSpeed = datGui.add(gui.parameters, 'Loop Speed', 0, 1.9, 0.1).onChange(hasChanged);
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.05).onChange(hasChanged);
+        gui.controllers.ctrlOffset = datGui.add(gui.parameters, 'Offset', 2, 120, 0.1).onChange(drawChoice);
+        gui.controllers.ctrlDiffs = datGui.add(gui.parameters, 'Difference', 2, 120, 0.1).onChange(drawChoice);
+        gui.controllers.ctrlReal = datGui.add(gui.parameters, 'Real', -1, 1, 0.05).onChange(drawChoice);
+        gui.controllers.ctrlImInc1 = datGui.add(gui.parameters, 'Im Inc 1', 0, 2, 0.1).onChange(drawChoice);
+        gui.controllers.ctrlImInc2 = datGui.add(gui.parameters, 'Im Inc 2', 0, 0.1, 0.01).onChange(drawChoice);
+        gui.controllers.ctrlImInc3 = datGui.add(gui.parameters, 'Im Inc 3', 0, 0.01, 0.001).onChange(drawChoice);
+        gui.controllers.ctrlBaseFactor = datGui.add(gui.parameters, 'Base Factor', 0.9, 2, 0.005).onChange(drawChoice);
+        gui.controllers.ctrlPoints = datGui.add(gui.parameters, 'Points', 2, 500, 1).onChange(drawChoice);
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        controllers: {
+            ctrlLoopIm: null,
+            ctrlLoopSpeed: null,
+            ctrlScale: null,
+            ctrlOffset: null,
+            ctrlDiffs: null,
+            ctrlReal: null,
+            ctrlImInc1: null,
+            ctrlImInc2: null,
+            ctrlImInc3: null,
+            ctrlBaseFactor: null,
+            ctrlPoints: null
+        },
+        parameters: {
+            'Loop': true,
+            'Loop Speed': 1,
+            'Scale': 1.5,
+            'Offset': 20,
+            'Difference': 20,
+            'Real': 0.5,
+            'Im Inc 1': 0.1,
+            'Im Inc 2': 0.02,
+            'Im Inc 3': 0.004,
+            'Base Factor': 1.00,
+            'Points': 350
+        }
+    };
+
+    function drawChoice() {
+        switch (type) {
+            case CIRCLES:
+                break;
+            case ARCHES:
+                drawArches();
+                break;
+        }
+    }
+
+    const CIRCLES = 1;
+    const ARCHES = 2;
+    let type = ARCHES;
+
+    const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
+    let sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
+    window.addEventListener("resize", onResize);
+    popGui(gui);
+    drawAxis(sceneInfo.scene, 40, getMaterial(colorsGrey, 1));
+    drawChoice();
+    sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+    animationLoop();
+    sceneInfo.hasChanged = gui.controllers.ctrlLoopIm.getValue();
+
+</script>
+
+</body>
+</html>

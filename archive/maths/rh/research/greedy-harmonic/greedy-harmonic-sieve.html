@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Greedy Harmonic Sieve and Classical Sieve Theory</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.68;
+      color: #1e293b;
+      background: #f8fafc;
+      margin: 0;
+      padding: 32px 20px;
+    }
+    main {
+      margin: 0 auto;
+      background: white;
+      padding: 48px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+    }
+    h1, h2, h3, h4 {
+      color: #0f172a;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 3px solid #3b82f6;
+      padding-bottom: 16px;
+      margin-bottom: 2.5rem;
+    }
+    .toc {
+      background: #f1f5f9;
+      padding: 1.8rem;
+      border-radius: 10px;
+      margin: 2.5rem 0;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .toc li {
+      margin: 0.6rem 0;
+    }
+    .math-block {
+      background: #f8fafc;
+      padding: 1.4rem;
+      border-radius: 8px;
+      margin: 1.8rem 0;
+      border-left: 4px solid #60a5fa;
+      font-size: 1.05em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+      font-size: 0.95em;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #e2e8f0;
+      font-weight: 600;
+    }
+    .keypoint {
+      background: #fef3c7;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #d97706;
+      margin: 2rem 0;
+    }
+    .theorem {
+      background: #eff6ff;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #2563eb;
+      margin: 2rem 0;
+    }
+    .definition {
+      background: #f0fdf4;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #16a34a;
+      margin: 2rem 0;
+    }
+    .lemma {
+      background: #faf5ff;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #9333ea;
+      margin: 2rem 0;
+    }
+    .proof {
+      margin: 1rem 0 2rem 0;
+      padding: 0.8rem 1.4rem;
+      border-left: 3px solid #94a3b8;
+      background: #fafafa;
+      border-radius: 0 8px 8px 0;
+    }
+    .proof::before {
+      content: "Proof.";
+      font-style: italic;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .proof::after {
+      content: "\25A0";
+      display: block;
+      text-align: right;
+      color: #2563eb;
+      font-size: 1.1em;
+      margin-top: 0.5rem;
+    }
+    .remark {
+      background: #fff7ed;
+      padding: 1.4rem;
+      border-radius: 8px;
+      border-left: 5px solid #ea580c;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<main>
+
+<h1>The Greedy Harmonic Sieve and Classical Sieve Theory</h1>
+
+<p style="text-align:center; color:#475569; font-style:italic; margin:2rem 0;">
+Victor Geere<br>
+March 2026
+</p>
+
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#setup">1. Setup and Recap</a></li>
+    <li><a href="#sieve-set">2. The Greedy Harmonic Sieve</a></li>
+    <li><a href="#density">3. Density Properties</a></li>
+    <li><a href="#probabilistic">4. A Probabilistic Comparison</a></li>
+    <li><a href="#arithmetic">5. Comparison with Arithmetic Sieves</a></li>
+    <li><a href="#egyptian">6. Connection to Egyptian Fraction Algorithms</a></li>
+    <li><a href="#dirichlet">7. The Generating Dirichlet Series</a></li>
+    <li><a href="#discussion">8. Discussion</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="abstract">
+
+<h2>Abstract</h2>
+
+<p>
+The greedy harmonic decomposition of an angle \(\theta \in [0,\pi]\) produces binary selection indicators \(\delta_n(\theta) \in \{0,1\}\) that define a deterministic subset \(\mathcal{S}(\theta) \subset \{2,3,4,\ldots\}\) of the natural numbers. This paper investigates the sieve-theoretic properties of these sets. We show that \(\mathcal{S}(\theta)\) has natural density zero for all \(\theta < \pi\) but possesses a well-defined logarithmic density equal to \(\theta/\pi\), making it a natural example of a set whose logarithmic and natural densities disagree. We compare the greedy harmonic sieve with classical arithmetic sieves (Eratosthenes, Selberg, Brun), identifying both structural analogies&mdash;sequential construction, sparsity, parametric families&mdash;and fundamental differences&mdash;absence of multiplicative structure, absence of an Euler product, and a counting function of order \(\log N\) rather than \(N/\log N\). We establish a precise probabilistic model for the sieve via independent Bernoulli trials with success probability \(x/(n+2)\), show that the greedy sieve matches this model in its first moment but differs in its correlation structure, and connect the construction to the classical theory of Egyptian fractions and the Sylvester&ndash;Fibonacci algorithm. The paper concludes that the greedy harmonic sieve occupies a distinctive position: it is a non-arithmetic, geometrically motivated sieve whose density properties arise from the divergence of the harmonic series rather than from the distribution of prime numbers.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="setup">
+
+<h2>1. Setup and Recap</h2>
+
+<p>
+We recall the essential definitions from the companion paper <em>On the Correlation Structure of a Greedy Harmonic Decomposition of the Sine Function</em> [Geere, 2026a].
+</p>
+
+<div class="definition">
+<strong>Definition 1.1 (Greedy harmonic decomposition).</strong> For a target angle \(\theta \in [0,\pi]\), define the harmonic angles \(\alpha_n = \pi/(n+2)\) for \(n = 0,1,2,\ldots\) and the greedy selection indicators
+\[
+\delta_n(\theta) = \Theta\!\bigl(\theta - \theta_n - \alpha_n\bigr) \in \{0,1\},
+\]
+where \(\theta_0 = 0\) and \(\theta_{n+1} = \theta_n + \delta_n \alpha_n\). The accumulated angle \(\theta_N\) converges to \(\theta\) with \(|\theta - \theta_N| \leq \pi/(N+2)\).
+</div>
+
+<div class="definition">
+<strong>Definition 1.2 (Selection monotonicity and threshold angles).</strong> For each \(n\), the map \(\theta \mapsto \delta_n(\theta)\) is non-decreasing, and there exists a threshold angle \(\theta_n^* \in [0,\pi]\) such that \(\delta_n(\theta) = 0\) for \(\theta < \theta_n^*\) and \(\delta_n(\theta) = 1\) for \(\theta \geq \theta_n^*\).
+</div>
+
+<div class="definition">
+<strong>Definition 1.3 (Selection density).</strong> For \(\theta = \pi x\) with \(x \in (0,1)\), the number of selected indices up to \(N\) satisfies
+\[
+D(N,\theta) := \sum_{n=0}^{N} \delta_n(\theta) = x\ln(N+2) + O(1).
+\]
+</div>
+
+<p>
+The question we address: the selection indicators \(\delta_n(\theta)\) define a deterministic "sieve" on the integers \(\{2, 3, 4, \ldots\}\). The counting function \(D(N,\theta) \sim x\ln N\) is logarithmic, superficially reminiscent of the prime counting function \(\pi(N) \sim N/\ln N\). What, if any, are the deeper connections between this greedy harmonic sieve and the classical sieves of number theory?
+</p>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="sieve-set">
+
+<h2>2. The Greedy Harmonic Sieve</h2>
+
+<div class="definition">
+<strong>Definition 2.1 (Sieve set).</strong> For \(\theta \in [0,\pi]\), define the <em>greedy harmonic sieve set</em>
+\[
+\mathcal{S}(\theta) = \{n+2 : n \geq 0,\; \delta_n(\theta) = 1\} \;\subset\; \{2, 3, 4, \ldots\}.
+\]
+By the index shift \(n \mapsto n+2\), the selection indicator \(\delta_n(\theta)\) determines whether the integer \(k = n+2\) belongs to the sieve set.
+</div>
+
+<div class="theorem">
+<strong>Proposition 2.2 (Basic properties of the sieve set).</strong>
+<ol type="a">
+  <li><strong>Boundary cases.</strong> \(\mathcal{S}(0) = \emptyset\) and \(\mathcal{S}(\pi) = \{2, 3, 4, \ldots\}\).</li>
+  <li><strong>Monotone nesting.</strong> If \(\theta_1 \leq \theta_2\) then \(\mathcal{S}(\theta_1) \subseteq \mathcal{S}(\theta_2)\). The family \(\{\mathcal{S}(\theta)\}_{\theta \in [0,\pi]}\) is a nested filtration of the positive integers \(\geq 2\).</li>
+  <li><strong>Infiniteness.</strong> For every \(\theta > 0\), the set \(\mathcal{S}(\theta)\) is infinite.</li>
+  <li><strong>Counting function.</strong> \(|\mathcal{S}(\theta) \cap [2, N]| = (\theta/\pi)\ln N + O(1)\).</li>
+</ol>
+</div>
+
+<div class="proof">
+<p>(a) At \(\theta = 0\), the residual is always zero, so no index is selected. At \(\theta = \pi\), the greedy algorithm selects every index (since \(\sum \alpha_n\) diverges and the residual always exceeds the next \(\alpha_n\) until the total is exhausted).</p>
+
+<p>(b) This is a restatement of selection monotonicity (Definition 1.2): if \(\delta_n(\theta_1) = 1\) then \(\delta_n(\theta_2) = 1\) for \(\theta_2 \geq \theta_1\).</p>
+
+<p>(c) Since \(\alpha_n \to 0\), for any \(\theta > 0\) there are infinitely many \(n\) with \(\alpha_n < \theta\), and the greedy algorithm will eventually select infinitely many of them.</p>
+
+<p>(d) The count \(|\mathcal{S}(\theta) \cap [2, N]| = D(N-2, \theta)\). By Definition 1.3, \(D(N-2, \theta) = (\theta/\pi)\ln N + O(1)\).</p>
+</div>
+
+<div class="remark">
+<strong>Remark 2.3 (The sieve as a filtration).</strong> The parametric family \(\{\mathcal{S}(\theta)\}_{\theta \in [0,\pi]}\) is a continuous filtration of \(\{2,3,4,\ldots\}\): starting from the empty set, it "fills in" the integers one by one as \(\theta\) increases. Each integer \(k\) enters the filtration at a specific threshold \(\theta_{k-2}^*\). This is analogous to a <em>percolation</em> process, where the parameter \(\theta\) plays the role of the percolation probability&mdash;except that the greedy structure introduces strong deterministic correlations that distinguish it from independent percolation.
+</div>
+
+<div class="definition">
+<strong>Definition 2.4 (Reciprocal sum of the sieve set).</strong> Define the reciprocal sum
+\[
+\Sigma(\theta, N) = \sum_{\substack{k \in \mathcal{S}(\theta) \\ k \leq N}} \frac{1}{k} = \sum_{n=0}^{N-2} \frac{\delta_n(\theta)}{n+2}.
+\]
+By construction, \(\Sigma(\theta, N) = \theta_N / \pi\), the accumulated angle divided by \(\pi\).
+</div>
+
+<div class="lemma">
+<strong>Lemma 2.5 (Reciprocal sum convergence).</strong>
+\[
+\Sigma(\theta, N) = \frac{\theta}{\pi} - \frac{r_N}{\pi} = \frac{\theta}{\pi} + O\!\left(\frac{1}{N}\right),
+\]
+where \(r_N = \theta - \theta_N \in [0, \pi/(N+2)]\) is the greedy residual.
+</div>
+
+<div class="proof">
+Since \(\theta_N = \pi\,\Sigma(\theta, N)\) and \(r_N = \theta - \theta_N\), we have \(\Sigma(\theta, N) = (\theta - r_N)/\pi\). By the greedy residual bound, \(0 \leq r_N \leq \pi/(N+2)\).
+</div>
+
+<div class="keypoint">
+<strong>Key observation.</strong> The reciprocal sum of the sieve set converges to a finite limit: \(\sum_{k \in \mathcal{S}(\theta)} 1/k = \theta/\pi\). This is unusual&mdash;for infinite subsets of the integers, the reciprocal sum typically diverges (e.g., for the primes: \(\sum 1/p = +\infty\)). The finiteness of the reciprocal sum is a direct consequence of the greedy constraint and is the defining structural property that separates the harmonic sieve from arithmetic sieves.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="density">
+
+<h2>3. Density Properties</h2>
+
+<p>
+We now establish the density properties of the sieve set, showing that natural density and logarithmic density give qualitatively different pictures.
+</p>
+
+<div class="definition">
+<strong>Definition 3.1 (Density notions).</strong> For a set \(A \subseteq \mathbb{N}\), define:
+<ul>
+  <li><strong>Natural (asymptotic) density:</strong> \(\displaystyle d(A) = \lim_{N \to \infty} \frac{|A \cap [1,N]|}{N}\), if the limit exists.</li>
+  <li><strong>Logarithmic density:</strong> \(\displaystyle \delta(A) = \lim_{N \to \infty} \frac{1}{\ln N}\sum_{\substack{k \in A \\ k \leq N}} \frac{1}{k}\), if the limit exists.</li>
+</ul>
+When both exist, it is a classical result that \(d(A) \leq \delta(A)\) (the inequality can be strict).
+</div>
+
+<div class="theorem">
+<strong>Theorem 3.2 (Natural density of the sieve set).</strong> For every \(\theta \in [0, \pi)\):
+\[
+d(\mathcal{S}(\theta)) = \lim_{N \to \infty} \frac{|\mathcal{S}(\theta) \cap [2,N]|}{N} = 0.
+\]
+The sieve set has natural density zero.
+</div>
+
+<div class="proof">
+By Proposition 2.2(d), \(|\mathcal{S}(\theta) \cap [2,N]| = (\theta/\pi)\ln N + O(1)\). Therefore
+\[
+\frac{|\mathcal{S}(\theta) \cap [2,N]|}{N} = \frac{(\theta/\pi)\ln N + O(1)}{N} \to 0
+\]
+as \(N \to \infty\), since \(\ln N / N \to 0\).
+</div>
+
+<div class="theorem">
+<strong>Theorem 3.3 (Logarithmic density of the sieve set).</strong> The classical logarithmic density of \(\mathcal{S}(\theta)\) is zero for all \(\theta \in [0, \pi)\):
+\[
+\delta(\mathcal{S}(\theta)) = \lim_{N \to \infty} \frac{1}{\ln N}\sum_{\substack{k \in \mathcal{S}(\theta) \\ k \leq N}} \frac{1}{k} = 0.
+\]
+However, the reciprocal sum itself converges to a well-defined finite limit:
+\[
+\sum_{\substack{k \in \mathcal{S}(\theta) \\ k \leq N}} \frac{1}{k} \;\to\; \frac{\theta}{\pi} \quad\text{as } N \to \infty.
+\]
+</div>
+
+<div class="proof">
+By Lemma 2.5, \(\sum_{k \in \mathcal{S}(\theta), k \leq N} 1/k = \theta/\pi + O(1/N)\). Since this sum converges to the finite value \(\theta/\pi\) while the normalising factor \(\ln N \to \infty\), the logarithmic density is
+\[
+\delta(\mathcal{S}(\theta)) = \lim_{N \to \infty} \frac{\theta/\pi + O(1/N)}{\ln N} = 0.
+\]
+The sieve set \(\mathcal{S}(\theta)\) has <em>both</em> natural density zero and logarithmic density zero. This is consistent: any set with convergent reciprocal sum must have logarithmic density zero, since a positive logarithmic density \(\delta > 0\) would imply \(\sum_{k \in A, k \leq N} 1/k \sim \delta \ln N \to \infty\).
+</div>
+
+<div class="remark">
+<strong>Remark 3.4 (The reciprocal sum as the natural density measure).</strong> Although \(\mathcal{S}(\theta)\) has zero logarithmic density, the convergent reciprocal sum \(\theta/\pi\) is the natural "size" measure for this set. The map \(\theta \mapsto \sum_{k \in \mathcal{S}(\theta)} 1/k = \theta/\pi\) is a continuous, monotone parameterisation of the sieve family by the total reciprocal mass. This reciprocal sum is the defining invariant of the greedy construction: it is the <em>constraint</em>, not a consequence.
+</div>
+
+<div class="remark">
+<strong>Remark 3.5 (Correction of the density analogy).</strong> The statement in the companion paper [Geere, 2026a, Section 7.2] that "the density of selected integers for a given \(\theta\) is logarithmic, reminiscent of the prime counting function" requires clarification. The counting function \(D(N,\theta) \sim (\theta/\pi)\ln N\) grows logarithmically, while the prime counting function \(\pi(N) \sim N/\ln N\) grows nearly linearly. These are not analogous growth rates:
+\[
+D(N,\theta) \sim (\theta/\pi)\ln N \quad\ll\quad \pi(N) \sim \frac{N}{\ln N}.
+\]
+The sieve set is far sparser than the primes. The sum of reciprocals of primes <em>diverges</em> (\(\sum_{p \leq N} 1/p \sim \ln\ln N\)), while the sieve set's reciprocal sum converges. Thus the harmonic sieve is even sparser than the perfect squares \(\{1,4,9,16,\ldots\}\), which have counting function \(\sim \sqrt{N}\) but convergent reciprocal sum \(\pi^2/6\). The greedy harmonic sieve has counting function \(\sim \ln N\), growing more slowly than any positive power of \(N\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 3.6 (Growth rate comparison).</strong> The following table summarises the counting function and reciprocal sum behaviour:
+</div>
+
+<table>
+  <tr>
+    <th>Set \(A\)</th>
+    <th>Counting function \(|A \cap [1,N]|\)</th>
+    <th>Reciprocal sum \(\sum_{k \in A, k \leq N} 1/k\)</th>
+    <th>Natural density</th>
+  </tr>
+  <tr>
+    <td>All integers</td>
+    <td>\(N\)</td>
+    <td>\(\sim \ln N\)</td>
+    <td>1</td>
+  </tr>
+  <tr>
+    <td>Primes</td>
+    <td>\(\sim N/\ln N\)</td>
+    <td>\(\sim \ln\ln N\)</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <td>Perfect squares</td>
+    <td>\(\sim \sqrt{N}\)</td>
+    <td>\(\to \pi^2/6\)</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <td>\(\mathcal{S}(\theta)\), greedy sieve</td>
+    <td>\(\sim (\theta/\pi)\ln N\)</td>
+    <td>\(\to \theta/\pi\)</td>
+    <td>0</td>
+  </tr>
+  <tr>
+    <td>Powers of 2</td>
+    <td>\(\sim \log_2 N\)</td>
+    <td>\(\to 1\)</td>
+    <td>0</td>
+  </tr>
+</table>
+
+<div class="remark">
+<strong>Remark 3.7.</strong> The greedy harmonic sieve \(\mathcal{S}(\theta)\) sits between the powers of 2 (counting function \(\sim \log_2 N\), convergent reciprocal sum \(\to 1\)) and the perfect squares (counting function \(\sim \sqrt{N}\), convergent reciprocal sum \(\to \pi^2/6\)) in terms of thinness. Its counting function is logarithmic, like the powers of 2, but the set is not lacunary&mdash;it contains integers at all scales, rather than being concentrated at exponentially spaced values.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="probabilistic">
+
+<h2>4. A Probabilistic Comparison</h2>
+
+<p>
+To understand the greedy harmonic sieve more deeply, we compare it with the natural probabilistic model: a random subset of \(\{2,3,4,\ldots\}\) where each integer \(k\) is included independently with a prescribed probability.
+</p>
+
+<div class="definition">
+<strong>Definition 4.1 (Bernoulli harmonic sieve).</strong> For \(x \in (0,1)\), define the <em>Bernoulli harmonic sieve</em> \(\mathcal{B}(x)\) as the random subset of \(\{2,3,4,\ldots\}\) where each integer \(k \geq 2\) is included independently with probability
+\[
+p_k = \frac{x}{k}.
+\]
+(For \(k \leq \lfloor 1/x \rfloor\), we have \(p_k \leq 1\), which is valid. For \(k < 1/x\)&mdash;specifically \(k = 2\) when \(x > 1/2\)&mdash;we cap \(p_k\) at 1.)
+</div>
+
+<div class="theorem">
+<strong>Proposition 4.2 (First moment comparison).</strong> The expected counting function of the Bernoulli harmonic sieve matches the greedy harmonic sieve:
+\[
+\mathbb{E}\bigl[|\mathcal{B}(x) \cap [2,N]|\bigr] = \sum_{k=2}^{N} \frac{x}{k} = x(H_N - 1) = x\ln N + O(1).
+\]
+This equals \(D(N, \pi x) = x\ln N + O(1)\), the counting function of the greedy sieve \(\mathcal{S}(\pi x)\).
+</div>
+
+<div class="proof">
+By linearity of expectation:
+\[
+\mathbb{E}\bigl[|\mathcal{B}(x) \cap [2,N]|\bigr] = \sum_{k=2}^{N} p_k = \sum_{k=2}^{N} \frac{x}{k} = x(H_N - 1) = x\ln N + x(\gamma - 1) + O(x/N).
+\]
+</div>
+
+<div class="theorem">
+<strong>Proposition 4.3 (Reciprocal sum comparison).</strong> The expected reciprocal sum of the Bernoulli sieve is:
+\[
+\mathbb{E}\!\left[\sum_{\substack{k \in \mathcal{B}(x) \\ k \leq N}} \frac{1}{k}\right] = \sum_{k=2}^{N} \frac{x}{k^2} \;\to\; x\!\left(\frac{\pi^2}{6} - 1\right) \approx 0.6449x.
+\]
+In contrast, the reciprocal sum of the greedy sieve converges to \(x = \theta/\pi\), which is larger.
+</div>
+
+<div class="proof">
+\[
+\mathbb{E}\!\left[\sum \frac{\mathbf{1}_{k \in \mathcal{B}(x)}}{k}\right] = \sum_{k=2}^{N} \frac{p_k}{k} = \sum_{k=2}^{N} \frac{x}{k^2} \to x\!\left(\frac{\pi^2}{6} - 1\right).
+\]
+The greedy sieve reciprocal sum is \(\theta/\pi = x\), which exceeds \(x(\pi^2/6 - 1)\) for all \(x > 0\) since \(\pi^2/6 - 1 \approx 0.6449 < 1\).
+</div>
+
+<div class="keypoint">
+<strong>Interpretation.</strong> Although the greedy sieve and the Bernoulli model have the same counting function (to leading order), they differ in which integers they select. The greedy sieve preferentially selects <em>smaller</em> integers (which contribute more to the reciprocal sum), while the Bernoulli model selects uniformly at random with probability \(x/k\). The greedy algorithm's strategy of taking the largest available angle (= smallest integer) first creates a bias toward small integers that inflates the reciprocal sum.
+</div>
+
+<h3>4.1. Second moment and correlations</h3>
+
+<div class="theorem">
+<strong>Proposition 4.4 (Variance comparison).</strong> The variance of the counting function differs between the two models:
+<ol type="a">
+  <li><strong>Bernoulli model:</strong> \(\mathrm{Var}(|\mathcal{B}(x) \cap [2,N]|) = \sum_{k=2}^{N} \frac{x}{k}\left(1 - \frac{x}{k}\right) = x\ln N + O(1)\).</li>
+  <li><strong>Greedy model:</strong> The counting function \(D(N,\theta)\) is <em>deterministic</em> in \(\theta\), so its "variance" is measured by the \(\theta\)-integrated fluctuation:
+  \[
+  \int_0^\pi \left[D(N,\theta) - \frac{\theta}{\pi}\ln N\right]^2 \frac{d\theta}{\pi} = O(1).
+  \]
+  </li>
+</ol>
+The greedy sieve has bounded fluctuations in \(\theta\), while the Bernoulli sieve has fluctuations of order \(\sqrt{\ln N}\).
+</div>
+
+<div class="proof">
+<p>(a) By independence, \(\mathrm{Var}(|\mathcal{B}(x) \cap [2,N]|) = \sum p_k(1-p_k) = \sum x/k - \sum x^2/k^2 = x\ln N + O(1)\).</p>
+
+<p>(b) The greedy counting function satisfies \(D(N,\theta) = (\theta/\pi)\ln N + O(1)\) uniformly in \(\theta\), so \(D(N,\theta) - (\theta/\pi)\ln N = O(1)\) for all \(\theta\). The \(\theta\)-averaged squared fluctuation is therefore \(O(1)\).</p>
+</div>
+
+<div class="remark">
+<strong>Remark 4.5 (Correlation kernel comparison).</strong> In the Bernoulli model, the indicators \(\mathbf{1}_{k \in \mathcal{B}(x)}\) are independent for different \(k\), so the covariance kernel is diagonal:
+\[
+K_{\mathrm{Bern}}(n,m) = \begin{cases} x/(n+2)\cdot(1 - x/(n+2)) & \text{if } n = m, \\ 0 & \text{if } n \neq m. \end{cases}
+\]
+In contrast, the greedy harmonic sieve has a nonzero off-diagonal correlation kernel \(K(n,m)\) computed in [Geere, 2026a, Lemma 4.7], reflecting the strong correlations imposed by the greedy constraint. The deterministic coupling&mdash;selecting index \(n\) depends on all previous selections via the accumulated angle \(\theta_n\)&mdash;creates correlations at all scales.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="arithmetic">
+
+<h2>5. Comparison with Arithmetic Sieves</h2>
+
+<p>
+Classical sieve theory concerns subsets of the integers defined by <em>divisibility conditions</em>. We compare the greedy harmonic sieve with these arithmetic sieves to delineate the structural analogies and differences.
+</p>
+
+<h3>5.1. The Sieve of Eratosthenes</h3>
+
+<div class="definition">
+<strong>Definition 5.1 (Eratosthenes sieve).</strong> The Sieve of Eratosthenes produces the set of primes by iteratively removing multiples. Starting from \(\{2, 3, 4, \ldots, N\}\): at step \(p\), remove all multiples of \(p\) (other than \(p\) itself) for each prime \(p \leq \sqrt{N}\). The surviving elements are the primes up to \(N\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 5.2 (Structural comparison: Eratosthenes vs. greedy harmonic).</strong>
+</div>
+
+<table>
+  <tr>
+    <th>Feature</th>
+    <th>Eratosthenes sieve</th>
+    <th>Greedy harmonic sieve</th>
+  </tr>
+  <tr>
+    <td>Mechanism</td>
+    <td>Remove multiples of small primes</td>
+    <td>Include if residual angle permits</td>
+  </tr>
+  <tr>
+    <td>Direction</td>
+    <td>Exclusionary (removes elements)</td>
+    <td>Inclusionary (adds elements)</td>
+  </tr>
+  <tr>
+    <td>Sequential order</td>
+    <td>Process primes \(2, 3, 5, 7, \ldots\)</td>
+    <td>Process integers \(2, 3, 4, 5, \ldots\)</td>
+  </tr>
+  <tr>
+    <td>Condition for survival/inclusion</td>
+    <td>Not divisible by any smaller prime</td>
+    <td>Remaining residual \(\geq \pi/k\)</td>
+  </tr>
+  <tr>
+    <td>Uses multiplicative structure</td>
+    <td>Yes (divisibility)</td>
+    <td>No</td>
+  </tr>
+  <tr>
+    <td>Counting function</td>
+    <td>\(\sim N/\ln N\)</td>
+    <td>\(\sim (\theta/\pi)\ln N\)</td>
+  </tr>
+  <tr>
+    <td>Parametric family</td>
+    <td>No (unique output: the primes)</td>
+    <td>Yes (parameterised by \(\theta \in [0,\pi]\))</td>
+  </tr>
+  <tr>
+    <td>Reciprocal sum</td>
+    <td>Diverges (\(\sim \ln\ln N\))</td>
+    <td>Converges (\(\to \theta/\pi\))</td>
+  </tr>
+</table>
+
+<h3>5.2. Combinatorial sieves: Brun and Selberg</h3>
+
+<div class="definition">
+<strong>Definition 5.3 (General combinatorial sieve setup).</strong> In the framework of Brun, Selberg, and subsequent authors (see [Halberstam &amp; Richert, 1974]), a sieve problem consists of:
+<ul>
+  <li>A finite set \(\mathcal{A}\) of integers (the "sifting set"), typically \(\mathcal{A} = \{n : n \leq N\}\) or \(\mathcal{A} = \{n : n \leq N,\; n \equiv a \pmod{q}\}\).</li>
+  <li>A set of primes \(\mathcal{P}\) (the "sifting primes").</li>
+  <li>For each prime \(p \in \mathcal{P}\) and each \(d \mid P(z) = \prod_{p \in \mathcal{P}, p < z} p\), an approximation \(|\mathcal{A}_d| \approx \frac{\omega(d)}{d} X + r_d\), where \(\mathcal{A}_d = \{a \in \mathcal{A} : d \mid a\}\), \(X = |\mathcal{A}|\), \(\omega\) is a multiplicative function, and \(r_d\) is a remainder term.</li>
+</ul>
+The <em>sieve dimension</em> \(\kappa\) is determined by the condition \(\sum_{p < z, p \in \mathcal{P}} \omega(p)/p \sim \kappa \ln \ln z\). For the primes, \(\kappa = 1\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 5.4 (The greedy harmonic sieve has no sieve dimension).</strong> The greedy harmonic sieve does not fit into the combinatorial sieve framework of Definition 5.3, because:
+<ol type="a">
+  <li>The selection criterion \(\delta_n(\theta) = 1\) is not a divisibility condition. There is no set of "sifting primes" and no multiplicative density function \(\omega(d)\).</li>
+  <li>The counting function \(D(N,\theta) \sim (\theta/\pi)\ln N\) does not have the form \(X \cdot \prod_{p < z}(1 - \omega(p)/p) + \text{error}\) for any choice of \(\omega\).</li>
+  <li>In particular, \(D(N,\theta)\) grows as \(\ln N\), not as \(N \cdot (\text{product of local densities})\). No value of the sieve dimension \(\kappa\) produces this growth rate within the Brun&ndash;Selberg framework.</li>
+</ol>
+</div>
+
+<div class="proof">
+<p>(a) The greedy criterion \(\theta - \theta_n \geq \alpha_n\) depends on the accumulated angle from all previous selections, not on the divisibility of \(n+2\) by any prime. Two integers with identical prime factorisations but different positions in the sequence (which cannot happen, but conceptually) would have different selection outcomes, demonstrating the non-arithmetic nature of the criterion.</p>
+
+<p>(b) In the Brun&ndash;Selberg framework, the sifting function for sieve dimension \(\kappa\) satisfies \(S(\mathcal{A}, \mathcal{P}, z) \sim C \cdot N / (\ln z)^{\kappa}\) for suitable \(z\). With \(z = N\), this gives a counting function of order \(N / (\ln N)^{\kappa}\), which for \(\kappa = 1\) yields the prime number theorem. No choice of \(\kappa\) gives \(\ln N\): the expression \(N/(\ln N)^{\kappa}\) always grows polynomially in \(N\), while \(\ln N\) grows only logarithmically.</p>
+
+<p>(c) The mismatch in growth rate is not a technicality but a fundamental incompatibility: the greedy harmonic sieve selects too few integers for any arithmetic sieve model.</p>
+</div>
+
+<div class="keypoint">
+<strong>Central distinction.</strong> Arithmetic sieves operate by removing integers that satisfy local (divisibility) conditions, with the density governed by a multiplicative function. The greedy harmonic sieve operates by a global, sequential constraint (the accumulated angle), with no multiplicative structure. The two mechanisms produce qualitatively different objects: the arithmetic sieve output is determined by the prime factorisation of each integer (a local property), while the greedy sieve membership is determined by the integer's position in the ordering relative to all previously selected integers (a global property).
+</div>
+
+<h3>5.3. Analogies that do hold</h3>
+
+<div class="theorem">
+<strong>Proposition 5.5 (Valid structural analogies).</strong> Despite the fundamental differences, the following analogies between the greedy harmonic sieve and arithmetic sieves are substantive:
+<ol type="a">
+  <li><strong>Sequential construction.</strong> Both are built by processing integers in order and making local decisions (include/exclude) based on accumulated information.</li>
+  <li><strong>Sparsity.</strong> Both produce sets of natural density zero (for non-trivial parameter values).</li>
+  <li><strong>Parametric families.</strong> The greedy sieve \(\{\mathcal{S}(\theta)\}_{\theta}\) is parametric in \(\theta\), analogous to the family of sieve problems \(\{S(\mathcal{A}, \mathcal{P}, z)\}_{z}\) parametric in the sieve level \(z\).</li>
+  <li><strong>Monotone nesting.</strong> Increasing the parameter (\(\theta\) for the greedy sieve, \(z\) for the Eratosthenes sieve) changes the output monotonically: in the greedy sieve, \(\mathcal{S}(\theta)\) grows; in the Eratosthenes sieve, \(S(\mathcal{A}, \mathcal{P}, z)\) shrinks (more integers are sifted out as \(z\) increases).</li>
+  <li><strong>Harmonic series connection.</strong> The density function \(\omega(p)/p\) in sieve theory sums to \(\sim \kappa \ln\ln z\) over primes, involving the harmonic series applied to primes. The greedy sieve directly uses the harmonic series \(\sum 1/k\) applied to all integers. In both cases, the divergence of a harmonic-type series is the source of the sieve's power.</li>
+</ol>
+</div>
+
+<div class="proof">
+<p>Each item is a direct comparison of the definitions. The most substantive is (e): in Mertens' theorem, \(\sum_{p \leq z} 1/p = \ln\ln z + M + O(1/\ln z)\) where \(M\) is the Meissel&ndash;Mertens constant. The sum \(\sum 1/p\) over primes plays the same structural role as \(\sum 1/k\) over all integers in the greedy sieve&mdash;both are divergent harmonic-type sums whose partial sums control the density of the sieved set.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="egyptian">
+
+<h2>6. Connection to Egyptian Fraction Algorithms</h2>
+
+<p>
+The greedy harmonic sieve is closely related to the classical theory of Egyptian fraction representations, providing a more natural mathematical context for the construction than sieve theory.
+</p>
+
+<div class="definition">
+<strong>Definition 6.1 (Egyptian fraction representation).</strong> An <em>Egyptian fraction representation</em> of a rational number \(q \in (0,1]\) is an expression
+\[
+q = \frac{1}{a_1} + \frac{1}{a_2} + \cdots + \frac{1}{a_m}
+\]
+where \(a_1 < a_2 < \cdots < a_m\) are positive integers.
+</div>
+
+<div class="definition">
+<strong>Definition 6.2 (Sylvester&ndash;Fibonacci greedy algorithm).</strong> Given a target \(q \in (0,1)\), the <em>Sylvester&ndash;Fibonacci algorithm</em> produces an Egyptian fraction representation by repeatedly subtracting the largest unit fraction that does not exceed the remaining target:
+\[
+a_1 = \lceil 1/q \rceil, \quad q_1 = q - 1/a_1, \quad a_2 = \lceil 1/q_1 \rceil, \quad q_2 = q_1 - 1/a_2, \quad \ldots
+\]
+This terminates in finitely many steps for rational \(q\), and for irrational \(q\) it produces an infinite series converging to \(q\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 6.3 (Relationship to the greedy harmonic sieve).</strong> The greedy harmonic sieve \(\mathcal{S}(\theta)\) is a restricted version of the Sylvester&ndash;Fibonacci algorithm:
+<ol type="a">
+  <li>The Sylvester&ndash;Fibonacci algorithm applied to \(q = \theta/\pi\) selects unit fractions \(1/a_k\) from the full set \(\{1/k : k \geq 1\}\), choosing the largest available at each step.</li>
+  <li>The greedy harmonic sieve applied to \(\theta\) selects unit fractions from the restricted set \(\{1/k : k \geq 2\}\), but considers them in the fixed order \(k = 2, 3, 4, \ldots\) rather than in the Sylvester&ndash;Fibonacci order.</li>
+  <li>The two algorithms produce the <em>same</em> output when the denominators are already in increasing order, which is the case for the harmonic sequence \(1/2, 1/3, 1/4, \ldots\)</li>
+</ol>
+</div>
+
+<div class="proof">
+<p>(a) and (b) follow from the definitions. For (c): the Sylvester&ndash;Fibonacci algorithm at each step selects \(a_k = \lceil 1/q_{k-1} \rceil\), the smallest integer whose reciprocal fits. Since the greedy harmonic sieve considers integers in increasing order \(2, 3, 4, \ldots\) and selects each one if its reciprocal fits in the remaining budget, and this is exactly the same as choosing the largest available unit fraction from \(\{1/k : k \geq 2\}\)&mdash;which is \(1/a\) with \(a = \) smallest integer \(\geq 2\) such that \(1/a \leq q_{\text{remaining}}\).</p>
+
+<p>Specifically: at step \(n\), the greedy harmonic sieve includes \(n+2\) iff \(\pi/(n+2) \leq r_n\) (the remaining residual), i.e., iff \(1/(n+2) \leq r_n/\pi\). This is equivalent to going through \(k = 2, 3, 4, \ldots\) in order and including \(k\) whenever \(1/k\) fits in the remaining fraction \(r_n/\pi\). Since the denominators are already sorted in increasing order (i.e., the unit fractions \(1/2, 1/3, 1/4, \ldots\) are in decreasing order), this is the Sylvester&ndash;Fibonacci algorithm restricted to \(\{1/k : k \geq 2\}\).</p>
+</div>
+
+<div class="remark">
+<strong>Remark 6.4 (Finite vs. infinite representations).</strong> A key difference: the Sylvester&ndash;Fibonacci algorithm applied to a rational number terminates in finitely many steps, but the greedy harmonic sieve always produces an <em>infinite</em> set \(\mathcal{S}(\theta)\) (for \(\theta > 0\)), because:
+<ul>
+  <li>For rational \(\theta/\pi\):  the harmonic series has irrational partial sums (in general), so the greedy residual \(r_n\) need not reach zero in finitely many steps. Even when \(\theta/\pi\) is rational, the constraint that denominators run through \(2, 3, 4, \ldots\) without gaps means the algorithm cannot always find an exact finite representation within this restricted set.</li>
+  <li>For irrational \(\theta/\pi\): no finite sub-sum of \(\{1/k\}\) equals \(\theta/\pi\), so the algorithm never terminates.</li>
+</ul>
+In both cases, the algorithm produces a convergent infinite series \(\sum_{k \in \mathcal{S}(\theta)} 1/k = \theta/\pi\).
+</div>
+
+<div class="theorem">
+<strong>Proposition 6.5 (Erdős&ndash;Graham completeness context).</strong> The Erdős&ndash;Graham conjecture (proved by Croot, 2003) states that if \(A\) is a set of integers greater than 1 with \(\sum_{a \in A} 1/a = \infty\), then there exists a finite subset \(B \subseteq A\) with \(\sum_{b \in B} 1/b = 1\). The greedy harmonic sieve is directly related to this circle of ideas:
+<ol type="a">
+  <li>When \(\theta = \pi\), \(\mathcal{S}(\pi) = \{2,3,4,\ldots\}\) has divergent reciprocal sum, so by the Erdős&ndash;Graham theorem, finite subsets summing to 1 exist.</li>
+  <li>For \(\theta < \pi\), \(\mathcal{S}(\theta)\) has convergent reciprocal sum \(\theta/\pi < 1\), so the Erdős&ndash;Graham theorem does not apply. However, the greedy sieve can be viewed as the "partial" version of the Erdős&ndash;Graham completeness: it extracts a maximal sub-sum not exceeding \(\theta/\pi\) from the harmonic series.</li>
+</ol>
+</div>
+
+<div class="proof">
+<p>(a) \(\sum_{k \geq 2} 1/k = \infty\), so the Erdős&ndash;Graham theorem applies.</p>
+
+<p>(b) The greedy sieve extracts sub-sums of the harmonic series: \(\sum_{k \in \mathcal{S}(\theta)} 1/k = \theta/\pi\). By the greedy residual bound, this is the unique maximal sub-sum (in the greedy order) not exceeding \(\theta/\pi\). The construction is related to, but distinct from, the subset-sum and Egyptian fraction problems that underpin the Erdős&ndash;Graham theorem.</p>
+</div>
+
+<div class="keypoint">
+<strong>Summary.</strong> The greedy harmonic sieve is more naturally understood as an instance of the Sylvester&ndash;Fibonacci greedy algorithm for Egyptian fractions, restricted to the harmonic denominators \(\{2,3,4,\ldots\}\), than as an arithmetic sieve. Its mathematical context is the theory of representations by sums of unit fractions, not the theory of prime sieves.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="dirichlet">
+
+<h2>7. The Generating Dirichlet Series</h2>
+
+<p>
+The Dirichlet series associated with the sieve set provides a link&mdash;algebraic but not analytic&mdash;to the Riemann zeta function.
+</p>
+
+<div class="definition">
+<strong>Definition 7.1 (Sieve Dirichlet series).</strong> For \(s = \sigma + it\) with \(\sigma > 1\), define
+\[
+\Phi(s, \theta) = \sum_{k \in \mathcal{S}(\theta)} k^{-s} = \sum_{n=0}^{\infty} \frac{\delta_n(\theta)}{(n+2)^s}.
+\]
+</div>
+
+<div class="theorem">
+<strong>Proposition 7.2 (Convergence and boundary behaviour).</strong>
+<ol type="a">
+  <li>\(\Phi(s,\theta)\) converges absolutely for \(\sigma > 1\).</li>
+  <li>\(\Phi(s,\theta)\) converges conditionally for \(\sigma > 0\), by partial summation using the logarithmic counting function \(D(N,\theta) = O(\ln N)\).</li>
+  <li>At the boundary values: \(\Phi(s, 0) = 0\) and \(\Phi(s, \pi) = \zeta(s) - 1\) for \(\sigma > 1\).</li>
+</ol>
+</div>
+
+<div class="proof">
+<p>(a) \(|\delta_n/(n+2)^s| \leq (n+2)^{-\sigma}\), and \(\sum (n+2)^{-\sigma} < \infty\) for \(\sigma > 1\).</p>
+
+<p>(b) Let \(D(N) = \sum_{n=0}^{N} \delta_n(\theta) = O(\ln N)\). By Abel summation:</p>
+\[
+\sum_{n=0}^{N} \frac{\delta_n}{(n+2)^s} = \frac{D(N)}{(N+2)^s} + s\int_0^N \frac{D(u)}{(u+2)^{s+1}}\,du.
+\]
+<p>The first term is \(O(\ln N \cdot N^{-\sigma}) \to 0\) for \(\sigma > 0\). The integral converges absolutely for \(\sigma > 0\) since \(D(u) = O(\ln u)\) and \(\int \ln u \cdot u^{-\sigma-1}\,du < \infty\) for \(\sigma > 0\).</p>
+
+<p>(c) When \(\theta = 0\): \(\delta_n = 0\) for all \(n\), so \(\Phi(s,0) = 0\). When \(\theta = \pi\): \(\delta_n = 1\) for all \(n\), so \(\Phi(s,\pi) = \sum_{n=0}^{\infty}(n+2)^{-s} = \sum_{k=2}^{\infty} k^{-s} = \zeta(s) - 1\).</p>
+</div>
+
+<div class="theorem">
+<strong>Proposition 7.3 (Absence of an Euler product).</strong> For \(\theta \in (0,\pi)\), the Dirichlet series \(\Phi(s,\theta)\) does not admit an Euler product representation. That is, there is no multiplicative function \(f\) such that
+\[
+\Phi(s,\theta) = \prod_{p \text{ prime}} \left(\sum_{k=0}^{\infty} \frac{f(p^k)}{p^{ks}}\right).
+\]
+</div>
+
+<div class="proof">
+An Euler product exists if and only if the coefficients of the Dirichlet series form a multiplicative function: \(a_{nm} = a_n \cdot a_m\) whenever \(\gcd(n,m) = 1\). The coefficients of \(\Phi(s,\theta)\) are \(a_k = \delta_{k-2}(\theta) \in \{0,1\}\) for \(k \geq 2\). Multiplicativity would require: for coprime \(k, l \geq 2\), \(a_{kl} = a_k \cdot a_l\), i.e., \(kl \in \mathcal{S}(\theta)\) iff both \(k \in \mathcal{S}(\theta)\) and \(l \in \mathcal{S}(\theta)\).
+
+<p>This fails for any \(\theta \in (0,\pi)\). For example, take \(\theta = \pi/2\). Then \(2 \in \mathcal{S}(\pi/2)\) (since \(\theta_0^* = \pi/2\) and \(\theta \geq \pi/2\)). Check whether \(3 \in \mathcal{S}(\pi/2)\): \(\theta_1^* = \pi/3 < \pi/2\), so \(3 \in \mathcal{S}(\pi/2)\). Now \(\gcd(2,3) = 1\), so multiplicativity requires \(6 \in \mathcal{S}(\pi/2)\). But the greedy sieve has a convergent reciprocal sum \(1/2\), and \(1/2 + 1/3 + 1/6 = 1 > 1/2\), so it is impossible for all three of \(2, 3, 6\) to be selected with reciprocal sum \(\leq 1/2\). Indeed, index \(n = 4\) gives \(k=6\), and by this point the accumulated angle is close to \(\pi/2\), leaving residual too small to accommodate \(\pi/6\).</p>
+
+<p>Since multiplicativity of the indicator function fails, no Euler product exists.</p>
+</div>
+
+<div class="remark">
+<strong>Remark 7.4 (Consequences of the absent Euler product).</strong> The Euler product is the bridge between the Riemann zeta function and the prime numbers. Its absence for \(\Phi(s,\theta)\) with \(\theta < \pi\) means:
+<ul>
+  <li>The sieve set \(\mathcal{S}(\theta)\) carries no multiplicative structure, and standard techniques of multiplicative number theory (Perron's formula applied to Euler products, Rankin's method, etc.) do not apply.</li>
+  <li>The Dirichlet series \(\Phi(s,\theta)\) is a "non-multiplicative" sub-sum of \(\zeta(s) - 1\). It is an additive, not multiplicative, object.</li>
+  <li>The analytic continuation of \(\Phi(s,\theta)\) from \(\sigma > 1\) to \(\sigma > 0\) (Proposition 7.2(b)) is via Abel summation, not via the functional equation of \(\zeta(s)\). There is no reason to expect that \(\Phi(s,\theta)\) and \(\zeta(s) - 1\) share analytic properties (such as the location of zeros) in the critical strip.</li>
+</ul>
+</div>
+
+<div class="theorem">
+<strong>Proposition 7.5 (\(\theta\)-interpolation).</strong> The map \(\theta \mapsto \Phi(s,\theta)\) is a non-decreasing step function for each fixed \(s\) with \(\sigma > 1\), jumping at the threshold angles \(\theta_n^*\):
+\[
+\Phi(s,\theta) = \sum_{n : \theta_n^* \leq \theta} (n+2)^{-s}.
+\]
+As \(\theta\) increases from \(0\) to \(\pi\), \(\Phi(s,\theta)\) increases from \(0\) to \(\zeta(s) - 1\), adding one term \((n+2)^{-s}\) at each threshold \(\theta_n^*\).
+</div>
+
+<div class="proof">
+By Definition 1.2, \(\delta_n(\theta) = 1\) iff \(\theta \geq \theta_n^*\). Therefore \(\Phi(s,\theta) = \sum_{n : \theta_n^* \leq \theta} (n+2)^{-s}\). Since each term \((n+2)^{-s}\) is positive for real \(s > 0\) (and the real part of \((n+2)^{-s}\) determines the behaviour for complex \(s\)), the sum is non-decreasing in \(\theta\). The boundary values follow from \(\mathcal{S}(0) = \emptyset\) and \(\mathcal{S}(\pi) = \{2,3,\ldots\}\).
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="discussion">
+
+<h2>8. Discussion</h2>
+
+<h3>8.1. Summary of findings</h3>
+
+<p>
+Our investigation of the greedy harmonic sieve in the context of classical sieve theory leads to the following conclusions:
+</p>
+
+<ol>
+  <li><strong>The sieve sets \(\mathcal{S}(\theta)\) form a nested filtration</strong> of \(\{2,3,4,\ldots\}\), parameterised by \(\theta \in [0,\pi]\), with natural density zero and convergent reciprocal sum \(\theta/\pi\) (Section 2&ndash;3).</li>
+
+  <li><strong>The relationship to the primes is superficial.</strong> The counting function \(D(N,\theta) \sim (\theta/\pi)\ln N\) grows logarithmically, but this is much slower than the prime counting function \(\sim N/\ln N\). The greedy sieve is sparser than the primes, the squares, or any set with polynomially growing counting function (Section 3).</li>
+
+  <li><strong>A Bernoulli model with probabilities \(x/k\) matches the first moment</strong> of the greedy sieve but differs in higher moments, because the greedy constraint introduces deterministic correlations (Section 4).</li>
+
+  <li><strong>The greedy sieve is fundamentally non-arithmetic.</strong> It does not fit the Brun&ndash;Selberg combinatorial sieve framework, has no sieve dimension, and the associated Dirichlet series has no Euler product (Sections 5, 7).</li>
+
+  <li><strong>The natural mathematical context is Egyptian fraction theory</strong>, not prime sieve theory. The greedy harmonic sieve is the Sylvester&ndash;Fibonacci algorithm applied to the target \(\theta/\pi\) using the restricted denominator set \(\{2,3,4,\ldots\}\) (Section 6).</li>
+
+  <li><strong>The Dirichlet series \(\Phi(s,\theta)\) interpolates between 0 and \(\zeta(s)-1\)</strong> as a step function of \(\theta\), but this interpolation is additive (one term at a time) rather than multiplicative, and the analytic properties of \(\Phi(s,\theta)\) in the critical strip are unrelated to those of \(\zeta(s)\) (Section 7).</li>
+</ol>
+
+<h3>8.2. What is genuinely shared</h3>
+
+<p>
+The one deep structural feature shared by the greedy harmonic sieve and arithmetic sieves is the role of the <em>divergent harmonic series</em>. In the sieve of Eratosthenes, the divergence of \(\sum 1/p\) (Euler's proof of the infinitude of primes) is the engine that drives the sieve: as the sieve level \(z \to \infty\), more and more primes contribute to the removal of composite numbers, and the divergence of \(\sum 1/p\) ensures that the surviving set (the primes) becomes sparse. In the greedy harmonic sieve, the divergence of \(\sum 1/k\) is the engine that ensures convergence: the greedy algorithm can always find another term whose reciprocal fits in the remaining budget, because the harmonic series diverges.
+</p>
+
+<p>
+In both cases, the logarithmic divergence rate of the relevant harmonic sum determines the density of the output set. For primes, Mertens' theorem gives \(\prod_{p \leq z}(1-1/p) \sim e^{-\gamma}/\ln z\), leading to \(\pi(N) \sim N/\ln N\). For the greedy sieve, the partial sum \(\sum_{k=2}^{N} 1/k \sim \ln N\) directly gives the counting function \(D(N,\theta) \sim (\theta/\pi)\ln N\). Both feature the logarithm, but arising from different mechanisms: a product over primes in one case, a sum over all integers in the other.
+</p>
+
+<h3>8.3. Open problems</h3>
+
+<ol>
+  <li><strong>Additive structure of \(\mathcal{S}(\theta)\).</strong> Do the sieve sets have any additive structure? For instance, is \(\mathcal{S}(\theta)\) a <em>Sidon set</em> (no two pairs share the same sum) or an asymptotic additive basis of some order? The convergent reciprocal sum suggests that sumset growth is limited.</li>
+
+  <li><strong>Distribution of gaps.</strong> What is the distribution of consecutive gaps \(g_k = s_{k+1} - s_k\) where \(s_1 < s_2 < \cdots\) are the elements of \(\mathcal{S}(\theta)\)? For primes, the gaps are conjectured to follow a Cramér-type distribution. For the greedy sieve, the gap structure is controlled by the threshold angles but has not been characterised.</li>
+
+  <li><strong>Higher-dimensional analogues.</strong> If the harmonic angles \(\pi/(n+2)\) are replaced by a different decreasing sequence \(\alpha_n\) with \(\sum \alpha_n = \infty\), the greedy algorithm still converges (by the same argument). How do the properties of the resulting sieve sets depend on the choice of \((\alpha_n)\)?</li>
+
+  <li><strong>Intersection with arithmetic sets.</strong> What is \(\mathcal{S}(\theta) \cap \mathcal{P}\), where \(\mathcal{P}\) is the set of primes? How many primes does the greedy sieve select? Since the greedy sieve selects roughly a \((\theta/\pi)\)-fraction of the harmonic sum, and the Mertens constant governs the prime contribution, the count of sieved primes should be related to \(\sum_{p \in \mathcal{S}(\theta)} 1/p\), but the precise asymptotics depend on the interplay between the prime distribution and the greedy selection rule.</li>
+</ol>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<hr id="references">
+
+<h2>References</h2>
+
+<ul>
+  <li>Croot, E. (2003). On a coloring conjecture about unit fractions. <em>Annals of Mathematics</em>, 157(2), 545&ndash;556.</li>
+  <li>Erd&#337;s, P. &amp; Graham, R.L. (1980). <em>Old and New Problems and Results in Combinatorial Number Theory</em>. Monographies de L'Enseignement Math&eacute;matique 28.</li>
+  <li>Geere, V. (2020). Geometric Sine Construction. <a href="../sine/index.html">[link]</a></li>
+  <li>Geere, V. (2026a). On the Correlation Structure of a Greedy Harmonic Decomposition of the Sine Function. <a href="greedy-harmonic-decomposition.html">[link]</a></li>
+  <li>Geere, V. (2026b). A Harmonic Reconstruction of the Sine Function and Its Relation to the Riemann Zeta Function. <a href="harmonic-sine-zeta.html">[link]</a></li>
+  <li>Guy, R.K. (2004). <em>Unsolved Problems in Number Theory</em>. 3rd ed., Springer.</li>
+  <li>Halberstam, H. &amp; Richert, H.-E. (1974). <em>Sieve Methods</em>. Academic Press.</li>
+  <li>Hardy, G.H. &amp; Wright, E.M. (2008). <em>An Introduction to the Theory of Numbers</em>. 6th ed., Oxford University Press.</li>
+  <li>Mertens, F. (1874). Ein Beitrag zur analytischen Zahlentheorie. <em>J. reine angew. Math.</em>, 78, 46&ndash;62.</li>
+  <li>Sylvester, J.J. (1880). On a point in the theory of vulgar fractions. <em>American Journal of Mathematics</em>, 3(4), 332&ndash;335.</li>
+</ul>
+
+</main>
+
+</body>
+</html>

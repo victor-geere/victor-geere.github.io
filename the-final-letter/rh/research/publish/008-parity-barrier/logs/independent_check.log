@@ -1,0 +1,319 @@
+rh47 independent auditor -- attack on the BARRIER claim
+script: ../../../..
+python 3.13.13, numpy 2.5.0, mpmath 1.3.0
+seed 20251004; stdlib+numpy+mpmath only; nothing imported from rh0*/rh4*
+
+Round's own referenced probe rh47/greedy_parity_probe.py: present
+Round's own Lean module rh47/lean/Rh47/: []
+
+==============================================================================
+C1.1  the greedy word depends on the target ONLY (no arithmetic input)
+==============================================================================
+The unsigned rule reads one real number x and the integer index m via the
+real value 1/m.  There is no primality/factorisation step anywhere.  Checks:
+
+[PASS] C1.1a two implementations      | exact Fraction vs mpmath(60dps) at x=1/3, N=200: supports [np.int64(3)] vs [np.int64(3)], identical=True
+
+  (b) x=1/3 vs x'=1/3+10^-k, N=100000.  After the take at m=3 the residual
+      is exactly 10^-k, so the first possible difference is the next take,
+      m0 = 1/delta (1/m0 <= delta).  Predicted vs measured:
+           delta    m0_pred    m0_meas  common prefix  verdict
+          1/1000       1000       1000            998  ok
+         1/10000      10000      10000           9998  ok
+        1/100000     100000     100000          99998  ok
+       1/1000000    1000000       None         100000  ok
+[PASS] C1.1b perturbed prefix         | for delta=10^-3..10^-6 the first differing denominator is exactly m0=1/delta; the common prefix has length m0-2 (e.g. 99998 at delta=1e-5)
+
+  (c) delta = 10^-10 .. 10^-50: predicted first difference is beyond N=10^5,
+      so the two words must agree on the whole computed window.
+      delta=1e-10  agree on all N=100000: True
+      delta=1e-20  agree on all N=100000: True
+      delta=1e-30  agree on all N=100000: True
+      delta=1e-40  agree on all N=100000: True
+      delta=1e-50  agree on all N=100000: True
+[PASS] C1.1c far perturbation         | x and x+10^-k (k=10..50) give bit-identical words on m<=N+1=100001 (next take at m=10^k >> N); a continuity/determinism certificate
+
+  (d) rh42 T16: the word factors through x = sin(2*pi*theta).
+      theta=0.1: w(theta)=w(theta+1)=w(1/2-theta) -> True
+      theta=0.3: w(theta)=w(theta+1)=w(1/2-theta) -> True
+      theta=0.42: w(theta)=w(theta+1)=w(1/2-theta) -> True
+[PASS] C1.1d theta factorization      | theta, theta+1 and 1/2-theta give identical words at 80 dps, N=400 (the rule sees the height sin(2*pi*theta), not the turn count)
+
+  (e) signed word: x>0 takes only even denominators, x<0 only odd ones
+      (rh42 parity lock).  Positive target -> n even -> m=n+2 even.
+      theta=0.1: +x support [np.int64(2), np.int64(12), np.int64(226)] all even=True; -x support [np.int64(3), np.int64(5), np.int64(19)] all odd=True
+      theta=0.2: +x support [np.int64(2), np.int64(4), np.int64(6), np.int64(30)] all even=True; -x support [np.int64(3), np.int64(5), np.int64(7), np.int64(9), np.int64(11), np.int64(15), np.int64(163)] all odd=True
+      theta=0.3: +x support [np.int64(2), np.int64(4), np.int64(6), np.int64(30)] all even=True; -x support [np.int64(3), np.int64(5), np.int64(7), np.int64(9), np.int64(11), np.int64(15), np.int64(163)] all odd=True
+      theta=0.42: +x support [np.int64(4), np.int64(6), np.int64(16)] all even=True; -x support [np.int64(3), np.int64(7), np.int64(181)] all odd=True
+[PASS] C1.1e parity lock              | signed support denominators are all even for x>0 and all odd for x<0 (gaps even, >=2) -- rh42 T9 reproduced
+
+==============================================================================
+C1.2  the rh42 budgets separate INDEX parity, not Omega-parity
+==============================================================================
+The rh42 budget for 'positive' terms is P(p)=sum over EVEN denominators,
+the 'negative' budget N(p)=sum over ODD denominators.  That is a statement
+about index parity.  lambda(n)=(-1)^Omega(n) is Omega parity.
+
+  N = 100000:  Omega-even count = 49856, Omega-odd = 50144; even indices = 50000, odd = 50000
+            cell     count        N/4   dev(N/4)   indep.pred  dev(indep)
+     even,Omega+     25044    25000.0       44.0      24928.0       116.0
+     even,Omega-     24956    25000.0      -44.0      25072.0      -116.0
+      odd,Omega+     24812    25000.0     -188.0      24928.0      -116.0
+      odd,Omega-     25188    25000.0      188.0      25072.0       116.0
+    S1=sum(-1)^n = 0, S2=sum lambda = -288, S12=sum(-1)^n lambda = 464
+    every cell deviation from exact-marginal independence equals (S12-S1*S2/N)/4 = 116.00; measured deviations [116.0, -116.0, -116.0, 116.0]
+    size-matched permutation control (R=2000): mean=-2.5, sd=316.4 -> z(S12) = 1.47
+[PASS] C1.2a cells N=100000           | four (index parity)x(Omega parity) cells: max deviation from (N/2)(1/2)=N/4 is 188; after conditioning on the exact margins the residual is (S12-S1S2/N)/4, permutation z=1.47 (|z|<=4)
+  N = 1000000:  Omega-even count = 499735, Omega-odd = 500265; even indices = 500000, odd = 500000
+            cell     count        N/4   dev(N/4)   indep.pred  dev(indep)
+     even,Omega+    250193   250000.0      193.0     249867.5       325.5
+     even,Omega-    249807   250000.0     -193.0     250132.5      -325.5
+      odd,Omega+    249542   250000.0     -458.0     249867.5      -325.5
+      odd,Omega-    250458   250000.0      458.0     250132.5       325.5
+    S1=sum(-1)^n = 0, S2=sum lambda = -530, S12=sum(-1)^n lambda = 1302
+    every cell deviation from exact-marginal independence equals (S12-S1*S2/N)/4 = 325.50; measured deviations [325.5, -325.5, -325.5, 325.5]
+    size-matched permutation control (R=300): mean=30.4, sd=980.4 -> z(S12) = 1.30
+[PASS] C1.2a cells N=1000000          | four (index parity)x(Omega parity) cells: max deviation from (N/2)(1/2)=N/4 is 458; after conditioning on the exact margins the residual is (S12-S1S2/N)/4, permutation z=1.30 (|z|<=4)
+
+  Growth of |S12(N)| = |sum_{n<=N} (-1)^n lambda(n)| (index parity vs
+  Omega parity).  A Theta(N) signal would make the budgets parity-relevant.
+      N=    1000  |S12|=      54.0  |S12|/N=5.400e-02  |S12|/sqrt(N)=1.708
+      N=    3000  |S12|=      88.0  |S12|/N=2.933e-02  |S12|/sqrt(N)=1.607
+      N=   10000  |S12|=     186.0  |S12|/N=1.860e-02  |S12|/sqrt(N)=1.860
+      N=   30000  |S12|=     242.0  |S12|/N=8.067e-03  |S12|/sqrt(N)=1.397
+      N=  100000  |S12|=     464.0  |S12|/N=4.640e-03  |S12|/sqrt(N)=1.467
+      N=  300000  |S12|=     838.0  |S12|/N=2.793e-03  |S12|/sqrt(N)=1.530
+      N= 1000000  |S12|=    1302.0  |S12|/N=1.302e-03  |S12|/sqrt(N)=1.302
+[PASS] C1.2b S12 growth               | log-log slope of |S12(N)| = 0.464 (consistent with 1/2, not 1); |S12|/N = 1.30e-03 at N=10^6: no Theta(N) index-parity signal
+
+  Budget identities (rh42 T3): P(p)=2^-p zeta(p), N(p)=(1-2^-p)zeta(p)-1;
+  P+N = zeta-1 and P-N = 1-eta are zeta/eta combinations that contain no
+  arithmetic of n at all -- they are constants in p.
+      p=2: |P+N-(zeta-1)|=1.15e-41, |P-N-(1-eta)|=1.15e-41
+      p=3: |P+N-(zeta-1)|=1.15e-41, |P-N-(1-eta)|=1.15e-41
+      closed form P(2)=pi^2/24: 0.41123351671205660912 vs 0.41123351671205660912
+[PASS] C1.2c budgets sign-blind       | P+N=zeta-1 and P-N=1-eta verified to <1e-30 at p=2,3; both are functions of p alone, so no budget-derived statistic can be a function of n
+
+  Twist invariance (closes B2 completely): lambda'(n)=(-1)^n lambda(n)
+  gives lambda'(n)lambda'(n+2) = (-1)^(2n+2) lambda(n)lambda(n+2) = the
+  same, since 2 is even.  Verify exactly, x<=10^6:
+[PASS] C1.2d twist invariance         | S(lambda) == S(lambda*(-1)^n) exactly for all x<=10^6 (0 mismatches); the index parity the budgets encode is orthogonal to (STAR)
+
+==============================================================================
+C1.3  f(n)=lambda(n)lambda(n+2) is NOT multiplicative
+==============================================================================
+[PASS] C1.3a f(1) != 1                | f(1)=lambda(1)lambda(3)=-1 (multiplicativity forces f(1)=1)
+
+  coprime pairs (m,n) with f(mn) != f(m)f(n):
+      f(2)f(11) = -1*1 =  -1  vs  f(22) =   1  VIOLATION
+      f(2)f(13) = -1*-1 =   1  vs  f(26) =  -1  VIOLATION
+      f(2)f(17) = -1*1 =  -1  vs  f(34) =   1  VIOLATION
+      f(3)f(5) = 1*1 =   1  vs  f(15) =  -1  VIOLATION
+      f(5)f(7) = 1*-1 =  -1  vs  f(35) =  -1  ok
+      f(2)f(3) = -1*1 =  -1  vs  f(6) =  -1  ok
+[PASS] C1.3b coprime witnesses        | 4 witnesses among the tested pairs, e.g. f(2)f(11)=-1 != f(22)=1; f(2)f(13)=1 != f(26)=-1; f(2)f(17)=-1 != f(34)=1; 11942/23906 of all coprime pairs m,n<200 violate multiplicativity
+
+==============================================================================
+C2  D(2)=sum f(n)/n^2 vs the naive multiplicative model
+==============================================================================
+D(2) on n<=M=1000000:  np.sum = -1.1268130386   math.fsum = -1.1268130386
+  float64 summation error is ~1e-16 * sum 1/n^2 = 2e-16; the two routes differ by 0.00e+00
+  rigorous truncation tail  |sum_{n>M} f(n)/n^2| <= sum_{n>M} n^-2 <= 1/M = 1.000e-06
+
+naive multiplicative model g(p^k)=f(p^k):
+  model A: prod_(p<=P=100000) (1+sum_k f(p^k)/p^2k), p^k<=Q=67108864 exact: 0.88757351633
+    local factors at 9592 primes, 1190 prime powers with k>1; independent trial-division lambda cross-check: True
+    omitted k-tail bound  sum_p p^-2K/(p^2-1) = 6.895e-14
+  model B (rh46's rule: k<=7, p^k<=1e6): 0.887596306082
+    |model A - model B| = 2.279e-05 (= the p=2 k>=8 tail, bounded by 4^-7/3 = 2.035e-05)
+  prime tail bound: sum_(p>P) 1/(p^2-1) <= (1/2)(1/P+1/(P+1)) = 1.0e-5
+  envelope A = prod_(p<=P)(1+1/(p^2-1)) = 1.736189
+  rigorous bound |D_g(2) - model A| <= 1.736189e-5
+
+  D(2) measured                     = -1.12681304
+  naive model A (full product)      = 0.88757352 (+- 1.74e-05)
+  |D(2) - model A|                  = 2.01438655
+  |D(2) - model B|                  = 2.01440934
+  total rigorous uncertainty        = 1.836e-05
+
+  rh46's published 'tail bound for that product' = 1.80898647.
+  That number equals 4*sum_(p<=1e5) 1/p^2 over the RETAINED primes, not the
+  omitted ones p>1e5: it is NOT a truncation tail.  A valid tail bound on the
+  omitted factor is exp(1.0e-5)-1 = 1.00e-05, i.e. ~2e+05x smaller than published.  The no-Euler-product
+  conclusion survives (discrepancy 2.0144 vs tail 1.74e-05).
+[PASS] C2a D(2) reproduced            | D(2)=sum_(n<=10^6) f(n)/n^2 = -1.12681304 (rh46 published -1.12681304); tail <= 1/M = 1.0e-06
+[PASS] C2b rh46 model reproduced      | rh46's truncation rule (k<=7, p^k<=10^6) gives 0.88759631 (published 0.88759631); the audit's exact-to-2^26 model gives 0.88757352, differing by 2.28e-05 = the p=2 k>=8 tail
+[PASS] C2c discrepancy > tight tail   | |D(2)-model A| = 2.014387 > tight rigorous tail 1.836e-05 (prime tail 1.0e-05, k-tail 6.9e-14)
+[PASS] C2d rh46 tail mis-derived      | rh46's published product tail 1.808986 is 4*sum_(p<=1e5)1/p^2 over the RETAINED primes (matches 1.808988 to 1e-5) -- not a bound on the omitted p>1e5 factor (<= 1.0e-05); the check survives but for a different reason than stated
+[PASS] C2e lambda cross-check         | independent trial-division lambda agrees with the sieve on sampled p+2 used in the local factors
+
+==============================================================================
+C3a  greedy alphabet indexed by primes (alpha_p = (-1)^Omega(p+2)/(p+2))
+==============================================================================
+R3 of the handoff proposes alpha_p = (-1)^Omega(p+2)/(p+2).  That alphabet
+IMPORTS lambda(p+2): the sign IS the target function.  Implemented anyway,
+with controls, to quantify the circularity.  'import' below is the mean of
+sign(q)*lambda(q) over the primes: 1 means the alphabet literally contains
+the correlation one is trying to measure.
+
+         sign family  import=mean(s*lambda)   takes   mean lambda over takes
+         lambda(p+2)                 1.0000     141                   1.0000
+          omega(p+2)                 0.6272    4767                   0.6291
+        random signs                 0.0000      --              0.0192 +- 0.0968
+  -> z(lambda-indexed) = +10.1, z(omega-indexed) = +6.3
+  Both non-null: the lambda alphabet imports lambda exactly, and (-1)^omega(q)
+  agrees with lambda(q) on every squarefree q (density 1), so it is a
+  second, weaker import of the SAME parity.  The sign-permuted control is
+  null.  The non-nullity is therefore located entirely in the ALPHABET,
+  not in the greedy dynamics: this is a witness of CIRCULARITY, exactly as
+  R3 of the handoff warns, and useless for the twin-prime purpose.
+[PASS] C3a1 circular alphabet         | lambda(p+2)-indexed alphabet: import=1.0000, mean lambda over 141 takes=+1.0000, z=+10 (non-null, circular); omega-indexed import=0.6272 -> z=+6.3; permuted-sign control mean=+0.0192+-0.0968 (null)
+
+==============================================================================
+C3b  statistics of the unsigned greedy word against lambda (windows)
+==============================================================================
+  40 targets theta in [0.02,0.37], N=100000; pooled support size 163 (mean density 4.08e-05)
+  TEST control = global permutation of lambda over [1,200020] (RP=400 replicates):
+  every target's support geometry is preserved EXACTLY and only the
+  multiplicative signs are randomised.  All targets use the same permuted
+  lambda, so the null carries the cross-target correlation induced by the
+  supports' shared small core (no 1/sqrt(m) independence assumption).
+  T1 = sum_A lambda(p)                    : pooled z=-1.68 (null mean +2.5, sd 42.6)
+  T2 = sum_A lambda(p)lambda(p+2)         : pooled z=-0.72
+  W  = sum over support pairs of lambda(p)lambda(p+h): pooled z=+1.37 (n pairs 78)
+  block profile vs lambda mass            : pooled z=-0.74
+  Diagnostic (per-target TRANSLATE control, R=400 each):
+    T1 per-target mean z=-0.818 sd=1.029 max|z|=2.42
+    T2 per-target mean z=-0.382 sd=0.736 max|z|=1.98
+    W  per-target mean z=+0.565 sd=1.180 max|z|=1.93
+    block per-target mean z=-0.500 sd=0.275 max|z|=1.03
+  NOTE (power): the unsigned greedy support is sparse (163 terms over 40 words x 10^5 indices), so this family
+  has low power against a hypothetical signal; the barrier predicts none,
+  and none is found.
+[PASS] C3b1 one-point stat null       | T1 vs lambda: pooled z=-1.68 under the global lambda-permutation null; per-target translate max|z|=2.42 (<= 4.0)
+[PASS] C3b2 two-point stat null       | T2 vs lambda(n)lambda(n+2): pooled z=-0.72, per-target max|z|=1.98
+[PASS] C3b3 lambda-weighted pairs null | W over 78 support pairs: pooled z=+1.37, per-target max|z|=1.93
+[PASS] C3b4 block density null        | span-block profile vs lambda mass: pooled z=-0.74, per-target max|z|=1.03
+
+==============================================================================
+C3c  the rh42 parity lock mapped onto {n : lambda(n)=+1}
+==============================================================================
+  200 signed words at target sin(2*pi*theta)>0, N=100000: pooled support |A|=243 distinct even denominators; all even: True
+  fraction of A with lambda=+1 : 0.4938  (120/243)
+  chance level among even m    : 0.5009
+  binomial z                   : -0.22
+  support density in [1,N]     : 2.43e-03  (zero density)
+[PASS] C3c1 parity lock holds         | all 243 pooled support denominators are even (gaps even, >=2) -- rh42 parity lock reproduced
+[PASS] C3c2 match is chance           | |A cap {lambda=+1}|/|A| = 0.4938 vs chance 0.5009: z=-0.22 (no positive-density match)
+[PASS] C3c3 support is sparse         | |A|/N = 2.43e-03: the parity-locked support has DENSITY ZERO, so it cannot be the positive-density modification set rh46 requires
+  shift scan over 101 even shifts 0..200: max|z|=2.60, Bonferroni 5% threshold 3.66
+[PASS] C3c4 shift scan null           | best translation of the parity-locked support still matches {lambda=+1} only at chance: max|z|=2.60 <= 3.66
+
+==============================================================================
+C4  logical status: positive density is required; the goal is out of reach
+==============================================================================
+rh46's argument: a sparse modification A of lambda moves the correlation by
+  |S_A(x) - S(x)| <= 2 * #{n <= x+2 : n in A}.
+This audit finds that published constant TOO SMALL by a factor 2.  Each
+affected term changes by exactly 2 in absolute value, and the affected n
+are those with n in A or n+2 in A, i.e. at most 2*#{m<=x+2: m in A} terms.
+
+  WITNESS vs the quoted bound 2*#{n<=x+2: n in A}: A={5}, x=5:
+    |S_A(x)-S(x)| = 4 > 2*#{n<=x+2: n in A} = 2
+    the two affected terms: n=3: 1 -> -1 (delta -2); n=5: 1 -> -1 (delta -2)
+[PASS] C4a quoted constant refuted    | witness A={5}, x=5: |S_A-S|=4 > 2*#{n<=x+2:n in A}=2; the correct bound is 2*#{n<=x: n in A or n+2 in A} <= 4*#{m<=x+2: m in A}
+  random A of density 0.001, |A|=1: max|S_A-S|=2, max sharp rhs=4, max 4-count rhs=4
+  random A of density  0.01, |A|=5: max|S_A-S|=4, max sharp rhs=20, max 4-count rhs=20
+  random A of density   0.5, |A|=250: max|S_A-S|=42, max sharp rhs=998, max 4-count rhs=1000
+[PASS] C4b corrected bound holds      | for random A of density 0.001, 0.01, 0.5 (|A|<=500) and all x<=10^6, both the sharp 2*#{n<=x: n in A or n+2 in A} and the 4*#{m<=x+2} bounds hold
+
+  Greedy support sizes |A| (unsigned, theta in the C3b family): the number
+  of takes is O(log log N) (rh41), so |A|/N -> 0.
+      N=    100: mean |A|= 2.95, density 2.95e-02, 2|A|/N=5.90e-02
+      N=   1000: mean |A|= 3.25, density 3.25e-03, 2|A|/N=6.50e-03
+      N=  10000: mean |A|= 3.60, density 3.60e-04, 2|A|/N=7.20e-04
+      N= 100000: mean |A|= 3.90, density 3.90e-05, 2|A|/N=7.80e-05
+[PASS] C4c support density zero       | mean |A| grows 3.0 -> 3.9 while N grows 10^2->10^5 (density 3.9e-05); by 4*#{A cap [1,x]} the greedy support moves S by O(log log x) = o(x) only
+
+  The positive-density witness rh46 needs (their lambda''): agree with
+  lambda on [1,10^6], equal 1 beyond.  Verify S''(x)=S(x) on the prefix and
+  S''(x)/x -> 1 on the analytic tail.
+    prefixes x<=10^6-2 with S''(x) != S(x): 0 of 999998
+    analytic tail S''(x) = S(10^6-2)+lambda(10^6-1)+lambda(10^6)+(x-10^6),
+    cross-checked against the direct cumulative sum at x=1.2e6,1.5e6,2e6
+    S''(1000000)/1000000 = 0.00007000
+    S''(100000000)/100000000 = 0.99000070
+    S''(1000000000000)/1000000000000 = 0.99999900
+[PASS] C4d finite-prefix indeterminacy | lambda'' agrees with lambda on all 999998 prefixes (0 mismatches) yet S''(2*10^6)/2*10^6 = 0.0001 and S''(x)/x -> 1 (0.99999900 at 10^12): no finite computation can decide (STAR); a positive-density change is required
+[PASS] C4e no arithmetic input        | the word object has no lambda/lambda'' argument: its signature is (target x, length N, alphabet 1/m); it is bit-identical whichever arithmetic function the surrounding analysis uses
+
+  LITERATURE STATUS (cited, not proved here): the un-averaged two-point
+  Chowla statement sum_{n<=x} lambda(n)lambda(n+2) = o(x) is OPEN.
+    * Tao, arXiv:1509.05422 (Forum of Math. Pi, 2016) proves the
+      LOGARITHMICALLY averaged version and states the un-averaged
+      two-point Chowla conjecture as the open assertion it approximates;
+      he describes the log-averaged result as breaking the parity barrier
+      for that problem, which is exactly the barrier the un-averaged
+      problem retains.
+    * Matomaki-Radziwill (2015) and Matomaki-Radziwill-Tao (2015):
+      cancellation for almost all shifts h, not the fixed h=2.
+    * Tao, arXiv:1605.04628: equivalence of the log-averaged Chowla and
+      Sarnak conjectures (again log-averaged).
+    * Tao-Teravainen, arXiv:1809.02518: correlations at almost all scales;
+      still averaged in the scale/shift.
+    No source claims the un-averaged two-point case.
+
+==============================================================================
+VERDICT ON THE BARRIER
+==============================================================================
+C1  factual legs CONFIRMED, two corrections:
+    - leg 1 (no arithmetic input): confirmed -- the word is a function of
+      the target only, identical prefixes for targets agreeing to 1e-50,
+      and it factors through sin(2*pi*theta).
+    - leg 2 (budgets separate INDEX parity, not Omega parity): confirmed and
+      strengthened -- the budgets are constants in p, and index parity is
+      INVISIBLE to (STAR) (twist invariance, 0 mismatches on 10^6).
+    - leg 3 (no Euler product): confirmed independently, and with a tail
+      bound ~10^5 times tighter than the round's; the verdict is robust.
+C2  D(2) = -1.12681304, naive multiplicative model = 0.88757352,
+    discrepancy = 2.014387, tight rigorous tail = 1.84e-05.
+C3  every attempt to build a non-null greedy-sine object:
+    (a) prime-indexed alphabet WITH lambda(p+2) as the sign: non-null but
+        CIRCULAR (the alphabet imports the target function; (-1)^omega(q)
+        is a second, weaker import, agreeing with lambda on all squarefree
+        q); the same rule with permuted signs is null.  The non-nullity
+        lives in the ALPHABET, not in the greedy dynamics.
+    (b) unsigned-word statistics (one-point, two-point, lambda-weighted
+        support pairs, span-block density) vs size-/span-matched random
+        supports: all NULL.
+    (c) parity lock vs {lambda=+1}: chance-level match, and the support has
+        density zero, so no positive-density matching is possible.
+C4  the barrier's CONCLUSION (the goal is out of reach by these means) is
+    correctly stated, but it is a HEURISTIC, not a theorem.  One factual
+    error found: the quoted sparse bound 2*#{n<=x+2: n in A} is FALSE; the
+    correct constant is 4 (witness A={5}, x>=5, |Delta S|=4).  The o(x)
+    conclusion is unaffected.  A second inherited defect: rh46's product
+    'tail bound' 1.808988 is 4*sum_(p<=1e5)1/p^2 over the RETAINED primes,
+    not a bound on the omitted p>1e5 factor (<=1e-5); the no-Euler-product
+    verdict survives, certified here with the correct tight bound.
+
+IS THE BARRIER CORRECTLY STATED?  Yes in substance, with two caveats:
+  (i) the literal phrase 'every greedy-sine object ... is an additive
+      character in log n' is both imprecise (n^{-it} is a multiplicative
+      character of (R_+,x); the budgets are constants, not characters) and
+      too wide: C3a shows a greedy object of the SAME take rule but with
+      arithmetic signs mixes with lambda perfectly.  The barrier must be
+      read as 'for a SIGN-BLIND alphabet with no arithmetic input'.
+  (ii) no proof is offered that additive-in-log-n data cannot force a
+      multiplicative correlation; the document says 'no mechanism known'.
+      The verified legs are the budget sign-blindness and the absence of an
+      Euler product; the impossibility statement itself stays OPEN.
+  Round deliverable status at audit time:
+    rh47/greedy_parity_probe.py: present; the file was revised by the round WHILE this audit ran, so no audit claim rests on it.
+    The C2 verdict is against the round's PUBLISHED evidence, which is
+    rh46's (stable) product tail bound 1.808988 -- mis-derived, see C2d.
+    rh47/lean/Rh47/: EMPTY (no rh47 Lean statement)
+
+------------------------------------------------------------------------------
+RESULT: 31/31 checks pass
+elapsed: 38.8s

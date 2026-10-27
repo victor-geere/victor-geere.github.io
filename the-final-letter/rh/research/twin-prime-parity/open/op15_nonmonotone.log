@@ -1,0 +1,235 @@
+op15_nonmonotone.py -- OP-15: non-monotone alphabets in the inverse complexity problem
+Values            : 12 rationals +-j/6, j=1..6
+Pattern lengths   : (2, 3, 4)
+Truncation N      : 1024 (periodic family)
+Targets (family L): ['1', '7/8', '1/2', '3/4']
+Targets (family P): ['1', '7/8']
+
+==============================================================================
+1. CORRECTNESS CROSS-CHECKS (before the search)
+==============================================================================
+  [PASS] SAM factor complexity == brute-force distinct substrings (400 random words)  (0 mismatches)
+  [PASS] rh40 witness alpha=[29/40,1/2,1/4,3/20], x=7/8 gives taken {0,3}  (word=[1, 0, 0, 1], taken=[0, 3], residual=0)
+  [PASS] constant alphabet 1/2, x=1: word = 1100... and residual 0  (takes=[0, 1])
+  [PASS] harmonic alphabet 1/(n+2), x=1: support is exactly {0,1,4} (1/2+1/3+1/6 = 1) and residual 0  (takes=[0, 1, 4], residual=0)
+
+==============================================================================
+2. FAMILY L -- LITERAL k-TERM ALPHABETS (word length k, p(L) for L <= k)
+==============================================================================
+  Alphabet = the k-term list itself; the word has length k.  Targets:
+  1, 7/8, 1/2, 3/4
+
+  Cases enumerated: 22608 patterns x 4 targets = 90432
+
+  Top 12 by max_L p(L)/L (word length <= 4; ratio is dominated by small L):
+  alpha                              x     word   class         halt?  max p/L  argL  maxp 
+  [-1/6, -1/6, 1, -1/6]              1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, 1/6]               1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, -1/3]              1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, 1/3]               1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, -1/2]              1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, 1/2]               1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, -2/3]              1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, 2/3]               1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, -5/6]              1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, 5/6]               1/2   1101   non-monotone  yes    2.000    1     3    
+  [-1/6, -1/6, 1, -1]                1/2   1101   non-monotone  no     2.000    1     3    
+  [-1/6, -1/6, 1, 1]                 1/2   1100   non-decreasing no     2.000    1     3    
+
+  Best halting non-increasing positive : [1/3, 1/6, 1/6, 1/6] x=1/2 R=2.000
+  Best halting non-monotone             : [-1/6, -1/6, 1, 5/6] x=1/2 R=2.000
+  NOTE: for words of length <= 4 the ceiling of max_L p(L)/L is 2 (p(1)<=2, p(2)<=4, p(3)<=k-2);
+        every class attains it, so family L cannot separate monotone from non-monotone.
+  No separation observed (as expected: both classes attain the cap 2).
+
+==============================================================================
+3. FAMILY P -- PERIODIC 2-4 TERM PATTERNS, TRUNCATION N = 1024
+==============================================================================
+  alpha_n = v_(n mod k); target x in {1, 7/8}
+  The word length is N for every pattern; p(L) is computed for 1 <= L <= N.
+  CLASSIFICATION (proved, not observed):
+    * all-positive pattern  -> at most x/min(v) takes -> FINITE support
+      (r is non-increasing, each take costs >= min v > 0, r >= 0 always)
+    * signed pattern        -> every negative term is always taken ->
+      INFINITE support; a zero residual is NOT absorbing (the next
+      negative term re-triggers), so no signed periodic pattern halts.
+
+  Cases enumerated: 22608 patterns x 2 targets = 45216  (65.7 s)
+
+  finite-support cases : 3096
+  infinite-support cases: 42120  (all signed patterns)
+  absorbed at residual 0 (true halt): 1204  (all-positive patterns)
+  [PASS] every signed periodic pattern has a one in its final period (infinite support; never halts)  (0 exceptions)
+
+  (a) TOP 20 alphabet/target pairs by max_{L<=N} p(L)/L
+  alpha                            x     class         kind      halted?    max p/L  argL   R(L>=2)  #ones   maxp  
+  [1/6, -1/2, 1, 5/6]              1     non-monotone  infinite  r=0@10     3.6000   5      3.6000   513     20    
+  [-1/2, 1, 5/6, 1/6]              7/8   non-monotone  infinite  no         3.4000   5      3.4000   513     19    
+  [-1/6, 1/3, 1/3, 2/3]            1     non-decreasing infinite  r=0@6      3.2500   4      3.2500   387     15    
+  [-1/6, 1/3, 1/3, 5/6]            1     non-decreasing infinite  r=0@6      3.2500   4      3.2500   387     15    
+  [-1/6, 1/3, 1/3, 1]              1     non-decreasing infinite  r=0@6      3.2500   4      3.2500   387     15    
+  [1/3, 2/3, -1/6, 1/3]            7/8   non-monotone  infinite  no         3.2500   4      3.2500   386     13    
+  [1/3, 5/6, -1/6, 1/3]            7/8   non-monotone  infinite  no         3.2500   4      3.2500   386     13    
+  [1/3, 1, -1/6, 1/3]              7/8   non-monotone  infinite  no         3.2500   4      3.2500   386     13    
+  [1/6, -1/2, 5/6, 2/3]            7/8   non-monotone  infinite  no         3.2000   5      3.2000   514     16    
+  [-1/6, 1/3, 5/6, 1/3]            7/8   non-monotone  infinite  no         3.0000   4      3.0000   386     14    
+  [-1/6, 1/3, 5/6, 1/2]            7/8   non-monotone  infinite  no         3.0000   4      3.0000   386     12    
+  [-1/6, 1/3, 1, 1/3]              1     non-monotone  infinite  r=0@7      3.0000   4      3.0000   387     16    
+  [-1/6, 1/3, 1, 1/3]              7/8   non-monotone  infinite  no         3.0000   4      3.0000   386     14    
+  [-1/6, 1/3, 1, 1/2]              1     non-monotone  infinite  r=0@9      3.0000   4      3.0000   386     14    
+  [-1/6, 1/3, 1, 1/2]              7/8   non-monotone  infinite  no         3.0000   4      3.0000   386     12    
+  [-1/6, 1/3, 1, 2/3]              1     non-monotone  infinite  r=0@5      3.0000   4      3.0000   386     12    
+  [-1/6, 1/2, 1/3, 1/2]            1     non-monotone  infinite  r=0@5      3.0000   4      3.0000   386     15    
+  [-1/6, 1/2, 1/3, 2/3]            1     non-monotone  infinite  r=0@5      3.0000   4      3.0000   386     15    
+  [-1/6, 1/2, 1/3, 5/6]            1     non-monotone  infinite  r=0@5      3.0000   4      3.0000   386     15    
+  [-1/6, 1/2, 1/3, 1]              1     non-monotone  infinite  r=0@5      3.0000   4      3.0000   386     15    
+
+  (b) HALTING (finite-support) alphabets
+      best halting non-monotone: [1/6, 1, 1/3, 1/6] x=1  R=2.6667 at L=3, #ones=5, a_m=7, max p = 9, a_m+2 = 9
+      support: [0, 2, 3, 4, 7]
+      best halting non-increasing positive: [1, 1/3, 1/6, 1/6] x=7/8  R=2.3333 at L=3
+  [PASS] Thm 4 verified on every finite-support case: N >= 2 a_m + 2 implies max_L p(L) = a_m + 2  (0 violations of 3096)
+  [PASS] Thm 1 (three-piece large-L law) verified on every finite-support case  (0 violations of 3096)
+
+      Unboundedness test for the best halting non-monotone cases (R(N) for growing N):
+        [1/6, 1, 1/3, 1/6]             x=1     R = 2.667, 2.667, 2.667, 2.667, 2.667, 2.667   bounded
+        [1, 1/6, 1/3]                  x=7/8   R = 2.333, 2.333, 2.333, 2.333, 2.333, 2.333   bounded
+        [1/6, 1, 1/6, 1/3]             x=1     R = 2.333, 2.333, 2.333, 2.333, 2.333, 2.333   bounded
+        [1/6, 1/3, 1, 1/6]             x=1     R = 2.333, 2.333, 2.333, 2.333, 2.333, 2.333   bounded
+        [1/6, 5/6, 1/6, 1/6]           x=7/8   R = 2.333, 2.333, 2.333, 2.333, 2.333, 2.333   bounded
+  [PASS] (b) no halting non-monotone alphabet has R(N) growing with N (finite support => constant profile, Thm 4)
+
+==============================================================================
+4. (c) DOES NON-MONOTONICITY HELP BELOW L = 20?
+==============================================================================
+  Target x = 1, periodic family, N = 1024.  For each L <= 20 compare
+  max p(L) over non-increasing positive patterns (the PROVED class) with
+  max p(L) over non-monotone patterns.
+
+  L    max p inc-pos   max p non-mono(+/-)  max p non-mono(pos)  witness L-argmax
+  1    2               2                    2                    
+  2    4               4                    4                    
+  3    6               8                    8                    [1/6, 1, 1/3, 1/6] (pos)
+  4    7               12                   9                    [1/6, 1, 1/3, 1/6] (pos)
+  5    7               18                   10                   [1/6, 1, 1, 1/2] (pos)
+  6    8               20                   10                   [1/6, 1, 1, 1/2] (pos)
+  7    9               20                   11                   [1/6, 1, 1, 1/6] (pos)
+  8    9               20                   12                   [1/6, 1, 1, 1/6] (pos)
+  9    9               22                   13                   [1/6, 1, 1, 1/6] (pos)
+  10   9               24                   13                   [1/6, 1, 1, 1/6] (pos)
+  11   9               25                   13                   [1/6, 1, 1, 1/6] (pos)
+  12   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  13   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  14   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  15   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  16   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  17   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  18   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  19   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+  20   9               26                   13                   [1/6, 1, 1, 1/6] (pos)
+
+  best max p(L)/L for L <= 20:
+    non-increasing positive : 2.0000 at L=1  [1/2, 1/6]
+    non-monotone (all)      : 3.6000 at L=5  [1/6, -1/2, 1, 5/6]
+    non-monotone (positive) : 2.6667 at L=3  [1/6, 1, 1/3, 1/6]
+
+  COUNTEREXAMPLE FOUND to 'non-monotonicity cannot help below L=20':
+    alphabet [1/6, 1, 1/3, 1/6], target x = 1, N = 1024
+    word prefix: 101110010000000000000000000000000000000000000000...
+    p(L) for L<=20: [2, 4, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+    non-monotone p(3)/L = 2.6667 > non-increasing positive 2.0000 at L=1
+
+==============================================================================
+5. SIGNED (NON-HALTING) PATTERNS -- THE GENUINELY OPEN DIRECTION
+==============================================================================
+  21060 signed cases at x = 1.  Top 10 by max p(L)/L:
+    [1/6, -1/2, 1, 5/6]              R=3.6000 L*=5     R2=3.6000 #ones=513    maxp=20 p(1..8)=[2, 4, 7, 12, 18, 20, 20, 20]
+    [-1/6, 1/3, 1/3, 2/3]            R=3.2500 L*=4     R2=3.2500 #ones=387    maxp=15 p(1..8)=[2, 4, 8, 13, 14, 15, 15, 15]
+    [-1/6, 1/3, 1/3, 5/6]            R=3.2500 L*=4     R2=3.2500 #ones=387    maxp=15 p(1..8)=[2, 4, 8, 13, 14, 15, 15, 15]
+    [-1/6, 1/3, 1/3, 1]              R=3.2500 L*=4     R2=3.2500 #ones=387    maxp=15 p(1..8)=[2, 4, 8, 13, 14, 15, 15, 15]
+    [-1/6, 1/3, 1, 1/3]              R=3.0000 L*=4     R2=3.0000 #ones=387    maxp=16 p(1..8)=[2, 4, 8, 12, 14, 16, 16, 16]
+    [-1/6, 1/3, 1, 1/2]              R=3.0000 L*=4     R2=3.0000 #ones=386    maxp=14 p(1..8)=[2, 4, 8, 12, 13, 14, 14, 14]
+    [-1/6, 1/3, 1, 2/3]              R=3.0000 L*=4     R2=3.0000 #ones=386    maxp=12 p(1..8)=[2, 4, 8, 12, 12, 12, 12, 12]
+    [-1/6, 1/2, 1/3, 1/2]            R=3.0000 L*=4     R2=3.0000 #ones=386    maxp=15 p(1..8)=[2, 4, 8, 12, 14, 15, 15, 15]
+    [-1/6, 1/2, 1/3, 2/3]            R=3.0000 L*=4     R2=3.0000 #ones=386    maxp=15 p(1..8)=[2, 4, 8, 12, 14, 15, 15, 15]
+    [-1/6, 1/2, 1/3, 5/6]            R=3.0000 L*=4     R2=3.0000 #ones=386    maxp=15 p(1..8)=[2, 4, 8, 12, 14, 15, 15, 15]
+
+  Every signed periodic pattern has infinite support (negative terms are
+  always taken) and never halts.  Their R(N) is checked for growth:
+    [1/6, -1/2, 1, 5/6]                      x=1     R = 3.600, 3.600, 3.600, 3.600, 3.600, 3.600   bounded
+    [-1/6, 1/3, 1/3, 2/3]                    x=1     R = 3.250, 3.250, 3.250, 3.250, 3.250, 3.250   bounded
+    [-1/6, 1/3, 1/3, 5/6]                    x=1     R = 3.250, 3.250, 3.250, 3.250, 3.250, 3.250   bounded
+    [-1/6, 1/3, 1/3, 1]                      x=1     R = 3.250, 3.250, 3.250, 3.250, 3.250, 3.250   bounded
+    [1/2, 1/3, -1/6]                         x=1     R = 2.333, 2.333, 2.333, 2.333, 2.333, 2.333   bounded
+    [1/6, -1/6, 1/2, -1/3]                   x=1     R = 2.000, 2.000, 2.000, 2.000, 2.000, 2.000   bounded
+    [1/2, 1, -1/6, -1/3]                     x=1     R = 2.000, 2.000, 2.000, 2.000, 2.000, 2.000   bounded
+  Finding: R(N) stayed bounded over N <= 4096 for every signed candidate tested (none grew).
+  This is FINITE evidence only: it does not bound sup_L p(L)/L in general.
+
+==============================================================================
+6. STATUS OF OP-15 AND WHAT THE FINITE SEARCH DOES NOT SETTLE
+==============================================================================
+  PROVED HERE (elementary, alphabet-independent):
+    halting (finitely many ones) => Thm 4 => max_L p(L) = a_m + 2, a NUMBER.
+    Hence NO halting alphabet -- monotone or not -- can have
+    sup_L p(L)/L = infinity, nor p(L) = cL for c > 0.
+    Monotonicity is NOT needed for this step; it is needed only for the
+    converse characterisation 'sum alpha_n >= x <=> halts' (rh41 Thm 9),
+    which fails for non-monotone alphabets.
+
+  FAMILY P STRUCTURE (proved here):
+    * all-positive periodic pattern -> FINITE support (at most x/min v
+      takes) -> bounded constant profile; such patterns are the only
+      periodic patterns that can halt/stall.
+    * signed periodic pattern -> INFINITE support, never halts (a zero
+      residual is not absorbing: a negative term always re-triggers).
+
+  WHAT IS OPEN (this search is finite evidence only):
+    whether a NON-halting (infinite-support) non-monotone alphabet can
+    realise p(L) growing linearly/superlinearly.  The register's
+    conjectural claim 'a halting non-monotone alphabet with
+    sup_L p(L)/L = infinity' is NOT settled here; the finite search over
+    the stated class found no such object, and (as noted) a halting
+    alphabet provably cannot be one, independently of monotonicity.
+
+  DEFINITIONAL CAVEAT (important for reading OP-15).
+    * STRONG reading (used above, and in rh41 Thm 9/12): 'halts' = the
+      residual reaches exactly 0 in finite time / only finitely many ones.
+      Then the impossibility is immediate and monotonicity-free:
+      finite support => Thm 4 => max_L p(L) = a_m + 2.
+    * WEAK (quasi-halting) reading: 'halts' = r_n -> 0 while infinitely
+      many ones are still taken.  This is possible only for non-monotone
+      (or non-decreasing) alphabets with alpha_n -> 0: if the residual
+      stalls at r > 0 while alpha_n -> 0, then eventually alpha_n < r and
+      further ones are forced, so a positive stall cannot occur.  A rare
+      example of the non-absorbing phenomenon already appears in the
+      periodic family: [1/6,-1/2,1,5/6] at x=1 hits r=0 at n=10 (see the
+      'r=0@10' row) yet has infinite support, because a negative term
+      re-triggers the process.  Thm 4 does NOT bound the weak regime, and
+      it is the genuinely open direction.  The periodic family here cannot
+      explore it (positive periodic => finite support; signed periodic =>
+      never even quasi-halts), so it remains untouched.
+
+  SEARCH SPACE SIZE:
+    values          : 12  (+-j/6, j=1..6)
+    patterns k=2,3,4: 12^2 + 12^3 + 12^4 = 22608
+    family L cases  : 22608 x 4 = 90432
+    family P cases  : 22608 x 2 x N=1024, and
+                      top/signed candidates re-run at N up to 4096
+    total evaluated : 135648 alphabet/target cases plus growth re-runs
+
+==============================================================================
+PASS/FAIL SUMMARY
+==============================================================================
+  [PASS] SAM factor complexity == brute-force distinct substrings (400 random words)
+  [PASS] rh40 witness alpha=[29/40,1/2,1/4,3/20], x=7/8 gives taken {0,3}
+  [PASS] constant alphabet 1/2, x=1: word = 1100... and residual 0
+  [PASS] harmonic alphabet 1/(n+2), x=1: support is exactly {0,1,4} (1/2+1/3+1/6 = 1) and residual 0
+  [PASS] every signed periodic pattern has a one in its final period (infinite support; never halts)
+  [PASS] Thm 4 verified on every finite-support case: N >= 2 a_m + 2 implies max_L p(L) = a_m + 2
+  [PASS] Thm 1 (three-piece large-L law) verified on every finite-support case
+  [PASS] (b) no halting non-monotone alphabet has R(N) growing with N (finite support => constant profile, Thm 4)
+
+  8/8 checks passed, 0 failed.
+  Total wall time: 70.9 s
+  RESULT: PASS

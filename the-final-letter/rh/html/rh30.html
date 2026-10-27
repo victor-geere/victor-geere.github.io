@@ -1,0 +1,1754 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh30 — how many atoms the window can see</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh30 · how many atoms the window can see</h1>
+<p class="sub">rh29 turned the arc&#8217;s Toeplitz matrix into the moment matrix
+of an atomic measure and left three questions. All three turn out to be about a
+single number: the mass of that measure divided by its heaviest atom. Two
+hundred certificates collapse onto one curve in it, both classical routes to a
+lower bound are governed by it, and it sets — in explicit figures — how high up
+the critical line this whole programme can ever see. Then &#167;8 redraws the
+construction on a proper axis, and the redrawing exposes something about the
+logic of the whole arc that changes the direction: &#167;9.</p>
+<p class="meta">54 + 42 named checks, 46 + 6 s ·
+five computed figures · 200 points of the (window, mesh, depth) family ·
+the twenty-ninth in the series, after <a href="rh29.html">rh29</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> The measure picture is
+rh29&#8217;s, and it is conditional on RH: writing
+E<sub>h</sub>(v) = &#8721;<sub>&#961;</sub> &#293;(&#947;<sub>&#961;</sub>)&#178;
+cos(&#947;<sub>&#961;</sub>v) assumes every ordinate is real. So
+&#167;&#167;2&#8211;5 describe the objects <em>RH predicts</em>, which is the
+right thing when the question is what the certificates are chasing.
+&#167;&#167;6 and 7 are different: the conspiracy bound and the reach are
+unconditional statements about what the arc&#8217;s certificates could and could
+not detect, and they use no hypothesis about where the zeros are — only the
+counting function. &#167;8 is a construction and an identity, conditional on
+nothing. &#167;9 is an argument about what the certificates mean, and it is the
+part to read if you read only one.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · order</a>
+<a href="#s2">2 · the effective count</a>
+<a href="#s3">3 · the collapse</a>
+<a href="#s4">4 · the plane wave</a>
+<a href="#s5">5 · the lower bound</a>
+<a href="#s6">6 · the conspiracy</a>
+<a href="#s7">7 · the reach</a>
+<a href="#s8">8 · the detrended helix</a>
+<a href="#s9">9 · conjunction</a>
+<a href="#s10">10 · what this leaves</a>
+</nav>
+
+<section id="s1">
+<h2>1 · Where this stands</h2>
+
+<p>rh29 established the identity that everything below rests on. Read the
+explicit formula from right to left with test function
+&#293;(r)&#178;cos(rv) and, under RH,</p>
+
+<p class="eq">E<sub>h</sub>(v) = &#8721;<sub>&#961;</sub>
+&#293;(&#947;<sub>&#961;</sub>)&#178; cos(&#947;<sub>&#961;</sub> v)
+= 2 &#8721;<sub>&#947;&gt;0</sub> &#293;(&#947;)&#178; cos(&#947; v),</p>
+
+<p>so the matrix the arc has been certifying since rh13 —
+T<sub>n</sub>[j][k] = E<sub>h</sub>((j&#8722;k)&#916;&#8242;) — is the moment
+matrix of the purely atomic measure &#956; = &#8721;<sub>&#961;</sub>
+&#293;(&#947;<sub>&#961;</sub>)&#178; &#948; at
+&#947;<sub>&#961;</sub>&#916;&#8242; mod 2&#960;. The window sets the atoms&#8217;
+<em>weights</em>; the mesh sets their <em>positions</em>. rh29 verified this
+against the prime side at every node of all five supports, and the residue at
+the matched cut r = 4800 was 1.38&#215;10&#8315;&#8311; on a row whose diagonal is 0.707.</p>
+
+<p>It then left three items, and this document takes all three. They looked
+independent. They are not.</p>
+
+<dl class="dict">
+<dt>(b) the coupling</dt>
+<dd>rh29 varied the window alone (the ratio climbed by 382) and the mesh alone
+(it fell by 228), found the diagonal flat, and found a separable model wrong by
+65. It asked for a two-dimensional grid.</dd>
+<dt>(a) the lower bound</dt>
+<dd>rh29 located the obstruction to a ceiling as the norm it costs a polynomial
+to be small on {&#947;&#916;&#8242; mod 2&#960;}, called that a Diophantine
+question, and called it &#8220;not obviously hopeless&#8221;.</dd>
+<dt>(c) the conspiracy bound</dt>
+<dd>rh29&#8217;s off-line test is conditional on there being <em>one</em>
+off-line quadruple, since several at different heights can cancel at every node
+measured. What would make it unconditional is a bound on
+&#8721;|&#293;(&#947;+i&#963;)|&#178; over a height range.</dd>
+</dl>
+
+<p>The grid answers (b) and, in answering it, supplies the number that governs
+(a) as well. The bound (c) needs turns out to be elementary — and the same decay
+that makes it elementary is what limits the reach of the whole method, which is
+&#167;7 and is the least comfortable thing here.</p>
+
+<p>Two regressions first. The zero-side row at the matched cut reproduces every
+&#955;<sub>min</sub> rh27b and rh27c published to 5.2&#215;10&#8315;&#8308; relative, and the zero
+table is rh29&#8217;s, cut at 4800, where it has 4,308 ordinates.</p>
+</section>
+
+<section id="s2">
+<h2>2 · The effective count</h2>
+
+<p>Here is the number. Define</p>
+
+<p class="eq">N<sub>eff</sub> = &#8214;&#956;&#8214; &#8725;
+(2 max<sub>&#947;</sub> &#293;(&#947;)&#178;)</p>
+
+<p>— the total mass of the measure divided by its heaviest atom. If all the
+atoms weighed the same there would be exactly N<sub>eff</sub> of them; as it is,
+it is the reciprocal of the largest relative weight, and it says how spread the
+measure is rather than how many atoms it has.</p>
+
+<div class="cardbox">
+window &#916;&#8242; = 0.48 &nbsp; N<sub>eff</sub> = 7.0 &nbsp; heaviest atom 14.197% of the mass &nbsp; participation ratio 15.0<br>
+window &#916;&#8242; = 0.24 &nbsp; N<sub>eff</sub> = 17.3 &nbsp; heaviest atom 5.781% of the mass &nbsp; participation ratio 38.4<br>
+window &#916;&#8242; = 0.12 &nbsp; N<sub>eff</sub> = 95.7 &nbsp; heaviest atom 1.045% of the mass &nbsp; participation ratio 190.4<br>
+window &#916;&#8242; = 0.06 &nbsp; N<sub>eff</sub> = 207.0 &nbsp; heaviest atom 0.483% of the mass &nbsp; participation ratio 454.7<br>
+window &#916;&#8242; = 0.03 &nbsp; N<sub>eff</sub> = 467.3 &nbsp; heaviest atom 0.214% of the mass &nbsp; participation ratio 1104.1
+</div>
+
+<p>Two things about it. First, it is set by the <em>window alone</em>. The mesh
+enters &#956; only through the positions &#947;&#916;&#8242; mod 2&#960;, and
+N<sub>eff</sub> is a statement about weights, so changing the mesh leaves it
+exactly unaltered — asserted to 1 part in 10&#185;&#178; across all five meshes, which is
+machine zero. Second, it is not the number of atoms carrying appreciable weight:
+the participation ratio (&#8721;w)&#178;/&#8721;w&#178; is 190.4 where
+N<sub>eff</sub> is 95.7, and the two differ by a factor of about two at
+every support. N<sub>eff</sub> is the more pessimistic of the two, and it is the
+one that works.</p>
+
+<p>The figure to keep in mind is that at the arc&#8217;s own support
+&#916;&#8242; = 0.12 the measure has 4,308 atoms in the table and
+N<sub>eff</sub> = 95.7. Ninety-six. That is the whole of the arc&#8217;s
+sensitivity, and rh29 had already noticed the mechanism without drawing this
+consequence: the searched window&#8217;s coefficient polynomial A(r) is periodic
+and the optimiser drove it near zero at small r, so the weights are enormously
+unequal and most of the four thousand atoms count for nothing.</p>
+</section>
+
+<section id="s3">
+<h2>3 · The collapse</h2>
+
+<p>rh29 asked for a two-dimensional (window, mesh) grid. Take a
+three-dimensional one instead: five windows &#215; five meshes &#215; eight
+depths, 200 certificates, each a &#955;<sub>min</sub> the arc could have
+published. That is affordable because from the zeros a row costs
+O(#zeros) per node at any depth — rh29&#8217;s observation, and the reason none
+of this needs a new sieve.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 420" role="img" aria-label="Two hundred points — five windows by five meshes by eight depths — plotted twice. Against the depth alone they scatter over seven decades. Against the depth divided by the effective atom count they fall on a single curve, within a factor of two, until the depth reaches that count.">
+<text x="370.0" y="21" class="ftitle">two hundred certificates, and the one number that orders them</text>
+<line x1="52" y1="274.4" x2="340" y2="274.4" class="grid"/>
+<line x1="52" y1="245.1" x2="340" y2="245.1" class="grid"/>
+<text x="47" y="248.6" class="flab end">10&#8315;&#8310;</text>
+<line x1="52" y1="215.8" x2="340" y2="215.8" class="grid"/>
+<line x1="52" y1="186.5" x2="340" y2="186.5" class="grid"/>
+<text x="47" y="190.0" class="flab end">10&#8315;&#8308;</text>
+<line x1="52" y1="157.2" x2="340" y2="157.2" class="grid"/>
+<line x1="52" y1="127.9" x2="340" y2="127.9" class="grid"/>
+<text x="47" y="131.4" class="flab end">10&#8315;&#178;</text>
+<line x1="52" y1="98.6" x2="340" y2="98.6" class="grid"/>
+<line x1="52" y1="69.3" x2="340" y2="69.3" class="grid"/>
+<text x="47" y="72.8" class="flab end">10&#8304;</text>
+<text x="122.5" y="308" class="flab mid">10&#185;</text>
+<text x="240.1" y="308" class="flab mid">10&#178;</text>
+<line x1="52" y1="292" x2="340" y2="292" class="axis"/>
+<line x1="52" y1="62" x2="52" y2="292" class="axis"/>
+<circle cx="75.8" cy="73.8" r="2.2" class="hm3"/>
+<circle cx="111.1" cy="78.9" r="2.2" class="hm3"/>
+<circle cx="146.5" cy="89.4" r="2.2" class="hm3"/>
+<circle cx="180.3" cy="106.1" r="2.2" class="hm3"/>
+<circle cx="214.8" cy="137.0" r="2.2" class="hm3"/>
+<circle cx="249.8" cy="155.3" r="2.2" class="hm3"/>
+<circle cx="285.0" cy="175.0" r="2.2" class="hm3"/>
+<circle cx="320.3" cy="194.3" r="2.2" class="hm3"/>
+<circle cx="75.8" cy="72.6" r="2.2" class="hm3"/>
+<circle cx="111.1" cy="75.3" r="2.2" class="hm3"/>
+<circle cx="146.5" cy="83.6" r="2.2" class="hm3"/>
+<circle cx="180.3" cy="104.2" r="2.2" class="hm3"/>
+<circle cx="214.8" cy="125.1" r="2.2" class="hm3"/>
+<circle cx="249.8" cy="150.0" r="2.2" class="hm3"/>
+<circle cx="285.0" cy="170.4" r="2.2" class="hm3"/>
+<circle cx="320.3" cy="204.4" r="2.2" class="hm3"/>
+<circle cx="75.8" cy="76.4" r="2.2" class="hm3"/>
+<circle cx="111.1" cy="77.0" r="2.2" class="hm3"/>
+<circle cx="146.5" cy="81.7" r="2.2" class="hm3"/>
+<circle cx="180.3" cy="95.4" r="2.2" class="hm3"/>
+<circle cx="214.8" cy="118.5" r="2.2" class="hm3"/>
+<circle cx="249.8" cy="146.4" r="2.2" class="hm3"/>
+<circle cx="285.0" cy="163.8" r="2.2" class="hm3"/>
+<circle cx="320.3" cy="193.0" r="2.2" class="hm3"/>
+<circle cx="75.8" cy="79.0" r="2.2" class="hm3"/>
+<circle cx="111.1" cy="84.2" r="2.2" class="hm3"/>
+<circle cx="146.5" cy="99.7" r="2.2" class="hm3"/>
+<circle cx="180.3" cy="121.5" r="2.2" class="hm3"/>
+<circle cx="214.8" cy="149.0" r="2.2" class="hm3"/>
+<circle cx="249.8" cy="194.6" r="2.2" class="hm3"/>
+<circle cx="285.0" cy="217.6" r="2.2" class="hm3"/>
+<circle cx="320.3" cy="259.2" r="2.2" class="hm3"/>
+<circle cx="75.8" cy="104.2" r="2.2" class="hm3"/>
+<circle cx="111.1" cy="130.7" r="2.2" class="hm3"/>
+<circle cx="146.5" cy="155.5" r="2.2" class="hm3"/>
+<circle cx="180.3" cy="214.1" r="2.2" class="hm3"/>
+<circle cx="214.8" cy="230.6" r="2.2" class="hm3"/>
+<circle cx="249.8" cy="234.7" r="2.2" class="hm3"/>
+<circle cx="285.0" cy="253.5" r="2.2" class="hm3"/>
+<circle cx="320.3" cy="292.0" r="2.2" class="hm3"/>
+<circle cx="75.8" cy="69.6" r="2.2" class="hmo"/>
+<circle cx="111.1" cy="73.5" r="2.2" class="hmo"/>
+<circle cx="146.5" cy="78.0" r="2.2" class="hmo"/>
+<circle cx="180.3" cy="86.4" r="2.2" class="hmo"/>
+<circle cx="214.8" cy="99.5" r="2.2" class="hmo"/>
+<circle cx="249.8" cy="129.2" r="2.2" class="hmo"/>
+<circle cx="285.0" cy="159.2" r="2.2" class="hmo"/>
+<circle cx="320.3" cy="177.8" r="2.2" class="hmo"/>
+<circle cx="75.8" cy="70.4" r="2.2" class="hmo"/>
+<circle cx="111.1" cy="72.1" r="2.2" class="hmo"/>
+<circle cx="146.5" cy="80.1" r="2.2" class="hmo"/>
+<circle cx="180.3" cy="84.7" r="2.2" class="hmo"/>
+<circle cx="214.8" cy="91.8" r="2.2" class="hmo"/>
+<circle cx="249.8" cy="122.7" r="2.2" class="hmo"/>
+<circle cx="285.0" cy="150.0" r="2.2" class="hmo"/>
+<circle cx="320.3" cy="173.0" r="2.2" class="hmo"/>
+<circle cx="75.8" cy="78.4" r="2.2" class="hmo"/>
+<circle cx="111.1" cy="80.5" r="2.2" class="hmo"/>
+<circle cx="146.5" cy="82.3" r="2.2" class="hmo"/>
+<circle cx="180.3" cy="88.4" r="2.2" class="hmo"/>
+<circle cx="214.8" cy="99.6" r="2.2" class="hmo"/>
+<circle cx="249.8" cy="121.9" r="2.2" class="hmo"/>
+<circle cx="285.0" cy="148.0" r="2.2" class="hmo"/>
+<circle cx="320.3" cy="172.3" r="2.2" class="hmo"/>
+<circle cx="75.8" cy="74.9" r="2.2" class="hmo"/>
+<circle cx="111.1" cy="80.9" r="2.2" class="hmo"/>
+<circle cx="146.5" cy="85.6" r="2.2" class="hmo"/>
+<circle cx="180.3" cy="86.8" r="2.2" class="hmo"/>
+<circle cx="214.8" cy="91.1" r="2.2" class="hmo"/>
+<circle cx="249.8" cy="117.9" r="2.2" class="hmo"/>
+<circle cx="285.0" cy="140.7" r="2.2" class="hmo"/>
+<circle cx="320.3" cy="164.1" r="2.2" class="hmo"/>
+<circle cx="75.8" cy="76.6" r="2.2" class="hmo"/>
+<circle cx="111.1" cy="77.7" r="2.2" class="hmo"/>
+<circle cx="146.5" cy="83.1" r="2.2" class="hmo"/>
+<circle cx="180.3" cy="92.6" r="2.2" class="hmo"/>
+<circle cx="214.8" cy="96.5" r="2.2" class="hmo"/>
+<circle cx="249.8" cy="122.5" r="2.2" class="hmo"/>
+<circle cx="285.0" cy="146.5" r="2.2" class="hmo"/>
+<circle cx="320.3" cy="171.4" r="2.2" class="hmo"/>
+<circle cx="75.8" cy="69.5" r="2.2" class="hm1"/>
+<circle cx="111.1" cy="72.1" r="2.2" class="hm1"/>
+<circle cx="146.5" cy="73.7" r="2.2" class="hm1"/>
+<circle cx="180.3" cy="77.6" r="2.2" class="hm1"/>
+<circle cx="214.8" cy="81.8" r="2.2" class="hm1"/>
+<circle cx="249.8" cy="96.0" r="2.2" class="hm1"/>
+<circle cx="285.0" cy="125.8" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="144.7" r="2.2" class="hm1"/>
+<circle cx="75.8" cy="69.5" r="2.2" class="hm1"/>
+<circle cx="111.1" cy="69.7" r="2.2" class="hm1"/>
+<circle cx="146.5" cy="72.5" r="2.2" class="hm1"/>
+<circle cx="180.3" cy="74.6" r="2.2" class="hm1"/>
+<circle cx="214.8" cy="80.0" r="2.2" class="hm1"/>
+<circle cx="249.8" cy="92.2" r="2.2" class="hm1"/>
+<circle cx="285.0" cy="124.5" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="143.4" r="2.2" class="hm1"/>
+<circle cx="75.8" cy="69.7" r="2.2" class="hm1"/>
+<circle cx="111.1" cy="69.9" r="2.2" class="hm1"/>
+<circle cx="146.5" cy="70.3" r="2.2" class="hm1"/>
+<circle cx="180.3" cy="73.7" r="2.2" class="hm1"/>
+<circle cx="214.8" cy="77.8" r="2.2" class="hm1"/>
+<circle cx="249.8" cy="83.1" r="2.2" class="hm1"/>
+<circle cx="285.0" cy="103.7" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="140.9" r="2.2" class="hm1"/>
+<circle cx="75.8" cy="70.3" r="2.2" class="hm1"/>
+<circle cx="111.1" cy="70.5" r="2.2" class="hm1"/>
+<circle cx="146.5" cy="70.7" r="2.2" class="hm1"/>
+<circle cx="180.3" cy="71.7" r="2.2" class="hm1"/>
+<circle cx="214.8" cy="74.8" r="2.2" class="hm1"/>
+<circle cx="249.8" cy="82.9" r="2.2" class="hm1"/>
+<circle cx="285.0" cy="103.1" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="133.2" r="2.2" class="hm1"/>
+<circle cx="75.8" cy="72.8" r="2.2" class="hm1"/>
+<circle cx="111.1" cy="74.0" r="2.2" class="hm1"/>
+<circle cx="146.5" cy="74.6" r="2.2" class="hm1"/>
+<circle cx="180.3" cy="75.4" r="2.2" class="hm1"/>
+<circle cx="214.8" cy="77.1" r="2.2" class="hm1"/>
+<circle cx="249.8" cy="81.3" r="2.2" class="hm1"/>
+<circle cx="285.0" cy="103.3" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="136.6" r="2.2" class="hm1"/>
+<circle cx="75.8" cy="69.3" r="2.2" class="hm2"/>
+<circle cx="111.1" cy="70.2" r="2.2" class="hm2"/>
+<circle cx="146.5" cy="71.0" r="2.2" class="hm2"/>
+<circle cx="180.3" cy="73.8" r="2.2" class="hm2"/>
+<circle cx="214.8" cy="77.3" r="2.2" class="hm2"/>
+<circle cx="249.8" cy="83.4" r="2.2" class="hm2"/>
+<circle cx="285.0" cy="100.8" r="2.2" class="hm2"/>
+<circle cx="320.3" cy="136.9" r="2.2" class="hm2"/>
+<circle cx="75.8" cy="69.5" r="2.2" class="hm2"/>
+<circle cx="111.1" cy="69.5" r="2.2" class="hm2"/>
+<circle cx="146.5" cy="70.4" r="2.2" class="hm2"/>
+<circle cx="180.3" cy="72.0" r="2.2" class="hm2"/>
+<circle cx="214.8" cy="76.4" r="2.2" class="hm2"/>
+<circle cx="249.8" cy="84.7" r="2.2" class="hm2"/>
+<circle cx="285.0" cy="95.8" r="2.2" class="hm2"/>
+<circle cx="320.3" cy="123.1" r="2.2" class="hm2"/>
+<circle cx="75.8" cy="69.4" r="2.2" class="hm2"/>
+<circle cx="111.1" cy="69.5" r="2.2" class="hm2"/>
+<circle cx="146.5" cy="69.7" r="2.2" class="hm2"/>
+<circle cx="180.3" cy="70.8" r="2.2" class="hm2"/>
+<circle cx="214.8" cy="73.5" r="2.2" class="hm2"/>
+<circle cx="249.8" cy="80.5" r="2.2" class="hm2"/>
+<circle cx="285.0" cy="90.0" r="2.2" class="hm2"/>
+<circle cx="320.3" cy="120.9" r="2.2" class="hm2"/>
+<circle cx="75.8" cy="69.7" r="2.2" class="hm2"/>
+<circle cx="111.1" cy="69.7" r="2.2" class="hm2"/>
+<circle cx="146.5" cy="69.8" r="2.2" class="hm2"/>
+<circle cx="180.3" cy="70.0" r="2.2" class="hm2"/>
+<circle cx="214.8" cy="72.4" r="2.2" class="hm2"/>
+<circle cx="249.8" cy="75.7" r="2.2" class="hm2"/>
+<circle cx="285.0" cy="82.5" r="2.2" class="hm2"/>
+<circle cx="320.3" cy="100.7" r="2.2" class="hm2"/>
+<circle cx="75.8" cy="73.8" r="2.2" class="hm2"/>
+<circle cx="111.1" cy="75.0" r="2.2" class="hm2"/>
+<circle cx="146.5" cy="75.5" r="2.2" class="hm2"/>
+<circle cx="180.3" cy="75.9" r="2.2" class="hm2"/>
+<circle cx="214.8" cy="76.3" r="2.2" class="hm2"/>
+<circle cx="249.8" cy="78.9" r="2.2" class="hm2"/>
+<circle cx="285.0" cy="87.5" r="2.2" class="hm2"/>
+<circle cx="320.3" cy="101.4" r="2.2" class="hm2"/>
+<circle cx="75.8" cy="69.3" r="2.2" class="hm4"/>
+<circle cx="111.1" cy="70.1" r="2.2" class="hm4"/>
+<circle cx="146.5" cy="70.8" r="2.2" class="hm4"/>
+<circle cx="180.3" cy="71.6" r="2.2" class="hm4"/>
+<circle cx="214.8" cy="74.1" r="2.2" class="hm4"/>
+<circle cx="249.8" cy="77.0" r="2.2" class="hm4"/>
+<circle cx="285.0" cy="82.2" r="2.2" class="hm4"/>
+<circle cx="320.3" cy="97.4" r="2.2" class="hm4"/>
+<circle cx="75.8" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="111.1" cy="69.6" r="2.2" class="hm4"/>
+<circle cx="146.5" cy="70.3" r="2.2" class="hm4"/>
+<circle cx="180.3" cy="71.1" r="2.2" class="hm4"/>
+<circle cx="214.8" cy="72.9" r="2.2" class="hm4"/>
+<circle cx="249.8" cy="77.5" r="2.2" class="hm4"/>
+<circle cx="285.0" cy="84.3" r="2.2" class="hm4"/>
+<circle cx="320.3" cy="92.5" r="2.2" class="hm4"/>
+<circle cx="75.8" cy="69.4" r="2.2" class="hm4"/>
+<circle cx="111.1" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="146.5" cy="69.8" r="2.2" class="hm4"/>
+<circle cx="180.3" cy="70.6" r="2.2" class="hm4"/>
+<circle cx="214.8" cy="72.1" r="2.2" class="hm4"/>
+<circle cx="249.8" cy="74.6" r="2.2" class="hm4"/>
+<circle cx="285.0" cy="81.6" r="2.2" class="hm4"/>
+<circle cx="320.3" cy="92.0" r="2.2" class="hm4"/>
+<circle cx="75.8" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="111.1" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="146.5" cy="69.6" r="2.2" class="hm4"/>
+<circle cx="180.3" cy="69.9" r="2.2" class="hm4"/>
+<circle cx="214.8" cy="71.0" r="2.2" class="hm4"/>
+<circle cx="249.8" cy="72.7" r="2.2" class="hm4"/>
+<circle cx="285.0" cy="77.1" r="2.2" class="hm4"/>
+<circle cx="320.3" cy="87.7" r="2.2" class="hm4"/>
+<circle cx="75.8" cy="69.9" r="2.2" class="hm4"/>
+<circle cx="111.1" cy="70.1" r="2.2" class="hm4"/>
+<circle cx="146.5" cy="70.2" r="2.2" class="hm4"/>
+<circle cx="180.3" cy="70.4" r="2.2" class="hm4"/>
+<circle cx="214.8" cy="70.7" r="2.2" class="hm4"/>
+<circle cx="249.8" cy="71.8" r="2.2" class="hm4"/>
+<circle cx="285.0" cy="75.7" r="2.2" class="hm4"/>
+<circle cx="320.3" cy="82.0" r="2.2" class="hm4"/>
+<text x="196" y="326" class="flab mid">the depth n</text>
+<text x="196" y="36" class="flab mid c4">ordered by depth: 1.5&#215;10&#8311; apart at n = 481</text>
+<line x1="424" y1="274.4" x2="716" y2="274.4" class="grid"/>
+<line x1="424" y1="245.1" x2="716" y2="245.1" class="grid"/>
+<text x="419" y="248.6" class="flab end">10&#8315;&#8310;</text>
+<line x1="424" y1="215.8" x2="716" y2="215.8" class="grid"/>
+<line x1="424" y1="186.5" x2="716" y2="186.5" class="grid"/>
+<text x="419" y="190.0" class="flab end">10&#8315;&#8308;</text>
+<line x1="424" y1="157.2" x2="716" y2="157.2" class="grid"/>
+<line x1="424" y1="127.9" x2="716" y2="127.9" class="grid"/>
+<text x="419" y="131.4" class="flab end">10&#8315;&#178;</text>
+<line x1="424" y1="98.6" x2="716" y2="98.6" class="grid"/>
+<line x1="424" y1="69.3" x2="716" y2="69.3" class="grid"/>
+<text x="419" y="72.8" class="flab end">10&#8304;</text>
+<text x="469.9" y="308" class="flab mid">10&#8315;&#178;</text>
+<text x="535.6" y="308" class="flab mid">10&#8315;&#185;</text>
+<text x="601.2" y="308" class="flab mid">10&#8304;</text>
+<text x="666.8" y="308" class="flab mid">10&#185;</text>
+<line x1="424" y1="292" x2="716" y2="292" class="axis"/>
+<line x1="424" y1="62" x2="424" y2="292" class="axis"/>
+<line x1="566.9" y1="62" x2="566.9" y2="292" class="rule"/>
+<text x="560.9" y="196.0" class="flab end c4">n = N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan>/3</text>
+<circle cx="585.0" cy="73.8" r="2.2" class="hm3"/>
+<circle cx="604.8" cy="78.9" r="2.2" class="hm3"/>
+<circle cx="624.5" cy="89.4" r="2.2" class="hm3"/>
+<circle cx="643.4" cy="106.1" r="2.2" class="hm3"/>
+<circle cx="662.7" cy="137.0" r="2.2" class="hm3"/>
+<circle cx="682.2" cy="155.3" r="2.2" class="hm3"/>
+<circle cx="701.8" cy="175.0" r="2.2" class="hm3"/>
+<circle cx="721.5" cy="194.3" r="2.2" class="hm3"/>
+<circle cx="585.0" cy="72.6" r="2.2" class="hm3"/>
+<circle cx="604.8" cy="75.3" r="2.2" class="hm3"/>
+<circle cx="624.5" cy="83.6" r="2.2" class="hm3"/>
+<circle cx="643.4" cy="104.2" r="2.2" class="hm3"/>
+<circle cx="662.7" cy="125.1" r="2.2" class="hm3"/>
+<circle cx="682.2" cy="150.0" r="2.2" class="hm3"/>
+<circle cx="701.8" cy="170.4" r="2.2" class="hm3"/>
+<circle cx="721.5" cy="204.4" r="2.2" class="hm3"/>
+<circle cx="585.0" cy="76.4" r="2.2" class="hm3"/>
+<circle cx="604.8" cy="77.0" r="2.2" class="hm3"/>
+<circle cx="624.5" cy="81.7" r="2.2" class="hm3"/>
+<circle cx="643.4" cy="95.4" r="2.2" class="hm3"/>
+<circle cx="662.7" cy="118.5" r="2.2" class="hm3"/>
+<circle cx="682.2" cy="146.4" r="2.2" class="hm3"/>
+<circle cx="701.8" cy="163.8" r="2.2" class="hm3"/>
+<circle cx="721.5" cy="193.0" r="2.2" class="hm3"/>
+<circle cx="585.0" cy="79.0" r="2.2" class="hm3"/>
+<circle cx="604.8" cy="84.2" r="2.2" class="hm3"/>
+<circle cx="624.5" cy="99.7" r="2.2" class="hm3"/>
+<circle cx="643.4" cy="121.5" r="2.2" class="hm3"/>
+<circle cx="662.7" cy="149.0" r="2.2" class="hm3"/>
+<circle cx="682.2" cy="194.6" r="2.2" class="hm3"/>
+<circle cx="701.8" cy="217.6" r="2.2" class="hm3"/>
+<circle cx="721.5" cy="259.2" r="2.2" class="hm3"/>
+<circle cx="585.0" cy="104.2" r="2.2" class="hm3"/>
+<circle cx="604.8" cy="130.7" r="2.2" class="hm3"/>
+<circle cx="624.5" cy="155.5" r="2.2" class="hm3"/>
+<circle cx="643.4" cy="214.1" r="2.2" class="hm3"/>
+<circle cx="662.7" cy="230.6" r="2.2" class="hm3"/>
+<circle cx="682.2" cy="234.7" r="2.2" class="hm3"/>
+<circle cx="701.8" cy="253.5" r="2.2" class="hm3"/>
+<circle cx="721.5" cy="292.0" r="2.2" class="hm3"/>
+<circle cx="559.4" cy="69.6" r="2.2" class="hmo"/>
+<circle cx="579.2" cy="73.5" r="2.2" class="hmo"/>
+<circle cx="598.9" cy="78.0" r="2.2" class="hmo"/>
+<circle cx="617.8" cy="86.4" r="2.2" class="hmo"/>
+<circle cx="637.1" cy="99.5" r="2.2" class="hmo"/>
+<circle cx="656.6" cy="129.2" r="2.2" class="hmo"/>
+<circle cx="676.2" cy="159.2" r="2.2" class="hmo"/>
+<circle cx="695.9" cy="177.8" r="2.2" class="hmo"/>
+<circle cx="559.4" cy="70.4" r="2.2" class="hmo"/>
+<circle cx="579.2" cy="72.1" r="2.2" class="hmo"/>
+<circle cx="598.9" cy="80.1" r="2.2" class="hmo"/>
+<circle cx="617.8" cy="84.7" r="2.2" class="hmo"/>
+<circle cx="637.1" cy="91.8" r="2.2" class="hmo"/>
+<circle cx="656.6" cy="122.7" r="2.2" class="hmo"/>
+<circle cx="676.2" cy="150.0" r="2.2" class="hmo"/>
+<circle cx="695.9" cy="173.0" r="2.2" class="hmo"/>
+<circle cx="559.4" cy="78.4" r="2.2" class="hmo"/>
+<circle cx="579.2" cy="80.5" r="2.2" class="hmo"/>
+<circle cx="598.9" cy="82.3" r="2.2" class="hmo"/>
+<circle cx="617.8" cy="88.4" r="2.2" class="hmo"/>
+<circle cx="637.1" cy="99.6" r="2.2" class="hmo"/>
+<circle cx="656.6" cy="121.9" r="2.2" class="hmo"/>
+<circle cx="676.2" cy="148.0" r="2.2" class="hmo"/>
+<circle cx="695.9" cy="172.3" r="2.2" class="hmo"/>
+<circle cx="559.4" cy="74.9" r="2.2" class="hmo"/>
+<circle cx="579.2" cy="80.9" r="2.2" class="hmo"/>
+<circle cx="598.9" cy="85.6" r="2.2" class="hmo"/>
+<circle cx="617.8" cy="86.8" r="2.2" class="hmo"/>
+<circle cx="637.1" cy="91.1" r="2.2" class="hmo"/>
+<circle cx="656.6" cy="117.9" r="2.2" class="hmo"/>
+<circle cx="676.2" cy="140.7" r="2.2" class="hmo"/>
+<circle cx="695.9" cy="164.1" r="2.2" class="hmo"/>
+<circle cx="559.4" cy="76.6" r="2.2" class="hmo"/>
+<circle cx="579.2" cy="77.7" r="2.2" class="hmo"/>
+<circle cx="598.9" cy="83.1" r="2.2" class="hmo"/>
+<circle cx="617.8" cy="92.6" r="2.2" class="hmo"/>
+<circle cx="637.1" cy="96.5" r="2.2" class="hmo"/>
+<circle cx="656.6" cy="122.5" r="2.2" class="hmo"/>
+<circle cx="676.2" cy="146.5" r="2.2" class="hmo"/>
+<circle cx="695.9" cy="171.4" r="2.2" class="hmo"/>
+<circle cx="510.7" cy="69.5" r="2.2" class="hm1"/>
+<circle cx="530.4" cy="72.1" r="2.2" class="hm1"/>
+<circle cx="550.2" cy="73.7" r="2.2" class="hm1"/>
+<circle cx="569.0" cy="77.6" r="2.2" class="hm1"/>
+<circle cx="588.3" cy="81.8" r="2.2" class="hm1"/>
+<circle cx="607.8" cy="96.0" r="2.2" class="hm1"/>
+<circle cx="627.5" cy="125.8" r="2.2" class="hm1"/>
+<circle cx="647.2" cy="144.7" r="2.2" class="hm1"/>
+<circle cx="510.7" cy="69.5" r="2.2" class="hm1"/>
+<circle cx="530.4" cy="69.7" r="2.2" class="hm1"/>
+<circle cx="550.2" cy="72.5" r="2.2" class="hm1"/>
+<circle cx="569.0" cy="74.6" r="2.2" class="hm1"/>
+<circle cx="588.3" cy="80.0" r="2.2" class="hm1"/>
+<circle cx="607.8" cy="92.2" r="2.2" class="hm1"/>
+<circle cx="627.5" cy="124.5" r="2.2" class="hm1"/>
+<circle cx="647.2" cy="143.4" r="2.2" class="hm1"/>
+<circle cx="510.7" cy="69.7" r="2.2" class="hm1"/>
+<circle cx="530.4" cy="69.9" r="2.2" class="hm1"/>
+<circle cx="550.2" cy="70.3" r="2.2" class="hm1"/>
+<circle cx="569.0" cy="73.7" r="2.2" class="hm1"/>
+<circle cx="588.3" cy="77.8" r="2.2" class="hm1"/>
+<circle cx="607.8" cy="83.1" r="2.2" class="hm1"/>
+<circle cx="627.5" cy="103.7" r="2.2" class="hm1"/>
+<circle cx="647.2" cy="140.9" r="2.2" class="hm1"/>
+<circle cx="510.7" cy="70.3" r="2.2" class="hm1"/>
+<circle cx="530.4" cy="70.5" r="2.2" class="hm1"/>
+<circle cx="550.2" cy="70.7" r="2.2" class="hm1"/>
+<circle cx="569.0" cy="71.7" r="2.2" class="hm1"/>
+<circle cx="588.3" cy="74.8" r="2.2" class="hm1"/>
+<circle cx="607.8" cy="82.9" r="2.2" class="hm1"/>
+<circle cx="627.5" cy="103.1" r="2.2" class="hm1"/>
+<circle cx="647.2" cy="133.2" r="2.2" class="hm1"/>
+<circle cx="510.7" cy="72.8" r="2.2" class="hm1"/>
+<circle cx="530.4" cy="74.0" r="2.2" class="hm1"/>
+<circle cx="550.2" cy="74.6" r="2.2" class="hm1"/>
+<circle cx="569.0" cy="75.4" r="2.2" class="hm1"/>
+<circle cx="588.3" cy="77.1" r="2.2" class="hm1"/>
+<circle cx="607.8" cy="81.3" r="2.2" class="hm1"/>
+<circle cx="627.5" cy="103.3" r="2.2" class="hm1"/>
+<circle cx="647.2" cy="136.6" r="2.2" class="hm1"/>
+<circle cx="488.7" cy="69.3" r="2.2" class="hm2"/>
+<circle cx="508.5" cy="70.2" r="2.2" class="hm2"/>
+<circle cx="528.2" cy="71.0" r="2.2" class="hm2"/>
+<circle cx="547.1" cy="73.8" r="2.2" class="hm2"/>
+<circle cx="566.4" cy="77.3" r="2.2" class="hm2"/>
+<circle cx="585.9" cy="83.4" r="2.2" class="hm2"/>
+<circle cx="605.5" cy="100.8" r="2.2" class="hm2"/>
+<circle cx="625.2" cy="136.9" r="2.2" class="hm2"/>
+<circle cx="488.7" cy="69.5" r="2.2" class="hm2"/>
+<circle cx="508.5" cy="69.5" r="2.2" class="hm2"/>
+<circle cx="528.2" cy="70.4" r="2.2" class="hm2"/>
+<circle cx="547.1" cy="72.0" r="2.2" class="hm2"/>
+<circle cx="566.4" cy="76.4" r="2.2" class="hm2"/>
+<circle cx="585.9" cy="84.7" r="2.2" class="hm2"/>
+<circle cx="605.5" cy="95.8" r="2.2" class="hm2"/>
+<circle cx="625.2" cy="123.1" r="2.2" class="hm2"/>
+<circle cx="488.7" cy="69.4" r="2.2" class="hm2"/>
+<circle cx="508.5" cy="69.5" r="2.2" class="hm2"/>
+<circle cx="528.2" cy="69.7" r="2.2" class="hm2"/>
+<circle cx="547.1" cy="70.8" r="2.2" class="hm2"/>
+<circle cx="566.4" cy="73.5" r="2.2" class="hm2"/>
+<circle cx="585.9" cy="80.5" r="2.2" class="hm2"/>
+<circle cx="605.5" cy="90.0" r="2.2" class="hm2"/>
+<circle cx="625.2" cy="120.9" r="2.2" class="hm2"/>
+<circle cx="488.7" cy="69.7" r="2.2" class="hm2"/>
+<circle cx="508.5" cy="69.7" r="2.2" class="hm2"/>
+<circle cx="528.2" cy="69.8" r="2.2" class="hm2"/>
+<circle cx="547.1" cy="70.0" r="2.2" class="hm2"/>
+<circle cx="566.4" cy="72.4" r="2.2" class="hm2"/>
+<circle cx="585.9" cy="75.7" r="2.2" class="hm2"/>
+<circle cx="605.5" cy="82.5" r="2.2" class="hm2"/>
+<circle cx="625.2" cy="100.7" r="2.2" class="hm2"/>
+<circle cx="488.7" cy="73.8" r="2.2" class="hm2"/>
+<circle cx="508.5" cy="75.0" r="2.2" class="hm2"/>
+<circle cx="528.2" cy="75.5" r="2.2" class="hm2"/>
+<circle cx="547.1" cy="75.9" r="2.2" class="hm2"/>
+<circle cx="566.4" cy="76.3" r="2.2" class="hm2"/>
+<circle cx="585.9" cy="78.9" r="2.2" class="hm2"/>
+<circle cx="605.5" cy="87.5" r="2.2" class="hm2"/>
+<circle cx="625.2" cy="101.4" r="2.2" class="hm2"/>
+<circle cx="465.5" cy="69.3" r="2.2" class="hm4"/>
+<circle cx="485.3" cy="70.1" r="2.2" class="hm4"/>
+<circle cx="505.0" cy="70.8" r="2.2" class="hm4"/>
+<circle cx="523.9" cy="71.6" r="2.2" class="hm4"/>
+<circle cx="543.1" cy="74.1" r="2.2" class="hm4"/>
+<circle cx="562.7" cy="77.0" r="2.2" class="hm4"/>
+<circle cx="582.3" cy="82.2" r="2.2" class="hm4"/>
+<circle cx="602.0" cy="97.4" r="2.2" class="hm4"/>
+<circle cx="465.5" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="485.3" cy="69.6" r="2.2" class="hm4"/>
+<circle cx="505.0" cy="70.3" r="2.2" class="hm4"/>
+<circle cx="523.9" cy="71.1" r="2.2" class="hm4"/>
+<circle cx="543.1" cy="72.9" r="2.2" class="hm4"/>
+<circle cx="562.7" cy="77.5" r="2.2" class="hm4"/>
+<circle cx="582.3" cy="84.3" r="2.2" class="hm4"/>
+<circle cx="602.0" cy="92.5" r="2.2" class="hm4"/>
+<circle cx="465.5" cy="69.4" r="2.2" class="hm4"/>
+<circle cx="485.3" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="505.0" cy="69.8" r="2.2" class="hm4"/>
+<circle cx="523.9" cy="70.6" r="2.2" class="hm4"/>
+<circle cx="543.1" cy="72.1" r="2.2" class="hm4"/>
+<circle cx="562.7" cy="74.6" r="2.2" class="hm4"/>
+<circle cx="582.3" cy="81.6" r="2.2" class="hm4"/>
+<circle cx="602.0" cy="92.0" r="2.2" class="hm4"/>
+<circle cx="465.5" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="485.3" cy="69.5" r="2.2" class="hm4"/>
+<circle cx="505.0" cy="69.6" r="2.2" class="hm4"/>
+<circle cx="523.9" cy="69.9" r="2.2" class="hm4"/>
+<circle cx="543.1" cy="71.0" r="2.2" class="hm4"/>
+<circle cx="562.7" cy="72.7" r="2.2" class="hm4"/>
+<circle cx="582.3" cy="77.1" r="2.2" class="hm4"/>
+<circle cx="602.0" cy="87.7" r="2.2" class="hm4"/>
+<circle cx="465.5" cy="69.9" r="2.2" class="hm4"/>
+<circle cx="485.3" cy="70.1" r="2.2" class="hm4"/>
+<circle cx="505.0" cy="70.2" r="2.2" class="hm4"/>
+<circle cx="523.9" cy="70.4" r="2.2" class="hm4"/>
+<circle cx="543.1" cy="70.7" r="2.2" class="hm4"/>
+<circle cx="562.7" cy="71.8" r="2.2" class="hm4"/>
+<circle cx="582.3" cy="75.7" r="2.2" class="hm4"/>
+<circle cx="602.0" cy="82.0" r="2.2" class="hm4"/>
+<circle cx="649.9" cy="110.0" r="6.5" class="mk"/>
+<circle cx="643.3" cy="96.8" r="6.5" class="mk"/>
+<circle cx="614.2" cy="85.3" r="6.5" class="mk"/>
+<circle cx="611.8" cy="85.8" r="6.5" class="mk"/>
+<circle cx="608.3" cy="84.7" r="6.5" class="mk"/>
+<text x="570" y="326" class="flab mid">n/N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan></text>
+<text x="570" y="36" class="flab mid c4">ordered by n/N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan>: within 2.0&#215; below 0.3</text>
+<circle cx="436" cy="274" r="6.5" class="mk"/>
+<text x="448" y="278" class="flab st">rh27c's five published certificates</text>
+<text x="62" y="208" class="flab st">window:</text>
+<circle cx="68" cy="220" r="3.2" class="hm3"/>
+<text x="78" y="224" class="flab st hm3">&#916;&#8242; = 0.48, N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> = 7</text>
+<circle cx="68" cy="236" r="3.2" class="hmo"/>
+<text x="78" y="240" class="flab st hmo">&#916;&#8242; = 0.24, N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> = 17</text>
+<circle cx="68" cy="252" r="3.2" class="hm1"/>
+<text x="78" y="256" class="flab st hm1">&#916;&#8242; = 0.12, N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> = 96</text>
+<circle cx="68" cy="268" r="3.2" class="hm2"/>
+<text x="78" y="272" class="flab st hm2">&#916;&#8242; = 0.06, N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> = 207</text>
+<circle cx="68" cy="284" r="3.2" class="hm4"/>
+<text x="78" y="288" class="flab st hm4">&#916;&#8242; = 0.03, N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> = 467</text>
+<text x="24" y="350" class="flab st">N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> = &#8214;&#956;&#8214; / (2 max &#947; &#293;(&#947;)&#178;) is the mass of the measure divided by its heaviest atom &#8212; the number of atoms there</text>
+<text x="24" y="368" class="flab st">would be if they all weighed the same. It is a statement about the WEIGHTS, so the window fixes it and the mesh cannot</text>
+<text x="24" y="386" class="flab st">touch it. Every point here is a &#955;&#8344;&#7522;&#8345; the arc could have certified; the same 200 numbers are plotted in both panels.</text>
+</svg></div>
+<figcaption>Two hundred certificates, plotted against the depth and against
+the depth divided by the effective count.</figcaption></figure>
+
+<p>Against the depth alone the points scatter over 1.5&#215;10&#8311;. Against
+n/N<sub>eff</sub> they lie on a single curve. Over the four bins covering
+n/N<sub>eff</sub> &lt; 0.3 — half the family, spanning two decades of window,
+two of mesh and two of depth — the spread <em>within a bin</em> is:</p>
+
+<div class="cardbox">
+n/N<sub>eff</sub> in [0.003, 0.01) &nbsp; 5 points &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) from 9.57&#215;10&#8315;&#185; to 9.99&#215;10&#8315;&#185; &nbsp; spread 1.04&#215;<br>
+n/N<sub>eff</sub> in [0.01, 0.03) &nbsp; 10 points &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) from 7.02&#215;10&#8315;&#185; to 9.99&#215;10&#8315;&#185; &nbsp; spread 1.42&#215;<br>
+n/N<sub>eff</sub> in [0.03, 0.1) &nbsp; 30 points &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) from 6.16&#215;10&#8315;&#185; to 9.88&#215;10&#8315;&#185; &nbsp; spread 1.60&#215;<br>
+n/N<sub>eff</sub> in [0.1, 0.3) &nbsp; 30 points &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) from 4.92&#215;10&#8315;&#185; to 9.78&#215;10&#8315;&#185; &nbsp; spread 1.99&#215;
+</div>
+
+<p>Never worse than 1.99&#215;. For comparison, binning the same 200 numbers by
+depth alone spreads them by up to 1.5&#215;10&#8311;, and by window alone by up to
+3.1&#215;10&#8311;, so this is not a repackaging of either. And it fails past
+n = N<sub>eff</sub>: beyond n/N<sub>eff</sub> = 1 the spread in a bin reaches
+5.8&#215;10&#8308;. The collapse is a statement about the regime where the section is
+shorter than the measure is wide, and nothing past it.</p>
+
+<h3>What that explains</h3>
+
+<p>rh27c ran its five supports at n = 18/&#916;&#8242; + 1 — fixed depth in v,
+which is the natural thing to do and turns out to be the trap. Those five sit
+at:</p>
+
+<div class="cardbox">
+&#916;&#8242; = 0.48 &nbsp; n = 39 &nbsp; N<sub>eff</sub> = 7.0 &nbsp; n/N<sub>eff</sub> = 5.54 &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) = 0.0408<br>
+&#916;&#8242; = 0.24 &nbsp; n = 76 &nbsp; N<sub>eff</sub> = 17.3 &nbsp; n/N<sub>eff</sub> = 4.39 &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) = 0.1154<br>
+&#916;&#8242; = 0.12 &nbsp; n = 151 &nbsp; N<sub>eff</sub> = 95.7 &nbsp; n/N<sub>eff</sub> = 1.58 &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) = 0.2846<br>
+&#916;&#8242; = 0.06 &nbsp; n = 301 &nbsp; N<sub>eff</sub> = 207.0 &nbsp; n/N<sub>eff</sub> = 1.45 &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) = 0.2731<br>
+&#916;&#8242; = 0.03 &nbsp; n = 601 &nbsp; N<sub>eff</sub> = 467.3 &nbsp; n/N<sub>eff</sub> = 1.29 &nbsp; &#955;<sub>min</sub>/E<sub>h</sub>(0) = 0.2992
+</div>
+
+<p>The three narrow supports are at n/N<sub>eff</sub> = 1.58, 1.45, 1.29, a spread of
+1.23&#215;, and their &#955;<sub>min</sub>/E<sub>h</sub>(0) agree to 10%. They
+were not three supports independently agreeing on a ceiling. They were three
+readings of very nearly one point on this curve. rh27c called the agreement a
+ceiling, rh28 called it a saturation and spent a document on it, rh29 called it
+a coupling and failed to name it. It is an artefact of holding v fixed while
+&#916;&#8242; varies, which holds n/N<sub>eff</sub> nearly fixed too.</p>
+
+<p>And the two wide supports sit further out, at 5.5 and 4.4, which is why they read
+lower. There was never a flat stretch with an edge; there is one curve, and
+rh27c sampled a short arc of it five times.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 424" role="img" aria-label="The five by five window-by-mesh grid at fixed depth 61, as a table of values, beside the error of a separable model on the same grid. The model is within a factor of two everywhere except the widest window's row, where it fails by seven thousand.">
+<text x="370.0" y="21" class="ftitle">the grid rh29 asked for, and the one row that is not separable</text>
+<text x="184" y="46" class="flab mid">&#955;&#8344;&#7522;&#8345; / E&#8341;(0)</text>
+<text x="184" y="64" class="flab mid">mesh &#916;&#8242; &#8594;</text>
+<text x="72" y="80" class="flab mid">0.48</text>
+<text x="128" y="80" class="flab mid">0.24</text>
+<text x="184" y="80" class="flab mid">0.12</text>
+<text x="240" y="80" class="flab mid">0.06</text>
+<text x="296" y="80" class="flab mid">0.03</text>
+<text x="38" y="102" class="flab end hm3">0.48</text>
+<text x="72" y="102" class="flab mid c4">0.005</text>
+<text x="128" y="102" class="flab mid c4">0.013</text>
+<text x="184" y="102" class="flab mid c4">0.021</text>
+<text x="240" y="102" class="flab mid c4">0.002</text>
+<text x="296" y="102" class="flab mid c4">3.1&#215;10&#8315;&#8310;</text>
+<text x="38" y="132" class="flab end hmo">0.24</text>
+<text x="72" y="132" class="flab mid c4">0.094</text>
+<text x="128" y="132" class="flab mid">0.170</text>
+<text x="184" y="132" class="flab mid c4">0.092</text>
+<text x="240" y="132" class="flab mid">0.181</text>
+<text x="296" y="132" class="flab mid">0.118</text>
+<text x="38" y="162" class="flab end hm1">0.12</text>
+<text x="72" y="162" class="flab mid">0.374</text>
+<text x="128" y="162" class="flab mid">0.432</text>
+<text x="184" y="162" class="flab mid">0.514</text>
+<text x="240" y="162" class="flab mid">0.651</text>
+<text x="296" y="162" class="flab mid">0.543</text>
+<text x="38" y="192" class="flab end hm2">0.06</text>
+<text x="72" y="192" class="flab mid">0.536</text>
+<text x="128" y="192" class="flab mid">0.576</text>
+<text x="184" y="192" class="flab mid">0.720</text>
+<text x="240" y="192" class="flab mid">0.785</text>
+<text x="296" y="192" class="flab mid">0.576</text>
+<text x="38" y="222" class="flab end hm4">0.03</text>
+<text x="72" y="222" class="flab mid">0.687</text>
+<text x="128" y="222" class="flab mid">0.758</text>
+<text x="184" y="222" class="flab mid">0.803</text>
+<text x="240" y="222" class="flab mid">0.880</text>
+<text x="296" y="222" class="flab mid">0.895</text>
+<rect x="42" y="84" width="284" height="30" class="hl"/>
+<text x="564" y="46" class="flab mid">separable model, error</text>
+<text x="564" y="64" class="flab mid">mesh &#916;&#8242; &#8594;</text>
+<text x="452" y="80" class="flab mid">0.48</text>
+<text x="508" y="80" class="flab mid">0.24</text>
+<text x="564" y="80" class="flab mid">0.12</text>
+<text x="620" y="80" class="flab mid">0.06</text>
+<text x="676" y="80" class="flab mid">0.03</text>
+<text x="418" y="102" class="flab end hm3">0.48</text>
+<text x="452" y="102" class="flab mid c4">3.1&#215;</text>
+<text x="508" y="102" class="flab mid">1.4&#215;</text>
+<text x="564" y="102" class="flab mid">1.0&#215;</text>
+<text x="620" y="102" class="flab mid c4">14.0&#215;</text>
+<text x="676" y="102" class="flab mid c4">7.1&#215;10&#179;</text>
+<text x="418" y="132" class="flab end hmo">0.24</text>
+<text x="452" y="132" class="flab mid">1.4&#215;</text>
+<text x="508" y="132" class="flab mid">2.2&#215;</text>
+<text x="564" y="132" class="flab mid">1.0&#215;</text>
+<text x="620" y="132" class="flab mid">1.5&#215;</text>
+<text x="676" y="132" class="flab mid">1.2&#215;</text>
+<text x="418" y="162" class="flab end hm1">0.12</text>
+<text x="452" y="162" class="flab mid">1.0&#215;</text>
+<text x="508" y="162" class="flab mid">1.0&#215;</text>
+<text x="564" y="162" class="flab mid">1.0&#215;</text>
+<text x="620" y="162" class="flab mid">1.0&#215;</text>
+<text x="676" y="162" class="flab mid">1.0&#215;</text>
+<text x="418" y="192" class="flab end hm2">0.06</text>
+<text x="452" y="192" class="flab mid">1.0&#215;</text>
+<text x="508" y="192" class="flab mid">1.1&#215;</text>
+<text x="564" y="192" class="flab mid">1.0&#215;</text>
+<text x="620" y="192" class="flab mid">1.2&#215;</text>
+<text x="676" y="192" class="flab mid">1.3&#215;</text>
+<text x="418" y="222" class="flab end hm4">0.03</text>
+<text x="452" y="222" class="flab mid">1.2&#215;</text>
+<text x="508" y="222" class="flab mid">1.1&#215;</text>
+<text x="564" y="222" class="flab mid">1.0&#215;</text>
+<text x="620" y="222" class="flab mid">1.2&#215;</text>
+<text x="676" y="222" class="flab mid">1.1&#215;</text>
+<rect x="422" y="84" width="284" height="30" class="hl"/>
+<text x="44" y="268" class="flab st">rows: window &#916;&#8242; &#8212; both panels at n = 61</text>
+<text x="44" y="290" class="flab st c4">boxed: the one row whose n exceeds its own N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> (61 against 7.0)</text>
+<text x="24" y="318" class="flab st">Both panels are the same 25 certificates, at one depth. On the left the surface falls by five decades from the narrow</text>
+<text x="24" y="336" class="flab st">window to the wide one and by three across the meshes. On the right, a model that predicts each entry as (its row's</text>
+<text x="24" y="354" class="flab st">value at mesh 0.12) &#215; (its column's value at window 0.12), normalised at the centre &#8212; the shape rh29 tried and found</text>
+<text x="24" y="372" class="flab st">wrong by 65. It is right to within 2.2&#215; over the whole grid EXCEPT the widest window, where it fails by 7.1&#215;10&#179;. That</text>
+<text x="24" y="390" class="flab st">row is the only one whose depth exceeds its own N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan>, and it carries the entire 'coupling'.</text>
+</svg></div>
+<figcaption>The grid rh29 asked for, at one depth, beside the error of a
+separable model on the same grid.</figcaption></figure>
+
+<p>The separable model deserves its own note, because rh29 reported it as
+evidence of a coupling. On the full grid at n = 61 it is wrong by up to
+7.1&#215;10&#179; — worse than rh29&#8217;s 65 — but the errors are not spread around.
+Every large one is in the widest window&#8217;s row, and that is the only row
+whose depth exceeds its own N<sub>eff</sub> (n = 61 against N<sub>eff</sub> =
+7.0, a ratio of 8.7). Over the rest of the grid the model is right to
+2.2&#215;. So the surface is not &#8220;coupled&#8221; in any interesting
+sense: it is separable wherever the collapse holds, and where the collapse fails
+it is not a function of (window, mesh) at all, because the third variable —
+depth — has taken over.</p>
+</section>
+
+<section id="s4">
+<h2>4 · Why no test vector helps</h2>
+
+<p>A quick consequence, because it closes two earlier items at once. The
+plane-wave test vector a<sub>k</sub> = e<sup>ik&#952;</sup>/&#8730;n gives
+a*T<sub>n</sub>a = &#8747;K<sub>n</sub> d&#956; with K<sub>n</sub> the
+Fej&#233;r kernel, so its value can be read straight off the atoms with no
+matrix at all. Nine grid points:</p>
+
+<div class="cardbox">
+window 0.48 &nbsp; mesh 0.48 &nbsp; n/N<sub>eff</sub> = 8.66 &nbsp; plane wave / &#955;<sub>min</sub> = 13.50&#215;<br>
+window 0.48 &nbsp; mesh 0.12 &nbsp; n/N<sub>eff</sub> = 8.66 &nbsp; plane wave / &#955;<sub>min</sub> = 3.14&#215;<br>
+window 0.48 &nbsp; mesh 0.03 &nbsp; n/N<sub>eff</sub> = 8.66 &nbsp; plane wave / &#955;<sub>min</sub> = 3478.82&#215;<br>
+window 0.12 &nbsp; mesh 0.48 &nbsp; n/N<sub>eff</sub> = 0.64 &nbsp; plane wave / &#955;<sub>min</sub> = 1.09&#215;<br>
+window 0.12 &nbsp; mesh 0.12 &nbsp; n/N<sub>eff</sub> = 0.64 &nbsp; plane wave / &#955;<sub>min</sub> = 1.10&#215;<br>
+window 0.12 &nbsp; mesh 0.03 &nbsp; n/N<sub>eff</sub> = 0.64 &nbsp; plane wave / &#955;<sub>min</sub> = 1.03&#215;<br>
+window 0.03 &nbsp; mesh 0.48 &nbsp; n/N<sub>eff</sub> = 0.13 &nbsp; plane wave / &#955;<sub>min</sub> = 1.07&#215;<br>
+window 0.03 &nbsp; mesh 0.12 &nbsp; n/N<sub>eff</sub> = 0.13 &nbsp; plane wave / &#955;<sub>min</sub> = 1.06&#215;<br>
+window 0.03 &nbsp; mesh 0.03 &nbsp; n/N<sub>eff</sub> = 0.13 &nbsp; plane wave / &#955;<sub>min</sub> = 1.01&#215;
+</div>
+
+<p>At every point with n &lt; N<sub>eff</sub> the plane wave is within
+1.10&#215; of the true &#955;<sub>min</sub>; past N<sub>eff</sub> the gap
+opens to 3.5&#215;10&#179;.</p>
+
+<p>That settles rh28&#8217;s (c) and rh29&#8217;s (c) together, and explains why
+rh29&#8217;s measurements looked so perverse. rh28 proposed a Hann taper to
+close &#8220;the last 7%&#8221;; rh29 measured six tapers and found the taper
+made things worse at v = 18, then found the null-placing polynomial — the vector
+that ought to be ideal — 65 times worse still. The reason is that below
+N<sub>eff</sub> there is no 7% to close, because the plane wave is already
+within a tenth of optimal and there is nothing for a cleverer vector to buy.
+Above N<sub>eff</sub> the loss is not a sidelobe, so shaping the sidelobes does
+not touch it. rh28 was optimising in the one regime where the optimum was
+already achieved.</p>
+</section>
+
+<section id="s5">
+<h2>5 · The lower bound, and the two ways it fails</h2>
+
+<p>rh29 read the obstruction as Diophantine: a ceiling is limited by the norm it
+costs a polynomial to be small on {&#947;&#916;&#8242; mod 2&#960;}, and
+equidistribution of that set is known. It called this the first question in the
+arc that is analysis rather than computation and not obviously hopeless. It is
+the first, and this section is why it is hopeless with the tools available.</p>
+
+<h3>The anchor</h3>
+
+<p>Start with the ideal configuration. If the atoms are n equally spaced points
+of equal weight, then Gauss quadrature for trigonometric polynomials is
+<em>exact</em>: &#8721;<sub>j</sub> q(&#952;<sub>j</sub>)&#183;(2&#960;/N) =
+&#8747;q for every trig polynomial q of degree &lt; N. So T<sub>n</sub> is a
+multiple of the identity and &#955;<sub>min</sub> is the entire mass. With
+4,308 atoms and n = 151 that is reproduced to 4&#215;10&#8315;&#185;&#179;. Everything the arc has
+ever measured is a loss against this.</p>
+
+<h3>Four controls</h3>
+
+<p>The loss splits into weights and positions, and the split is decisive. At
+&#916;&#8242; = 0.12 and n = 151, with &#955;<sub>min</sub> as a fraction of the
+mass:</p>
+
+<div class="cardbox">
+grid positions, equal weights &#8212; the anchor &nbsp;&#8212;&nbsp; &#955;<sub>min</sub>/&#8214;&#956;&#8214; = 1.0000<br>
+true positions, equal weights &nbsp;&#8212;&nbsp; &#955;<sub>min</sub>/&#8214;&#956;&#8214; = 0.7728<br>
+true positions, true weights &#8212; the arc &nbsp;&#8212;&nbsp; &#955;<sub>min</sub>/&#8214;&#956;&#8214; = 0.2846<br>
+grid positions, true weights &nbsp;&#8212;&nbsp; &#955;<sub>min</sub>/&#8214;&#956;&#8214; = 2.9433&#215;10&#8315;&#8310;
+</div>
+
+<p>Flattening the <em>weights</em> onto the true positions costs a factor of
+2.72. Flattening the <em>positions</em> onto an exact grid while keeping
+each weight attached to its own ordinate costs a factor of 9.7&#215;10&#8308; the wrong
+way — a catastrophe, because it winds the weights monotonically around the
+circle instead of scattering them. So it is the scattering that holds the floor
+up, and the scattering is exactly equidistribution of {&#947;&#916;&#8242; mod
+2&#960;}, which is known unconditionally (Hlawka). rh29&#8217;s reading of the
+obstruction was right. The trouble is turning it into a number.</p>
+
+<h3>Route one: Koksma, through the discrepancy</h3>
+
+<p>For a trig polynomial q = |p|&#178; of degree n&#8722;1 with unit
+coefficients, Bernstein&#8217;s inequality in L&#185; gives
+&#8214;q&#8242;&#8214;<sub>1</sub> &#8804; 2&#960;(n&#8722;1), and Koksma&#8217;s
+inequality against the weighted star discrepancy D*<sub>w</sub> of the atoms
+gives</p>
+
+<p class="eq">&#955;<sub>min</sub>(T<sub>n</sub>) &#8805; E<sub>h</sub>(0)
+&#183; (1 &#8722; 2&#960;(n&#8722;1) D*<sub>w</sub>).</p>
+
+<p>This is the arc&#8217;s first lower bound on &#955;<sub>min</sub> that is not
+a Cholesky, and at n = 2 it is within 7% of the truth at the three narrow
+supports — it is not a weak bound, it is a bound with the wrong shape. It dies
+at depth v = 1.32, where the certificates reach 18.</p>
+
+<p>And it dies for the reason &#167;2 named: a single atom of relative weight p
+forces a jump of p in the distribution function, so D*<sub>w</sub> &#8805;
+1/(2N<sub>eff</sub>) always, and the reach of this route is at most
+1 + N<sub>eff</sub>/&#960; whatever the ordinates do. The measured
+D*<sub>w</sub> is between 1.20 and 7.93 times that floor, so the bound is not losing
+to the arithmetic of the zeros. It is losing to the window.</p>
+
+<h3>Route two: Marcinkiewicz&#8211;Zygmund, through the arcs</h3>
+
+<p>Compare the atoms to the uniform measure through their own arcs instead. If
+the retained atoms cut the circle into arcs &#8467;<sub>j</sub> with
+&#951; = max &#8467;<sub>j</sub>, then
+&#8721;&#8467;<sub>j</sub>q(&#952;<sub>j</sub>) &#8805; 2&#960;(1 &#8722;
+(n&#8722;1)&#951;) by the same Bernstein inequality, and</p>
+
+<p class="eq">&#955;<sub>min</sub>(T<sub>n</sub>) &#8805; 2&#960; &#183;
+min<sub>j</sub>(w<sub>j</sub>/&#8467;<sub>j</sub>) &#183; (1 &#8722;
+(n&#8722;1)&#951;).</p>
+
+<p>This has a genuine trade-off in it: keeping more atoms shrinks &#951; and
+extends the reach, but drags min(w/&#8467;) down towards the lightest atom kept.
+Sweeping the retention threshold, it reaches n = 228 at &#916;&#8242; =
+0.12, against Gershgorin&#8217;s 28 and Koksma&#8217;s 12 — three
+to eight times further than anything the arc has had.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 446" role="img" aria-label="At mesh and window 0.12, the true smallest eigenvalue against depth, with three analytic lower bounds: Gershgorin, Koksma through the weighted discrepancy, and Marcinkiewicz-Zygmund through the arcs. All three fall off a cliff while the truth is nearly flat.">
+<text x="370.0" y="21" class="ftitle">three lower bounds, and the wall they all hit</text>
+<line x1="60" y1="287.1" x2="452" y2="287.1" class="grid"/>
+<text x="55" y="290.6" class="flab end">10&#8315;&#8311;</text>
+<line x1="60" y1="254.8" x2="452" y2="254.8" class="grid"/>
+<text x="55" y="258.3" class="flab end">10&#8315;&#8310;</text>
+<line x1="60" y1="222.6" x2="452" y2="222.6" class="grid"/>
+<text x="55" y="226.1" class="flab end">10&#8315;&#8309;</text>
+<line x1="60" y1="190.3" x2="452" y2="190.3" class="grid"/>
+<text x="55" y="193.8" class="flab end">10&#8315;&#8308;</text>
+<line x1="60" y1="158.0" x2="452" y2="158.0" class="grid"/>
+<text x="55" y="161.5" class="flab end">10&#8315;&#179;</text>
+<line x1="60" y1="125.8" x2="452" y2="125.8" class="grid"/>
+<text x="55" y="129.3" class="flab end">10&#8315;&#178;</text>
+<line x1="60" y1="93.5" x2="452" y2="93.5" class="grid"/>
+<text x="55" y="97.0" class="flab end">10&#8315;&#185;</text>
+<line x1="60" y1="61.2" x2="452" y2="61.2" class="grid"/>
+<text x="55" y="64.7" class="flab end">10&#8304;</text>
+<text x="60.0" y="316" class="flab mid">2</text>
+<text x="173.5" y="316" class="flab mid">10</text>
+<text x="335.8" y="316" class="flab mid">100</text>
+<text x="446.5" y="316" class="flab mid">481</text>
+<line x1="60" y1="300" x2="452" y2="300" class="axis"/>
+<line x1="60" y1="58" x2="60" y2="300" class="axis"/>
+<line x1="332.7" y1="58" x2="332.7" y2="300" class="rule"/>
+<text x="327.7" y="292" class="flab end c4">N<tspan class="sb" dy="3">eff</tspan><tspan dy="-3"></tspan> = 96</text>
+<line x1="364.8" y1="58" x2="364.8" y2="300" class="rule"/>
+<text x="369.8" y="50" class="flab st c4">certified depth</text>
+<path d="M60.0 78.4L88.6 78.5L108.9 78.5L137.4 78.6L157.7 78.7L180.2 78.9L206.6 79.1L229.0 81.0L253.2 82.9L276.3 85.0L300.9 87.4L324.3 89.7L349.2 93.3L373.2 98.5L397.8 116.0L422.0 144.7L446.5 156.9" class="ln0"/>
+<path d="M60.0 78.6L88.6 78.7L108.9 78.7L137.4 79.1L157.7 79.5L180.2 80.5L206.6 81.9L229.0 95.6" class="ln1"/>
+<circle cx="229.0" cy="95.6" r="3.6" class="hm3"/>
+<path d="M60.0 79.3L88.6 80.7L108.9 82.2L137.4 85.9L157.7 90.9L180.2 105.2" class="lnm"/>
+<circle cx="180.2" cy="105.2" r="3.6" class="hm3"/>
+<path d="M60.0 241.4L88.6 241.5L108.9 241.6L137.4 241.7L157.7 241.9L180.2 242.1L206.6 242.5L229.0 242.9L253.2 243.6L276.3 244.6L300.9 246.3L324.3 248.9L349.2 254.0L373.2 266.8" class="ln2"/>
+<circle cx="373.2" cy="266.8" r="3.6" class="hm3"/>
+<line x1="70" y1="136" x2="90" y2="136" class="ln0"/>
+<text x="96" y="140" class="flab st hm1">the truth</text>
+<line x1="70" y1="153" x2="90" y2="153" class="ln1"/>
+<text x="96" y="157" class="flab st hm3">Gershgorin (rh13)</text>
+<line x1="70" y1="170" x2="90" y2="170" class="lnm"/>
+<text x="96" y="174" class="flab st hmo">Koksma, through D*</text>
+<line x1="70" y1="187" x2="90" y2="187" class="ln2"/>
+<text x="96" y="191" class="flab st hm2">Marcinkiewicz&#8211;Zygmund</text>
+<text x="256" y="334" class="flab mid">the depth n, at window = mesh = 0.12</text>
+<text x="486" y="64" class="flab st">where each dies, by support:</text>
+<text x="486" y="86" class="flab st">&#916;&#8242;</text>
+<text x="572" y="86" class="flab end">certified</text>
+<text x="616" y="86" class="flab end">Kok</text>
+<text x="662" y="86" class="flab end">Gersh</text>
+<text x="708" y="86" class="flab end">MZ</text>
+<line x1="486" y1="92" x2="708" y2="92" class="axis"/>
+<text x="486" y="108" class="flab st hm3">0.48</text>
+<text x="572" y="108" class="flab end">39</text>
+<text x="616" y="108" class="flab end">2</text>
+<text x="662" y="108" class="flab end">5</text>
+<text x="708" y="108" class="flab end">261</text>
+<text x="486" y="127" class="flab st hmo">0.24</text>
+<text x="572" y="127" class="flab end">76</text>
+<text x="616" y="127" class="flab end">5</text>
+<text x="662" y="127" class="flab end">10</text>
+<text x="708" y="127" class="flab end">246</text>
+<text x="486" y="146" class="flab st hm1">0.12</text>
+<text x="572" y="146" class="flab end">151</text>
+<text x="616" y="146" class="flab end">12</text>
+<text x="662" y="146" class="flab end">28</text>
+<text x="708" y="146" class="flab end">228</text>
+<text x="486" y="165" class="flab st hm2">0.06</text>
+<text x="572" y="165" class="flab end">301</text>
+<text x="616" y="165" class="flab end">23</text>
+<text x="662" y="165" class="flab end">57</text>
+<text x="708" y="165" class="flab end">255</text>
+<text x="486" y="184" class="flab st hm4">0.03</text>
+<text x="572" y="184" class="flab end">601</text>
+<text x="616" y="184" class="flab end">19</text>
+<text x="662" y="184" class="flab end">114</text>
+<text x="708" y="184" class="flab end">319</text>
+<text x="486" y="213" class="flab st">Only Marcinkiewicz&#8211;Zygmund</text>
+<text x="486" y="230" class="flab st">outlives the certificate, and</text>
+<text x="486" y="247" class="flab st">only at the three widest</text>
+<text x="486" y="264" class="flab st">supports. Its value there is</text>
+<text x="486" y="281" class="flab st">between 7.8&#215;10&#8315;&#8310; and 1.7&#215;10&#8315;&#8308;</text>
+<text x="486" y="298" class="flab st">of the truth.</text>
+<text x="24" y="358" class="flab st">All three bounds are worst-case over every trig polynomial of degree n&#8722;1 with unit coefficients, and all three</text>
+<text x="24" y="376" class="flab st">therefore lose LINEARLY in n &#8212; Gershgorin through &#8721;|E&#8341;(k&#916;&#8242;)|, Koksma through the total variation of |p|&#178;,</text>
+<text x="24" y="394" class="flab st">Marcinkiewicz&#8211;Zygmund through (n&#8722;1)&#951;. The truth over the same range falls by a factor of three. That mismatch, not the</text>
+<text x="24" y="412" class="flab st">size of any constant, is what a usable lower bound would have to fix.</text>
+</svg></div>
+<figcaption>The truth against three analytic lower bounds, and where each
+one dies.</figcaption></figure>
+
+<p>I predicted it would outlive the certified depth at every support. It does
+not. Its reach is roughly constant in the window — 228 to 319 — while the
+certified depth is 18/&#916;&#8242; + 1 and runs to 601, so it survives at the
+three widest supports and dies before the certificate at the two narrowest.
+Where it does survive, its value is between 7.8&#215;10&#8315;&#8310; and 1.7&#215;10&#8315;&#8308; of the truth.</p>
+
+<h3>The verdict</h3>
+
+<p>Both routes are worst-case over every trig polynomial of degree n&#8722;1
+with unit coefficients, and both therefore lose <em>linearly in n</em> —
+Gershgorin through &#8721;|E<sub>h</sub>(k&#916;&#8242;)|, Koksma through the
+total variation of |p|&#178;, Marcinkiewicz&#8211;Zygmund through
+(n&#8722;1)&#951;. Over the same range the truth falls by a factor of three. The
+mismatch is in the shape, not in any constant, and no sharpening of the
+constants would close four decades of it.</p>
+
+<p>What is missing is an inequality that uses q &#8805; 0 rather than only its
+variation. rh29 said this question was not obviously hopeless. With the tools
+actually available it is, and saying so is the useful part: the next attempt
+should not be another discrepancy estimate.</p>
+</section>
+
+<section id="s6">
+<h2>6 · The conspiracy bound, which closes</h2>
+
+<p>rh29 ended by naming its obstruction precisely: not the absence of a bridge
+from forms to zeros, but no control on how many off-line zeros could conspire.
+Its exclusion test assumed a single off-line quadruple; several at different
+heights can cancel at every node measured, and nothing ruled that out.</p>
+
+<p>The control exists and it is elementary. An off-line quadruple at
+&#189; &#177; &#963; &#177; i&#947; contributes
+4&#8202;Re[&#293;(&#947;+i&#963;)&#178;cos((&#947;+i&#963;)v)] to a row entry,
+which is at most 4|&#293;(&#947;+i&#963;)|&#178;cosh(&#963;v). Two facts bound
+the total of these over every zero above a height T:</p>
+
+<dl class="dict">
+<dt>the window&#8217;s decay is r&#8315;&#8308;, on the whole strip</dt>
+<dd>&#293; is entire and its envelope falls like r&#8315;&#178;, so
+|&#293;|&#178; falls like r&#8315;&#8308;. Off the line the growth is
+cosh(&#963;&#916;&#8242;) with &#916;&#8242; &#8804; 0.48, so over the entire
+strip |&#963;| &#8804; &#189; the constant sup &#947;&#8308;|&#293;(&#947;+i&#963;)|&#178;
+is within 0.6% of its value on the line. The bound costs essentially
+nothing for going off the line — all the &#963;-dependence is in
+cosh(&#963;v).</dd>
+<dt>the count alone bounds the tail</dt>
+<dd>&#8721;<sub>&#947;&gt;T</sub>&#947;&#8315;&#8308; needs no zero-density
+theorem. Writing it as 4&#8747;<sub>T</sub><sup>&#8734;</sup>(N(t)&#8722;N(T))
+t&#8315;&#8309;dt and feeding in Backlund&#8217;s explicit bound on
+N(t)&#8722;&#952;(t)/&#960;&#8722;1 at both ends, the smooth parts reproduce
+exactly the integral of the Riemann&#8211;von Mangoldt density against
+t&#8315;&#8308;, and Backlund&#8217;s error survives one order down:</dd>
+</dl>
+
+<p class="eq">&#8721;<sub>&#947;&gt;T</sub> &#947;&#8315;&#8308; &#8804;
+[ln(T/2&#960;)/3 + 1/9] / (2&#960;T&#179;) + (0.56 ln T + 4.07)/T&#8308;.</p>
+
+<p>At T = 4800 that is 3.36&#215;10&#8315;&#185;&#178;. It is checked against the table at six
+heights from 300 to 10 000, and it is not slack — the real ordinates fill
+between 86% and 99% of it. The Backlund term is not decoration either:
+the smooth density alone is <em>exceeded</em> by the real table at T = 500,
+because N(t) carries a +1 that the density does not. That was a bug in the first
+draft of this section, caught by the check.</p>
+
+<p>Put the two together with Gershgorin — a perturbation &#949; in every row
+entry moves &#955;<sub>min</sub> by at most (2n&#8722;1)&#949; — and the result
+is a height above which the entire off-line population is irrelevant:</p>
+
+<div class="cardbox">
+&#916;&#8242; = 0.48 &nbsp; n = 39 &nbsp; &#955;<sub>min</sub> = 2.883&#215;10&#8315;&#178; &nbsp; immune to everything above T = 4.34&#215;10&#8308;<br>
+&#916;&#8242; = 0.24 &nbsp; n = 76 &nbsp; &#955;<sub>min</sub> = 4.982&#215;10&#8315;&#178; &nbsp; immune to everything above T = 5.02&#215;10&#8308;<br>
+&#916;&#8242; = 0.12 &nbsp; n = 151 &nbsp; &#955;<sub>min</sub> = 8.546&#215;10&#8315;&#178; &nbsp; immune to everything above T = 9.48&#215;10&#8308;<br>
+&#916;&#8242; = 0.06 &nbsp; n = 301 &nbsp; &#955;<sub>min</sub> = 4.815&#215;10&#8315;&#178; &nbsp; immune to everything above T = 2.21&#215;10&#8309;<br>
+&#916;&#8242; = 0.03 &nbsp; n = 601 &nbsp; &#955;<sub>min</sub> = 2.836&#215;10&#8315;&#178; &nbsp; immune to everything above T = 4.81&#215;10&#8309;
+</div>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 490" role="img" aria-label="Left: the weight the window gives a zero at height gamma, against gamma, for three supports, with the threshold each certificate would need to notice one. Right: an upper bound on what every off-line zero above height T could do to the certified floor, against T, crossing the floor between forty thousand and half a million.">
+<text x="370.0" y="21" class="ftitle">what the certificates can see, and what could hide from them</text>
+<line x1="56" y1="253.3" x2="344" y2="253.3" class="grid"/>
+<text x="51" y="256.8" class="flab end">10&#8315;&#185;&#178;</text>
+<line x1="56" y1="201.8" x2="344" y2="201.8" class="grid"/>
+<text x="51" y="205.3" class="flab end">10&#8315;&#8313;</text>
+<line x1="56" y1="150.2" x2="344" y2="150.2" class="grid"/>
+<text x="51" y="153.7" class="flab end">10&#8315;&#8310;</text>
+<line x1="56" y1="98.7" x2="344" y2="98.7" class="grid"/>
+<text x="51" y="102.2" class="flab end">10&#8315;&#179;</text>
+<text x="56.0" y="302" class="flab mid">10</text>
+<text x="143.2" y="302" class="flab mid">100</text>
+<text x="230.5" y="302" class="flab mid">1,000</text>
+<text x="344.0" y="302" class="flab mid">20,000</text>
+<line x1="56" y1="286" x2="344" y2="286" class="axis"/>
+<line x1="56" y1="66" x2="56" y2="286" class="axis"/>
+<path d="M69.1 106.8L121.6 85.2L137.0 69.4L147.2 103.4L154.2 112.2L160.1 118.3L164.8 226.7L168.9 158.9L172.5 169.5L175.9 156.7L178.8 128.1L181.4 118.7L183.8 106.7L186.1 123.1L188.2 119.6L190.1 160.8L191.9 133.7L193.7 147.7L195.4 171.3L196.9 188.1L198.3 184.4L199.8 173.8L201.1 151.2L202.4 141.3L203.7 168.0L204.9 127.4L206.0 132.0L207.2 125.1L208.2 193.3L209.2 145.7L210.2 155.7L211.2 183.8L212.1 192.5L213.0 215.9L214.0 193.2L214.8 237.4L215.7 158.0L216.5 146.0L218.0 142.8L218.8 143.2L219.5 137.8L220.9 151.1L221.7 161.7L222.3 228.9L223.6 221.9L224.3 203.1L225.5 179.2L226.7 159.3L227.3 143.4L228.4 157.2L229.5 207.2L230.5 168.7L231.0 254.5L232.0 219.5L233.0 204.5L233.9 172.8L234.9 181.8L236.2 171.4L237.0 170.3L237.9 180.0L239.1 237.4L239.8 206.1L241.0 165.3L241.7 153.7L242.8 152.4L243.8 179.7L244.8 230.2L245.8 242.8L246.7 188.5L247.7 168.4L248.5 172.8L249.4 214.7L250.5 216.7L251.4 176.2L252.4 171.7L253.5 191.8L254.4 241.4L255.4 188.6L256.3 177.2L257.2 189.5L258.1 224.0L259.2 208.0L260.2 196.1L261.0 181.9L262.0 240.5L263.2 183.0L264.1 168.5L265.0 231.5L266.0 206.1L266.8 202.1L267.8 199.1L268.8 228.1L269.9 182.4L270.8 223.4L271.8 208.4L272.8 181.8L273.7 241.3L274.6 194.0L275.7 206.0L276.6 236.8L277.5 197.6L278.5 244.9L279.5 179.9L280.5 237.6L281.5 223.8L282.4 214.6L283.3 211.6L284.3 212.2L285.3 205.6L286.3 266.1L287.2 232.2L288.2 244.4L289.2 199.8L290.1 259.8L291.1 208.1L292.1 213.4L293.1 255.3L294.0 217.3L295.0 238.3L295.9 254.4L297.0 193.4L297.9 220.5L298.9 267.0L299.8 227.8L300.8 214.1L301.8 225.1L302.7 258.1L303.7 285.1L304.7 265.8L305.7 222.1L306.6 203.5L307.6 235.5L308.5 232.6L309.5 217.6L310.5 228.3L311.5 238.4L312.4 218.2L313.4 223.4L314.4 223.6L315.3 261.2L316.3 286.0L317.3 286.0L318.2 227.8L319.2 221.4L320.2 276.2L321.1 243.4L322.1 215.3L323.1 286.0L324.1 216.2L325.0 286.0L326.0 223.5L327.0 279.8L327.9 251.7L328.9 280.3L329.9 247.8L330.8 233.0L331.8 256.3L332.8 286.0L333.7 286.0L334.7 255.9L335.7 241.9L336.7 271.8L337.6 242.7L338.6 256.6L339.6 286.0L340.5 285.0L341.5 233.1L342.5 245.9L343.4 286.0" class="ln1" fill="none"/>
+<path d="M69.1 119.9L121.6 125.7L137.0 133.7L147.2 142.7L154.2 145.2L160.1 139.7L164.8 133.1L168.9 127.8L172.5 124.4L175.9 122.4L178.8 121.9L181.4 122.5L183.8 124.1L186.1 126.7L188.2 129.9L190.1 133.5L191.9 136.8L193.7 139.3L195.4 140.2L196.9 139.6L198.3 138.1L199.8 136.5L201.1 135.1L202.4 133.9L203.7 133.0L204.9 132.3L206.0 131.4L207.2 130.2L208.2 128.6L209.2 126.8L210.2 124.6L211.2 122.3L212.1 120.5L213.0 118.7L214.0 117.3L214.8 116.4L215.7 115.8L216.5 115.8L218.0 117.0L218.8 118.3L219.5 119.8L220.9 123.9L221.7 126.1L222.3 127.7L223.6 129.0L224.3 128.4L225.5 125.7L226.7 122.8L227.3 121.7L228.4 120.6L229.5 120.8L230.5 122.2L231.0 123.2L232.0 125.2L233.0 126.6L233.9 126.6L234.9 125.2L236.2 122.3L237.0 120.9L237.9 120.1L239.1 120.4L239.8 121.4L241.0 123.9L241.7 125.9L242.8 128.4L243.8 129.1L244.8 127.9L245.8 125.8L246.7 124.0L247.7 123.1L248.5 123.1L249.4 123.5L250.5 124.4L251.4 125.2L252.4 127.0L253.5 130.4L254.4 134.6L255.4 138.2L256.3 138.7L257.2 137.0L258.1 135.6L259.2 136.7L260.2 141.4L261.0 146.6L262.0 149.1L263.2 147.2L264.1 149.9L265.0 158.0L266.0 161.2L266.8 156.1L267.8 156.7L268.8 166.7L269.9 180.9L270.8 189.5L271.8 199.2L272.8 191.9L273.7 198.6L274.6 227.4L275.7 219.8L276.6 217.7L277.5 232.5L278.5 208.8L279.5 197.0L280.5 206.0L281.5 193.8L282.4 180.6L283.3 168.3L284.3 174.8L285.3 169.8L286.3 166.4L287.2 166.6L288.2 159.1L289.2 163.9L290.1 162.5L291.1 156.7L292.1 157.2L293.1 164.0L294.0 167.3L295.0 164.8L295.9 175.9L297.0 176.0L297.9 184.6L298.9 187.4L299.8 210.5L300.8 214.7L301.8 249.8L302.7 238.6L303.7 225.9L304.7 225.2L305.7 202.0L306.6 188.7L307.6 182.5L308.5 180.9L309.5 179.4L310.5 173.0L311.5 173.1L312.4 182.2L313.4 185.2L314.4 192.0L315.3 194.6L316.3 231.1L317.3 247.5L318.2 257.3L319.2 232.6L320.2 206.1L321.1 199.2L322.1 188.9L323.1 189.4L324.1 182.9L325.0 188.6L326.0 196.7L327.0 205.5L327.9 237.3L328.9 258.9L329.9 244.6L330.8 205.9L331.8 203.8L332.8 196.3L333.7 195.0L334.7 205.5L335.7 209.1L336.7 241.8L337.6 275.1L338.6 225.0L339.6 209.2L340.5 200.9L341.5 206.1L342.5 214.1L343.4 254.8" class="ln4" fill="none"/>
+<line x1="56" y1="179.2" x2="277.7" y2="179.2" class="rule"/>
+<line x1="277.7" y1="179.2" x2="277.7" y2="286" class="rule"/>
+<line x1="56" y1="199.0" x2="341.2" y2="199.0" class="rule"/>
+<line x1="341.2" y1="199.0" x2="341.2" y2="286" class="rule"/>
+<text x="200" y="320" class="flab mid">height &#947;</text>
+<text x="200" y="36" class="flab mid">the atom weight &#293;(&#947;)&#178;, and the floor each certificate</text>
+<text x="200" y="52" class="flab mid">needs a zero to clear before it can notice one</text>
+<line x1="56" y1="336" x2="74" y2="336" class="ln1"/>
+<text x="80" y="340" class="flab st hm3">&#916;&#8242; = 0.48: blind above &#947; = 3,477</text>
+<line x1="56" y1="353" x2="74" y2="353" class="ln4"/>
+<text x="80" y="357" class="flab st hm4">&#916;&#8242; = 0.03: blind above &#947; = 18,580</text>
+<line x1="430" y1="258.1" x2="716" y2="258.1" class="grid"/>
+<text x="425" y="261.6" class="flab end">10&#8315;&#8309;</text>
+<line x1="430" y1="227.1" x2="716" y2="227.1" class="grid"/>
+<text x="425" y="230.6" class="flab end">10&#8315;&#8308;</text>
+<line x1="430" y1="196.1" x2="716" y2="196.1" class="grid"/>
+<text x="425" y="199.6" class="flab end">10&#8315;&#179;</text>
+<line x1="430" y1="165.2" x2="716" y2="165.2" class="grid"/>
+<text x="425" y="168.7" class="flab end">10&#8315;&#178;</text>
+<line x1="430" y1="134.2" x2="716" y2="134.2" class="grid"/>
+<text x="425" y="137.7" class="flab end">10&#8315;&#185;</text>
+<line x1="430" y1="103.2" x2="716" y2="103.2" class="grid"/>
+<text x="425" y="106.7" class="flab end">10&#8304;</text>
+<line x1="430" y1="72.2" x2="716" y2="72.2" class="grid"/>
+<text x="425" y="75.7" class="flab end">10&#185;</text>
+<text x="430.0" y="302" class="flab mid">10&#8308;</text>
+<text x="544.4" y="302" class="flab mid">10&#8309;</text>
+<text x="658.8" y="302" class="flab mid">10&#8310;</text>
+<line x1="430" y1="286" x2="716" y2="286" class="axis"/>
+<line x1="430" y1="66" x2="430" y2="286" class="axis"/>
+<path d="M430.0 94.0L441.4 102.9L452.9 111.8L464.3 120.7L475.8 129.7L487.2 138.6L498.6 147.5L510.1 156.5L521.5 165.5L533.0 174.5L544.4 183.4L555.8 192.4L567.3 201.4L578.7 210.4L590.2 219.4L601.6 228.5L613.0 237.5L624.5 246.5L635.9 255.5L647.4 264.6L658.8 273.6L670.2 282.7L681.7 286.0L693.1 286.0L704.6 286.0L716.0 286.0" class="ln1" fill="none"/>
+<line x1="430" y1="150.9" x2="716" y2="150.9" class="ln1 lnd"/>
+<path d="M430.0 81.0L441.4 89.9L452.9 98.8L464.3 107.7L475.8 116.6L487.2 125.6L498.6 134.5L510.1 143.5L521.5 152.5L533.0 161.4L544.4 170.4L555.8 179.4L567.3 188.4L578.7 197.4L590.2 206.4L601.6 215.4L613.0 224.5L624.5 233.5L635.9 242.5L647.4 251.6L658.8 260.6L670.2 269.6L681.7 278.7L693.1 286.0L704.6 286.0L716.0 286.0" class="lnm" fill="none"/>
+<line x1="430" y1="143.5" x2="716" y2="143.5" class="lnm lnd"/>
+<path d="M430.0 66.0L441.4 66.0L452.9 66.7L464.3 75.7L475.8 84.6L487.2 93.5L498.6 102.5L510.1 111.4L521.5 120.4L533.0 129.4L544.4 138.4L555.8 147.4L567.3 156.4L578.7 165.4L590.2 174.4L601.6 183.4L613.0 192.4L624.5 201.4L635.9 210.5L647.4 219.5L658.8 228.6L670.2 237.6L681.7 246.6L693.1 255.7L704.6 264.8L716.0 273.8" class="ln0" fill="none"/>
+<line x1="430" y1="136.3" x2="716" y2="136.3" class="ln0 lnd"/>
+<path d="M430.0 66.0L441.4 66.0L452.9 66.0L464.3 66.0L475.8 66.0L487.2 68.1L498.6 77.1L510.1 86.1L521.5 95.0L533.0 104.0L544.4 113.0L555.8 122.0L567.3 131.0L578.7 140.0L590.2 149.0L601.6 158.0L613.0 167.0L624.5 176.0L635.9 185.1L647.4 194.1L658.8 203.2L670.2 212.2L681.7 221.2L693.1 230.3L704.6 239.4L716.0 248.4" class="ln2" fill="none"/>
+<line x1="430" y1="144.0" x2="716" y2="144.0" class="ln2 lnd"/>
+<path d="M430.0 66.0L441.4 66.0L452.9 66.0L464.3 66.0L475.8 66.0L487.2 66.0L498.6 66.0L510.1 66.0L521.5 71.7L533.0 80.7L544.4 89.6L555.8 98.6L567.3 107.6L578.7 116.6L590.2 125.6L601.6 134.7L613.0 143.7L624.5 152.7L635.9 161.7L647.4 170.8L658.8 179.8L670.2 188.9L681.7 197.9L693.1 207.0L704.6 216.0L716.0 225.1" class="ln4" fill="none"/>
+<line x1="430" y1="151.1" x2="716" y2="151.1" class="ln4 lnd"/>
+<circle cx="502.9" cy="150.9" r="4" class="hm3"/>
+<circle cx="510.1" cy="143.5" r="4" class="hmo"/>
+<circle cx="541.7" cy="136.3" r="4" class="hm1"/>
+<circle cx="583.8" cy="144.0" r="4" class="hm2"/>
+<circle cx="622.5" cy="151.1" r="4" class="hm4"/>
+<text x="573" y="320" class="flab mid">height T</text>
+<text x="573" y="36" class="flab mid">the most every off-line zero above T could</text>
+<text x="573" y="52" class="flab mid">move &#955;&#8344;&#7522;&#8345;, against the floor itself (flat lines)</text>
+<circle cx="443" cy="256" r="4" class="hm1"/>
+<text x="452" y="260" class="flab st">where the bound meets</text>
+<text x="452" y="276" class="flab st">that support&#8217;s floor</text>
+<text x="24" y="384" class="flab st">Left: &#293;(&#947;)&#178; is the window's own transform, so its r&#8315;&#8308; envelope decides which zeros a certificate is sensitive to at</text>
+<text x="24" y="402" class="flab st">all. Right: the same decay, summed against nothing stronger than the Riemann&#8211;von Mangoldt count, bounds every off-line</text>
+<text x="24" y="420" class="flab st">zero above T at once &#8212; at any abscissa in the strip, in any arrangement, conspiring or not. Where that bound drops</text>
+<text x="24" y="438" class="flab st">below the certified floor, the certificate is immune to whatever happens above T. The zeros are known to be on the</text>
+<text x="24" y="456" class="flab st">line to 3&#215;10&#185;&#178;, which is six decades past the worst of these crossings.</text>
+</svg></div>
+<figcaption>The weight the window gives a zero at height &#947;, and the
+most every off-line zero above T could do to the certified floor.</figcaption>
+</figure>
+
+<p>So: <em>above these heights, no configuration of off-line zeros — at any
+abscissa in the strip, in any arrangement, conspiring or not — can move the
+certified floor at all.</em> The worst of the five is 4.81&#215;10&#8309;, and the zeros
+are known to lie on the line to 3&#215;10&#185;&#178;, six decades further up.
+rh29&#8217;s obstruction is removed. No density estimate is used anywhere in it;
+Ingham&#8217;s N(&#945;,T) would improve the tail from T&#8315;&#179; to
+T&#8315;&#179;&#183;&#8311;&#178;&#8311; at &#963; = 0.4 and buy a further
+1.3&#215;10&#179; at T = 20 000, but it is not needed and its constant is not
+explicit.</p>
+
+<p>What has <em>not</em> closed is the other direction. This bounds what
+off-line zeros could hide behind; it is not an argument that there are none.
+rh29&#8217;s single-quadruple test excluded &#963; &gt; 0.326 at &#947; =
+107.17 and nothing here strengthens that.</p>
+</section>
+
+<section id="s7">
+<h2>7 · The reach</h2>
+
+<p>The same decay that makes &#167;6 easy is a ceiling on the method, and this
+is the part I would rather not report.</p>
+
+<p>Turn the Gershgorin estimate around. For a certificate at depth n to be
+capable of noticing a single quadruple at height &#947;, that quadruple&#8217;s
+contribution must exceed the floor it would have to eat:
+4&#183;&#293;(&#947;)&#178;&#183;cosh(&#963;V)&#183;(2n&#8722;1) &gt;
+&#955;<sub>min</sub>. Since &#293;(&#947;)&#178; falls like &#947;&#8315;&#8308;,
+that is a height:</p>
+
+<div class="cardbox">
+&#916;&#8242; = 0.48 &nbsp; n = 39 (v = 18.24) &nbsp; blind above &#947; = 3,477<br>
+&#916;&#8242; = 0.24 &nbsp; n = 76 (v = 18) &nbsp; blind above &#947; = 3,901<br>
+&#916;&#8242; = 0.12 &nbsp; n = 151 (v = 18) &nbsp; blind above &#947; = 6,334<br>
+&#916;&#8242; = 0.06 &nbsp; n = 301 (v = 18) &nbsp; blind above &#947; = 11,067<br>
+&#916;&#8242; = 0.03 &nbsp; n = 601 (v = 18) &nbsp; blind above &#947; = 18,580
+</div>
+
+<p>Above those heights a certificate is blind, and below them the zeros have
+been on the line since Gram. Worse, at shallow depth the reach is nothing at
+all: up to n = 20 at &#916;&#8242; = 0.12 the threshold exceeds even the
+heaviest atom, so a certificate to depth v = 2.3 cannot see a single zero of
+&#950;.</p>
+
+<p>How fast does the reach grow? Measured across the depth ladder at
+&#916;&#8242; = 0.12, the exponent over the last three doublings is
+1.17, 1.30, 1.11 — call it n<sup>1.2</sup>. That is a real growth rate, and it is
+nowhere near enough. Extrapolating it, the section needed to see as high as the
+zeros are <em>already known</em> to be on the line is of order n =
+1.8&#215;10&#185;&#8304;, against the 601 the arc has reached and the 601 that already
+took &#167;3&#8217;s largest computation.</p>
+
+<p>I want to be careful about what this does and does not say. It is a statement
+about <em>this</em> family of windows, whose transform decays like
+r&#8315;&#8308;; a window with slower decay would see higher, at the cost of
+being less smooth, and the trade is the Paley&#8211;Wiener one. It is also a
+statement about detection through a Gershgorin estimate, which is conservative —
+rh29&#8217;s sharper single-quadruple test reached &#947; = 107 at &#963; =
+0.33, well inside these heights, by using the actual optimal vector rather than
+a bound. So the reach could be pushed. It could not plausibly be pushed by
+eight decades.</p>
+</section>
+
+<section id="s8">
+<h2>8 &#183; The detrended helix</h2>
+
+<p>A construction note, and it turns out to carry a consequence. Since rh4 the
+gears have been drawn <em>at the tail of their step</em>: gear n has radius
+r<sub>n</sub> = n<sup>&#8722;&#189;</sup> and is centred at the partial sum
+S<sub>n&#8722;1</sub>, so its marked point S<sub>n</sub> lies on its own rim and
+is also gear n+1&#8217;s origin &#8212; checked here to 10<sup>&#8722;14</sup>.
+The origins therefore sit on their predecessors&#8217; perimeters and wander.
+That is fine for a plan view and fatal for a helix: a helix needs an axis, and
+there is none. Project the twelve origins onto any direction in the plane and
+the best of 720 directions puts only 7 of the eleven steps in the same
+sense.</p>
+
+<p>Detrend them. Put every origin on one axis, gear n at depth z = n&#8722;1,
+one unit apart, the unit being r<sub>1</sub> = 1. The marked point on gear n is
+then the step vector itself, at planar angle</p>
+
+<p class="eq">&#952;<sub>n</sub> = &#8722;t log n + (n&#8722;1)&#960;,</p>
+
+<p>the torsion plus the half-turn that presents aaaa&#8230; as aAaA&#8230;, so
+that r<sub>n</sub>e<sup>i&#952;<sub>n</sub></sup> =
+(&#8722;1)<sup>n&#8722;1</sup>n<sup>&#8722;s</sup> exactly &#8212; verified at
+every level. And then</p>
+
+<p class="eq">&#8721;<sub>n</sub> r<sub>n</sub>e<sup>i&#952;<sub>n</sub></sup>
+= &#8721;<sub>n</sub> (&#8722;1)<sup>n&#8722;1</sup>n<sup>&#8722;s</sup>
+= &#951;(s).</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 516" role="img" aria-label="Left: the arc's original construction seen from above — each gear drawn at the tail of its step, so its origin sits on its predecessor's rim and the origins wander; the marked points are the partial sums and no straight axis orders them. Right: the same gears detrended onto one axis at unit spacing, with a single smooth helix through the marked points turning anti-clockwise at every gear.">
+<text x="370.0" y="21" class="ftitle">the same twelve gears, offset and detrended</text>
+<text x="152" y="38" class="flab mid">as drawn since rh4: gear n at the tail of its step</text>
+<circle cx="105.40" cy="165.00" r="75.40" class="gearln"/>
+<circle cx="180.81" cy="165.00" r="53.32" class="gearln"/>
+<circle cx="230.47" cy="184.41" r="43.53" class="gearln"/>
+<circle cx="187.63" cy="192.18" r="37.70" class="gearln"/>
+<circle cx="159.92" cy="166.61" r="33.72" class="gearln"/>
+<circle cx="135.43" cy="143.43" r="30.78" class="gearln"/>
+<circle cx="105.22" cy="137.52" r="28.50" class="gearln"/>
+<circle cx="84.75" cy="157.35" r="26.66" class="gearln"/>
+<circle cx="96.41" cy="181.32" r="25.13" class="gearln"/>
+<circle cx="119.95" cy="172.50" r="23.84" class="gearln"/>
+<circle cx="109.78" cy="150.92" r="22.74" class="gearln"/>
+<circle cx="91.88" cy="164.93" r="21.77" class="gearln"/>
+<path d="M105.40 165.00L180.81 165.00L230.47 184.41L187.63 192.18L159.92 166.61L135.43 143.43L105.22 137.52L84.75 157.35L96.41 181.32L119.95 172.50L109.78 150.92L91.88 164.93L110.25 176.61" class="ln0"/>
+<circle cx="180.81" cy="165.00" r="2.6" class="hm3"/>
+<circle cx="230.47" cy="184.41" r="2.6" class="hm4"/>
+<circle cx="187.63" cy="192.18" r="2.6" class="hm3"/>
+<circle cx="159.92" cy="166.61" r="2.6" class="hm4"/>
+<circle cx="135.43" cy="143.43" r="2.6" class="hm3"/>
+<circle cx="105.22" cy="137.52" r="2.6" class="hm4"/>
+<circle cx="84.75" cy="157.35" r="2.6" class="hm3"/>
+<circle cx="96.41" cy="181.32" r="2.6" class="hm4"/>
+<circle cx="119.95" cy="172.50" r="2.6" class="hm3"/>
+<circle cx="109.78" cy="150.92" r="2.6" class="hm4"/>
+<circle cx="91.88" cy="164.93" r="2.6" class="hm3"/>
+<circle cx="110.25" cy="176.61" r="2.6" class="hm4"/>
+<circle cx="105.40" cy="165.00" r="4.5" class="mk"/>
+<text x="30" y="290" class="flab st">&#9711; 0; the marked points are the partial sums</text>
+<text x="30" y="308" class="flab st c4">no straight axis orders the origins &#8212; the</text>
+<text x="30" y="326" class="flab st c4">best of 720 directions gets only 7 of</text>
+<text x="30" y="344" class="flab st c4">the 11 steps in the same sense</text>
+<text x="482" y="38" class="flab mid">detrended: every origin on one axis, one unit apart</text>
+<line x1="316.0" y1="165" x2="651.0" y2="165" class="axis"/>
+<text x="655.0" y="169" class="flab st">depth</text>
+<path d="M343.00 171.00L342.96 168.36L342.83 165.70L342.63 163.03L342.34 160.38L341.97 157.76L341.53 155.20L341.01 152.71L340.43 150.31L339.78 148.03L339.07 145.88L338.31 143.87L337.50 142.02L336.65 140.35L335.76 138.86L334.85 137.58L333.91 136.50L332.96 135.64L332.00 135.00L331.04 134.59L330.09 134.41L329.15 134.47L328.24 134.76L327.35 135.28L326.50 136.02L325.69 136.98L324.93 138.16L324.22 139.54L323.57 141.12L322.99 142.88L322.47 144.80L322.03 146.88L321.66 149.10L321.37 151.44L321.17 153.88L321.04 156.41L321.00 159.00L321.04 161.64L321.17 164.30L321.37 166.97L321.66 169.62L322.03 172.24L322.47 174.80L322.99 177.29L323.57 179.69L324.22 181.97L324.93 184.12L325.69 186.13L326.50 187.98L327.35 189.65L328.24 191.14L329.15 192.42L330.09 193.50L331.04 194.36L332.00 195.00L332.96 195.41L333.91 195.59L334.85 195.53L335.76 195.24L336.65 194.72L337.50 193.98L338.31 193.02L339.07 191.84L339.78 190.46L340.43 188.88L341.01 187.12L341.53 185.20L341.97 183.12L342.34 180.90L342.63 178.56L342.83 176.12L342.96 173.59L343.00 171.00" class="gearln"/>
+<path d="M366.78 169.24L366.75 167.38L366.66 165.49L366.51 163.61L366.31 161.73L366.05 159.88L365.74 158.07L365.37 156.31L364.96 154.61L364.50 153.00L364.00 151.48L363.46 150.06L362.89 148.75L362.29 147.57L361.66 146.52L361.01 145.61L360.35 144.85L359.68 144.24L359.00 143.79L358.32 143.50L357.65 143.37L356.99 143.41L356.34 143.62L355.71 143.98L355.11 144.51L354.54 145.19L354.00 146.02L353.50 147.00L353.04 148.11L352.63 149.36L352.26 150.72L351.95 152.19L351.69 153.76L351.49 155.41L351.34 157.14L351.25 158.92L351.22 160.76L351.25 162.62L351.34 164.51L351.49 166.39L351.69 168.27L351.95 170.12L352.26 171.93L352.63 173.69L353.04 175.39L353.50 177.00L354.00 178.52L354.54 179.94L355.11 181.25L355.71 182.43L356.34 183.48L356.99 184.39L357.65 185.15L358.32 185.76L359.00 186.21L359.68 186.50L360.35 186.63L361.01 186.59L361.66 186.38L362.29 186.02L362.89 185.49L363.46 184.81L364.00 183.98L364.50 183.00L364.96 181.89L365.37 180.64L365.74 179.28L366.05 177.81L366.31 176.24L366.51 174.59L366.66 172.86L366.75 171.08L366.78 169.24" class="gearln"/>
+<path d="M392.35 168.46L392.33 166.94L392.25 165.40L392.13 163.86L391.97 162.33L391.76 160.82L391.50 159.34L391.20 157.90L390.87 156.52L390.49 155.20L390.08 153.96L389.64 152.80L389.18 151.73L388.68 150.77L388.17 149.91L387.64 149.17L387.10 148.54L386.55 148.05L386.00 147.68L385.45 147.44L384.90 147.34L384.36 147.37L383.83 147.54L383.32 147.84L382.82 148.27L382.36 148.82L381.92 149.51L381.51 150.30L381.13 151.21L380.80 152.23L380.50 153.34L380.24 154.54L380.03 155.82L379.87 157.17L379.75 158.58L379.67 160.04L379.65 161.54L379.67 163.06L379.75 164.60L379.87 166.14L380.03 167.67L380.24 169.18L380.50 170.66L380.80 172.10L381.13 173.48L381.51 174.80L381.92 176.04L382.36 177.20L382.82 178.27L383.32 179.23L383.83 180.09L384.36 180.83L384.90 181.46L385.45 181.95L386.00 182.32L386.55 182.56L387.10 182.66L387.64 182.63L388.17 182.46L388.68 182.16L389.18 181.73L389.64 181.18L390.08 180.49L390.49 179.70L390.87 178.79L391.20 177.77L391.50 176.66L391.76 175.46L391.97 174.18L392.13 172.83L392.25 171.42L392.33 169.96L392.35 168.46" class="gearln"/>
+<path d="M418.50 168.00L418.48 166.68L418.42 165.35L418.31 164.02L418.17 162.69L417.98 161.38L417.76 160.10L417.51 158.85L417.21 157.66L416.89 156.51L416.54 155.44L416.15 154.43L415.75 153.51L415.32 152.67L414.88 151.93L414.42 151.29L413.96 150.75L413.48 150.32L413.00 150.00L412.52 149.80L412.04 149.71L411.58 149.73L411.12 149.88L410.68 150.14L410.25 150.51L409.85 150.99L409.46 151.58L409.11 152.27L408.79 153.06L408.49 153.94L408.24 154.90L408.02 155.94L407.83 157.05L407.69 158.22L407.58 159.44L407.52 160.70L407.50 162.00L407.52 163.32L407.58 164.65L407.69 165.98L407.83 167.31L408.02 168.62L408.24 169.90L408.49 171.15L408.79 172.34L409.11 173.49L409.46 174.56L409.85 175.57L410.25 176.49L410.68 177.33L411.12 178.07L411.58 178.71L412.04 179.25L412.52 179.68L413.00 180.00L413.48 180.20L413.96 180.29L414.42 180.27L414.88 180.12L415.32 179.86L415.75 179.49L416.15 179.01L416.54 178.42L416.89 177.73L417.21 176.94L417.51 176.06L417.76 175.10L417.98 174.06L418.17 172.95L418.31 171.78L418.42 170.56L418.48 169.30L418.50 168.00" class="gearln"/>
+<path d="M444.92 167.68L444.90 166.50L444.84 165.31L444.75 164.12L444.62 162.93L444.46 161.76L444.26 160.62L444.03 159.50L443.77 158.43L443.48 157.41L443.16 156.45L442.82 155.55L442.46 154.72L442.08 153.97L441.68 153.31L441.27 152.74L440.85 152.25L440.43 151.87L440.00 151.58L439.57 151.40L439.15 151.32L438.73 151.35L438.32 151.47L437.92 151.71L437.54 152.04L437.18 152.47L436.84 153.00L436.52 153.62L436.23 154.32L435.97 155.11L435.74 155.97L435.54 156.90L435.38 157.89L435.25 158.94L435.16 160.03L435.10 161.16L435.08 162.32L435.10 163.50L435.16 164.69L435.25 165.88L435.38 167.07L435.54 168.24L435.74 169.38L435.97 170.50L436.23 171.57L436.52 172.59L436.84 173.55L437.18 174.45L437.54 175.28L437.92 176.03L438.32 176.69L438.73 177.26L439.15 177.75L439.57 178.13L440.00 178.42L440.43 178.60L440.85 178.68L441.27 178.65L441.68 178.53L442.08 178.29L442.46 177.96L442.82 177.53L443.16 177.00L443.48 176.38L443.77 175.68L444.03 174.89L444.26 174.03L444.46 173.10L444.62 172.11L444.75 171.06L444.84 169.97L444.90 168.84L444.92 167.68" class="gearln"/>
+<path d="M471.49 167.45L471.47 166.37L471.42 165.29L471.34 164.20L471.22 163.11L471.07 162.04L470.89 161.00L470.68 159.98L470.44 159.00L470.18 158.07L469.89 157.19L469.58 156.37L469.25 155.62L468.90 154.94L468.54 154.33L468.16 153.80L467.78 153.36L467.39 153.01L467.00 152.75L466.61 152.59L466.22 152.51L465.84 152.54L465.46 152.65L465.10 152.86L464.75 153.17L464.42 153.56L464.11 154.04L463.82 154.61L463.56 155.25L463.32 155.97L463.11 156.75L462.93 157.60L462.78 158.51L462.66 159.46L462.58 160.46L462.53 161.49L462.51 162.55L462.53 163.63L462.58 164.71L462.66 165.80L462.78 166.89L462.93 167.96L463.11 169.00L463.32 170.02L463.56 171.00L463.82 171.93L464.11 172.81L464.42 173.63L464.75 174.38L465.10 175.06L465.46 175.67L465.84 176.20L466.22 176.64L466.61 176.99L467.00 177.25L467.39 177.41L467.78 177.49L468.16 177.46L468.54 177.35L468.90 177.14L469.25 176.83L469.58 176.44L469.89 175.96L470.18 175.39L470.44 174.75L470.68 174.03L470.89 173.25L471.07 172.40L471.22 171.49L471.34 170.54L471.42 169.54L471.47 168.51L471.49 167.45" class="gearln"/>
+<path d="M498.16 167.27L498.14 166.27L498.09 165.26L498.02 164.26L497.91 163.25L497.77 162.26L497.60 161.29L497.41 160.35L497.18 159.45L496.94 158.59L496.67 157.77L496.38 157.01L496.08 156.31L495.76 155.68L495.42 155.12L495.08 154.63L494.72 154.23L494.36 153.90L494.00 153.66L493.64 153.51L493.28 153.44L492.92 153.46L492.58 153.57L492.24 153.77L491.92 154.05L491.62 154.41L491.33 154.86L491.06 155.38L490.82 155.97L490.59 156.64L490.40 157.37L490.23 158.15L490.09 158.99L489.98 159.87L489.91 160.80L489.86 161.75L489.84 162.73L489.86 163.73L489.91 164.74L489.98 165.74L490.09 166.75L490.23 167.74L490.40 168.71L490.59 169.65L490.82 170.55L491.06 171.41L491.33 172.23L491.62 172.99L491.92 173.69L492.24 174.32L492.58 174.88L492.92 175.37L493.28 175.77L493.64 176.10L494.00 176.34L494.36 176.49L494.72 176.56L495.08 176.54L495.42 176.43L495.76 176.23L496.08 175.95L496.38 175.59L496.67 175.14L496.94 174.62L497.18 174.03L497.41 173.36L497.60 172.63L497.77 171.85L497.91 171.01L498.02 170.13L498.09 169.20L498.14 168.25L498.16 167.27" class="gearln"/>
+<path d="M524.89 167.12L524.87 166.19L524.83 165.25L524.76 164.30L524.65 163.37L524.52 162.44L524.37 161.53L524.19 160.65L523.98 159.81L523.75 159.00L523.50 158.24L523.23 157.53L522.94 156.88L522.64 156.28L522.33 155.76L522.01 155.30L521.68 154.92L521.34 154.62L521.00 154.39L520.66 154.25L520.32 154.19L519.99 154.21L519.67 154.31L519.36 154.49L519.06 154.75L518.77 155.09L518.50 155.51L518.25 156.00L518.02 156.56L517.81 157.18L517.63 157.86L517.48 158.59L517.35 159.38L517.24 160.21L517.17 161.07L517.13 161.96L517.11 162.88L517.13 163.81L517.17 164.75L517.24 165.70L517.35 166.63L517.48 167.56L517.63 168.47L517.81 169.35L518.02 170.19L518.25 171.00L518.50 171.76L518.77 172.47L519.06 173.12L519.36 173.72L519.67 174.24L519.99 174.70L520.32 175.08L520.66 175.38L521.00 175.61L521.34 175.75L521.68 175.81L522.01 175.79L522.33 175.69L522.64 175.51L522.94 175.25L523.23 174.91L523.50 174.49L523.75 174.00L523.98 173.44L524.19 172.82L524.37 172.14L524.52 171.41L524.65 170.62L524.76 169.79L524.83 168.93L524.87 168.04L524.89 167.12" class="gearln"/>
+<path d="M551.67 167.00L551.65 166.12L551.61 165.23L551.54 164.34L551.45 163.46L551.32 162.59L551.18 161.73L551.00 160.90L550.81 160.10L550.59 159.34L550.36 158.63L550.10 157.96L549.83 157.34L549.55 156.78L549.25 156.29L548.95 155.86L548.64 155.50L548.32 155.21L548.00 155.00L547.68 154.86L547.36 154.80L547.05 154.82L546.75 154.92L546.45 155.09L546.17 155.34L545.90 155.66L545.64 156.05L545.41 156.51L545.19 157.04L545.00 157.63L544.82 158.27L544.68 158.96L544.55 159.70L544.46 160.48L544.39 161.29L544.35 162.14L544.33 163.00L544.35 163.88L544.39 164.77L544.46 165.66L544.55 166.54L544.68 167.41L544.82 168.27L545.00 169.10L545.19 169.90L545.41 170.66L545.64 171.37L545.90 172.04L546.17 172.66L546.45 173.22L546.75 173.71L547.05 174.14L547.36 174.50L547.68 174.79L548.00 175.00L548.32 175.14L548.64 175.20L548.95 175.18L549.25 175.08L549.55 174.91L549.83 174.66L550.10 174.34L550.36 173.95L550.59 173.49L550.81 172.96L551.00 172.37L551.18 171.73L551.32 171.04L551.45 170.30L551.54 169.52L551.61 168.71L551.65 167.86L551.67 167.00" class="gearln"/>
+<path d="M578.48 166.90L578.47 166.06L578.43 165.22L578.36 164.38L578.27 163.54L578.15 162.71L578.01 161.90L577.85 161.11L577.66 160.36L577.46 159.63L577.24 158.95L577.00 158.32L576.74 157.73L576.47 157.20L576.19 156.73L575.90 156.33L575.60 155.99L575.30 155.71L575.00 155.51L574.70 155.38L574.40 155.33L574.10 155.35L573.81 155.44L573.53 155.60L573.26 155.84L573.00 156.14L572.76 156.51L572.54 156.95L572.34 157.45L572.15 158.00L571.99 158.61L571.85 159.27L571.73 159.97L571.64 160.71L571.57 161.48L571.53 162.28L571.52 163.10L571.53 163.94L571.57 164.78L571.64 165.62L571.73 166.46L571.85 167.29L571.99 168.10L572.15 168.89L572.34 169.64L572.54 170.37L572.76 171.05L573.00 171.68L573.26 172.27L573.53 172.80L573.81 173.27L574.10 173.67L574.40 174.01L574.70 174.29L575.00 174.49L575.30 174.62L575.60 174.67L575.90 174.65L576.19 174.56L576.47 174.40L576.74 174.16L577.00 173.86L577.24 173.49L577.46 173.05L577.66 172.55L577.85 172.00L578.01 171.39L578.15 170.73L578.27 170.03L578.36 169.29L578.43 168.52L578.47 167.72L578.48 166.90" class="gearln"/>
+<path d="M605.32 166.81L605.30 166.01L605.27 165.21L605.20 164.41L605.12 163.61L605.01 162.82L604.87 162.04L604.72 161.29L604.54 160.57L604.35 159.88L604.13 159.23L603.90 158.63L603.66 158.07L603.40 157.57L603.13 157.12L602.86 156.73L602.58 156.41L602.29 156.15L602.00 155.95L601.71 155.83L601.42 155.78L601.14 155.79L600.87 155.88L600.60 156.04L600.34 156.26L600.10 156.55L599.87 156.91L599.65 157.32L599.46 157.80L599.28 158.33L599.13 158.91L598.99 159.54L598.88 160.21L598.80 160.91L598.73 161.65L598.70 162.41L598.68 163.19L598.70 163.99L598.73 164.79L598.80 165.59L598.88 166.39L598.99 167.18L599.13 167.96L599.28 168.71L599.46 169.43L599.65 170.12L599.87 170.77L600.10 171.37L600.34 171.93L600.60 172.43L600.87 172.88L601.14 173.27L601.42 173.59L601.71 173.85L602.00 174.05L602.29 174.17L602.58 174.22L602.86 174.21L603.13 174.12L603.40 173.96L603.66 173.74L603.90 173.45L604.13 173.09L604.35 172.68L604.54 172.20L604.72 171.67L604.87 171.09L605.01 170.46L605.12 169.79L605.20 169.09L605.27 168.35L605.30 167.59L605.32 166.81" class="gearln"/>
+<path d="M632.18 166.73L632.16 165.97L632.13 165.20L632.07 164.43L631.98 163.67L631.88 162.91L631.75 162.17L631.60 161.45L631.43 160.76L631.25 160.10L631.04 159.48L630.82 158.90L630.59 158.37L630.34 157.88L630.09 157.45L629.82 157.08L629.55 156.77L629.28 156.52L629.00 156.34L628.72 156.22L628.45 156.17L628.18 156.19L627.91 156.27L627.66 156.42L627.41 156.63L627.18 156.91L626.96 157.25L626.75 157.65L626.57 158.11L626.40 158.61L626.25 159.17L626.12 159.77L626.02 160.41L625.93 161.09L625.87 161.79L625.84 162.52L625.82 163.27L625.84 164.03L625.87 164.80L625.93 165.57L626.02 166.33L626.12 167.09L626.25 167.83L626.40 168.55L626.57 169.24L626.75 169.90L626.96 170.52L627.18 171.10L627.41 171.63L627.66 172.12L627.91 172.55L628.18 172.92L628.45 173.23L628.72 173.48L629.00 173.66L629.28 173.78L629.55 173.83L629.82 173.81L630.09 173.73L630.34 173.58L630.59 173.37L630.82 173.09L631.04 172.75L631.25 172.35L631.43 171.89L631.60 171.39L631.75 170.83L631.88 170.23L631.98 169.59L632.07 168.91L632.13 168.21L632.16 167.48L632.18 166.73" class="gearln"/>
+<path d="M343.00 171.00L343.31 167.09L343.44 163.23L343.42 159.49L343.25 155.92L342.94 152.56L342.53 149.48L342.01 146.69L341.42 144.25L340.77 142.17L340.08 140.48L339.36 139.18L338.64 138.29L337.94 137.80L337.27 137.72L336.64 138.02L336.08 138.69L335.59 139.72L335.19 141.07L334.88 142.71L334.67 144.62L334.58 146.76L334.59 149.09L334.73 151.59L334.98 154.20L335.34 156.89L335.82 159.64L336.41 162.39L337.10 165.12L337.89 167.79L338.78 170.39L339.75 172.86L340.79 175.21L341.90 177.39L343.07 179.40L344.29 181.21L345.54 182.82L346.83 184.21L348.13 185.38L349.45 186.33L350.76 187.04L352.07 187.54L353.37 187.81L354.64 187.87L355.89 187.72L357.10 187.37L358.27 186.83L359.40 186.13L360.48 185.26L361.52 184.25L362.49 183.10L363.42 181.84L364.29 180.48L365.10 179.04L365.86 177.52L366.56 175.96L367.20 174.36L367.79 172.74L368.33 171.12L368.83 169.50L369.28 167.90L369.68 166.32L370.05 164.78L370.39 163.27L370.68 161.81L370.95 160.40L371.20 159.04L371.41 157.74L371.60 156.51L371.78 155.33L371.93 154.22L372.07 153.18L372.20 152.20L372.31 151.30L372.41 150.46L372.50 149.70L372.59 149.00L372.67 148.38L372.75 147.82L372.82 147.34L372.89 146.93L372.96 146.59L373.03 146.32L373.11 146.12L373.18 145.99L373.26 145.93L373.35 145.94L373.44 146.03L373.54 146.18L373.65 146.40L373.76 146.69L373.89 147.05L374.03 147.48L374.19 147.98L374.35 148.55L374.54 149.19L374.74 149.90L374.96 150.68L375.20 151.52L375.46 152.42L375.75 153.40L376.06 154.43L376.40 155.52L376.77 156.67L377.17 157.88L377.60 159.13L378.07 160.43L378.57 161.77L379.12 163.15L379.70 164.55L380.32 165.97L380.98 167.40L381.68 168.81L382.43 170.21L383.21 171.58L384.04 172.91L384.90 174.19L385.79 175.40L386.73 176.54L387.69 177.59L388.67 178.55L389.69 179.39L390.72 180.13L391.76 180.73L392.82 181.21L393.89 181.54L394.95 181.73L396.01 181.77L397.06 181.66L398.10 181.39L399.12 180.97L400.11 180.40L401.07 179.68L401.99 178.82L402.87 177.82L403.71 176.69L404.50 175.45L405.23 174.11L405.92 172.67L406.54 171.16L407.10 169.58L407.60 167.95L408.05 166.30L408.43 164.64L408.75 162.98L409.01 161.35L409.21 159.76L409.37 158.24L409.47 156.79L409.53 155.43L409.55 154.19L409.53 153.06L409.49 152.08L409.42 151.24L409.33 150.55L409.23 150.04L409.14 149.69L409.04 149.51L408.95 149.51L408.88 149.68L408.84 150.02L408.82 150.53L408.84 151.20L408.90 152.03L409.00 152.99L409.14 154.12L409.33 155.42L409.57 156.88L409.88 158.50L410.26 160.25L410.73 162.11L411.28 164.05L411.93 166.03L412.68 168.03L413.51 169.99L414.44 171.88L415.46 173.65L416.55 175.25L417.71 176.66L418.92 177.83L420.16 178.73L421.43 179.34L422.70 179.64L423.95 179.63L425.18 179.30L426.35 178.66L427.46 177.74L428.49 176.55L429.44 175.13L430.28 173.51L431.03 171.74L431.67 169.85L432.21 167.90L432.65 165.93L433.00 163.97L433.26 162.08L433.44 160.27L433.55 158.59L433.61 157.06L433.62 155.69L433.61 154.50L433.58 153.49L433.54 152.67L433.50 152.02L433.47 151.55L433.46 151.24L433.47 151.07L433.52 151.03L433.60 151.10L433.71 151.25L433.87 151.48L434.06 151.76L434.28 152.08L434.55 152.40L434.84 152.73L435.18 153.05L435.54 153.34L435.93 153.59L436.35 153.80L436.79 153.97L437.23 154.14L437.67 154.30L438.12 154.46L438.58 154.62L439.03 154.77L439.49 154.92L439.95 155.07L440.41 155.21L440.88 155.35L441.35 155.49L441.82 155.62L442.29 155.75L442.76 155.88L443.24 156.00L443.71 156.12L444.19 156.23L444.67 156.34L445.15 156.45L445.63 156.56L446.11 156.66L446.60 156.77L447.08 156.87L447.57 156.96L448.05 157.06L448.54 157.15L449.03 157.25L449.51 157.34L450.00 157.43L450.49 157.52L450.98 157.61L451.47 157.70L451.95 157.79L452.44 157.88L452.93 157.97L453.42 158.06L453.91 158.15L454.40 158.25L454.89 158.34L455.38 158.44L455.87 158.54L456.36 158.64L456.85 158.74L457.34 158.85L457.83 158.96L458.32 159.07L458.81 159.19L459.30 159.31L459.79 159.43L460.28 159.56L460.77 159.70L461.26 159.84L461.75 159.98L462.24 160.13L462.73 160.29L463.22 160.45L463.71 160.61L464.20 160.78L464.69 160.95L465.19 161.12L465.68 161.30L466.18 161.47L466.67 161.66L467.17 161.84L467.67 162.03L468.17 162.22L468.67 162.41L469.17 162.60L469.67 162.80L470.17 163.00L470.68 163.20L471.18 163.40L471.69 163.61L472.20 163.81L472.71 164.02L473.22 164.23L473.73 164.45L474.24 164.66L474.76 164.87L475.27 165.09L475.79 165.30L476.31 165.52L476.83 165.74L477.35 165.96L477.88 166.18L478.40 166.40L478.93 166.62L479.45 166.84L479.98 167.06L480.51 167.28L481.05 167.49L481.58 167.71L482.12 167.93L482.65 168.15L483.19 168.36L483.73 168.58L484.27 168.79L484.81 169.00L485.36 169.21L485.90 169.42L486.45 169.63L486.99 169.84L487.54 170.04L488.09 170.24L488.64 170.44L489.20 170.64L489.75 170.83L490.31 171.02L490.86 171.21L491.42 171.39L491.98 171.58L492.54 171.76L493.10 171.94L493.66 172.12L494.23 172.30L494.79 172.47L495.36 172.64L495.93 172.81L496.50 172.98L497.07 173.14L497.64 173.30L498.21 173.45L498.79 173.61L499.36 173.76L499.94 173.90L500.52 174.04L501.10 174.18L501.68 174.31L502.26 174.44L502.84 174.57L503.42 174.69L504.01 174.80L504.59 174.92L505.18 175.02L505.76 175.12L506.35 175.22L506.94 175.31L507.53 175.39L508.12 175.47L508.70 175.55L509.29 175.61L509.88 175.68L510.47 175.73L511.06 175.78L511.65 175.83L512.24 175.86L512.83 175.90L513.42 175.92L514.01 175.94L514.60 175.95L515.19 175.96L515.78 175.96L516.37 175.95L516.96 175.94L517.55 175.92L518.14 175.89L518.72 175.86L519.31 175.82L519.89 175.78L520.48 175.72L521.06 175.67L521.64 175.60L522.23 175.53L522.81 175.45L523.39 175.37L523.96 175.28L524.54 175.18L525.12 175.07L525.69 174.96L526.27 174.85L526.84 174.72L527.41 174.59L527.98 174.45L528.55 174.31L529.12 174.16L529.68 174.01L530.24 173.84L530.81 173.68L531.37 173.50L531.92 173.32L532.48 173.13L533.03 172.94L533.59 172.74L534.14 172.54L534.68 172.33L535.23 172.12L535.77 171.90L536.31 171.67L536.85 171.44L537.39 171.21L537.92 170.97L538.45 170.72L538.98 170.48L539.50 170.22L540.03 169.97L540.55 169.71L541.06 169.44L541.58 169.18L542.09 168.91L542.60 168.63L543.11 168.36L543.61 168.08L544.11 167.80L544.61 167.52L545.10 167.23L545.59 166.94L546.08 166.66L546.57 166.37L547.05 166.08L547.53 165.79L548.01 165.50L548.48 165.20L548.95 164.91L549.42 164.62L549.89 164.33L550.35 164.04L550.81 163.75L551.27 163.47L551.72 163.18L552.17 162.89L552.62 162.61L553.07 162.33L553.51 162.05L553.95 161.77L554.39 161.50L554.82 161.23L555.26 160.96L555.69 160.69L556.11 160.43L556.54 160.17L556.96 159.92L557.38 159.67L557.80 159.43L558.22 159.19L558.63 158.95L559.04 158.72L559.45 158.50L559.86 158.28L560.26 158.07L560.67 157.86L561.07 157.66L561.47 157.47L561.87 157.28L562.26 157.10L562.66 156.93L563.05 156.77L563.45 156.61L563.84 156.46L564.23 156.32L564.62 156.19L565.01 156.06L565.39 155.95L565.78 155.84L566.17 155.74L566.55 155.65L566.94 155.57L567.33 155.50L567.71 155.43L568.10 155.38L568.48 155.34L568.87 155.30L569.26 155.28L569.64 155.26L570.03 155.25L570.42 155.25L570.81 155.27L571.19 155.29L571.58 155.32L571.98 155.36L572.37 155.41L572.76 155.47L573.16 155.54L573.55 155.62L573.95 155.70L574.35 155.80L574.75 155.91L575.16 156.02L575.56 156.15L575.97 156.28L576.38 156.42L576.79 156.57L577.20 156.73L577.62 156.90L578.03 157.08L578.46 157.26L578.88 157.45L579.31 157.65L579.73 157.86L580.17 158.08L580.60 158.30L581.04 158.53L581.48 158.76L581.92 159.01L582.37 159.25L582.82 159.51L583.28 159.77L583.73 160.04L584.19 160.31L584.66 160.59L585.13 160.87L585.60 161.15L586.07 161.44L586.55 161.74L587.03 162.03L587.52 162.33L588.01 162.64L588.50 162.94L589.00 163.25L589.50 163.56L590.00 163.87L590.51 164.18L591.02 164.49L591.54 164.80L592.06 165.12L592.58 165.43L593.11 165.74L593.64 166.05L594.17 166.36L594.71 166.67L595.25 166.97L595.80 167.28L596.34 167.58L596.89 167.87L597.45 168.17L598.01 168.46L598.57 168.74L599.13 169.02L599.70 169.30L600.27 169.57L600.84 169.84L601.41 170.10L601.99 170.35L602.57 170.60L603.16 170.84L603.74 171.07L604.33 171.30L604.92 171.52L605.51 171.73L606.10 171.93L606.70 172.13L607.30 172.31L607.90 172.49L608.50 172.66L609.10 172.82L609.70 172.97L610.31 173.11L610.91 173.24L611.52 173.36L612.13 173.47L612.73 173.57L613.34 173.66L613.95 173.74L614.56 173.81L615.17 173.87L615.78 173.91L616.38 173.95L616.99 173.97L617.60 173.99L618.21 173.99L618.81 173.98L619.42 173.96L620.02 173.93L620.63 173.89L621.23 173.84L621.83 173.77L622.43 173.70L623.02 173.61L623.62 173.51L624.21 173.41L624.80 173.29L625.39 173.16L625.98 173.02L626.56 172.87L627.14 172.71L627.72 172.54L628.29 172.37L628.87 172.18L629.44 171.98L630.00 171.77L630.56 171.56L631.12 171.34L631.68 171.11" class="ln0"/>
+<circle cx="343.00" cy="171.00" r="3.0" class="hm3"/>
+<circle cx="343.00" cy="171.00" r="6.0" class="mk"/>
+<circle cx="366.24" cy="176.68" r="3.0" class="hm4"/>
+<circle cx="366.24" cy="176.68" r="6.0" class="mk"/>
+<circle cx="379.75" cy="164.68" r="3.0" class="hm3"/>
+<circle cx="379.75" cy="164.68" r="6.0" class="mk"/>
+<circle cx="408.96" cy="152.62" r="3.0" class="hm4"/>
+<circle cx="408.96" cy="152.62" r="6.0" class="mk"/>
+<circle cx="436.43" cy="153.83" r="3.0" class="hm3"/>
+<text x="444.4" y="145.8" class="flab st hm3">a</text>
+<circle cx="462.59" cy="160.24" r="3.0" class="hm4"/>
+<text x="470.6" y="152.2" class="flab st hm4">A</text>
+<circle cx="491.01" cy="171.26" r="3.0" class="hm3"/>
+<text x="499.0" y="163.3" class="flab st hm3">a</text>
+<circle cx="522.70" cy="175.47" r="3.0" class="hm4"/>
+<circle cx="551.43" cy="163.36" r="3.0" class="hm3"/>
+<circle cx="573.52" cy="155.61" r="3.0" class="hm4"/>
+<circle cx="599.39" cy="169.15" r="3.0" class="hm3"/>
+<circle cx="631.68" cy="171.11" r="3.0" class="hm4"/>
+<text x="314" y="290" class="flab st">gear n: radius n&#8315;&#185;&#8260;&#178; at depth n&#8722;1</text>
+<text x="314" y="308" class="flab st">marked point aAaAaA&#8230; = the step vector</text>
+<text x="314" y="326" class="flab st c4">&#9711; the 4 gears whose true phase runs</text>
+<text x="314" y="344" class="flab st c4">backwards; the helix takes them the long way</text>
+<text x="314" y="362" class="flab st c4">round and never turns clockwise</text>
+<text x="24" y="392" class="flab st">Both pictures hold the same twelve numbers, the level terms (&#8722;1)&#8319;&#8315;&#185; n&#8315;&#738; at s = &#189; + i&#947;&#8321;. On the left each gear is drawn</text>
+<text x="24" y="410" class="flab st">at the tail of its step, so the marked point of gear n is the origin of gear n+1 and the whole stack drifts; the curve</text>
+<text x="24" y="428" class="flab st">through the marked points is the partial-sum spiral, and it has no axis to be a helix about. Detrended, the marked</text>
+<text x="24" y="446" class="flab st">point is the step vector itself on its own gear, the sum of the twelve is &#951;(s), and closure stops being &#8220;the path</text>
+<text x="24" y="464" class="flab st">returns to 0&#8221; and becomes &#8220;the marked points balance about the axis&#8221; &#8212; a condition on a point set on coaxial circles,</text>
+<text x="24" y="482" class="flab st">which is what every document from rh13 on is actually about.</text>
+</svg></div>
+<figcaption>The same twelve level terms, drawn at the tail of their steps and
+drawn detrended on one axis.</figcaption></figure>
+
+<p><strong>Closure becomes balance.</strong> In the offset picture &#8220;the
+helix closes&#8221; is a statement about a path returning to 0. Detrended it is
+&#8721; r<sub>n</sub>e<sup>i&#952;<sub>n</sub></sup> = 0: the marked points
+balance about the axis. Same equation, different kind of object &#8212; a
+condition on a point set carried on coaxial circles rather than on a path. That
+is the kind of object every document from rh13 onward is about, and it is worth
+having the picture agree with the algebra. At s = &#189; + i&#947;<sub>1</sub>
+the sum vanishes to 10&#8315;&#185;&#8308; by accelerated summation; taken the honest slow way,
+200&#8239;000 gears leave 1.1&#215;10&#8315;&#179;, the series being only conditionally
+convergent.</p>
+
+<h3>Anti-clockwise at every gear</h3>
+
+<p>A marked point is only defined modulo 2&#960;, so how many times the curve
+winds between gears is a choice, not a fact. Taking each step to be the
+representative in (0, 2&#960;] gives the unique lift that never turns clockwise;
+a monotone cubic (Fritsch&#8211;Carlson) through it is C<sup>1</sup> and, because
+every slope is a weighted harmonic mean of positive secants, monotone as well.
+Sampled at 2001 points its derivative is everywhere positive &#8212; slowest
+0.396 radians per unit of depth, fastest 8.03, so it is a helix in the
+sense of never reversing and not in the sense of constant pitch. The radius needs
+no interpolation at all: r = (z+1)<sup>&#8722;&#189;</sup> is already smooth and
+already passes through every gear.</p>
+
+<p>What that lift costs is worth stating rather than hiding, because it is
+exactly rh5&#8217;s reversal radius arriving from the discrete side. The true
+step is &#960; &#8722; t&#8239;log(1+1/n), which is <em>negative</em> while the
+torsion outruns the half-turn &#8212; for the first 4 gears at
+t = &#947;<sub>1</sub>. The first is not a near miss: its raw step is
+&#8722;6.656 radians, more than a whole turn backwards, so the lift pays two
+revolutions there and one at each of gears 2, 3 and 4. Five turns in all,
+every one of them spent before gear 5, and the helix is exact from there on.
+The discrete threshold is n &lt; 1/(e<sup>&#960;/t</sup>&#8722;1) = 4.018, and
+rh5&#8217;s continuous reversal radius x* = t/&#960; = 4.499 is its large-t
+limit &#8212; the same phenomenon counted two ways.</p>
+
+<div class="cardbox">
+gear 1 &#8594; 2 &nbsp; true step &#8722;6.656 rad &nbsp; lifted step 5.911 rad &nbsp; <em>reverses</em><br>
+gear 2 &#8594; 3 &nbsp; true step &#8722;2.590 rad &nbsp; lifted step 3.694 rad &nbsp; <em>reverses</em><br>
+gear 3 &#8594; 4 &nbsp; true step &#8722;0.925 rad &nbsp; lifted step 5.358 rad &nbsp; <em>reverses</em><br>
+gear 4 &#8594; 5 &nbsp; true step &#8722;0.012 rad &nbsp; lifted step 6.271 rad &nbsp; <em>reverses</em><br>
+gear 5 &#8594; 6 &nbsp; true step +0.565 rad &nbsp; lifted step 0.565 rad &nbsp; forward already<br>
+gear 6 &#8594; 7 &nbsp; true step +0.963 rad &nbsp; lifted step 0.963 rad &nbsp; forward already
+</div>
+
+<p>Past the reversal the pitch settles. The alternation supplies &#960; per gear
+and the torsion drags it back by t&#8239;log&#8239;N, a logarithm against a linear
+term, so the mean pitch is 0.958 half-turns per gear at 400 gears and
+0.999 at 40&#8239;000. That limit is what makes the detrended picture a
+helix rather than a spiral: the turn per unit of depth has a limit, and the limit
+is the alternation alone.</p>
+</section>
+
+<section id="s9">
+<h2>9 · Where the conjunction stands</h2>
+
+<p>The three items first, then the thing they turned up between them, which is
+larger than any of them.</p>
+
+<dl class="dict">
+<dt>(b) resolved, and the earlier reading was wrong</dt>
+<dd>There is no coupling and no saturation. There is one curve in
+n/N<sub>eff</sub>, and rh27c&#8217;s flat stretch was three samples of nearly
+one point on it. rh28 spent a document on a plateau that was an artefact of
+holding v fixed; rh29 spent a section on a coupling that lives entirely in one
+row of the grid.</dd>
+<dt>(a) closed negatively</dt>
+<dd>The Diophantine reading is correct — equidistribution is demonstrably what
+holds the floor up — but both classical routes from equidistribution to a floor
+lose linearly in n against a truth that is nearly flat, and land four to five
+decades low where they survive at all. rh29&#8217;s &#8220;not obviously
+hopeless&#8221; was too generous. The route needs an inequality that uses
+q &#8805; 0, and I do not have one.</dd>
+<dt>(c) closed positively</dt>
+<dd>The conspiracy bound exists, needs no density theorem, and is comfortable by
+six decades. This is the one item that came out better than rh29 expected.</dd>
+</dl>
+
+<p>And then, from &#167;8&#8217;s picture, a question I should have asked
+twenty documents ago. Detrended, closure is the balance of the marked points, and
+the weights are &#293;(&#947;)&#178; &#8212; squares. rh29&#8217;s identity says
+the row the arc computes from the primes <em>is</em> the row the zeros give.
+A row of the form 2&#8721;<sub>&#947;</sub>&#293;(&#947;)&#178;cos(&#947;v) is a
+non-negative combination of cosines, so it is positive-definite by Bochner, for
+<em>every</em> window whatever. Which means the prime-side row inherits that, and
+positivity is not a thin property to be certified point by point.</p>
+
+<p>It is not a small correction, so here is the measurement rather than the
+argument. rh29 checked the identity at five <em>searched</em> windows. Checked at
+24 coefficient vectors drawn uniformly from the sphere, the prime-side row
+and the zero-side row still agree to 5.2&#215;10&#8315;&#8310; of the diagonal &#8212; and all
+24 of those random windows are positive-definite on the prime side, as all
+8 tested are on the zero side. Not one indefinite form in the sample.</p>
+
+<div class="cardbox">
+<strong>What that does to the logic.</strong> Weil&#8217;s criterion is an
+equivalence: RH holds if and only if the prime-side form is positive for every
+admissible window. The arc has been verifying instances of the direction that RH
+<em>implies</em>. A certificate that passes is a consequence of RH and adds
+nothing to a proof of it; only a certificate that <em>failed</em> would carry
+information, and it would refute RH rather than establish it. Nine certified
+points, nine balls around them, or nine thousand &#8212; the logical content is
+the same, and it is not cumulative.
+</div>
+
+<p>So the programme these documents have been running is, read correctly, a
+search for a counterexample. As such it should be judged against the other ways
+of searching for one, and &#167;7 has just supplied the number: at
+&#916;&#8242; = 0.12 this window is blind above &#947; = 6334, while the zeros
+have been verified on the line to 3&#215;10<sup>12</sup> by direct computation
+&#8212; 8.7 decades higher, and for a small fraction of the effort spent
+here. The certificates are rigorous and the machinery is sound. They are simply
+not pointed at the conjunction, and no number of further conjuncts will point
+them there.</p>
+</section>
+
+<section id="s10">
+<h2>10 &#183; What this document leaves</h2>
+
+<p>The direction changes here, and &#167;9 is why. Adding conjuncts does not
+approach a conjunction. What does is a statement that is <em>already</em>
+universally quantified over the family &#8212; and this arc has exactly one
+object of that shape, plus two ways of getting another.</p>
+
+<dl class="dict">
+<dt>(a) prove the collapse</dt>
+<dd>&#167;3 is not a certificate. It says
+&#955;<sub>min</sub>/E<sub>h</sub>(0) is a function of the single ratio
+n/N<sub>eff</sub>, to within a factor of 1.99&#215;, across two decades of
+window, two of mesh and two of depth. That is one inequality quantified over a
+whole family, which is the logical shape a conjunction needs and the shape no
+certificate has. Proving even a weak version &#8212;
+&#955;<sub>min</sub> &#8805; c&#8239;E<sub>h</sub>(0)&#8239;F(n/N<sub>eff</sub>)
+with F explicit and positive below 1 &#8212; would cover every window in the
+family at once. The family has 16 free coefficients, symmetrised to
+31; the collapse says the objective needs one of them. A reduction from
+16 dimensions to one is worth attempting even at low odds, and it is
+attackable with the machinery already here: the collapse can be tested to
+destruction on a much larger grid before anybody tries to prove it.</dd>
+<dt>(b) the inequality &#167;5 names</dt>
+<dd>The same target from the analytic side. Every route tried bounds
+&#8747;q&#8239;d&#956; below using only the total variation of q, loses linearly
+in n, and dies at a twentieth of the certified depth, while the truth is nearly
+flat because the minimising q is highly structured &#8212; it concentrates in a
+gap of the atom distribution. A bound that uses q = |p|&#178; &#8805; 0, or that
+localises to the largest gap instead of taking a worst case round the whole
+circle, would be a uniform statement rather than a point one.
+Beurling&#8211;Selberg majorants are the obvious family and the arc has never
+tried them.</dd>
+<dt>(c) stop extending the certified set</dt>
+<dd>Stated as a direction because it is one. Further points at further supports,
+further depths, further windows: &#167;9 shows these cannot bear on RH whether
+they pass or fail, since passing is implied and failing is out of reach by
+8.7 decades. The machinery built for them &#8212; the interval kit, the
+sieve, the parity split, the searched families &#8212; is worth keeping, because
+(a) and (b) will need to be checked numerically before they are proved. It is
+the accumulation that should stop.</dd>
+</dl>
+
+<p>One thing worth saying plainly, since &#167;9 is a hard result about
+twenty-six documents of work. Nothing computed in them is wrong, and the
+identity, the conspiracy bound and the collapse are all worth having. What was
+wrong was the theory of how they added up. They do not add up; they have to be
+generalised, and &#167;3 is the only place in the arc where a generalisation is
+in sight.</p>
+
+<p class="foot">54 named checks in 46 s, and 42 more
+in 6 s for &#167;8 and &#167;9. Five computed SVG figures, light and
+dark verified. Anchors and CSS classes audited against rh4&#8211;rh29. Previous:
+<a href="rh29.html">rh29 &#183; the symbol is a measure</a>.</p>
+</section>
+
+
+</div>
+</body>
+</html>

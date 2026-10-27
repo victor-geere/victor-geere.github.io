@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonic sine / greedy harmonic essays — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.8rem;font-size:1.1rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.warn{background:#fff4f2;border:1px solid #e6b8ae;padding:1rem 1.2rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+pre{background:#f6f8fa;border:1px solid #e1e4e8;padding:.8rem 1rem;border-radius:6px;overflow-x:auto;font-size:.9rem}
+ul,ol{padding-left:1.4rem}
+</style></head><body>
+
+<h1>Harmonic sine / greedy harmonic essays</h1>
+<p class="sub">A reconstructed research programme: finite formal core, exact computation, archived claims</p>
+
+<div class="top"><p><strong>Status.</strong> The source's Riemann-hypothesis claim is <strong>archived, retracted and superseded</strong>; it is not a theorem here, and neither are its zeta-bridge claims. What is reconstructed is the finite harmonic-sine core. The full dossier, ledger and provenance are in <a href="README.md">README.md</a>.</p></div>
+
+<p class="meta"><strong>Source:</strong> <a href="../../archive/essays/harmonic-sine-rh-proof.html"><code>archive/essays/harmonic-sine-rh-proof.html</code></a> — “A Formal Proof of the Riemann Hypothesis via Harmonic Sine Reconstruction” (Victor Geere, 7 March 2026), whose own header reads <strong>“[Retracted. See: Version 2]”</strong>.<br>
+<strong>Inventory:</strong> <a href="../../scraps.html">Scraps</a> item 38 · <a href="../README.md">Topic index</a>.</p>
+
+<h2>Provenance and what this folder is</h2>
+<p>The inventory tags item 38 as <em>archived claim</em> and <em>superseded</em>; it does not describe it as a duplicate of items 15 and 17. The source is one of those essay versions: a nine-section manuscript that opens with the harmonic reconstruction of <code>sin</code>, then builds a “zeta bridge”, an energy functional, an extended Matomäki–Radziwiłł discorrelation estimate, a “harmonic sheaf”, and finally a claimed proof of the Riemann hypothesis. The first line of the document retracts the claim and points to a “Version 2”.</p>
+<p>What is genuine and self-contained in the source is the <strong>finite harmonic-sine core</strong>: the harmonic angle sequence <code>α n = π/(n+2)</code> and its partial-sum identity; the greedy selection rule <code>δ n(θ) = Θ(θ − θ n − α n)</code>; the fusion step, i.e. the sine/cosine addition formula applied whenever <code>δ n = 1</code>; and the elementary invariant and residual facts that make the finite construction work. That core is reconstructed here. The analytic limit, the zeta bridge, the discorrelation extension, the sheaf, and the RH conclusion are recorded as <strong>source claims</strong> (with their archived status) or as <strong>open items</strong>. Three of the source's own intermediate statements are false as written; the errata below record them, and the Python layer demonstrates two of them exactly.</p>
+<p>This folder deliberately does <strong>not</strong> repeat the older <a href="../harmonic-sine/README.md">harmonic-sine</a> folder's half-angle reconstruction. It takes the angle/fusion/greedy layer from the essay version and adds the harmonic-number identity and the finite greedy recursion that the essay states but never proves.</p>
+
+<h2>Reconstructed objects and notation</h2>
+<p>The target is an angle <code>θ ∈ [0, π]</code>. For exact computation it is written as <code>θ = π x</code> with <code>x ∈ [0, 1]</code>, and all comparisons are made in <code>ℚ</code>.</p>
+<table>
+<thead><tr><th>Object</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Harmonic angle</td><td><code>α n = π / (n + 2)</code></td></tr>
+<tr><td>Scaled angle</td><td><code>a n = 1 / (n + 2)</code>, so <code>α n = π · a n</code></td></tr>
+<tr><td>Partial harmonic identity</td><td><code>Σ_{n=0}^{N} α n = π (H_{N+2} − 1)</code></td></tr>
+<tr><td>Selection word</td><td><code>δ n ∈ {0,1}</code>, <code>δ n = 1</code> iff <code>θ − θ n ≥ α n</code></td></tr>
+<tr><td>Accumulated angle</td><td><code>θ N = Σ_{n&lt;N} δ n α n</code> (Lean: <code>greedy θ N</code>)</td></tr>
+<tr><td>Residual</td><td><code>r N = θ − θ N</code></td></tr>
+<tr><td>Fusion step</td><td><code>(s, c) ↦ (s cos α + c sin α, c cos α − s sin α)</code></td></tr>
+<tr><td>Selection indicator (Lean)</td><td><code>selected θ n = decide (α n ≤ θ − greedy θ n)</code></td></tr>
+<tr><td>Phase series</td><td><code>Φ(s, θ) = Σ_n δ n(θ) (n+2)^{−s}</code></td></tr>
+</tbody>
+</table>
+
+<h2>Theorem ledger</h2>
+<p>Every row marked <strong>Theorem</strong> is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code> or <code>admit</code>. Every row marked <strong>Computation</strong> is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. The Lean namespace is <code>HarmonicEssays</code>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td><code>0 &lt; α n</code> for every <code>n</code></td><td><code>HarmonicEssays.alpha_pos</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td><code>k &lt; n → α n &lt; α k</code> (strictly antitone)</td><td><code>HarmonicEssays.alpha_strictAnti</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td><code>Σ_{n=0}^{N} α n = π (H_{N+2} − 1)</code></td><td><code>HarmonicEssays.sum_alpha</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td><code>0 ≤ greedy θ N</code></td><td><code>HarmonicEssays.greedy_nonneg</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td><code>0 ≤ θ → greedy θ N ≤ θ</code></td><td><code>HarmonicEssays.greedy_le_target</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>At <code>θ = α n</code> every earlier index is skipped: <code>greedy (α n) n = 0</code></td><td><code>HarmonicEssays.greedy_alpha_self</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>Consequently <code>selected (α n) n = true</code></td><td><code>HarmonicEssays.selected_own_angle</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>The exact partial-sum identity holds for <code>N ≤ 60</code>, agreeing with <code>sympy.harmonic(N+2) − 1</code></td><td><code>test_harmonic_sum_identity_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>Corrected bound <code>0 ≤ r N/π ≤ 1/(N+1)</code> on a rational grid for <code>N ≤ 300</code>; the source's <code>1/(N+2)</code> fails at <code>N = 1</code>, <code>x = 2/5</code></td><td><code>test_residual_bound_correct_form</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>At <code>θ = α n</code> no earlier index is selected and index <code>n</code> is, for <code>n ≤ 12</code></td><td><code>test_own_angle_selected</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>The fusion step preserves <code>s² + c² = 1</code> and equals <code>(sin(θ+a), cos(θ+a))</code> exactly; zero rotation is the identity</td><td><code>test_fusion_preserves_unit_circle</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>Reconstruction of <code>sin(π x)</code> from the exact greedy word at 300 terms agrees to <code>π/301 + 10⁻¹²</code> on a five-point grid including <code>x = 0, 1</code></td><td><code>test_reconstruction_convergence</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>Erratum: at <code>θ = π</code> the word is <code>1,1,0,0,1,0,…</code> (only indices 0, 1, 4), so <code>Φ(2,π) = 7/18 ≠ ζ(2) − 1</code>; <code>x = 5/6</code> also terminates</td><td><code>test_pi_target_sparse_erratum</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td><code>0 ≤ θ N ≤ θ</code> on a 41-point grid for <code>N ≤ 400</code></td><td><code>test_accumulated_never_overshoots</code></td></tr>
+</tbody>
+</table>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<p>These are recorded with the source's own status. None is a theorem of this reconstruction.</p>
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td><code>sin θ = lim_{N→∞} s_N</code> for <code>θ ∈ [0,π]</code>, with <code>sgn</code>/periodic extension to all <code>x</code></td><td>Source Theorem 2.3, with an induction and a continuity sketch</td><td>The finite fusion identity is tested (C4) and convergence on a grid (C5); the limit theorem and the periodic extension are not formalised.</td></tr>
+<tr><td><code>0 ≤ r N ≤ π/(N+2)</code> (Lemma 3.1)</td><td>Source lemma</td><td><strong>Refuted as stated.</strong> The correct finite bound is <code>r N ≤ π/(N+1) = α_{N−1}</code>; counterexample <code>θ = 2π/5</code>, <code>N = 1</code>. See Erratum 1 and C2.</td></tr>
+<tr><td><code>|sin θ − s_N| ≤ π/(N+2)</code> (Lemma 3.2)</td><td>Source lemma</td><td>Follows from the corrected residual bound only with <code>π/(N+1)</code>; the sharper constant is not proved.</td></tr>
+<tr><td>Selection count <code>Σ_{n=0}^{N} δ_n = x log(N+2) + O(1)</code> for <code>x ∈ (0,1)</code> (Lemma 3.3)</td><td>Source lemma, heuristic proof</td><td><strong>False for targets that are finite harmonic sub-sums</strong>, e.g. <code>x = 5/6 = 1/2 + 1/3</code>, where the word terminates and the count is constant. Not formalised.</td></tr>
+<tr><td><code>Φ(s,π) = ζ(s) − 1</code>, i.e. <code>θ = π</code> selects every index (Proposition 4.4)</td><td>Source proposition, called “direct verification”</td><td><strong>Refuted as stated.</strong> The word for <code>θ = π</code> is finite: <code>α_0 + α_1 + α_4 = π/2 + π/3 + π/6 = π</code>, after which the residual is 0. Hence <code>Φ(s,π) = 2^{−s} + 3^{−s} + 6^{−s}</code>, not <code>ζ(s) − 1</code>. See Erratum 2 and C6.</td></tr>
+<tr><td><code>Φ(s,θ)</code> converges absolutely for <code>Re s &gt; 1</code> and conditionally for <code>Re s &gt; 0</code></td><td>Source Lemma 4.2</td><td>The <code>Re s &gt; 1</code> part is immediate (<code>|Φ| ≤ ζ(Re s) − 1</code>); the conditional range and uniformity are not formalised.</td></tr>
+<tr><td>Energy at a zero: <code>E(ρ,π) = |ζ(ρ) − 1|² = 1</code> (Lemma 5.2)</td><td>Source lemma</td><td>Depends on the false identification <code>Φ(ρ,π) = ζ(ρ) − 1</code>; as stated it is arithmetic on an invalid premise. Not used.</td></tr>
+<tr><td><code>E(σ,T) = E(1−σ,T) + O(T^{−1/2+ε})</code> (Proposition 5.4)</td><td>Source proposition, sketch via the approximate functional equation</td><td><code>E</code> is not defined precisely in the source; not formalised.</td></tr>
+<tr><td>Van der Corput bound for <code>Σ_{n≤x} e(α/n)</code> (Lemma 6.2)</td><td>Quoted analytic estimate</td><td>The source cites Graham–Kolesnik but gives only a sketch; not formalised.</td></tr>
+<tr><td>Extended discorrelation for <code>1/n</code> phases, outside an exceptional set (Theorem 6.3)</td><td>Source “theorem”, proof sketch</td><td>A substantial analytic statement extending Matomäki–Radziwiłł; no complete proof in the source. Open, not formalised.</td></tr>
+<tr><td>Coherence-defect bounds, <code>C(ρ) ≪ |γ|^ε</code> on the line and <code>C(ρ) ≫ |β−1/2|² (log|γ|)^{1/5}</code> off it (Proposition 7.3)</td><td>Source proposition</td><td>Both parts are asserted; part (b) is essentially the desired conclusion. Not formalised.</td></tr>
+<tr><td><code>H¹(S, H_ρ) = 0 ⇔ C(ρ) = O(|γ|^ε)</code> and the acyclicity criterion (Proposition 7.4)</td><td>Source proposition</td><td>The sheaf <code>H</code> and the cohomology group are not defined precisely; the equivalence is asserted, not proved. Not formalised.</td></tr>
+<tr><td>Riemann hypothesis (Theorem 8.1)</td><td><strong>Archived claim, retracted in the source itself and superseded</strong></td><td>Not proved. RH remains open. Nothing in this folder should be cited as a proof.</td></tr>
+</tbody>
+</table>
+
+<h2>Open / conjecture ledger</h2>
+<p>These are precise statements that remain unresolved. None is used as a theorem.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Status / note</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td>Open / conjecture</td><td>For every <code>θ ∈ [0,π]</code>, <code>sin θ = lim_{N→∞} s_N</code>, with <code>|sin θ − s_N| ≤ π/(N+1)</code></td><td>Expected true for this greedy rule; the finite layer is proved (T4–T7) and tested (C4, C5), but the residual limit and the Lipschitz step are not formalised.</td></tr>
+<tr><td>O2</td><td>Open / conjecture</td><td>For <code>x ∈ (0,1)</code> that is not a finite harmonic sub-sum, <code>Σ_{n≤N} δ_n = x log(N+2) + O(1)</code></td><td>The source's version (Lemma 3.3) is false at <code>x = 5/6</code>; a corrected statement with an explicit exceptional set is open.</td></tr>
+<tr><td>O3</td><td>Open / conjecture</td><td>The sub-sums <code>Φ(s,θ)</code> for <code>Re s &gt; 1</code> carry arithmetic information about <code>ζ</code> beyond being sub-sums of <code>ζ(s) − 1</code></td><td>No precise statement exists in the source; <code>Φ(s,π) ≠ ζ(s) − 1</code> (Erratum 2), so the proposed bridge is not an identity.</td></tr>
+<tr><td>O4</td><td>Open / conjecture</td><td>The extended Matomäki–Radziwiłł discorrelation for <code>1/n</code> phases (source Theorem 6.3)</td><td>Substantial analytic statement; no complete proof in the source.</td></tr>
+<tr><td>O5</td><td>Open / conjecture</td><td>A sheaf of harmonic phases whose <code>H¹</code> vanishing is equivalent to <code>Re ρ = 1/2</code></td><td>The sheaf and cohomology group are not defined; the source's equivalence is asserted, not constructed.</td></tr>
+</tbody>
+</table>
+
+<h2>Errata</h2>
+<ol>
+<li><strong>Residual bound off by one index.</strong> Lemma 3.1 states <code>0 ≤ r N ≤ π/(N+2)</code>. At step 1, if <code>θ = 2π/5 &lt; α_0 = π/2</code>, nothing is selected, so <code>r_1 = 2π/5 &gt; π/3 = π/(1+2)</code>. The correct bound is <code>r N ≤ α_{N−1} = π/(N+1)</code>, which is what the greedy rule actually enforces; C2 tests the corrected bound and the counterexample. The subsequent <code>π/(N+2)</code> error constant in Lemma 3.2 inherits the same slip.</li>
+<li><strong><code>θ = π</code> does not select every index.</strong> Proposition 4.4 argues that because <code>Σ α_n</code> diverges the residual always exceeds <code>α_n</code>. That inference is invalid: the greedy rule instead stops taking once the accumulated angle reaches <code>π</code>. Exactly <code>α_0 + α_1 + α_4 = π/2 + π/3 + π/6 = π</code>, so the word is <code>1,1,0,0,1,0,0,…</code> and <code>Φ(s,π)</code> is a three-term sum. The claimed zeta bridge <code>Φ(s,π) = ζ(s) − 1</code> therefore fails at the one angle where the source claims to verify it directly. C6 checks this exactly.</li>
+<li><strong>Selection-density lemma ignores early termination.</strong> For <code>x = 5/6 = 1/2 + 1/3</code> the greedy word is <code>1,1,0,0,…</code> and the selection count is 2 for every <code>N</code>, contradicting <code>x log(N+2) + O(1)</code>. The lemma is plausible only for targets that are not finite harmonic sub-sums.</li>
+<li><strong>The RH argument is non sequitur even on its own terms.</strong> Step 4 of Theorem 8.1 infers that <code>H¹</code> <em>must</em> vanish because <code>ζ</code> is meromorphic, while the preceding step asserts <code>H¹ ≠ 0</code>. Oka–Cartan vanishing is a theorem about Stein manifolds; it does not supply the missing implication from zeta's analytic continuation to the vanishing of a cohomology group attached to an undefined sheaf. The source retracts the conclusion; the inventory marks it superseded.</li>
+<li><strong>Duplicate material.</strong> Inventory item 38 duplicates the harmonic-sine essay versions (item 15) and the Harmonic Sine Transform material (item 17). This reconstruction cites the archived essay-level file as the designated source and does not treat the duplicates as independent evidence.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> uses <code>sympy</code> for exact rational and trigonometric work. Targets are exact rational multiples of <code>π</code>, so no greedy decision rounds. <code>mpmath</code> (50 digits) is used only for the high-precision reconstruction check in C5, whose tolerance is stated as <code>π/301 + 10⁻¹²</code>.</p>
+<table>
+<thead><tr><th>Function</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>alpha(n)</code>, <code>alpha_scaled(n)</code></td><td><code>α n = π/(n+2)</code> and <code>1/(n+2)</code></td></tr>
+<tr><td><code>harmonic_sum_scaled(N)</code>, <code>harmonic_sum(N)</code></td><td>exact <code>H_{N+2} − 1</code> and <code>π(H_{N+2} − 1)</code></td></tr>
+<tr><td><code>greedy_word(x, n_max)</code></td><td>exact selection word <code>δ_0 … δ_{n_max}</code></td></tr>
+<tr><td><code>greedy_accumulated(x, n_max)</code></td><td>accumulated angle in <code>π</code> units</td></tr>
+<tr><td><code>residual(x, N)</code></td><td><code>r N/π</code></td></tr>
+<tr><td><code>residual_bound(x, N)</code>, <code>source_residual_bound(x, N)</code></td><td>corrected and source-stated bounds</td></tr>
+<tr><td><code>fusion_step(s, c, a)</code></td><td>the sine/cosine rotation</td></tr>
+<tr><td><code>reconstruct_sine(x, n_max, dps)</code></td><td><code>sin(πx)</code> from the exact word</td></tr>
+<tr><td><code>subsum(x, s, n_max)</code></td><td>truncated <code>Φ(s, θ)</code></td></tr>
+</tbody>
+</table>
+<pre><code>cd the-final-letter/topics/harmonic-sine-greedy-harmonic-essays
+python3 -m pytest -q tests</code></pre>
+<p>Recorded result: <strong>8 passed</strong>. The suite covers every Computation row and includes the <code>α(−1)</code> / target-range edge cases and the two refutations.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens the <code>HarmonicEssays</code> namespace, and defines <code>alpha</code>, the recursive <code>greedy</code>, and <code>selected</code>. It proves T1–T7. It contains no <code>sorry</code>, <code>axiom</code> or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/harmonic-sine-greedy-harmonic-essays
+./lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK Topic.lean</code>. See <a href="lean/README.md"><code>lean/README.md</code></a> for exactly what is and is not formalised.</p>
+
+<h2>Open items and gaps</h2>
+<ol>
+<li><strong>The reconstruction limit.</strong> T4–T7 prove the finite greedy layer. Proving <code>r N → 0</code> and <code>sin θ = lim s_N</code> needs the full residual induction and a continuity/Lipschitz argument; neither is in Lean yet.</li>
+<li><strong>Correct residual and rate constants.</strong> The source's constants are off by one index (Erratum 1). A formal proof should establish <code>r N ≤ α_{N−1}</code> and record the resulting <code>O(1/N)</code> rate rather than the source's <code>π/(N+2)</code>.</li>
+<li><strong>Selection count.</strong> Replace Lemma 3.3 by a correct statement. Finite harmonic sub-sums are an exceptional set where the count is bounded; the logarithmic law needs a precise hypothesis excluding them.</li>
+<li><strong>A well-posed zeta bridge.</strong> <code>Φ(s,θ)</code> is a genuine absolutely convergent sub-sum of <code>ζ(s) − 1</code> for <code>Re s &gt; 1</code>, but the special value at <code>θ = π</code> is not <code>ζ(s) − 1</code>. Whether the parametrised sub-sums carry any arithmetic information is open, and nothing in the source establishes a route to zeros.</li>
+<li><strong>Analytic inputs.</strong> The extended Matomäki–Radziwiłł discorrelation (Theorem 6.3) and the coherence-defect bounds (Proposition 7.3) are unproved analytic statements, not consequences of the finite harmonic construction.</li>
+<li><strong>Sheaf and acyclicity.</strong> Proposition 7.4 has no precise definitions to formalise; it should be treated as speculation unless a sheaf of harmonic phases is actually constructed.</li>
+<li><strong>Retraction audit.</strong> The source points to a “Version 2” that is not linked. Locating and auditing it, and reconciling items 15, 17 and 38, is a provenance task rather than a mathematical one.</li>
+<li><strong>The RH claim.</strong> It is retracted, archived and superseded. The Riemann hypothesis is not proved here or in the source.</li>
+</ol>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../scraps.html"><code>scraps.html</code></a> — inventory entry 38.</li>
+<li><a href="../README.md"><code>topics/README.md</code></a> — all topic folders.</li>
+<li><a href="../harmonic-sine/README.md"><code>harmonic-sine</code></a> — the related earlier reconstruction (inventory item 15).</li>
+<li><a href="../harmonic-sine-transform/README.md"><code>harmonic-sine-transform</code></a> — HST material (inventory item 17).</li>
+<li><a href="../../summary/14-legacy-conjectures/README.md"><code>summary/14-legacy-conjectures/</code></a> — the deduplicated conjecture index.</li>
+</ul>
+
+<p><a href="../README.md">Back to the topic index</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+
+</body></html>

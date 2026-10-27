@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quaternion–cosine framework — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.6rem;font-size:1.08rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.9em}
+pre{background:#f5f6f7;border:1px solid #e1e4e8;padding:.8rem 1rem;border-radius:6px;overflow-x:auto;font-size:.88rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+blockquote{margin:1rem 0;padding:.5rem 1rem;border-left:3px solid #9bb7d4;background:#f7fafc;color:#333}
+.warn{background:#fff8e6;border:1px solid #ead9a8;padding:.8rem 1rem;border-radius:6px}
+</style></head><body>
+
+<h1>Quaternion–cosine framework</h1>
+<p class="sub">A reconstructed research programme: elementary formal core, exact computation, and preserved open claims</p>
+
+<div class="top"><p><strong>Status.</strong> The archived source is a speculative, conversation-derived essay. This folder reconstructs its precise elementary content—quaternion units, a lifted cosine phase, a divisor detector, an alignment energy, and a warping factor—and proves those facts in Lean and Python. The source’s central conjecture about the Riemann hypothesis is <strong>not</strong> proved and is recorded as open.</p></div>
+
+<h2>Provenance and status</h2>
+<p><strong>Source:</strong> <a href="../../archive/essays/rh/riemann-hypothesis.html"><code>archive/essays/rh/riemann-hypothesis.html</code></a>, “Exploring a Quaternion-Cosine Geometric Approach to the Riemann Hypothesis”. <strong>Inventory:</strong> <a href="../../scraps.html">Scraps</a> item 39 · <a href="../README.md">Topic index</a>.</p>
+<p>Related archived restatements: <a href="../../archive/essays/rh/rh-cosine-quaternion-framework.html"><code>rh-cosine-quaternion-framework.html</code></a> and <a href="../../archive/essays/rh/dictionary-cos-quaternions.html"><code>dictionary-cos-quaternions.html</code></a>. Neither adds a proof; both repeat the same conjectural programme.</p>
+<p>The source is explicit about its status:</p>
+<blockquote>“While the approach remains highly speculative and currently lacks rigorous justification, it offers an interesting visualization-based intuition…” (source, §1)</blockquote>
+<p>Its conclusion says the framework “remains far from a rigorous proof of the Riemann Hypothesis.” Section 8 lists the acknowledged gaps: no bridge from the continuous energy functional to prime sums, no rigorous connection between cosine alignment and zeros of <code>ξ</code>, no sharp nonlinear exponential-sum bounds, an unjustified logarithmic-to-geometric substitution, and uncontrolled constants.</p>
+<p>What the source does define precisely enough to reconstruct is a small elementary core: Hamilton quaternion units, a lifted cosine phase, a scalar divisor detector, the periodicity <code>cos(2πn) = 1</code>, an alignment energy, and a warping factor <code>2σ − 1</code>. The leap from these objects to the Riemann hypothesis is not reconstructed.</p>
+
+<h2>Reconstructed objects and notation</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th><th>Role in the source</th></tr></thead>
+<tbody>
+<tr><td>Quaternion units</td><td><code>i, j, k</code> with <code>i² = j² = k² = −1</code>, <code>ij = k</code>, <code>ji = −k</code></td><td>The algebra in which the two cosine phases are separated.</td></tr>
+<tr><td>Divisor detector</td><td><code>D(x,p) = cos(2πp/x) + cos(2πx) − 2</code></td><td>Claimed to vanish exactly at positive divisors <code>x</code> of <code>p</code>.</td></tr>
+<tr><td>Cosine phase</td><td><code>φ(x) = cos(2πx) i + cos(2πp/x) j</code></td><td>Lifts the two scalar cosines into orthogonal quaternion coordinates.</td></tr>
+<tr><td>Lifted displacement</td><td><code>δ(x) = (1 − cos(2πx)) i + (1 − cos(2πp/x)) j</code></td><td>The vector from the target <code>i + j</code> to the phase.</td></tr>
+<tr><td>Alignment energy</td><td><code>E(x) = (1 − cos(2πx))² + (1 − cos(2πp/x))²</code></td><td>Squared distance from perfect alignment; always non-negative.</td></tr>
+<tr><td>Warping factor</td><td><code>w(σ) = 2σ − 1</code></td><td>Vanishes on the critical line; models functional-equation distortion.</td></tr>
+<tr><td>Warped height</td><td><code>t′ = t / (2σ − 1)</code></td><td>Formal expression only; undefined at <code>σ = 1/2</code>.</td></tr>
+</tbody>
+</table>
+<p>Two notational points matter. First, the source’s prose writes <code>t′ ~ t/(2σ−1)</code>, while its sample Python code uses <code>effective_t = t / abs(sigma - 0.5)</code>; these differ even by a factor of two. The reconstruction records the prose expression exactly and treats the code version as an inconsistency. Second, the source sometimes says alignment with “<code>i + j</code> (or any scaled version thereof)”; the energy <code>E</code> vanishes only at <code>(1,1)</code>, so the formal core uses <code>i + j</code> exactly.</p>
+
+<h2>Theorem ledger</h2>
+<p>The ledger uses four kinds: <strong>Theorem</strong>, <strong>Computation</strong>, <strong>Source claim</strong>, and <strong>Open / conjecture</strong>. Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every <strong>Computation</strong> row is covered by <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. Source claims and open statements are not theorems of this reconstruction.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>The quaternion units satisfy <code>i² = j² = k² = −1</code>, <code>ij = k</code>, and <code>ji = −k</code>.</td><td><code>QuaternionCosine.quaternion_relations</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>The lifted phase <code>φ = a i + b j</code> has squared norm <code>a² + b²</code>.</td><td><code>QuaternionCosine.phase_normSq</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td><code>cos(2πx) = 1</code> if and only if <code>x</code> is an integer.</td><td><code>QuaternionCosine.cos_two_pi_mul_eq_one_iff</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>For <code>x ≠ 0</code>, <code>D(x,p) = 0</code> if and only if both <code>x</code> and <code>p/x</code> are integers.</td><td><code>QuaternionCosine.detector_eq_zero_iff</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>The alignment energy is non-negative: <code>0 ≤ E(x)</code>.</td><td><code>QuaternionCosine.energy_nonneg</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td><code>E(x) = 0</code> if and only if both cosines equal <code>1</code>.</td><td><code>QuaternionCosine.energy_eq_zero_iff</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>The warping factor vanishes exactly on the critical line: <code>2σ − 1 = 0 ↔ σ = 1/2</code>.</td><td><code>QuaternionCosine.warp_eq_zero_iff</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>The exact Hamilton product gives <code>i² = j² = k² = −1</code>, <code>ij = k</code>, <code>ji = −k</code>.</td><td><code>test_quaternion_units_are_exact</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>The squared quaternion norm of the phase equals the sum of squared cosines, and the squared norm of the displacement equals the alignment energy.</td><td><code>test_phase_norm_matches_alignment_energy</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>The detector vanishes exactly at every divisor of <code>12</code>, and <code>is_divisor</code> agrees with sympy’s divisor list <code>[1,2,3,4,6,12]</code>.</td><td><code>test_detector_vanishes_at_all_divisors</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>The detector is strictly negative at the non-divisors <code>x = 5</code> and <code>x = 7/2</code> for <code>p = 12</code>.</td><td><code>test_detector_negative_off_divisors</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>The energy is <code>0</code> at every divisor of <code>12</code> and equals <code>4</code> at <code>(x,p) = (1/2,1)</code>.</td><td><code>test_alignment_energy_zero_at_divisors_and_positive_off</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td><code>w(1/2) = 0</code>, <code>w(3/4) = 1/2</code>, and <code>t′ = 28</code> for <code>t = 14</code>, <code>σ = 3/4</code>; <code>warped_height</code> raises at <code>σ = 1/2</code>.</td><td><code>test_warp_factor_vanishing_and_warped_height</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>Non-positive <code>x</code>, non-positive <code>p</code>, and non-positive moduli are rejected; the edge case <code>p = 1</code> has the single divisor <code>1</code> and zero detector there.</td><td><code>test_edge_cases_reject_nonpositive_inputs</code></td></tr>
+</tbody>
+</table>
+<p>T4 is the source’s elementary divisor-detector claim, formalised for real <code>x ≠ 0</code>; for integer <code>p</code> the two integer conditions are exactly divisibility, and the Lean statement does not assume <code>p</code> is an integer. The Lean proof of T4 uses T3 twice. T1 and T2 are the quaternion facts the source actually uses; they are not <code>rfl</code> restatements, since the product and squared norm are computed from the structure of <code>ℍ[ℝ]</code>.</p>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<p>These are recorded with the source’s own status. None is a theorem of this reconstruction.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>S1</td><td>Source claim</td><td>Perfect alignment means <code>inf<sub>x&gt;0</sub> E(x) = 0</code>.</td><td>Source definition / heuristic</td><td>The finite equivalence <code>E = 0 ↔ both cosines = 1</code> is T6. The infimum over <code>x &gt; 0</code> is not analysed here.</td></tr>
+<tr><td>S2</td><td>Source claim</td><td>If <code>σ ≠ 1/2</code>, then <code>inf<sub>x</sub> E(x) &gt; 0</code>, so no zero can occur off the critical line.</td><td>Archived claim, <strong>unproved</strong></td><td>The central gap. Nothing in the source establishes this implication.</td></tr>
+<tr><td>S3</td><td>Source claim</td><td><code>ξ(s) = 0</code> if and only if the geometric, dyadic, and symmetry conditions of the “central conjecture” hold.</td><td>Archived conjecture</td><td>The dyadic condition is not given a precise mathematical definition; the equivalence is open.</td></tr>
+<tr><td>S4</td><td>Source claim</td><td>Functional-equation reflection produces the warping <code>t → t/(2σ−1)</code>, which breaks cosine alignment.</td><td>Source heuristic</td><td>No derivation from <code>ξ(s) = ξ(1−s)</code> is supplied. The prose factor also disagrees with the sample code.</td></tr>
+<tr><td>S5</td><td>Source claim</td><td>Prime phase cancellation, via sums such as <code>∑<sub>p</sub> cos(t log p)/√p</code>, controls the energy.</td><td>Source speculation</td><td>The source itself calls this the most speculative step and notes the required exponential-sum bounds exceed known results.</td></tr>
+<tr><td>S6</td><td>Source claim</td><td>Numerical experiment shows minimum energy near zero on the critical line and positive off it.</td><td>Archived numerical illustration</td><td>The sample code is a crude visualisation, not a proof; no reproducible numerical result is claimed here.</td></tr>
+<tr><td>S7</td><td>Source claim</td><td>The dyadic sine construction converges exponentially.</td><td>Cited background claim (Geere)</td><td>Not part of the quaternion–cosine formal core.</td></tr>
+</tbody>
+</table>
+<div class="warn"><strong>No Riemann-hypothesis, GRH, twin-prime, Chowla, or Sarnak statement is asserted as proved anywhere in this folder.</strong></div>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> implements exact sympy computations:</p>
+<ul>
+<li><code>phase(x,p)</code> — the quaternion <code>cos(2πx) i + cos(2πp/x) j</code> as a four-tuple;</li>
+<li><code>quaternion_mul</code>, <code>quaternion_norm_sq</code> — Hamilton product and squared norm;</li>
+<li><code>detector(x,p)</code> — <code>cos(2πp/x) + cos(2πx) − 2</code>;</li>
+<li><code>alignment_energy(x,p)</code>, <code>displacement_quaternion(x,p)</code>;</li>
+<li><code>is_divisor(p,x)</code>, <code>divisors_exact(p)</code>, <code>detector_on_divisors(p)</code>;</li>
+<li><code>warp_factor(σ)</code>, <code>warped_height(t,σ)</code>;</li>
+<li><code>is_aligned(x,p, tol=None)</code>.</li>
+</ul>
+<p>All decisions in the tests are exact; the only approximate helper is the optional <code>tol</code> branch of <code>is_aligned</code>, which is not used by the suite. Run from the topic directory:</p>
+<pre><code>cd the-final-letter/topics/quaternion-cosine
+python3 -m pytest -q tests</code></pre>
+<p>Current result: <strong>7 passed</strong> (about 0.3 s). The suite covers every Computation row and the edge cases <code>x ≤ 0</code>, <code>p ≤ 0</code>, and <code>p = 1</code>.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens the <code>QuaternionCosine</code> namespace, defines the quaternion units, the lifted phase, the energy, the detector, and the warping factor, and proves T1–T7. It contains no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/quaternion-cosine
+./lean/check.sh 2>&1 | tee lean/BUILD.log</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK   Topic.lean (5s)</code>. See <a href="lean/README.md"><code>lean/README.md</code></a> for what the formal core does and does not cover.</p>
+
+<h2>Open items and known gaps</h2>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Why it is open</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td>Open / conjecture</td><td><code>inf<sub>x</sub> E(x) = 0</code> is equivalent to <code>ξ(σ+it) = 0</code>.</td><td>The energy–zero bridge is missing in both directions; the source identifies this as the central gap (§8.2).</td></tr>
+<tr><td>O2</td><td>Open / conjecture</td><td>The warping <code>t′ ~ t/(2σ−1)</code> follows from <code>ξ(s) = ξ(1−s)</code>.</td><td>It is asserted, not derived; the source’s own code uses a different factor. A rigorous treatment needs a precise definition of “effective frequency”.</td></tr>
+<tr><td>O3</td><td>Open / conjecture</td><td>For <code>σ ≠ 1/2</code>, <code>inf<sub>x</sub> E(x) &gt; c &gt; 0</code> for some universal <code>c</code>.</td><td>The off-line lower bound is not established, and no explicit constant is given.</td></tr>
+<tr><td>O4</td><td>Open / conjecture</td><td>Prime-phase cancellation connects <code>E</code> to sums over primes.</td><td>Requires nonlinear exponential-sum bounds that the source acknowledges are beyond current technology.</td></tr>
+<tr><td>O5</td><td>Open / conjecture</td><td>The “dyadic condition” of the central conjecture is well defined.</td><td>The source refers to a dyadic expansion “aligned with the natural logarithmic spacing of primes” but states no precise condition; it cannot be formalised as written.</td></tr>
+<tr><td>O6</td><td>Open / conjecture</td><td>The pointwise divisor identity can be upgraded to a statement about minimisation over <code>x &gt; 0</code>.</td><td>T4 and C3–C5 verify the detector and energy at exact points; they say nothing about minimisation, which is where the RH conjecture lives.</td></tr>
+<tr><td>O7</td><td>Open / conjecture</td><td>Probabilistic or spectral input (GUE, Berry–Keating, Connes) supplies a proof.</td><td>That discussion is contextual in the source, not part of a proved argument.</td></tr>
+</tbody>
+</table>
+
+<h2>Verification</h2>
+<pre><code>cd the-final-letter/topics/quaternion-cosine
+python3 -m pytest -q tests
+./lean/check.sh 2>&1 | tee lean/BUILD.log</code></pre>
+<p>Both commands pass. The ledger above is the one implemented by the files in this folder.</p>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../scraps.html">Scraps</a> — inventory entry 39.</li>
+<li><a href="../README.md">Topics index</a> — all topic folders.</li>
+<li><a href="../../archive/essays/rh/riemann-hypothesis.html">Archived source: <code>riemann-hypothesis.html</code></a></li>
+<li><a href="../../archive/essays/rh/rh-cosine-quaternion-framework.html">Related restatement: <code>rh-cosine-quaternion-framework.html</code></a> · <a href="../../archive/essays/rh/dictionary-cos-quaternions.html"><code>dictionary-cos-quaternions.html</code></a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

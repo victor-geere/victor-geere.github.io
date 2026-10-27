@@ -1,0 +1,293 @@
+<!doctype html>
+<html>
+<head>
+  <title>Harmonics</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="lib/math.min.js"></script>
+  <script src="lib/dat.gui.min.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import * as THREE from './lib/three.module.js';
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        getMaterial,
+        drawAxis,
+        buildDefaultScene,
+        newVec
+    } from './modules/threetools.js';
+    import {
+        getEta
+    } from './modules/mathtools.js';
+    import { Z } from './modules/zeta.js'
+    import {roundTo} from "./modules/mathtools.js";
+
+    let sceneInfo;
+
+    let cache = {};
+    let cacheKeys = [];
+
+    let cacheEfficiency = {
+        read: 0,
+        written: 0,
+        deleted: 0,
+    };
+
+    let useCache = false;
+
+    function setCache(a, b, value) {
+        if (useCache) {
+            cacheEfficiency.written++;
+            let kn = roundTo(b, 5);
+            if (cacheKeys.length > 1000) {
+                cacheEfficiency.deleted++;
+                let key = cacheKeys[0];
+                cache[key] = undefined;
+                cacheKeys.splice(0, 1);
+            }
+            let key = `key_${a}_${kn}`;
+            cache[key] = value;
+            cacheKeys.push(key);
+        }
+    }
+
+    function getCache(a, b) {
+        if (!useCache) {
+            return null;
+        }
+        let kn = roundTo(b, 5);
+        let key = `key_${a}_${kn}`;
+        let val = cache[key];
+        if (val) {
+            cacheEfficiency.read++;
+        }
+        return val;
+    }
+
+
+    let materialCache = {};
+    function getPointsMaterial(colorN) {
+        let color = rainbow[colorN];
+        const key = `mat_${colorN}`;
+        if (materialCache[key]) {
+            return materialCache[key];
+        }
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load('textures/sprites/disc.png');
+        const mat = new THREE.PointsMaterial({
+            color: color,
+            map: texture,
+            size: 0.25,
+            alphaTest: 0.5
+        });
+        materialCache[key] = mat;
+        return mat;
+    }
+
+    function getEtaTerm(k, a, b) {
+        if (k % 2 === 0) {
+            throw new Error('eta term has to be odd in this case');
+        }
+        const eta1 = getEta(k, a, b);
+        const eta2 = getEta(k + 1, a, b);
+        return { re: eta1.re - eta2.re, im: eta1.im - eta2.im };
+    }
+
+    function getConvergence(a, b) {
+        let sum = { re: 0, im: 0 };
+        let t = {};
+        for (let i = 1; i < params.points; i = i + 2) {
+            t = getEtaTerm(i, a, b);
+            sum.re = sum.re + t.re;
+            sum.im = sum.im + t.im;
+        }
+        // console.log(`1/n^(${a} + ${b}i) = ${sum.re} + ${sum.im}i`);
+        return newVec(sum.re, sum.im, 0);
+    }
+
+    function getPoints(a, b) {
+        const points = [];
+        let sum = { re: 0, im: 0 };
+        let t = {};
+        for (let i = 1; i < params.points; i = i + 2) {
+            t = getEtaTerm(i, a, b);
+            sum.re = sum.re + t.re;
+            sum.im = sum.im + t.im;
+            points.push(newVec(sum.re, sum.im, i/100));
+        }
+        return points;
+    }
+
+    function makePoints(points, c) {
+        const mat = getPointsMaterial(c);
+        const geo = new THREE.BufferGeometry().setFromPoints(points);
+        const mesh = new THREE.Points(geo, mat);
+        return {
+            mat,
+            points,
+            geo,
+            mesh
+        }
+    }
+
+    function addPoints() {
+        let c = 0;
+        let inc = params.imInc1 + params.imInc2 + params.imInc3;
+        let vertices = [];
+        for (let i = params.offset; i < params.offset + params.difference; i = i + inc) {
+            vertices = getCache(params.real, i) || getPoints(params.real, i);
+            let obj = makePoints(vertices, c++ % 60);
+            sceneInfo.addObject(obj);
+        }
+        sceneInfo.render();
+    }
+
+    function initScene() {
+        sceneInfo = buildDefaultScene();
+        sceneInfo.scale(params.scale);
+        drawAxis(sceneInfo.scene, 50, getMaterial(colorsGrey, 1));
+    }
+
+    let busy = false;
+    function loop() {
+        if (params.offset >= 32) {
+            console.log(sceneInfo);
+        }
+        busy = true;
+        sceneInfo.clear();
+        let c = 0;
+        let inc = params.imInc1 + params.imInc2 + params.imInc3;
+        let newOffset = params.offset + inc;
+        if (newOffset > 120) {
+            newOffset = 0;
+        }
+        gui.controllers.ctrlOffset.setValue(newOffset);
+        updateParams();
+        let vertices = [];
+        for (let i = params.offset; i < (params.offset + 10); i = i + inc) {
+            if (useCache) {
+                vertices.push(getCache(params.real, i) || getConvergence(params.real, i));
+                setCache(params.real, i, vertices);
+            } else {
+                vertices.push(getConvergence(params.real, i));
+            }
+        }
+        c = ++c % 60;
+        let obj = makePoints(vertices, c);
+        sceneInfo.addObject(obj);
+        sceneInfo.render();
+        busy = false;
+    }
+
+    let nth = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        if (doLoop && !busy && nth++ % 5 === 0) {
+            loop();
+            nth = 1;
+        }
+        sceneInfo.render();
+        // group.rotation.y += 0.001;
+    }
+
+    function reset() {
+        console.log(cacheEfficiency);
+        cache = {};
+        cacheKeys = [];
+        updateParams();
+        sceneInfo.clear();
+        addPoints();
+    }
+
+    function hasChanged() {
+        console.log(cacheEfficiency);
+        updateParams();
+        sceneInfo.clear();
+        addPoints();
+    }
+
+    function updateParams() {
+        params = {
+            scale: gui.controllers.ctrlScale.getValue(),
+            offset: gui.controllers.ctrlOffset.getValue(),
+            difference: gui.controllers.ctrlDiffs.getValue(),
+            real: gui.controllers.ctrlReal.getValue(),
+            imInc1: gui.controllers.ctrlImInc1.getValue(),
+            imInc2: gui.controllers.ctrlImInc2.getValue(),
+            imInc3: gui.controllers.ctrlImInc3.getValue(),
+            baseFactor: gui.controllers.ctrlBaseFactor.getValue(),
+            points: gui.controllers.ctrlPoints.getValue(),
+        };
+    }
+
+    function update() {
+        updateParams();
+        sceneInfo.scale(params.scale);
+        sceneInfo.render();
+    }
+
+    function popGui(gui) {
+        gui.options.load = gui.parameters;
+        const datGui = new dat.GUI(gui.options);
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.05).onChange(update);
+        gui.controllers.ctrlOffset = datGui.add(gui.parameters, 'Im Start', 2, 120, 0.1).onFinishChange(hasChanged);
+        gui.controllers.ctrlDiffs = datGui.add(gui.parameters, 'Im Range', 1, 10, 0.1).onFinishChange(hasChanged);
+        gui.controllers.ctrlReal = datGui.add(gui.parameters, 'Real', 0, 1, 0.05).onFinishChange(reset);
+        gui.controllers.ctrlImInc1 = datGui.add(gui.parameters, 'Im Inc 1', 0, 2, 0.1).onFinishChange(hasChanged);
+        gui.controllers.ctrlImInc2 = datGui.add(gui.parameters, 'Im Inc 2', 0, 0.1, 0.01).onFinishChange(hasChanged);
+        gui.controllers.ctrlImInc3 = datGui.add(gui.parameters, 'Im Inc 3', 0, 0.01, 0.001).onFinishChange(hasChanged);
+        gui.controllers.ctrlBaseFactor = datGui.add(gui.parameters, 'Base Factor', 0.9, 2, 0.005).onFinishChange(reset);
+        gui.controllers.ctrlPoints = datGui.add(gui.parameters, 'Points', 2, 500, 1).onFinishChange(reset);
+    }
+
+    let params = {
+        scale: 0,
+        offset: 0,
+        difference: 0,
+        real: 0,
+        imInc1: 0,
+        imInc2: 0,
+        imInc3: 0,
+        baseFactor: 1,
+        points: 500
+    };
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        controllers: {
+            ctrlScale: null,
+            ctrlOffset: null,
+            ctrlDiffs: null,
+            ctrlReal: null,
+            ctrlImInc1: null,
+            ctrlImInc2: null,
+            ctrlImInc3: null,
+            ctrlBaseFactor: null,
+            ctrlPoints: null
+        },
+        parameters: {
+            'Scale': 1.5,
+            'Im Start': 35,
+            'Im Range': 5,
+            'Real': 0.5,
+            'Im Inc 1': 0,
+            'Im Inc 2': 0.05,
+            'Im Inc 3': 0.00,
+            'Base Factor': 1.00,
+            'Points': 100
+        }
+    };
+
+    let doLoop = false;
+    popGui(gui);
+    updateParams();
+    initScene();
+    addPoints();
+    animate();
+
+</script>
+
+</body>
+</html>

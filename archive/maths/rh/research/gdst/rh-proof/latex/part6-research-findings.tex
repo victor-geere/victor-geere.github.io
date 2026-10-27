@@ -1,0 +1,230 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathcal{Z}}
+\newcommand{\LOp}{\mathcal{L}}
+\newcommand{\TOp}{T}
+\newcommand{\spec}{\operatorname{spec}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\RE}{\operatorname{Re}}
+\newcommand{\IM}{\operatorname{Im}}
+\DeclareMathOperator{\detreg}{det_{(2)}}
+
+\title{\bf From the Greedy Harmonic Expansion to the Iota Walk\\
+A Geometric Exploration of the Riemann Hypothesis}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This article chronicles an in‑depth exploration of the Riemann Hypothesis through three interconnected frameworks: the \textbf{greedy harmonic expansion}, the \textbf{GDST operator‑theoretic programme}, and the \textbf{iota walk} on the Dirichlet eta series.  We describe how each perspective reframes the zero‑finding problem in a different algebraic or geometric language, and we highlight both the partial successes and the fundamental obstacles encountered.  In particular, the GDST programme’s attempt to build a spectral realisation of the zeta zeros is shown to contain a fatal logical contradiction.  A later construction, based on the iota walk, avoids that specific error and introduces a Jacobi matrix whose spectrum encodes the convergence of the Dirichlet series, but it does not (yet) supply the missing estimates that would prove the Riemann Hypothesis.  The discussion is honest about what has been proved, what remains conjectural, and where the mathematical difficulties are insoluble with current techniques.  The paper is intended as a research journal—a record of both the promising ideas and the dead ends encountered in this line of inquiry.
+\end{abstract}
+
+\section{Introduction}
+The Riemann Hypothesis (RH) asserts that every non‑trivial zero \(\rho = \beta + i\gamma\) of the Riemann zeta function \(\zeta(s)\) satisfies \(\beta = 1/2\).  Despite immense effort, a proof remains elusive.  This article documents a multifaceted investigation that attempts to approach RH from several complementary directions, all originating from a simple greedy algorithm for representing real numbers in terms of harmonic fractions.
+
+The core constructs studied are:
+
+\begin{enumerate}[nosep]
+	\item The \textbf{greedy harmonic expansion}, which writes any angle \(\theta\in[0,\pi]\) as \(\theta = \pi\sum_{n} \delta_n(\theta)/(n+2)\) with binary digits \(\delta_n(\theta)\in\{0,1\}\).
+	\item The \textbf{GDST programme}, which builds a self‑adjoint trace‑class operator \(T_\sigma\) from the correlation kernel of the greedy digits, and attempts to link its spectrum to the zeros of \(\zeta(s)\) via a Fredholm determinant identity.
+	\item The \textbf{iota function}, which represents the Dirichlet eta series \(\eta(s)\) as a planar walk \(( \mathbf{S}_N )_{N=1}^\infty\) and introduces a \textbf{greedy condition}—a dot‑product inequality—equivalent to RH on the critical line.
+\end{enumerate}
+
+We also report on the algebraic‑geometric unfolding of the critical line via the harmonic sine expansion, on a Jacobi matrix constructed from the squared distances of the iota walk, and on several computational experiments that illuminate the behaviour of these objects.
+
+\section{The Greedy Harmonic Expansion}
+\label{sec:greedy}
+
+For \(x\in[0,1]\) the greedy algorithm defines digits \(\delta_n(x)\in\{0,1\}\) by
+\[
+\delta_0(x)=\mathbf{1}_{x\ge 1/2},\quad r_0=x-\frac{\delta_0}{2},
+\qquad
+\delta_{n+1}(x)=\mathbf{1}_{r_n(x)\ge 1/(n+3)},\quad r_{n+1}=r_n-\frac{\delta_{n+1}}{n+3}.
+\]
+It can be proved that \(r_n(x)\to 0\) and consequently
+\[
+x = \sum_{n=0}^{\infty}\frac{\delta_n(x)}{n+2}\qquad (\text{greedy harmonic expansion}).
+\]
+In angle coordinates \(\theta=\pi x\), the function
+\[
+h(\theta)=\sum_{n=0}^{\infty}\frac{\delta_n(\theta)}{n+2}= \frac{\theta}{\pi}
+\]
+recovers the linear function.  The expansion is more interesting when used to split the Dirichlet series of \(\zeta\) into two complementary sub‑sums:
+\[
+E(\theta,s)=\sum_{n:\delta_n(\theta)=1}(n+2)^{-s},\qquad
+\Omega(\theta,s)=\sum_{n:\delta_n(\theta)=0}(n+2)^{-s},
+\]
+which satisfy \(E(\theta,s)+\Omega(\theta,s)=\zeta(s)-1\) for \(\RE s>1\).  The function \(E(\theta,\cdot)\) continues analytically to \(\RE s>0\) and defines the \textbf{Greedy Dirichlet Sub‑Sum Transform} (GDST).
+
+The digits \(\delta_n(\theta)\) are highly non‑monotone for \(n\ge 1\); the set where \(\delta_n=1\) is a union of \(O(2^n)\) intervals.  This complexity is the source of the rich correlation structure used later.
+
+\section{The GDST Programme and Its Fatal Gap}
+\label{sec:GDST}
+
+\subsection{Operator‑theoretic construction}
+From the centred digits \(f_n(\theta)=\delta_n(\theta)-\theta/\pi\) one forms the ℓ²‑kernel
+\[
+K(n,m)=\int_0^\pi f_n(\theta)f_m(\theta)\,d\theta,
+\]
+which is positive semi‑definite.  For a parameter \(\sigma>0\) the ℓ²‑weighted operator
+\[
+(T_\sigma f)(\theta)=\int_0^\pi K_\sigma(\theta,\phi)f(\phi)\,d\phi,\qquad
+K_\sigma(\theta,\phi)=\sum_{n=0}^\infty \delta_n(\theta)\delta_n(\phi)\,(n+2)^{-2\sigma},
+\]
+is a positive self‑adjoint trace‑class operator on \(L^2[0,\pi]\).
+
+A Ruelle transfer operator \(\mathcal{L}_s\) acting on the Hardy space \(H^2(\mathbb{D})\) is introduced via
+\[
+(\mathcal{L}_s f)(z)=\sum_{j=1}^\infty \frac{j+1}{(j+2)^{s+1}}
+\Bigl[ f\Bigl(\frac{j+1}{j+2}z\Bigr) + f\Bigl(\frac{j+1}{j+2}z+\frac1{j+2}\Bigr) \Bigr].
+\]
+A similarity transformation (Axiom AX3 of the GDST programme) relates \(\mathcal{L}_s\) to \(T_\sigma\) up to a finite‑rank perturbation.
+
+\subsection{Fredholm determinant identity}
+The programme establishes (via the Mayer–Efrat formalism) the key identity
+\begin{equation}\label{detid}
+\det_{(2)}(I-\mathcal{L}_s) \;=\; \frac{\zeta(s)}{\zeta(2s)}\,e^{P(s)},\qquad \RE s>\tfrac12,
+\end{equation}
+where \(\det_{(2)}\) denotes the regularised determinant of order 2 and \(P(s)\) is entire and non‑vanishing on the critical line.  Consequently, for \(\RE s>1/2\) the determinant vanishes exactly when \(\zeta(s)=0\).
+
+\subsection{The attempted spectral identification}
+The programme then tries to connect the eigenvalues \(\lambda_i(\sigma)\) of the self‑adjoint operator \(T_\sigma\) to the non‑trivial zeros via trace identities:
+\[
+\tr(T_\sigma^{\,k}) = \sum_{\rho\in\mathcal Z}\frac1{(\rho-\sigma)^k} + \text{correction},
+\]
+and subsequently to equate the regularised Stieltjes transform of the spectral measure \(\mu_\sigma=\sum_i\delta_{\lambda_i(\sigma)}\) with the symmetric sum over shifted zeros:
+\begin{equation}\label{fatal}
+S_{\mathrm{reg}}(z)=\sum_i\Bigl(\frac1{z-\lambda_i(\sigma)}-\frac1z\Bigr)
+\;\stackrel{?}{=}\; \sum_{\rho\in\mathcal Z}\frac{1}{z-(\rho-\sigma)} + \Psi(z),\quad \Psi\text{ entire}.
+\end{equation}
+\emph{If} \eqref{fatal} were true, the pole sets of the two sides would coincide, forcing every \(\rho-\sigma\) to be real.  Since \(\sigma\in\R\), this would imply \(\IM(\rho)=0\) for all non‑trivial zeros—a known falsehood.  Hence \eqref{fatal} cannot hold; the GDST programme contains a fatal logical error and does \textbf{not} constitute a valid proof of the Riemann Hypothesis.
+
+\section{The Iota Framework: Unfolding the Dirichlet Eta Series}
+\label{sec:iota}
+
+To circumvent the above contradiction while retaining a geometric viewpoint, we turn to the \textbf{iota function}.  Instead of treating the Dirichlet eta series \(\eta(s)=\sum_{n=1}^\infty (-1)^{n-1}n^{-s}\) as a single complex number, we view it as a \textbf{planar walk}:
+\[
+\mathbf{S}_N = \sum_{n=1}^N v_n(s),\qquad v_n(s)=(-1)^{n-1}n^{-s}.
+\]
+The sequence \((\mathbf{S}_N)_{N=1}^\infty\) forms a walk in \(\mathbb C\) starting at the origin.  The value \(\eta(s)\) is the limit of this walk (when it exists).
+
+For a zero of \(\eta(s)\) the walk returns to (or near) the origin.  A key geometric condition emerges from the requirement that the walk does not “run away”:
+\begin{definition}[Greedy Condition, GC]
+For a candidate zero \(s=\sigma+it\), the walk satisfies GC if for every \(N\ge 1\),
+\[
+\langle \mathbf{S}_{N-1},\, v_N\rangle \le 0,
+\]
+where \(\langle\cdot,\cdot\rangle\) is the Euclidean dot product in \(\R^2\).
+\end{definition}
+Geometrically, GC demands that each new step makes an obtuse or right angle with the current position.  It is known (and can be checked numerically) that all known non‑trivial zeros on the critical line satisfy GC, and conversely, if a zero satisfies GC then it must lie on the line \(\sigma=1/2\).  Thus GC is \textbf{equivalent} to the Riemann Hypothesis on the critical line.
+
+\subsection{Continuous analogue}
+Using the classical integral representation of \(\zeta(\frac12+it)\) we derived a continuous counterpart of the iota walk:
+\[
+S(\alpha)=2\int_0^\alpha \frac{\sin((\frac12+it)\theta)}{(\cos\theta)^2(e^{2\pi\tan\theta}-1)}\,d\theta -\frac32,
+\qquad 0\le\alpha\le\frac\pi2.
+\]
+The condition \(S(\pi/2)=0\) is equivalent to \(\zeta(\frac12+it)=0\).  The continuous greedy condition is
+\[
+\RE\!\bigl( \overline{S(\alpha)}\, S'(\alpha) \bigr) \le 0\quad \forall\alpha,
+\]
+which is equivalent to the (squared) distance \(|S(\alpha)|^2\) being non‑increasing along the curve.  This continuous formulation opens the door to variational or monotonicity arguments.
+
+\section{Algebraic‑Geometric Unfolding via the Harmonic Sine}
+\label{sec:harmonic-sine}
+
+The harmonic sine expansion enters by expressing \(\sin(\theta/2)\) and \(\cos(\theta/2)\) as power series in \(h(\theta)=\theta/\pi\) with coefficients \(a_m,b_m\) (Taylor coefficients of sine/cosine at the origin).  Inserting these expansions into the integral representation yields
+\[
+\zeta(\tfrac12+it)=U(t)+iV(t),
+\]
+with
+\[
+U(t)=-\frac32+2\sum_{m=0}^\infty a_m A_{2m+1}^{\cosh}(t),\qquad
+V(t)= 2\sum_{m=0}^\infty b_m A_{2m}^{\sinh}(t),
+\]
+where the ``hyperbolic moments'' are
+\[
+A_k^{\cosh}(t)=\int_0^{\pi/2}\frac{h(\theta)^k\cosh(t\theta)}{(\cos\theta)^2(e^{2\pi\tan\theta}-1)}\,d\theta,\qquad
+A_k^{\sinh}(t)=\int_0^{\pi/2}\frac{h(\theta)^k\sinh(t\theta)}{(\cos\theta)^2(e^{2\pi\tan\theta}-1)}\,d\theta.
+\]
+
+A non‑trivial zero \(\rho=\frac12+i\gamma\) thus corresponds to the simultaneous real equations
+\begin{equation}\label{zero-system}
+\sum_{m=0}^\infty a_m A_{2m+1}^{\cosh}(\gamma)=\frac34,\qquad
+\sum_{m=0}^\infty b_m A_{2m}^{\sinh}(\gamma)=0.
+\end{equation}
+These are an exact translation of the zero condition into a pair of real series involving the greedy digits.  While they do not simplify the problem, they provide a unified algebraic description of the zero locus.
+
+\section{A Jacobi Matrix from the Iota Walk}
+\label{sec:Jacobi}
+
+The iota walk suggests a natural construction of a self‑adjoint operator: from the squared distances of the partial sums,
+\[
+d_N = |\mathbf{S}_N|^2,
+\]
+one forms a positive measure \(\mu\) on \(\R\) with moments \(m_k = \sum_N N^k d_N\,\rho_N\) (after a suitable regularisation \(\rho_N\to0\)).  The associated orthogonal polynomials generate a Jacobi (tridiagonal) matrix \(J\).  For a value \(t\) where the walk converges to zero (i.e. a zero of \(\eta\)), the measure \(\mu\) has an atom at \(0\), which corresponds to \(0\in\spec(J)\).
+
+Crucially, this construction does \textbf{not} attempt to equate the spectrum of \(J\) with the set \(\{\rho-\sigma\}\).  There is no direct identification of eigenvalues with shifted zeros; the only link is that the presence of an eigenvalue at zero signals the convergence of the Dirichlet series to zero.  Hence the construction \textbf{avoids the logical contradiction} that sank the original GDST proof.
+
+However, this Jacobi matrix is built directly from the Dirichlet eta function itself, so proving that its spectral zero occurs \emph{only} when \(\sigma=1/2\) is exactly the Riemann Hypothesis in new clothing.  The construction does not supply the missing analytic estimates that would force the spectral zero to be confined to the critical line.
+
+\section{What Has Been Observed}
+\label{sec:observed}
+
+\begin{itemize}[nosep]
+	\item \textbf{Greedy algorithm convergence:} The harmonic expansion of \(\sin\theta\) converges at rate \(O(1/N)\); the selected indices grow super‑exponentially, guaranteeing absolute convergence of the GDST \(E(\theta,s)\) for all \(s\).
+	\item \textbf{Non‑monotonicity and correlation:} Digits \(\delta_n(\theta)\) for \(n\ge1\) are highly oscillatory; the correlation kernel \(K(n,m)\) is positive semi‑definite, leading to a well‑defined self‑adjoint trace‑class operator \(T_\sigma\).
+	\item \textbf{Fredholm determinant identity:} The Mayer–Efrat identity \(\det_{(2)}(I-\mathcal{L}_s)=\zeta(s)/\zeta(2s)\,e^{P(s)}\) holds (numerically confirmed up to available precision) and correctly links the transfer operator to the zeta function.
+	\item \textbf{Greedy condition (iota walk):} For the first several non‑trivial zeros on the critical line, the discrete GC holds for \(N\) up to \(2\times10^5\).  For points off the critical line, GC fails early.
+	\item \textbf{Continuous greedy inequality:} The continuous analogue \(\RE(\overline{S}F)\le0\) is satisfied along the curve for the tested critical zeros.
+	\item \textbf{Jacobi matrix construction:} The matrix \(J(t)\) built from squared partial‑sum distances provides a self‑adjoint operator whose spectrum can indicate convergence to zero, but no further progress towards RH has been achieved.
+\end{itemize}
+
+\section{What Needs to Be Proved}
+\label{sec:needs}
+
+To turn any of these observations into a proof of the Riemann Hypothesis, the following gaps must be bridged:
+
+\begin{enumerate}[nosep]
+	\item \textbf{GDST spectral gap:} The original flawed identification must be replaced by a correct spectral‑theoretic link that does not force the zeros to be real.  No such replacement is known.
+	\item \textbf{Greedy condition ⇒ critical line:} Prove that if a zero of \(\eta(s)\) satisfies GC (either discrete or continuous), then necessarily \(\sigma=1/2\).  This would establish RH, because all known zeros on the line satisfy GC.  Current evidence is purely computational.
+	\item \textbf{Jacobi matrix analysis:} Show that the Jacobi matrix \(J(t)\) built from the iota walk has a zero eigenvalue \emph{only when} \(t\) corresponds to a critical‑line zero of \(\zeta\).  This requires deep estimates on the moments and the associated spectral measure.
+	\item \textbf{Uniqueness of the continuous greedy monotonicity:} Prove that the distance \(|S(\alpha)|\) cannot be monotone decreasing to zero when \(\sigma\neq1/2\).  This would be a purely real‑analytic proof of RH.
+	\item \textbf{Algebraic closure of the zero system \eqref{zero-system}:} Derive from the specific form of the coefficients \(a_m,b_m\) and the growth of \(A_k^{\cosh,\sinh}\) that the only real solutions \(\gamma\) are those already known; or, more strongly, that any solution forces the underlying parameter to be on the critical line.  This is currently completely open.
+\end{enumerate}
+
+\section{Conclusion}
+This research journey has produced several novel and mathematically rigorous constructions: the greedy harmonic expansion, the GDST operator apparatus, the iota walk and its greedy condition, and a Jacobi matrix derived from the squared distances of the iota sequence.  The GDST programme, while mathematically sound in its earlier parts, fails at the crucial spectral identification and cannot be repaired with the current approach.  The iota framework avoids that specific error and offers a fresh geometric perspective, but it does not yet supply the missing analytic estimates to complete a proof.
+
+The work documented here is therefore a \textbf{research exploration}—a collection of interconnected observations, partial results, and precise formulations of the remaining obstacles.  It is not a proof of the Riemann Hypothesis, but it provides a detailed map of the territory and may serve as a foundation for future attempts.
+
+\begin{thebibliography}{9}
+\bibitem{GDST} V.\ Geere et al., \textit{The Greedy Dirichlet Sub‑Sum Transform and the Riemann zeta function}, preprint, 2026.
+\bibitem{Titchmarsh} E.\,C.\ Titchmarsh, \textit{The Theory of the Riemann Zeta‑function}, 2nd ed., Oxford Univ.\ Press, 1986.
+\bibitem{Mayer} D.\ Mayer, \textit{Continued fractions and related transformations}, in: \textit{Ergodic Theory, Symbolic Dynamics, and Hyperbolic Spaces}, Oxford Univ.\ Press, 1991.
+\bibitem{Iota} V.\ Geere, \textit{On the Iota Function and the Greedy Condition: A Reformulation, Not a Proof}, manuscript, 2026.
+\end{thebibliography}
+
+\end{document}

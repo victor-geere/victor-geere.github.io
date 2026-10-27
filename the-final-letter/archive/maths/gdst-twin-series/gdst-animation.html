@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGDST • Removal Greedy Dirichlet Sub‑Sum Transform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap');
+        
+        :root {
+            --bg: #e0e5ec;
+            --shadow-dark: #a3a9b0;
+            --shadow-light: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: #2c3e50;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .title-card {
+            background: var(--bg);
+            border-radius: 24px;
+            padding: 24px 40px;
+            box-shadow: 
+                12px 12px 24px var(--shadow-dark),
+                -12px -12px 24px var(--shadow-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .title-card h1 {
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            color: #2c3e50;
+        }
+        
+        .subtitle {
+            font-size: 15px;
+            color: #7f8c9e;
+            font-weight: 400;
+        }
+        
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .panel {
+            background: var(--bg);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 
+                12px 12px 24px var(--shadow-dark),
+                -12px -12px 24px var(--shadow-light);
+            flex: 1;
+            min-width: 380px;
+        }
+        
+        .panel-header {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .panel-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .value {
+            font-family: monospace;
+            background: #f0f3f8;
+            padding: 2px 8px;
+            border-radius: 12px;
+            box-shadow: 
+                inset 3px 3px 6px #d0d4db,
+                inset -3px -3px 6px #ffffff;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            background: var(--bg);
+            border-radius: 9999px;
+            box-shadow: 
+                inset 4px 4px 8px var(--shadow-dark),
+                inset -4px -4px 8px var(--shadow-light);
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #3498db;
+            border-radius: 50%;
+            box-shadow: 
+                4px 4px 8px var(--shadow-dark),
+                -4px -4px 8px var(--shadow-light);
+            cursor: pointer;
+            border: 3px solid #e0e5ec;
+        }
+        
+        .canvas-container {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 
+                12px 12px 24px var(--shadow-dark),
+                -12px -12px 24px var(--shadow-light);
+            background: #1e2937;
+        }
+        
+        .info-bar {
+            margin-top: 16px;
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 16px 24px;
+            box-shadow: 
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+            font-family: monospace;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .complex-value {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 13px;
+            color: #7f8c9e;
+            text-align: center;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .three-container {
+            width: 100%;
+            height: 460px;
+        }
+        
+        .complex-canvas {
+            width: 100%;
+            height: 220px;
+            background: #1e2937;
+            border-radius: 16px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .toggle-group {
+            display: flex;
+            background: var(--bg);
+            border-radius: 9999px;
+            padding: 4px;
+            box-shadow: 
+                inset 4px 4px 8px var(--shadow-dark),
+                inset -4px -4px 8px var(--shadow-light);
+            margin-top: 24px;
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .toggle-btn.active {
+            background: #e0e5ec;
+            box-shadow: 
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+            color: #3498db;
+        }
+        
+        .mode-badge {
+            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            background: #3498db;
+            color: white;
+            box-shadow: 3px 3px 6px rgba(52, 152, 219, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title-card">
+            <div style="font-size: 32px; color: #3498db;">📐</div>
+            <div>
+                <h1>RGDST Visualizer</h1>
+                <p class="subtitle">Removal Greedy Dirichlet Sub‑Sum Transform • E<sup>rem</sup>(θ, s)</p>
+            </div>
+            <div style="font-size: 32px; color: #e74c3c;">ζ</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 3D Visualization Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Input → Greedy Selection (Harmonic Fractions α<sub>n</sub> = π/(n+2))</h2>
+                <span id="mode-badge" class="mode-badge">SUBTRACTIVE (NEW)</span>
+            </div>
+            
+            <div class="canvas-container">
+                <div id="three-container" class="three-container"></div>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="dot" style="background: #2ecc71;"></div>
+                    <span>Kept δ<sub>n</sub><sup>rem</sup>(θ) = 1</span>
+                </div>
+                <div class="legend-item">
+                    <div class="dot" style="background: #95a5a6;"></div>
+                    <span>Removed δ<sub>n</sub><sup>rem</sup>(θ) = 0</span>
+                </div>
+                <div style="margin-left: auto; font-size: 13px; color: #7f8c9e;">
+                    Removal-greedy on full series
+                </div>
+            </div>
+            
+            <!-- Toggle between original additive and new subtractive -->
+            <div class="toggle-group" id="mode-toggle">
+                <button id="additive-btn" class="toggle-btn">Additive Greedy (Original GDST)</button>
+                <button id="subtractive-btn" class="toggle-btn active">Subtractive Greedy (RGDST — New)</button>
+            </div>
+            
+            <!-- Input slider -->
+            <div class="slider-group" style="margin-top: 24px;">
+                <div class="slider-label">
+                    <span>Input angle θ</span>
+                    <span class="value" id="theta-value">1.5708</span>
+                </div>
+                <input type="range" id="theta-slider" min="0" max="3.1416" step="0.001" value="1.5708">
+            </div>
+            
+            <div style="margin-top: 12px; font-size: 13px; color: #7f8c9e; line-height: 1.4;">
+                <strong>New variant (subtractive):</strong> Start with the full series (all δ<sub>n</sub> = 1). Sequentially remove terms starting from the largest (n = 0) whenever the remaining sum still satisfies ≥ θ. This produces a non-consecutive selection pattern that prefers keeping smaller terms when possible.
+            </div>
+        </div>
+
+        <!-- Output & Controls Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2>Output • E(θ, s) (Removal Greedy Sub-Sum)</h2>
+                <span style="font-size: 13px; background: #e0e5ec; padding: 4px 12px; border-radius: 9999px; box-shadow: inset 2px 2px 4px #bebebe, inset -2px -2px 4px #fff;">Dirichlet sub-sum</span>
+            </div>
+            
+            <!-- Complex plane -->
+            <div style="margin-bottom: 24px;">
+                <div style="font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #2c3e50;">Complex plane of E(θ, s)</div>
+                <canvas id="complex-canvas" class="complex-canvas" width="520" height="220"></canvas>
+            </div>
+            
+            <!-- Parameter controls -->
+            <div class="controls">
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Re(s)</span>
+                        <span class="value" id="res-value">1.5</span>
+                    </div>
+                    <input type="range" id="re-slider" min="0.1" max="3" step="0.01" value="1.5">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Im(s)</span>
+                        <span class="value" id="ims-value">0.0</span>
+                    </div>
+                    <input type="range" id="im-slider" min="-25" max="25" step="0.1" value="0">
+                </div>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Number of terms (N)</span>
+                        <span class="value" id="n-value">40</span>
+                    </div>
+                    <input type="range" id="n-slider" min="10" max="80" step="2" value="40">
+                </div>
+            </div>
+            
+            <!-- Numerical output -->
+            <div class="info-bar">
+                <div>
+                    <strong>E(θ, s) ≈</strong>
+                    <span id="e-real" style="font-family: monospace; margin-left: 8px;">0.0000</span> 
+                    + 
+                    <span id="e-imag" style="font-family: monospace;">0.0000</span>i
+                </div>
+                <div>
+                    <strong>|E|</strong> 
+                    <span id="e-mag" style="font-family: monospace; margin-left: 8px;">0.0000</span>
+                </div>
+                <div>
+                    <strong>arg(E)</strong> 
+                    <span id="e-arg" style="font-family: monospace; margin-left: 8px;">0.000°</span>
+                </div>
+                <div style="font-size: 13px; color: #7f8c9e;">
+                    Selected terms: <span id="selected-count" style="font-family: monospace;">18</span> / <span id="total-n" style="font-family: monospace;">40</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 12px; font-size: 13px; line-height: 1.4; color: #7f8c9e;">
+                The RGDST E(θ, s) is now computed using the new <strong>removal-greedy</strong> digits as requested: the full series is taken as the starting point and terms are removed sequentially (starting from n=0) whenever the remaining harmonic sum still satisfies ≥ θ. The resulting sub-sum is visualized in 3D and its value in the complex plane.
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Interactive demonstration of the new <strong>Removal Greedy Dirichlet Sub‑Sum Transform (RGDST)</strong> variant.<br>
+        Original additive greedy can be toggled for direct comparison. The removal process directly implements the user-specified algorithm on the harmonic fractions α<sub>n</sub> = π/(n+2).
+    </div>
+
+    <script>
+        // =============== THREE.JS SETUP ===============
+        let scene, camera, renderer;
+        let bars = [];
+        let termMeshes = [];
+        let N = 40;
+        let theta = Math.PI / 2;
+        let reS = 1.5;
+        let imS = 0.0;
+        let currentMode = 'subtractive'; // default = new removal-greedy variant
+        
+        function initThree() {
+            const container = document.getElementById('three-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1e2937);
+            
+            camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 8, 35);
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+            
+            // Lights
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambient);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(15, 25, 20);
+            scene.add(dirLight);
+            const dirLight2 = new THREE.DirectionalLight(0x3498db, 0.8);
+            dirLight2.position.set(-20, 10, -15);
+            scene.add(dirLight2);
+            
+            // Floor grid
+            const grid = new THREE.GridHelper(60, 20, 0x334155, 0x334155);
+            grid.position.y = -0.5;
+            grid.material.opacity = 0.15;
+            grid.material.transparent = true;
+            scene.add(grid);
+            
+            createBars();
+            animate();
+        }
+        
+        function createBars() {
+            bars.forEach(b => scene.remove(b));
+            termMeshes = [];
+            bars = [];
+            
+            const barWidth = 0.8;
+            const spacing = 1.4;
+            const startX = - (N - 1) * spacing / 2;
+            
+            for (let n = 0; n < N; n++) {
+                const geometry = new THREE.BoxGeometry(barWidth, 1, barWidth);
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0x95a5a6,
+                    shininess: 30,
+                    flatShading: true
+                });
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.position.x = startX + n * spacing;
+                mesh.position.y = 0.5;
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                scene.add(mesh);
+                
+                termMeshes.push(mesh);
+                bars.push(mesh);
+            }
+        }
+        
+        // =============== GREEDY ALGORITHMS (using α_n = π/(n+2)) ===============
+        function computeDeltaAdditive(thetaVal, maxN) {
+            const alpha = new Array(maxN);
+            let current = 0;
+            const delta = new Array(maxN).fill(0);
+            
+            for (let n = 0; n < maxN; n++) {
+                alpha[n] = Math.PI / (n + 2);
+                if (current + alpha[n] <= thetaVal) {
+                    delta[n] = 1;
+                    current += alpha[n];
+                }
+            }
+            return delta;
+        }
+        
+        function computeDeltaSubtractive(thetaVal, maxN) {
+            // Removal-greedy: start with full sum, remove largest terms (n=0 first) if remaining >= θ
+            const alpha = new Array(maxN);
+            let current = 0;
+            for (let n = 0; n < maxN; n++) {
+                alpha[n] = Math.PI / (n + 2);
+                current += alpha[n];
+            }
+            
+            const delta = new Array(maxN).fill(1);
+            
+            for (let n = 0; n < maxN; n++) {
+                if (current - alpha[n] >= thetaVal) {
+                    delta[n] = 0;
+                    current -= alpha[n];
+                }
+            }
+            return delta;
+        }
+        
+        function getCurrentDelta(thetaVal, maxN) {
+            if (currentMode === 'additive') {
+                return computeDeltaAdditive(thetaVal, maxN);
+            } else {
+                return computeDeltaSubtractive(thetaVal, maxN);
+            }
+        }
+        
+        function updateBars() {
+            const delta = getCurrentDelta(theta, N);
+            let selectedCount = 0;
+            
+            for (let n = 0; n < N; n++) {
+                const mesh = termMeshes[n];
+                if (!mesh) continue;
+                
+                // Compute term magnitude for height (independent of selection)
+                const base = n + 2;
+                const logBase = Math.log(base);
+                const mag = Math.pow(base, reS) * Math.exp(-imS * logBase);
+                const height = Math.max(0.2, Math.min(18, 1 / mag * 4));
+                
+                mesh.scale.y = height;
+                mesh.position.y = height / 2;
+                
+                // Color according to greedy digits
+                if (delta[n] === 1) {
+                    mesh.material.color.setHex(0x2ecc71);
+                    selectedCount++;
+                } else {
+                    mesh.material.color.setHex(0x95a5a6);
+                }
+            }
+            
+            document.getElementById('selected-count').textContent = selectedCount;
+            document.getElementById('total-n').textContent = N;
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            if (bars.length) {
+                const groupAngle = Date.now() * 0.0003;
+                scene.rotation.y = Math.sin(groupAngle) * 0.08;
+            }
+            renderer.render(scene, camera);
+        }
+        
+        // =============== COMPLEX ARITHMETIC ===============
+        function complexPow(base, re, im) {
+            if (base <= 0) return { re: 0, im: 0 };
+            const ln = Math.log(base);
+            const angle = im * ln;
+            const modulus = Math.pow(base, re);
+            return {
+                re: modulus * Math.cos(angle),
+                im: modulus * Math.sin(angle)
+            };
+        }
+        
+        function computeE(thetaVal, reVal, imVal, maxN) {
+            const delta = getCurrentDelta(thetaVal, maxN);
+            let sumRe = 0;
+            let sumIm = 0;
+            
+            for (let n = 0; n < maxN; n++) {
+                if (delta[n] === 1) {
+                    const term = complexPow(n + 2, reVal, imVal);
+                    sumRe += term.re;
+                    sumIm += term.im;
+                }
+            }
+            return { re: sumRe, im: sumIm };
+        }
+        
+        function drawComplexPlane(e) {
+            const canvas = document.getElementById('complex-canvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.clearRect(0, 0, w, h);
+            
+            // Background grid
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            for (let x = 40; x < w; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = 40; y < h; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+            
+            // Axes
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, h / 2);
+            ctx.lineTo(w, h / 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(w / 2, 0);
+            ctx.lineTo(w / 2, h);
+            ctx.stroke();
+            
+            // Labels
+            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '12px monospace';
+            ctx.fillText('Re', w - 30, h / 2 + 18);
+            ctx.fillText('Im', w / 2 + 8, 18);
+            ctx.fillText('0', w / 2 + 4, h / 2 + 14);
+            
+            // Vector
+            const scale = Math.min(w, h) / 2 * 0.75;
+            const ex = w / 2 + e.re * scale;
+            const ey = h / 2 - e.im * scale;
+            
+            ctx.strokeStyle = '#e74c3c';
+            ctx.setLineDash([3, 2]);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(w / 2, h / 2);
+            ctx.lineTo(ex, ey);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Arrow
+            ctx.fillStyle = '#e74c3c';
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2.5;
+            const angle = Math.atan2(ey - h / 2, ex - w / 2);
+            ctx.beginPath();
+            ctx.moveTo(ex, ey);
+            ctx.lineTo(ex - 12 * Math.cos(angle - Math.PI / 6), ey - 12 * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(ex, ey);
+            ctx.lineTo(ex - 12 * Math.cos(angle + Math.PI / 6), ey - 12 * Math.sin(angle + Math.PI / 6));
+            ctx.stroke();
+            
+            // Point
+            ctx.fillStyle = '#3498db';
+            ctx.beginPath();
+            ctx.arc(ex, ey, 7, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Magnitude circle
+            const mag = Math.sqrt(e.re * e.re + e.im * e.im);
+            ctx.strokeStyle = 'rgba(52, 152, 219, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(w / 2, h / 2, Math.min(mag * scale, Math.min(w, h) / 2 - 10), 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        // =============== UI UPDATES ===============
+        function updateVisualization() {
+            theta = parseFloat(document.getElementById('theta-slider').value);
+            reS = parseFloat(document.getElementById('re-slider').value);
+            imS = parseFloat(document.getElementById('im-slider').value);
+            N = parseInt(document.getElementById('n-slider').value);
+            
+            // Update displayed values
+            document.getElementById('theta-value').textContent = theta.toFixed(4);
+            document.getElementById('res-value').textContent = reS.toFixed(2);
+            document.getElementById('ims-value').textContent = imS.toFixed(1);
+            document.getElementById('n-value').textContent = N;
+            
+            // Rebuild bars if N changed
+            if (termMeshes.length !== N) {
+                createBars();
+            }
+            
+            updateBars();
+            
+            // Compute E using current mode's delta
+            const E = computeE(theta, reS, imS, N);
+            
+            // Update numerical display
+            document.getElementById('e-real').textContent = E.re.toFixed(4);
+            document.getElementById('e-imag').textContent = E.im.toFixed(4);
+            const mag = Math.sqrt(E.re * E.re + E.im * E.im);
+            document.getElementById('e-mag').textContent = mag.toFixed(4);
+            const argDeg = (Math.atan2(E.im, E.re) * 180 / Math.PI + 360) % 360;
+            document.getElementById('e-arg').textContent = argDeg.toFixed(1) + '°';
+            
+            // Draw complex plane
+            drawComplexPlane(E);
+            
+            // Update mode badge
+            document.getElementById('mode-badge').textContent = currentMode.toUpperCase();
+        }
+        
+        // =============== INITIALIZATION ===============
+        function initialize() {
+            initThree();
+            
+            // Mode toggle
+            const additiveBtn = document.getElementById('additive-btn');
+            const subtractiveBtn = document.getElementById('subtractive-btn');
+            
+            additiveBtn.addEventListener('click', () => {
+                currentMode = 'additive';
+                additiveBtn.classList.add('active');
+                subtractiveBtn.classList.remove('active');
+                document.getElementById('mode-badge').className = 'mode-badge';
+                document.getElementById('mode-badge').style.background = '#95a5a6';
+                updateVisualization();
+            });
+            
+            subtractiveBtn.addEventListener('click', () => {
+                currentMode = 'subtractive';
+                subtractiveBtn.classList.add('active');
+                additiveBtn.classList.remove('active');
+                document.getElementById('mode-badge').className = 'mode-badge';
+                document.getElementById('mode-badge').style.background = '#3498db';
+                updateVisualization();
+            });
+            
+            // Slider listeners
+            const sliders = ['theta-slider', 're-slider', 'im-slider', 'n-slider'];
+            sliders.forEach(id => {
+                document.getElementById(id).addEventListener('input', updateVisualization);
+            });
+            
+            // Initial draw (subtractive by default)
+            updateVisualization();
+            
+            // Responsive resize
+            window.addEventListener('resize', () => {
+                const container = document.getElementById('three-container');
+                if (renderer && camera) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            });
+            
+            console.log('%c✅ RGDST visualizer initialized with removal-greedy algorithm as requested.', 'color:#3498db; font-family:monospace');
+        }
+        
+        window.onload = initialize;
+    </script>
+</body>
+</html>

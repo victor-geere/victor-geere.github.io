@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Von Mangoldt Sieve That Computed log rad(n) — A Linear-Sieve Recurrence for the Wrong Function</title>
+<style>
+  :root{ --ink:#17202a; --muted:#5b6b7c; --rule:#d8dee6; --bg:#fdfdfb;
+    --accent:#7a2e2e; --accent2:#1f4e79; --code:#f4f6f8; --mark:#fff6d5; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.62 Georgia,"Iowan Old Style","Times New Roman",serif;}
+  .wrap{max-width:60rem;margin:0 auto;padding:3.2rem 1.6rem 6rem}
+  header.title{border-bottom:3px double var(--rule);padding-bottom:1.6rem;margin-bottom:2rem}
+  h1{font-size:1.62rem;line-height:1.28;margin:0 0 .5rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1rem;margin:.35rem 0 0}
+  .meta{font-size:.86rem;color:var(--muted);margin-top:1rem;line-height:1.7}
+  .meta code{font-size:.85em}
+  h2{font-size:1.22rem;margin:2.9rem 0 .9rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);color:var(--accent2)}
+  h3{font-size:1.02rem;margin:1.9rem 0 .6rem;color:var(--accent)}
+  h4{font-size:.96rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  a{color:var(--accent2)}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);padding:.08em .32em;border-radius:3px;font-size:.88em}
+  pre{background:var(--code);border:1px solid var(--rule);border-left:3px solid var(--accent2);
+      padding:.85rem 1rem;overflow-x:auto;font-size:.84rem;line-height:1.5;border-radius:4px}
+  pre code{background:none;padding:0;font-size:1em}
+  .box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:#fff;
+       padding:.9rem 1.1rem;margin:1.2rem 0;border-radius:4px}
+  .box.def{border-left-color:var(--accent2);background:#f8fafc}
+  .box.res{border-left-color:#1e6b3a;background:#f6fbf7}
+  .box.verdict{border-left-color:#8a1c1c;background:#fdf6f6;border-color:#e2b6b6}
+  .box.verdict h4{color:#8a1c1c}
+  .box h4{margin-top:0}
+  table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.44rem .6rem;text-align:left;vertical-align:top}
+  th{background:#f2f5f8;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  nav#toc{background:#f7f9fb;border:1px solid var(--rule);border-radius:5px;padding:1rem 1.3rem;margin:1.6rem 0 2.6rem}
+  nav#toc h2{margin:0 0 .5rem;border:none;font-size:1rem;color:var(--accent2)}
+  nav#toc ol{margin:.2rem 0 0;padding-left:1.4rem;columns:2;column-gap:2.4rem}
+  nav#toc li{margin:.18rem 0;break-inside:avoid}
+  nav#toc a{text-decoration:none}
+  nav#toc a:hover{text-decoration:underline}
+  .abstract{background:#fff;border:1px solid var(--rule);border-radius:5px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  .abstract h2{margin:0 0 .5rem;border:none;font-size:1rem}
+  .kw{font-size:.88rem;color:var(--muted);margin-top:.7rem}
+  ul,ol{padding-left:1.4rem} li{margin:.28rem 0}
+  hr{border:none;border-top:1px solid var(--rule);margin:2.4rem 0}
+  .small{font-size:.87rem;color:var(--muted)}
+  .refs{font-size:.92rem} .refs li{margin:.5rem 0}
+  .eq{display:block;margin:.9rem 0 .9rem 1.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.9rem}
+  .status{display:inline-block;font-size:.74rem;padding:.1em .5em;border-radius:10px;vertical-align:middle;
+          letter-spacing:.02em;font-family:system-ui,sans-serif;white-space:nowrap}
+  .s-proved{background:#e2f3e8;color:#14602f;border:1px solid #a9d8ba}
+  .s-num{background:#e8eef7;color:#1c3f66;border:1px solid #aec6e2}
+  .s-thm{background:#f0e8f8;color:#5a2a86;border:1px solid #cbb0e2}
+  .s-open{background:#eef0f2;color:#4a5560;border:1px solid #c3cad1}
+  .s-fail{background:#f6e0e0;color:#8a1c1c;border:1px solid #e2b6b6}
+  .quote{background:#faf8f4;border-left:3px solid var(--accent);padding:.6rem 1rem;margin:1rem 0;
+         border-radius:0 4px 4px 0;font-size:.94rem}
+  footer{margin-top:3.5rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.85rem;color:var(--muted)}
+  @media print{ body{background:#fff;font-size:11pt} nav#toc{break-inside:avoid} h2{break-after:avoid}
+    pre{break-inside:avoid} .box{break-inside:avoid} }
+  @media (max-width:640px){ nav#toc ol{columns:1} .wrap{padding:2rem .9rem 4rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>The Von Mangoldt Sieve That Computed <code>log&nbsp;rad(n)</code></h1>
+  <p class="sub">A linear-sieve recurrence for the wrong function &mdash; and how it was caught by a validated explicit-formula assembly.</p>
+  <p class="meta">
+    Round <code>rh45</code> &middot; companion to <a href="routes-abc.html"><code>routes-abc.html</code></a> §5.3 &middot;
+    evidence: <a href="rigorous/route_c_assembly.log"><code>rigorous/route_c_assembly.log</code></a>,
+    <a href="https://github.com/leanprover-community/mathlib4">Mathlib</a>&nbsp;<code>ArithmeticFunction/VonMangoldt.lean</code> &middot;
+    machine-checked counterexample: <a href="lean/Rh45/VonMangoldtSieve.lean"><code>lean/Rh45/VonMangoldtSieve.lean</code></a>
+  </p>
+</header>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>
+The prime side of the Weil explicit formula needs the von Mangoldt function <code>Λ(n) = log p</code> if
+<code>n = p<sup>k</sup></code> and <code>0</code> otherwise. In the numerical assembly of
+<a href="routes-abc.html">Route&nbsp;C</a> the prime sum was computed from a &ldquo;linear sieve&rdquo; that
+used the recurrence
+<code>f(p&middot;i) = f(i)</code> when <code>p | i</code> and <code>f(p&middot;i) = f(p) + f(i)</code> when
+<code>p &#8740; i</code> (with <code>p = minFac(p&middot;i)</code> and <code>f(p) = log p</code>).
+We prove that this recurrence does <em>not</em> compute <code>Λ</code>: it computes exactly
+<code>log rad(n) = &Sigma;<sub>p|n</sub> log p</code>, the unique additive (not completely additive)
+function that agrees with <code>Λ</code> on prime powers. The two functions coincide precisely on the
+prime powers, and differ at the very first composite <code>n = 6</code>: <code>Λ(6) = 0</code> while
+<code>log rad(6) = log 6</code>. In the actual run this replaced Chebyshev&rsquo;s
+<code>&psi;(x)</code> by <code>&Sigma;<sub>n&le;x</sub> log rad(n)</code> (about <code>5.9&times;</code> larger at
+<code>x = 2000</code>), shifted the prime sum by <code>0.15184578545037</code>, and produced a spurious
+residual of <code>&minus;0.15171179</code> against a rigorous budget of <code>6.5&times;10<sup>&minus;5</sup></code>.
+The fix &mdash; an exact sieve marking prime powers &mdash; makes the rigorous prime sum agree with
+<code>mpmath</code> to <code>4.9&times;10<sup>&minus;12</sup></code> and the assembly validate at
+<code>&minus;9.08&times;10<sup>&minus;9</sup> &le; 6.5&times;10<sup>&minus;5</sup></code>. The finite
+counterexample <code>6</code> is machine-checked in Lean.
+</p>
+<p class="kw"><strong>Keywords:</strong> von Mangoldt function; radical; linear sieve; additive arithmetic
+functions; Chebyshev &psi;; explicit formula; interval arithmetic; Lean&nbsp;4.</p>
+</div>
+
+<nav id="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s1">1. Why &Lambda; appears</a></li>
+  <li><a href="#s2">2. Two functions: &Lambda; and log rad</a></li>
+  <li><a href="#s3">3. The faulty sieve and what it computes</a></li>
+  <li><a href="#s4">4. Iterating the process on two sample functions</a></li>
+  <li><a href="#s5">5. Quantitative consequences</a></li>
+  <li><a href="#s6">6. The fix, and its verification</a></li>
+  <li><a href="#s7">7. The machine-checked counterexample</a></li>
+  <li><a href="#s8">8. Lessons</a></li>
+  <li><a href="#s9">9. Ledger</a></li>
+  <li><a href="#refs">References</a></li>
+</ol>
+</nav>
+
+<h2 id="s1">1. Why &Lambda; appears</h2>
+<p>
+For an even test function <code>g</code> with Fourier transform <code>&phi;</code>, the Weil explicit
+formula used in Route&nbsp;C reads
+</p>
+<span class="eq">2&Sigma;<sub>&gamma;&gt;0</sub> &phi;(&gamma;) = &Phi;(1) + &Phi;(0) + (1/2&pi;)&int;<sub>&#8477;</sub> &phi;(t)&Psi;(t) dt &minus; &Sigma;<sub>n&ge;2</sub> (Λ(n)/&radic;n)(g(log n) + g(&minus;log n)),</span>
+<p>
+where <code>&Psi;(t) = &minus;log &pi; + Re &psi;(1/4 + it/2)</code> is the archimedean factor. The prime
+side is a weighted sum of the von Mangoldt function
+</p>
+<span class="eq">Λ(n) = log p &nbsp;if n = p<sup>k</sup> (p prime, k &ge; 1), &nbsp;&nbsp; Λ(n) = 0 otherwise, &nbsp;&nbsp; Λ(1) = 0.</span>
+<p>
+The kernel chosen for the Route&nbsp;C assembly is the modulated Gaussian
+<code>g(u) = e<sup>&minus;u²/2</sup>cos(14u)/&radic;(2&pi;</code> <span class="small">(with rational centre
+<code>&theta; = 14</code>)</span>, whose Fourier transform is
+<code>&phi;(t) = &frac12;(e<sup>&minus;(t&minus;14)²/2</sup> + e<sup>&minus;(t+14)²/2</sup>)</code>. Because
+<code>g</code> decays rapidly, the prime sum truncates at <code>n &le; 2000</code> with a rigorous tail
+<code>1.2&times;10<sup>&minus;8</sup></code> (Chebyshev input <code>&psi;(x) &le; (log 4 + 4)x</code>, the Lean
+<code>prime_tail_input</code>). The whole point of the truncation is that the remaining error is
+controlled &mdash; which makes any error in the <code>Λ(n)</code> values immediately visible as a failure
+of the identity.
+</p>
+
+<h2 id="s2">2. Two functions: &Lambda; and log rad</h2>
+<div class="box def">
+<h4>Definitions</h4>
+<p>
+For <code>n &ge; 1</code> let <code>rad(n) = &prod;<sub>p|n</sub> p</code> be the radical
+(<code>rad(1) = 1</code>), and define
+</p>
+<span class="eq">L(n) := log rad(n) = &Sigma;<sub>p|n</sub> log p, &nbsp;&nbsp; L(1) = 0.</span>
+<p>
+Thus <code>L(2) = log 2</code>, <code>L(4) = log 2</code>, <code>L(6) = log 6</code>,
+<code>L(12) = log 6</code>, <code>L(30) = log 30</code>.
+</p>
+</div>
+<p>
+Both <code>Λ</code> and <code>L</code> are supported on <code>n &ge; 2</code>, both take the value
+<code>log p</code> at <code>n = p</code>, and both satisfy
+<code>Λ(p<sup>k</sup>) = L(p<sup>k</sup>) = log p</code>. That is where the resemblance ends:
+</p>
+<ul>
+  <li><code>Λ</code> is supported on the <em>prime powers</em>; it is zero at every composite with at
+      least two distinct prime factors.</li>
+  <li><code>L</code> is positive at every <code>n &ge; 2</code> and, more structurally, is
+      <em>additive on coprime arguments</em>: for <code>gcd(m,n) = 1</code>,
+      <code>rad(mn) = rad(m)rad(n)</code>, hence <code>L(mn) = L(m) + L(n)</code>.</li>
+</ul>
+<p>
+In fact <code>L</code> is the unique additive (over coprime arguments) function that agrees with
+<code>Λ</code> on prime powers: an additive function is determined by its values on prime powers, and
+<code>L(p<sup>k</sup>) = log p = Λ(p<sup>k</sup>)</code>. Equivalently, writing an additive function as
+<code>f(n) = &Sigma;<sub>p<sup>k</sup>&#8741;n</sub> f(p<sup>k</sup>)</code>, the function <code>L</code> is
+the one that is <em>constant along the powers of each prime</em>, <code>f(p<sup>k</sup>) = f(p)</code>.
+The von Mangoldt function is <em>not</em> additive: at <code>m = n = 2</code>,
+<code>Λ(4) = log 2</code> while <code>Λ(2) + Λ(2) = 2 log 2</code>; and at <code>m = 2, n = 3</code>,
+<code>Λ(6) = 0</code> while <code>Λ(2) + Λ(3) = log 6</code>. The second failure is the one the sieve
+reproduces.
+</p>
+
+<h2 id="s3">3. The faulty sieve and what it computes</h2>
+<p>
+The code below was intended to fill an array <code>lam[n]</code> with <code>Λ(n)</code>. It is a
+&ldquo;linear sieve&rdquo; loop that generates every composite <code>n</code> once as
+<code>n = p&middot;i</code> with <code>p = minFac(n)</code> the smallest prime factor of <code>n</code> and
+<code>i = n/p</code> (so necessarily <code>p &le; minFac(i)</code>, and <code>p &#8740; i</code> exactly
+when <code>n</code> has more than one prime divisor).
+</p>
+<pre><code>def sieve_lambda(n):                    # BUGGY
+    lam  = [0] * (n + 1)
+    primes, comp = [], [False] * (n + 1)
+    for i in range(2, n + 1):
+        if not comp[i]:
+            primes.append(i); lam[i] = log(i)
+            for j in range(i * i, n + 1, i):
+                comp[j] = True
+        if i &gt; 1:
+            for p in primes:
+                if p * i &gt; n: break
+                comp[p * i] = True
+                if i % p == 0:
+                    lam[p * i] = lam[i]            # branch A:  p | i
+                    break
+                else:
+                    lam[p * i] = lam[p] + lam[i]   # branch B:  p &#8740; i
+    return lam</code></pre>
+<p>
+Branch&nbsp;A is correct for <code>Λ</code>: if <code>p | i</code> then <code>p&middot;i</code> and
+<code>i</code> have the same set of prime divisors, so they are either both powers of the same prime or
+both have at least two distinct prime divisors; hence <code>Λ(p&middot;i) = Λ(i)</code>. Branch&nbsp;B is
+the error: when <code>p &#8740; i</code> and <code>i &gt; 1</code>, the number <code>p&middot;i</code> has
+at least two distinct prime divisors, so <code>Λ(p&middot;i) = 0</code>, not
+<code>log p + Λ(i)</code>.
+</p>
+<div class="box">
+<h4>Theorem (what the buggy sieve computes)</h4>
+<p>
+Let <code>f(1) = 0</code>, <code>f(p) = log p</code> for primes <code>p</code>, and for every
+<code>n = p&middot;i</code> with <code>p = minFac(n)</code> let
+<code>f(n) = f(i)</code> if <code>p | i</code> and <code>f(n) = f(p) + f(i)</code> if
+<code>p &#8740; i</code>. Then for every <code>n &ge; 1</code>,
+</p>
+<span class="eq">f(n) = L(n) = log rad(n) = &Sigma;<sub>p|n</sub> log p.</span>
+</div>
+<p><strong>Proof.</strong> Strong induction on <code>n</code>. For <code>n = 1</code> both sides are
+<code>0</code>; for prime <code>n</code>, <code>f(n) = log n = log rad(n)</code>. Let
+<code>n &ge; 2</code> and write <code>n = p&middot;i</code> with <code>p = minFac(n)</code>,
+<code>i = n/p &lt; n</code>. By the induction hypothesis <code>f(i) = log rad(i)</code>.
+</p>
+<ul>
+  <li><em>Case <code>p | i</code>.</em> Then <code>p</code> already divides <code>i</code>, so
+      <code>n</code> and <code>i</code> have the same set of prime divisors and
+      <code>rad(n) = rad(i)</code>. Hence <code>f(n) = f(i) = log rad(i) = log rad(n)</code>.</li>
+  <li><em>Case <code>p &#8740; i</code>.</em> Since <code>p = minFac(n)</code>, every prime divisor of
+      <code>i</code> exceeds <code>p</code>, so in particular <code>p &#8740; rad(i)</code> and therefore
+      <code>rad(n) = rad(p&middot;i) = p&middot;rad(i)</code>. Hence
+      <code>f(n) = log p + log rad(i) = log rad(n)</code>. &#9633;</li>
+</ul>
+<p>
+The theorem also shows the bug is not an indexing accident: it is a wrong <em>function</em>, forced by
+the recurrence.
+</p>
+<div class="box def">
+<h4>Corollary (when the two agree)</h4>
+<p>
+<code>f(n) = Λ(n)</code> if and only if <code>n</code> is <code>1</code> or a prime power
+(<code>n = p<sup>k</sup></code>). In particular the first disagreement is at
+<code>n = 6 = 2&middot;3</code>: <code>f(6) = log 2 + log 3 = log 6 &ne; 0 = Λ(6)</code>.
+</p>
+</div>
+<p><strong>Remark on terminology.</strong> It is tempting to call the culprit an &ldquo;&Omega;-type&rdquo;
+function, since <code>&Omega;(n)</code> (the number of prime factors counted with multiplicity) and
+<code>log n</code> are <em>completely additive</em> and obey the same-looking law
+<code>f(ab) = f(a) + f(b)</code>. The output is not <code>&Omega;</code>, however: it is the additive
+function <code>L = log rad</code>. The distinction matters because the two laws differ exactly in the
+branch that broke: for a completely additive <code>g</code>, branch A would read
+<code>g(p&middot;i) = g(i) + g(p)</code>, whereas the sieve&rsquo;s branch A sets
+<code>f(p&middot;i) = f(i)</code>. Branch A is therefore the law of an additive function that is constant
+on prime powers &mdash; and the additive function constant on prime powers with <code>f(p) = log p</code>
+is <code>log rad</code>.
+</p>
+
+<h2 id="s4">4. Iterating the process on two sample functions</h2>
+<p>
+The cleanest way to see the forced output is to run the recurrence by hand. Take <code>n = 12</code>:
+the sieve reaches it as <code>12 = 2&middot;6</code> with <code>p = 2 | 6</code>, so branch A gives
+<code>f(12) = f(6)</code>; and <code>6 = 2&middot;3</code> with <code>2 &#8740; 3</code>, so
+<code>f(6) = f(2) + f(3) = log 6</code>. Hence <code>f(12) = log 6 = log rad(12)</code>, whereas
+<code>Λ(12) = 0</code>. The contamination entered once, at <code>6</code>, and branch A then propagates it
+to every <code>2<sup>k</sup>&middot;3<sup>l</sup></code>.
+</p>
+<table>
+<thead><tr><th class="num">n</th><th class="num">Λ(n)</th><th class="num">log rad(n)</th><th class="num">buggy f(n)</th><th>agrees?</th></tr></thead>
+<tbody>
+<tr><td class="num">2</td><td class="num">0.693147</td><td class="num">0.693147</td><td class="num">0.693147</td><td>yes</td></tr>
+<tr><td class="num">3</td><td class="num">1.098612</td><td class="num">1.098612</td><td class="num">1.098612</td><td>yes</td></tr>
+<tr><td class="num">4</td><td class="num">0.693147</td><td class="num">0.693147</td><td class="num">0.693147</td><td>yes</td></tr>
+<tr><td class="num">6</td><td class="num">0</td><td class="num">1.791759</td><td class="num">1.791759</td><td><strong>no</strong></td></tr>
+<tr><td class="num">8</td><td class="num">0.693147</td><td class="num">0.693147</td><td class="num">0.693147</td><td>yes</td></tr>
+<tr><td class="num">9</td><td class="num">1.098612</td><td class="num">1.098612</td><td class="num">1.098612</td><td>yes</td></tr>
+<tr><td class="num">10</td><td class="num">0</td><td class="num">2.302585</td><td class="num">2.302585</td><td><strong>no</strong></td></tr>
+<tr><td class="num">12</td><td class="num">0</td><td class="num">1.791759</td><td class="num">1.791759</td><td><strong>no</strong></td></tr>
+<tr><td class="num">30</td><td class="num">0</td><td class="num">3.401197</td><td class="num">3.401197</td><td><strong>no</strong></td></tr>
+<tr><td class="num">100</td><td class="num">0</td><td class="num">2.302585</td><td class="num">2.302585</td><td><strong>no</strong></td></tr>
+</tbody>
+</table>
+<p class="small">
+A direct run of the exact buggy routine against <code>log rad</code> found <strong>0 mismatches for all
+<code>n &le; 10&thinsp;000</code></strong>, and <strong>8719 mismatches</strong> against <code>Λ</code>
+over <code>2 &le; n &le; 10&thinsp;000</code>, beginning
+<code>6, 10, 12, 14, 15, 18, 20, 21, 22, 24, 26, 28, &hellip;</code> (the numbers with at least two distinct
+prime factors). This is the empirical confirmation of the theorem above.
+</p>
+
+<h2 id="s5">5. Quantitative consequences</h2>
+<p>
+A single value error would be harmless if the weights were tiny, but the explicit-formula weights are
+<code>1/&radic;n</code> and the kernel is not yet decayed at the relevant <code>n</code>. The effect on the
+Route&nbsp;C prime sum is measurable exactly.
+</p>
+<h3>5.1 The summatory function is not &psi;</h3>
+<p>
+Taking summatory functions,
+</p>
+<span class="eq">&Sigma;<sub>n&le;x</sub> L(n) = &Sigma;<sub>p&le;x</sub> log p &middot; &lfloor;x/p&rfloor;,
+&nbsp;&nbsp;&nbsp; &psi;(x) = &Sigma;<sub>n&le;x</sub> &Lambda;(n) = &Sigma;<sub>p<sup>k</sup>&le;x</sub> log p.</span>
+<p>
+The left sum counts each prime once per multiple, not once per prime power, so it is the summatory
+function of a much larger arithmetic function. At <code>x = 2000</code>:
+</p>
+<table>
+<thead><tr><th class="num">quantity</th><th class="num">value</th></tr></thead>
+<tbody>
+<tr><td class="num">&Sigma;<sub>n&le;2000</sub> &Lambda;(n) = &psi;(2000)</td><td class="num">1994.45158</td></tr>
+<tr><td class="num">&Sigma;<sub>n&le;2000</sub> log rad(n)</td><td class="num">11773.29881</td></tr>
+<tr><td class="num">ratio</td><td class="num">5.90303</td></tr>
+</tbody>
+</table>
+<h3>5.2 The shift in the prime sum</h3>
+<p>
+For the modulated Gaussian with <code>&theta; = 14</code> and truncation <code>N = 2000</code>, write
+<code>PS(f) = &Sigma;<sub>n=2</sub><sup>N</sup> (f(n)/&radic;n)(g(log n) + g(&minus;log n))</code>. Then
+</p>
+<table>
+<thead><tr><th class="num">prime sum</th><th class="num">value</th></tr></thead>
+<tbody>
+<tr><td class="num">PS(&Lambda;) &nbsp;(correct)</td><td class="num">&minus;0.67245280061731</td></tr>
+<tr><td class="num">PS(log rad) &nbsp;(buggy)</td><td class="num">&minus;0.52060701516694</td></tr>
+<tr><td class="num">difference PS(log rad) &minus; PS(&Lambda;)</td><td class="num">0.15184578545037</td></tr>
+</tbody>
+</table>
+<p>
+The difference is reproduced term by term by
+<code>&Sigma;<sub>n</sub> ((L(n)&minus;Λ(n))/&radic;n)(g(log n)+g(&minus;log n))</code>, whose summand
+vanishes exactly on the prime powers and is nonzero at <code>1666</code> of the indices
+<code>2 &le; n &le; 2000</code>. In the actual assembly run, with the faulty sieve the explicit formula
+produced
+</p>
+<span class="eq">RHS &minus; LHS = &minus;0.15171179, &nbsp;&nbsp; budget = 6.499&times;10<sup>&minus;5</sup> &nbsp;&nbsp;&rArr;&nbsp; FAILED,</span>
+<p>
+the residual being the (sign-flipped) prime-sum shift. The discrepancy is enormous compared with the
+rigorous tails &mdash; a classic case of a structural error that is invisible in the small and obvious in
+the large.
+</p>
+
+<h2 id="s6">6. The fix, and its verification</h2>
+<p>
+<code>Λ</code> is not additive, so an additive recurrence cannot produce it. The correct, and equally
+cheap, route is to mark prime powers directly: for each prime <code>p</code>, walk
+<code>p, p², p³, &hellip; &le; N</code> and set <code>Λ = log p</code>; every other index is zero.
+</p>
+<pre><code>def sieve_lambda(n):                    # FIXED
+    lam  = [0] * (n + 1)
+    is_p = [True] * (n + 1)
+    for p in range(2, n + 1):
+        if is_p[p]:
+            pk = p
+            while pk &lt;= n:
+                lam[pk] = log(p)        # Lambda(p^k) = log p
+                pk *= p
+            for m in range(p * p, n + 1, p):
+                is_p[m] = False
+    return lam</code></pre>
+<p>
+Equivalently, one may use a genuinely multiplicative route and Möbius inversion,
+<code>Λ = &mu; * log</code>, i.e. <code>Λ(n) = &Sigma;<sub>d|n</sub> &mu;(d) log(n/d)</code>, or the
+divisor identity <code>&Sigma;<sub>d|n</sub> Λ(d) = log n</code> &mdash; both are standard and both avoid
+the additive assumption entirely.
+</p>
+<div class="box res">
+<h4>Verification after the fix</h4>
+<ul>
+  <li><strong>Point check.</strong> The rigorous prime sum at <code>N = 200</code> is
+      <code>&minus;0.672453122081</code> against <code>mpmath</code>&rsquo;s
+      <code>&minus;0.672453122076</code>: agreement to <code>4.9&times;10<sup>&minus;12</sup></code>, the
+      level of the engine&rsquo;s rounding slack.</li>
+  <li><strong>Assembly.</strong> With both the sieve and a second, unrelated bug in the exponential
+      routine fixed, the validated assembly gives
+      <code>RHS &minus; LHS = &minus;9.07873&times;10<sup>&minus;9</sup></code> against the budget
+      <code>6.499&times;10<sup>&minus;5</sup></code>, i.e. <code>|residual| &le; budget</code>
+      (<a href="rigorous/route_c_assembly.log"><code>route_c_assembly.log</code></a>).</li>
+</ul>
+</div>
+
+<h2 id="s7">7. The machine-checked counterexample</h2>
+<p>
+The smallest counterexample is a finite fact and is checked in Lean&nbsp;4 against Mathlib&rsquo;s
+<code>ArithmeticFunction.vonMangoldt</code>
+(<a href="lean/Rh45/VonMangoldtSieve.lean"><code>Rh45/VonMangoldtSieve.lean</code></a>):
+</p>
+<pre><code>theorem vonMangoldt_six : Λ 6 = 0 := by
+  rw [vonMangoldt_eq_zero_iff]; decide
+
+theorem vonMangoldt_not_additive : ∃ m n : ℕ, Λ (m * n) ≠ Λ m + Λ n := by
+  refine ⟨2, 3, ?_⟩
+  rw [vonMangoldt_six, vonMangoldt_apply_prime (by decide),
+      vonMangoldt_apply_prime (by decide),
+      ← Real.log_mul (by norm_num) (by norm_num)]
+  norm_num
+  exact ne_of_lt log_six_pos</code></pre>
+<p>
+<code>vonMangoldt_six</code> is <code>Λ 6 = 0</code> via Mathlib&rsquo;s
+<code>vonMangoldt_eq_zero_iff : Λ n = 0 &harr; &not;IsPrimePow n</code>; the second theorem exhibits
+<code>(m,n) = (2,3)</code>, which the faulty branch&nbsp;B turns into <code>log 2 + log 3 = log 6 &gt; 0</code>.
+Both build with the standard axiom footprint
+<code>[propext, Classical.choice, Quot.sound]</code> and no <code>sorry</code>. The general theorem of
+&sect;3 is proved on paper; the counterexample is what a proof assistant can pin down without
+formalising the sieve loop itself.
+</p>
+
+<h2 id="s8">8. Lessons</h2>
+<ol>
+  <li><strong>A sieve embodies a recurrence, and a recurrence embodies a function class.</strong>
+      The loop above is a correct linear sieve &mdash; for the additive function <code>log rad</code>.
+      Reusing it for <code>Λ</code> silently changes the object being summed.</li>
+  <li><strong>Coincidence on primes is not correctness.</strong> <code>Λ</code> and <code>log rad</code>
+      agree on all <code>n &le; 5</code> and on every prime power; a spot check on <code>2, 3, 4, 5</code>
+      would have passed. The first failure is at <code>6</code>.</li>
+  <li><strong>Validated assemblies localise errors.</strong> Because the Route&nbsp;C residual is compared
+      against an explicit budget of proved tails, a <code>0.15</code> discrepancy could not hide: it was
+      <code>2300&times;</code> the budget. Without the budget, a &ldquo;roughly right&rdquo; identity would
+      have looked acceptable.</li>
+  <li><strong>Small residual difference is the fastest diagnostic.</strong> The exact match
+      <code>PS(log rad) &minus; PS(&Lambda;) = 0.15184578545037 =</code> the run&rsquo;s residual identified
+      the failing term immediately; the summatory ratio <code>5.9</code> then explained why.</li>
+</ol>
+
+<h2 id="s9">9. Ledger</h2>
+<table>
+<thead><tr><th>claim</th><th>status</th><th>evidence</th></tr></thead>
+<tbody>
+<tr><td>the buggy recurrence computes <code>log rad(n)</code></td>
+    <td><span class="status s-proved">PROVED</span></td><td>&sect;3, strong induction</td></tr>
+<tr><td>it agrees with <code>Λ</code> exactly on prime powers</td>
+    <td><span class="status s-proved">PROVED</span></td><td>&sect;3, corollary</td></tr>
+<tr><td>exact buggy routine = <code>log rad</code>, <code>n &le; 10 000</code></td>
+    <td><span class="status s-num">VERIFIED</span></td>
+    <td><a href="rigorous/von_mangoldt_sieve_check.py"><code>von_mangoldt_sieve_check.py</code></a>: 0 mismatches; 8719 vs <code>Λ</code></td></tr>
+<tr><td>prime-sum shift <code>0.15184578545037</code></td>
+    <td><span class="status s-num">VERIFIED</span></td>
+    <td>§5.2, term-by-term identity (<a href="rigorous/von_mangoldt_sieve_check.log"><code>von_mangoldt_sieve_check.log</code></a>)</td></tr>
+<tr><td><code>Λ</code> is not additive (witness <code>6</code>)</td>
+    <td><span class="status s-proved">MACHINE-CHECKED</span></td>
+    <td><code>Rh45/VonMangoldtSieve.lean</code>, standard axioms</td></tr>
+<tr><td>corrected assembly validates</td>
+    <td><span class="status s-proved">VALIDATED</span></td>
+    <td><code>route_c_assembly.log</code>: <code>&minus;9.1&times;10<sup>&minus;9</sup> &le; 6.5&times;10<sup>&minus;5</sup></code></td></tr>
+</tbody>
+</table>
+
+<h2 id="refs">References</h2>
+<ol class="refs">
+  <li>H.&nbsp;von&nbsp;Mangoldt, <em>Zu Riemanns Abhandlung &ldquo;Ueber die Anzahl der Primzahlen unter
+      einer gegebenen Gr&ouml;sse&rdquo;</em>, J. reine angew. Math. <strong>114</strong> (1895), 255&ndash;305.</li>
+  <li>E.&nbsp;C.&nbsp;Titchmarsh, <em>The Theory of the Riemann Zeta-Function</em>, 2nd ed., Oxford, 1986,
+      §3 and Ch.&nbsp;III (the identity <code>&Sigma;<sub>d|n</sub> Λ(d) = log n</code>).</li>
+  <li>G.&nbsp;H.&nbsp;Hardy and E.&nbsp;M.&nbsp;Wright, <em>An Introduction to the Theory of Numbers</em>,
+      Oxford, 6th ed., §16.7 and §17.7 (additive and completely additive functions; the radical).</li>
+  <li>P.&nbsp;Erd&#337;s and M.&nbsp;Kac, <em>The Gaussian law of errors in the theory of additive number
+      theoretic functions</em>, Amer. J. Math. <strong>62</strong> (1940), 738&ndash;742
+      (additive functions and their normal order).</li>
+  <li>The Mathlib Community, <em>Mathlib4</em>, file
+      <code>Mathlib/NumberTheory/ArithmeticFunction/VonMangoldt.lean</code>:
+      <code>vonMangoldt_apply</code>, <code>vonMangoldt_eq_zero_iff</code>,
+      <code>vonMangoldt_apply_prime</code>, <code>vonMangoldt_sum</code>.</li>
+  <li>This round: <a href="routes-abc.html"><code>routes-abc.html</code></a> §5.3 (Route&nbsp;C assembly),
+      <a href="rigorous/route_c_assembly.py"><code>rigorous/route_c_assembly.py</code></a>,
+      <a href="rigorous/route_c_assembly.log"><code>rigorous/route_c_assembly.log</code></a>.</li>
+</ol>
+
+<footer>
+  <p>
+    <code>rh45/von-mangoldt-sieve.html</code> &middot; written as part of the certification work of
+    <a href="routes-abc.html">Routes A/B/C</a>. All numerical values quoted are from the logs in
+    <code>rigorous/</code>; the difference <code>0.15184578545037</code> and the mismatch counts were
+    re-derived by <a href="rigorous/von_mangoldt_sieve_check.py"><code>rigorous/von_mangoldt_sieve_check.py</code></a>
+    (<a href="rigorous/von_mangoldt_sieve_check.log"><code>von_mangoldt_sieve_check.log</code></a>). The general
+    characterisation of §3 is a paper proof; the finite counterexample is the machine-checked part.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+theory GDST_1_1_Greedy_Harmonic_Expansion
+  imports Complex_Main "HOL-Analysis.Analysis"
+begin
+
+section ‹1.1 Greedy Harmonic Expansion›
+
+text ‹
+  We formalise the greedy harmonic expansion of an angle θ ∈ [0,π].
+  The harmonic fractions are α_n = π/(n+2) for n ≥ 0.
+  For any target x = θ/π ∈ [0,1], the greedy algorithm constructs
+  a binary sequence δ_n ∈ {0,1} such that
+  \[
+    x = \sum_{n=0}^\infty \frac{\delta_n}{n+2}.
+  \]
+  The algorithm is greedy: at each step n, we select δ_n = 1
+  if the remaining fraction r_{n-1} is at least 1/(n+2),
+  and δ_n = 0 otherwise.  The remainder is then updated by
+  subtracting δ_n/(n+2).
+›
+
+subsection ‹The greedy algorithm›
+
+text ‹We define the greedy digits δ_n(x) and the remainders r_n(x)
+  for a given target x ∈ [0,1].  The algorithm is deterministic
+  and preserves the invariant x = r_n + Σ_{k=0}^n δ_k/(k+2).›
+
+fun δ :: "real ⇒ nat ⇒ nat" where
+  "δ x 0 = (if x ≥ 1/2 then 1 else 0)"
+| "δ x (Suc n) = (if r x n ≥ 1/(Suc n + 2) then 1 else 0)"
+
+fun r :: "real ⇒ nat ⇒ real" where
+  "r x 0 = x - (δ x 0) * (1/2)"
+| "r x (Suc n) = r x n - (δ x (Suc n)) * (1/(Suc n + 2))"
+
+subsection ‹Basic properties›
+
+lemma δ_range: "δ x n ∈ {0,1}"
+  by (induction n) auto
+
+lemma r_nonneg: assumes "x ≥ 0" shows "r x n ≥ 0"
+proof (induction n)
+  case 0
+  then show ?case using assms by (cases "x ≥ 1/2") auto
+next
+  case (Suc n)
+  have *: "r x (Suc n) = r x n - (δ x (Suc n)) * (1/(Suc n + 2))" by simp
+  show ?case
+  proof (cases "r x n ≥ 1/(Suc n + 2)")
+    case True
+    then have "δ x (Suc n) = 1" by simp
+    with * True show ?thesis by auto
+  next
+    case False
+    then have "δ x (Suc n) = 0" by simp
+    with * Suc show ?thesis by auto
+  qed
+qed
+
+lemma remainder_bound: "r x n < 1/(n+2)"
+proof (induction n)
+  case 0
+  have "r x 0 = x - (δ x 0) * (1/2)" by simp
+  also have "… < 1/2"
+  proof (cases "x ≥ 1/2")
+    case True then have "δ x 0 = 1" by simp
+    with assms? sorry
+  qed
+  sorry
+next
+  case (Suc n)
+  sorry
+qed
+
+lemma greedy_sum:
+  fixes x :: real and N :: nat
+  shows "x = (∑ n≤N. (real (δ x n)) / (n+2)) + r x N"
+proof (induction N)
+  case 0
+  show ?case by (cases "x ≥ 1/2") auto
+next
+  case (Suc N)
+  have "x = (∑ n≤N. (real (δ x n)) / (n+2)) + r x N" using Suc by simp
+  also have "r x N = (real (δ x (Suc N))) / (Suc N + 2) + r x (Suc N)"
+    by (cases "r x N ≥ 1/(Suc N + 2)") auto
+  finally show ?case by (simp add: sum.atMost_Suc algebra_simps)
+qed
+
+text ‹
+  Taking the limit N → ∞, the remainder r_N vanishes because
+  the harmonic series forces termination.  This yields the
+  representation
+  \[
+    x = \sum_{n=0}^\infty \frac{\delta_n(x)}{n+2}.
+  \]
+›
+
+lemma remainder_vanishes:
+  fixes x :: real
+  assumes "x ∈ {0..1}"
+  shows "(λn. r x n) ⇢ 0"
+proof -
+  have "r x n ∈ {0..1}" for n
+    using assms r_nonneg remainder_bound by auto
+  moreover have "decseq (r x)" 
+    by (intro monotoneI) (auto simp: r.simps split: if_splits)
+  moreover have "r x n - r x (Suc n) = (real (δ x (Suc n))) / (Suc n + 2)" for n
+    by (auto simp: r.simps split: if_splits)
+  moreover have "summable (λn. 1/(n+2))" by simp
+  ultimately show ?thesis
+    by (metis (no_types, lifting) LIMSEQ_0 summable_LIMSEQ' summable_comparison_test_ev)
+qed
+
+subsection ‹Super‑exponential growth of selected indices›
+
+text ‹
+  Let n_1 < n_2 < … be the indices where δ_n = 1.
+  The greedy property forces super‑exponential growth:
+  \[
+    n_{k+1} \ge n_k (n_k - 1) \qquad \text{for } n_k \ge 2.
+  \]
+  This lemma is the combinatorial heart of the sparsity estimates
+  used throughout the GDST programme.
+›
+
+definition selected_indices :: "real ⇒ nat list" where
+  "selected_indices x = sorted_list_of_set {n. δ x n = 1}"
+
+lemma selected_indices_growth_lemma:
+  assumes "δ x n = 1" "n ≥ 2"
+  shows "∃m > n. δ x m = 1 ∧ m ≥ n * (n - 1)"
+proof -
+  text ‹
+    After selecting index n, the remainder is less than 1/(n+2).
+    The greedy algorithm will then find the next index m which is the
+    smallest integer ≥ n+1 satisfying 1/(m+2) ≤ r_n.
+    The bound 1/(m+2) ≤ r_n < 1/(n+1) - 1/(n+2) gives m > n(n-1).
+  ›
+  define rn where "rn = r x n"
+  have rn_bound: "rn < 1/(n+2)"
+    using remainder_bound assms by (simp add: rn_def)
+  have "summable (λk. 1/(k+2))" by simp
+  have "¬ (∀m>n. δ x m = 0)" 
+    using remainder_vanishes[of x] assms
+    by (metis LIMSEQ_0 not_gr_zero rn_def rn_bound)
+  then obtain m where "m > n" "δ x m = 1" by auto
+  define m where "m = (LEAST m. m > n ∧ δ x m = 1)"
+  then have m_least: "m > n" "δ x m = 1" "(∀k. n < k ∧ k < m ⟶ δ x k = 0)"
+    by (metis (mono_tags, lifting) LeastI ‹∃m>n. δ x m = 1›)+
+  have "r x (m-1) ≥ 1/(m+2)"
+    using m_least(2) by (cases "m = Suc n") (auto simp: r.simps split: if_splits)
+  moreover have "r x (m-1) = r x n - (∑ k=n+1..<m. (real (δ x k)) / (k+2))"
+  proof -
+    have "r x (m-1) = r x n - (∑ k=n+1..<m. (real (δ x k)) / (k+2))"
+    proof (induction "m-1-n" arbitrary: m)
+      case 0
+      then have "m = Suc n" by linarith
+      then show ?case by simp
+    next
+      case (Suc d)
+      then obtain m' where "m = Suc m'" "m' ≥ n" by (metis Suc_diff_le diff_Suc_Suc zero_less_Suc)
+      with Suc show ?case by (simp add: algebra_simps)
+    qed
+    then show ?thesis by simp
+  qed
+  ultimately show ?thesis
+    using rn_bound m_least
+    by (smt (verit) add.commute add_less_cancel_right diff_add_cancel gr_implies_not0
+        mult_less_cancel_right nat_less_real_le verit_comp_simplify1(2))
+qed
+
+theorem greedy_harmonic_expansion:
+  fixes x :: real
+  assumes "x ∈ {0..1}"
+  shows "x = (∑ n. (real (δ x n)) / (n+2))"
+proof -
+  have "x = (∑ n≤N. (real (δ x n)) / (n+2)) + r x N" for N
+    by (rule greedy_sum)
+  also have "(λN. (∑ n≤N. (real (δ x n)) / (n+2))) ⇢ (∑ n. (real (δ x n)) / (n+2))"
+    by (rule summable_LIMSEQ) auto
+  moreover have "(λN. r x N) ⇢ 0"
+    using remainder_vanishes assms by auto
+  ultimately show ?thesis
+    using tendsto_add[of _ _ _ _ 0] by auto
+qed
+
+end

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OP-6 — The reachable fraction of the budget</title>
+<style>
+  :root{--ink:#141414;--mut:#5c5c5c;--line:#dcdcdc;--acc:#0b4ea2;--thm:#0b4ea2;--lem:#7a288a;--num:#14825a;--warn:#b95f1e}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fbfbfa;color:var(--ink);
+       font:16px/1.62 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+  .page{max-width:860px;margin:0 auto;padding:46px 30px 90px;background:#fff;
+        box-shadow:0 0 0 1px var(--line)}
+  h1{font-size:27px;line-height:1.25;margin:0 0 4px;font-weight:600}
+  .sub{color:var(--mut);font-size:15px;margin-bottom:22px;font-style:italic}
+  h2{font-size:20px;margin:38px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--line);font-weight:600}
+  h3{font-size:16.5px;margin:24px 0 6px;font-weight:600}
+  p{margin:9px 0}
+  code,.mono{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13.5px}
+  .disp{margin:13px 0;padding:11px 16px;background:#f7f8fa;border-left:3px solid var(--acc);
+        overflow-x:auto;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.75;white-space:pre}
+  .thm{border:1px solid #cfe0f5;border-left:4px solid var(--thm);background:#f5f9ff;
+       padding:11px 15px;margin:16px 0;border-radius:3px}
+  .lem{border:1px solid #ecd9f0;border-left:4px solid var(--lem);background:#fdf8fe;
+       padding:11px 15px;margin:15px 0;border-radius:3px}
+  .num{border:1px solid #d3ecdf;border-left:4px solid var(--num);background:#f6fdf9;
+       padding:11px 15px;margin:15px 0;border-radius:3px}
+  .warn{border:1px solid #f0dcc9;border-left:4px solid var(--warn);background:#fffaf5;
+        padding:11px 15px;margin:15px 0;border-radius:3px}
+  .tag{display:inline-block;font:600 11px/1.5 "SF Mono",Menlo,monospace;letter-spacing:.06em;
+       text-transform:uppercase;padding:1px 7px;border-radius:10px;margin-right:8px;vertical-align:1px}
+  .t-thm{background:#e3efff;color:#0b4ea2}.t-lem{background:#f3e6f7;color:#7a288a}
+  .t-num{background:#e2f6ec;color:#0f6b48}.t-warn{background:#fbeadb;color:#8f4512}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left}
+  th{background:#f4f5f7;font-weight:600}
+  td.n{font-family:"SF Mono",Menlo,monospace;font-size:13px;text-align:right}
+  tr:nth-child(even) td{background:#fcfcfd}
+  ul,ol{margin:9px 0 9px 22px;padding:0}li{margin:5px 0}
+  .note{color:var(--mut);font-size:14px}
+  pre{background:#f7f8fa;border:1px solid var(--line);border-radius:4px;padding:13px;
+      overflow-x:auto;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55}
+  .kw{color:#7a288a}.cm{color:#7a7a7a;font-style:italic}
+  .foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--mut);font-size:13.5px}
+  .eqn{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:14px}
+  .boxed{display:inline-block;border:1px solid #cfe0f5;background:#f5f9ff;padding:3px 9px;border-radius:3px}
+  .abstract{border:1px solid var(--line);background:#fafbfc;border-radius:4px;padding:14px 18px;margin:20px 0 8px}
+  .abstract h2{border:0;margin:0 0 6px;padding:0;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+  .abstract p{margin:7px 0;font-size:15px}
+  nav.toc{border:1px solid var(--line);border-radius:4px;padding:12px 18px 14px;margin:16px 0 10px;background:#fff}
+  nav.toc h2{border:0;margin:0 0 7px;padding:0;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+  nav.toc ol{margin:0 0 0 4px;padding:0;list-style:none;counter-reset:toc}
+  nav.toc li{margin:3px 0;font-size:14.5px}
+  nav.toc a{color:var(--acc);text-decoration:none;border-bottom:1px solid transparent}
+  nav.toc a:hover{border-bottom-color:var(--acc)}
+  nav.toc .tocnum{display:inline-block;min-width:2.4em;color:var(--mut);font-family:"SF Mono",Menlo,monospace;font-size:12.5px}
+  h2{scroll-margin-top:14px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="box" style="border:2px solid #b00;background:#fff6f6">
+<p><b>CORRECTION (TODO item O4) &mdash; the <span class="eqn">1/p</span> coefficient is not a constant.</b>
+The value <span class="eqn">&minus;0.540509640658&hellip;</span> quoted throughout this page is
+<span class="eqn">&minus;(9/8)(ln 2)&sup2;</span>, the value for the <em>smooth</em> (non-integer) threshold
+<span class="eqn">p/ln 2 &minus; 3/2</span>. The exact coefficient is the <em>function</em>
+<span class="eqn">c(e) = &minus;((ln 2)&sup2;/2)(e&sup2; &minus; e + 9/4)</span> of the ceiling error
+<span class="eqn">e(p) = &lceil;p/ln 2 &minus; 5/2&rceil; &minus; (p/ln 2 &minus; 5/2) &isin; [0,1)</span>,
+ranging over <span class="eqn">[&minus;(ln 2)&sup2;, &minus;(9/8)(ln 2)&sup2;] = [&minus;0.480453, &minus;0.540510]</span>.
+The exact statement is <span class="eqn">L(p) = p log p &minus; (1 + ln ln 2)p &minus; c(e(p))/p + O(1/p&sup2;)</span>
+and hence <span class="eqn">L(p) = p log p &minus; (1 + ln ln 2)p + O(1/p)</span>; the <span class="eqn">O(1/p&sup2;)</span>
+remainder cannot absorb an oscillating <span class="eqn">O(1/p)</span> term.
+<b>The main theorem <span class="eqn">L(p) = p log p &minus; (1 + ln ln 2)p + O(1)</span> is unaffected.</b>
+Verified by <span class="eqn">op06_ceiling_coefficient.py</span> to <span class="eqn">3.5&middot;10&minus;&sup1;&#8308;</span> at
+<span class="eqn">p = 10&sup1;&sup3;</span>. The formulas below are retained as the historical record.</p>
+</div>
+
+<h1>OP-6 — The reachable fraction of the budget</h1>
+<div class="sub">A resolved open problem from the twin-prime-parity programme
+(<span class="eqn">research/twin-prime-parity</span>), self-contained:<br>
+preliminaries, the census identity, the asymptotic law, verification, and the
+correction of the recorded guess.</div>
+
+<div class="abstract">
+<h2>Abstract</h2>
+<p>This note resolves <b>OP-6</b> of the twin-prime-parity programme: the exact order of the
+reachable fraction of the budget,
+<span class="eqn">measure(S<sub>1</sub>)/P(p) → 0</span>, where
+<span class="eqn">S<sub>1</sub></span> is the writable set of the positive half-series
+<span class="eqn">a<sub>k</sub> = (2k)<sup>−p</sup></span> and
+<span class="eqn">P(p) = Σ<sub>k≥1</sub>a<sub>k</sub> = 2<sup>−p</sup>ζ(p)</span> is its budget.</p>
+<p>The register's recorded falsifiable form was a leading constant
+<span class="eqn">c</span> in <span class="eqn">−log(measure/P) ~ c·p log p</span>. The form is
+confirmed and the constant is <b><span class="eqn">c = 1</span></b> — not
+<span class="eqn">1/ln 2 = 1.4427…</span> and not <span class="eqn">2/ln 2 = 2.8854…</span>. The
+decay is <span class="eqn">p<sup>−p</sup></span> up to a linear exponential:</p>
+<div class="disp">measure(S_1)/P(p)  =  p^(−p) · e^((1 + ln ln 2)·p) · (1 + o(1))  →  0 .</div>
+<p>The method is a single substitution. The census identity of rh42 (Thm 10) gives
+<span class="eqn">measure(S<sub>1</sub>) = 2<sup>n<sub>min</sub>−1</sup>T<sub>n<sub>min</sub></sub></span>
+with <span class="eqn">T<sub>n</sub> = 2<sup>−p</sup>ζ(p,n)</span>; the <span class="eqn">2<sup>−p</sup></span>
+cancels against the budget, leaving
+<span class="eqn">measure/P = 2<sup>n<sub>min</sub>−1</sup>ζ(p,n<sub>min</sub>)/ζ(p)</span>. At the
+threshold <span class="eqn">n<sub>min</sub>(p) = p/ln 2 − 3/2 + O(1)</span> (OP-5) one has
+<span class="eqn">p ≫ n</span>, so the Hurwitz tail collapses to its first term,
+<span class="eqn">ζ(p,n) = z(p)·n<sup>−p</sup></span> with
+<span class="eqn">z(p) → 2</span>. That yields
+<span class="eqn">L(p) := −log(measure/P) = p log p − (1 + ln ln 2)p − c(e(p))/p + O(1/p²)</span>
+with the closed-form, <em>e</em>-dependent <span class="eqn">c(e) = −((ln 2)²/2)(e² − e + 9/4)</span> (see the correction above).
+The linear coefficient <span class="eqn">−(1 + ln ln 2) = −0.6334870794…</span> is exact and is
+verified to ten figures against exact census values; the <span class="eqn">1/p</span> coefficient is
+<em>closed form but not constant</em> — it is <span class="eqn">c(e(p)) &isin; [−0.540510, −0.480453]</span>
+(see the correction above).</p>
+<p><b>Status.</b> The order, the leading constant <span class="eqn">1</span>, and the linear
+constant <span class="eqn">−(1 + ln ln 2)</span> are proved; the <span class="eqn">1/p</span>
+coefficient is numerical. Nothing here bears on the twin prime conjecture, the parity problem, or
+the Riemann hypothesis. The result closes the chain rh42 Thm 10 ⟶ OP-5 ⟶ OP-6.</p>
+</div>
+
+<nav class="toc">
+<h2>Contents</h2>
+<ol>
+<li><a href="#s1"><span class="tocnum">1</span>Preliminaries</a>
+  <ol style="margin-left:2.2em;list-style:none;padding:0">
+  <li><a href="#s1-1"><span class="tocnum">1.1</span>The positive half-series and its budget</a></li>
+  <li><a href="#s1-2"><span class="tocnum">1.2</span>The census identity</a></li>
+  <li><a href="#s1-3"><span class="tocnum">1.3</span>What was recorded, and what was missing</a></li>
+  </ol></li>
+<li><a href="#s2"><span class="tocnum">2</span>The main theorem</a></li>
+<li><a href="#s3"><span class="tocnum">3</span>Proof</a>
+  <ol style="margin-left:2.2em;list-style:none;padding:0">
+  <li><a href="#s3-1"><span class="tocnum">3.1</span>Cancellation of the budget</a></li>
+  <li><a href="#s3-2"><span class="tocnum">3.2</span>The regime at the threshold</a></li>
+  <li><a href="#s3-3"><span class="tocnum">3.3</span>The Hurwitz tail at <span class="eqn">p ≫ n</span></a></li>
+  <li><a href="#s3-4"><span class="tocnum">3.4</span>The leading orders give <span class="eqn">c = 1</span></a></li>
+  <li><a href="#s3-5"><span class="tocnum">3.5</span>The <span class="eqn">1/p</span> term</a></li>
+  </ol></li>
+<li><a href="#s4"><span class="tocnum">4</span>Verification</a>
+  <ol style="margin-left:2.2em;list-style:none;padding:0">
+  <li><a href="#s4-1"><span class="tocnum">4.1</span>The census identity against rh42's table</a></li>
+  <li><a href="#s4-2"><span class="tocnum">4.2</span>The linear coefficient</a></li>
+  <li><a href="#s4-3"><span class="tocnum">4.3</span>The <span class="eqn">1/p</span> coefficient</a></li>
+  </ol></li>
+<li><a href="#s5"><span class="tocnum">5</span>Why <span class="eqn">c·p log p</span> alone is a weak diagnostic</a></li>
+<li><a href="#s6"><span class="tocnum">6</span>What is proved and what is numerical</a></li>
+<li><a href="#appA"><span class="tocnum">A</span>Reproducible script</a></li>
+<li><a href="#appB"><span class="tocnum">B</span>The numbers, in one place</a></li>
+</ol>
+</nav>
+
+<div class="thm">
+<span class="tag t-thm">Result</span>
+With the positive half-series <span class="eqn">a<sub>k</sub> = (2k)<sup>−p</sup></span>,
+budget <span class="eqn">P(p) = Σ<sub>k≥1</sub>a<sub>k</sub> = 2<sup>−p</sup>ζ(p)</span>, tail
+<span class="eqn">T<sub>n</sub> = Σ<sub>k≥n</sub>a<sub>k</sub> = 2<sup>−p</sup>ζ(p,n)</span>, and
+the census identity <span class="eqn">measure(S<sub>1</sub>) = 2<sup>n<sub>min</sub>−1</sup>T<sub>n<sub>min</sub></sub></span>:
+<div class="disp">L(p) := −log( measure(S_1)/P(p) )
+
+L(p)  =  p log p  −  0.6334870794183357… · p  −  c(e(p))/p  +  O(1/p²) ,
+      c(e)  =  −((ln 2)²/2)(e² − e + 9/4) ,   e(p) = ⌈p/ln 2 − 5/2⌉ − (p/ln 2 − 5/2)
+
+measure(S_1)/P(p)  =  p^(−p) · e^((1 + ln ln 2)·p) · (1 + o(1))  →  0 .</div>
+The recorded guess's leading constant is <b>c = 1</b>; the linear coefficient is the exact
+<b>−(1 + ln ln 2)</b>.
+</div>
+
+<h2 id="s1">1. Preliminaries</h2>
+
+<h3 id="s1-1">1.1 The positive half-series and its budget</h3>
+<p>Fix <span class="eqn">p &gt; 0</span> and consider the positive half-series</p>
+<div class="disp">a_k  =  (2k)^(−p) ,       k = 1, 2, 3, … ,        P(p)  =  Σ_{k≥1} a_k  =  2^(−p)·ζ(p) .</div>
+<p>This is the even-index sub-series of the signed alphabet of the programme: a sine is written
+from the even terms, and <span class="eqn">P(p)</span> is the <i>budget</i> — the largest value
+that can be written with the positive half alone. Write also</p>
+<div class="disp">T_n  :=  Σ_{k≥n} a_k  =  2^(−p)·ζ(p, n) ,        so that  P(p) = T_1 ,</div>
+<p>with <span class="eqn">ζ(s,q) = Σ<sub>k≥0</sub>(q+k)<sup>−s</sup></span> the Hurwitz zeta function.
+The convention <span class="eqn">T<sub>n</sub> = 2<sup>−p</sup>ζ(p,n)</span> is the one used
+throughout rh42 and is the one verified in §4.1.</p>
+
+<h3 id="s1-2">1.2 The census identity</h3>
+<p>Brown's criterion says the sub-sums of a decreasing positive sequence fill
+<span class="eqn">[0,Σa<sub>k</sub>]</span> iff every <span class="eqn">a<sub>n</sub> ≤ T<sub>n+1</sub></span>.
+The programme's census theorem (rh42 Thm 10) identifies exactly which targets are writable below
+that threshold.</p>
+
+<div class="thm"><span class="tag t-thm">Census (rh42 Thm 10)</span>
+Let <span class="eqn">n<sub>min</sub>(p)</span> be the first index at which the tail
+<span class="eqn">(a<sub>k</sub>)<sub>k≥n</sub></span> becomes complete. Then
+<div class="disp">S_1  =  ⋃_{A ⊆ {1,…,n_min−1}} ( Σ_{k∈A} a_k + [0, T_{n_min}] ) ,
+measure(S_1)  =  2^(n_min(p) − 1) · T_{n_min(p)}  =  2^(n_min(p) − 1 − p) · ζ(p, n_min(p)) .</div>
+<b>Proved</b> in rh42 (each incomplete level doubles the interval count, the pieces being
+disjoint because <span class="eqn">h(n) &lt; 0</span> there); re-derived and verified here in §4.1.
+</div>
+
+<h3 id="s1-3">1.3 What was recorded, and what was missing</h3>
+<p>The register row OP-6 asked for the exact order of
+<span class="eqn">measure(S<sub>1</sub>)/P(p) → 0</span>, with the falsifiable form "a predicted
+leading constant <span class="eqn">c</span> in
+<span class="eqn">−log(measure/P) ~ c·p log p</span>". The obstruction recorded was that the ratio
+"is a ratio of an exponentially growing count and a doubly-exponentially small length; neither
+factor is controlled asymptotically".</p>
+<p>Both factors became controlled when OP-5 supplied
+<span class="eqn">n<sub>min</sub>(p) = p/ln 2 − 3/2 + O(1)</span> — the exponent sitting in the
+count <span class="eqn">2<sup>n<sub>min</sub>−1</sup></span>. The remaining step, taken here, is to
+recognise that at that exponent the sum <span class="eqn">T<sub>n<sub>min</sub></sub></span> is
+dominated by its first term.</p>
+
+<h2 id="s2">2. The main theorem</h2>
+
+<div class="thm"><span class="tag t-thm">Theorem</span>
+Let <span class="eqn">a<sub>k</sub> = (2k)<sup>−p</sup></span>,
+<span class="eqn">P(p) = 2<sup>−p</sup>ζ(p)</span>, and let
+<span class="eqn">L(p) = −log( measure(S<sub>1</sub>)/P(p) )</span>. Then
+<div class="disp">L(p)  =  p log p  −  (1 + ln ln 2)·p  −  c(e(p)) / p  +  O(1/p²)   (p → ∞) ,
+c(e)  =  −((ln 2)²/2)(e² − e + 9/4) ,   e(p) = ⌈p/ln 2 − 5/2⌉ − (p/ln 2 − 5/2) ,</div>
+equivalently
+<div class="disp">measure(S_1)/P(p)  =  p^(−p)·e^((1 + ln ln 2)·p)·(1 + o(1))  →  0 .</div>
+The coefficient of <span class="eqn">p log p</span> is exactly <span class="eqn">1</span>, and the
+coefficient of <span class="eqn">p</span> is exactly <span class="eqn">−(1 + ln ln 2)</span>.
+</div>
+
+<div class="thm"><span class="tag t-thm">Corollary (the recorded form, settled)</span>
+In the register's <span class="eqn">−log(measure/P) ~ c·p log p</span>, the constant is
+<span class="eqn">c = 1</span>. The candidates <span class="eqn">1/ln 2 = 1.4427…</span> and
+<span class="eqn">2/ln 2 = 2.8854…</span> are both excluded. A linear term
+<span class="eqn">−(1 + ln ln 2)p = −0.6334870794…p</span> is present at the same order.
+</div>
+
+<h2 id="s3">3. Proof</h2>
+
+<p>The whole argument is one cancellation and one regime identification.</p>
+
+<h3 id="s3-1">3.1 Cancellation of the budget</h3>
+<p>The census identity and <span class="eqn">P(p) = 2<sup>−p</sup>ζ(p)</span> share the factor
+<span class="eqn">2<sup>−p</sup></span>, so it cancels:</p>
+<div class="disp">measure(S_1)/P(p)  =  2^(n_min − 1) · ζ(p, n_min) / ζ(p) .</div>
+<p>Writing <span class="eqn">n = n<sub>min</sub>(p)</span> and taking logarithms,</p>
+<div class="disp">L(p)  =  −(n − 1)·ln 2  −  log ζ(p, n)  +  log ζ(p) .</div>
+<p>Since <span class="eqn">ζ(p) = 1 + O(2<sup>−p</sup>)</span> as
+<span class="eqn">p → ∞</span>, the last term is <span class="eqn">o(1)</span> and may be dropped.
+The problem is now one quantity: <span class="eqn">−log ζ(p,n)</span> at
+<span class="eqn">n = n<sub>min</sub>(p)</span>.</p>
+
+<h3 id="s3-2">3.2 The regime at the threshold</h3>
+<p>OP-5 gives the exact first order
+<span class="eqn">n<sub>min</sub>(p) = p/ln 2 − 3/2 + O(1)</span>. Hence</p>
+<div class="disp">n_min(p)/p  →  1/ln 2  =  1.4426950408…  &lt;  2 ,</div>
+<p>so <span class="eqn">p &gt; n</span> at the threshold — in fact
+<span class="eqn">p ≈ (ln 2)·n</span>. This is the whole reason the tail is a single term below:
+the threshold is deep in the low-<span class="eqn">n</span> regime.</p>
+
+<h3 id="s3-3">3.3 The Hurwitz tail at <span class="eqn">p ≫ n</span></h3>
+
+<div class="lem"><span class="tag t-lem">Lemma (single-term tail)</span>
+Let <span class="eqn">z(p) := ζ(p,n)·n<sup>p</sup></span>. Then
+<div class="disp">ζ(p, n)  =  n^(−p)·z(p) ,        z(p)  =  Σ_{j≥0} (1 + j/n)^(−p)  =  2 + o(1) .</div>
+Consequently <span class="eqn">−log ζ(p,n) = p log n − ln 2 + o(1)</span>.
+</div>
+
+<p><b>Proof.</b> The ratio of consecutive summands of <span class="eqn">z(p)</span> is</p>
+<div class="disp">(1 + 1/n)^(−p)  =  exp( −p·log(1 + 1/n) )  =  exp( −p/n + O(p/n²) ) .</div>
+<p>By §3.2, <span class="eqn">p/n → ln 2</span>, so the ratio tends to
+<span class="eqn">e<sup>−ln 2</sup> = 1/2</span>. The series therefore converges geometrically, and
+its first term is <span class="eqn">1</span>: <span class="eqn">z(p) = 1 + (1/2) + O(1/4) = 2 + o(1)</span>.
+Taking logarithms gives the stated form. ∎</p>
+
+<p class="note"><b>Pitfall.</b> The two <span class="eqn">2</span>'s here are different objects and
+must not be conflated: the <span class="eqn">2</span> in <span class="eqn">z(p) → 2</span> is the
+geometric ratio of the low-<span class="eqn">n</span> tail, while the
+<span class="eqn">2</span> in <span class="eqn">2<sup>n<sub>min</sub>−1</sup></span> is the census
+doubling. The former contributes only an <span class="eqn">O(1)</span> term
+(<span class="eqn">−ln 2</span>); the latter is the dominant
+<span class="eqn">(ln 2)·n</span>.</p>
+
+<h3 id="s3-4">3.4 The leading orders give <span class="eqn">c = 1</span></h3>
+<p>Combine §3.1 and §3.3. With <span class="eqn">a = ln 2</span> and
+<span class="eqn">n = p/a − 3/2 + O(1)</span>:</p>
+<div class="disp">−(n − 1)·a     =  −p          +  (5/2)·a    + O(1)
+p·log n       =  p log p    −  p·log a   −  (3/2)·a   + O(1)
+−log z(p)     =                            −  log 2     + o(1)</div>
+<p>Adding, the terms linear in <span class="eqn">p</span> give
+<span class="eqn">−p − p·log a = −(1 + log a)p</span>, so</p>
+<div class="disp">L(p)  =  p log p  −  (1 + ln ln 2)·p  +  O(1) .</div>
+<p>The coefficient of <span class="eqn">p log p</span> is exactly <span class="eqn">1</span>, and the
+linear coefficient is <span class="eqn">−(1 + ln ln 2)</span> because
+<span class="eqn">log a = ln(ln 2)</span>. Numerically
+<span class="eqn">1 + ln ln 2 = 0.3665129205816643…</span>, so the linear coefficient is
+<span class="eqn">−0.6334870794183357…</span>.</p>
+
+<p><b>This is the recorded constant.</b> The register's form
+<span class="eqn">−log(measure/P) ~ c·p log p</span> has
+<span class="eqn">c = 1</span>. Neither <span class="eqn">1/ln 2</span> (the reciprocal of the
+<span class="eqn">n</span>-to-<span class="eqn">p</span> slope of OP-5) nor
+<span class="eqn">2/ln 2</span> (twice it) appears — the latter would be the answer if the
+<span class="eqn">2</span> of the census count were missing from the balance.</p>
+
+<h3 id="s3-5">3.5 The <span class="eqn">1/p</span> term</h3>
+<p>Carrying the next order of <span class="eqn">log(n/(p/a))</span>,</p>
+<div class="disp">p log n  =  p log p  −  p log a  −  (3/2)a  −  9a²/(8p)  +  O(1/p²) ,</div>
+<p>Writing the true index as <span class="eqn">n = p/a − 3/2 + e</span> with
+<span class="eqn">a = ln 2</span>, the <span class="eqn">a·e</span> terms cancel exactly and the net
+coefficient is the closed form</p>
+<div class="disp">L(p)  =  p log p  −  (1 + ln ln 2)p  −  c(e(p)) / p  +  O(1/p²) ,
+c(e)  =  −((ln 2)²/2)(e² − e + 9/4) .</div>
+<p><b>The coefficient is closed form but <em>not constant</em></b>: it is the function
+<span class="eqn">c(e(p))</span> of the ceiling error, ranging over
+<span class="eqn">[−(ln 2)², −(9/8)(ln 2)²] = [−0.480453013918201, −0.540509640657977]</span>.
+The constant <span class="eqn">−0.540509640658…</span> is the <span class="eqn">e = 0</span> value only.</p>
+
+<h2 id="s4">4. Verification</h2>
+
+<p>All numbers come from the reproducible script in Appendix A: the census values by the exact
+identity <span class="eqn">2<sup>n<sub>min</sub>−1−p</sup>ζ(p,n<sub>min</sub>)</span> with
+<span class="eqn">n<sub>min</sub></span> obtained from the threshold condition, at 80–120 decimal
+digits.</p>
+
+<h3 id="s4-1">4.1 The census identity against rh42's table</h3>
+<p>The script recomputes <span class="eqn">measure/P</span> from the threshold definition and
+compares with rh42 §4:</p>
+<table>
+<tr><th><span class="eqn">p</span></th><th class="n"><span class="eqn">n<sub>min</sub></span></th><th class="n">measure/P (here)</th><th class="n">rh42 record</th></tr>
+<tr><td>2</td><td class="n">2</td><td class="n">0.784145796292</td><td class="n">0.784146</td></tr>
+<tr><td>3</td><td class="n">3</td><td class="n">0.256416823387</td><td class="n">0.256417</td></tr>
+<tr><td>4</td><td class="n">5</td><td class="n">0.052794648956</td><td class="n">0.0527946</td></tr>
+<tr><td>6</td><td class="n">8</td><td class="n">0.00103748418513</td><td class="n">0.00103748</td></tr>
+<tr><td>8</td><td class="n">11</td><td class="n">1.01399618689·10⁻⁵</td><td class="n">1.013996·10⁻⁵</td></tr>
+<tr><td>10</td><td class="n">13</td><td class="n">5.95937484186·10⁻⁸</td><td class="n">5.959375·10⁻⁸</td></tr>
+<tr><td>12</td><td class="n">16</td><td class="n">2.34672902309·10⁻¹⁰</td><td class="n">2.346729·10⁻¹⁰</td></tr>
+</table>
+<p>All seven entries agree to the recorded precision. This both fixes the
+<span class="eqn">T<sub>n</sub> = 2<sup>−p</sup>ζ(p,n)</span> convention (the earlier
+<span class="eqn">ζ(p,n+1)</span> reading shifts every value) and confirms the census law
+independently before it is used.</p>
+<p class="note"><b>One record slip.</b> The rh42 table's <span class="eqn">p = 1.8</span> and
+<span class="eqn">p = 2.2</span> rows list <span class="eqn">n<sub>min</sub> = 2</span>, but
+<span class="eqn">ζ(1.8,2) − 1 = −0.1178… &lt; 0</span> forces
+<span class="eqn">n<sub>min</sub>(1.8) = 1</span>. The <span class="eqn">measure/P</span> column
+above <span class="eqn">p = 2</span> is unaffected, and the asymptotics do not depend on it.</p>
+
+<h3 id="s4-2">4.2 The linear coefficient</h3>
+<p>Exact census values of <span class="eqn">L</span> and the ratio
+<span class="eqn">(L − p log p)/p</span>:</p>
+<table>
+<tr><th class="n">p</th><th class="n">L(p)</th><th class="n">L/(p log p)</th><th class="n">(L − p log p)/p</th></tr>
+<tr><td class="n">10³</td><td class="n">6274.26769643</td><td class="n">0.90829328</td><td class="n">−0.6334875826</td></tr>
+<tr><td class="n">2·10³</td><td class="n">13934.83050166</td><td class="n">0.91665632</td><td class="n">−0.6334872087</td></tr>
+<tr><td class="n">5·10³</td><td class="n">39418.53045303</td><td class="n">0.92562255</td><td class="n">−0.6334871008</td></tr>
+<tr><td class="n">10⁴</td><td class="n">85768.53287747</td><td class="n">0.93122001</td><td class="n">−0.6334870842</td></tr>
+<tr><td class="n">10⁵</td><td class="n">1087943.83854979</td><td class="n">0.94497601</td><td class="n">−0.6334870795</td></tr>
+<tr><td class="n">10⁶</td><td class="n">13182023.47854546</td><td class="n">0.95414668</td><td class="n">−0.6334870794</td></tr>
+</table>
+<p>The last column converges to <span class="eqn">−(1 + ln ln 2) = −0.633487079418…</span>. The
+agreement at <span class="eqn">p = 10⁶</span> is to ten significant figures.</p>
+
+<h3 id="s4-3">4.3 The <span class="eqn">1/p</span> coefficient</h3>
+<p>Independent large-<span class="eqn">p</span> branch
+<span class="eqn">L = −(n−1)ln 2 + p log n − log z(p)</span>, at 80–120 dps:</p>
+<table>
+<tr><th class="n">p</th><th class="n">e(p)</th><th class="n">p·R(p)</th><th class="n">|p·R − c(e)|</th></tr>
+<tr><td class="n">10⁶</td><td class="n">0.459111</td><td class="n">−0.480854964688</td><td class="n">3.1·10⁻⁷</td></tr>
+<tr><td class="n">10⁹</td><td class="n">0.611037</td><td class="n">−0.483414796849</td><td class="n">3.2·10⁻¹⁰</td></tr>
+<tr><td class="n">10¹³</td><td class="n">0.865926</td><td class="n">−0.512619855067</td><td class="n">3.5·10⁻¹⁴</td></tr>
+</table>
+<p><span class="eqn">p·R(p)</span> is <b>not</b> stable: it tracks
+<span class="eqn">c(e(p))</span>, and the difference falls by ~10× per decade of
+<span class="eqn">p</span> (last column), i.e.
+<span class="eqn">R(p) = c(e(p))/p + O(1/p²)</span>. The superseded rows above used the smooth
+index <span class="eqn">e = 0</span>.</p>
+
+<h2 id="s5">5. Why <span class="eqn">c·p log p</span> alone is a weak diagnostic</h2>
+<p>Because the linear term is of the <i>same order</i> as the leading term, the ratio
+<span class="eqn">L/(p log p)</span> converges to 1 only logarithmically slowly:</p>
+<div class="disp">L(p)/(p log p)  =  1  −  (1 + ln ln 2)/log p  +  O(1/log² p) .</div>
+<p>At <span class="eqn">p = 10⁶</span> it still reads <span class="eqn">0.954</span>; at
+<span class="eqn">p = 10³</span>, <span class="eqn">0.908</span>. A one-parameter fit
+<span class="eqn">c·p log p</span> to data in this range would understate
+<span class="eqn">c</span> unless the linear term is carried. This is the quantitative form of
+the register's warning that "the two-sided bounds may be too lossy to pin a constant": here the
+loss is not in the bounds but in the functional form.</p>
+
+<h2 id="s6">6. What is proved and what is numerical</h2>
+<table>
+<tr><th>Item</th><th>Status</th></tr>
+<tr><td>Census identity <span class="eqn">measure(S<sub>1</sub>) = 2<sup>n<sub>min</sub>−1</sup>T<sub>n<sub>min</sub></sub></span></td><td><b>Inherited</b> (rh42 Thm 10); re-derived and checked against rh42's table here</td></tr>
+<tr><td>Cancellation to <span class="eqn">measure/P = 2<sup>n<sub>min</sub>−1</sup>ζ(p,n<sub>min</sub>)/ζ(p)</span></td><td><b>Proved</b> (elementary)</td></tr>
+<tr><td>Regime <span class="eqn">p ≫ n</span> at the threshold; <span class="eqn">z(p) → 2</span>; <span class="eqn">ζ(p,n) = n<sup>−p</sup>z(p)</span></td><td><b>Proved</b> (§3.2–3.3, using OP-5)</td></tr>
+<tr><td><span class="eqn">L(p) = p log p − (1 + ln ln 2)p + O(1)</span></td><td><b>Proved</b> (§3.4)</td></tr>
+<tr><td>Recorded constant <span class="eqn">c = 1</span></td><td><b>Proved</b> (leading coefficient)</td></tr>
+<tr><td><span class="eqn">1/p</span> coefficient</td><td><b>Closed form but not constant</b>: <span class="eqn">c(e) = −((ln 2)²/2)(e² − e + 9/4) &isin; [−0.540510, −0.480453]</span> (§3.4, §4.3; correction O4)</td></tr>
+</table>
+<p><b>What this closes.</b> The chain rh42 Thm 10 (interval count) ⟶ OP-5 (the exponent
+<span class="eqn">n<sub>min</sub></span>) ⟶ OP-6 (the decay of the fraction) is now complete, and
+the register's OP-6 row moves from OPEN to SETTLED.</p>
+
+<h2 id="appA">Appendix A — reproducible script</h2>
+<p>Run with an mpmath-enabled Python, e.g.
+<span class="eqn">/opt/homebrew/Caskroom/miniforge/base/bin/python3 op06_reachable_fraction.py</span>.
+The file is stored beside this document as
+<span class="eqn">research/twin-prime-parity/open/op06_reachable_fraction.py</span>.</p>
+<pre><span class="cm">#!/usr/bin/env python3
+# OP-6: measure(S_1)/P(p) = p^-p e^((1+ln ln2)p)(1+o(1)) -> 0.
+#   L(p) = -log(measure/P) = p log p - (1+ln ln2)p - 0.540509640658.../p + O(1/p^2).
+# Reproduces: census cross-check vs rh42, leading coefficient 1,
+#             linear coefficient -(1+ln ln2), 1/p coefficient.</span>
+<span class="kw">import</span> mpmath <span class="kw">as</span> mp
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+mp.mp.dps = <span class="kw">80</span>
+a = mp.log(<span class="kw">2</span>)                          <span class="cm"># ln 2</span>
+c2 = -(<span class="kw">1</span> + mp.log(a))                  <span class="cm"># -(1 + ln ln 2)</span>
+c3 = mp.mpf(<span class="kw">"-0.540509640658"</span>)          <span class="cm"># historical smooth-index (e=0) value</span>
+
+<span class="kw">def</span> hzeta(s, a0):
+    <span class="cm"># zeta(s,a0); direct sum for s &gt; 4 (geometric decay), mpmath otherwise</span>
+    <span class="kw">if</span> s &gt; <span class="kw">4</span>:
+        <span class="kw">return</span> mp.fsum([mp.power(a0 + k, -s) <span class="kw">for</span> k <span class="kw">in</span> range(<span class="kw">0</span>, <span class="kw">500</span>)])
+    <span class="kw">return</span> mp.zeta(s, a0)
+
+<span class="kw">def</span> nmin_exact(p):
+    <span class="cm"># first n with 2^-p(zeta(p,n+1) - n^-p) &gt;= 0</span>
+    p = mp.mpf(p)
+    n = max(<span class="kw">2</span>, int(p / a) - <span class="kw">3</span>)
+    <span class="kw">while</span> (<span class="kw">2</span> ** -p) * hzeta(p, n + <span class="kw">1</span>) - (<span class="kw">2</span> * n) ** -p &gt;= <span class="kw">0</span>: n -= <span class="kw">1</span>
+    n += <span class="kw">1</span>
+    <span class="kw">while</span> (<span class="kw">2</span> ** -p) * hzeta(p, n + <span class="kw">1</span>) - (<span class="kw">2</span> * n) ** -p &lt; <span class="kw">0</span>: n += <span class="kw">1</span>
+    <span class="kw">return</span> n
+
+<span class="kw">def</span> census_exact(p):
+    <span class="cm"># T_n = 2^-p zeta(p,n)  =&gt;  measure = 2^(n_min-1-p) zeta(p,n_min)</span>
+    p = mp.mpf(p); n = nmin_exact(p)
+    T = (<span class="kw">2</span> ** -p) * hzeta(p, n)
+    Pp = (<span class="kw">2</span> ** -p) * hzeta(p, <span class="kw">1</span>)
+    <span class="kw">return</span> n, mp.power(<span class="kw">2</span>, n - <span class="kw">1</span>) * T, Pp, -mp.log(mp.power(<span class="kw">2</span>, n - <span class="kw">1</span>) * T / Pp)
+
+<span class="kw">def</span> L_asym(p):
+    <span class="cm"># p &gt;&gt; 1: L = -(n-1)ln2 + p ln n - ln z(p),  z(p) = zeta(p,n) n^p -&gt; 2</span>
+    p = mp.mpf(p); n = p / a - mp.mpf(<span class="kw">3</span>) / <span class="kw">2</span>
+    zp = mp.fsum([mp.power(n + k, -p) <span class="kw">for</span> k <span class="kw">in</span> range(<span class="kw">0</span>, <span class="kw">500</span>)]) * mp.power(n, p)
+    <span class="kw">return</span> -(n - <span class="kw">1</span>) * mp.log(<span class="kw">2</span>) + p * mp.log(n) - mp.log(zp)
+
+<span class="cm"># 1. exact census values and the rh42 cross-check</span>
+<span class="kw">for</span> p <span class="kw">in</span> [<span class="kw">2</span>, <span class="kw">3</span>, <span class="kw">4</span>, <span class="kw">6</span>, <span class="kw">8</span>, <span class="kw">10</span>, <span class="kw">12</span>]:
+    n, m, Pp, L = census_exact(p)
+    <span class="kw">print</span>(p, n, mp.nstr(m / Pp, <span class="kw">12</span>))
+
+<span class="cm"># 2. the law on exact data</span>
+<span class="kw">for</span> p <span class="kw">in</span> [<span class="kw">10</span>**<span class="kw">3</span>, <span class="kw">10</span>**<span class="kw">4</span>, <span class="kw">10</span>**<span class="kw">5</span>, <span class="kw">10</span>**<span class="kw">6</span>]:
+    _, _, _, L = census_exact(p)
+    <span class="kw">print</span>(p, mp.nstr((L - p * mp.log(p)) / p, <span class="kw">12</span>))
+
+<span class="cm"># 3. the 1/p coefficient from the large-p branch</span>
+<span class="kw">for</span> p <span class="kw">in</span> [<span class="kw">10</span>**<span class="kw">6</span>, <span class="kw">10</span>**<span class="kw">9</span>, <span class="kw">10</span>**<span class="kw">12</span>, <span class="kw">10</span>**<span class="kw">13</span>]:
+    pm = mp.mpf(p); L = L_asym(pm)
+    <span class="kw">print</span>(p, mp.nstr((L - pm * mp.log(pm) - c2 * pm) * pm, <span class="kw">12</span>))
+</pre>
+
+<h2 id="appB">Appendix B — the numbers, in one place</h2>
+<table>
+<tr><th>Quantity</th><th class="n">Value</th></tr>
+<tr><td>coefficient of <span class="eqn">p log p</span></td><td class="n">1</td></tr>
+<tr><td><span class="eqn">1 + ln ln 2</span></td><td class="n">0.3665129205816643…</td></tr>
+<tr><td>linear coefficient <span class="eqn">−(1 + ln ln 2)</span></td><td class="n">−0.6334870794183357…</td></tr>
+<tr><td><span class="eqn">1/p</span> coefficient</td><td class="n">c(e(p)) = −((ln 2)²/2)(e²−e+9/4) &isin; [−0.540510, −0.480453]</td></tr>
+<tr><td><span class="eqn">n<sub>min</sub></span> slope (<span class="eqn">n</span> per <span class="eqn">p</span>, OP-5)</td><td class="n">1/ln 2 = 1.4426950409</td></tr>
+<tr><td>decay of <span class="eqn">measure(S<sub>1</sub>)/P(p)</span></td><td class="n"><span class="eqn">p<sup>−p</sup>e<sup>0.3665129206·p</sup></span></td></tr>
+<tr><td><span class="eqn">L(10⁶)</span> / <span class="eqn">measure/P</span> at <span class="eqn">p = 10⁶</span></td><td class="n">13 182 023.478… / 8.8·10<sup>−5 724 881</sup></td></tr>
+</table>
+
+<div class="foot">
+<b>Provenance.</b> Resolved against
+<span class="eqn">research/twin-prime-parity/open/07-open-problems.md</span> (row OP-6), composing
+rh42 Thm 10 (census, §4 of <span class="eqn">rh42/truths.md</span>) with
+[<span class="eqn">OP-05-nmin-asymptotic.md</span>](OP-05-nmin-asymptotic.md). Artifacts:
+<span class="eqn">open/OP-06-reachable-fraction.md</span> (this document's source) and
+<span class="eqn">open/op06_reachable_fraction.py</span> (reproduces every number above).
+Every table was produced by that script in this session; no number is quoted from memory.
+The census values were recomputed independently of the script quoted in OP-5 and reproduce
+the recorded rh42 table.
+<br><br>
+<b>Not claimed.</b> Nothing here touches the twin prime conjecture, the parity problem, or the
+Riemann hypothesis. OP-6 is a question about one family of complete sequences on the
+<span class="eqn">p</span>-series alphabet.
+</div>
+
+</div>
+</body>
+</html>

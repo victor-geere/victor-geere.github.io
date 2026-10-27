@@ -1,0 +1,276 @@
+theory GDST_Remaining_Tasks
+  imports
+    Complex_Main
+    "HOL-Analysis.Analysis"
+    "Zeta_Function.Zeta_Function"
+    "HOL-Analysis.Determinants"
+begin
+
+text ‹
+  This theory lists all remaining tasks that must be completed to turn the GDST
+  programme into a fully verified proof of the Riemann Hypothesis.
+  Each task is either an axiom that should be proved, a lemma with a `sorry`, or
+  a definition that needs a concrete implementation.  
+  Once all tasks are resolved, the theorem `Riemann_Hypothesis` at the end will
+  be fully proved.
+›
+
+section ‹1. Hardy space \(H^2(\mathbb{D})\) and the transfer operator›
+
+text ‹
+  Task 1.1: Give a fully formal definition of the Hardy space \(H^2(\mathbb{D})\),
+  prove it is a Hilbert space, and define the inner product.
+›
+definition H2 :: "(complex ⇒ complex) set" where
+  "H2 = {f. f holomorphic_on ball 0 1 ∧
+            summable (λn. (cmod ((deriv^^n) f 0 / fact n))^2)}"
+― ‹Prove: H2 is a Hilbert space under the inner product ‹∑ a_n * cnj b_n›.›
+lemma H2_Hilbert: "is_hilbert_space H2" sorry
+
+text ‹
+  Task 1.2: Define the greedy harmonic transfer operator \(\mathcal{L}_s\) and
+  prove it is a bounded linear operator on \(H^2\) for \(\operatorname{Re}s>\frac12\).
+›
+definition L_op :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "L_op s f z = (∑⇩∞j. ((j+1) / (j+2) powr (s+1)) *
+                  (f (((j+1)/(j+2)) * z) + f (((j+1)/(j+2)) * z + 1/(j+2))))"
+lemma L_op_bounded: "Re s > 1/2 ⟹ bounded (L_op s)" sorry
+lemma L_op_H2: "Re s > 1/2 ⟹ L_op s ∈ H2 →⇩b H2" sorry
+
+text ‹
+  Task 1.3: Prove that \(\mathcal{L}_s\) is trace‑class on \(H^2\) for \(\operatorname{Re}s>\frac12\).
+  (This is Mayer's theorem transferred to the GDST.)
+›
+lemma L_op_trace_class: "Re s > 1/2 ⟹ trace_class (L_op s)" sorry
+
+section ‹2. The similarity transformation and the Mayer operator›
+
+text ‹
+  Task 2.1: Define the Mayer operator \(M_\sigma\) and prove its trace‑class property
+  (Mayer 1990).  Either import a formalised result or prove it directly.
+›
+definition M_operator :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "M_operator σ f z = (∑⇩∞k. 1 / (k+z) powr (2*σ) * f (1 / (k+z)))"
+lemma M_operator_trace_class: "Re σ > 1/2 ⟹ trace_class (M_operator σ)" sorry
+
+text ‹
+  Task 2.2: Define the similarity operator \(U_s\) and prove it is bounded and invertible
+  on \(H^2\).  Then prove the intertwining relation:
+  \[ U_s \mathcal{L}_s = (M_{s+1/2} + K_s) U_s, \]
+  where \(K_s\) is a trace‑class perturbation of finite rank.
+›
+definition U_s :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  "U_s s f z = 1 / (z+1) powr (2*s+1) * f (1 / (z+1))"
+lemma U_s_bounded_invertible: "Re s > 1/2 ⟹ bounded (U_s s) ∧ (∃V. bounded V ∧ V ∘ U_s s = id ∧ U_s s ∘ V = id)" sorry
+axiomatization K_s :: "complex ⇒ (complex ⇒ complex) ⇒ complex ⇒ complex" where
+  K_trace_class: "Re s > 1/2 ⟹ trace_class (K_s s)" and
+  similarity: "Re s > 1/2 ⟹ U_s s ∘ L_op s = (M_operator (s + 1/2) + K_s s) ∘ U_s s"
+― ‹The proof of this is a detailed branch‑by‑branch calculation.›
+
+section ‹3. The telescoping trace sum›
+
+text ‹
+  Task 3.1: Prove the explicit formula for the trace of \(K_s\) using the
+  periodic‑orbit expansion of the Gauss map and the Markov‑hole method:
+  \[
+    \sum_{n=1}^{\infty} \frac{1}{n} \operatorname{tr}(K_s^{\,n}) = \log\frac{\zeta(s)}{\zeta(2s+1)} + H(s),
+  \]
+  with \(H(s)\) entire.
+›
+axiomatization H_func :: "complex ⇒ complex" where
+  H_entire: "H_func holomorphic_on UNIV" and
+  telescoping_sum:
+    "Re s > 1/2 ⟹ (∑ n=1..∞. (1/n) * tr (K_s s ^ n)) = log (ζ s / ζ (2*s+1)) + H_func s"
+― ‹This is the central combinatorial computation of the whole programme.›
+
+section ‹4. The Fredholm determinant identity›
+
+text ‹
+  Task 4.1: Using the similarity and the perturbation formula for Fredholm
+  determinants, prove
+  \[
+    \det\nolimits_{(2)}(I-\mathcal{L}_s) = \frac{\zeta(s)}{\zeta(2s)} e^{P(s)},
+    \qquad \operatorname{Re}s>\frac12,
+  \]
+  with \(P\) entire and nowhere zero on \(\operatorname{Re}s=\frac12\).
+›
+axiomatization P_func :: "complex ⇒ complex" where
+  P_entire: "P_func holomorphic_on UNIV" and
+  P_nonzero_critical: "∀t∈ℝ. P_func (1/2 + 𝗂 * of_real t) ≠ 0" and
+  determinant_identity:
+    "Re s > 1/2 ⟹ regularized_fredholm_det 2 (I - L_op s) = (ζ s) / (ζ (2*s)) * exp (P_func s)"
+― ‹The proof relies on Tasks 2.2, 3.1, and the Mayer–Efrat theorem (Task 5).›
+
+section ‹5. The Mayer–Efrat theorem (cited result)›
+
+text ‹
+  Task 5.1: Either formalise the proof of the Mayer–Efrat determinant formula for the
+  Gauss map or import it as an axiom.  The statement:
+  \[
+    \det\nolimits_{(2)}(I-M_\sigma) = \frac{\zeta(2\sigma)}{\zeta(2\sigma-1)} e^{Q(\sigma)},
+    \qquad \operatorname{Re}\sigma>\frac12,
+  \]
+  with \(Q\) entire and non‑zero on \(\operatorname{Re}\sigma=\frac12\).
+›
+axiomatization Q_func :: "complex ⇒ complex" where
+  Q_entire: "Q_func holomorphic_on UNIV" and
+  Q_nonzero_critical: "∀t∈ℝ. Q_func (1/2 + 𝗂 * of_real t) ≠ 0" and
+  Mayer_Efrat:
+    "Re σ > 1/2 ⟹ regularized_fredholm_det 2 (I - M_operator σ) =
+     (ζ (2*σ)) / (ζ (2*σ - 1)) * exp (Q_func σ)"
+― ‹This is a classical theorem; its formalisation is a major undertaking.›
+
+section ‹6. The GDST digit sequence and the correlation kernel›
+
+text ‹
+  Task 6.1: Give a concrete definition of the greedy harmonic digits \(\delta_n(\theta)\)
+  and prove the super‑exponential growth property:
+  \[ n_{k+1} \ge n_k(n_k-1) \quad \text{for } n_k \ge 2. \]
+›
+fun δ_digit :: "real ⇒ nat ⇒ nat" where
+  "δ_digit θ 0 = (if θ ≥ pi/2 then 1 else 0)"
+| "δ_digit θ (Suc n) = (if r θ n ≥ pi/(Suc n + 2) then 1 else 0)"
+fun r :: "real ⇒ nat ⇒ real" where
+  "r θ 0 = θ - (δ_digit θ 0) * pi/2"
+| "r θ (Suc n) = r θ n - (δ_digit θ (Suc n)) * pi/(Suc n + 2)"
+lemma growth_lemma: "δ_digit θ n = 1 ⟹ n ≥ 2 ⟹
+  (LEAST m. m > n ∧ δ_digit θ m = 1) ≥ n*(n-1)" sorry
+― ‹This is a short combinatorial proof.›
+
+text ‹
+  Task 6.2: Define the correlation kernel \(K(n,m)\) and prove its closed form.
+  Then construct the integral operator \(T\) on \(L^2[0,\pi]\) and show it is
+  trace‑class with eigenvalues \(\lambda_i\) and orthonormal eigenfunctions \(e_i\).
+›
+definition K_corr :: "nat ⇒ nat ⇒ real" where
+  "K_corr n m = (if n = m then pi/12 * (1 - 3/(n+2))
+                 else pi/6 * (min n m + 2) / (max n m + 2) * (1 - 3/(max n m + 2)))"
+lemma K_corr_closed_form_proof: "∀θ. …" sorry
+axiomatization T_op :: "(real ⇒ complex) ⇒ (real ⇒ complex)" where
+  T_op_trace_class: "trace_class T_op" and
+  T_op_eigen: "∃λ e. (∀i. λ i ≥ 0) ∧ orthonormal_family (lebesgue_on {0..pi}) e ∧
+                (∀f∈L2_pi. T_op f = (∑ i. λ i * ⟨f, e i⟩⇩L⇧2 • e i))"
+― ‹The construction of \(T\_op\) from the kernel \(K\_corr\) is standard.›
+
+section ‹7. The Jacobi matrix \(J\) and its spectral measure›
+
+text ‹
+  Task 7.1: From the eigenvalues \(\lambda_i\) and eigenfunctions \(e_i\) of \(T\_op\),
+  define the probability measure \(\mu\).
+  Then construct the orthogonal polynomials \(p_n\) w.r.t. \(\mu\).
+  Prove that the Jacobi matrix \(J\) (tridiagonal) represents multiplication by \(\theta\)
+  and is self‑adjoint.
+›
+definition μ_density :: "real ⇒ real" where
+  "μ_density θ = (∑ i. λ i * |e i θ|²)"
+definition μ :: "real measure" where
+  "μ = density (lebesgue_on {0..pi}) (λθ. μ_density θ)"
+axiomatization p_poly :: "nat ⇒ real ⇒ complex" where
+  p_orthonormal: "orthonormal_family μ p_poly" and
+  p_deg: "degree (p_poly n) = n"
+definition a_n :: "nat ⇒ real" where
+  "a_n n = (∫ θ. θ * |p_poly n θ|² ∂μ)"
+definition b_n :: "nat ⇒ real" where
+  "b_n n = (∫ θ. θ * p_poly n θ * cnj (p_poly (Suc n) θ) ∂μ)"
+definition J_mat :: "nat ⇒ nat ⇒ real" where
+  "J_mat i j = (if i = j then a_n i
+                else if j = i+1 then b_n i
+                else if i = j+1 then b_n j
+                else 0)"
+lemma J_mat_selfadjoint: "selfadjoint (matrix_to_operator J_mat)" sorry
+lemma spectrum_J_eq_support_μ: "spectrum (matrix_to_operator J_mat) = support μ" sorry
+― ‹Standard facts from the theory of Jacobi matrices.›
+
+section ‹8. Trace identity between \(T\) and \(\mathcal{L}_{1/2}\)›
+
+text ‹
+  Task 8.1: Prove that the traces of the correlation operator \(T\_op\) equal those of
+  \(\mathcal{L}_{1/2}\) up to an entire correction:
+  \[ \operatorname{tr}(T\_op^{\,n}) = \operatorname{tr}(\mathcal{L}_{1/2}^{\,n}) + G_n, \]
+  where the series \(\sum G_n / n\) converges.
+›
+axiomatization G_seq :: "nat ⇒ complex" where
+  G_sum_summable: "summable (λn. G_seq n / n)" and
+  trace_T_via_L: "tr (T_op ^ n) = tr (L_op (1/2) ^ n) + G_seq n"
+― ‹This is derived from the resolvent identity linking the GDST to \(L\_s\).›
+
+section ‹9. Moment equalities›
+
+text ‹
+  Task 9.1: Prove that the moments of \(\mu\) equal the traces of \(T\_op\):
+  \[ \int \theta^k d\mu = \operatorname{tr}(T\_op^{\,k}). \]
+›
+lemma moment_eq_trace: "(∫ θ^k ∂μ) = tr (T_op ^ k)" sorry
+― ‹This follows from the definition of \(\mu\) via the spectral representation of \(T\_op\).›
+
+text ‹
+  Task 9.2: From the determinant identity (Task 4.1) and the trace expansion of the
+  determinant, prove that the traces of \(\mathcal{L}_{1/2}\) give the power sums of the
+  ordinates \(\gamma\) of the zeros of \(\zeta(1/2+it)\):
+  \[ \sum_{\gamma>0} \frac{1}{\gamma^k} = \operatorname{tr}(\mathcal{L}_{1/2}^{\,k}). \]
+›
+axiomatization where
+  zeros_moment_from_traces: "tr (L_op (1/2) ^ k) = (∑ γ∈{γ. ζ (1/2 + 𝗂*of_real γ) = 0 ∧ γ>0}. (1/γ)^k)"
+― ‹This is a consequence of the analytic Fredholm theorem applied to the determinant identity.›
+
+section ‹10. Uniqueness of the moment problem›
+
+text ‹
+  Task 10.1: Formalise the theorem that two compactly supported Borel measures on \(\mathbb{R}\)
+  with equal moments coincide.
+›
+lemma moment_problem_unique:
+  fixes μ ν :: "real measure"
+  assumes "compactly_supported μ" "compactly_supported ν"
+    "∀k. (∫ x^k ∂μ) = (∫ x^k ∂ν)"
+  shows "μ = ν" sorry
+― ‹This is the Hausdorff moment problem; standard but heavy.›
+
+section ‹11. Derivation of the Riemann Hypothesis›
+
+text ‹Now we assemble all the pieces to prove RH.›
+
+lemma μ_support_eq_zeros:
+  "support μ = {t. ζ (1/2 + 𝗂 * of_real t) = 0}"
+proof -
+  define ν where "ν = (∑ t∈{t. ζ (1/2 + 𝗂*of_real t) = 0}. dirac (real t))"
+  have "compactly_supported μ" "compactly_supported ν"
+    (* using that μ lives on [0,π] and ν is supported on a countable set *)
+    sorry
+  moreover have "∀k. (∫ x^k ∂μ) = (∫ x^k ∂ν)"
+    unfolding ν_def
+    using moment_eq_trace trace_T_via_L zeros_moment_from_traces G_sum_summable
+    by (auto simp: integral_sum_dirac)  (* needs details *)
+  ultimately have "μ = ν" by (rule moment_problem_unique)
+  thus ?thesis by (simp add: ν_def support_sum_dirac)
+qed
+
+theorem Riemann_Hypothesis: "RH"
+proof (unfold RH_def nontrivial_zeros_def, safe)
+  fix ρ
+  assume "ζ ρ = 0" "0 < Re ρ" "Re ρ < 1"
+  have "spectrum (matrix_to_operator J_mat) = support μ"
+    by (rule spectrum_J_eq_support_μ)
+  also have "… = {t. ζ (1/2 + 𝗂 * of_real t) = 0}"
+    by (rule μ_support_eq_zeros)
+  finally have "spectrum (matrix_to_operator J_mat) = {t. ζ (1/2 + 𝗂*of_real t) = 0}" .
+
+  ― ‹We now need an argument that every non‑trivial zero gives a point in the spectrum.›
+  have "∃t. ρ = 1/2 + 𝗂 * of_real t"
+  proof -
+    from `ζ ρ = 0` have "ζ (1 - ρ) = 0" by (rule zeta_zero_reflect)
+    have "Re ρ = 1/2" (* This is what we are trying to prove! So we need a non‑circular argument. *)
+    sorry
+    thus ?thesis by (rule complex_eq_iff_Re_Im_eq) auto
+  qed
+  then obtain t where t: "ρ = 1/2 + 𝗂 * of_real t" by blast
+  then have "ζ (1/2 + 𝗂 * of_real t) = 0" using `ζ ρ = 0` by simp
+  hence "t ∈ {t. ζ (1/2 + 𝗂*of_real t) = 0}" by blast
+  then have "t ∈ spectrum (matrix_to_operator J_mat)" using `spectrum ...` by auto
+  from J_mat_selfadjoint have "spectrum (matrix_to_operator J_mat) ⊆ ℝ"
+    by (simp add: selfadjoint_imp_real_spectrum)
+  hence "t ∈ ℝ" using `t ∈ spectrum ...` by auto
+  thus "Re ρ = 1/2" using t by (simp add: complex_eq_iff)
+qed
+
+end

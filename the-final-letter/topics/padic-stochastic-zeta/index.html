@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>p-adic and stochastic zeta — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.6rem;font-size:1.08rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.note{background:#fff8e6;border:1px solid #ead9a5;padding:.8rem 1rem;border-radius:6px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+pre{background:#f1f3f5;padding:.8rem 1rem;border-radius:6px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.91rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+ul,ol{padding-left:1.3rem}
+</style></head><body>
+
+<h1>p-adic and stochastic zeta</h1>
+<p class="sub">A reconstructed research programme: p-adic formal core, exact computation, source claims, open bridges</p>
+
+<div class="top"><p><strong>Status.</strong> Adjacent reconstruction with a small formal core. The p-adic norm, finite encoding, local Euler factor, and the <code>k = 2</code> Kubota–Leopoldt bookkeeping are reconstructed. The Kubota–Leopoldt construction, p-adic analyticity, stochastic representations, and p-adic spectral analysis remain open. The full dossier, theorem ledger, and provenance are in <a href="README.md">README.md</a>.</p></div>
+
+<h2>Provenance and source assessment</h2>
+<p>The source is <a href="../../archive/essays/p-adic.html"><code>archive/essays/p-adic.html</code></a>, “p-adic Numbers and the Kubota–Leopoldt p-adic Zeta Function”, attributed in the file to Grok 3 (xAI). It is a short, AI-generated expository essay introducing the p-adic norm, finite base-<code>p</code> encodings, p-adic geometry and calculus in outline, and stating the Kubota–Leopoldt interpolation formula</p>
+<p style="text-align:center"><code>ζ<sub>p</sub>(1−k) = (1 − p<sup>k−1</sup>) ζ(1−k)</code>.</p>
+<p>It is not a research paper: it contains no proof of Kubota–Leopoldt existence, continuity or analyticity, and its “forex price” and schemes discussion is speculative framing with no mathematical content. <strong>The essay contains no stochastic process, no stochastic representation of zeta, and no p-adic spectral analysis.</strong> Those phrases belong to the inventory label for item 41, not to the essay. This dossier reconstructs only the local objects the essay actually defines.</p>
+<p>The essay makes no claim about the Riemann hypothesis, GRH, twin primes, Chowla or Sarnak. No such claim is attributed to it here.</p>
+
+<h2>Reconstructed objects and notation</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><code>pNorm p q</code></td><td>Mathlib's <code>padicNorm p q</code> on ℚ</td><td>the p-adic norm of the source</td></tr>
+<tr><td><code>encode p s</code></td><td><code>Nat.ofDigits p s</code>, i.e. <code>s₀ + s₁p + s₂p² + ⋯</code></td><td>finite little-endian digit encoding</td></tr>
+<tr><td><code>eulerFactor p</code></td><td><code>1 − p⁻¹</code></td><td>local Euler factor at <code>s = 1</code></td></tr>
+<tr><td><code>klFactor p k</code></td><td><code>1 − p<sup>k−1</sup></code></td><td>Kubota–Leopoldt interpolation factor</td></tr>
+<tr><td><code>klValue p</code></td><td><code>(1 − p) · (−1/12)</code></td><td>value at <code>s = −1</code> (<code>k = 2</code>), using <code>ζ(−1) = −1/12</code></td></tr>
+</tbody>
+</table>
+<p>The Python layer also provides exact rationals <code>padic_norm</code>, <code>padic_norm_rational</code>, <code>kl_value</code>, and the archimedean context value <code>η(2) = π²/12</code>.</p>
+
+<h2>Theorem ledger</h2>
+<p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code> or <code>admit</code>. Every <strong>Computation</strong> row is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>For a prime <code>p</code>, <code>‖pⁿ‖<sub>p</sub> = p<sup>−n</sup></code></td><td><code>PadicStoch.pNorm_p_pow</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>For a prime <code>p</code>, <code>n ↦ ‖pⁿ‖<sub>p</sub></code> is strictly antitone</td><td><code>PadicStoch.pNorm_p_pow_strictAnti</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>The p-adic norm is non-archimedean: <code>‖q+r‖<sub>p</sub> ≤ max(‖q‖<sub>p</sub>, ‖r‖<sub>p</sub>)</code></td><td><code>PadicStoch.pNorm_nonarchimedean</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>The source's worked example: base <code>3</code>, digits <code>[2,1,0]</code>, encodes <code>5</code></td><td><code>PadicStoch.encode_example</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>The finite Euler-factor identity <code>(1−p⁻¹)Σ<sub>k&lt;N</sub> p<sup>−k</sup> = 1−p<sup>−N</sup></code></td><td><code>PadicStoch.eulerFactor_telescope</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>At <code>k=2</code> the interpolation bookkeeping gives <code>klValue p = (p−1)/12</code></td><td><code>PadicStoch.klValue_eq</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>For <code>p &gt; 1</code>, <code>klValue p &gt; 0</code></td><td><code>PadicStoch.klValue_pos</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td><code>v₂(12)=2</code>, <code>v₃(12)=1</code>; <code>‖12‖₂=1/4</code>, <code>‖12‖₃=1/3</code>, <code>‖5‖₅=1/5</code>, <code>‖0‖₂=0</code>; valuation of <code>0</code> and base <code>1</code> rejected</td><td><code>test_padic_valuation_and_norm</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>The ultrametric inequality holds on a grid of rationals for <code>p = 2,3,5</code>, with exact edge values</td><td><code>test_padic_norm_is_ultrametric_on_grid</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td><code>encode 3 [2,1,0] = 5</code>; empty string gives <code>0</code>; invalid digits rejected</td><td><code>test_encode_source_example</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>Every digit string of length ≤ 4 over <code>{0,…,p−1}</code> encodes below <code>p<sup>length</sup></code>, for <code>p = 2,3,5</code></td><td><code>test_encode_bound_on_all_small_digit_strings</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>The Euler-factor telescoping identity holds exactly for <code>N = 0,1,7</code> and <code>p = 2,3,5</code></td><td><code>test_euler_factor_and_telescope</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td><code>ζ(−1) = −1/12</code>, <code>ζ(−3) = 1/120</code>, and <code>kl_value(p,2) = (p−1)/12</code>; <code>k=4</code> checked too</td><td><code>test_kubota_leopoldt_rational_values</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>The archimedean context value <code>η(2) = π²/12</code></td><td><code>test_eta_two_archimedean_context</code></td></tr>
+</tbody>
+</table>
+
+<div class="note"><p><strong>What T1–T7 do not mean.</strong> T1–T3 formalise the norm statements the essay uses as definitions or standard facts. T4 is exactly its worked encoding example. T5 is the finite geometric identity behind the local Euler factor, not the analytic Euler product. T6–T7 are the rational bookkeeping obtained by substituting <code>ζ(−1) = −1/12</code> into the stated formula at <code>k = 2</code>. They are <strong>not</strong> a construction of the Kubota–Leopoldt function and do <strong>not</strong> prove its interpolation property for general <code>k</code>.</p></div>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<p>Every row in this table is of kind <strong>Source claim</strong>; none is used as a theorem in the reconstruction.</p>
+<table>
+<thead><tr><th>Source claim</th><th>Archived status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>ℚ<sub>p</sub> is the completion of ℚ under <code>‖·‖<sub>p</sub></code>; ℤ<sub>p</sub> is compact and totally disconnected</td><td>Standard exposition, asserted without proof</td><td>Not formalised. Mathlib has a p-adic completion, but this reconstruction does not develop it.</td></tr>
+<tr><td>An infinite digit sequence converges in ℤ<sub>p</sub>, giving a compact encoding</td><td>Source assertion</td><td>Only finite encodings are tested (C3–C4). No convergence or compactness proof.</td></tr>
+<tr><td><code>ζ<sub>p</sub>(1−k) = (1−p<sup>k−1</sup>) ζ(1−k)</code> for all <code>k ≥ 2</code></td><td>Source definition/claim</td><td>Not proved. Only the rational right-hand side at <code>k = 2</code> is formalised (T6) and checked at <code>k = 2,4</code> (C6).</td></tr>
+<tr><td><code>ζ<sub>p</sub></code> is continuous and analytic on ℤ<sub>p</sub>, unlike ζ at <code>s = 1</code></td><td>Source claim</td><td>Not formalised; no p-adic analytic function is constructed here.</td></tr>
+<tr><td><code>ζ<sub>p</sub></code> is built from p-adic measures and integrals</td><td>Source claim</td><td>Not formalised.</td></tr>
+<tr><td>The values connect to Bernoulli numbers</td><td>Standard context</td><td>Only <code>B₂ = 1/6</code> and <code>B₄ = −1/30</code> are used in exact computations; no general Bernoulli/Kummer theory is developed.</td></tr>
+<tr><td>p-adic encodings could model forex prices and lead to predictive models</td><td>Speculative framing</td><td>No mathematical claim; not formalised and not treated as evidence.</td></tr>
+<tr><td>Schemes could classify price behaviours</td><td>Speculative framing</td><td>No mathematical claim; not formalised.</td></tr>
+</tbody>
+</table>
+
+<h2>Open / conjecture</h2>
+<p>These are <strong>not</strong> theorems of the reconstruction. They are the main unresolved statements, with the reason each remains open.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Why it is open</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td>Open</td><td>Define the p-adic measure and the Kubota–Leopoldt function <code>ζ<sub>p</sub></code>, and prove <code>ζ<sub>p</sub>(1−k) = (1−p<sup>k−1</sup>) ζ(1−k)</code> for all <code>k ≥ 2</code></td><td>No p-adic measure or interpolation theorem is constructed here; only the <code>k = 2</code> rational prefactor is formalised (T6).</td></tr>
+<tr><td>O2</td><td>Open</td><td><code>ζ<sub>p</sub></code> is continuous and analytic on ℤ<sub>p</sub> and regular at <code>s = 1</code></td><td>The source asserts this without proof; no p-adic analytic function is constructed.</td></tr>
+<tr><td>O3</td><td>Open</td><td>Give a precise stochastic-process representation of ζ or of a p-adic zeta analogue</td><td>The source contains no stochastic content; the phrase is an inventory label, so there is not yet a statement to formalise.</td></tr>
+<tr><td>O4</td><td>Open</td><td>Formulate the p-adic spectral/transfer-operator problem referred to by the inventory</td><td>The essay defines no operator, spectral problem or transfer operator.</td></tr>
+<tr><td>O5</td><td>Open</td><td>Define a p-adic eta analogue and relate it to <code>ζ<sub>p</sub></code></td><td>The essay defines no eta function. C7 checks only the archimedean value <code>η(2) = π²/12</code>.</td></tr>
+<tr><td>O6</td><td>Open</td><td>Prove the Kummer-type congruences that make the interpolation formula consistent across <code>k</code></td><td>Outside the formal core; only the exact values at <code>k = 2</code> and <code>k = 4</code> are computed.</td></tr>
+<tr><td>O7</td><td>Open</td><td>Relate this p-adic material to the RH/GRH programme, if such a relation exists</td><td>The essay makes no RH/GRH claim, and nothing here bears on RH, GRH, twin primes, Chowla or Sarnak.</td></tr>
+</tbody>
+</table>
+<p>The source's speculative “forex” and “schemes” remarks are not mathematical conjectures and are therefore not listed as open problems.</p>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> is an exact <code>sympy</code> module: <code>padic_valuation</code>, <code>padic_norm</code>, <code>padic_valuation_rational</code>, <code>padic_norm_rational</code>, <code>ultrametric_holds</code>, <code>encode_digits</code>, <code>encode_bound_holds</code>, <code>euler_factor</code>, <code>euler_telescope</code>, <code>zeta_at_negative_integer</code>, <code>kl_factor</code>, <code>kl_value</code>, and <code>eta_at_two</code>.</p>
+<pre><code>cd the-final-letter/topics/padic-stochastic-zeta
+python3 -m pytest -q tests</code></pre>
+<p>Recorded result: <strong>7 passed</strong> (a few seconds on a cold sympy import, under one second warm). The tests use exact rational arithmetic; the only transcendental value is the closed form <code>π²/12</code> in C7, checked by symbolic simplification.</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens the namespace <code>PadicStoch</code>, defines <code>pNorm</code>, <code>encode</code>, <code>eulerFactor</code>, <code>klFactor</code>, <code>klValue</code>, and proves T1–T7. The file contains no <code>sorry</code>, <code>axiom</code> or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/padic-stochastic-zeta
+./lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a>. What is <strong>not</strong> formalised: the p-adic completion and topology, infinite digit convergence, the Kubota–Leopoldt measure/function, analyticity, Bernoulli/Kummer congruences, any stochastic process, and any p-adic spectral operator. See <a href="lean/README.md"><code>lean/README.md</code></a>.</p>
+
+<h2>Provenance and links</h2>
+<ul>
+<li><a href="../../archive/essays/p-adic.html">Source essay: p-adic numbers and the Kubota–Leopoldt p-adic zeta function</a></li>
+<li><a href="../../scraps.html">Scraps inventory</a> · item 41</li>
+<li><a href="../README.md">Topic index</a> · <a href="../PROGRAMME-STANDARD.md">Programme standard</a></li>
+<li><a href="../../index.html">The Final Letter</a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

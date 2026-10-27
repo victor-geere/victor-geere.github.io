@@ -1,0 +1,498 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EURUSD Forex Price Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+            margin: 30px;
+            padding-top: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 24px;
+            background-color: #e0e0e0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+            margin-bottom: 20px;
+        }
+        canvas {
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 300px;
+            background-color: #e0e0e0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+            margin-bottom: 20px;
+        }
+        .control {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .slider-value {
+            font-size: 12px;
+            color: #333;
+            margin-top: 5px;
+        }
+        input[type="range"] {
+            width: 150px;
+            background: linear-gradient(to right, #d3d3d3, #e0e0e0);
+            border-radius: 5px;
+            box-shadow: inset 2px 2px 5px #bebebe, inset -2px -2px 5px #ffffff;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 3px 3px 6px #bebebe, -3px -3px 6px #ffffff;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e0e0e0;
+            box-shadow: 3px 3px 6px #bebebe, -3px -3px 6px #ffffff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            box-shadow: inset 2px 2px 5px #bebebe, inset -2px -2px 5px #ffffff;
+        }
+        .stats {
+            font-size: 16px;
+            background-color: #e0e0e0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+            margin-bottom: 20px;
+        }
+        .description {
+            font-size: 14px;
+            background-color: #e0e0e0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px #bebebe, -5px -5px 10px #ffffff;
+            width: 600px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rescaled Range Comparison</h1>
+    <canvas id="priceChart" width="800" height="400"></canvas>
+    <canvas id="stdChart" width="800" height="400"></canvas>
+    <div class="controls">
+        <div class="control">
+            <label for="theta">Theta (0.01-1.0): </label>
+            <input type="range" id="theta" min="0.01" max="1" step="0.01" value="0.1">
+            <span class="slider-value" id="thetaValue">0.10</span>
+        </div>
+        <div class="control">
+            <label for="mu">Mu (1.0-1.2): </label>
+            <input type="range" id="mu" min="1" max="1.2" step="0.001" value="1.08">
+            <span class="slider-value" id="muValue">1.080</span>
+        </div>
+        <div class="control">
+            <label for="sigma">Sigma (0.01-0.1): </label>
+            <input type="range" id="sigma" min="0.01" max="0.1" step="0.001" value="0.02">
+            <span class="slider-value" id="sigmaValue">0.020</span>
+        </div>
+        <div class="control">
+            <label for="smallInterval">Short Interval (1-10 min): </label>
+            <input type="range" id="smallInterval" min="1" max="10" step="1" value="5">
+            <span class="slider-value" id="smallIntervalValue">5</span>
+        </div>
+        <div class="control">
+            <label for="longInterval">Long Interval (30-120 min): </label>
+            <input type="range" id="longInterval" min="30" max="120" step="1" value="60">
+            <span class="slider-value" id="longIntervalValue">60</span>
+        </div>
+        <div class="control">
+            <label for="speed">Speed (1-20 updates/s): </label>
+            <input type="range" id="speed" min="1" max="20" step="1" value="1">
+            <span class="slider-value" id="speedValue">1</span>
+        </div>
+        <div class="control">
+            <label class="checkbox-label">
+                <input type="checkbox" id="logVariance"> Use Log Variance
+            </label>
+        </div>
+        <button id="toggle">Pause</button>
+    </div>
+    <div class="stats">
+        <span id="stdSmall">Short Interval Std Dev: 0.0000</span><br>
+        <span id="stdLong">Long Interval Std Dev: 0.0000</span><br>
+        <span id="stdScaled">Scaled Short Std Dev: 0.0000</span>
+    </div>
+    <div class="description">
+        <h3>Graph Interpretation</h3>
+        <p><strong>Price Chart:</strong> The top chart displays the simulated EURUSD price over the last 120 minutes (green line). It shows how the price evolves based on the Ornstein-Uhlenbeck process, with adjustable parameters (theta, mu, sigma) via sliders.</p>
+        <p><strong>Standard Deviation Chart:</strong> The bottom chart compares four standard deviations over the last 120 updates:
+        <ul>
+            <li><strong>Short Interval Std Dev (blue):</strong> Volatility over the user-defined short interval (default 5 minutes).</li>
+            <li><strong>Long Interval Std Dev (red):</strong> Volatility over the user-defined long interval (default 60 minutes).</li>
+            <li><strong>Scaled Short Std Dev (purple):</strong> Short interval std dev scaled by an adaptive factor (k_avg) to estimate long interval volatility.</li>
+            <li><strong>Scaled Short Std Dev MA (orange):</strong> Moving average of the scaled short std dev over the long interval timespan.</li>
+        </ul>
+        <p><strong>Interpreting Dynamics:</strong> When the red line (long interval std dev) is above the purple line (scaled short std dev), the market is trending, with larger gaps indicating stronger trends. When the red line is below the purple line, the market is mean-reverting, with larger gaps indicating stronger reversion. The orange line smooths the scaled std dev, showing its trend over the long interval. The adaptive scaling factor (k_avg), displayed on the chart, adjusts dynamically to improve the scaled std dev's accuracy.</p>
+        <p><strong>Ornstein-Uhlenbeck Parameters:</strong>
+        <ul>
+            <li><strong>Theta:</strong> Controls the speed of mean reversion. Higher values mean the price reverts faster to the long-term mean (mu).</li>
+            <li><strong>Mu:</strong> The long-term mean price that the price tends to revert to over time.</li>
+            <li><strong>Sigma:</strong> The volatility, determining the magnitude of random price fluctuations.</li>
+        </ul>
+        <p><strong>Controls:</strong> Use sliders to adjust the short and long intervals, OU parameters, and simulation speed. Slider values are displayed below each. The log variance toggle switches between standard and log-based std dev calculations. The play/pause button toggles the simulation.</p>
+    </div>
+
+    <script>
+        const priceCanvas = document.getElementById('priceChart');
+        const priceCtx = priceCanvas.getContext('2d');
+        const stdCanvas = document.getElementById('stdChart');
+        const stdCtx = stdCanvas.getContext('2d');
+        const thetaInput = document.getElementById('theta');
+        const muInput = document.getElementById('mu');
+        const sigmaInput = document.getElementById('sigma');
+        const smallIntervalInput = document.getElementById('smallInterval');
+        const longIntervalInput = document.getElementById('longInterval');
+        const speedInput = document.getElementById('speed');
+        const logVarianceInput = document.getElementById('logVariance');
+        const toggleButton = document.getElementById('toggle');
+        const stdSmallDisplay = document.getElementById('stdSmall');
+        const stdLongDisplay = document.getElementById('stdLong');
+        const stdScaledDisplay = document.getElementById('stdScaled');
+        const thetaValue = document.getElementById('thetaValue');
+        const muValue = document.getElementById('muValue');
+        const sigmaValue = document.getElementById('sigmaValue');
+        const smallIntervalValue = document.getElementById('smallIntervalValue');
+        const longIntervalValue = document.getElementById('longIntervalValue');
+        const speedValue = document.getElementById('speedValue');
+
+        let price = 1.08;
+        let prices = [];
+        let stdSmall = [];
+        let stdLong = [];
+        let stdSmallScaled = [];
+        let stdSmallScaledMA = [];
+        let isRunning = true;
+        let lastUpdate = performance.now();
+        let useLogVariance = false;
+        const dt = 1 / (60 * 24); // 1 minute in days
+        const maxPoints = 120;
+        const alpha = 0.1; // EMA smoothing factor
+        let k_avg = Math.sqrt(12); // Initial scaling factor
+        let smallInterval = 5;
+        let longInterval = 60;
+        const marginFactor = 0.1; // 10% margin for graph scaling
+        const topPadding = 30; // 30px padding at top of canvas
+
+        function randomNormal() {
+            return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
+        }
+
+        function updatePrice() {
+            const theta = parseFloat(thetaInput.value);
+            const mu = parseFloat(muInput.value);
+            const sigma = parseFloat(sigmaInput.value);
+            const dW = randomNormal() * Math.sqrt(dt);
+            price += theta * (mu - price) * dt + sigma * dW;
+            prices.push(price);
+            if (prices.length > maxPoints) prices.shift();
+        }
+
+        function calculateStdDev(data) {
+            if (data.length < 2) return 0;
+            let processedData = data;
+            if (useLogVariance) {
+                processedData = data.map(x => Math.log(x)).filter(y => !isNaN(y) && isFinite(y));
+            }
+            if (processedData.length < 2) return 0;
+            const mean = processedData.reduce((sum, val) => sum + val, 0) / processedData.length;
+            const variance = processedData.reduce((sum, val) => sum + (val - mean) ** 2, 0) / processedData.length;
+            return Math.sqrt(variance);
+        }
+
+        function calculateMovingAverage(data, window) {
+            if (data.length < 1) return 0;
+            const start = Math.max(0, data.length - window);
+            const slice = data.slice(start);
+            return slice.reduce((sum, val) => sum + val, 0) / slice.length;
+        }
+
+        function drawPriceChart() {
+            priceCtx.clearRect(0, 0, priceCanvas.width, priceCanvas.height);
+
+            const maxPrice = prices.length > 0 ? Math.max(...prices, 1.09) : 1.09;
+            const minPrice = prices.length > 0 ? Math.min(...prices, 1.07) : 1.07;
+            const priceRange = maxPrice - minPrice || 0.01;
+            const margin = priceRange * marginFactor;
+            const yMax = maxPrice + margin;
+            const yMin = minPrice - margin;
+            const yRange = yMax - yMin;
+            const yScale = (priceCanvas.height - 50 - topPadding) / yRange;
+
+            // Draw y-axis
+            priceCtx.beginPath();
+            priceCtx.moveTo(50, topPadding);
+            priceCtx.lineTo(50, priceCanvas.height - 50);
+            priceCtx.stroke();
+            for (let i = 0; i <= 5; i++) {
+                const y = priceCanvas.height - 50 - (i / 5) * (priceCanvas.height - 50 - topPadding) + topPadding;
+                const value = yMin + (i / 5) * yRange;
+                priceCtx.moveTo(50, y);
+                priceCtx.lineTo(55, y);
+                priceCtx.fillText(value.toFixed(4), 10, y + 5);
+            }
+            priceCtx.stroke();
+
+            // Draw price
+            priceCtx.beginPath();
+            priceCtx.strokeStyle = 'green';
+            for (let i = 0; i < prices.length; i++) {
+                const x = 50 + (i / (maxPoints - 1)) * (priceCanvas.width - 50);
+                const y = priceCanvas.height - 50 - (prices[i] - yMin) * yScale + topPadding;
+                if (i === 0) priceCtx.moveTo(x, y);
+                else priceCtx.lineTo(x, y);
+            }
+            priceCtx.stroke();
+
+            // Draw legend
+            priceCtx.fillStyle = 'green';
+            priceCtx.fillRect(priceCanvas.width - 100, 10 + topPadding, 10, 10);
+            priceCtx.fillStyle = 'black';
+            priceCtx.fillText('Price', priceCanvas.width - 80, 20 + topPadding);
+        }
+
+        function drawStdChart() {
+            stdCtx.clearRect(0, 0, stdCanvas.width, stdCanvas.height);
+
+            // Calculate std devs
+            const stdSmallVal = calculateStdDev(prices.slice(-smallInterval));
+            const stdLongVal = calculateStdDev(prices.slice(-longInterval));
+
+            // Update k_avg using EMA
+            if (prices.length >= longInterval && stdSmallVal > 0) {
+                const ratio = stdLongVal / stdSmallVal;
+                k_avg = alpha * ratio + (1 - alpha) * k_avg;
+            }
+
+            // Calculate scaled std dev
+            const stdScaledVal = stdSmallVal * k_avg;
+
+            // Calculate moving average of scaled std dev
+            const stdScaledMAVal = calculateMovingAverage(stdSmallScaled, longInterval);
+
+            // Push to arrays for plotting
+            stdSmall.push(stdSmallVal);
+            stdLong.push(stdLongVal);
+            stdSmallScaled.push(stdScaledVal);
+            stdSmallScaledMA.push(stdScaledMAVal);
+            if (stdSmall.length > maxPoints) stdSmall.shift();
+            if (stdLong.length > maxPoints) stdLong.shift();
+            if (stdSmallScaled.length > maxPoints) stdSmallScaled.shift();
+            if (stdSmallScaledMA.length > maxPoints) stdSmallScaledMA.shift();
+
+            // Update text displays
+            stdSmallDisplay.textContent = `Short Interval Std Dev: ${stdSmallVal.toFixed(4)}`;
+            stdLongDisplay.textContent = `Long Interval Std Dev: ${stdLongVal.toFixed(4)}`;
+            stdScaledDisplay.textContent = `Scaled Short Std Dev: ${stdScaledVal.toFixed(4)}`;
+
+            const maxStd = Math.max(...stdSmall, ...stdLong, ...stdSmallScaled, ...stdSmallScaledMA, 0.01);
+            const minStd = 0;
+            const stdRange = maxStd - minStd;
+            const margin = stdRange * marginFactor;
+            const yMax = maxStd + margin;
+            const yMin = Math.max(0, minStd - margin);
+            const yRange = yMax - yMin;
+            const yScale = (stdCanvas.height - 50 - topPadding) / yRange;
+
+            // Draw y-axis
+            stdCtx.beginPath();
+            stdCtx.moveTo(50, topPadding);
+            stdCtx.lineTo(50, stdCanvas.height - 50);
+            stdCtx.stroke();
+            for (let i = 0; i <= 5; i++) {
+                const y = stdCanvas.height - 50 - (i / 5) * (stdCanvas.height - 50 - topPadding) + topPadding;
+                const value = yMin + (i / 5) * yRange;
+                stdCtx.moveTo(50, y);
+                stdCtx.lineTo(55, y);
+                stdCtx.fillText(value.toFixed(4), 10, y + 5);
+            }
+            stdCtx.stroke();
+
+            // Draw small interval std dev
+            stdCtx.beginPath();
+            stdCtx.strokeStyle = 'blue';
+            for (let i = 0; i < stdSmall.length; i++) {
+                const x = 50 + (i / (maxPoints - 1)) * (stdCanvas.width - 50);
+                const y = stdCanvas.height - 50 - (stdSmall[i] - yMin) * yScale + topPadding;
+                if (i === 0) stdCtx.moveTo(x, y);
+                else stdCtx.lineTo(x, y);
+            }
+            stdCtx.stroke();
+
+            // Draw long interval std dev
+            stdCtx.beginPath();
+            stdCtx.strokeStyle = 'red';
+            for (let i = 0; i < stdLong.length; i++) {
+                const x = 50 + (i / (maxPoints - 1)) * (stdCanvas.width - 50);
+                const y = stdCanvas.height - 50 - (stdLong[i] - yMin) * yScale + topPadding;
+                if (i === 0) stdCtx.moveTo(x, y);
+                else stdCtx.lineTo(x, y);
+            }
+            stdCtx.stroke();
+
+            // Draw scaled small interval std dev
+            stdCtx.beginPath();
+            stdCtx.strokeStyle = 'purple';
+            for (let i = 0; i < stdSmallScaled.length; i++) {
+                const x = 50 + (i / (maxPoints - 1)) * (stdCanvas.width - 50);
+                const y = stdCanvas.height - 50 - (stdSmallScaled[i] - yMin) * yScale + topPadding;
+                if (i === 0) stdCtx.moveTo(x, y);
+                else stdCtx.lineTo(x, y);
+            }
+            stdCtx.stroke();
+
+            // Draw moving average of scaled std dev
+            stdCtx.beginPath();
+            stdCtx.strokeStyle = 'orange';
+            for (let i = 0; i < stdSmallScaledMA.length; i++) {
+                const x = 50 + (i / (maxPoints - 1)) * (stdCanvas.width - 50);
+                const y = stdCanvas.height - 50 - (stdSmallScaledMA[i] - yMin) * yScale + topPadding;
+                if (i === 0) stdCtx.moveTo(x, y);
+                else stdCtx.lineTo(x, y);
+            }
+            stdCtx.stroke();
+
+            // Draw k_avg
+            stdCtx.fillStyle = 'black';
+            stdCtx.fillText(`k_avg: ${k_avg.toFixed(2)}`, 60, 20 + topPadding);
+
+            // Draw legend
+            stdCtx.fillStyle = 'blue';
+            stdCtx.fillRect(stdCanvas.width - 150, 10 + topPadding, 10, 10);
+            stdCtx.fillStyle = 'red';
+            stdCtx.fillRect(stdCanvas.width - 150, 30 + topPadding, 10, 10);
+            stdCtx.fillStyle = 'purple';
+            stdCtx.fillRect(stdCanvas.width - 150, 50 + topPadding, 10, 10);
+            stdCtx.fillStyle = 'orange';
+            stdCtx.fillRect(stdCanvas.width - 150, 70 + topPadding, 10, 10);
+            stdCtx.fillStyle = 'black';
+            stdCtx.fillText('Short Interval Std Dev', stdCanvas.width - 130, 20 + topPadding);
+            stdCtx.fillText('Long Interval Std Dev', stdCanvas.width - 130, 40 + topPadding);
+            stdCtx.fillText('Scaled Short Std Dev', stdCanvas.width - 130, 60 + topPadding);
+            stdCtx.fillText('Scaled Short Std Dev MA', stdCanvas.width - 130, 80 + topPadding);
+        }
+
+        function updateSliderValues() {
+            thetaValue.textContent = parseFloat(thetaInput.value).toFixed(2);
+            muValue.textContent = parseFloat(muInput.value).toFixed(3);
+            sigmaValue.textContent = parseFloat(sigmaInput.value).toFixed(3);
+            smallIntervalValue.textContent = smallIntervalInput.value;
+            longIntervalValue.textContent = longIntervalInput.value;
+            speedValue.textContent = speedInput.value;
+        }
+
+        function animate() {
+            if (!isRunning) {
+                requestAnimationFrame(animate);
+                return;
+            }
+            const now = performance.now();
+            const speed = parseFloat(speedInput.value);
+            if (now - lastUpdate >= 1000 / speed) {
+                updatePrice();
+                drawPriceChart();
+                drawStdChart();
+                lastUpdate = now;
+            }
+            requestAnimationFrame(animate);
+        }
+
+        thetaInput.addEventListener('input', updateSliderValues);
+        muInput.addEventListener('input', updateSliderValues);
+        sigmaInput.addEventListener('input', updateSliderValues);
+        smallIntervalInput.addEventListener('input', () => {
+            smallInterval = parseInt(smallIntervalInput.value);
+            updateSliderValues();
+        });
+        longIntervalInput.addEventListener('input', () => {
+            longInterval = parseInt(longIntervalInput.value);
+            updateSliderValues();
+        });
+        speedInput.addEventListener('input', updateSliderValues);
+        logVarianceInput.addEventListener('change', () => {
+            useLogVariance = logVarianceInput.checked;
+        });
+        toggleButton.addEventListener('click', () => {
+            isRunning = !isRunning;
+            toggleButton.textContent = isRunning ? 'Pause' : 'Play';
+        });
+
+        // Initialize slider values
+        updateSliderValues();
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three thresholds of the rh42 budget: a machine-checked proof of pN &lt; pP &lt; p*</title>
+<style>
+:root{
+  --ink:#12161c; --ink2:#3c4552; --ink3:#6b7686; --rule:#dfe4ea; --rule2:#eef1f5;
+  --bg:#ffffff; --bg2:#f8fafc; --bg3:#f2f5f9;
+  --accent:#1f4e79; --accent2:#8a5a00; --ok:#1c6b3a; --warn:#8a2b2b;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  font-size:17.5px; line-height:1.62;
+}
+.wrap{max-width:820px;margin:0 auto;padding:56px 28px 120px}
+code,pre,.mono{font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
+header.title{border-bottom:2.5px solid var(--ink);padding-bottom:22px;margin-bottom:34px}
+.eyebrow{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);
+  font-family:"SF Mono",Menlo,Consolas,monospace;margin-bottom:14px}
+h1{font-size:31px;line-height:1.22;margin:0 0 12px;font-weight:600;letter-spacing:-.01em}
+.subtitle{font-size:17px;color:var(--ink2);margin:0 0 20px;font-style:italic}
+.byline{font-size:14.5px;color:var(--ink3)}
+.byline b{color:var(--ink2);font-weight:600}
+.badges{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+.badge{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;letter-spacing:.04em;
+  padding:3px 9px;border-radius:3px;border:1px solid var(--rule);background:var(--bg2);color:var(--ink2)}
+.badge.ok{border-color:#bfe0cb;background:#f0f8f3;color:var(--ok)}
+.badge.acc{border-color:#c9d8e8;background:#f2f7fc;color:var(--accent)}
+
+h2{font-size:22.5px;margin:52px 0 6px;font-weight:600;letter-spacing:-.005em;
+  border-bottom:1px solid var(--rule);padding-bottom:8px}
+h3{font-size:18px;margin:34px 0 4px;font-weight:600;color:var(--ink)}
+h4{font-size:15.5px;margin:24px 0 2px;font-weight:600;color:var(--ink2);
+  font-family:"SF Mono",Menlo,Consolas,monospace;letter-spacing:.01em}
+p{margin:12px 0}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid #c9d8e8}
+a:hover{border-bottom-color:var(--accent)}
+ul,ol{margin:12px 0;padding-left:26px}
+li{margin:5px 0}
+small{font-size:13.5px;color:var(--ink3)}
+
+/* abstract */
+.abstract{background:var(--bg2);border:1px solid var(--rule);border-left:3px solid var(--accent);
+  padding:20px 24px;margin:0 0 8px;border-radius:2px}
+.abstract h2{margin:0 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  border:0;padding:0;color:var(--ink3);font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:600}
+.abstract p{font-size:16.5px;margin:10px 0 0}
+
+/* toc */
+nav.toc{background:var(--bg2);border:1px solid var(--rule);padding:20px 24px;margin:30px 0 8px;border-radius:2px}
+nav.toc h2{margin:0 0 10px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;border:0;padding:0;
+  color:var(--ink3);font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:600}
+nav.toc ol{margin:0;padding-left:0;list-style:none;columns:2;column-gap:34px}
+nav.toc li{margin:3px 0;font-size:15px;break-inside:avoid}
+nav.toc li a{border:0;color:var(--ink2)}
+nav.toc li a:hover{color:var(--accent);text-decoration:underline}
+nav.toc .num{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:var(--ink3);
+  display:inline-block;min-width:30px}
+
+/* math */
+.eq{margin:16px 0;text-align:center;font-size:18px;overflow-x:auto;padding:2px 0}
+.eq.left{text-align:left;padding-left:6px}
+.eq .tag{float:right;color:var(--ink3);font-size:14.5px;font-family:"SF Mono",Menlo,Consolas,monospace}
+i.v{font-style:italic}
+sub,sup{font-size:72%;line-height:0}
+.frac{display:inline-block;vertical-align:-0.55em;text-align:center;margin:0 .18em;font-size:.86em}
+.frac .n{display:block;padding:0 .28em;border-bottom:1px solid var(--ink)}
+.frac .d{display:block;padding:0 .28em}
+.big{font-size:1.18em}
+
+/* boxes */
+.box{border:1px solid var(--rule);background:var(--bg2);padding:16px 20px;margin:20px 0;border-radius:2px}
+.box.thm{border-left:3px solid var(--accent);background:#f7fafd}
+.box.why{border-left:3px solid var(--accent2);background:#fdfaf4}
+.box.warn{border-left:3px solid var(--warn);background:#fdf7f7}
+.box .lbl{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3);display:block;margin-bottom:7px;font-weight:600}
+.box.thm .lbl{color:var(--accent)} .box.why .lbl{color:var(--accent2)} .box.warn .lbl{color:var(--warn)}
+.box p:first-of-type{margin-top:0} .box p:last-child{margin-bottom:0}
+
+/* code */
+pre{background:#1b2028;color:#e6edf3;padding:15px 18px;border-radius:4px;overflow-x:auto;
+  font-size:13.2px;line-height:1.55;margin:14px 0;tab-size:2}
+pre.lite{background:var(--bg3);color:var(--ink);border:1px solid var(--rule);font-size:13px}
+pre .kw{color:#ff9ec4} pre .fn{color:#8ec7ff} pre .cm{color:#8b98a5;font-style:italic}
+pre .ty{color:#a5e8a5} pre .nu{color:#f0c674}
+code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-size:.855em;
+  border:1px solid var(--rule2);color:#243447}
+
+/* tables */
+table{border-collapse:collapse;width:100%;margin:18px 0;font-size:15px}
+th,td{text-align:left;padding:7px 11px;border-bottom:1px solid var(--rule2);vertical-align:top}
+th{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);
+  border-bottom:1.5px solid var(--rule);font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:600}
+tbody tr:last-child td{border-bottom:1px solid var(--rule)}
+td.num,th.num{text-align:right;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:13.5px}
+table.tight td,table.tight th{padding:5px 9px}
+tr.hi td{background:#f7fafd}
+caption{caption-side:bottom;text-align:left;font-size:13px;color:var(--ink3);padding-top:7px}
+
+hr{border:0;border-top:1px solid var(--rule);margin:44px 0}
+.foot{border-top:2px solid var(--ink);margin-top:56px;padding-top:18px;font-size:14px;color:var(--ink3)}
+.kbd{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;background:var(--bg3);
+  border:1px solid var(--rule);border-radius:3px;padding:1px 5px}
+@media (max-width:640px){
+  body{font-size:16.5px} .wrap{padding:34px 18px 80px}
+  h1{font-size:25px} nav.toc ol{columns:1} .eq{font-size:16.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <div class="eyebrow">Twin-prime-parity &middot; round rh42 &middot; ledger row T14</div>
+  <h1>Three thresholds of the rh42 budget:<br>a machine-checked proof of <i>p</i><sub>N</sub> &lt; <i>p</i><sub>P</sub> &lt; <i>p</i><sub>*</sub></h1>
+  <p class="subtitle">A value-free formalisation in Lean&nbsp;4 and Mathlib: the ordering of the three
+  zeta crossings follows from monotonicity and certified rational arithmetic alone.</p>
+  <div class="byline">
+    Formal development: <b><code>lean/TppLean/</code></b> &nbsp;&middot;&nbsp;
+    Source claim: <b><code>theorems/tpp-rh42-handoff-three-thresholds.md</code></b> &nbsp;&middot;&nbsp;
+    Context: <b><code>research/twin-prime-parity/rounds/rh42/HANDOFF.md</code></b> §5.1&ndash;5.3, §6
+  </div>
+  <div class="badges">
+    <span class="badge ok">&#10003; build green</span>
+    <span class="badge ok">&#10003; zero <code>sorry</code></span>
+    <span class="badge acc">Lean v4.35.0-rc2</span>
+    <span class="badge acc">Mathlib 2f3d8f63</span>
+    <span class="badge">1091 lines</span>
+    <span class="badge">3 modules</span>
+  </div>
+</header>
+
+<div class="abstract">
+  <h2>Abstract</h2>
+  <p>Row <b>T14</b> of the rh42 ledger asserts that the three thresholds attached to the
+  &ldquo;budgets&rdquo; of a signed greedy expansion satisfy <i>p</i><sub>N</sub> &lt;
+  <i>p</i><sub>P</sub> &lt; <i>p</i><sub>*</sub>.  The claim was previously verified only
+  numerically, by 80-digit root-finding with residuals below 10<sup>&minus;30</sup>.  We give a
+  complete proof, formalised in Lean&nbsp;4 against Mathlib, with no <code>sorry</code>.</p>
+  <p>The proof is deliberately <i>value-free</i>: it never evaluates &zeta;, never calls an
+  interval&ndash;Newton solver, and never uses continuity or the intermediate value theorem.
+  It rests on three ingredients.  <b>(i) Antitonicity</b>: the real Dirichlet series
+  <i>&zeta;</i>(<i>p</i>) = &Sigma;<sub>n&ge;1</sub> <i>n</i><sup>&minus;p</sup>, together with the
+  two budget functions, is proved strictly decreasing on (1,&nbsp;&infin;) &mdash; a fact Mathlib
+  does not provide for <code>riemannZeta</code>, with which it is shown to agree on the real axis
+  above 1.  <b>(ii) Certified rational brackets</b>: exact
+  integer partial sums, generated by a verified floor oracle,
+  are combined with Mathlib&rsquo;s integral tail bound to enclose each crossing in an interval
+  with rational endpoints.  <b>(iii) A parity separation</b>: the negative budget is strictly
+  below the positive one, term by term, because every odd denominator exceeds the corresponding
+  even one.  The ordering then follows from a three-way case analysis on real trichotomy; the
+  entire numeric input is a handful of integer inequalities discharged by
+  <code>native_decide</code>, <code>decide</code> and <code>norm_num</code>.</p>
+  <p>As a by-product the argument is level-independent: the same proof yields
+  <i>p</i><sub>N</sub>(<i>L</i>) &lt; <i>p</i><sub>P</sub> for <i>every</i> level
+  <i>L</i> &ge; 1, which covers both the normalisation of the source document
+  (<i>L</i>&nbsp;=&nbsp;1, <i>p</i><sub>N</sub> = 1.3777851698375411838) and the one stated in
+  the formal objective (<i>L</i>&nbsp;=&nbsp;2, <i>p</i><sub>N</sub> = 1.2136006221625785622).</p>
+</div>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><span class="num">1</span><a href="#s1">Introduction and context</a></li>
+    <li><span class="num">2</span><a href="#s2">Preliminaries</a></li>
+    <li><span class="num">3</span><a href="#s3">The abstract ordering core</a></li>
+    <li><span class="num">4</span><a href="#s4">Certified rational arithmetic: the floor oracle</a></li>
+    <li><span class="num">5</span><a href="#s5">The certified brackets for &zeta;</a></li>
+    <li><span class="num">6</span><a href="#s6">Gap (1): the parity separation</a></li>
+    <li><span class="num">7</span><a href="#s7">The main theorem</a></li>
+    <li><span class="num">8</span><a href="#s8">Verification and trust accounting</a></li>
+    <li><span class="num">9</span><a href="#s9">Conclusion</a></li>
+    <li><span class="num">10</span><a href="#s10">Significance</a></li>
+    <li><span class="num">11</span><a href="#s11">Novelty</a></li>
+    <li><span class="num">12</span><a href="#s12">Applications</a></li>
+    <li><span class="num">13</span><a href="#s13">Further research</a></li>
+    <li><span class="num">14</span><a href="#s14">Adjacent concepts</a></li>
+    <li><span class="num">A</span><a href="#appA">Appendix A &mdash; lemma index</a></li>
+    <li><span class="num">B</span><a href="#appB">Appendix B &mdash; certificate table</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1">1. Introduction and context</h2>
+
+<p>The rh42 round studies a signed greedy expansion.  A real target <i>x</i> is approximated by a
+series of signed terms whose magnitudes are the powers <i>n</i><sup>&minus;p</sup>, with
+<i>p</i>&nbsp;&gt;&nbsp;1 a fixed exponent (the &ldquo;helix parameter&rdquo;).  The terms are
+indexed by parity: even indices are the <i>positive</i> side, odd indices the <i>negative</i>
+side.  Two quantities control what the rule can possibly reach.</p>
+
+<div class="box thm">
+  <span class="lbl">The two budgets</span>
+  <div class="eq left">
+    <i>P</i>(<i>p</i>) = &sum;<sub>k&ge;1</sub> (2<i>k</i>)<sup>&minus;p</sup>
+    = 2<sup>&minus;p</sup> <i>&zeta;</i>(<i>p</i>) &nbsp;&nbsp;&nbsp;<span style="color:var(--ink3)">(positive budget)</span><br>
+    <i>N</i>(<i>p</i>) = &sum;<sub>k&ge;1</sub> (2<i>k</i>+1)<sup>&minus;p</sup>
+    = &sum;<sub>k&ge;0</sub> (2<i>k</i>+3)<sup>&minus;p</sup>
+    &nbsp;&nbsp;&nbsp;<span style="color:var(--ink3)">(negative budget)</span>
+  </div>
+  <p>and the two identities that organise them (source &sect;5.1, ledger rows T2&ndash;T3):</p>
+  <div class="eq">
+    <i>P</i>(<i>p</i>) + <i>N</i>(<i>p</i>) = <i>&zeta;</i>(<i>p</i>) &minus; 1,
+    &nbsp;&nbsp;&nbsp;
+    <i>P</i>(<i>p</i>) &minus; <i>N</i>(<i>p</i>) = 1 &minus; <i>&eta;</i>(<i>p</i>),
+    &nbsp;&nbsp;&nbsp;
+    <i>&eta;</i>(<i>p</i>) = (1 &minus; 2<sup>1&minus;p</sup>) <i>&zeta;</i>(<i>p</i>).
+  </div>
+</div>
+
+<p>The sign of the second identity is the structural point: <i>&eta;</i>(<i>p</i>) is an
+alternating series with value strictly between 1&nbsp;&minus;&nbsp;2<sup>&minus;p</sup> and 1, so
+<i>P</i>&nbsp;&minus;&nbsp;<i>N</i>&nbsp;&gt;&nbsp;0 always.  <b>The positive side is the cheaper
+one.</b>  Everything in this paper is a consequence of that asymmetry, made quantitative.</p>
+
+<h3>1.1 The three thresholds</h3>
+
+<p>Three levels of the budgets carry interpretation (&sect;5.3): the positive budget reaching 1
+means the target sin&nbsp;=&nbsp;+1 becomes writable; the negative budget reaching its level means
+sin&nbsp;=&nbsp;&minus;1 becomes writable; and the <i>combined</i> budget
+<i>P</i>&nbsp;+&nbsp;<i>N</i>&nbsp;=&nbsp;<i>&zeta;</i>&nbsp;&minus;&nbsp;1 reaching 1 is the
+threshold of the earlier round rh41.</p>
+
+<table>
+  <caption>Table 1. The thresholds of T14.  Values are the source&rsquo;s, verified at 80 digits.</caption>
+  <thead><tr><th>threshold</th><th>defining equation</th><th class="num">value</th><th>meaning</th></tr></thead>
+  <tbody>
+    <tr><td><i>p</i><sub>*</sub></td><td><i>&zeta;</i>(<i>p</i>) = 2</td><td class="num">1.7286472389981836181</td>
+        <td>combined budget <i>P</i>+<i>N</i> = <i>&zeta;</i>&minus;1 reaches 1</td></tr>
+    <tr><td><i>p</i><sub>P</sub></td><td>2<sup>&minus;p</sup><i>&zeta;</i>(<i>p</i>) = 1</td><td class="num">1.4649845878051603837</td>
+        <td>positive budget reaches 1</td></tr>
+    <tr><td><i>p</i><sub>N</sub></td><td>(1&minus;2<sup>&minus;p</sup>)<i>&zeta;</i>(<i>p</i>) = 2</td><td class="num">1.3777851698375411838</td>
+        <td>negative budget <i>N</i>(<i>p</i>) reaches 1</td></tr>
+  </tbody>
+</table>
+
+<div class="box thm">
+  <span class="lbl">T14 (the claim)</span>
+  <p><i>p</i><sub>N</sub> &nbsp;&lt;&nbsp; <i>p</i><sub>P</sub> &nbsp;&lt;&nbsp; <i>p</i><sub>*</sub>.</p>
+  <p><small>Ledger status before this work: <b>VERIFIED</b> (numerical, <code>findroot</code> at 80 dps,
+  each residual &lt; 10<sup>&minus;30</sup>).  After this work: <b>PROVED</b> and machine-checked.</small></p>
+</div>
+
+<p>Two conventions matter and are stated plainly, because the formal statement and the source
+document differ in one respect that the reader should not have to discover.</p>
+
+<div class="box warn">
+  <span class="lbl">A normalisation to keep straight</span>
+  <p>The source writes the negative equation as
+  (1&nbsp;&minus;&nbsp;2<sup>&minus;p</sup>)<i>&zeta;</i>(<i>p</i>)&nbsp;=&nbsp;2, which in terms of
+  the budget is <i>N</i>(<i>p</i>)&nbsp;=&nbsp;1 &mdash; Appendix A of the source indeed annotates
+  <i>p</i><sub>N</sub> as &ldquo;<i>N</i>(<i>p</i>)&nbsp;=&nbsp;1&rdquo;.  The formal objective for
+  this development instead fixes the negative budget at the level <b>2</b>.  These are two
+  different points on the same strictly decreasing function: level 1 at
+  <i>p</i>&nbsp;=&nbsp;1.3777851698375411838, level 2 at <i>p</i>&nbsp;=&nbsp;1.2136006221625785622.</p>
+  <p>The file proves the ordering for level 2
+  (<code>tpp_rh42_three_thresholds</code>) <i>and</i> for an arbitrary level
+  <i>L</i>&nbsp;&ge;&nbsp;1 (<code>tpp_rh42_three_thresholds_level</code>), so the source&rsquo;s
+  own normalisation <i>L</i>&nbsp;=&nbsp;1 is covered as an instance.  The values themselves are
+  <b>not</b> formalised; see &sect;13.</p>
+</div>
+
+<h2 id="s2">2. Preliminaries</h2>
+
+<h3>2.1 Notation and the three functions</h3>
+
+<p>Throughout, <i>p</i>, <i>q</i>, <i>L</i> are real, <i>k</i>, <i>n</i>, <i>N</i> are natural,
+and <code>&sum;'</code> denotes Mathlib&rsquo;s unconditional sum (<code>tsum</code>), which equals
+the limit of the partial sums whenever the family is summable.</p>
+
+<pre><span class="kw">noncomputable def</span> <span class="fn">ZetaR</span> (p : &#8477;) : &#8477; := &#8721;' n : &#8469;, ((n : &#8477;) ^ p)&#8315;&#185;
+
+<span class="kw">noncomputable def</span> <span class="fn">BPos</span> (p : &#8477;) : &#8477; := (<span class="nu">2</span> : &#8477;) ^ (-p) * ZetaR p
+
+<span class="kw">noncomputable def</span> <span class="fn">BNeg</span> (p : &#8477;) : &#8477; := &#8721;' k : &#8469;, ((<span class="nu">2</span> * (k : &#8477;) + <span class="nu">3</span>) ^ p)&#8315;&#185;</pre>
+
+<p>So <code>ZetaR p</code> is the real Dirichlet series
+&Sigma;<sub>n&ge;1</sub>&nbsp;<i>n</i><sup>&minus;p</sup> (the <i>n</i>&nbsp;=&nbsp;0 term
+vanishes for <i>p</i>&nbsp;&gt;&nbsp;0, since 0<sup>p</sup>&nbsp;=&nbsp;0),
+<code>BPos p</code> is the positive budget <i>P</i>, and <code>BNeg p</code> is the negative budget
+<i>N</i> written as the odd series starting at 3.  Writing <i>N</i> as a series rather than as the
+closed form (1&nbsp;&minus;&nbsp;2<sup>&minus;p</sup>)<i>&zeta;</i>(<i>p</i>)&nbsp;&minus;&nbsp;1
+is the central design decision of the development; &sect;6 explains why it makes the separation
+<i>N</i>&nbsp;&lt;&nbsp;<i>P</i> immediate.</p>
+
+<h3>2.2 Why not <code>riemannZeta</code>?</h3>
+
+<p>Mathlib provides <code>riemannZeta : &#8450; &rarr; &#8450;</code>.  It is the wrong tool here
+for three reasons, all of which are visible in the type alone:</p>
+<ul>
+  <li>it is complex-valued, so it has no order structure to exploit;</li>
+  <li>it carries no monotonicity statement on the real interval (1,&nbsp;&infin;);</li>
+  <li>it carries no numeric bounds: nothing in Mathlib turns <code>riemannZeta</code> into a
+      rational enclosure, and its definitional unfolding goes through the completed zeta function
+      and the functional equation rather than the Dirichlet series.</li>
+</ul>
+<p>The function one actually wants is the Dirichlet series itself, and that is what
+<code>ZetaR</code> is.  These three objections are about <em>usability</em>, not about identity:
+on the real axis above 1 the two functions agree, and that bridge is proved in the development
+(&sect;2.5).  What no step of the ordering proof needs is the <em>complex</em> object.</p>
+
+<h3>2.3 Summability and the shift identity</h3>
+
+<div class="box">
+  <span class="lbl">Lemma 2.1 &mdash; summability</span>
+  <p>For <i>p</i>&nbsp;&gt;&nbsp;1: &nbsp;<code>summable_zetaR</code> gives that
+  <i>n</i>&nbsp;&#8614;&nbsp;(<i>n</i><sup>p</sup>)<sup>&minus;1</sup> is summable
+  (from <code>Real.summable_nat_rpow_inv</code>, Mathlib&rsquo;s p-series criterion);
+  <code>summable_shift</code> reindexes it to <i>k</i>&nbsp;&#8614;&nbsp;((<i>k</i>+1)<sup>p</sup>)<sup>&minus;1</sup>;
+  and <code>summable_BNeg</code> dominates <i>k</i>&nbsp;&#8614;&nbsp;((2<i>k</i>+3)<sup>p</sup>)<sup>&minus;1</sup>
+  by the shifted series, using <i>k</i>+1&nbsp;&le;&nbsp;2<i>k</i>+3 and
+  <code>Summable.of_nonneg_of_le</code>.</p>
+</div>
+
+<div class="box">
+  <span class="lbl">Lemma 2.2 &mdash; shift</span>
+  <div class="eq left">
+    <code>zetaR_shift (hp : 1 &lt; p) : ZetaR p = &#8721;' k, (((k : &#8477;) + 1) ^ p)&#8315;&#185;</code><br>
+    <code>zetaR_eq_shift_neg (hp : 1 &lt; p) : ZetaR p = &#8721;' k, (((k + 1 : &#8469;)) : &#8477;) ^ (-p)</code>
+  </div>
+  <p>Proof: move the <i>n</i>&nbsp;=&nbsp;0 term out with
+  <code>Summable.tsum_eq_zero_add</code>; it vanishes because 0<sup>p</sup>&nbsp;=&nbsp;0 for
+  <i>p</i>&nbsp;&gt;&nbsp;0.  The second form is the one used everywhere below, because the
+  exponent <sup>&minus;p</sup> is the shape in which <code>Real.rpow_neg</code> applies.</p>
+</div>
+
+<h3>2.4 Strict antitonicity of the zeta series</h3>
+
+<div class="box thm">
+  <span class="lbl">Lemma 2.3 &mdash; <code>ZetaR_strictAnti</code></span>
+  <p>If 1 &lt; <i>p</i> and <i>p</i> &lt; <i>q</i> then <i>&zeta;</i>(<i>q</i>) &lt; <i>&zeta;</i>(<i>p</i>).</p>
+</div>
+
+<p>This is the fact Mathlib does not have, and it is where the &ldquo;value-free&rdquo; claim is
+earned: from it, every budget function is monotone, and monotonicity alone suffices to compare
+crossings once rational brackets are known.  The proof is a termwise comparison of two convergent
+series.</p>
+
+<p>Write <i>c</i>(<i>n</i>) = <i>n</i><sup>&minus;p</sup> &minus; <i>n</i><sup>&minus;q</sup>.
+Because <i>n</i>&nbsp;&#8614;&nbsp;<i>n</i><sup>&minus;x</sup> is decreasing in <i>x</i> for
+<i>n</i>&nbsp;&gt;&nbsp;1, every <i>c</i>(<i>n</i>) is nonnegative, and <i>c</i>(0)&nbsp;=&nbsp;0.
+The <i>n</i>&nbsp;=&nbsp;2 term is <em>strictly</em> positive, since
+2<sup>&minus;q</sup>&nbsp;&lt;&nbsp;2<sup>&minus;p</sup> for <i>p</i>&nbsp;&lt;&nbsp;<i>q</i>.  Hence
+the difference series has a strictly positive sum, by <code>Summable.le_tsum</code> applied at
+index 2.  Since both series are summable,
+<code>Summable.tsum_sub</code> identifies the difference of the sums with the sum of the
+differences, and <i>&zeta;</i>(<i>p</i>)&nbsp;&minus;&nbsp;<i>&zeta;</i>(<i>q</i>)&nbsp;&gt;&nbsp;0.</p>
+
+<div class="box why">
+  <span class="lbl">Why the strictness matters</span>
+  <p>Every crossing comparison in &sect;7 needs <em>strict</em> antitonicity.  A one-line
+  non-strict version would not do: the whole content of T14 is that the three crossings are
+  ordered, and at <i>p</i><sub>*</sub> the two budgets sum to exactly 1, so the inequalities are
+  tight at the endpoints.  The proof above buys strictness from the single term
+  <i>n</i>&nbsp;=&nbsp;2.</p>
+</div>
+
+<h3 id="s25">2.5 The bridge to Mathlib&rsquo;s <code>riemannZeta</code></h3>
+
+<p>The development works with the Dirichlet series, but it does not leave the classical
+<i>&zeta;</i> disconnected: the two agree on the real axis above 1, and the agreement is proved
+rather than assumed.</p>
+
+<div class="box thm">
+  <span class="lbl">Lemma 2.4 &mdash; <code>ZetaR_eq_riemannZeta_re</code></span>
+  <p>For every real <i>p</i>&nbsp;&gt;&nbsp;1,</p>
+  <div class="eq"><code>ZetaR p = (riemannZeta (p : &#8450;)).re</code></div>
+  <p>that is, the real Dirichlet series is the real part of Mathlib&rsquo;s
+  <code>riemannZeta</code> at the real point <i>p</i>.</p>
+  <p><small>Proof.  <code>zeta_eq_tsum_one_div_nat_cpow</code> states that
+  <code>riemannZeta s = &Sigma;' n, 1 / (n : &#8450;) ^ s</code> whenever
+  1&nbsp;&lt;&nbsp;<code>s.re</code>.  Each summand is the coercion of a real one:
+  (<i>n</i> :&nbsp;&#8450;)<sup>p</sup>&nbsp;=&nbsp;&uarr;((<i>n</i> :&nbsp;&#8477;)<sup>p</sup>) by
+  <code>Complex.ofReal_cpow</code> together with <code>Complex.ofReal_natCast</code>, and
+  1&nbsp;/&nbsp;&uarr;<i>x</i>&nbsp;=&nbsp;&uarr;(<i>x</i><sup>&minus;1</sup>) by
+  <code>Complex.ofReal_inv</code>.  So the complex series is exactly
+  &uarr;(&Sigma;' <i>n</i>, ((<i>n</i> :&nbsp;&#8477;)<sup>p</sup>)<sup>&minus;1</sup>), by
+  <code>Complex.ofReal_tsum</code>&nbsp;&mdash; which is the statement that the coercion commutes
+  with the infinite sum&nbsp;&mdash; and <code>Complex.ofReal_re</code> reads off the real part,
+  leaving the definition of <code>ZetaR</code>.</small></p>
+</div>
+
+<div class="box thm">
+  <span class="lbl">Corollary 2.5 &mdash; the budgets in terms of <code>riemannZeta</code></span>
+  <div class="eq left">
+    <code>BPos_eq_riemannZeta_re  : BPos p  = 2 ^ (-p) * (riemannZeta (p : &#8450;)).re</code><br>
+    <code>Nside_eq_riemannZeta_re : Nside p = (1 - 2 ^ (-p)) * (riemannZeta (p : &#8450;)).re</code>
+  </div>
+  <p>so both budgets of the source&rsquo;s &sect;5.1 are expressed against classical
+  <i>&zeta;</i> and not merely against the series.</p>
+</div>
+
+<div class="box warn">
+  <span class="lbl">The factor 2<sup>&minus;<i>p</i></sup> is not decoration</span>
+  <p>It is tempting to read the bridge as &ldquo;<i>P</i>(<i>p</i>) is the real part of
+  <i>&zeta;</i>&rdquo;.  That is false.  <i>P</i> sums over even denominators only, so
+  <i>P</i>(<i>p</i>)&nbsp;=&nbsp;2<sup>&minus;p</sup>&nbsp;Re&nbsp;<i>&zeta;</i>(<i>p</i>), whereas
+  Re&nbsp;<i>&zeta;</i>(<i>p</i>) is <code>ZetaR</code> itself.  At <i>p</i>&nbsp;=&nbsp;2 the two
+  differ by a factor of 4: <i>P</i>(2)&nbsp;=&nbsp;&pi;<sup>2</sup>/24 against
+  Re&nbsp;<i>&zeta;</i>(2)&nbsp;=&nbsp;&pi;<sup>2</sup>/6.  The development records the no-go form
+  explicitly,</p>
+  <div class="eq left"><code>BPos_ne_riemannZeta_re : BPos 2 &ne; (riemannZeta (2 : &#8450;)).re</code></div>
+  <p>proved without evaluating <i>&zeta;</i>(2) at all: if the two agreed then
+  Re&nbsp;<i>&zeta;</i>(2)&nbsp;=&nbsp;(1/4)&nbsp;Re&nbsp;<i>&zeta;</i>(2), hence
+  Re&nbsp;<i>&zeta;</i>(2)&nbsp;=&nbsp;0, contradicting <code>ZetaR_pos</code>.  Recording a false
+  form next to its true neighbour is deliberate: it is the precise mistake the notation invites,
+  and it costs one lemma to make it impossible to repeat.</p>
+</div>
+
+<h3>2.6 The shape of the whole argument</h3>
+
+<p>Three ingredients, each proved independently:</p>
+<ol>
+  <li><b>Monotonicity.</b> <code>ZetaR_strictAnti</code>, <code>BPos_strictAnti</code>,
+      <code>BNeg_strictAnti</code> &mdash; all three budgets strictly decrease on (1,&nbsp;&infin;).</li>
+  <li><b>Brackets.</b> <code>ZetaR_4_3_gt</code>, <code>ZetaR_3_2_gt</code>,
+      <code>ZetaR_3_2_lt</code>, <code>ZetaR_7_5_lt</code> &mdash; four rational enclosures of
+      <i>&zeta;</i> at rational arguments, built from exact integer arithmetic.</li>
+  <li><b>Separation.</b> <code>BNeg_lt_BPos</code> &mdash; <i>N</i>(<i>p</i>) &lt; <i>P</i>(<i>p</i>)
+      for <i>p</i> &gt; 1, term by term.</li>
+</ol>
+<p>Their product is the ordering.  Continuity, the intermediate value theorem, and any computation
+of an actual root are all absent from the final assembly, and &sect;7 explains why they can be:
+the crossing points enter the theorem as <em>hypotheses</em> (they are defined by their equations),
+so the theorem is a statement about the relative position of the solutions, not about their
+existence.</p>
+
+<h2 id="s3">3. The abstract ordering core</h2>
+
+<p>The module <code>TppLean/Core.lean</code> isolates the order-theoretic content of T14 and proves
+it for <em>arbitrary</em> real functions, so that nothing in it depends on zeta, on parity, or on
+any number.</p>
+
+<pre><span class="kw">structure</span> <span class="ty">CrossesOnce</span> (B : &#8477; &rarr; &#8477;) (q L : &#8477;) : Prop <span class="kw">where</span>
+  cont      : ContinuousOn B (Set.Ici q)
+  anti      : &forall; x y, q &lt; x &rarr; q &lt; y &rarr; x &lt; y &rarr; B y &lt; B x
+  above_q   : L &lt; B q
+  below_far : &exist; x, q &lt; x &and; B x &lt; L</pre>
+
+<p>A budget that is continuous, strictly decreasing, above its level at the left endpoint, and
+below it somewhere to the right crosses that level exactly once.  Existence is the intermediate
+value theorem; uniqueness is antitonicity.</p>
+
+<div class="box thm">
+  <span class="lbl">Theorem 3.1 &mdash; <code>CrossesOnce.exists_unique</code></span>
+  <p>If <code>CrossesOnce B q L</code> then there is exactly one
+  <i>c</i>&nbsp;&gt;&nbsp;<i>q</i> with <i>B</i>(<i>c</i>)&nbsp;=&nbsp;<i>L</i>.</p>
+  <p><small>Proof.  Apply <code>intermediate_value_Icc'</code> on
+  [<i>q</i>,&nbsp;<i>x</i>] to
+  <i>L</i>&nbsp;&isin;&nbsp;[<i>B</i>(<i>x</i>),&nbsp;<i>B</i>(<i>q</i>)], obtaining
+  <i>c</i> with <i>B</i>(<i>c</i>)&nbsp;=&nbsp;<i>L</i>; the endpoint
+  <i>c</i>&nbsp;=&nbsp;<i>q</i> is excluded by <code>above_q</code>.  Uniqueness is a real
+  trichotomy: a second solution <i>d</i> on either side of <i>c</i> would violate
+  <code>anti</code>, giving <i>L</i>&nbsp;&lt;&nbsp;<i>L</i>.</small></p>
+</div>
+
+<p>The hypothesis package for the two concrete budgets, and the ordering theorem itself:</p>
+
+<pre><span class="kw">structure</span> <span class="ty">BudgetHyp</span> (F G : &#8477; &rarr; &#8477;) (q : &#8477;) : Prop <span class="kw">where</span>
+  crossesP : CrossesOnce F q <span class="nu">1</span>
+  crossesN : CrossesOnce G q <span class="nu">2</span>
+  hGF      : &forall; x, q &lt; x &rarr; G x &lt; F x
+
+<span class="kw">theorem</span> <span class="fn">threshold_ordering</span> {F G : &#8477; &rarr; &#8477;} {q pF pG : &#8477;}
+    (h : BudgetHyp F G q) (hF : IsThreshold F q <span class="nu">1</span> pF) (hG : IsThreshold G q <span class="nu">2</span> pG) :
+    pG &lt; pF</pre>
+
+<p>The proof is a two-line contradiction.  Suppose <i>p</i><sub>F</sub>&nbsp;&le;&nbsp;<i>p</i><sub>G</sub>.
+Since <i>G</i>&nbsp;&lt;&nbsp;<i>F</i> everywhere and <i>F</i>(<i>p</i><sub>F</sub>)&nbsp;=&nbsp;1,
+we get <i>G</i>(<i>p</i><sub>F</sub>)&nbsp;&lt;&nbsp;1.  But if
+<i>p</i><sub>F</sub>&nbsp;&lt;&nbsp;<i>p</i><sub>G</sub> then antitonicity gives
+<i>G</i>(<i>p</i><sub>F</sub>)&nbsp;&gt;&nbsp;<i>G</i>(<i>p</i><sub>G</sub>)&nbsp;=&nbsp;2, and if
+<i>p</i><sub>F</sub>&nbsp;=&nbsp;<i>p</i><sub>G</sub> then
+<i>G</i>(<i>p</i><sub>F</sub>)&nbsp;=&nbsp;2.  Either way <i>G</i>(<i>p</i><sub>F</sub>) is both
+below 1 and at least 2.</p>
+
+<div class="box why">
+  <span class="lbl">The moral of the core</span>
+  <p>The ordering of two crossings is <em>order theory</em>, not analysis.  Analysis is needed only
+  to know that the crossings exist and are unique &mdash; and even that is not needed to state
+  T14, because T14 is a statement about solutions that are given by their defining equations.
+  This is the observation that lets &sect;7 avoid the intermediate value theorem entirely: the core
+  is available and fully proved, but the concrete theorem is assembled from monotonicity alone,
+  which is why the concrete development needs no continuity of <i>&zeta;</i> &mdash; something
+  Mathlib would make expensive.</p>
+</div>
+
+<h2 id="s4">4. Certified rational arithmetic: the floor oracle</h2>
+
+<p>Ingredient (2) is the interesting engineering.  To bracket <i>&zeta;</i>(<i>r</i>) for a rational
+<i>r</i>&nbsp;=&nbsp;<code>num/den</code> we use partial sums, and we want the partial sums to be
+computed by the <em>kernel</em> rather than asserted.  The obstacle is that
+10<sup>9</sup>/<i>k</i><sup>num/den</sup> is irrational for the exponents we need, so the
+summands cannot simply be natural numbers.</p>
+
+<p>The resolution: compute exact <em>floors</em> at scale 10<sup>9</sup>, and absorb the floor
+error into the tail term.</p>
+
+<h3>4.1 The search and its invariant</h3>
+
+<pre><span class="kw">def</span> <span class="fn">SCn</span> : &#8469; := <span class="nu">10</span> ^ <span class="nu">9</span>
+
+<span class="kw">def</span> <span class="fn">go</span> (den knum : &#8469;) : &#8469; &rarr; &#8469; &rarr; &#8469; &rarr; &#8469;
+  | <span class="nu">0</span>, lo, _ =&gt; lo
+  | f + <span class="nu">1</span>, lo, hi =&gt;
+      <span class="kw">if</span> lo + <span class="nu">1</span> &lt; hi <span class="kw">then</span>
+        <span class="kw">let</span> mid := (lo + hi) / <span class="nu">2</span>
+        <span class="kw">if</span> mid ^ den * knum &le; SCn ^ den <span class="kw">then</span> go den knum f mid hi
+        <span class="kw">else</span> go den knum f lo mid
+      <span class="kw">else</span> lo</pre>
+
+<p><code>go</code> is a binary search for the largest <i>j</i> with
+<i>j</i><sup>den</sup>&nbsp;&middot;&nbsp;knum&nbsp;&le;&nbsp;SCn<sup>den</sup>.  Its correctness is
+a single induction on the fuel, with three invariants carried along:</p>
+
+<pre><span class="kw">lemma</span> <span class="fn">go_spec</span> (den knum : &#8469;) :
+    &forall; (f lo hi : &#8469;), lo &le; hi &rarr; lo ^ den * knum &le; SCn ^ den &rarr;
+      (&forall; j, hi &le; j &rarr; SCn ^ den &lt; j ^ den * knum) &rarr; hi - lo &le; <span class="nu">2</span> ^ f &rarr;
+      (go den knum f lo hi) ^ den * knum &le; SCn ^ den &and;
+      (&forall; j, go den knum f lo hi &lt; j &rarr; SCn ^ den &lt; j ^ den * knum)</pre>
+
+<ol>
+  <li><b>Admissibility of <code>lo</code>.</b>  Preserved trivially in both branches.</li>
+  <li><b>Inadmissibility above <code>hi</code>.</b>  When the midpoint is rejected, monotonicity of
+      <i>j</i>&nbsp;&#8614;&nbsp;<i>j</i><sup>den</sup>&nbsp;&middot;&nbsp;knum
+      (<code>Nat.pow_le_pow_left</code>) propagates the rejection upward, so <code>hi</code> can be
+      moved down to the midpoint.</li>
+  <li><b>Fuel sufficiency.</b>  The width halves each round, and the two sub-intervals are each at
+      most half of <code>hi - lo</code>; <code>omega</code> discharges the arithmetic.  With
+      <code>SCn + 1</code>&nbsp;&le;&nbsp;2<sup>64</sup> as the starting width, 64 rounds suffice.</li>
+</ol>
+
+<div class="box thm">
+  <span class="lbl">The oracle</span>
+  <pre style="margin:8px 0 0"><span class="kw">def</span> <span class="fn">fpow</span> (num den k : &#8469;) : &#8469; :=
+  <span class="kw">if</span> k = <span class="nu">0</span> <span class="kw">then</span> SCn <span class="kw">else</span> go den (k ^ num) <span class="nu">64</span> <span class="nu">0</span> (SCn + <span class="nu">1</span>)</pre>
+  <p style="margin-top:10px">Then <code>fpow num den k</code> is exactly the floor
+  &lfloor;10<sup>9</sup>&nbsp;/&nbsp;<i>k</i><sup>num/den</sup>&rfloor;, and four lemmas say so in
+  the two directions needed:</p>
+  <pre class="lite" style="margin:10px 0 0"><span class="fn">fpow_valid</span> : fpow num den k ^ den * k ^ num &le; SCn ^ den
+<span class="fn">fpow_max</span>   : fpow num den k &lt; n &rarr; n &le; SCn + <span class="nu">1</span> &rarr; SCn ^ den &lt; n ^ den * k ^ num
+<span class="fn">fpow_le</span>    : (fpow num den k : &#8477;) &le; SCn / (k : &#8477;) ^ ((num : &#8477;) / den)
+<span class="fn">le_fpow</span>    : SCn / (k : &#8477;) ^ ((num : &#8477;) / den) &lt; (fpow num den k : &#8477;) + <span class="nu">1</span></pre>
+</div>
+
+<p>The step from the integer statement <code>fpow_valid</code> to the real statement
+<code>fpow_le</code> is where the irrational exponent is handled: raise both sides to the
+<code>den</code>-th power, use
+(<i>k</i><sup>num/den</sup>)<sup>den</sup>&nbsp;=&nbsp;<i>k</i><sup>num</sup>
+(<code>rpow_div_pow</code>, from <code>Real.rpow_mul</code>), and take <code>den</code>-th roots
+with <code>pow_le_pow_iff_left&#8320;</code>.</p>
+
+<h3>4.2 The bridges: from integer sums to &zeta;</h3>
+
+<pre><span class="kw">def</span> <span class="fn">sumF</span> (num den N : &#8469;) : &#8469; := &sum; k &isin; Finset.range N, fpow num den (k + <span class="nu">1</span>)</pre>
+
+<p><code>sumF</code> is the certified partial sum, an integer.  Two lemmas convert between it and
+the real partial sum
+&Sigma;<sub>k&lt;N</sub>&nbsp;(<i>k</i>+1)<sup>&minus;num/den</sup>:</p>
+
+<div class="box thm">
+  <span class="lbl">Lemmas 4.1 and 4.2 &mdash; the bridges</span>
+  <div class="eq left">
+    <code>sumF_le_zetaR_partial : (sumF num den N : &#8477;) &le; SCn * &sum; k &isin; range N, ((k+1 : &#8469;) : &#8477;) ^ (-(num/den))</code><br>
+    <code>zetaR_partial_le      : SCn * &sum; k &isin; range N, ((k+1 : &#8469;) : &#8477;) ^ (-(num/den)) &le; (sumF num den N : &#8477;) + N</code>
+  </div>
+</div>
+
+<p>Read together: the certified integer sum and 10<sup>9</sup> times the true partial sum differ by
+at most <i>N</i>.  Indeed each term satisfies
+<code>fpow</code>&nbsp;&le;&nbsp;10<sup>9</sup><i>k</i><sup>&minus;num/den</sup>&nbsp;&lt;&nbsp;<code>fpow</code>+1
+by <code>fpow_le</code> and <code>le_fpow</code>, and summing <i>N</i> such one-sided errors
+accumulates to <i>N</i> on one side and zero on the other.</p>
+
+<div class="box why">
+  <span class="lbl">Why this is the right trade</span>
+  <p>The floor error is <em>asymmetric</em> by construction: the lower bracket is exact, the upper
+  bracket is too large by at most <i>N</i>/10<sup>9</sup>.  This is exactly the slack structure the
+  application needs &mdash; lower bounds on <i>&zeta;</i> are used to prove
+  <i>P</i>(4/3)&nbsp;&gt;&nbsp;1, upper bounds to prove <i>P</i>(3/2)&nbsp;&lt;&nbsp;1 &mdash; and
+  the <i>N</i>/10<sup>9</sup> term is then comfortably smaller than the analytic tail that
+  follows it.  Choosing <i>N</i>&nbsp;=&nbsp;10<sup>4</sup> makes the slack 10<sup>&minus;5</sup>
+  against a tail of 2&nbsp;&times;&nbsp;10<sup>&minus;2</sup>: two orders of magnitude of room.</p>
+</div>
+
+<h3>4.3 The tail</h3>
+
+<p>The partial sums are closed by Mathlib&rsquo;s integral test.  The development contains its own
+statement of the comparison in the exact indexed form needed:</p>
+
+<div class="box thm">
+  <span class="lbl">Lemma 4.3 &mdash; <code>tail_finite</code>, <code>tsum_tail_le</code></span>
+  <p>For <i>p</i>&nbsp;&gt;&nbsp;1, <i>N</i>&nbsp;&ge;&nbsp;1 and every truncation length <i>M</i>:</p>
+  <div class="eq">
+    &sum;<sub>i&lt;M</sub> (<i>N</i>+<i>i</i>+1)<sup>&minus;p</sup> &nbsp;&le;&nbsp;
+    <span class="frac"><span class="n"><i>N</i><sup>1&minus;p</sup></span><span class="d"><i>p</i>&minus;1</span></span>
+  </div>
+  <p>and passing to the limit (<code>HasSum.tendsto_sum_nat</code> against a constant sequence)
+  the same bound holds for the infinite tail
+  &Sigma;<sub>k</sub>&nbsp;(<i>k</i>+<i>N</i>+1)<sup>&minus;p</sup>.</p>
+  <p><small>The finite statement is <code>AntitoneOn.sum_le_integral_Ico</code> applied to
+  <i>x</i>&nbsp;&#8614;&nbsp;<i>x</i><sup>&minus;p</sup> on each interval of the partition, then
+  <code>intervalIntegral.integral_rpow</code> evaluates the integral to
+  (<i>N</i><sup>1&minus;p</sup>&nbsp;&minus;&nbsp;(<i>N</i>+<i>M</i>)<sup>1&minus;p</sup>)/(<i>p</i>&minus;1),
+  which is bounded by dropping the negative term.</small></p>
+</div>
+
+<p>With the split identity <code>ZetaR_split</code>
+(<i>&zeta;</i>(<i>p</i>) = &Sigma;<sub>k&lt;N</sub>(<i>k</i>+1)<sup>&minus;p</sup> + tail) and the
+two bridges, we obtain the two <i>usable</i> forms, which are the only statements about
+<i>&zeta;</i> that the rest of the development consumes:</p>
+
+<div class="box thm">
+  <span class="lbl">Lemmas 4.4 and 4.5 &mdash; the working brackets</span>
+  <div class="eq left">
+    <code>ZetaR_lower : (sumF num den N : &#8477;) / SCn &le; ZetaR p</code> &nbsp; for <i>p</i> = num/den &gt; 1, <i>N</i><sup>num</sup> &le; SCn<sup>den</sup><br>
+    <code>ZetaR_upper : ZetaR p &le; ((sumF num den N : &#8477;) + N) / SCn + N ^ (1 - p) / (p - 1)</code>
+  </div>
+</div>
+
+<h2 id="s5">5. The certified brackets for &zeta;</h2>
+
+<p>Instantiating Lemma 4.4 and Lemma 4.5 at four rational arguments gives the numeric input.  Each
+instance is a rational inequality in disguise, and each is closed by evaluating an integer
+expression with <code>native_decide</code> and simplifying with <code>norm_num</code>.</p>
+
+<h3>5.1 The four brackets</h3>
+
+<table>
+  <caption>Table 2. The four certified enclosures and the exact integer certificates behind them.
+  <code>SCn</code> = 10<sup>9</sup>.</caption>
+  <thead><tr><th>lemma</th><th>statement</th><th>certificate</th><th>tail</th></tr></thead>
+  <tbody>
+    <tr><td><code>ZetaR_4_3_gt</code></td><td>3.42 &lt; <i>&zeta;</i>(4/3)</td>
+        <td class="num">sumF 4 3 10&#8308; = 3461687465</td><td class="num">&mdash;</td></tr>
+    <tr><td><code>ZetaR_3_2_gt</code></td><td>2 &lt; <i>&zeta;</i>(3/2)</td>
+        <td class="num">sumF 3 2 10&#8308; = 2592370811</td><td class="num">&mdash;</td></tr>
+    <tr class="hi"><td><code>ZetaR_3_2_lt</code></td><td><i>&zeta;</i>(3/2) &lt; 2.64</td>
+        <td class="num">(sumF 3 2 10&#8308; + 10&#8308;)/10&#8313; &le; 2.5924</td>
+        <td class="num">= 0.02</td></tr>
+    <tr><td><code>ZetaR_7_5_lt</code></td><td><i>&zeta;</i>(7/5) &lt; 3.13</td>
+        <td class="num">(sumF 7 5 10&#8309; + 10&#8309;)/10&#8313; &le; 3.0806</td>
+        <td class="num">= 0.025</td></tr>
+  </tbody>
+</table>
+
+<p>The two tails are exactly rational because the truncation lengths are chosen that way:
+for <i>p</i>&nbsp;=&nbsp;3/2 and <i>N</i>&nbsp;=&nbsp;10<sup>4</sup> the tail is
+<i>N</i><sup>&minus;1/2</sup>/(1/2)&nbsp;=&nbsp;2/10<sup>2</sup>&nbsp;=&nbsp;0.02, and for
+<i>p</i>&nbsp;=&nbsp;7/5 and <i>N</i>&nbsp;=&nbsp;10<sup>5</sup> it is
+(5/2)&middot;10<sup>&minus;8/5&middot;5/4</sup>&nbsp;=&nbsp;(5/2)&middot;10<sup>&minus;2</sup>&nbsp;=&nbsp;0.025.
+Both are proved as real equalities by reducing <i>r</i><sup>s</sup> to an integer power via
+<code>Real.rpow_mul</code>; no floating point enters anywhere.</p>
+
+<p>Concretely, the two upper brackets read</p>
+<div class="eq left">
+  <i>&zeta;</i>(3/2) &nbsp;&le;&nbsp; 2.592380811 + 0.02 = 2.612380811 &nbsp;&lt;&nbsp; 2.64,<br>
+  <i>&zeta;</i>(7/5) &nbsp;&le;&nbsp; 3.080597357 + 0.025 = 3.105597357 &nbsp;&lt;&nbsp; 3.13,
+</div>
+<p>and the two lower brackets read
+<i>&zeta;</i>(4/3)&nbsp;&ge;&nbsp;3.461687465&nbsp;&gt;&nbsp;3.42 and
+<i>&zeta;</i>(3/2)&nbsp;&ge;&nbsp;2.592370811&nbsp;&gt;&nbsp;2.  Compare with the true values
+3.6009, 2.6124, 3.1055: the enclosures are loose by a few percent, which is all the argument
+needs.</p>
+
+<h3>5.2 The power comparisons</h3>
+
+<p>Separately, the assembly needs a handful of comparisons involving
+2<sup>&minus;4/3</sup>, 2<sup>&minus;3/2</sup> and 2<sup>&minus;7/5</sup>.  Each is reduced to a
+single integer inequality in the naturals, discharged by <code>decide</code>:</p>
+
+<table class="tight">
+  <caption>Table 3. Every power comparison used, with the integer fact it reduces to.</caption>
+  <thead><tr><th>real statement</th><th>integer certificate</th></tr></thead>
+  <tbody>
+    <tr><td>2<sup>7/5</sup> &lt; 2.64</td><td><code>2^7 * 100^5 &lt; 264^5</code></td></tr>
+    <tr><td>1.6 &lt; 2<sup>7/5</sup></td><td><code>16^5 * 2^7 &lt; 10^5 * 2^12</code></td></tr>
+    <tr><td>2<sup>4/3</sup> &lt; 2.52</td><td><code>2^4 * 100^3 &lt; 252^3</code></td></tr>
+    <tr><td>2.5 &lt; 2<sup>4/3</sup></td><td><code>25^3 &lt; 16 * 10^3</code></td></tr>
+    <tr><td>2<sup>3/2</sup> &lt; 2.83</td><td><code>2^3 * 1000^2 &lt; 2830^2</code></td></tr>
+    <tr><td>2.82 &lt; 2<sup>3/2</sup></td><td><code>282^2 &lt; 8 * 100^2</code></td></tr>
+    <tr><td>3.73 &lt; 2<sup>19/10</sup></td><td><code>373^10 &lt; 100^10 * 2^19</code></td></tr>
+  </tbody>
+</table>
+
+<p>The pattern for, say, the first row is: raise both sides to the fifth power, rewrite
+2.64&nbsp;=&nbsp;264/100, and the claim becomes
+2<sup>7</sup>&nbsp;&middot;&nbsp;100<sup>5</sup>&nbsp;&lt;&nbsp;264<sup>5</sup> &mdash; a
+statement about natural numbers, hence decidable.  Because both sides are nonnegative, the
+<code>5</code>-th power is monotone, and
+<code>pow_le_pow_iff_left&#8320;</code> converts the integer fact back into the real one.</p>
+
+<h3>5.3 From brackets to budget brackets</h3>
+
+<p>Four more lemmas turn the <i>&zeta;</i>-enclosures into statements about the budgets themselves.
+They are pure multiplication of inequalities with positivity side conditions, e.g.</p>
+
+<div class="eq left">
+  <i>P</i>(4/3) = 2<sup>&minus;4/3</sup> <i>&zeta;</i>(4/3)
+  &nbsp;&gt;&nbsp; (1/2.52) &middot; 3.42 &nbsp;&gt;&nbsp; 1,
+</div>
+<p>using 2<sup>&minus;4/3</sup>&nbsp;&gt;&nbsp;1/2.52 from
+2<sup>4/3</sup>&nbsp;&lt;&nbsp;2.52 (<code>two_rpow_neg_4_3_gt</code>), and</p>
+<div class="eq left">
+  <i>P</i>(3/2) = 2<sup>&minus;3/2</sup> <i>&zeta;</i>(3/2)
+  &nbsp;&lt;&nbsp; (1/2.82) &middot; 2.64 &nbsp;&lt;&nbsp; 1 .
+</div>
+<p>The results are <code>BPos_4_3_gt_one : 1 &lt; BPos (4/3)</code> and
+<code>BPos_3_2_lt_one : BPos (3/2) &lt; 1</code>.  Together with antitonicity of <i>P</i> these
+pin <i>p</i><sub>P</sub> to the interval (4/3,&nbsp;3/2).</p>
+
+<h2 id="s6">6. Gap (1): the parity separation</h2>
+
+<p>This is the step the source describes as &ldquo;the positive side is always the cheaper
+one&rdquo; (row T4), and it is the one gap that is genuinely about the two budgets rather than about
+<i>&zeta;</i> alone.</p>
+
+<p>The positive budget is the even-index sub-series.  Writing it that way is the key move:</p>
+
+<div class="box thm">
+  <span class="lbl">Lemma 6.1 &mdash; <code>BPos_eq_even</code></span>
+  <div class="eq">
+    <i>P</i>(<i>p</i>) = 2<sup>&minus;p</sup> <i>&zeta;</i>(<i>p</i>)
+    = &sum;<sub>k&ge;0</sub> (2<i>k</i>+2)<sup>&minus;p</sup>
+  </div>
+  <p><small>Proof.  Shift: <i>&zeta;</i>(<i>p</i>) = &Sigma;<sub>k</sub>(<i>k</i>+1)<sup>&minus;p</sup>
+  (<code>zetaR_eq_shift_neg</code>).  Then
+  2<sup>&minus;p</sup>(<i>k</i>+1)<sup>&minus;p</sup>
+  = (2(<i>k</i>+1))<sup>&minus;p</sup> by
+  <code>Real.mul_rpow</code>, and the factor 2<sup>&minus;p</sup> is pulled through the sum by
+  <code>tsum_mul_left</code>.</small></p>
+</div>
+
+<p>Now the negative and positive budgets are sums over the same index set, with denominators
+2<i>k</i>+3 and 2<i>k</i>+2 respectively.  The comparison is termwise:</p>
+
+<div class="box thm">
+  <span class="lbl">Lemma 6.2 &mdash; <code>odd_lt_even</code></span>
+  <p>For <i>p</i>&nbsp;&gt;&nbsp;1 and every <i>k</i>:</p>
+  <div class="eq">
+    (2<i>k</i>+3)<sup>&minus;p</sup> &nbsp;&lt;&nbsp; (2<i>k</i>+2)<sup>&minus;p</sup>
+  </div>
+  <p><small>Proof.  The map <i>x</i>&nbsp;&#8614;&nbsp;<i>x</i><sup>p</sup> is strictly increasing on
+  the positives, so (2<i>k</i>+2)<sup>p</sup>&nbsp;&lt;&nbsp;(2<i>k</i>+3)<sup>p</sup>
+  (<code>Real.rpow_lt_rpow</code>).  Inverting a strictly positive inequality reverses it
+  (<code>one_div_lt_one_div_of_lt</code>), and
+  <i>x</i><sup>&minus;p</sup>&nbsp;=&nbsp;(<i>x</i><sup>p</sup>)<sup>&minus;1</sup> is
+  <code>Real.rpow_neg</code>.</small></p>
+</div>
+
+<div class="box thm">
+  <span class="lbl">Theorem 6.3 &mdash; <code>BNeg_lt_BPos</code> (gap 1)</span>
+  <p>For every <i>p</i>&nbsp;&gt;&nbsp;1: &nbsp; <i>N</i>(<i>p</i>) &nbsp;&lt;&nbsp; <i>P</i>(<i>p</i>).</p>
+  <p><small>Proof.  Rewrite <i>P</i> by Lemma 6.1, then apply
+  <code>Summable.tsum_lt_tsum</code> with the pointwise bound
+  (<code>le_of_lt</code> of Lemma 6.2, valid at every <i>k</i>) and the strict witness at
+  <i>k</i>&nbsp;=&nbsp;0.  Both series are summable:
+  <code>summable_BNeg</code> and <code>summable_even</code>.</small></p>
+</div>
+
+<div class="box why">
+  <span class="lbl">Why the series form is the right definition</span>
+  <p>The source proves <i>P</i>&nbsp;&minus;&nbsp;<i>N</i>&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;<i>&eta;</i>(<i>p</i>)
+  and then <i>&eta;</i>(<i>p</i>)&nbsp;&lt;&nbsp;1.  That route requires the alternating-series
+  identity for <i>&eta;</i> and the evaluation of the even/odd rearrangement of <i>&zeta;</i>.  By
+  <em>defining</em> <i>N</i> as its series rather than as
+  (1&nbsp;&minus;&nbsp;2<sup>&minus;p</sup>)<i>&zeta;</i>(<i>p</i>)&nbsp;&minus;&nbsp;1, the same
+  content drops out of <code>tsum_lt_tsum</code> with no rearrangement at all.  This is the single
+  design decision that made gap (1) short.</p>
+</div>
+
+<p>The companion strict-antitonicity of the negative budget is the same termwise argument with the
+exponent playing the role of the base: for <i>p</i>&nbsp;&lt;&nbsp;<i>q</i>,
+(2<i>k</i>+3)<sup>&minus;q</sup>&nbsp;&lt;&nbsp;(2<i>k</i>+3)<sup>&minus;p</sup> because the base is
+larger than 1 (<code>Real.rpow_lt_rpow_of_exponent_lt</code>), giving
+<code>BNeg_strictAnti</code>.  The positive budget, being a product of two strictly decreasing
+positive factors, gives <code>BPos_strictAnti</code>.</p>
+
+<h2 id="s7">7. The main theorem</h2>
+
+<div class="box thm">
+  <span class="lbl">Theorem 7.1 &mdash; <code>tpp_rh42_three_thresholds</code></span>
+  <pre class="lite" style="margin:6px 0 0"><span class="kw">theorem</span> <span class="fn">tpp_rh42_three_thresholds</span> (pP pN pstar : &#8477;)
+    (hP : BPos pP = <span class="nu">1</span>) (hN : BNeg pN = <span class="nu">2</span>) (hstar : ZetaR pstar = <span class="nu">2</span>) :
+    pN &lt; pP &and; pP &lt; pstar</pre>
+</div>
+
+<div class="box thm">
+  <span class="lbl">Theorem 7.2 &mdash; <code>tpp_rh42_three_thresholds_level</code></span>
+  <pre class="lite" style="margin:6px 0 0"><span class="kw">theorem</span> <span class="fn">tpp_rh42_three_thresholds_level</span> (pP pN pstar L : &#8477;) (hL : <span class="nu">1</span> &le; L)
+    (hP : BPos pP = <span class="nu">1</span>) (hN : BNeg pN = L) (hstar : ZetaR pstar = <span class="nu">2</span>) :
+    pN &lt; pP &and; pP &lt; pstar</pre>
+  <p style="margin-top:10px"><small>Theorem 7.2 is not a separate argument: it is the proof of
+  Theorem 7.1 with the single hypothesis <code>hL : 1 &le; L</code> added.  The point of stating it
+  is that the source&rsquo;s own normalisation is <i>L</i>&nbsp;=&nbsp;1, so the source&rsquo;s
+  claim is an instance.</small></p>
+</div>
+
+<h3>7.1 The five moves</h3>
+
+<p>Everything below is monotonicity applied to the three proved antitonicity lemmas, with the
+brackets of &sect;5 supplying the numeric anchors.</p>
+
+<h4>Move 1 &mdash; <code>1 &lt; pP</code> (<code>one_lt_of_BPos_eq</code>)</h4>
+<p>If <i>p</i><sub>P</sub>&nbsp;&le;&nbsp;1 we want a contradiction from
+<i>P</i>(<i>p</i><sub>P</sub>)&nbsp;=&nbsp;1.  The point is that the Dirichlet series does not
+converge there: by <code>Real.summable_nat_rpow_inv</code>, summability of
+<i>n</i>&nbsp;&#8614;&nbsp;(<i>n</i><sup>p</sup>)<sup>&minus;1</sup> is <em>equivalent</em> to
+<i>p</i>&nbsp;&gt;&nbsp;1, so for <i>p</i>&nbsp;&le;&nbsp;1 the series is not summable and
+<code>tsum_eq_zero_of_not_summable</code> gives <i>&zeta;</i>(<i>p</i>)&nbsp;=&nbsp;0.  Hence
+<i>P</i>(<i>p</i>)&nbsp;=&nbsp;2<sup>&minus;p</sup>&nbsp;&middot;&nbsp;0&nbsp;=&nbsp;0&nbsp;&ne;&nbsp;1.
+The same argument for the level-2 equation gives <code>one_lt_of_zetaR_eq</code>.</p>
+
+<h4>Move 2 &mdash; <code>4/3 &lt; pP</code></h4>
+<p>Trichotomy on (4/3,&nbsp;<i>p</i><sub>P</sub>).  The increasing case is the goal; the equal case
+contradicts <code>BPos_4_3_gt_one</code> against <code>hP</code>; the decreasing case
+<i>p</i><sub>P</sub>&nbsp;&lt;&nbsp;4/3 uses <code>BPos_strictAnti</code> (legitimate because Move 1
+supplies <i>p</i><sub>P</sub>&nbsp;&gt;&nbsp;1) to get
+<i>P</i>(4/3)&nbsp;&lt;&nbsp;<i>P</i>(<i>p</i><sub>P</sub>)&nbsp;=&nbsp;1, contradicting
+<i>P</i>(4/3)&nbsp;&gt;&nbsp;1.</p>
+
+<h4>Move 3 &mdash; <code>BNeg pP &lt; 1</code></h4>
+<p>Apply gap (1) at <i>p</i><sub>P</sub> (again legitimate by Move 1) and substitute
+<code>hP</code>:</p>
+<div class="eq">
+  <i>N</i>(<i>p</i><sub>P</sub>) &nbsp;&lt;&nbsp; <i>P</i>(<i>p</i><sub>P</sub>) &nbsp;=&nbsp; 1 .
+</div>
+<p>This one line is the whole point of gap (1), and it is the only place the parity separation is
+used.</p>
+
+<h4>Move 4 &mdash; <code>pN &lt; pP</code></h4>
+<p>Trichotomy on (<i>p</i><sub>N</sub>,&nbsp;<i>p</i><sub>P</sub>).  The increasing case is the goal.
+If <i>p</i><sub>N</sub>&nbsp;=&nbsp;<i>p</i><sub>P</sub> then
+<i>N</i>(<i>p</i><sub>P</sub>)&nbsp;=&nbsp;<i>L</i>, which together with Move 3 and
+<i>L</i>&nbsp;&ge;&nbsp;1 reads <i>L</i>&nbsp;&le;&nbsp;1&nbsp;&gt;&nbsp;<i>L</i>.  If instead
+<i>p</i><sub>P</sub>&nbsp;&lt;&nbsp;<i>p</i><sub>N</sub> then <code>BNeg_strictAnti</code> gives
+<i>N</i>(<i>p</i><sub>N</sub>)&nbsp;&lt;&nbsp;<i>N</i>(<i>p</i><sub>P</sub>), i.e.
+<i>L</i>&nbsp;&lt;&nbsp;1&nbsp;&le;&nbsp;<i>L</i>.  Notice that this move needs no lower bound on
+<i>p</i><sub>N</sub> whatsoever: the antitonicity is applied with
+<i>p</i><sub>P</sub>&nbsp;&gt;&nbsp;1 as the left endpoint, which is why Move 1 was about
+<i>p</i><sub>P</sub> and not about <i>p</i><sub>N</sub>.</p>
+
+<h4>Move 5 &mdash; <code>pP &lt; 3/2 &lt; p*</code></h4>
+<p>Two independent applications of the same pattern.  For <i>p</i><sub>P</sub>: trichotomy on
+(<i>p</i><sub>P</sub>,&nbsp;3/2) with <code>BPos_3_2_lt_one</code>, i.e.
+<i>P</i>(3/2)&nbsp;&lt;&nbsp;1&nbsp;=&nbsp;<i>P</i>(<i>p</i><sub>P</sub>).  For
+<i>p</i><sub>*</sub>: first <code>one_lt_of_zetaR_eq</code> gives
+<i>p</i><sub>*</sub>&nbsp;&gt;&nbsp;1, then trichotomy on (3/2,&nbsp;<i>p</i><sub>*</sub>) with
+<code>ZetaR_3_2_gt</code>, i.e.
+2&nbsp;&lt;&nbsp;<i>&zeta;</i>(3/2)&nbsp;=&nbsp;2.</p>
+
+<p>Chaining:</p>
+<div class="eq big">
+  <i>p</i><sub>N</sub> &nbsp;&lt;&nbsp; <i>p</i><sub>P</sub> &nbsp;&lt;&nbsp;
+  <span class="frac"><span class="n">3</span><span class="d">2</span></span>
+  &nbsp;&lt;&nbsp; <i>p</i><sub>*</sub> .
+</div>
+
+<div class="box why">
+  <span class="lbl">Where did the analysis go?</span>
+  <p>The proof uses analytic input in exactly two places, both inside lemmas proved once and
+  reused: strict antitonicity of the series (&sect;2.4) and the integral tail bound (&sect;4.3).
+  The final assembly is nineteen lines of real trichotomy.  In particular it never needs to know
+  that <i>&zeta;</i> is <em>continuous</em>, never invokes the intermediate value theorem, never
+  locates a root numerically, and never evaluates <i>&zeta;</i>.  That is what makes the
+  formalisation tractable: continuity of a Dirichlet series on (1,&nbsp;&infin;) is a
+  uniform-convergence argument that Mathlib would make expensive, whereas antitonicity is a
+  termwise inequality.</p>
+</div>
+
+<h2 id="s8">8. Verification and trust accounting</h2>
+
+<h3>8.1 What was checked, and how</h3>
+
+<pre class="lite">$ cd lean &amp;&amp; ./check.sh --all
+[check] OK   TppLean/Core.lean (2s)
+[check] OK   TppLean/Budget.lean (3s)
+[check] OK   TppLean/ThreeThresholds.lean (10s)
+[check] OK   TppLean.lean (2s)</pre>
+
+<p>The development is 1091 lines across three modules plus the root file.  There is no
+<code>sorry</code>, no <code>admit</code>, no new axiom, and no
+<code>set_option</code> that disables checking.  <code>check.sh</code> reconstructs
+<code>LEAN_PATH</code> from <code>lake env</code> and invokes <code>lean</code> directly on each
+module.</p>
+
+<h3>8.2 The trust ledger</h3>
+
+<p>Different numeric tactics carry different trust assumptions, and it is worth separating them.</p>
+
+<table>
+  <caption>Table 4. How each numeric fact is checked.</caption>
+  <thead><tr><th>tactic</th><th>trust assumption</th><th>used for</th></tr></thead>
+  <tbody>
+    <tr><td><code>decide</code></td><td>none beyond the kernel &mdash; the proof term is a
+        reduction</td><td>the seven power comparisons (Table 3) and the initial-interval bound
+        <code>(10^9 + 1) &le; 2^64</code></td></tr>
+    <tr><td><code>norm_num</code></td><td>none beyond the kernel</td>
+        <td>all rational arithmetic: 3.42&nbsp;&times;&nbsp;3420000000, 2.5924&nbsp;=&nbsp;25924/10000,
+        the tail evaluations 0.02 and 0.025, the multiplication lemmas of &sect;5.3</td></tr>
+    <tr><td><code>native_decide</code></td><td><b>the Lean compiler</b>
+        (<code>Lean.ofReduceBool</code>, the standard <code>native_decide</code> assumption)</td>
+        <td>the three large integer sum evaluations:
+        <code>sumF 4 3 10^4 = 3461687465</code>, <code>sumF 3 2 10^4 = 2592370811</code>,
+        <code>sumF 7 5 10^5 = 3080497357</code></td></tr>
+  </tbody>
+</table>
+
+<p>The <code>native_decide</code> assumption is the same one Mathlib uses throughout for large
+decidable computations; it is a statement about the compiler, not about the mathematics.  A reader
+who wants it removed can replace those three invocations by <code>decide</code>, at the cost of a
+substantially longer build; nothing else in the development depends on it.  The distinction matters
+because it is exactly the kind of thing that is easy to elide when one says &ldquo;verified by
+computation&rdquo;.</p>
+
+<h3>8.3 What is <em>not</em> in the file</h3>
+
+<div class="box warn">
+  <span class="lbl">Honest scope</span>
+  <ul>
+    <li><b>The numerical values are not formalised.</b>  The file proves the ordering; it does not
+        prove <i>p</i><sub>P</sub>&nbsp;=&nbsp;1.4649845878051603837.  Locating the roots to 19
+        digits is the source&rsquo;s 80-dps computation, and formalising it would need a verified
+        root-finder (see &sect;13).</li>
+    <li><b>The budget identities are not formalised.</b>  The source&rsquo;s
+        <i>P</i>&nbsp;+&nbsp;<i>N</i>&nbsp;=&nbsp;<i>&zeta;</i>&nbsp;&minus;&nbsp;1 and
+        <i>P</i>&nbsp;&minus;&nbsp;<i>N</i>&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;<i>&eta;</i> (ledger
+        rows T2&ndash;T3) do not appear as theorems.  The separation they would be used for is
+        proved directly instead (&sect;6), so nothing depends on them &mdash; but the reviewer
+        should know that the file does <em>not</em> establish the even/odd rearrangement of
+        <i>&zeta;</i>, only the inequality it implies.</li>
+    <li><b><code>BPos p</code> is not <em>itself</em> the real part of
+        <code>riemannZeta p</code></b> &mdash; the factor 2<sup>&minus;p</sup> is real.  The bridge
+        itself <em>is</em> now proved: <code>ZetaR p = (riemannZeta (p : &#8450;)).re</code>
+        (<code>ZetaR_eq_riemannZeta_re</code>, &sect;2.5), whence
+        <code>BPos p = 2^(-p) * (riemannZeta p).re</code> and
+        <code>Nside p = (1 - 2^(-p)) * (riemannZeta p).re</code>.  The literal form would differ by
+        a factor of 4 at <i>p</i>&nbsp;=&nbsp;2 and is recorded as false
+        (<code>BPos_ne_riemannZeta_re</code>).</li>
+    <li><b>The abstract core is not on the critical path.</b>
+        <code>Core.threshold_ordering</code> is proved and available, but the concrete theorem
+        does not call it: the concrete assembly uses trichotomy directly, which is the same
+        argument with continuity removed.  This is a redundancy, not a gap.</li>
+  </ul>
+</div>
+
+<h2 id="s9">9. Conclusion</h2>
+
+<p>T14 is now a theorem rather than a numerical observation.  Concretely, for
+<i>&zeta;</i>(<i>p</i>)&nbsp;=&nbsp;&Sigma;<sub>n&ge;1</sub><i>n</i><sup>&minus;p</sup>,
+<i>P</i>(<i>p</i>)&nbsp;=&nbsp;2<sup>&minus;p</sup><i>&zeta;</i>(<i>p</i>) and
+<i>N</i>(<i>p</i>)&nbsp;=&nbsp;&Sigma;<sub>k&ge;0</sub>(2<i>k</i>+3)<sup>&minus;p</sup>, if</p>
+<div class="eq">
+  <i>P</i>(<i>p</i><sub>P</sub>) = 1, &nbsp;&nbsp;
+  <i>N</i>(<i>p</i><sub>N</sub>) = <i>L</i> &nbsp;(<i>L</i> &ge; 1), &nbsp;&nbsp;
+  <i>&zeta;</i>(<i>p</i><sub>*</sub>) = 2,
+</div>
+<p>then <i>p</i><sub>N</sub>&nbsp;&lt;&nbsp;<i>p</i><sub>P</sub>&nbsp;&lt;&nbsp;<i>p</i><sub>*</sub>.
+The proof is value-free, carries no <code>sorry</code>, and every numeric step is an integer or
+rational inequality checked by the kernel (with the three large sums checked by the compiler).</p>
+
+<p>The shape of the argument is worth restating because it is transferable: <b>to order the
+solutions of several monotone equations, you do not need to solve them, and you do not need
+continuity.  You need strict monotonicity of each function, one evaluated point per equation to
+anchor the comparison, and one inequality separating the functions from each other.</b>  Here the
+separating inequality is the parity comparison <i>N</i>&nbsp;&lt;&nbsp;<i>P</i>, and it does the
+entire job of placing <i>p</i><sub>N</sub> before <i>p</i><sub>P</sub>.</p>
+
+<h2 id="s10">10. Significance</h2>
+
+<h3>10.1 For the ledger</h3>
+<p>The rh42 round keeps a ledger with an explicit entry rule: <code>VERIFIED</code> requires
+recomputation by an independent route, <code>PROVED</code> requires a written argument.  T14 was
+<code>VERIFIED</code> only, with the caveat that root-finding at 80 digits is evidence about a
+computation, not a proof about a limit.  This development moves the row to <code>PROVED</code> and
+machine-checked, and it does so without re-running the numerics: the proof is of the same order as
+the claim.</p>
+
+<h3>10.2 For the budgets method</h3>
+<p>The budgets <i>P</i> and <i>N</i> are the reachable ranges of the signed greedy rule; the
+thresholds are where those ranges cease to cover the targets.  The ordering
+<i>p</i><sub>N</sub>&nbsp;&lt;&nbsp;<i>p</i><sub>P</sub> is the quantitative form of the statement
+that the negative side becomes unable to express &minus;1 strictly <em>earlier</em> than the
+positive side becomes unable to express +1 &mdash; the &ldquo;half-turn deficit&rdquo; of the
+alternating series.  Making that asymmetry a theorem, rather than an estimate, is what lets the
+downstream reachable-set analysis (rows T10&ndash;T13) cite it.</p>
+
+<h3>10.3 For formalisation practice</h3>
+<p>Mathlib has no monotonicity and no numeric bounds for <code>riemannZeta</code>.  This
+development shows that both can be supplied cheaply for the real Dirichlet series, that the two
+functions are provably the same object on the real axis above 1 (Lemma 2.4), and that the
+combination is enough for a concrete ordering result.  The two reusable artefacts are
+<code>ZetaR_strictAnti</code> (a strict-antitonicity result obtained from one strictly positive
+term of a difference series, a pattern that transfers to any real Dirichlet series with
+nonnegative coefficients) and the floor-oracle-plus-bridge architecture of &sect;4 (a way to turn
+irrational-exponent series computations into kernel-checkable integer arithmetic with a controlled
+error budget).</p>
+
+<h3>10.4 For the interpretation</h3>
+<p>At <i>p</i><sub>*</sub> the budget interval has length exactly
+<i>&zeta;</i>(<i>p</i><sub>*</sub>)&nbsp;&minus;&nbsp;1&nbsp;=&nbsp;1 but is split unevenly, so the
+endpoints &plusmn;1 are still not reachable there.  T14 is precisely the statement that makes this
+non-vacuous: the two endpoint thresholds are <em>strictly inside</em>
+(1,&nbsp;<i>p</i><sub>*</sub>), so the failure at <i>p</i><sub>*</sub> is a genuine failure of
+placement, not of length.</p>
+
+<h2 id="s11">11. Novelty</h2>
+
+<p>Four things in this development are, as far as the session establishes, not standard
+practice.</p>
+
+<ol>
+  <li><b>Ordering without continuity or root-finding.</b>  The usual way to compare crossings of
+      monotone functions is to locate both roots numerically and compare the enclosures.  Here the
+      roots are <em>hypotheses</em>, and only the relative position is proved, so the analytic
+      input reduces to strict antitonicity.  This is not merely an aesthetic simplification: it
+      removes the intermediate value theorem and the continuity of a Dirichlet series from the
+      dependency cone entirely.</li>
+  <li><b>A verified floor oracle for irrational exponents.</b>  <code>fpow</code> computes
+      &lfloor;10<sup>9</sup>/<i>k</i><sup>num/den</sup>&rfloor; by a fuel-recursive binary search
+      whose correctness is a single induction with three invariants
+      (<code>go_spec</code>).  This replaces the usual approach of bounding
+      <i>k</i><sup>num/den</sup> by pointwise integer surrogates, which in this problem provably
+      loses too much: the pointwise surrogates available for
+      <i>&zeta;</i>(3/2)&nbsp;&lt;&nbsp;2.64 sum to roughly 1.0&ndash;1.2 against a true value of
+      2.59, whereas the exact floors sum to 2.5924.</li>
+  <li><b>The two-sided bridge with asymmetric error.</b>  <code>sumF_le_zetaR_partial</code> and
+      <code>zetaR_partial_le</code> sandwich 10<sup>9</sup> times the true partial sum between the
+      integer sum and the integer sum plus <i>N</i>.  The asymmetry (exact below, <i>N</i> above)
+      is deliberate and is what the application consumes: lower bounds are used where an exactness
+      is needed, upper bounds where an analytic tail dominates the slack by two orders of
+      magnitude.</li>
+  <li><b>The parity separation as a termwise series inequality.</b>  The source proves
+      <i>P</i>&nbsp;&gt;&nbsp;<i>N</i> via the alternating series <i>&eta;</i> and the
+      rearrangement <i>P</i>&nbsp;+&nbsp;<i>N</i>&nbsp;=&nbsp;<i>&zeta;</i>&nbsp;&minus;&nbsp;1.
+      Defining <i>N</i> by its series makes the comparison termwise and the strictness free
+      (witness <i>k</i>&nbsp;=&nbsp;0), which is what made gap (1) the short one.</li>
+</ol>
+
+<h2 id="s12">12. Applications</h2>
+
+<h3>12.1 Direct use inside the rh42 programme</h3>
+<ul>
+  <li><b>Rows T10&ndash;T13.</b>  The completeness criteria for the positive and negative halves
+      (thresholds <i>p</i><sub>*</sub> and <i>q</i>&nbsp;=&nbsp;2.07677517921069) and the
+      reachable-set descriptions at <i>p</i>&nbsp;=&nbsp;2,&nbsp;3 all need the threshold ordering
+      as an input.  T14 gives it in a form that can be cited rather than recomputed.</li>
+  <li><b>The budget interval at <i>p</i><sub>*</sub> (row T15).</b>  The claim that the interval
+      has length 1 but excludes &plusmn;1 depends on knowing that
+      <i>p</i><sub>P</sub>,&nbsp;<i>p</i><sub>N</sub>&nbsp;&lt;&nbsp;<i>p</i><sub>*</sub>.</li>
+  <li><b>Reachability arguments that must not be circular.</b>  Any argument of the form
+      &ldquo;the target is already out of budget here, because the budget crossed below it
+      earlier&rdquo; needs a strict ordering of crossings; T14 supplies exactly that.</li>
+</ul>
+
+<h3>12.2 Transferable technique</h3>
+<ul>
+  <li><b>Certified enclosures for special functions.</b>  The pattern
+      <em>integer partial sum + analytic tail + rational bridge</em> is the general recipe for
+      turning a series definition into a rigorous enclosure.  It applies to any Dirichlet series
+      with nonnegative coefficients, to polylogarithms on the real axis, and to
+      <i>&eta;</i>,&nbsp;<i>&beta;</i>,&nbsp;<i>&lambda;</i> and friends.</li>
+  <li><b>Verified numeric constants for other ledgers.</b>  Any claim of the form
+      &ldquo;this threshold lies in that interval&rdquo; can be discharged by the same oracle plus
+      the same tail bound, at whatever precision the scale constant
+      <code>SCn</code>&nbsp;=&nbsp;10<sup>9</sup> is set to.  Raising
+      <code>SCn</code> costs only a longer fuel bound and larger integers.</li>
+  <li><b>Complete-sequence criteria.</b>  Brown&rsquo;s criterion &mdash; the completeness of a
+      subset-sum set generated by a decreasing sequence &mdash; is the abstract form of the budget
+      test, and its hypotheses are of exactly the antitonicity-plus-anchor shape proved here.  The
+      file&rsquo;s separation and bracket lemmas are the two inputs such a criterion consumes.</li>
+</ul>
+
+<h3>12.3 Beyond</h3>
+<p>Outside number theory, the argument is an instance of a common situation: several quantities
+defined implicitly by monotone equations, whose <em>relative</em> order is what matters and whose
+values are not needed.  Certificate-holding systems, resource budgets, and any setting where one
+compares activation thresholds of decreasing response curves have the same shape, and the proof
+strategy &mdash; monotonicity plus one anchor per curve plus one separating inequality &mdash;
+transfers verbatim.</p>
+
+<h2 id="s13">13. Further research</h2>
+
+<h3>13.1 Inside this development</h3>
+<ol>
+  <li><b>Formalise the numerical values.</b>  The file proves the ordering but not
+      <i>p</i><sub>P</sub>&nbsp;=&nbsp;1.4649845878051603837.  A verified interval-Newton or
+      interval-bisection solver on the three equations, reusing <code>ZetaR_lower</code> and
+      <code>ZetaR_upper</code> as the enclosure engine, would close this.  The ingredients are
+      present; what is missing is a rational interval arithmetic layer and a contraction
+      argument.</li>
+  <li><b>Formalise the budget identities.</b>  <i>P</i>&nbsp;+&nbsp;<i>N</i>&nbsp;=&nbsp;<i>&zeta;</i>&nbsp;&minus;&nbsp;1
+      and <i>P</i>&nbsp;&minus;&nbsp;<i>N</i>&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;<i>&eta;</i> are
+      ledger rows T2&ndash;T3.  The obstruction encountered here was the even/odd rearrangement
+      <code>&Sigma;' k, f (2k) + &Sigma;' k, f (2k+1) = &Sigma;' k, f k</code> via
+      <code>tsum_even_add_odd</code>, which is available in Mathlib and eluded the elaboration
+      attempts made in this session; a working instance would also give
+      <i>P</i>&nbsp;&minus;&nbsp;<i>N</i>&nbsp;=&nbsp;1&nbsp;&minus;&nbsp;<i>&eta;</i> and hence an
+      independent second proof of gap (1).</li>
+  <li><b>Formalise continuity, then use the abstract core.</b>  <code>Core.threshold_ordering</code>
+      is proved but unused.  Proving <code>ContinuousOn (ZetaR)</code> on (1,&nbsp;&infin;) &mdash;
+      locally uniform convergence of the Dirichlet series &mdash; would let the concrete
+      instantiation feed the abstract core, unifying the two routes and yielding existence of the
+      thresholds as well as their order.</li>
+  <li><b>Push the level generalisation further.</b>  Theorem 7.2 covers <i>L</i>&nbsp;&ge;&nbsp;1.
+      The case <i>L</i>&nbsp;&lt;&nbsp;1 requires a different anchor, since
+      <i>N</i>(<i>p</i><sub>P</sub>)&nbsp;&lt;&nbsp;1 is no longer enough.  The natural anchor
+      would be a bracket for <i>N</i> itself, which is the odd-series analogue of
+      <code>tail_finite</code> and is not in the file.</li>
+</ol>
+
+<h3>13.2 Adjacent claims in the same ledger</h3>
+<ol start="5">
+  <li><b>T13 &mdash; the negative threshold <i>q</i> = 2.07677517921069.</b>  Defined by
+      <i>N</i>(<i>q</i>)&nbsp;=&nbsp;2&nbsp;&middot;&nbsp;3<sup>&minus;q</sup>.  The right-hand side
+      is the first odd term, so this is a self-referential budget condition; the same monotonicity
+      plus bracket strategy should apply, with the extra step of showing the two sides cross once.</li>
+  <li><b>T10 &mdash; Brown&rsquo;s criterion.</b>  &ldquo;The positive half is complete iff
+      <i>&zeta;</i>(<i>p</i>)&nbsp;&ge;&nbsp;2&rdquo; is the conceptual parent of T14.  Formalising
+      Brown&rsquo;s criterion for real sequences would give the positivity/negativity half of the
+      reachable-set theory, and the two-sided version would give the negative half.</li>
+  <li><b>T11&ndash;T12 &mdash; the reachable set has gaps.</b>  At <i>p</i>&nbsp;=&nbsp;2 the
+      subset-sum set is two intervals; at <i>p</i>&nbsp;=&nbsp;3 it is four.  These are finite
+      combinatorial statements about a greedy rule, plausibly the most tractable remaining rows,
+      and they do not need any zeta input beyond the budgets.</li>
+</ol>
+
+<h3>13.3 Methodological</h3>
+<ol start="8">
+  <li><b>Replace <code>native_decide</code> with <code>decide</code>.</b>  The three large sum
+      evaluations currently rest on the compiler.  A kernel-only route &mdash; for instance a
+      verified Horner-style evaluation of <code>go</code> with a proof-producing certificate, or
+      simply a longer <code>decide</code> &mdash; would remove the last trust assumption beyond the
+      kernel.</li>
+  <li><b>Generalise the oracle.</b>  <code>fpow</code> is specialised to
+      &lfloor;10<sup>9</sup>/<i>k</i><sup>num/den</sup>&rfloor;.  A version parameterised by the
+      scale and returning a proof-carrying floor would be a reusable Mathlib candidate, as would
+      <code>ZetaR_strictAnti</code> itself.</li>
+</ol>
+
+<h2 id="s14">14. Adjacent concepts</h2>
+
+<h3>14.1 The Dirichlet eta function and the alternating series</h3>
+<p><i>&eta;</i>(<i>p</i>)&nbsp;=&nbsp;&Sigma;<sub>n&ge;1</sub>(&minus;1)<sup>n&minus;1</sup><i>n</i><sup>&minus;p</sup>
+=&nbsp;(1&nbsp;&minus;&nbsp;2<sup>1&minus;p</sup>)<i>&zeta;</i>(<i>p</i>) is the alternating
+companion of <i>&zeta;</i>.  It is the reason the positive side is cheaper: the signed sum
+<i>P</i>&nbsp;&minus;&nbsp;<i>N</i> is the alternating series from <i>n</i>&nbsp;=&nbsp;2 on, so its
+positivity is Abel summation on a monotone decreasing sequence.  The development replaces that
+argument with an explicit termwise comparison, but the mechanism is the same.  The value
+<i>&eta;</i>(1)&nbsp;=&nbsp;ln&nbsp;2 is the boundary case and is where the source&rsquo;s
+&ldquo;alphabet total&rdquo; row T17 lives.</p>
+
+<h3>14.2 The pole at <i>p</i>&nbsp;=&nbsp;1</h3>
+<p>As <i>p</i>&nbsp;&darr;&nbsp;1,
+<i>&zeta;</i>(<i>p</i>)&nbsp;~&nbsp;1/(<i>p</i>&minus;1)&nbsp;+&nbsp;<i>&gamma;</i>, and the source
+observes that the residue is split evenly: <i>P</i>(<i>p</i>)&nbsp;~&nbsp;<i>N</i>(<i>p</i>)&nbsp;~&nbsp;1/(2(<i>p</i>&minus;1)).
+This is the reason &ldquo;every sine is writable&rdquo; at <i>p</i>&nbsp;=&nbsp;1 and the reason the
+whole problem is confined to <i>p</i>&nbsp;&gt;&nbsp;1.  It is also why Move 1 of &sect;7.1 works
+the way it does: below and at <i>p</i>&nbsp;=&nbsp;1 the series is not summable at all, and the
+formalisation records that as &ldquo;<i>&zeta;</i>(<i>p</i>)&nbsp;=&nbsp;0 by the
+<code>tsum</code>-of-a-non-summable-family convention&rdquo; rather than as a limiting statement.</p>
+
+<h3>14.3 Complete sequences and Brown&rsquo;s criterion</h3>
+<p>A sequence (<i>a</i><sub>n</sub>) of positive reals is <em>complete</em> if every number in
+[0,&nbsp;&Sigma;<i>a</i><sub>n</sub>] is a subsum.  Brown&rsquo;s criterion gives a sufficient
+condition in terms of the growth of the partial-maximum function; the greedy algorithm achieves
+completeness exactly when the criterion holds.  The positive half of the signed rule is the
+classical Egyptian greedy at 2<sup>p</sup><i>x</i> (row T8), so the completeness threshold
+<i>p</i><sub>*</sub> is a Brown-type threshold.  T14 sits underneath all of this: it is the
+statement that decides which of the two endpoint targets runs out first.</p>
+
+<h3>14.4 Integral comparison and Euler&ndash;Maclaurin</h3>
+<p>The tail bound of &sect;4.3 is the first-order integral test:
+&Sigma;<sub>k&gt;N</sub><i>k</i><sup>&minus;p</sup>&nbsp;&le;&nbsp;<i>N</i><sup>1&minus;p</sup>/(<i>p</i>&minus;1).
+The next term of the Euler&ndash;Maclaurin expansion &mdash; the
+&minus;&frac12;<i>N</i><sup>&minus;p</sup> correction &mdash; would tighten every upper bracket by
+about 5&nbsp;&times;&nbsp;10<sup>&minus;3</sup> at <i>N</i>&nbsp;=&nbsp;10<sup>4</sup>, and would
+matter if one wanted tighter enclosures or smaller truncation lengths.  For the present result the
+crude bound already leaves two orders of magnitude of slack.</p>
+
+<h3>14.5 Interval arithmetic and verified root-finding</h3>
+<p>The natural next layer is interval arithmetic: represent a real by a pair of rationals, evaluate
+<i>&zeta;</i> by the same partial-sum-plus-tail engine, and run interval Newton or bisection until
+the enclosure is smaller than a target width.  This is exactly the machinery needed for
+&sect;13.1(1), and it is the standard route from &ldquo;the ordering is proved&rdquo; to &ldquo;the
+values are proved&rdquo;.  The present development can be read as the arithmetic core of such a
+solver, with the solver itself omitted because the ordering does not need it.</p>
+
+<h3>14.6 Related zeta thresholds and the wider programme</h3>
+<p>The same three-model pattern &mdash; a decreasing total budget, an even/odd split, a threshold
+where a target becomes unreachable &mdash; recurs whenever a signed greedy expansion is indexed by
+parity.  The rh41 threshold <i>&zeta;</i>(<i>p</i>)&nbsp;=&nbsp;2, the rh42 negative threshold
+<i>q</i>, and the &ldquo;four thresholds enclosed&rdquo; statement of the round&rsquo;s
+<code>truths.md</code> are all instances.  The value of formalising T14 first is that it is the
+ordering on which the others are constraining: any later threshold that must lie between
+<i>p</i><sub>N</sub> and <i>p</i><sub>*</sub> inherits a proved frame.</p>
+
+<h2 id="appA">Appendix A &mdash; lemma index</h2>
+
+<table class="tight">
+  <caption>Every declaration in the three modules, in dependency order.</caption>
+  <thead><tr><th>module</th><th>name</th><th>content</th></tr></thead>
+  <tbody>
+    <tr><td>Core</td><td><code>IsThreshold</code></td><td><i>q</i> &lt; <i>c</i>, <i>B c</i> = <i>L</i>, and uniqueness of <i>c</i></td></tr>
+    <tr><td>Core</td><td><code>CrossesOnce</code></td><td>continuous on [<i>q</i>,&infin;), strictly decreasing on (<i>q</i>,&infin;), <i>L</i> &lt; <i>B q</i>, eventually below <i>L</i></td></tr>
+    <tr><td>Core</td><td><code>CrossesOnce.exists_unique</code></td><td>existence and uniqueness of the crossing (IVT + antitonicity)</td></tr>
+    <tr><td>Core</td><td><code>BudgetHyp</code></td><td>the two crossings at levels 1 and 2 plus <i>G</i> &lt; <i>F</i></td></tr>
+    <tr><td>Core</td><td><code>threshold_ordering</code></td><td><i>p</i><sub>G</sub> &lt; <i>p</i><sub>F</sub> for arbitrary budgets</td></tr>
+    <tr><td>Budget</td><td><code>ZetaR</code>, <code>BPos</code>, <code>BNeg</code></td><td>the three concrete functions</td></tr>
+    <tr><td>Budget</td><td><code>summable_zetaR</code>, <code>summable_shift</code>, <code>summable_BNeg</code></td><td>summability for <i>p</i> &gt; 1</td></tr>
+    <tr><td>Budget</td><td><code>zetaR_shift</code></td><td><i>&zeta;</i>(<i>p</i>) = &Sigma;<sub>k</sub>((<i>k</i>+1)<sup>p</sup>)<sup>&minus;1</sup></td></tr>
+    <tr><td>Budget</td><td><code>ZetaR_strictAnti</code></td><td><i>p</i> &lt; <i>q</i> &rArr; <i>&zeta;</i>(<i>q</i>) &lt; <i>&zeta;</i>(<i>p</i>)</td></tr>
+    <tr><td>Budget</td><td><code>ZetaR_eq_riemannZeta_re</code></td><td><i>ZetaR p</i> = Re <code>riemannZeta</code>(<i>p</i>) for <i>p</i> &gt; 1 (the Mathlib bridge)</td></tr>
+    <tr><td>Budget</td><td><code>BPos_eq_riemannZeta_re</code></td><td><i>P</i>(<i>p</i>) = 2<sup>&minus;p</sup> &middot; Re <code>riemannZeta</code>(<i>p</i>)</td></tr>
+    <tr><td>3T</td><td><code>two_rpow_7_5_lt</code>, <code>two_rpow_7_5_gt</code>, <code>two_rpow_7_5_gt_16</code></td><td>2<sup>7/5</sup> against 2.64, 2.5, 1.6</td></tr>
+    <tr><td>3T</td><td><code>two_rpow_4_3_lt</code>, <code>two_rpow_4_3_gt_25</code></td><td>2<sup>4/3</sup> against 2.52, 2.5</td></tr>
+    <tr><td>3T</td><td><code>two_rpow_3_2_lt</code>, <code>two_rpow_3_2_gt_282</code></td><td>2<sup>3/2</sup> against 2.83, 2.82</td></tr>
+    <tr><td>3T</td><td><code>two_rpow_19_10_gt</code></td><td>3.73 &lt; 2<sup>19/10</sup></td></tr>
+    <tr><td>3T</td><td><code>tail_finite</code></td><td>finite integral comparison for the tail</td></tr>
+    <tr><td>3T</td><td><code>SCn</code>, <code>go</code>, <code>go_spec</code>, <code>go_init</code>, <code>go_fuel</code></td><td>the binary search and its three-invariant correctness proof</td></tr>
+    <tr><td>3T</td><td><code>fpow</code>, <code>fpow_valid</code>, <code>fpow_max</code></td><td>the floor oracle, sound and complete</td></tr>
+    <tr><td>3T</td><td><code>rpow_div_pow</code></td><td>(<i>k</i><sup>num/den</sup>)<sup>den</sup> = <i>k</i><sup>num</sup></td></tr>
+    <tr><td>3T</td><td><code>fpow_le</code>, <code>le_fpow</code>, <code>fpow_le_SCn</code></td><td>the oracle against 10<sup>9</sup><i>k</i><sup>&minus;num/den</sup>, both directions</td></tr>
+    <tr><td>3T</td><td><code>sumF</code></td><td>the certified integer partial sum</td></tr>
+    <tr><td>3T</td><td><code>sumF_le_zetaR_partial</code>, <code>zetaR_partial_le</code></td><td>the two bridges (&sect;4.2)</td></tr>
+    <tr><td>3T</td><td><code>summable_shift_neg</code>, <code>zetaR_eq_shift_neg</code></td><td>the shifted form of <i>&zeta;</i></td></tr>
+    <tr><td>3T</td><td><code>tsum_tail_le</code>, <code>ZetaR_split</code></td><td>the infinite tail bound and the split identity</td></tr>
+    <tr><td>3T</td><td><code>ZetaR_lower</code>, <code>ZetaR_upper</code></td><td>the two working brackets (&sect;4.3)</td></tr>
+    <tr><td>3T</td><td><code>ZetaR_7_5_lt</code>, <code>ZetaR_4_3_gt</code>, <code>ZetaR_3_2_gt</code>, <code>ZetaR_3_2_lt</code></td><td>the four certified enclosures (&sect;5)</td></tr>
+    <tr><td>3T</td><td><code>Nside</code>, <code>ZetaR_pos</code></td><td>the closed-form negative side and positivity of <i>&zeta;</i></td></tr>
+    <tr><td>3T</td><td><code>Nside_eq_riemannZeta_re</code></td><td>(1&minus;2<sup>&minus;p</sup>) &middot; Re <code>riemannZeta</code>(<i>p</i>)</td></tr>
+    <tr><td>3T</td><td><code>BPos_ne_riemannZeta_re</code></td><td>no-go: <i>BPos</i> 2 &ne; Re <code>riemannZeta</code>(2)</td></tr>
+    <tr><td>3T</td><td><code>two_rpow_neg_&#42;</code></td><td>2<sup>&minus;7/5</sup>, 2<sup>&minus;4/3</sup>, 2<sup>&minus;3/2</sup> bounds</td></tr>
+    <tr><td>3T</td><td><code>BPos_4_3_gt_one</code>, <code>BPos_3_2_lt_one</code></td><td><i>P</i>(4/3) &gt; 1 and <i>P</i>(3/2) &lt; 1</td></tr>
+    <tr><td>3T</td><td><code>Nside_7_5_lt_two</code>, <code>Nside_4_3_gt_two</code></td><td>the closed-form negative side against level 2</td></tr>
+    <tr><td>3T</td><td><code>BPos_strictAnti</code></td><td><i>P</i> strictly decreasing on (1,&infin;)</td></tr>
+    <tr><td>3T</td><td><code>BPos_eq_even</code>, <code>summable_even</code>, <code>odd_lt_even</code>, <code>BNeg_lt_BPos</code></td><td>gap (1) (&sect;6)</td></tr>
+    <tr><td>3T</td><td><code>BNeg_strictAnti</code></td><td><i>N</i> strictly decreasing on (1,&infin;)</td></tr>
+    <tr><td>3T</td><td><code>one_lt_of_zetaR_eq</code>, <code>one_lt_of_BPos_eq</code></td><td>crossings lie in (1,&infin;)</td></tr>
+    <tr><td>3T</td><td><code>tpp_rh42_three_thresholds</code></td><td><b>T14 at level 2</b></td></tr>
+    <tr><td>3T</td><td><code>tpp_rh42_three_thresholds_level</code></td><td><b>T14 at every level <i>L</i> &ge; 1</b></td></tr>
+  </tbody>
+</table>
+
+<h2 id="appB">Appendix B &mdash; certificate table</h2>
+
+<p>Every numeric constant appearing in the proof, with its provenance.</p>
+
+<table class="tight">
+  <thead><tr><th>constant</th><th>value</th><th>how it is established</th></tr></thead>
+  <tbody>
+    <tr><td><code>SCn</code></td><td class="num">10<sup>9</sup></td><td>definition (scale of the certificates)</td></tr>
+    <tr><td>fuel</td><td class="num">64</td><td><code>go_fuel</code>: 10<sup>9</sup>+1 &le; 2<sup>64</sup>, by <code>norm_num</code></td></tr>
+    <tr><td><code>sumF 4 3 10&#8308;</code></td><td class="num">3461687465</td><td><code>native_decide</code></td></tr>
+    <tr><td><code>sumF 3 2 10&#8308;</code></td><td class="num">2592370811</td><td><code>native_decide</code></td></tr>
+    <tr><td><code>sumF 7 5 10&#8309;</code></td><td class="num">3080497357</td><td><code>native_decide</code></td></tr>
+    <tr><td>tail at (3/2, 10&#8308;)</td><td class="num">0.02</td><td>exact rational: 2&middot;(10<sup>4</sup>)<sup>&minus;1/2</sup>, by <code>Real.rpow_mul</code></td></tr>
+    <tr><td>tail at (7/5, 10&#8309;)</td><td class="num">0.025</td><td>exact rational: (5/2)&middot;10<sup>&minus;2</sup>, by <code>Real.rpow_mul</code></td></tr>
+    <tr><td>&zeta;(4/3) lower</td><td class="num">3.461687465</td><td>sumF/SCn</td></tr>
+    <tr><td>&zeta;(3/2) lower</td><td class="num">2.592370811</td><td>sumF/SCn</td></tr>
+    <tr><td>&zeta;(3/2) upper</td><td class="num">2.612380811</td><td>(sumF + N)/SCn + tail, then &le; 2.5924 + 0.02</td></tr>
+    <tr><td>&zeta;(7/5) upper</td><td class="num">3.105597357</td><td>(sumF + N)/SCn + tail, then &le; 3.0806 + 0.025</td></tr>
+    <tr><td>2<sup>&minus;4/3</sup></td><td class="num">in (1/2.52, 0.4)</td><td>2.5 &lt; 2<sup>4/3</sup> &lt; 2.52</td></tr>
+    <tr><td>2<sup>&minus;3/2</sup></td><td class="num">&lt; 1/2.82</td><td>2<sup>3/2</sup> &gt; 2.82</td></tr>
+    <tr><td>2<sup>&minus;7/5</sup></td><td class="num">&gt; 1/2.64</td><td>2<sup>7/5</sup> &lt; 2.64</td></tr>
+    <tr><td><i>p</i><sub>P</sub> (source)</td><td class="num">1.4649845878051603837</td><td>not formalised; source 80-dps root-finding</td></tr>
+    <tr><td><i>p</i><sub>*</sub> (source)</td><td class="num">1.7286472389981836181</td><td>not formalised; source 80-dps root-finding</td></tr>
+    <tr><td><i>p</i><sub>N</sub> at <i>L</i>=1</td><td class="num">1.3777851698375411838</td><td>not formalised; covered by Theorem 7.2 as an instance</td></tr>
+    <tr><td><i>p</i><sub>N</sub> at <i>L</i>=2</td><td class="num">1.2136006221625785622</td><td>not formalised; the level of Theorem 7.1</td></tr>
+  </tbody>
+</table>
+
+<div class="foot">
+  <p><b>Provenance.</b>  Formal development: <code>lean/TppLean/Core.lean</code>,
+  <code>lean/TppLean/Budget.lean</code>, <code>lean/TppLean/ThreeThresholds.lean</code>,
+  <code>lean/TppLean.lean</code>; build driver <code>lean/check.sh</code>; notes
+  <code>lean/README.md</code>.  Source claim: <code>theorems/tpp-rh42-handoff-three-thresholds.md</code>
+  (ledger row T14).  Context: <code>research/twin-prime-parity/rounds/rh42/HANDOFF.md</code>
+  &sect;5.1&ndash;5.4, &sect;6, Appendix A.  Toolchain: Lean <code>v4.35.0-rc2</code>, Mathlib at
+  commit <code>2f3d8f63005779e9d708eb9adf3feca54aa24ceb</code>.</p>
+  <p><b>Status of the claims in this paper.</b>  Statements attributed to the Lean development are
+  those of the declarations named, verified by <code>./check.sh --all</code> with no
+  <code>sorry</code>.  Numerical values marked &ldquo;source&rdquo; are the source document&rsquo;s
+  80-digit computations and are reproduced here as context, not as formalised facts; the values
+  not marked &ldquo;source&rdquo; are quoted for orientation only.  Numbered environments
+  (Lemma 2.1, Theorem 3.1, &hellip;) are this paper&rsquo;s labelling, not Lean declaration names;
+  the table in Appendix A gives the correspondence.</p>
+</div>
+
+</div>
+</body>
+</html>

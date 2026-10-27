@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit of rh45 against §6 of the η/Euler Paper — What the Explicit-Formula Round Has, and What a Certified Zero Still Needs</title>
+<style>
+  :root{
+    --ink:#17202a; --muted:#5b6b7c; --rule:#d8dee6; --bg:#fdfdfb;
+    --accent:#7a2e2e; --accent2:#1f4e79; --code:#f4f6f8; --mark:#fff6d5;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.62 Georgia,"Iowan Old Style","Times New Roman",serif;}
+  .wrap{max-width:60rem;margin:0 auto;padding:3.2rem 1.6rem 6rem}
+  header.title{border-bottom:3px double var(--rule);padding-bottom:1.6rem;margin-bottom:2rem}
+  h1{font-size:1.66rem;line-height:1.28;margin:0 0 .5rem;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:1rem;margin:.35rem 0 0}
+  .meta{font-size:.86rem;color:var(--muted);margin-top:1rem;line-height:1.7}
+  .meta code{font-size:.85em}
+  h2{font-size:1.22rem;margin:2.9rem 0 .9rem;padding-bottom:.3rem;border-bottom:1px solid var(--rule);color:var(--accent2)}
+  h3{font-size:1.02rem;margin:1.9rem 0 .6rem;color:var(--accent)}
+  h4{font-size:.96rem;margin:1.3rem 0 .4rem}
+  p{margin:.7rem 0}
+  a{color:var(--accent2)}
+  code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:var(--code);padding:.08em .32em;border-radius:3px;font-size:.88em}
+  pre{background:var(--code);border:1px solid var(--rule);border-left:3px solid var(--accent2);
+      padding:.85rem 1rem;overflow-x:auto;font-size:.84rem;line-height:1.5;border-radius:4px}
+  pre code{background:none;padding:0;font-size:1em}
+  .box{border:1px solid var(--rule);border-left:3px solid var(--accent);background:#fff;
+       padding:.9rem 1.1rem;margin:1.2rem 0;border-radius:4px}
+  .box.def{border-left-color:var(--accent2);background:#f8fafc}
+  .box.res{border-left-color:#1e6b3a;background:#f6fbf7}
+  .box.verdict{border-left-color:#8a1c1c;background:#fdf6f6;border-color:#e2b6b6}
+  .box.verdict h4{color:#8a1c1c}
+  .box h4{margin-top:0}
+  table{border-collapse:collapse;width:100%;margin:1.1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.44rem .6rem;text-align:left;vertical-align:top}
+  th{background:#f2f5f8;font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  nav#toc{background:#f7f9fb;border:1px solid var(--rule);border-radius:5px;padding:1rem 1.3rem;margin:1.6rem 0 2.6rem}
+  nav#toc h2{margin:0 0 .5rem;border:none;font-size:1rem;color:var(--accent2)}
+  nav#toc ol{margin:.2rem 0 0;padding-left:1.4rem;columns:2;column-gap:2.4rem}
+  nav#toc li{margin:.18rem 0;break-inside:avoid}
+  nav#toc a{text-decoration:none}
+  nav#toc a:hover{text-decoration:underline}
+  .abstract{background:#fff;border:1px solid var(--rule);border-radius:5px;padding:1.1rem 1.3rem;margin:1.5rem 0}
+  .abstract h2{margin:0 0 .5rem;border:none;font-size:1rem}
+  .kw{font-size:.88rem;color:var(--muted);margin-top:.7rem}
+  .mark{background:var(--mark)}
+  ul,ol{padding-left:1.4rem}
+  li{margin:.28rem 0}
+  hr{border:none;border-top:1px solid var(--rule);margin:2.4rem 0}
+  .small{font-size:.87rem;color:var(--muted)}
+  .refs{font-size:.92rem}
+  .refs li{margin:.5rem 0}
+  .eq{display:block;margin:.9rem 0 .9rem 1.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.9rem}
+  .status{display:inline-block;font-size:.74rem;padding:.1em .5em;border-radius:10px;vertical-align:middle;
+          letter-spacing:.02em;font-family:system-ui,sans-serif;white-space:nowrap}
+  .s-proved{background:#e2f3e8;color:#14602f;border:1px solid #a9d8ba}
+  .s-num{background:#e8eef7;color:#1c3f66;border:1px solid #aec6e2}
+  .s-thm{background:#f0e8f8;color:#5a2a86;border:1px solid #cbb0e2}
+  .s-open{background:#eef0f2;color:#4a5560;border:1px solid #c3cad1}
+  .s-fail{background:#f6e0e0;color:#8a1c1c;border:1px solid #e2b6b6}
+  .quote{background:#faf8f4;border-left:3px solid var(--accent);padding:.6rem 1rem;margin:1rem 0;
+         border-radius:0 4px 4px 0;font-size:.94rem}
+  .fail{color:#8a1c1c;font-weight:700}
+  footer{margin-top:3.5rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.85rem;color:var(--muted)}
+  @media print{ body{background:#fff;font-size:11pt} nav#toc{break-inside:avoid} h2{break-after:avoid}
+    pre{break-inside:avoid} .box{break-inside:avoid} }
+  @media (max-width:640px){ nav#toc ol{columns:1} .wrap{padding:2rem .9rem 4rem} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="title">
+  <h1>Audit of <code>rh45</code> against §6 of the η/Euler paper:<br>what the explicit-formula round has, and what a certified zero still needs</h1>
+  <p class="sub">Section&nbsp;6 of
+     > names the three
+     rigorous routes to a zeta zero &mdash; interval <code>Z(t)</code> sign change, Turing's method,
+     a validated explicit formula &mdash; and points at <code>rh45</code> as the round that uses them.
+     This audit re-runs <code>rh45</code>&rsquo;s own evidence, re-derives its numbers independently in
+     Python and SymPy, rebuilds its Lean layer, and checks the three routes one by one.</p>
+  <div class="meta">
+    <strong>Subject:</strong> <code>research/twin-prime-parity/rounds/rh45/</code> &nbsp;·&nbsp;
+    <strong>Re-run:</strong> <code>verify/independent_check.py</code> → <strong>19/21</strong>
+    (<code>C1e</code> and <code>C4.1</code> <strong>retired</strong> — over-strong or unsatisfiable
+    as stated; <strong>no failures</strong>) &nbsp;·&nbsp;
+    <strong>Lean:</strong> <code>lean/check.sh --all</code> → green, 0 <code>sorry</code>, footprint
+    <code>propext, Classical.choice, Quot.sound</code> &nbsp;·&nbsp;
+    <strong>Verdict:</strong> strong numerics, <span class="fail">no certified zero</span>
+  </div>
+</header>
+
+<div class="abstract">
+<h2>Abstract &mdash; verdict in one paragraph (&sect;0)</h2>
+<p>
+<code>rh45</code> <strong>has</strong>: the correct Weil explicit formula (verified to ~45 digits on a
+non-degenerate kernel), the refutation of its own first-draft normalisation, the first five zeros
+located from <code>ζ</code> evaluations alone to 32&ndash;33 digits, the exact counting identity
+<code>N(T) = θ(T)/π + 1 + S(T)</code> verified to <code>10<sup>−20</sup></code>, an argument-principle
+count matching the zero table, a correct negative answer on the parity problem, and a 476-line Lean
+algebraic layer that compiles with no <code>sorry</code> and no extra axiom. <strong>It does not
+have</strong>: any of the three certification mechanisms of §6. Its <code>Z(t)</code> work is
+floating-point <code>mpmath</code>, not interval arithmetic (Route&nbsp;A unmet); its count is a
+numerical <code>ζ'/ζ</code> quadrature <em>checked against</em> <code>mp.zetazero</code>, not a
+Turing test that excludes missed or off-line zeros (Route&nbsp;B unmet); and its explicit-formula
+tail controls are density-style estimates with an <code>mp.zetazero</code> table on the zero side,
+so the identity is <em>computed</em>, not <em>validated</em> (Route&nbsp;C partial). The audit also
+finds an <strong>internal inconsistency</strong>: <code>explicit_formula.py</code> adopts a
+convention <code>(E)</code> that is <span class="fail">false</span> (witnesses: residuals
+<code>−1.04</code>, <code>+2.28</code>, <code>+2.02</code>, <code>+2.18</code> on four kernels,
+where the Weil form gives <code>9.6·10<sup>−46</sup></code>), and its <code>C1a</code> check is
+vacuous (absolute tolerance <code>10<sup>−20</sup></code> against a signal of size
+<code>8.3·10<sup>−44</sup></code>, i.e. 19&nbsp;% relative error passes). Nothing here says the
+round&rsquo;s <em>numbers</em> are wrong &mdash; they reproduce &mdash; only that they are not yet
+<em>certificates</em>.
+</p>
+<p class="kw"><strong>Keywords:</strong> Riemann zeta; explicit formula; Weil/Riemann&ndash;von
+Mangoldt; Z(t); Turing&rsquo;s method; argument principle; interval arithmetic; Lean&nbsp;4; Mathlib;
+audit.</p>
+</div>
+
+<div class="box res">
+<h4>Response (added after this audit)</h4>
+<p>
+The three routes have since been <strong>proved</strong> &mdash; Route&nbsp;A, the Route&nbsp;B Turing
+reduction, and the Route&nbsp;C error assembly are machine-checked in Lean
+(<code>Rh45/Routes.lean</code>), with the prime/archimedean/zero tail bounds and the
+symmetric-rectangle on-line criterion written up in
+<a href="index.html"><code>routes-abc.html</code></a>. The remaining gap is the arithmetic
+enclosure engine, specified there in §5.
+</p>
+</div>
+
+<div class="box verdict">
+<h4>Honest headline</h4>
+<p>
+<code>rh45</code> <strong class="fail">does not certify a single zeta zero</strong>, and its own
+<code>truths.md</code> does not claim that it does. What it does is build the right instrument and
+demonstrate it numerically. The gap to §6 is not a mathematical error in the displayed results; it
+is the absence of a <strong>validated-arithmetic layer</strong> (enclosures instead of 60-digit
+floats) and of the <strong>exclusion arguments</strong> (Turing test, rigorous <code>S(T)</code> and
+prime/archimedean tail bounds) that turn a small <code>|value|</code> into a theorem.
+</p>
+</div>
+
+<nav id="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s0">0. Verdict in one paragraph</a></li>
+  <li><a href="#s1">1. The standard being audited against (§6)</a></li>
+  <li><a href="#s2">2. What rh45 claims, and what its evidence is</a></li>
+  <li><a href="#s3">3. Route A: interval arithmetic on Z(t)</a></li>
+  <li><a href="#s4">4. Route B: Turing&rsquo;s method</a></li>
+  <li><a href="#s5">5. Route C: a validated explicit formula</a></li>
+  <li><a href="#s6">6. Defects found (F1&ndash;F7)</a></li>
+  <li><a href="#s7">7. Independent reproduction (this audit)</a></li>
+  <li><a href="#s8">8. What it needs: a concrete roadmap</a></li>
+  <li><a href="#s9">9. Status table</a></li>
+  <li><a href="#s10">10. Commands and references</a></li>
+</ol>
+</nav>
+
+<h2 id="s0">0. Verdict in one paragraph</h2>
+<p>
+Against the three certification routes of §6, <code>rh45</code>&rsquo;s position is:
+<strong>Route A (interval <code>Z(t)</code>) &mdash; not met; Route B (Turing) &mdash; not met;
+Route C (validated explicit formula) &mdash; partially met, numerically but not rigorously.</strong>
+Its strongest artefacts are (i) the corrected Weil formula, independently reproduced here to
+<code>9.6·10<sup>−46</sup></code> on a modulated Gaussian with <code>LHS = 1.00000000005</code>,
+(ii) zero location from <code>ζ</code> alone to 33 digits, and (iii) the exact counting identity.
+Its weakest points are the absent exclusion arguments, the density-style &ldquo;bounds&rdquo;, the
+reliance on <code>mp.zetazero</code> inside the verification chains, the (now corrected) stale <code>17/21</code>
+ledger line, and the main script&rsquo;s false convention <code>(E)</code>.
+</p>
+
+<h2 id="s1">1. The standard being audited against (§6)</h2>
+<p>Section 6 of the η/Euler paper lists three acceptable ways to certify a zero:</p>
+<div class="box def">
+<h4>The §6 standard, verbatim in substance</h4>
+<ul>
+<li><strong>Route A.</strong> An <strong>interval-arithmetic</strong> (ball-arithmetic) evaluation of
+<code>ζ</code> showing a <strong>sign change</strong> of the real function
+<code>Z(t) = e<sup>iθ(t)</sup>ζ(1/2+it)</code> on a bracket, followed by a root-isolation argument
+(a simple zero, derivative bounded away from <code>0</code> on the bracket).</li>
+<li><strong>Route B.</strong> <strong>Turing&rsquo;s method</strong>: a rigorous count
+<code>N(T)</code> up to height <code>T</code> (argument principle on a contour, with rigorous
+<code>ζ'/ζ</code> or <code>S(T)</code> bounds), plus a matching number of sign changes &mdash; this
+also <em>excludes</em> missed zeros and off-line zeros.</li>
+<li><strong>Route C.</strong> The <strong>explicit formula with validated kernels</strong>: rigorous
+truncation bounds for the zero sum, the prime sum and the archimedean term, so the identity is a
+theorem on the evaluated input.</li>
+</ul>
+</div>
+<p>
+An audit therefore asks, for each route: are the inputs <em>enclosed</em> (not merely evaluated at
+60 digits), and is the <em>exclusion</em> performed? A value of
+<code>|ζ(1/2+it)| = 10<sup>−15</sup></code> proves nothing about a zero; an enclosure of
+<code>|ζ|</code> plus a sign change of <code>Z</code> on a rational bracket, or a rigorous count,
+does.
+</p>
+
+<h2 id="s2">2. What rh45 claims, and what its evidence is</h2>
+<p>From <a href="truths.md"><code>truths.md</code></a> and
+> (T1&ndash;T5):</p>
+<table>
+<thead><tr><th>id</th><th>claim</th><th>evidence supplied</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>the corrected Weil explicit formula, with the archimedean term; the first draft&rsquo;s
+<code>F(1)+F(0)</code> pairing and missing archimedean term are wrong</td>
+<td>auditor C1a&ndash;f; residuals <code>1.6e−44</code> (σ=1), <code>9.6e−46</code> (modulated),
+<code>−1.1e−63</code> (σ=1/4); falsification <code>0.5366</code> (reading A), <code>1.5788</code> (reading B)</td></tr>
+<tr><td>T2</td><td>zeros located without <code>mp.zetazero</code></td>
+<td>auditor C2: <code>γ₁…γ₅</code> to 32.5&ndash;33.6 digits</td></tr>
+<tr><td>T3</td><td>argument-principle count and <code>S(T)</code></td>
+<td>auditor C3: contour integral = zero-table count at <code>T=20,50,100</code>; exact
+<code>N = θ/π + 1 + S</code> to <code>1e−20</code></td></tr>
+<tr><td>T4</td><td>the explicit formula bypasses the <code>√N</code> partial-sum wall; no parity
+advance</td><td>auditor C4 (cost), C5 (Liouville counts)</td></tr>
+<tr><td>T5</td><td>Lean algebraic layer, no <code>sorry</code></td>
+<td><code>lean/Rh45/Explicit.lean</code>, 476 lines, <code>check.sh --all</code> green</td></tr>
+</tbody>
+</table>
+<p class="small">
+Re-run status: <code>verify/independent_check.py</code> finishes <strong>exit&nbsp;0</strong> with
+<strong>19/21</strong> (<strong>2 retired</strong>: <code>C4.1</code> is an over-strong criterion and
+<code>C1e</code> is unsatisfiable as literally stated and has been restated as the convergent
+companion <code>C1f</code>; <strong>no failures</strong>). This corrects the stale <code>17/21</code>
+line of <code>truths.md</code> (finding F5; the programme README already recorded it as correction X4).
+</p>
+
+<h2 id="s3">3. Route A: interval arithmetic on <code>Z(t)</code></h2>
+<p>
+<strong>What is there.</strong> <code>verify/independent_check.py</code> builds
+<code>Z(t) = Re(e<sup>iθ(t)</sup>ζ(1/2+it))</code> from <code>mp.loggamma</code> and
+<code>mp.zeta</code> at 80 dps, scans <code>[0.5, 35]</code> in steps of <code>0.05</code>, bisects
+300 times at each sign change, and reports agreement with a five-entry reference string to
+32&ndash;33 digits. The main script does the same and additionally refines with Newton on
+<code>Z</code> (its <code>dZdt</code> is a floating central difference with step
+<code>10<sup>−25</sup></code>).
+</p>
+<p>
+<strong>Why it is not Route A.</strong>
+</p>
+<ul>
+<li><strong>No enclosure.</strong> <code>mp.zeta</code> and <code>mp.loggamma</code> return 60&ndash;80
+digit <em>floats</em>. Nothing bounds the rounding error of the special-function evaluation, so a
+sign of <code>Z</code> is a heuristic, not a proof. The round never converts the two bracket
+endpoints to rationals and never prints a guaranteed interval containing <code>Z</code>.</li>
+<li><strong>No root isolation.</strong> No bound on <code>|Z′|</code> (or on <code>|ζ|</code> away
+from the bracket) is produced, so the existence and simplicity of the root is not established; a
+tangential root would be missed, and the 300 bisections do not detect one.</li>
+<li><strong>Newton on a noisy derivative.</strong> <code>dZdt</code> uses a finite difference whose
+step <code>10<sup>−25</sup></code> is far below the resolution of a 60-digit float difference of
+<code>O(1)</code> values; the derivative is therefore dominated by round-off. It happens to converge
+because it starts from an already excellent bracket.</li>
+</ul>
+<div class="box">
+<h4>Route A: verdict</h4>
+<p><span class="status s-fail">NOT MET</span> &mdash; numerically excellent, logically open. Needs a
+<code>Num</code>/ball type (value + guaranteed error), rational bracket endpoints, an enclosure
+<code>Z(a) &lt; 0 &lt; Z(b)</code>, and a derivative (or monotonicity) certificate on
+<code>[a,b]</code>.</p>
+</div>
+
+<h2 id="s4">4. Route B: Turing&rsquo;s method</h2>
+<p>
+<strong>What is there.</strong> The auditor integrates <code>ζ'/ζ</code> numerically around the
+rectangle <code>[−1,2] × [1/2,T]</code> with <code>mp.quad</code>, divides by <code>2πi</code>, and
+compares to the number of <code>mp.zetazero</code> entries below <code>T</code>; it also computes
+<code>S(T)</code> from the continuous argument along <code>2 → 2+iT → 1/2+iT</code> and verifies
+<code>N = θ/π + 1 + S</code> to <code>10<sup>−20</sup></code>. My independent re-run reproduces the
+identity (Table 7.3).
+</p>
+<p>
+<strong>Why it is not Route B.</strong>
+</p>
+<ul>
+<li><strong>The count is validated <em>against</em> <code>mp.zetazero</code>, not used to certify
+it.</strong> The chain is &ldquo;quadrature ≈ table&rdquo;, with the table treated as truth. Turing&rsquo;s
+method runs the other way: a rigorous <code>N(T)</code> plus a rigorous lower bound on the number of
+sign changes (e.g. via Gram&rsquo;s law / Rosser&rsquo;s rule or a truncated <code>Z</code>-count)
+together exclude missed and off-line zeros.</li>
+<li><strong>No quadrature error bound.</strong> <code>mp.quad</code> returns a value and an estimated
+error; the script neither propagates a rigorous error nor bounds <code>|ζ'/ζ|</code> on the contour.
+A pole or near-pole on the contour (the rectangle passes through <code>Re s = 2</code> and
+<code>Im = 1/2</code>) is not excluded by an interval argument.</li>
+<li><strong>No rigorous <code>S(T)</code> bound.</strong> The classical Turing inputs are
+<code>N(T) = (T/2π)log(T/2πe) + 7/8 + S(T) + O(1/T)</code> with an explicit
+<code>|S(T)| ≤ c log T</code>; the round verifies the identity numerically but never produces the
+bound, so it cannot say &ldquo;there are no other zeros below <code>T</code>&rdquo;.</li>
+<li><strong>The asymptotic check is a fitted residual.</strong> The claim
+<code>residual·48πT → 1</code> is a good numerical diagnostic; it is not a proof of the
+<code>O(1/T)</code> term.</li>
+</ul>
+<div class="box">
+<h4>Route B: verdict</h4>
+<p><span class="status s-fail">NOT MET</span> &mdash; the round counts zeros, it does not certify the
+count. Needs ball-arithmetic contour integration, explicit bounds on <code>ζ'/ζ</code> (or on
+<code>Δ arg ζ</code>) on the four sides, an explicit <code>S(T)</code> inequality, and the
+sign-change comparison that closes the test.</p>
+</div>
+
+<h2 id="s5">5. Route C: a validated explicit formula</h2>
+<p>
+<strong>What is there.</strong> The corrected Weil form is verified numerically on four kernels
+(modulated Gaussian: residual <code>9.6·10<sup>−46</sup></code> against
+<code>LHS = 1.00000000005</code>; narrow Gaussian: <code>−1.1·10<sup>−63</sup></code>; σ=1 Gaussian:
+<code>1.6·10<sup>−44</sup></code>; convergent Cauchy <code>a=1</code>: <code>0.0187</code> within its
+density estimate). The identity, the pole-pair reduction <code>Φ(1)+Φ(0)=2φ(i/2)</code>, the
+archimedean term and the falsification of the naive normalisation are all reproduced here.
+</p>
+<p>
+<strong>Why it is only partially Route C.</strong>
+</p>
+<ul>
+<li><strong>The zero side uses <code>mp.zetazero</code>.</strong> Any claim of the form &ldquo;the
+identity holds using independent data&rdquo; is weakened when the zero side is a table produced by
+the very function one wants to certify. The auditor is explicit that <code>mp.zetazero</code> is
+&ldquo;allowed in C1/C3&rdquo;; that is fine as a <em>consistency</em> check, but it is not a
+validated kernel.</li>
+<li><strong>The tail controls are density estimates, not bounds.</strong>
+<code>zero_tail_bound</code> integrates <code>|φ(t)|(log(t/2π)+1)/(2π)</code>, i.e. it assumes the
+mean zero density and ignores <code>S(T)</code>; <code>prime_tail_bound</code> integrates
+<code>2y|g(y)|e<sup>y/2</sup></code>, a stated majorant rather than a derivation from
+<code>ψ(x) ≤ (log 4)x</code>. For super-decaying Gaussians the distinction is invisible; for the
+Cauchy companion it is the difference between &ldquo;2 digits&rdquo; and a proof.</li>
+<li><strong><code>C1a</code> is vacuous.</strong> It checks
+<code>|RHS − LHS| &lt; 10<sup>−20</sup></code> where <code>LHS = 8.26·10<sup>−44</sup></code> and
+<code>RHS − LHS = 1.56·10<sup>−44</sup></code>: the <em>relative</em> error is
+<code>0.189</code> (19&nbsp;%), and the stated prime-tail majorant
+<code>2.28·10<sup>−43</sup></code> is three times the signal. The check passes only because the
+threshold is absolute (finding F2). The genuinely non-degenerate kernel is
+<code>C1b</code> (finding F4 also applies there).</li>
+</ul>
+<div class="box">
+<h4>Route C: verdict</h4>
+<p><span class="status s-num">PARTIAL</span> &mdash; correct identity, high numerical accuracy,
+but not validated. Needs: rigorous tail inequalities for <code>N(T)</code> and
+<code>Σ Λ(n)n<sup>−1/2</sup>g(log n)</code>, a self-contained zero side (locations from Route A or
+a rigorous density bound), and relative-error thresholds.</p>
+</div>
+
+<h2 id="s6">6. Defects found (F1&ndash;F7)</h2>
+
+<div class="box verdict">
+<h4>F1 &mdash; internal inconsistency: the main script&rsquo;s convention <code>(E)</code> is false</h4>
+<p>
+<code>explicit_formula.py</code>&rsquo;s docstring and its S6 summary adopt
+<code>(E) Σ<sub>ρ</sub> F(ρ) = F(1) + F(0) − P/(2π)</code> with <code>F(s)=∫g e<sup>−su</sup>du</code>,
+while <code>truths.md</code>, <code>README.md</code> and the auditor adopt the Weil form
+<code>Σ<sub>ρ</sub> Φ(ρ) = Φ(1)+Φ(0) − P + (1/2π)∫φΨ</code>, <code>Φ(s)=φ((s−1/2)/i)</code>.
+These are not the same formula. The audit evaluates both on four kernels:
+</p>
+<table>
+<thead><tr><th>kernel</th><th class="num">Weil residual</th><th class="num">(E) residual</th>
+<th class="num">naive <code>F(1)+F(0)−P</code></th></tr></thead>
+<tbody>
+<tr><td>modulated Gaussian (<code>LHS≈1</code>)</td><td class="num">+9.63e−46</td><td class="num">−1.037</td><td class="num">−0.468</td></tr>
+<tr><td>Gaussian σ=1 (<code>LHS≈8.3e−44</code>)</td><td class="num">+1.57e−44 (19&nbsp;% rel.)</td><td class="num">+2.278</td><td class="num">+1.379</td></tr>
+<tr><td>Gaussian σ=1/4 (<code>LHS≈3.9e−3</code>)</td><td class="num">−2.27e−61</td><td class="num">+2.023</td><td class="num">+1.995</td></tr>
+<tr><td>compact <code>g=(1−u²)²</code>, 200 zeros</td><td class="num">converges</td><td class="num">+2.18</td><td class="num">—</td></tr>
+</tbody>
+</table>
+<p>
+So the &ldquo;CONVENTION SETTLED&rdquo; claim of S6 is wrong, and S1.3&rsquo;s check
+<code>|residual| &lt; 10<sup>−3</sup></code> would fail if that script were run to completion (its
+run was interrupted and never logged; finding F6). The round&rsquo;s public ledger takes the
+<em>auditor&rsquo;s</em> correct form, so the error is confined to the main script.
+<span class="status s-fail">MAIN SCRIPT WRONG</span>
+</p>
+</div>
+
+<div class="box">
+<h4>F2 &mdash; <code>C1a</code> proves nothing (absolute vs relative tolerance)</h4>
+<p>
+<code>LHS = 8.2619765948608225685562103609704482e−44</code>,
+<code>|RHS−LHS| = 1.5647708e−44</code> → relative error <code>0.189</code>. The threshold
+<code>10<sup>−20</sup></code> is absolute, so a 19&nbsp;% error &ldquo;passes&rdquo;. The prime-tail
+majorant <code>2.279643e−43</code> exceeds the signal. <code>C1a</code> should be reported as a
+trivially satisfied identity, not as &ldquo;≥ 20 digits&rdquo;. <code>C1b</code> and <code>C1c</code>
+are the meaningful checks.
+</p>
+</div>
+
+<div class="box">
+<h4>F3 &mdash; density estimates presented as bounds</h4>
+<p>
+<code>zero_tail_bound</code> and <code>prime_tail_bound</code> are mean-density integrals
+(<code>dN ≈ (1/2π)log(t/2π)dt</code>, <code>ψ(x) ≈ x</code> with a stated <code>2y</code>
+majorant). They are excellent diagnostics and generous when the kernel decays super-exponentially,
+but they are not derived from explicit inequalities (<code>ψ(x) ≤ (log4)x</code>,
+<code>N(T+h)−N(T) = (h/π)log T + O(log T)</code>, <code>|S(T)| ≤ c log T</code>). For the Cauchy
+companion they are the limiting factor and the honest label is &ldquo;~2 digits&rdquo;, not
+&ldquo;verified&rdquo;.
+</p>
+</div>
+
+<div class="box">
+<h4>F4 &mdash; <code>mp.zetazero</code> inside the verification chains</h4>
+<p>
+The zero side of C1 (all four kernels) is <code>2Σ<sub>k≤100</sub>φ(γ<sub>k</sub>)</code> from
+<code>mp.zetazero</code>; C3 validates its count against <code>mp.zetazero</code>; the main
+script&rsquo;s S1.3 zero side also uses <code>mp.zetazero</code>. Route C wants the zero side
+validated independently (Route A outputs, or a rigorous density bound). The C2 route (own
+<code>Z</code>) exists but is not what feeds C1.
+</p>
+</div>
+
+<div class="box">
+<h4>F5 &mdash; stale ledger line (corrected by this audit)</h4>
+<p>
+<code>truths.md</code> line 9 said &ldquo;<strong>17/21</strong> (the 4 failures …)&rdquo;. The
+re-run gives <strong>19/21</strong> with <strong>no failures</strong> and two
+<strong>RETIRED</strong> criteria (<code>C4.1</code>, an over-strong criterion of the task
+prompt; <code>C1e</code>, unsatisfiable as literally stated and restated as <code>C1f</code>
+&mdash; see <code>verify/DISPOSITIONS.md</code>), matching
+the programme README&rsquo;s correction X4. This audit has updated the round file to
+<strong>19/21</strong> and marked the historical §3 table as such.
+</p>
+</div>
+
+<div class="box">
+<h4>F6 &mdash; the main script has no log; its run was interrupted</h4>
+<p>
+<code>truths.md</code> §&ldquo;evidence&rdquo; states the round&rsquo;s numerics rest on the auditor
+because <code>explicit_formula.py</code>&rsquo;s run was interrupted. Consequently the S1.3
+&ldquo;verification&rdquo; of <code>(E)</code> was never produced. Re-running it would expose F1;
+this audit instead evaluated the formula directly (F1 table).
+</p>
+</div>
+
+<div class="box">
+<h4>F7 &mdash; Lean scope is algebraic only</h4>
+<p>
+<code>Rh45/Explicit.lean</code> (476 lines, no <code>sorry</code>, no extra axiom) proves: kernel
+evenness and positivity; <code>F(1−x)=F(x)</code> symmetry about <code>1/2</code>; the pole pair
+<code>polePair F = F 1 + F 0</code> and its collapse <code>= 2F(1)</code>; monotonicity and
+non-negativity of the finite zero sum; the prime-side split and evenness; the finite-in-compact
+statement for <code>riemannZetaZeros</code>; <code>vonMangoldtMain</code> and the exact constant
+<code>7/8</code> rewrite; and <code>∫_0^∞ e<sup>−u/2</sup>cos(tu)du = 2/(1+4t²)</code> together
+with <code>∫ (π/2)e<sup>−|u|/2</sup>cos(tu)du = (π/2)cauchyKernel</code>. It contains
+<em>no</em> explicit formula, <em>no</em> Riemann&ndash;von Mangoldt identity, <em>no</em> analytic
+continuation argument, and <em>no</em> zero. Mathlib itself has none of these (grep for
+<code>RiemannVonMangoldt</code>/<code>explicitFormula</code> returns empty; it has
+<code>riemannZeta_one_sub</code>, <code>logDeriv_riemannZeta_one_sub</code>, the Euler product,
+<code>isDiscrete_riemannZetaZeros</code> and
+<code>IsCompact.inter_riemannZetaZeros_finite</code>).
+</p>
+</div>
+
+<h2 id="s7">7. Independent reproduction (this audit)</h2>
+<p>
+All numbers below were produced for this audit with Python&nbsp;3.13 / mpmath&nbsp;1.3.0 /
+numpy&nbsp;2.5.0 / SymPy&nbsp;1.14.0, plus the local Lean&nbsp;4 + Mathlib build. Nothing was
+imported from <code>rh45</code>.
+</p>
+
+<h3>7.1 The convention test (owns sieve, own quadrature, closed-form <code>F</code>)</h3>
+<table>
+<thead><tr><th>kernel</th><th class="num">Weil: RHS−LHS</th><th class="num">(E): RHS−LHS</th>
+<th class="num">naive: RHS−LHS</th></tr></thead>
+<tbody>
+<tr><td>modulated Gaussian, θ=γ₁, 200 zeros</td><td class="num">9.63e−46</td><td class="num">−1.037+0.084i</td><td class="num">−0.468+0.084i</td></tr>
+<tr><td>Gaussian σ=1</td><td class="num">1.57e−44</td><td class="num">+2.278</td><td class="num">+1.379</td></tr>
+<tr><td>Gaussian σ=1/4</td><td class="num">−2.27e−61</td><td class="num">+2.023</td><td class="num">+1.995</td></tr>
+</tbody>
+</table>
+<p class="small">
+The Weil form with <code>Φ(s)=φ((s−1/2)/i)</code> and the archimedean term is the only correct one;
+the round&rsquo;s <code>(E)</code> is false. This independently confirms the auditor&rsquo;s C1d and
+locates the error precisely.
+</p>
+
+<h3>7.2 Zeros from own <code>Z(t)</code></h3>
+<table>
+<thead><tr><th class="num">k</th><th>own value (25 digits)</th><th class="num">|own − reference|</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td><code>14.13472514173469379045725</code></td><td class="num">2.71e−34</td></tr>
+<tr><td class="num">2</td><td><code>21.02203963877155499262848</code></td><td class="num">2.78e−33</td></tr>
+<tr><td class="num">3</td><td><code>25.01085758014568876321379</code></td><td class="num">1.82e−33</td></tr>
+<tr><td class="num">4</td><td><code>30.42487612585951321031190</code></td><td class="num">1.32e−33</td></tr>
+<tr><td class="num">5</td><td><code>32.93506158773918969066237</code></td><td class="num">3.49e−33</td></tr>
+</tbody>
+</table>
+<p class="small">Reproduces the auditor&rsquo;s C2 to ~33 digits &mdash; as a <em>numerical</em>
+location (Route A still unmet).</p>
+
+<h3>7.3 The counting identity</h3>
+<table>
+<thead><tr><th class="num">T</th><th class="num">N</th><th class="num">N − (θ/π + 1 + S)</th></tr></thead>
+<tbody>
+<tr><td class="num">20</td><td class="num">1</td><td class="num">0</td></tr>
+<tr><td class="num">50</td><td class="num">10</td><td class="num">−1.05e−53</td></tr>
+<tr><td class="num">100</td><td class="num">29</td><td class="num">−3.10e−28</td></tr>
+</tbody>
+</table>
+<p class="small">
+<code>S(T)</code> from my own <code>ζ'/ζ</code> contour integration. The <code>T=100</code>
+residual is quadrature-limited, not identity-limited.
+</p>
+
+<h3>7.4 SymPy checks of the elementary layer</h3>
+<ul>
+<li><code>∫_0^∞ e<sup>−u/2</sup>cos(tu) du = 2/(1+4t²)</code> &nbsp;✓ (matches Lean).</li>
+<li><code>∫_ℝ e<sup>−|u|/2</sup>e<sup>itu</sup> du = 4/(1+4t²)</code>, so
+<code>∫(π/2)e<sup>−|u|/2</sup>cos(tu)du = (π/2)·cauchyKernel</code> &nbsp;✓ (matches Lean).</li>
+<li><code>F_compact(s)=∫_{−1}^{1}(1−u²)²e<sup>−su</sup>du</code> equals the script&rsquo;s
+<code>I0−2I2+I4</code> closed form (difference simplifies to <code>0</code> for
+<code>s≠0</code>; both give <code>16/15</code> at <code>s=0</code>); <code>F(0.7)=1.104511938596…</code> ✓.</li>
+<li><code>ψ(1/4) = −γ − π/2 − 3ln2 = −4.227453533376265408…</code> &nbsp;✓ (the archimedean constant).</li>
+<li><code>vonMangoldtMain</code> rewrite
+<code>(T/2π)log(T/2πe)+7/8 = (T/2π)log(T/2π)−T/2π+7/8</code>: symbolic difference <code>0</code> ✓;
+the constant <code>7/8</code> is correct.</li>
+</ul>
+
+<h3>7.5 Lean / Mathlib</h3>
+<ul>
+<li><code>lean/check.sh --all</code> → <code>[check] OK Rh45/Explicit.lean (31s)</code>,
+<code>[check] OK Rh45.lean (5s)</code>, exit&nbsp;0.</li>
+<li>No <code>sorry</code>, no <code>axiom</code>, no <code>native_decide</code> in the sources
+(the only textual match is a comment).</li>
+<li><code>#print axioms</code> on <code>polePair_eq</code>, <code>vonMangoldtMain_eq</code>,
+<code>integral_expWeight_mul_cos</code>, <code>primeSide_even_eq_two_mul_sum</code>,
+<code>zeroSum_mono</code>, <code>riemannZetaZeros_finite_in_compact</code> →
+<code>[propext, Classical.choice, Quot.sound]</code> for all six.</li>
+<li>Mathlib search: no explicit formula, no Riemann&ndash;von Mangoldt; the available zero facts are
+discreteness/finiteness, not counting. So F7 is structural, not an oversight.</li>
+</ul>
+
+<h2 id="s8">8. What it needs: a concrete roadmap</h2>
+<ol>
+<li><strong>A rigorous scalar engine.</strong> Reuse the programme&rsquo;s own
+<code>ivmath.py</code> pattern (<code>Num</code> = value + guaranteed error, with
+<code>cos/sin/log/π</code> built from bounded series) or a ball library. The <code>rh43</code>/
+<code>rh45</code> developments already share it; <code>rh45</code>&rsquo;s zero work does not use it.
+Target: enclosures of <code>ζ(1/2+it)</code>, <code>θ(t)</code> and <code>Z(t)</code> at rational
+<code>t</code>.</li>
+<li><strong>Route A certificates.</strong> For each of <code>γ₁…γ_N</code>: rational
+<code>a&lt;b</code> with <code>Z(a)&lt;0&lt;Z(b)</code> (enclosed), plus a bound
+<code>|Z′| ≥ m &gt; 0</code> on <code>[a,b]</code> (enclosed), giving a unique simple root. This
+alone certifies the zeros <em>on the line</em>.</li>
+<li><strong>Route B: a real Turing test.</strong> A ball-arithmetic contour integral of
+<code>ζ'/ζ</code> with an explicit bound on the argument change on each side, an explicit
+<code>|S(T)| ≤ c log T</code> input, and a count of sign changes matching <code>N(T)</code> &mdash;
+this is what rules out missed and off-line zeros.</li>
+<li><strong>Route C: validated tails.</strong> Replace the density integrals by
+<code>Σ_{n&gt;N}Λ(n)n<sup>−1/2</sup>|g(log n)| ≤ C∫ …</code> derived from
+<code>ψ(x) ≤ (log4)x</code>, and by an explicit <code>N(T+h)−N(T)</code> bound. Use relative
+tolerances (fix F2). Remove <code>mp.zetazero</code> from the zero side of the identity
+(fix F4).</li>
+<li><strong>Fix the record.</strong> Delete or correct the <code>(E)</code> convention in
+<code>explicit_formula.py</code> (F1), update <code>truths.md</code> to 19/21 (F5), and either run
+the main script to completion or retire it in favour of the auditor&rsquo;s route (F6).</li>
+<li><strong>Lean: extend or state the boundary.</strong> The honest options are (a) formalise the
+explicit formula on top of Mathlib&rsquo;s <code>riemannZeta_one_sub</code> + Hadamard product
+(a substantial project; Mathlib has no explicit formula yet), or (b) keep the Lean layer algebraic
+and make the boundary explicit in the ledger (as F7 records).</li>
+</ol>
+
+<h2 id="s9">9. Status table</h2>
+<table>
+<thead><tr><th>item</th><th>§6 route</th><th>status</th></tr></thead>
+<tbody>
+<tr><td>correct Weil explicit formula, numerically verified</td><td>C</td>
+<td><span class="status s-num">NUMERICAL</span> (≤45 digits on C1b; independent re-run)</td></tr>
+<tr><td>naive normalisation refuted</td><td>C</td><td><span class="status s-proved">PROVED</span> numerically (witness)</td></tr>
+<tr><td>zeros from <code>ζ</code> alone, 32&ndash;33 digits</td><td>A</td>
+<td><span class="status s-num">NUMERICAL</span> &mdash; no enclosure, no isolation</td></tr>
+<tr><td>interval <code>Z(t)</code> sign-change certificate</td><td>A</td>
+<td><span class="status s-fail">NOT MET</span></td></tr>
+<tr><td>argument-principle count matching the table</td><td>B</td>
+<td><span class="status s-num">NUMERICAL</span></td></tr>
+<tr><td>Turing test (excludes missed/off-line zeros)</td><td>B</td>
+<td><span class="status s-fail">NOT MET</span></td></tr>
+<tr><td>exact counting identity <code>N = θ/π + 1 + S</code></td><td>B/C</td>
+<td><span class="status s-num">NUMERICAL</span> (to <code>1e−20</code>; re-run to <code>1e−53</code>)</td></tr>
+<tr><td>rigorous zero/prime/archimedean tail bounds</td><td>C</td>
+<td><span class="status s-fail">NOT MET</span> (density estimates)</td></tr>
+<tr><td>main-script convention <code>(E)</code></td><td>C</td>
+<td><span class="status s-fail">FALSE</span> (F1 witnesses)</td></tr>
+<tr><td><code>C1a</code> &ldquo;≥20 digits&rdquo;</td><td>C</td>
+<td><span class="status s-fail">VACUOUS</span> (19&nbsp;% relative error passes; F2)</td></tr>
+<tr><td>Lean algebraic layer, 0 <code>sorry</code>, standard footprint</td><td>&mdash;</td>
+<td><span class="status s-proved">PROVED</span> (verified here)</td></tr>
+<tr><td>explicit formula / Riemann&ndash;von Mangoldt in Lean</td><td>C</td>
+<td><span class="status s-open">ABSENT</span> (also absent from Mathlib)</td></tr>
+<tr><td>a certified zero</td><td>A/B/C</td>
+<td><span class="status s-fail">NOT ACHIEVED</span></td></tr>
+</tbody>
+</table>
+
+<h2 id="s10">10. Commands and references</h2>
+<pre><code># rh45's own evidence
+cd research/twin-prime-parity/rounds/rh45
+python3 -u verify/independent_check.py      # 19/21, exit 0 (2 retired: C1e, C4.1)
+cd lean &amp;&amp; ./check.sh --all                  # 6x [check] OK, exit 0
+
+# this audit's independent checks (mpmath + sympy, nothing imported from rh45)
+#   - convention test on four kernels (Weil vs (E) vs naive)
+#   - own Z(t) zero location, own zeta'/zeta contour, own counting identity
+#   - sympy: one-sided/two-sided integrals, F_compact closed form, psi(1/4),
+#     vonMangoldtMain rewrite
+#   - lean: #print axioms on the six main declarations</code></pre>
+<p class="refs">Primary sources audited:</p>
+<ul class="refs">
+<li><a href="truths.md"><code>rh45/truths.md</code></a> &mdash; the round ledger (17/21 line corrected to 19/21 in this audit, F5).</li>
+<li>> and >
+&mdash; T1&ndash;T5 and the &ldquo;what is not claimed&rdquo; list.</li>
+<li><a href="explicit_formula.py"><code>rh45/explicit_formula.py</code></a> &mdash; the main script
+(convention <code>(E)</code>, F1; run interrupted, F6).</li>
+<li><a href="verify/independent_check.py"><code>rh45/verify/independent_check.py</code></a> and
+<a href="verify/independent_check.log"><code>independent_check.log</code></a> &mdash; the auditor&rsquo;s
+route (C1a&ndash;f, C2, C3; 19/21).</li>
+<li><a href="Rh45/Explicit.lean"<code>rh45/lean/Rh45/Explicit.lean</code> &mdash; the Lean
+algebraic layer (verified here: 0 <code>sorry</code>, footprint
+<code>propext, Classical.choice, Quot.sound</code>).</li>
+<li>>
+&mdash; the certification standard applied here.</li>
+<li>Classical background for the missing pieces: A.&nbsp;M.&nbsp;Turing,
+<em>Some calculations of the Riemann zeta-function</em>, Proc. LMS <strong>3</strong> (1953)
+99&ndash;117 (Turing&rsquo;s method); E.&nbsp;C.&nbsp;Titchmarsh &amp; D.&nbsp;R.&nbsp;Heath-Brown,
+<em>The Theory of the Riemann Zeta-Function</em> (Riemann&ndash;von Mangoldt, explicit formula);
+the programme&rsquo;s <code>rh43/ivmath.py</code> for the value-plus-error engine pattern.</li>
+</ul>
+
+<footer>
+<p>
+<strong>Verdict.</strong> <code>rh45</code> builds the right instrument and demonstrates it
+numerically; it certifies nothing, and its own ledger correctly says so. Against §6:
+Route&nbsp;A <span class="status s-fail">NOT MET</span>, Route&nbsp;B
+<span class="status s-fail">NOT MET</span>, Route&nbsp;C
+<span class="status s-num">PARTIAL</span>. Two record defects should be fixed regardless:
+the false convention <code>(E)</code> in <code>explicit_formula.py</code> (F1) and the vacuous
+<code>C1a</code> absolute tolerance (F2).
+</p>
+<p>
+<strong>Audit evidence.</strong> Independent re-derivation of the convention test, own
+<code>Z(t)</code> zeros, own <code>ζ'/ζ</code> counting identity, SymPy checks of the elementary
+layer, and a from-scratch rebuild of the Lean layer with <code>#print axioms</code>. Where this
+document quotes <code>rh45</code>&rsquo;s numbers they were re-run or re-derived, not copied.
+</p>
+<p>
+<strong>Self-contained.</strong> Inline CSS only; no scripts, web fonts or typesetting engines.
+Mathematics is styled HTML and Unicode.
+</p>
+</footer>
+
+</div>
+</body>
+</html>

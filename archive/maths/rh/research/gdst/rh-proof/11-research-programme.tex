@@ -1,0 +1,137 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\title{Research Programme:\\
+Gaps in the Proposed Proof of the Riemann Hypothesis\\
+via the Greedy Dirichlet Sub‑Sum Transform}
+\author{Compiled from the Isabelle formalisation}
+\date{\today}
+\begin{document}
+\maketitle
+\section{Introduction}
+The formalisation \texttt{GDST\_Riemann\_Hypothesis.thy} outlines a strategy to prove the Riemann Hypothesis by constructing a certain integral operator $T_\sigma$ and linking its spectrum to the non‑trivial zeros of $\zeta(s)$ via a Fredholm determinant.  The argument relies on a large number of unproven axioms and several incomplete lemmas.  This document catalogues these gaps, assesses the current state of knowledge, and frames them as a research programme.  Each item is marked:
+\begin{itemize}
+  \item[\textbf{Existing}] The statement is a known theorem (the proof exists in the literature) but requires formalisation or adaptation.
+  \item[\textbf{New}] The statement is not known; it requires original mathematical research.
+  \item[\textbf{Gap}] The argument is missing a logical step, even assuming all axioms.
+\end{itemize}
+
+\section{Principal Gaps}
+\subsection{Fredholm determinant formalism}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{reg\_fred\_det\_pert}, \texttt{reg\_fred\_det\_sim}, \texttt{reg\_fred\_det\_id} – the regularised Fredholm determinant satisfies a perturbation formula, similarity invariance, and trivial for the identity.
+  \begin{quote}
+    \emph{Status:} \textbf{Existing}.  Standard properties of regularised Fredholm determinants for trace‑class operators (see Gohberg–Krein, Simon).  A large formalisation project would be needed to develop the theory within Isabelle/HOL.
+  \end{quote}
+\end{itemize}
+
+\subsection{Trace‑class properties}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{M\_op\_trace\_class} – for $\Re\sigma>\frac12$, the operator $M_\sigma$ (defined by 
+  \( (M_\sigma f)(z)=\sum_{k=1}^\infty \frac{1}{(k+z)^{2\sigma}} f\bigl(\frac1{k+z}\bigr) \)) is trace class.
+  \item \textbf{Axiom:} \texttt{L\_op\_trace\_class} – for $\Re s>\frac12$, the operator $L_s$ (defined via a greedy‑digit based sum) is trace class.
+  \begin{quote}
+    \emph{Status:} \textbf{New}.  Although the structure of $M_\sigma$ resembles classical transfer operators, its precise definition differs from the standard Mayer operator.  No proof of trace class exists for either operator.  Both require a thorough analysis of singular values or nuclear norm, strongly dependent on number‑theoretic properties of the greedy digits.
+  \end{quote}
+\end{itemize}
+
+\subsection{Mayer–Efrat type determinant identity}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{Mayer\_Efrat\_formula} – 
+  \(\det_2(I - M_\sigma) = \dfrac{\zeta(2\sigma)}{\zeta(2\sigma-1)} \exp(Q(\sigma))\), with $Q$ entire and $Q(\frac12+it)\neq0$.
+  \begin{quote}
+    \emph{Status:} \textbf{New (partially known)}.  For the classical Mayer operator of the Gauss map a similar formula holds.  If $M_\sigma$ can be shown to be unitarily equivalent (or at least Fredholm‑equivalent) to the Mayer operator, the result could be deduced.  Otherwise a completely new proof is required.  The existence and properties of $Q$ are tied to the specific operator; they cannot be taken from the literature without adaptation.
+  \end{quote}
+\end{itemize}
+
+\subsection{Similarity transformation and perturbation}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{K\_trace\_class}, \texttt{K\_finite\_rank} – the perturbation $K_s$ is trace class and of finite rank.
+  \item \textbf{Axiom:} \texttt{similarity\_rel} – $U_s \circ L_s = (M_{s+1/2} + K_s) \circ U_s$ (operator equality).
+  \item \textbf{Axiom:} \texttt{U\_s\_bounded}, \texttt{U\_s\_invertible} – $U_s$ is a bounded, invertible linear operator.
+  \begin{quote}
+    \emph{Status:} \textbf{New}.  These axioms constitute the core technical device connecting the Dirichlet series operator $L_s$ to the integral operator $M_{s+1/2}$.  No such similarity is known; its construction would likely involve deep number‑theoretic identities (e.g., Poisson summation, infinite product expansions).  This is the most critical missing piece.
+  \end{quote}
+\end{itemize}
+
+\subsection{Trace identity for the perturbation}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{H\_func} entire, \texttt{telescoping\_sum} – 
+  \(\displaystyle \sum_{n=1}^\infty \frac{1}{n} \operatorname{tr}\bigl(K_s^{\,n}\bigr) = \ln\frac{\zeta(s)}{\zeta(2s+1)} + H(s)\).
+  \begin{quote}
+    \emph{Status:} \textbf{New}.  This is an explicit evaluation of a Fredholm determinant expansion.  It would imply a direct relation between a spectral object (the trace of powers of $K_s$) and the zeta function, far beyond what is known.  The statement is extremely strong and would itself be a major breakthrough.
+  \end{quote}
+\end{itemize}
+
+\subsection{Spectral decomposition of $T_\sigma$}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{T\_sigma\_spectral} – the integral operator $T_\sigma$ admits a complete orthonormal system of eigenfunctions with eigenvalues $\lambda_i(\sigma)$.
+  \item \textbf{Axiom:} \texttt{lambda\_nonneg} – $\lambda_i(\sigma) \ge 0$.
+  \item \textbf{Axiom:} \texttt{e\_orthonormal} – the eigenfunctions are orthonormal in $L^2[0,\pi]$.
+  \item \textbf{Axiom:} \texttt{trace\_class\_summable} – $\sum_i \lambda_i(\sigma) < \infty$.
+  \item \textbf{Axiom:} \texttt{trace\_T\_sigma\_pow\_eq\_sum} – $\operatorname{tr}(T_\sigma^k) = \sum_i \lambda_i(\sigma)^k$.
+  \begin{quote}
+    \emph{Status:} \textbf{New}.  The kernel $K_\sigma(\theta,\phi)$ is a highly irregular sum built from the greedy digits.  Proving that the associated integral operator is compact, self‑adjoint, positive, and trace class (especially for $\sigma > \frac12$) would require profound new estimates on the digit functions.  This is a formidable analytical problem with no known precedent.
+  \end{quote}
+\end{itemize}
+
+\subsection{Orthogonal polynomials and Jacobi matrix}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{p\_sigma\_orthonormal}, \texttt{p\_sigma\_degree} – the measure $\mu_\sigma$ admits a sequence of orthonormal polynomials of exact degree.
+  \item \textbf{Axiom:} \texttt{J\_sigma\_selfadj}, \texttt{J\_sigma\_spec} – the associated Jacobi matrix $J_\sigma$ is self‑adjoint and its spectrum equals the closed support of $\mu_\sigma$.
+  \begin{quote}
+    \emph{Status:} \textbf{Existing}.  For any positive measure with finite moments, orthogonal polynomials exist (Gram–Schmidt).  The self‑adjointness and spectral identity are classical results from the theory of Jacobi matrices (Favard’s theorem, Stone’s theorem).  These are well‑established and could be formalised, though the measure is discrete so special care is needed for the self‑adjoint extension.  This part is the least problematic.
+  \end{quote}
+\end{itemize}
+
+\subsection{Trace identities linking $T_\sigma$, $L_\sigma$ and zeros}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{G\_sum\_convergent} – a certain series $\sum_k G(k)/k$ converges.
+  \item \textbf{Axiom:} \texttt{trace\_T\_via\_L} – $\operatorname{tr}(T_\sigma^k) = \operatorname{tr}(L_\sigma^k) + G(k)$.
+  \item \textbf{Axiom:} \texttt{zero\_moment\_from\_trace} – 
+  \(\operatorname{tr}(L_\sigma^k) = \sum_{\rho} \frac{1}{(\rho-\sigma)^k} + E_{\text{corr}}(\sigma,k)\).
+  \item \textbf{Axiom:} \texttt{E\_corr\_summable} – $\sum_k E_{\text{corr}}(k)/k$ converges.
+  \begin{quote}
+    \emph{Status:} \textbf{New}.  These trace identities are entirely unprecedented.  They would link the trace of powers of a Dirichlet‑series‑based operator to a sum over the nontrivial zeros of $\zeta$, analogous to the Guinand–Weil explicit formula but derived from a completely different operator.  Proving them would require a detailed understanding of both $T_\sigma$ and $L_\sigma$ and would essentially establish the desired connection between spectrum and zeros directly.  Such identities are at the heart of the claimed proof and are wholly unproven.
+  \end{quote}
+\end{itemize}
+
+\subsection{Growth bounds for error terms}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{correction\_bound} – $|H_{\text{corr}}(k)| \le C A^k$ (exponential growth).
+  \item \textbf{Axiom:} \texttt{Hadamard\_pair\_bound} – $\sum_{\rho} \bigl|\frac1{(\rho-\sigma)^k} + \frac1{(1-\rho-\sigma)^k}\bigr| \le C B^k$ (uniform exponential bound over zeros in the critical strip).
+  \begin{quote}
+    \emph{Status:} \textbf{New (partially)}.  The Hadamard‑pair bound is a statement about the distribution of nontrivial zeros; similar bounds can be derived from the Hadamard product for $\zeta$ and known zero‑density estimates, but a precise constant $B$ and a proof for all $k\ge1$ would be delicate.  The correction bound depends on the undefined $E_{\text{corr}}$ and $G$ series; it is completely unknown.
+  \end{quote}
+\end{itemize}
+
+\subsection{Support identity for $\sigma = \frac12$}
+\begin{itemize}
+  \item \textbf{Axiom:} \texttt{support\_equals\_zeros\_at\_half} – 
+  \(\operatorname{supp}(\mu_{1/2}) = \overline{\{\rho-\tfrac12 \mid \zeta(\rho)=0, 0<\Re\rho<1\}}\).
+  \begin{quote}
+    \emph{Status:} \textbf{New}.  This axiom is effectively equivalent to the Riemann Hypothesis.  The earlier theorem \texttt{support\_equals\_zeros} was proved only for $\sigma>\frac12$; extending it to the critical line $\sigma=\frac12$ requires additional justification (e.g., analytic continuation of the Stieltjes transform across the boundary).  No such proof is given, and the axiom is assumed to make the final step possible.
+  \end{quote}
+\end{itemize}
+
+\subsection{Remaining \texttt{sorry}ed lemmas}
+\begin{itemize}
+  \item \texttt{poles\_of\_S\_reg} – identification of the poles of the regularised Stieltjes transform.
+  \item \texttt{poles\_of\_zero\_sum} – identification of the poles of the sum over zeros.
+  \item Final deduction $\operatorname{Re}\rho = \frac12$ from spectrum reality.
+  \begin{quote}
+    \emph{Status:} \textbf{Gap}.  The first two lemmas are standard complex analysis and could be proved with effort.  The final deduction is a logical gap: knowing $(\rho-\frac12) \in \mathbb{R}$ does not force $\operatorname{Re}\rho = \frac12$; one would need additional structural information (e.g., that the imaginary parts of nontrivial zeros are real and the shift aligns the real parts).  As written, the argument is invalid.
+  \end{quote}
+\end{itemize}
+
+\section{Conclusion}
+The proposed proof hinges on a chain of statements that are almost entirely unproven and in many cases have no known counterpart in the mathematical literature.  To transform this outline into a valid proof, one would need to:
+\begin{enumerate}
+  \item Develop a substantial theory of the regularised Fredholm determinant (feasible, but heavy formalisation).
+  \item Prove trace‑class and spectral properties of the new operators $L_s$, $M_\sigma$, $T_\sigma$ (new, difficult).
+  \item Establish a similarity transformation linking $L_s$ and $M_\sigma$ up to a finite‑rank perturbation (new, likely very hard).
+  \item Derive trace identities that relate operator spectra to zeta zeros (new, essentially the core of the claim).
+  \item Supply analytic continuation arguments to reach $\sigma = 1/2$ (new).
+  \item Correct the final logical step (requires a new idea).
+\end{enumerate}
+The programme outlined here identifies each gap explicitly and highlights the depth of the original work required.  As it stands, the formalisation does not constitute a mechanical proof of the Riemann Hypothesis, but it could serve as a roadmap for future research – provided each axiom can be rigorously justified.
+\end{document}

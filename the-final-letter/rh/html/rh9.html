@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh9 — the case that was proved</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The case that was proved</h1>
+  <p class="sub">Run the same construction over 𝔽<sub><i>q</i></sub>[<i>t</i>] instead of ℤ and every axiom survives, the critical line becomes a literal circle, and the hypothesis becomes a theorem — because the infinite torus of rh8 collapses to a single circle.</p>
+  <p class="meta">docs/rh9 · continues <a href="rh4.html">rh4</a>–<a href="rh8.html">rh8</a> · figures computed, not sketched · 2026-07-31</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> Five documents have converged on one diagnosis: the missing axiom needs a <i>representation with multiplicity</i>, and every symmetry the construction presents is abelian (<a href="rh5.html#s5">rh5 §5</a>, <a href="rh7.html#s5">rh7 §5</a>, <a href="rh8.html#s6">rh8 §6</a>). There is exactly one setting where that missing structure exists and the hypothesis is a <b>theorem</b> — the function field case — and rh8 supplies the reason it works. Replace ℤ by 𝔽<sub><i>q</i></sub>[<i>t</i>]: the gears become monic irreducible polynomials, and a gear of degree <i>d</i> has norm <i>q</i><sup><i>d</i></sup>, hence period 2π/(<i>d</i> log <i>q</i>) — <b>every one of which divides the single period 2π/log <i>q</i></b>. Where over ℚ no two gears ever close together, over 𝔽<sub><i>q</i></sub> they <i>all</i> close together, verified here; the infinite-dimensional torus becomes one circle, ζ becomes a function of <i>T</i> = <i>q</i><sup>−<i>s</i></sup> alone, and is therefore <b>rational</b> — finitely many zeros instead of infinitely many (§2). Everything follows. The critical line σ = ½ becomes the circle |<i>T</i>| = <i>q</i><sup>−1/2</sup>, an actual circle in an actual plane (§3). Genus 0 has no zeros at all; genus <i>g</i> has exactly 2<i>g</i>. Computed here: for <i>y</i>² = <i>x</i>³+<i>x</i>+1 over all 780 good primes below 6000, both zeros lie on the circle to machine precision and Hasse's bound holds with maximum ratio 0.9917; for a genus-2 curve, all four zeros lie on it at every prime tested, checked by an <b>exact integer criterion</b> as well as numerically (§4–5). The explicit formula becomes exact and finite — <i>q</i><sup><i>n</i></sup> + 1 − <i>N</i><sub><i>n</i></sub> = ∑α<sub><i>i</i></sub><sup><i>n</i></sup>, a sum of 2<i>g</i> terms rather than infinitely many — and RH becomes the provable inequality |·| ≤ 2<i>g q</i><sup><i>n</i>/2</sup>, measured here to reach 0.997 of its bound (§6). Even the statistics are settled: the Frobenius angles follow the Sato–Tate law, which is a theorem, where rh8 could only honestly report level repulsion (§7). Finally §8 says why none of it transports: the proof runs on a <b>surface</b>, and Spec ℤ has no second factor.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The same construction, over a different ring</a></li>
+  <li><a href="#s2">The collapse: why this case is tractable</a></li>
+  <li><a href="#s3">The critical line is a circle</a></li>
+  <li><a href="#s4">Genus 0 and genus 1: no zeros, then two</a></li>
+  <li><a href="#s5">Genus 2, and RH as two integer inequalities</a></li>
+  <li><a href="#s6">The explicit formula, exact and finite</a></li>
+  <li><a href="#s7">The statistics are settled too</a></li>
+  <li><a href="#s8">Why it does not transport</a></li>
+  <li><a href="#s9">Dictionary additions</a></li>
+</ol>
+</nav>
+
+<p class="kicker">Part I · The collapse</p>
+
+<section class="prose" id="s1">
+<h2>1 · The same construction, over a different ring</h2>
+<p>Everything rh4 built rests on a ring with a size function, a supply of primes, and unique factorization. ℤ is not the only such ring. Take 𝔽<sub><i>q</i></sub>[<i>t</i>], the polynomials in one variable over a finite field, with</p>
+<div class="eq"><span class="tag">(1)</span>
+|<i>f</i>| = <i>q</i><sup>deg <i>f</i></sup>,
+&nbsp;&nbsp; primes = monic irreducible polynomials,
+&nbsp;&nbsp; <i>T</i> = <i>q</i><sup>−<i>s</i></sup>.
+</div>
+<p>The dictionary is exact, not analogical. Unique factorization holds. The counting function of the gears is not asymptotic but <i>closed</i>: the number of monic irreducibles of degree <i>n</i> is</p>
+<div class="eq"><span class="tag">(2)</span>
+π<sub><i>q</i></sub>(<i>n</i>) =
+<span class="fr"><span class="nu">1</span><span class="de"><i>n</i></span></span>
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>d</i> | <i>n</i></span></span>
+μ(<i>d</i>) <i>q</i><sup><i>n</i>/<i>d</i></sup>
+&nbsp;=&nbsp;
+<span class="fr"><span class="nu"><i>q</i><sup><i>n</i></sup></span><span class="de"><i>n</i></span></span>
++ <i>O</i>(<i>q</i><sup><i>n</i>/2</sup>/<i>n</i>),
+</div>
+<p>verified here by brute-force enumeration for <i>q</i> = 2 up to degree 8, <i>q</i> = 3 to degree 5 and <i>q</i> = 5 to degree 4. That error term is the point: the prime number theorem in this setting comes with a <b>square-root error, exactly and provably</b> — the very statement that RH asserts over ℤ and nobody can prove. Computed for <i>q</i> = 2, the deviation |π₂(<i>n</i>) − 2<sup><i>n</i></sup>/<i>n</i>| never exceeds 2·2<sup><i>n</i>/2</sup>/<i>n</i> for any <i>n</i> ≤ 12.</p>
+<p>And the train sums exactly. Every monic polynomial of degree <i>n</i> contributes <i>T</i><sup><i>n</i></sup>, and there are <i>q</i><sup><i>n</i></sup> of them, so</p>
+<div class="eq"><span class="tag">(3)</span>
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∏</span><span class="lo"><i>P</i></span></span>
+(1 − <i>T</i><sup>deg <i>P</i></sup>)<sup>−1</sup>
+&nbsp;=&nbsp;
+<span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>f</i> monic</span></span>
+<i>T</i><sup>deg <i>f</i></sup>
+&nbsp;=&nbsp;
+<span class="bigop"><span class="up">∞</span><span class="sym">∑</span><span class="lo"><i>n</i>=0</span></span>
+<i>q</i><sup><i>n</i></sup><i>T</i><sup><i>n</i></sup>
+&nbsp;=&nbsp;
+<span class="fr"><span class="nu">1</span><span class="de">1 − <i>qT</i></span></span>,
+</div>
+<p>the Euler product of <a href="rh5.html#s1">rh5 §1</a> with both sides now finite computations — verified coefficient by coefficient to <i>T</i><sup>10</sup> for <i>q</i> = 2, 3, 5. Note what (3) already says: the zeta function of the affine line is <b>1/(1 − <i>qT</i>)</b>, a rational function with no zeros whatsoever.</p>
+</section>
+
+<section class="prose" id="s2">
+<h2>2 · The collapse: why this case is tractable</h2>
+<p>Now the structural fact this whole document turns on, and it is a direct consequence of <a href="rh8.html#s4">rh8 §4</a>. There, each prime was a circle: <i>p</i><sup>−<i>it</i></sup> has period 2π/log <i>p</i>, and because <i>p</i><sup><i>a</i></sup> = <i>q</i><sup><i>b</i></sup> is impossible, <b>no two gears ever close together</b> — gears 2 and 3 come no nearer than 0.0476 radians on <i>t</i> ≤ 300. The joint orbit winds densely on an infinite-dimensional torus and never returns.</p>
+<p>Over 𝔽<sub><i>q</i></sub> the arithmetic is different in exactly one respect, and it changes everything. A gear of degree <i>d</i> has norm <i>q</i><sup><i>d</i></sup>, so its period is</p>
+<div class="eq"><span class="tag">(4)</span>
+2π / log(<i>q</i><sup><i>d</i></sup>) = (1/<i>d</i>) · 2π/log <i>q</i> :
+</div>
+<p>every gear's period is an exact <b>divisor</b> of the single period 2π/log <i>q</i> — verified for <i>q</i> = 2, 3, 4, 5, 8, 9 and degrees up to 8. All the logarithms are commensurable, because there is only one of them.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 372" role="img" aria-label="Left: over the rationals the closure combs of the gears two three five seven and eleven never align. Right: over a finite field every gear closes together at the same instants, so the infinite torus becomes a single circle">
+<text x="360.0" y="22" class="ftitle">why one case is provable and the other is not</text>
+<text x="191" y="48" class="ftitle" font-size="12">over &#8474;</text>
+<line x1="56" y1="82" x2="326" y2="82" class="axis"/>
+<line x1="158.0" y1="72" x2="158.0" y2="92" class="comb"/>
+<line x1="260.0" y1="72" x2="260.0" y2="92" class="comb"/>
+<text x="50" y="86" class="flab end">gear 2</text>
+<line x1="56" y1="122" x2="326" y2="122" class="axis"/>
+<line x1="120.3" y1="112" x2="120.3" y2="132" class="comb"/>
+<line x1="184.7" y1="112" x2="184.7" y2="132" class="comb"/>
+<line x1="249.0" y1="112" x2="249.0" y2="132" class="comb"/>
+<line x1="313.4" y1="112" x2="313.4" y2="132" class="comb"/>
+<text x="50" y="126" class="flab end">gear 3</text>
+<line x1="56" y1="162" x2="326" y2="162" class="axis"/>
+<line x1="99.9" y1="152" x2="99.9" y2="172" class="comb"/>
+<line x1="143.8" y1="152" x2="143.8" y2="172" class="comb"/>
+<line x1="187.8" y1="152" x2="187.8" y2="172" class="comb"/>
+<line x1="231.7" y1="152" x2="231.7" y2="172" class="comb"/>
+<line x1="275.6" y1="152" x2="275.6" y2="172" class="comb"/>
+<line x1="319.5" y1="152" x2="319.5" y2="172" class="comb"/>
+<text x="50" y="166" class="flab end">gear 5</text>
+<line x1="56" y1="202" x2="326" y2="202" class="axis"/>
+<line x1="92.3" y1="192" x2="92.3" y2="212" class="comb"/>
+<line x1="128.7" y1="192" x2="128.7" y2="212" class="comb"/>
+<line x1="165.0" y1="192" x2="165.0" y2="212" class="comb"/>
+<line x1="201.3" y1="192" x2="201.3" y2="212" class="comb"/>
+<line x1="237.6" y1="192" x2="237.6" y2="212" class="comb"/>
+<line x1="274.0" y1="192" x2="274.0" y2="212" class="comb"/>
+<line x1="310.3" y1="192" x2="310.3" y2="212" class="comb"/>
+<text x="50" y="206" class="flab end">gear 7</text>
+<line x1="56" y1="242" x2="326" y2="242" class="axis"/>
+<line x1="85.5" y1="232" x2="85.5" y2="252" class="comb"/>
+<line x1="115.0" y1="232" x2="115.0" y2="252" class="comb"/>
+<line x1="144.4" y1="232" x2="144.4" y2="252" class="comb"/>
+<line x1="173.9" y1="232" x2="173.9" y2="252" class="comb"/>
+<line x1="203.4" y1="232" x2="203.4" y2="252" class="comb"/>
+<line x1="232.9" y1="232" x2="232.9" y2="252" class="comb"/>
+<line x1="262.3" y1="232" x2="262.3" y2="252" class="comb"/>
+<line x1="291.8" y1="232" x2="291.8" y2="252" class="comb"/>
+<line x1="321.3" y1="232" x2="321.3" y2="252" class="comb"/>
+<text x="50" y="246" class="flab end">gear 11</text>
+<text x="191" y="308" class="flab">no two gears ever close together</text>
+<text x="191" y="324" class="flab">&#8594; an infinite-dimensional torus &#8594; infinitely many zeros</text>
+<line x1="56" y1="276" x2="326" y2="276" class="axis"/>
+<line x1="56.0" y1="276" x2="56.0" y2="280" class="axis"/>
+<text x="56.0" y="292" class="flab">0</text>
+<line x1="123.5" y1="276" x2="123.5" y2="280" class="axis"/>
+<text x="123.5" y="292" class="flab">6</text>
+<line x1="191.0" y1="276" x2="191.0" y2="280" class="axis"/>
+<text x="191.0" y="292" class="flab">12</text>
+<line x1="258.5" y1="276" x2="258.5" y2="280" class="axis"/>
+<text x="258.5" y="292" class="flab">18</text>
+<line x1="326.0" y1="276" x2="326.0" y2="280" class="axis"/>
+<text x="326.0" y="292" class="flab">24</text>
+<text x="555" y="48" class="ftitle" font-size="12">over F&#8323;</text>
+<line x1="410" y1="82" x2="700" y2="82" class="axis"/>
+<line x1="479.1" y1="72" x2="479.1" y2="92" class="comb"/>
+<line x1="548.2" y1="72" x2="548.2" y2="92" class="comb"/>
+<line x1="617.3" y1="72" x2="617.3" y2="92" class="comb"/>
+<line x1="686.4" y1="72" x2="686.4" y2="92" class="comb"/>
+<text x="404" y="86" class="flab end">degree 1</text>
+<line x1="410" y1="122" x2="700" y2="122" class="axis"/>
+<line x1="444.6" y1="112" x2="444.6" y2="132" class="comb"/>
+<line x1="479.1" y1="112" x2="479.1" y2="132" class="comb"/>
+<line x1="513.7" y1="112" x2="513.7" y2="132" class="comb"/>
+<line x1="548.2" y1="112" x2="548.2" y2="132" class="comb"/>
+<line x1="582.8" y1="112" x2="582.8" y2="132" class="comb"/>
+<line x1="617.3" y1="112" x2="617.3" y2="132" class="comb"/>
+<line x1="651.9" y1="112" x2="651.9" y2="132" class="comb"/>
+<line x1="686.4" y1="112" x2="686.4" y2="132" class="comb"/>
+<text x="404" y="126" class="flab end">degree 2</text>
+<line x1="410" y1="162" x2="700" y2="162" class="axis"/>
+<line x1="433.0" y1="152" x2="433.0" y2="172" class="comb"/>
+<line x1="456.1" y1="152" x2="456.1" y2="172" class="comb"/>
+<line x1="479.1" y1="152" x2="479.1" y2="172" class="comb"/>
+<line x1="502.1" y1="152" x2="502.1" y2="172" class="comb"/>
+<line x1="525.2" y1="152" x2="525.2" y2="172" class="comb"/>
+<line x1="548.2" y1="152" x2="548.2" y2="172" class="comb"/>
+<line x1="571.2" y1="152" x2="571.2" y2="172" class="comb"/>
+<line x1="594.3" y1="152" x2="594.3" y2="172" class="comb"/>
+<line x1="617.3" y1="152" x2="617.3" y2="172" class="comb"/>
+<line x1="640.4" y1="152" x2="640.4" y2="172" class="comb"/>
+<line x1="663.4" y1="152" x2="663.4" y2="172" class="comb"/>
+<line x1="686.4" y1="152" x2="686.4" y2="172" class="comb"/>
+<text x="404" y="166" class="flab end">degree 3</text>
+<line x1="410" y1="202" x2="700" y2="202" class="axis"/>
+<line x1="427.3" y1="192" x2="427.3" y2="212" class="comb"/>
+<line x1="444.6" y1="192" x2="444.6" y2="212" class="comb"/>
+<line x1="461.8" y1="192" x2="461.8" y2="212" class="comb"/>
+<line x1="479.1" y1="192" x2="479.1" y2="212" class="comb"/>
+<line x1="496.4" y1="192" x2="496.4" y2="212" class="comb"/>
+<line x1="513.7" y1="192" x2="513.7" y2="212" class="comb"/>
+<line x1="530.9" y1="192" x2="530.9" y2="212" class="comb"/>
+<line x1="548.2" y1="192" x2="548.2" y2="212" class="comb"/>
+<line x1="565.5" y1="192" x2="565.5" y2="212" class="comb"/>
+<line x1="582.8" y1="192" x2="582.8" y2="212" class="comb"/>
+<line x1="600.0" y1="192" x2="600.0" y2="212" class="comb"/>
+<line x1="617.3" y1="192" x2="617.3" y2="212" class="comb"/>
+<line x1="634.6" y1="192" x2="634.6" y2="212" class="comb"/>
+<line x1="651.9" y1="192" x2="651.9" y2="212" class="comb"/>
+<line x1="669.2" y1="192" x2="669.2" y2="212" class="comb"/>
+<line x1="686.4" y1="192" x2="686.4" y2="212" class="comb"/>
+<text x="404" y="206" class="flab end">degree 4</text>
+<line x1="410" y1="242" x2="700" y2="242" class="axis"/>
+<line x1="423.8" y1="232" x2="423.8" y2="252" class="comb"/>
+<line x1="437.6" y1="232" x2="437.6" y2="252" class="comb"/>
+<line x1="451.5" y1="232" x2="451.5" y2="252" class="comb"/>
+<line x1="465.3" y1="232" x2="465.3" y2="252" class="comb"/>
+<line x1="479.1" y1="232" x2="479.1" y2="252" class="comb"/>
+<line x1="492.9" y1="232" x2="492.9" y2="252" class="comb"/>
+<line x1="506.7" y1="232" x2="506.7" y2="252" class="comb"/>
+<line x1="520.6" y1="232" x2="520.6" y2="252" class="comb"/>
+<line x1="534.4" y1="232" x2="534.4" y2="252" class="comb"/>
+<line x1="548.2" y1="232" x2="548.2" y2="252" class="comb"/>
+<line x1="562.0" y1="232" x2="562.0" y2="252" class="comb"/>
+<line x1="575.9" y1="232" x2="575.9" y2="252" class="comb"/>
+<line x1="589.7" y1="232" x2="589.7" y2="252" class="comb"/>
+<line x1="603.5" y1="232" x2="603.5" y2="252" class="comb"/>
+<line x1="617.3" y1="232" x2="617.3" y2="252" class="comb"/>
+<line x1="631.1" y1="232" x2="631.1" y2="252" class="comb"/>
+<line x1="645.0" y1="232" x2="645.0" y2="252" class="comb"/>
+<line x1="658.8" y1="232" x2="658.8" y2="252" class="comb"/>
+<line x1="672.6" y1="232" x2="672.6" y2="252" class="comb"/>
+<line x1="686.4" y1="232" x2="686.4" y2="252" class="comb"/>
+<text x="404" y="246" class="flab end">degree 5</text>
+<line x1="479.1" y1="66" x2="479.1" y2="290" class="align"/>
+<line x1="548.2" y1="66" x2="548.2" y2="290" class="align"/>
+<line x1="617.3" y1="66" x2="617.3" y2="290" class="align"/>
+<line x1="686.4" y1="66" x2="686.4" y2="290" class="align"/>
+<text x="555" y="308" class="flab c2">every gear closes at the same instants</text>
+<text x="555" y="324" class="flab c2">&#8594; &#950; is a function of T = q<tspan dy="-5" font-size="9">&#8722;s</tspan><tspan dy="5"> alone &#8594; rational &#8594; 2g zeros</tspan></text>
+<line x1="410" y1="276" x2="700" y2="276" class="axis"/>
+<line x1="410.0" y1="276" x2="410.0" y2="280" class="axis"/>
+<text x="410.0" y="292" class="flab">0</text>
+<line x1="482.5" y1="276" x2="482.5" y2="280" class="axis"/>
+<text x="482.5" y="292" class="flab">6</text>
+<line x1="555.0" y1="276" x2="555.0" y2="280" class="axis"/>
+<text x="555.0" y="292" class="flab">12</text>
+<line x1="627.5" y1="276" x2="627.5" y2="280" class="axis"/>
+<text x="627.5" y="292" class="flab">18</text>
+<line x1="700.0" y1="276" x2="700.0" y2="280" class="axis"/>
+<text x="700.0" y="292" class="flab">24</text>
+<line x1="368" y1="40" x2="368" y2="348" class="grid"/>
+<text x="360.0" y="364" class="flab">height t</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — the collapse.</b> Left: over ℚ, the closure combs of gears 2, 3, 5, 7, 11 — pairwise incommensurable, never aligning (this is <a href="rh8.html#s3">rh8 §3</a>'s figure, redrawn). Right: over 𝔽₃, the combs for degrees 1…5 — every one a refinement of the degree-1 comb, so all five close together at every multiple of 2π/log 3 (dashed). Over ℚ the gears' periods generate an infinite-dimensional torus; over 𝔽<sub><i>q</i></sub> they generate a single circle.</figcaption>
+</figure>
+<div class="box rh">
+<span class="lbl">The consequence</span>
+<p>Because every Euler factor is (1 − <i>T</i><sup>deg <i>P</i></sup>)<sup>−1</sup> with <i>T</i> = <i>q</i><sup>−<i>s</i></sup>, the whole zeta function is a function of <b><i>T</i> alone</b> — verified: <i>T</i> is periodic in <i>t</i> with period 2π/log <i>q</i> to 10<sup>−13</sup>. A function of one complex variable, built from a point count that grows like <i>q</i><sup><i>n</i></sup>, and it turns out to be <b>rational</b>: Z(<i>T</i>) = <i>L</i>(<i>T</i>)/((1−<i>T</i>)(1−<i>qT</i>)) with <i>L</i> a polynomial of degree 2<i>g</i>.</p>
+<p>So the zeros are <b>finite in number</b> — exactly 2<i>g</i> of them — where over ℚ they are infinite. That is the whole difference in tractability, and it traces back to a single fact: the number of independent logarithms. ℚ has infinitely many; 𝔽<sub><i>q</i></sub>[<i>t</i>] has one.</p>
+</div>
+</section>
+
+<p class="kicker">Part II · The circle, and what sits on it</p>
+
+<section class="prose" id="s3">
+<h2>3 · The critical line is a circle</h2>
+<p>Under <i>T</i> = <i>q</i><sup>−<i>s</i></sup> the vertical line σ = <i>c</i> maps to the circle |<i>T</i>| = <i>q</i><sup>−<i>c</i></sup>. So the critical strip becomes an annulus, and</p>
+<div class="eq"><span class="tag">(5)</span>
+σ = ½ &nbsp;⟺&nbsp; |<i>T</i>| = <i>q</i><sup>−1/2</sup>.
+</div>
+<p>This is the sentence the whole sequence of documents has been circling. In rh4 the circles were a construction imposed on the numeral; here the critical line <b>is</b> a circle, in the ordinary plane, with an ordinary radius. The Riemann hypothesis for a curve over 𝔽<sub><i>q</i></sub> reads: the 2<i>g</i> zeros of a degree-2<i>g</i> polynomial all have the same modulus. That is a statement one can imagine proving — and Weil did.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 396" role="img" aria-label="Left: the T plane for a genus two curve over the field of 23 elements, with the critical strip drawn as an annulus and all four zeros sitting exactly on the middle circle. Right: normalised zeros of many elliptic curves, every one of them on the unit circle">
+<text x="360.0" y="22" class="ftitle">the critical line, as an actual circle</text>
+<circle cx="186" cy="214" r="138" class="strip"/>
+<circle cx="186" cy="214" r="34.50" class="stripin"/>
+<circle cx="186" cy="214" r="138" class="gear"/>
+<circle cx="186" cy="214" r="34.50" class="gear"/>
+<circle cx="186" cy="214" r="86.25" class="critical"/>
+<circle cx="264.0" cy="250.8" r="4.2" class="zero"/>
+<circle cx="264.0" cy="177.2" r="4.2" class="zero"/>
+<circle cx="108.0" cy="177.2" r="4.2" class="zero"/>
+<circle cx="108.0" cy="250.8" r="4.2" class="zero"/>
+<text x="186" y="64" class="flab">|T| = 1 &#8212; the line &#963; = 0</text>
+<text x="186" y="192" class="flab">|T| = 1/q &#183; &#963; = 1</text>
+<text x="186" y="121" class="flab c2">|T| = q<tspan dy="-5" font-size="9">&#8722;1/2</tspan><tspan dy="5"> &#8212; the critical line</tspan></text>
+<text x="186" y="374" class="flab c2">all four zeros lie on it &#8212; provably</text>
+<text x="186" y="390" class="flab">genus 2 over F<tspan dy="3" font-size="9">11</tspan><tspan dy="-3">; radii on a log scale</tspan></text>
+<circle cx="546" cy="214" r="138" class="critical"/>
+<line x1="400" y1="214" x2="692" y2="214" class="axis"/>
+<line x1="546" y1="68" x2="546" y2="360" class="axis"/>
+<circle cx="453.4" cy="111.7" r="2.2" class="digit main"/>
+<circle cx="453.4" cy="316.3" r="2.2" class="digit main"/>
+<circle cx="504.4" cy="82.4" r="2.2" class="digit main"/>
+<circle cx="504.4" cy="345.6" r="2.2" class="digit main"/>
+<circle cx="546.0" cy="76.0" r="2.2" class="digit main"/>
+<circle cx="546.0" cy="352.0" r="2.2" class="digit main"/>
+<circle cx="488.5" cy="88.6" r="2.2" class="digit main"/>
+<circle cx="488.5" cy="339.4" r="2.2" class="digit main"/>
+<circle cx="432.6" cy="135.4" r="2.2" class="digit main"/>
+<circle cx="432.6" cy="292.6" r="2.2" class="digit main"/>
+<circle cx="651.2" cy="124.7" r="2.2" class="digit main"/>
+<circle cx="651.2" cy="303.3" r="2.2" class="digit main"/>
+<circle cx="508.1" cy="81.3" r="2.2" class="digit main"/>
+<circle cx="508.1" cy="346.7" r="2.2" class="digit main"/>
+<circle cx="652.0" cy="125.7" r="2.2" class="digit main"/>
+<circle cx="652.0" cy="302.3" r="2.2" class="digit main"/>
+<circle cx="652.5" cy="126.2" r="2.2" class="digit main"/>
+<circle cx="652.5" cy="301.8" r="2.2" class="digit main"/>
+<circle cx="499.4" cy="84.1" r="2.2" class="digit main"/>
+<circle cx="499.4" cy="343.9" r="2.2" class="digit main"/>
+<circle cx="472.9" cy="97.0" r="2.2" class="digit main"/>
+<circle cx="472.9" cy="331.0" r="2.2" class="digit main"/>
+<circle cx="525.4" cy="77.5" r="2.2" class="digit main"/>
+<circle cx="525.4" cy="350.5" r="2.2" class="digit main"/>
+<circle cx="566.0" cy="77.5" r="2.2" class="digit main"/>
+<circle cx="566.0" cy="350.5" r="2.2" class="digit main"/>
+<circle cx="474.6" cy="95.9" r="2.2" class="digit main"/>
+<circle cx="474.6" cy="332.1" r="2.2" class="digit main"/>
+<circle cx="570.1" cy="78.1" r="2.2" class="digit main"/>
+<circle cx="570.1" cy="349.9" r="2.2" class="digit main"/>
+<circle cx="627.9" cy="103.0" r="2.2" class="digit main"/>
+<circle cx="627.9" cy="325.0" r="2.2" class="digit main"/>
+<circle cx="534.8" cy="76.5" r="2.2" class="digit main"/>
+<circle cx="534.8" cy="351.5" r="2.2" class="digit main"/>
+<circle cx="410.9" cy="185.9" r="2.2" class="digit main"/>
+<circle cx="410.9" cy="242.1" r="2.2" class="digit main"/>
+<circle cx="556.5" cy="76.4" r="2.2" class="digit main"/>
+<circle cx="556.5" cy="351.6" r="2.2" class="digit main"/>
+<circle cx="505.0" cy="82.2" r="2.2" class="digit main"/>
+<circle cx="505.0" cy="345.8" r="2.2" class="digit main"/>
+<circle cx="511.2" cy="80.5" r="2.2" class="digit main"/>
+<circle cx="511.2" cy="347.5" r="2.2" class="digit main"/>
+<circle cx="458.0" cy="107.7" r="2.2" class="digit main"/>
+<circle cx="458.0" cy="320.3" r="2.2" class="digit main"/>
+<circle cx="453.6" cy="111.5" r="2.2" class="digit main"/>
+<circle cx="453.6" cy="316.5" r="2.2" class="digit main"/>
+<circle cx="536.9" cy="76.3" r="2.2" class="digit main"/>
+<circle cx="536.9" cy="351.7" r="2.2" class="digit main"/>
+<circle cx="447.8" cy="117.0" r="2.2" class="digit main"/>
+<circle cx="447.8" cy="311.0" r="2.2" class="digit main"/>
+<circle cx="415.3" cy="169.6" r="2.2" class="digit main"/>
+<circle cx="415.3" cy="258.4" r="2.2" class="digit main"/>
+<circle cx="563.0" cy="77.1" r="2.2" class="digit main"/>
+<circle cx="563.0" cy="350.9" r="2.2" class="digit main"/>
+<circle cx="537.6" cy="76.3" r="2.2" class="digit main"/>
+<circle cx="537.6" cy="351.7" r="2.2" class="digit main"/>
+<circle cx="517.2" cy="79.0" r="2.2" class="digit main"/>
+<circle cx="517.2" cy="349.0" r="2.2" class="digit main"/>
+<circle cx="650.8" cy="124.2" r="2.2" class="digit main"/>
+<circle cx="650.8" cy="303.8" r="2.2" class="digit main"/>
+<circle cx="534.3" cy="76.5" r="2.2" class="digit main"/>
+<circle cx="534.3" cy="351.5" r="2.2" class="digit main"/>
+<circle cx="487.9" cy="88.8" r="2.2" class="digit main"/>
+<circle cx="487.9" cy="339.2" r="2.2" class="digit main"/>
+<circle cx="493.4" cy="86.4" r="2.2" class="digit main"/>
+<circle cx="493.4" cy="341.6" r="2.2" class="digit main"/>
+<circle cx="597.7" cy="86.1" r="2.2" class="digit main"/>
+<circle cx="597.7" cy="341.9" r="2.2" class="digit main"/>
+<circle cx="578.8" cy="79.9" r="2.2" class="digit main"/>
+<circle cx="578.8" cy="348.1" r="2.2" class="digit main"/>
+<circle cx="585.3" cy="81.7" r="2.2" class="digit main"/>
+<circle cx="585.3" cy="346.3" r="2.2" class="digit main"/>
+<circle cx="595.4" cy="85.1" r="2.2" class="digit main"/>
+<circle cx="595.4" cy="342.9" r="2.2" class="digit main"/>
+<circle cx="632.6" cy="106.5" r="2.2" class="digit main"/>
+<circle cx="632.6" cy="321.5" r="2.2" class="digit main"/>
+<circle cx="573.3" cy="78.7" r="2.2" class="digit main"/>
+<circle cx="573.3" cy="349.3" r="2.2" class="digit main"/>
+<circle cx="535.9" cy="76.4" r="2.2" class="digit main"/>
+<circle cx="535.9" cy="351.6" r="2.2" class="digit main"/>
+<circle cx="539.4" cy="76.2" r="2.2" class="digit main"/>
+<circle cx="539.4" cy="351.8" r="2.2" class="digit main"/>
+<circle cx="582.1" cy="80.8" r="2.2" class="digit main"/>
+<circle cx="582.1" cy="347.2" r="2.2" class="digit main"/>
+<circle cx="597.6" cy="86.0" r="2.2" class="digit main"/>
+<circle cx="597.6" cy="342.0" r="2.2" class="digit main"/>
+<circle cx="513.9" cy="79.8" r="2.2" class="digit main"/>
+<circle cx="513.9" cy="348.2" r="2.2" class="digit main"/>
+<circle cx="656.3" cy="131.1" r="2.2" class="digit main"/>
+<circle cx="656.3" cy="296.9" r="2.2" class="digit main"/>
+<circle cx="508.6" cy="81.2" r="2.2" class="digit main"/>
+<circle cx="508.6" cy="346.8" r="2.2" class="digit main"/>
+<circle cx="573.7" cy="78.8" r="2.2" class="digit main"/>
+<circle cx="573.7" cy="349.2" r="2.2" class="digit main"/>
+<circle cx="636.7" cy="110.0" r="2.2" class="digit main"/>
+<circle cx="636.7" cy="318.0" r="2.2" class="digit main"/>
+<circle cx="578.6" cy="79.9" r="2.2" class="digit main"/>
+<circle cx="578.6" cy="348.1" r="2.2" class="digit main"/>
+<circle cx="534.3" cy="76.5" r="2.2" class="digit main"/>
+<circle cx="534.3" cy="351.5" r="2.2" class="digit main"/>
+<circle cx="603.9" cy="88.7" r="2.2" class="digit main"/>
+<circle cx="603.9" cy="339.3" r="2.2" class="digit main"/>
+<circle cx="448.3" cy="116.5" r="2.2" class="digit main"/>
+<circle cx="448.3" cy="311.5" r="2.2" class="digit main"/>
+<circle cx="588.5" cy="82.7" r="2.2" class="digit main"/>
+<circle cx="588.5" cy="345.3" r="2.2" class="digit main"/>
+<circle cx="461.6" cy="104.8" r="2.2" class="digit main"/>
+<circle cx="461.6" cy="323.2" r="2.2" class="digit main"/>
+<circle cx="651.9" cy="125.5" r="2.2" class="digit main"/>
+<circle cx="651.9" cy="302.5" r="2.2" class="digit main"/>
+<circle cx="507.2" cy="81.6" r="2.2" class="digit main"/>
+<circle cx="507.2" cy="346.4" r="2.2" class="digit main"/>
+<circle cx="644.1" cy="117.0" r="2.2" class="digit main"/>
+<circle cx="644.1" cy="311.0" r="2.2" class="digit main"/>
+<circle cx="513.4" cy="79.9" r="2.2" class="digit main"/>
+<circle cx="513.4" cy="348.1" r="2.2" class="digit main"/>
+<circle cx="645.5" cy="118.3" r="2.2" class="digit main"/>
+<circle cx="645.5" cy="309.7" r="2.2" class="digit main"/>
+<circle cx="434.3" cy="133.0" r="2.2" class="digit main"/>
+<circle cx="434.3" cy="295.0" r="2.2" class="digit main"/>
+<circle cx="638.4" cy="111.5" r="2.2" class="digit main"/>
+<circle cx="638.4" cy="316.5" r="2.2" class="digit main"/>
+<circle cx="460.0" cy="106.1" r="2.2" class="digit main"/>
+<circle cx="460.0" cy="321.9" r="2.2" class="digit main"/>
+<circle cx="602.6" cy="88.1" r="2.2" class="digit main"/>
+<circle cx="602.6" cy="339.9" r="2.2" class="digit main"/>
+<circle cx="589.3" cy="83.0" r="2.2" class="digit main"/>
+<circle cx="589.3" cy="345.0" r="2.2" class="digit main"/>
+<circle cx="520.7" cy="78.3" r="2.2" class="digit main"/>
+<circle cx="520.7" cy="349.7" r="2.2" class="digit main"/>
+<circle cx="500.9" cy="83.6" r="2.2" class="digit main"/>
+<circle cx="500.9" cy="344.4" r="2.2" class="digit main"/>
+<circle cx="449.0" cy="115.9" r="2.2" class="digit main"/>
+<circle cx="449.0" cy="312.1" r="2.2" class="digit main"/>
+<circle cx="570.6" cy="78.2" r="2.2" class="digit main"/>
+<circle cx="570.6" cy="349.8" r="2.2" class="digit main"/>
+<circle cx="613.9" cy="93.9" r="2.2" class="digit main"/>
+<circle cx="613.9" cy="334.1" r="2.2" class="digit main"/>
+<circle cx="435.2" cy="131.7" r="2.2" class="digit main"/>
+<circle cx="435.2" cy="296.3" r="2.2" class="digit main"/>
+<circle cx="488.4" cy="88.6" r="2.2" class="digit main"/>
+<circle cx="488.4" cy="339.4" r="2.2" class="digit main"/>
+<circle cx="488.8" cy="88.4" r="2.2" class="digit main"/>
+<circle cx="488.8" cy="339.6" r="2.2" class="digit main"/>
+<circle cx="645.0" cy="117.9" r="2.2" class="digit main"/>
+<circle cx="645.0" cy="310.1" r="2.2" class="digit main"/>
+<circle cx="438.0" cy="128.1" r="2.2" class="digit main"/>
+<circle cx="438.0" cy="299.9" r="2.2" class="digit main"/>
+<circle cx="425.1" cy="147.4" r="2.2" class="digit main"/>
+<circle cx="425.1" cy="280.6" r="2.2" class="digit main"/>
+<circle cx="654.9" cy="129.2" r="2.2" class="digit main"/>
+<circle cx="654.9" cy="298.8" r="2.2" class="digit main"/>
+<circle cx="669.4" cy="152.3" r="2.2" class="digit main"/>
+<circle cx="669.4" cy="275.7" r="2.2" class="digit main"/>
+<circle cx="591.3" cy="83.6" r="2.2" class="digit main"/>
+<circle cx="591.3" cy="344.4" r="2.2" class="digit main"/>
+<circle cx="478.5" cy="93.6" r="2.2" class="digit main"/>
+<circle cx="478.5" cy="334.4" r="2.2" class="digit main"/>
+<circle cx="599.6" cy="86.9" r="2.2" class="digit main"/>
+<circle cx="599.6" cy="341.1" r="2.2" class="digit main"/>
+<circle cx="501.7" cy="83.3" r="2.2" class="digit main"/>
+<circle cx="501.7" cy="344.7" r="2.2" class="digit main"/>
+<circle cx="515.2" cy="79.5" r="2.2" class="digit main"/>
+<circle cx="515.2" cy="348.5" r="2.2" class="digit main"/>
+<circle cx="552.6" cy="76.2" r="2.2" class="digit main"/>
+<circle cx="552.6" cy="351.8" r="2.2" class="digit main"/>
+<circle cx="650.1" cy="123.4" r="2.2" class="digit main"/>
+<circle cx="650.1" cy="304.6" r="2.2" class="digit main"/>
+<circle cx="502.8" cy="82.9" r="2.2" class="digit main"/>
+<circle cx="502.8" cy="345.1" r="2.2" class="digit main"/>
+<circle cx="488.0" cy="88.8" r="2.2" class="digit main"/>
+<circle cx="488.0" cy="339.2" r="2.2" class="digit main"/>
+<circle cx="482.1" cy="91.7" r="2.2" class="digit main"/>
+<circle cx="482.1" cy="336.3" r="2.2" class="digit main"/>
+<circle cx="560.8" cy="76.8" r="2.2" class="digit main"/>
+<circle cx="560.8" cy="351.2" r="2.2" class="digit main"/>
+<circle cx="605.1" cy="89.3" r="2.2" class="digit main"/>
+<circle cx="605.1" cy="338.7" r="2.2" class="digit main"/>
+<circle cx="454.1" cy="111.1" r="2.2" class="digit main"/>
+<circle cx="454.1" cy="316.9" r="2.2" class="digit main"/>
+<circle cx="612.7" cy="93.2" r="2.2" class="digit main"/>
+<circle cx="612.7" cy="334.8" r="2.2" class="digit main"/>
+<circle cx="475.6" cy="95.3" r="2.2" class="digit main"/>
+<circle cx="475.6" cy="332.7" r="2.2" class="digit main"/>
+<circle cx="585.1" cy="81.7" r="2.2" class="digit main"/>
+<circle cx="585.1" cy="346.3" r="2.2" class="digit main"/>
+<circle cx="507.4" cy="81.5" r="2.2" class="digit main"/>
+<circle cx="507.4" cy="346.5" r="2.2" class="digit main"/>
+<circle cx="556.1" cy="76.4" r="2.2" class="digit main"/>
+<circle cx="556.1" cy="351.6" r="2.2" class="digit main"/>
+<circle cx="534.0" cy="76.5" r="2.2" class="digit main"/>
+<circle cx="534.0" cy="351.5" r="2.2" class="digit main"/>
+<circle cx="633.9" cy="107.6" r="2.2" class="digit main"/>
+<circle cx="633.9" cy="320.4" r="2.2" class="digit main"/>
+<circle cx="446.9" cy="117.9" r="2.2" class="digit main"/>
+<circle cx="446.9" cy="310.1" r="2.2" class="digit main"/>
+<circle cx="658.5" cy="134.0" r="2.2" class="digit main"/>
+<circle cx="658.5" cy="294.0" r="2.2" class="digit main"/>
+<circle cx="577.5" cy="79.6" r="2.2" class="digit main"/>
+<circle cx="577.5" cy="348.4" r="2.2" class="digit main"/>
+<circle cx="602.6" cy="88.1" r="2.2" class="digit main"/>
+<circle cx="602.6" cy="339.9" r="2.2" class="digit main"/>
+<circle cx="646.4" cy="119.3" r="2.2" class="digit main"/>
+<circle cx="646.4" cy="308.7" r="2.2" class="digit main"/>
+<circle cx="445.8" cy="119.1" r="2.2" class="digit main"/>
+<circle cx="445.8" cy="308.9" r="2.2" class="digit main"/>
+<circle cx="555.6" cy="76.3" r="2.2" class="digit main"/>
+<circle cx="555.6" cy="351.7" r="2.2" class="digit main"/>
+<circle cx="607.2" cy="90.3" r="2.2" class="digit main"/>
+<circle cx="607.2" cy="337.7" r="2.2" class="digit main"/>
+<circle cx="486.8" cy="89.3" r="2.2" class="digit main"/>
+<circle cx="486.8" cy="338.7" r="2.2" class="digit main"/>
+<circle cx="445.4" cy="119.6" r="2.2" class="digit main"/>
+<circle cx="445.4" cy="308.4" r="2.2" class="digit main"/>
+<circle cx="618.9" cy="96.9" r="2.2" class="digit main"/>
+<circle cx="618.9" cy="331.1" r="2.2" class="digit main"/>
+<circle cx="629.8" cy="104.4" r="2.2" class="digit main"/>
+<circle cx="629.8" cy="323.6" r="2.2" class="digit main"/>
+<circle cx="581.1" cy="80.5" r="2.2" class="digit main"/>
+<circle cx="581.1" cy="347.5" r="2.2" class="digit main"/>
+<circle cx="591.7" cy="83.8" r="2.2" class="digit main"/>
+<circle cx="591.7" cy="344.2" r="2.2" class="digit main"/>
+<circle cx="571.6" cy="78.4" r="2.2" class="digit main"/>
+<circle cx="571.6" cy="349.6" r="2.2" class="digit main"/>
+<circle cx="655.1" cy="129.5" r="2.2" class="digit main"/>
+<circle cx="655.1" cy="298.5" r="2.2" class="digit main"/>
+<circle cx="567.7" cy="77.7" r="2.2" class="digit main"/>
+<circle cx="567.7" cy="350.3" r="2.2" class="digit main"/>
+<circle cx="547.8" cy="76.0" r="2.2" class="digit main"/>
+<circle cx="547.8" cy="352.0" r="2.2" class="digit main"/>
+<circle cx="574.7" cy="79.0" r="2.2" class="digit main"/>
+<circle cx="574.7" cy="349.0" r="2.2" class="digit main"/>
+<circle cx="646.2" cy="119.1" r="2.2" class="digit main"/>
+<circle cx="646.2" cy="308.9" r="2.2" class="digit main"/>
+<circle cx="563.9" cy="77.2" r="2.2" class="digit main"/>
+<circle cx="563.9" cy="350.8" r="2.2" class="digit main"/>
+<circle cx="581.5" cy="80.6" r="2.2" class="digit main"/>
+<circle cx="581.5" cy="347.4" r="2.2" class="digit main"/>
+<circle cx="471.9" cy="97.6" r="2.2" class="digit main"/>
+<circle cx="471.9" cy="330.4" r="2.2" class="digit main"/>
+<circle cx="451.3" cy="113.6" r="2.2" class="digit main"/>
+<circle cx="451.3" cy="314.4" r="2.2" class="digit main"/>
+<circle cx="448.1" cy="116.7" r="2.2" class="digit main"/>
+<circle cx="448.1" cy="311.3" r="2.2" class="digit main"/>
+<circle cx="573.9" cy="78.8" r="2.2" class="digit main"/>
+<circle cx="573.9" cy="349.2" r="2.2" class="digit main"/>
+<circle cx="615.4" cy="94.7" r="2.2" class="digit main"/>
+<circle cx="615.4" cy="333.3" r="2.2" class="digit main"/>
+<circle cx="633.9" cy="107.7" r="2.2" class="digit main"/>
+<circle cx="633.9" cy="320.3" r="2.2" class="digit main"/>
+<circle cx="506.4" cy="81.8" r="2.2" class="digit main"/>
+<circle cx="506.4" cy="346.2" r="2.2" class="digit main"/>
+<circle cx="532.3" cy="76.7" r="2.2" class="digit main"/>
+<circle cx="532.3" cy="351.3" r="2.2" class="digit main"/>
+<circle cx="409.1" cy="196.2" r="2.2" class="digit main"/>
+<circle cx="409.1" cy="231.8" r="2.2" class="digit main"/>
+<circle cx="547.7" cy="76.0" r="2.2" class="digit main"/>
+<circle cx="547.7" cy="352.0" r="2.2" class="digit main"/>
+<circle cx="556.1" cy="76.4" r="2.2" class="digit main"/>
+<circle cx="556.1" cy="351.6" r="2.2" class="digit main"/>
+<circle cx="547.7" cy="76.0" r="2.2" class="digit main"/>
+<circle cx="547.7" cy="352.0" r="2.2" class="digit main"/>
+<circle cx="591.2" cy="83.6" r="2.2" class="digit main"/>
+<circle cx="591.2" cy="344.4" r="2.2" class="digit main"/>
+<circle cx="456.2" cy="109.2" r="2.2" class="digit main"/>
+<circle cx="456.2" cy="318.8" r="2.2" class="digit main"/>
+<circle cx="580.8" cy="80.5" r="2.2" class="digit main"/>
+<circle cx="580.8" cy="347.5" r="2.2" class="digit main"/>
+<circle cx="555.9" cy="76.4" r="2.2" class="digit main"/>
+<circle cx="555.9" cy="351.6" r="2.2" class="digit main"/>
+<circle cx="601.9" cy="87.8" r="2.2" class="digit main"/>
+<circle cx="601.9" cy="340.2" r="2.2" class="digit main"/>
+<circle cx="613.0" cy="93.4" r="2.2" class="digit main"/>
+<circle cx="613.0" cy="334.6" r="2.2" class="digit main"/>
+<circle cx="643.9" cy="116.7" r="2.2" class="digit main"/>
+<circle cx="643.9" cy="311.3" r="2.2" class="digit main"/>
+<circle cx="597.9" cy="86.1" r="2.2" class="digit main"/>
+<circle cx="597.9" cy="341.9" r="2.2" class="digit main"/>
+<circle cx="518.6" cy="78.8" r="2.2" class="digit main"/>
+<circle cx="518.6" cy="349.2" r="2.2" class="digit main"/>
+<circle cx="442.0" cy="123.3" r="2.2" class="digit main"/>
+<circle cx="442.0" cy="304.7" r="2.2" class="digit main"/>
+<circle cx="574.7" cy="79.0" r="2.2" class="digit main"/>
+<circle cx="574.7" cy="349.0" r="2.2" class="digit main"/>
+<circle cx="523.7" cy="77.8" r="2.2" class="digit main"/>
+<circle cx="523.7" cy="350.2" r="2.2" class="digit main"/>
+<circle cx="549.2" cy="76.0" r="2.2" class="digit main"/>
+<circle cx="549.2" cy="352.0" r="2.2" class="digit main"/>
+<circle cx="519.1" cy="78.6" r="2.2" class="digit main"/>
+<circle cx="519.1" cy="349.4" r="2.2" class="digit main"/>
+<circle cx="564.8" cy="77.3" r="2.2" class="digit main"/>
+<circle cx="564.8" cy="350.7" r="2.2" class="digit main"/>
+<circle cx="558.5" cy="76.6" r="2.2" class="digit main"/>
+<circle cx="558.5" cy="351.4" r="2.2" class="digit main"/>
+<circle cx="636.1" cy="109.5" r="2.2" class="digit main"/>
+<circle cx="636.1" cy="318.5" r="2.2" class="digit main"/>
+<circle cx="558.4" cy="76.6" r="2.2" class="digit main"/>
+<circle cx="558.4" cy="351.4" r="2.2" class="digit main"/>
+<circle cx="589.2" cy="82.9" r="2.2" class="digit main"/>
+<circle cx="589.2" cy="345.1" r="2.2" class="digit main"/>
+<circle cx="539.8" cy="76.1" r="2.2" class="digit main"/>
+<circle cx="539.8" cy="351.9" r="2.2" class="digit main"/>
+<circle cx="592.1" cy="83.9" r="2.2" class="digit main"/>
+<circle cx="592.1" cy="344.1" r="2.2" class="digit main"/>
+<circle cx="464.8" cy="102.4" r="2.2" class="digit main"/>
+<circle cx="464.8" cy="325.6" r="2.2" class="digit main"/>
+<circle cx="462.2" cy="104.3" r="2.2" class="digit main"/>
+<circle cx="462.2" cy="323.7" r="2.2" class="digit main"/>
+<circle cx="536.9" cy="76.3" r="2.2" class="digit main"/>
+<circle cx="536.9" cy="351.7" r="2.2" class="digit main"/>
+<circle cx="543.0" cy="76.0" r="2.2" class="digit main"/>
+<circle cx="543.0" cy="352.0" r="2.2" class="digit main"/>
+<circle cx="606.4" cy="89.9" r="2.2" class="digit main"/>
+<circle cx="606.4" cy="338.1" r="2.2" class="digit main"/>
+<circle cx="491.9" cy="87.0" r="2.2" class="digit main"/>
+<circle cx="491.9" cy="341.0" r="2.2" class="digit main"/>
+<circle cx="617.8" cy="96.1" r="2.2" class="digit main"/>
+<circle cx="617.8" cy="331.9" r="2.2" class="digit main"/>
+<circle cx="626.6" cy="102.0" r="2.2" class="digit main"/>
+<circle cx="626.6" cy="326.0" r="2.2" class="digit main"/>
+<circle cx="562.4" cy="77.0" r="2.2" class="digit main"/>
+<circle cx="562.4" cy="351.0" r="2.2" class="digit main"/>
+<circle cx="617.2" cy="95.8" r="2.2" class="digit main"/>
+<circle cx="617.2" cy="332.2" r="2.2" class="digit main"/>
+<circle cx="412.2" cy="180.1" r="2.2" class="digit main"/>
+<circle cx="412.2" cy="247.9" r="2.2" class="digit main"/>
+<circle cx="496.1" cy="85.3" r="2.2" class="digit main"/>
+<circle cx="496.1" cy="342.7" r="2.2" class="digit main"/>
+<circle cx="579.6" cy="80.1" r="2.2" class="digit main"/>
+<circle cx="579.6" cy="347.9" r="2.2" class="digit main"/>
+<circle cx="508.1" cy="81.3" r="2.2" class="digit main"/>
+<circle cx="508.1" cy="346.7" r="2.2" class="digit main"/>
+<circle cx="463.4" cy="103.5" r="2.2" class="digit main"/>
+<circle cx="463.4" cy="324.5" r="2.2" class="digit main"/>
+<circle cx="444.7" cy="120.3" r="2.2" class="digit main"/>
+<circle cx="444.7" cy="307.7" r="2.2" class="digit main"/>
+<circle cx="445.0" cy="120.0" r="2.2" class="digit main"/>
+<circle cx="445.0" cy="308.0" r="2.2" class="digit main"/>
+<circle cx="615.1" cy="94.5" r="2.2" class="digit main"/>
+<circle cx="615.1" cy="333.5" r="2.2" class="digit main"/>
+<circle cx="637.9" cy="111.0" r="2.2" class="digit main"/>
+<circle cx="637.9" cy="317.0" r="2.2" class="digit main"/>
+<circle cx="478.9" cy="93.4" r="2.2" class="digit main"/>
+<circle cx="478.9" cy="334.6" r="2.2" class="digit main"/>
+<circle cx="480.5" cy="92.5" r="2.2" class="digit main"/>
+<circle cx="480.5" cy="335.5" r="2.2" class="digit main"/>
+<circle cx="575.8" cy="79.3" r="2.2" class="digit main"/>
+<circle cx="575.8" cy="348.7" r="2.2" class="digit main"/>
+<circle cx="478.1" cy="93.9" r="2.2" class="digit main"/>
+<circle cx="478.1" cy="334.1" r="2.2" class="digit main"/>
+<circle cx="520.6" cy="78.4" r="2.2" class="digit main"/>
+<circle cx="520.6" cy="349.6" r="2.2" class="digit main"/>
+<circle cx="622.2" cy="98.9" r="2.2" class="digit main"/>
+<circle cx="622.2" cy="329.1" r="2.2" class="digit main"/>
+<circle cx="413.9" cy="174.1" r="2.2" class="digit main"/>
+<circle cx="413.9" cy="253.9" r="2.2" class="digit main"/>
+<circle cx="544.6" cy="76.0" r="2.2" class="digit main"/>
+<circle cx="544.6" cy="352.0" r="2.2" class="digit main"/>
+<circle cx="523.7" cy="77.8" r="2.2" class="digit main"/>
+<circle cx="523.7" cy="350.2" r="2.2" class="digit main"/>
+<circle cx="525.1" cy="77.6" r="2.2" class="digit main"/>
+<circle cx="525.1" cy="350.4" r="2.2" class="digit main"/>
+<circle cx="412.8" cy="177.9" r="2.2" class="digit main"/>
+<circle cx="412.8" cy="250.1" r="2.2" class="digit main"/>
+<circle cx="678.4" cy="175.1" r="2.2" class="digit main"/>
+<circle cx="678.4" cy="252.9" r="2.2" class="digit main"/>
+<circle cx="513.1" cy="80.0" r="2.2" class="digit main"/>
+<circle cx="513.1" cy="348.0" r="2.2" class="digit main"/>
+<circle cx="567.9" cy="77.7" r="2.2" class="digit main"/>
+<circle cx="567.9" cy="350.3" r="2.2" class="digit main"/>
+<circle cx="531.0" cy="76.8" r="2.2" class="digit main"/>
+<circle cx="531.0" cy="351.2" r="2.2" class="digit main"/>
+<circle cx="646.5" cy="119.5" r="2.2" class="digit main"/>
+<circle cx="646.5" cy="308.5" r="2.2" class="digit main"/>
+<circle cx="560.9" cy="76.8" r="2.2" class="digit main"/>
+<circle cx="560.9" cy="351.2" r="2.2" class="digit main"/>
+<circle cx="662.0" cy="139.2" r="2.2" class="digit main"/>
+<circle cx="662.0" cy="288.8" r="2.2" class="digit main"/>
+<circle cx="610.5" cy="92.0" r="2.2" class="digit main"/>
+<circle cx="610.5" cy="336.0" r="2.2" class="digit main"/>
+<circle cx="500.5" cy="83.7" r="2.2" class="digit main"/>
+<circle cx="500.5" cy="344.3" r="2.2" class="digit main"/>
+<circle cx="574.1" cy="78.9" r="2.2" class="digit main"/>
+<circle cx="574.1" cy="349.1" r="2.2" class="digit main"/>
+<circle cx="540.7" cy="76.1" r="2.2" class="digit main"/>
+<circle cx="540.7" cy="351.9" r="2.2" class="digit main"/>
+<circle cx="601.9" cy="87.8" r="2.2" class="digit main"/>
+<circle cx="601.9" cy="340.2" r="2.2" class="digit main"/>
+<circle cx="498.1" cy="84.6" r="2.2" class="digit main"/>
+<circle cx="498.1" cy="343.4" r="2.2" class="digit main"/>
+<circle cx="646.8" cy="119.7" r="2.2" class="digit main"/>
+<circle cx="646.8" cy="308.3" r="2.2" class="digit main"/>
+<circle cx="501.0" cy="83.6" r="2.2" class="digit main"/>
+<circle cx="501.0" cy="344.4" r="2.2" class="digit main"/>
+<circle cx="626.6" cy="102.0" r="2.2" class="digit main"/>
+<circle cx="626.6" cy="326.0" r="2.2" class="digit main"/>
+<circle cx="430.0" cy="139.2" r="2.2" class="digit main"/>
+<circle cx="430.0" cy="288.8" r="2.2" class="digit main"/>
+<circle cx="584.1" cy="81.4" r="2.2" class="digit main"/>
+<circle cx="584.1" cy="346.6" r="2.2" class="digit main"/>
+<text x="546" y="62" class="flab">normalised zeros &#8730;p &#183; T</text>
+<text x="546" y="374" class="flab c1">200 elliptic curves over F<tspan dy="3" font-size="9">p</tspan></text>
+<text x="546" y="390" class="flab">every zero on the circle, to machine precision</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the critical line, as an actual circle.</b> Left: the <i>T</i>-plane for a genus-2 curve over 𝔽₁₁, radii drawn on a log scale so the strip is visible (circles stay circles). The grey band between |<i>T</i>| = 1 and |<i>T</i>| = 1/<i>q</i> is the critical strip; the orange circle is |<i>T</i>| = <i>q</i><sup>−1/2</sup>, the critical line. All four zeros — two conjugate pairs — sit on it. Right: the normalised zeros √<i>p</i>·<i>T</i> of the elliptic curve <i>y</i>² = <i>x</i>³+<i>x</i>+1 reduced at a sample of primes — every one of them on the unit circle, to machine precision. Over ℚ the corresponding picture is a conjecture; here it is a computation.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s4">
+<h2>4 · Genus 0 and genus 1: no zeros, then two</h2>
+<p><b>Genus 0.</b> For the projective line, #ℙ¹(𝔽<sub><i>q</i><sup><i>n</i></sup></sub>) = <i>q</i><sup><i>n</i></sup> + 1 exactly, and Z(<i>T</i>) = 1/((1−<i>T</i>)(1−<i>qT</i>)): numerator 1, degree 0, <b>no zeros at all</b>. The rational function field is the analogue of a zeta with an empty critical strip — and it is the exact counterpart of <a href="rh5.html#s3">rh5 §3</a>'s finding that the smooth cone limb is zero-free. Zeros require genus; genus requires a curve that is not a line.</p>
+<p><b>Genus 1.</b> Take <i>E</i>: <i>y</i>² = <i>x</i>³ + <i>x</i> + 1, and reduce it modulo each prime. Counting points gives <i>a</i><sub><i>p</i></sub> = <i>p</i> + 1 − #<i>E</i>(𝔽<sub><i>p</i></sub>), and</p>
+<div class="eq"><span class="tag">(6)</span>
+<i>L</i>(<i>T</i>) = 1 − <i>a</i><sub><i>p</i></sub><i>T</i> + <i>pT</i>², &nbsp;&nbsp;
+zeros on |<i>T</i>| = <i>p</i><sup>−1/2</sup> &nbsp;⟺&nbsp; <i>a</i><sub><i>p</i></sub>² ≤ 4<i>p</i>.
+</div>
+<p>The condition is Hasse's theorem (1933), and it is an <i>integer inequality</i>. Computed over all 780 good primes below 6000: it holds every time, with maximum ratio |<i>a</i><sub><i>p</i></sub>|/(2√<i>p</i>) = <b>0.991668</b> — close to sharp, never violated. Both zeros lie on the circle to 10<sup>−13</sup> in every case.</p>
+<p>The two zeros also carry the whole tower. Since <i>N</i><sub><i>n</i></sub> = <i>p</i><sup><i>n</i></sup> + 1 − (α<sup><i>n</i></sup> + ᾱ<sup><i>n</i></sup>), the point counts over <i>every</i> extension are determined by α alone. Checked the hard way — by constructing 𝔽<sub><i>p</i>²</sub> explicitly and counting all its points by brute force, for <i>p</i> = 5, 7, 11, 13, 17, 19, 23 — the prediction from the two zeros matches the count exactly, every time.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · Genus 2, and RH as two integer inequalities</h2>
+<p>Take <i>C</i>: <i>y</i>² = <i>x</i>⁵ + <i>x</i> + 1, of genus 2. Counting points over 𝔽<sub><i>p</i></sub> and 𝔽<sub><i>p</i>²</sub> determines the whole <i>L</i>-polynomial, because the functional equation fixes the rest:</p>
+<div class="eq"><span class="tag">(7)</span>
+<i>L</i>(<i>T</i>) = 1 − <i>e</i>₁<i>T</i> + <i>e</i>₂<i>T</i>² − <i>q e</i>₁<i>T</i>³ + <i>q</i>²<i>T</i>⁴,
+&nbsp;&nbsp; <i>e</i>₁ = <i>q</i>+1−<i>N</i>₁, &nbsp; <i>e</i>₂ = (<i>e</i>₁² − (<i>q</i>²+1−<i>N</i>₂))/2.
+</div>
+<p>Now the pretty part. Substituting <i>u</i> = <i>x</i> + <i>q</i>/<i>x</i> in the reciprocal polynomial factors it into two real quadratics <i>x</i>² − <i>b<sub>j</sub>x</i> + <i>q</i>, whose coefficients are the roots of <i>u</i>² − <i>e</i>₁<i>u</i> + (<i>e</i>₂ − 2<i>q</i>) = 0. And |α| = √<i>q</i> for all four roots exactly when both <i>b<sub>j</sub></i> are real with |<i>b<sub>j</sub></i>| ≤ 2√<i>q</i>. So:</p>
+<div class="box thm">
+<span class="lbl">RH for this curve, in integers</span>
+<p><i>e</i>₁² − 4(<i>e</i>₂ − 2<i>q</i>) ≥ 0 &nbsp;and&nbsp; <i>b<sub>j</sub></i>² ≤ 4<i>q</i>. Two inequalities in integers derived from two point counts. Verified at <i>p</i> = 7, 11, 13, 17, 19, 23, 29, 31 — exactly, in integer arithmetic, and independently by finding the four roots numerically and confirming they share the modulus <i>q</i><sup>−1/2</sup> to 10<sup>−7</sup>.</p>
+</div>
+<p>Compare what the same statement costs over ℚ. There it is an assertion about infinitely many zeros of a transcendental function, equivalent (<a href="rh5.html#s4">rh5 §4</a>) to a Π⁰₁ sentence no one can decide. Here it is a finite check on a quartic. The difference is not that the mathematics is easier; it is that <b>the object is finite-dimensional</b>, which is precisely the multiplicity rh5 §5 said was missing.</p>
+</section>
+
+<p class="kicker">Part III · What the finiteness buys</p>
+
+<section class="prose" id="s6">
+<h2>6 · The explicit formula, exact and finite</h2>
+<p>rh8 §2 rebuilt the prime staircase from 138 zeros and called the agreement good. Here the corresponding statement has no error term at all:</p>
+<div class="eq"><span class="tag">(8)</span>
+<i>N</i><sub><i>n</i></sub> = <i>q</i><sup><i>n</i></sup> + 1 −
+<span class="bigop"><span class="up">2<i>g</i></span><span class="sym">∑</span><span class="lo"><i>i</i>=1</span></span>
+α<sub><i>i</i></sub><sup><i>n</i></sup> ,
+</div>
+<p>a sum over <i>finitely many</i> zeros, exact for every <i>n</i>. Set beside ψ(<i>x</i>) = <i>x</i> − ∑<sub>ρ</sub><i>x</i><sup>ρ</sup>/ρ − … this is the same formula with the infinite sum made finite: main term, oscillating correction from the zeros, done. And since |α<sub><i>i</i></sub>| = √<i>q</i>, the correction is bounded by 2<i>g q</i><sup><i>n</i>/2</sup> — <b>RH as a provable inequality about counting points</b>.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 340" role="img" aria-label="The normalised error of the point count for an elliptic curve at each extension degree, always inside the band from minus one to one, which is the Riemann hypothesis for this curve stated as a provable inequality">
+<text x="360.0" y="22" class="ftitle">the same statement, here a theorem</text>
+<rect x="66" y="72.0" width="634" height="208" class="band"/>
+<line x1="66" y1="72.0" x2="700" y2="72.0" class="brk"/>
+<text x="58" y="76.0" class="flab end">+1</text>
+<line x1="66" y1="176.0" x2="700" y2="176.0" class="axis"/>
+<text x="58" y="180.0" class="flab end">0</text>
+<line x1="66" y1="280.0" x2="700" y2="280.0" class="brk"/>
+<text x="58" y="284.0" class="flab end">&#8722;1</text>
+<line x1="66.0" y1="176.0" x2="66.0" y2="191.5" class="stem"/>
+<circle cx="66.0" cy="191.5" r="3.6" class="zero"/>
+<text x="66.0" y="302" class="flab">1</text>
+<line x1="123.6" y1="176.0" x2="123.6" y2="275.4" class="stem"/>
+<circle cx="123.6" cy="275.4" r="3.6" class="zero"/>
+<text x="123.6" y="302" class="flab">2</text>
+<line x1="181.3" y1="176.0" x2="181.3" y2="130.8" class="stem"/>
+<circle cx="181.3" cy="130.8" r="3.6" class="zero"/>
+<text x="181.3" y="302" class="flab">3</text>
+<line x1="238.9" y1="176.0" x2="238.9" y2="90.1" class="stem"/>
+<circle cx="238.9" cy="90.1" r="3.6" class="zero"/>
+<text x="238.9" y="302" class="flab">4</text>
+<line x1="296.5" y1="176.0" x2="296.5" y2="246.8" class="stem"/>
+<circle cx="296.5" cy="246.8" r="3.6" class="zero"/>
+<text x="296.5" y="302" class="flab">5</text>
+<line x1="354.2" y1="176.0" x2="354.2" y2="240.7" class="stem"/>
+<circle cx="354.2" cy="240.7" r="3.6" class="zero"/>
+<text x="354.2" y="302" class="flab">6</text>
+<line x1="411.8" y1="176.0" x2="411.8" y2="85.9" class="stem"/>
+<circle cx="411.8" cy="85.9" r="3.6" class="zero"/>
+<text x="411.8" y="302" class="flab">7</text>
+<line x1="469.5" y1="176.0" x2="469.5" y2="138.2" class="stem"/>
+<circle cx="469.5" cy="138.2" r="3.6" class="zero"/>
+<text x="469.5" y="302" class="flab">8</text>
+<line x1="527.1" y1="176.0" x2="527.1" y2="277.4" class="stem"/>
+<circle cx="527.1" cy="277.4" r="3.6" class="zero"/>
+<text x="527.1" y="302" class="flab">9</text>
+<line x1="584.7" y1="176.0" x2="584.7" y2="183.5" class="stem"/>
+<circle cx="584.7" cy="183.5" r="3.6" class="zero"/>
+<text x="584.7" y="302" class="flab">10</text>
+<line x1="642.4" y1="176.0" x2="642.4" y2="72.3" class="stem"/>
+<circle cx="642.4" cy="72.3" r="3.6" class="zero"/>
+<text x="642.4" y="302" class="flab">11</text>
+<line x1="700.0" y1="176.0" x2="700.0" y2="199.4" class="stem"/>
+<circle cx="700.0" cy="199.4" r="3.6" class="zero"/>
+<text x="700.0" y="302" class="flab">12</text>
+<text x="700" y="318" class="flab end">extension degree n</text>
+<text x="66" y="318" class="flab st">E: y&#178; = x&#179;+x+1 over F<tspan dy="3" font-size="9">101</tspan><tspan dy="-3">, a<tspan dy="3" font-size="9">p</tspan><tspan dy="-3"> = &#8722;3</tspan></tspan></text>
+<text x="58" y="46" class="flab st">(q<tspan dy="-5" font-size="9">n</tspan><tspan dy="5"> + 1 &#8722; N</tspan><tspan dy="3" font-size="9">n</tspan><tspan dy="-3">) / 2g&#8202;q</tspan><tspan dy="-5" font-size="9">n/2</tspan></text>
+<text x="700" y="46" class="flab end c2">the band |&#183;| &#8804; 1 <tspan class="c2">is</tspan> RH for this curve</text>
+<text x="700" y="62" class="flab end">measured maximum: 0.9970</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — the same statement, here a theorem.</b> The normalised correction (<i>q</i><sup><i>n</i></sup>+1−<i>N</i><sub><i>n</i></sub>)/2<i>g q</i><sup><i>n</i>/2</sup> for <i>E</i>: <i>y</i>² = <i>x</i>³+<i>x</i>+1 over 𝔽₁₀₁ (where <i>a</i><sub><i>p</i></sub> = −3), at extension degrees 1…12. The shaded band |·| ≤ 1 <i>is</i> the Riemann hypothesis for this curve. The measured maximum is 0.9970 — the bound is essentially attained and never crossed. Over ℚ the corresponding band is the square-root cancellation of <a href="rh4.html#s9">rh4 §9</a>, and it is exactly what nobody can prove.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s7">
+<h2>7 · The statistics are settled too</h2>
+<p>rh8 §6 ended with an honest failure: the gap statistics of the ζ zeros show level repulsion, but at heights ≤ 300 they do not match GUE and one cannot claim they do. In the function field setting the corresponding question is not open either. Writing <i>a</i><sub><i>p</i></sub> = 2√<i>p</i> cos θ<sub><i>p</i></sub>, the Frobenius angle θ<sub><i>p</i></sub> says where on the critical circle the two zeros sit, and the angles equidistribute with respect to the <b>Sato–Tate</b> measure (2/π)sin²θ — a theorem for non-CM elliptic curves.</p>
+<figure>
+<div class="fig-row">
+<div class="cell"><div class="fig-frame">
+<svg viewBox="0 0 420 340" role="img" aria-label="Histogram of the Frobenius angles of 780 elliptic curve reductions against the Sato Tate semicircle density, which they follow closely">
+<text x="210.0" y="22" class="ftitle">where the zeros sit on the circle</text>
+<text x="50" y="42" class="flab st">density of the angle &#952;</text>
+<rect x="54.0" y="262.0" width="17.8" height="0.0" class="bar"/>
+<rect x="73.3" y="253.3" width="17.8" height="8.7" class="bar"/>
+<rect x="92.7" y="235.9" width="17.8" height="26.1" class="bar"/>
+<rect x="112.0" y="213.2" width="17.8" height="48.8" class="bar"/>
+<rect x="131.3" y="180.1" width="17.8" height="81.9" class="bar"/>
+<rect x="150.7" y="178.4" width="17.8" height="83.6" class="bar"/>
+<rect x="170.0" y="154.0" width="17.8" height="108.0" class="bar"/>
+<rect x="189.3" y="106.9" width="17.8" height="155.1" class="bar"/>
+<rect x="208.7" y="112.1" width="17.8" height="149.9" class="bar"/>
+<rect x="228.0" y="106.9" width="17.8" height="155.1" class="bar"/>
+<rect x="247.3" y="110.4" width="17.8" height="151.6" class="bar"/>
+<rect x="266.7" y="138.3" width="17.8" height="123.7" class="bar"/>
+<rect x="286.0" y="171.4" width="17.8" height="90.6" class="bar"/>
+<rect x="305.3" y="173.1" width="17.8" height="88.9" class="bar"/>
+<rect x="324.7" y="213.2" width="17.8" height="48.8" class="bar"/>
+<rect x="344.0" y="246.3" width="17.8" height="15.7" class="bar"/>
+<rect x="363.3" y="244.6" width="17.8" height="17.4" class="bar"/>
+<rect x="382.7" y="256.8" width="17.8" height="5.2" class="bar"/>
+<path d="M54.0 262.0L55.2 262.0L56.3 261.9L57.5 261.9L58.6 261.7L59.8 261.6L61.0 261.4L62.1 261.2L63.3 260.9L64.4 260.7L65.6 260.4L66.8 260.0L67.9 259.6L69.1 259.2L70.2 258.8L71.4 258.3L72.6 257.8L73.7 257.3L74.9 256.7L76.0 256.1L77.2 255.5L78.4 254.8L79.5 254.1L80.7 253.4L81.8 252.7L83.0 251.9L84.2 251.1L85.3 250.2L86.5 249.4L87.6 248.5L88.8 247.6L90.0 246.6L91.1 245.7L92.3 244.7L93.4 243.7L94.6 242.6L95.8 241.5L96.9 240.4L98.1 239.3L99.2 238.2L100.4 237.0L101.6 235.8L102.7 234.6L103.9 233.4L105.0 232.1L106.2 230.9L107.4 229.6L108.5 228.3L109.7 227.0L110.8 225.6L112.0 224.2L113.2 222.9L114.3 221.5L115.5 220.1L116.6 218.6L117.8 217.2L119.0 215.8L120.1 214.3L121.3 212.8L122.4 211.3L123.6 209.8L124.8 208.3L125.9 206.8L127.1 205.3L128.2 203.7L129.4 202.2L130.6 200.6L131.7 199.1L132.9 197.5L134.0 196.0L135.2 194.4L136.4 192.8L137.5 191.2L138.7 189.7L139.8 188.1L141.0 186.5L142.2 184.9L143.3 183.3L144.5 181.8L145.6 180.2L146.8 178.6L148.0 177.0L149.1 175.5L150.3 173.9L151.4 172.3L152.6 170.8L153.8 169.3L154.9 167.7L156.1 166.2L157.2 164.7L158.4 163.2L159.6 161.7L160.7 160.2L161.9 158.7L163.0 157.2L164.2 155.8L165.4 154.3L166.5 152.9L167.7 151.5L168.8 150.1L170.0 148.7L171.2 147.4L172.3 146.0L173.5 144.7L174.6 143.4L175.8 142.1L177.0 140.8L178.1 139.6L179.3 138.4L180.4 137.2L181.6 136.0L182.8 134.8L183.9 133.7L185.1 132.5L186.2 131.5L187.4 130.4L188.6 129.3L189.7 128.3L190.9 127.3L192.0 126.4L193.2 125.4L194.4 124.5L195.5 123.6L196.7 122.7L197.8 121.9L199.0 121.1L200.2 120.3L201.3 119.6L202.5 118.9L203.6 118.2L204.8 117.5L206.0 116.9L207.1 116.3L208.3 115.7L209.4 115.2L210.6 114.7L211.8 114.2L212.9 113.8L214.1 113.4L215.2 113.0L216.4 112.6L217.6 112.3L218.7 112.0L219.9 111.8L221.0 111.6L222.2 111.4L223.4 111.3L224.5 111.1L225.7 111.1L226.8 111.0L228.0 111.0L229.2 111.0L230.3 111.1L231.5 111.1L232.6 111.3L233.8 111.4L235.0 111.6L236.1 111.8L237.3 112.0L238.4 112.3L239.6 112.6L240.8 113.0L241.9 113.4L243.1 113.8L244.2 114.2L245.4 114.7L246.6 115.2L247.7 115.7L248.9 116.3L250.0 116.9L251.2 117.5L252.4 118.2L253.5 118.9L254.7 119.6L255.8 120.3L257.0 121.1L258.2 121.9L259.3 122.7L260.5 123.6L261.6 124.5L262.8 125.4L264.0 126.4L265.1 127.3L266.3 128.3L267.4 129.3L268.6 130.4L269.8 131.5L270.9 132.5L272.1 133.7L273.2 134.8L274.4 136.0L275.6 137.2L276.7 138.4L277.9 139.6L279.0 140.8L280.2 142.1L281.4 143.4L282.5 144.7L283.7 146.0L284.8 147.4L286.0 148.7L287.2 150.1L288.3 151.5L289.5 152.9L290.6 154.3L291.8 155.8L293.0 157.2L294.1 158.7L295.3 160.2L296.4 161.7L297.6 163.2L298.8 164.7L299.9 166.2L301.1 167.7L302.2 169.3L303.4 170.8L304.6 172.3L305.7 173.9L306.9 175.5L308.0 177.0L309.2 178.6L310.4 180.2L311.5 181.8L312.7 183.3L313.8 184.9L315.0 186.5L316.2 188.1L317.3 189.7L318.5 191.2L319.6 192.8L320.8 194.4L322.0 196.0L323.1 197.5L324.3 199.1L325.4 200.6L326.6 202.2L327.8 203.7L328.9 205.3L330.1 206.8L331.2 208.3L332.4 209.8L333.6 211.3L334.7 212.8L335.9 214.3L337.0 215.8L338.2 217.2L339.4 218.6L340.5 220.1L341.7 221.5L342.8 222.9L344.0 224.2L345.2 225.6L346.3 227.0L347.5 228.3L348.6 229.6L349.8 230.9L351.0 232.1L352.1 233.4L353.3 234.6L354.4 235.8L355.6 237.0L356.8 238.2L357.9 239.3L359.1 240.4L360.2 241.5L361.4 242.6L362.6 243.7L363.7 244.7L364.9 245.7L366.0 246.6L367.2 247.6L368.4 248.5L369.5 249.4L370.7 250.2L371.8 251.1L373.0 251.9L374.2 252.7L375.3 253.4L376.5 254.1L377.6 254.8L378.8 255.5L380.0 256.1L381.1 256.7L382.3 257.3L383.4 257.8L384.6 258.3L385.8 258.8L386.9 259.2L388.1 259.6L389.2 260.0L390.4 260.4L391.6 260.7L392.7 260.9L393.9 261.2L395.0 261.4L396.2 261.6L397.4 261.7L398.5 261.9L399.7 261.9L400.8 262.0L402.0 262.0" class="helix"/>
+<line x1="54" y1="262" x2="402" y2="262" class="axis"/>
+<line x1="54.0" y1="262" x2="54.0" y2="266" class="axis"/>
+<text x="54.0" y="279" class="flab">0</text>
+<line x1="228.0" y1="262" x2="228.0" y2="266" class="axis"/>
+<text x="228.0" y="279" class="flab">&#960;/2</text>
+<line x1="402.0" y1="262" x2="402.0" y2="266" class="axis"/>
+<text x="402.0" y="279" class="flab">&#960;</text>
+<text x="402" y="294" class="flab end">Frobenius angle &#952;, a<tspan dy="3" font-size="9">p</tspan><tspan dy="-3"> = 2&#8730;p cos&#952;</tspan></text>
+<text x="62" y="69.9" class="flab st c1">(2/&#960;) sin&#178;&#952; &#8212; Sato&#8211;Tate</text>
+<text x="62" y="84.9" class="flab st">780 primes; a theorem, not a conjecture</text>
+</svg>
+</div></div>
+<div class="cell prose" style="min-width:280px">
+<p style="margin-top:0">Computed over all 780 good primes below 6000 for the non-CM curve <i>y</i>² = <i>x</i>³+<i>x</i>+1, the empirical distribution tracks the semicircle law closely:</p>
+<table class="zeros" style="margin-left:0">
+<tr><th>θ</th><th>measured</th><th>Sato–Tate</th></tr>
+<tr><td>π/6</td><td>0.0256</td><td>0.0288</td></tr>
+<tr><td>π/3</td><td>0.1833</td><td>0.1955</td></tr>
+<tr><td>π/2</td><td>0.4949</td><td>0.5000</td></tr>
+<tr><td>2π/3</td><td>0.8038</td><td>0.8045</td></tr>
+<tr><td>5π/6</td><td>0.9718</td><td>0.9712</td></tr>
+</table>
+<p>The contrast with rh8 is the point, not the numbers. There the statistic was suggestive and unproven; here the same kind of statement — <i>where the zeros sit, on average</i> — is settled. Both are questions about a spectrum; only one of them has a space to be a spectrum <i>of</i>.</p>
+</div>
+</div>
+<figcaption><b>Figure 4 — where the zeros sit on the circle.</b> Histogram of the 780 Frobenius angles against (2/π)sin²θ.</figcaption>
+</figure>
+</section>
+
+<section class="prose" id="s8">
+<h2>8 · Why it does not transport</h2>
+<p>So the construction works perfectly over 𝔽<sub><i>q</i></sub>[<i>t</i>], and the hypothesis is a theorem there. Why is that not a proof over ℤ? Two answers, at different depths.</p>
+<p><b>The shallow answer</b> is §2: rationality. Over 𝔽<sub><i>q</i></sub> the zeta function is a ratio of polynomials because there is one logarithm; over ℚ there are infinitely many independent logarithms, the function is genuinely transcendental, and there are infinitely many zeros. Every finiteness argument used above evaporates.</p>
+<p><b>The deep answer</b> is what Weil's proof actually uses. It runs on the <b>surface</b> <i>C</i> × <i>C</i>: the Frobenius acts on the 2<i>g</i>-dimensional cohomology <i>H</i>¹(<i>C</i>), correspondences on the surface give a genuine intersection form, and the Hodge index theorem makes that form definite on the relevant subspace. Positivity of the intersection pairing, plus the Cauchy–Schwarz inequality it supports, forces |α| = √<i>q</i>. That is the mechanism, and it is exactly the object <a href="rh4.html#s15">rh4 §15</a> and <a href="rh5.html#s5">rh5 §5</a> named as missing: <b>a finite-dimensional space carrying a positive form on which the symmetry acts with multiplicity</b>.</p>
+<div class="box warn">
+<span class="lbl">The obstruction, stated precisely</span>
+<p>Over 𝔽<sub><i>q</i></sub> a curve <i>C</i> comes with a base field to be a curve <i>over</i>, so <i>C</i> × <sub>𝔽<sub><i>q</i></sub></sub> <i>C</i> is a surface and intersection theory applies. Spec ℤ has <b>no such base</b>. There is no field beneath ℤ, so "Spec ℤ × Spec ℤ" is not a scheme, there is no arithmetic surface to intersect on, and the 2<i>g</i>-dimensional <i>H</i>¹ has no counterpart. Everything else in Weil's argument has an arithmetic shadow; this one thing does not exist.</p>
+<p>That is why the standing programs are shaped the way they are. Deninger's search for a dynamical system whose cohomology would play the role of <i>H</i>¹; the field-with-one-element, which would supply the missing base; Connes' adele class space, which builds a space with multiplicity out of Ẑ × ℝ₊ — <a href="rh5.html#s5">rh5 §5</a>'s exact assembly; Arakelov geometry, which compactifies Spec ℤ to make it more surface-like. Each is an attempt to manufacture the one ingredient that 𝔽<sub><i>q</i></sub> hands over for free.</p>
+</div>
+<p>So this document is not a step toward a proof, and should not be read as one. It is the <b>control experiment</b>. It shows that the geometry of rh4–rh8 is not defective — run it on a ring where the missing object exists and it delivers the theorem, cleanly, with every axiom intact and every claim computable. What is missing over ℤ is not an axiom, an identity, or a better presentation. It is a <i>base</i>.</p>
+</section>
+
+<section id="s9">
+<h2 class="prose" style="max-width:46rem">9 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Over ℤ (rh4–rh8)</th><th>Over 𝔽<sub><i>q</i></sub>[<i>t</i>]</th></tr>
+<tr><td>integer <i>n</i>, size <i>n</i></td><td>monic polynomial <i>f</i>, size <i>q</i><sup>deg <i>f</i></sup></td></tr>
+<tr><td>prime <i>p</i></td><td>monic irreducible <i>P</i>; π<sub><i>q</i></sub>(<i>n</i>) known exactly</td></tr>
+<tr><td>gear period 2π/log <i>p</i>, incommensurable</td><td>2π/(<i>d</i> log <i>q</i>) — all divisors of one period</td></tr>
+<tr><td>infinite-dimensional torus (rh8 §4)</td><td>a single circle; ζ a function of <i>T</i> = <i>q</i><sup>−<i>s</i></sup></td></tr>
+<tr><td>ζ transcendental, infinitely many zeros</td><td>Z(<i>T</i>) rational; exactly 2<i>g</i> zeros</td></tr>
+<tr><td>the critical line σ = ½</td><td>the circle |<i>T</i>| = <i>q</i><sup>−1/2</sup></td></tr>
+<tr><td>ψ(<i>x</i>) = <i>x</i> − ∑<sub>ρ</sub><i>x</i><sup>ρ</sup>/ρ − …</td><td><i>N</i><sub><i>n</i></sub> = <i>q</i><sup><i>n</i></sup> + 1 − ∑α<sub><i>i</i></sub><sup><i>n</i></sup>, exact and finite</td></tr>
+<tr><td>square-root cancellation (rh4 §9) — conjectural</td><td>|<i>q</i><sup><i>n</i></sup>+1−<i>N</i><sub><i>n</i></sub>| ≤ 2<i>g q</i><sup><i>n</i>/2</sup> — proved</td></tr>
+<tr><td>RH for ζ: Π⁰₁, undecided</td><td>Hasse/Weil: finitely many integer inequalities</td></tr>
+<tr><td>GUE statistics: suggestive, unproven</td><td>Sato–Tate: a theorem</td></tr>
+<tr><td>the missing positive pairing (rh5 §5)</td><td>intersection form on <i>C</i> × <i>C</i>; Hodge index</td></tr>
+<tr><td>no base beneath Spec ℤ</td><td>the base field 𝔽<sub><i>q</i></sub> — the whole difference</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<p class="meta" style="margin-bottom:.6rem">Additions to the rh4–rh8 lists, which remain in force.</p>
+<ol>
+<li>E. Artin, <i>Quadratische Körper im Gebiete der höheren Kongruenzen</i>, Math. Z. 19 (1924) — the zeta function of a function field, and the hypothesis stated there.</li>
+<li>H. Hasse, <i>Zur Theorie der abstrakten elliptischen Funktionenkörper III</i>, J. reine angew. Math. 175 (1936) — |<i>a<sub>p</sub></i>| ≤ 2√<i>p</i>.</li>
+<li>A. Weil, <i>Sur les courbes algébriques et les variétés qui s'en déduisent</i>, Hermann (1948) — the Riemann hypothesis for curves over finite fields.</li>
+<li>A. Weil, <i>Numbers of solutions of equations in finite fields</i>, Bull. AMS 55 (1949) — the Weil conjectures.</li>
+<li>B. Dwork, <i>On the rationality of the zeta function of an algebraic variety</i>, Amer. J. Math. 82 (1960).</li>
+<li>P. Deligne, <i>La conjecture de Weil I</i>, Publ. Math. IHÉS 43 (1974).</li>
+<li>L. Clozel, M. Harris, N. Shepherd-Barron, R. Taylor, <i>A family of Calabi–Yau varieties and potential automorphy</i>, Ann. of Math. 171 (2010); T. Barnet-Lamb, D. Geraghty, M. Harris, R. Taylor, <i>A family of Calabi–Yau varieties and potential automorphy II</i>, Publ. RIMS 47 (2011) — the Sato–Tate theorem.</li>
+<li>M. Rosen, <i>Number Theory in Function Fields</i>, Springer GTM 210 (2002) — the dictionary of §1 in full.</li>
+<li>C. Deninger, <i>Some analogies between number theory and dynamical systems on foliated spaces</i>, Doc. Math. Extra Vol. ICM I (1998) — the search for the missing cohomology.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page was computed for this document and cross-checked against 188 internal identities: the monic irreducible counts by brute-force enumeration against the Möbius formula (𝔽₂ to degree 8, 𝔽₃ to 5, 𝔽₅ to 4); the Euler product ∑<sub><i>f</i></sub><i>T</i><sup>deg <i>f</i></sup> = 1/(1−<i>qT</i>) coefficient by coefficient to <i>T</i>¹⁰ for <i>q</i> = 2, 3, 5; the divisibility of every degree-<i>d</i> period by 2π/log <i>q</i> for six values of <i>q</i> and degrees to 8, and the periodicity of <i>T</i> = <i>q</i><sup>−<i>s</i></sup> to 10<sup>−13</sup>; #ℙ¹(𝔽<sub><i>q<sup>n</sup></i></sub>) = <i>q</i><sup><i>n</i></sup>+1; Hasse's bound and the position of both zeros on |<i>T</i>| = <i>p</i><sup>−1/2</sup> for all 780 good primes below 6000 (maximum ratio 0.991668), with #<i>E</i>(𝔽<sub><i>p</i>²</sub>) predicted from the two zeros and confirmed by explicit construction of 𝔽<sub><i>p</i>²</sub> and brute-force counting at <i>p</i> = 5…23; the genus-2 <i>L</i>-polynomial at eight primes, verified both by the exact integer criterion <i>b</i>² ≤ 4<i>q</i> and by numerical root-finding to 10<sup>−7</sup>; the exact explicit formula and its bound at extension degrees 1…12 (maximum ratio 0.997024); the Sato–Tate distribution at five quantiles and the normalisation of its measure; and the function-field prime number theorem with its square-root error bound for <i>q</i> = 2, 3, 5 and <i>n</i> ≤ 12. Companion texts: <a href="rh4.html">rh4</a> · <a href="rh5.html">rh5</a> · <a href="rh6.html">rh6</a> · <a href="rh7.html">rh7</a> · <a href="rh8.html">rh8</a>.
+</div>
+
+
+</div>
+<script></script>
+</body>
+</html>

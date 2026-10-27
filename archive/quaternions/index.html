@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+<head>
+    <title>Quaternions</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="lib/math.min.js"></script>
+    <script src="lib/dat.gui.min.js"></script>
+</head>
+<body>
+<div id="floatingText"></div>
+
+<script type="module">
+    import * as THREE from './lib/three.module.js';
+    import {colorsGrey, rainbow} from './modules/colors.js';
+    import {
+        getMaterial,
+        drawAxis,
+        makeSimpleCurve,
+        buildScene,
+        newVec,
+        getPerspectiveCamera,
+        getOrthoCamera
+    } from './modules/threetools.js';
+    import {
+        roundTo, scaleVectors, subVectorsXY, addVectors,
+        subVectors, moveVectors, addVectorArray, subtractVectorArray
+    } from './modules/mathtools.js';
+
+    let formula = '';
+    let formulas = [];
+
+    function setFormula(text, numerator, k, a, b) {
+        if (formulas.length > 1) {
+            formulas.splice(0, 1);
+        }
+        formulas.push(text);
+        const title = `1/(n1...n2)^(a + bi)`;
+        document.getElementById('floatingText').innerHTML = `${title}<br><span>${formulas[0]}</span> <br> <span>${formulas[1]}</span>`
+    }
+
+    function fn(r) {
+        const n = roundTo(r, 3);
+        const sign = n < 0 ? '-' : '+';
+        const nAbs = Math.abs(n);
+        if (nAbs === 0) {
+            return '+ 0.000';
+        }
+        const nAbsStr = `${nAbs}0000000`.substr(0, 5);
+        return `${sign} ${nAbsStr}`;
+    }
+
+    function getEta(numerator, k, a, b) {
+        const baseFactor = gui.controllers.ctrlBaseFactor.getValue();
+        const kx = k * baseFactor;
+        const text = `${numerator}/(${kx}^(${a} + ${b}i))`;
+        const result = math.evaluate(text);
+
+        let formattedText = `${numerator}/(${roundTo(kx, 3)}^(${fn(a)} bi))`;
+        setFormula(`${formattedText}`, numerator, k, a, b);
+
+        return result;
+    }
+
+    function drawLine(ctrlLongitude, ctrlLatitude, colourNum) {
+        const latDeg = ctrlLatitude.getValue();
+        const longDeg = ctrlLongitude.getValue();
+        const points = [newVec(0, 0, 0), outerPoint(latDeg, longDeg)];
+        return new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), getMaterial(rainbow, colourNum));
+    }
+
+    function cos(deg) {
+        return math.cos(deg * math.pi / 180);
+    }
+
+    function sin(deg) {
+        return math.sin(deg * math.pi / 180);
+    }
+
+    function outerPoint(latDeg, longDeg) {
+        const lineYC = sin(longDeg);
+        let lineZC = -sin(latDeg) * cos(longDeg);
+        let lineXC = cos(latDeg) * cos(longDeg);
+        return newVec(lineXC, lineYC, lineZC);
+    }
+
+    function drawFlight() {
+        const points = [];
+        let flipLat = false;
+        let flipLong = false;
+
+        const lat1 = gui.controllers.ctrlLatitude.getValue();
+        const lat2 = gui.controllers.ctrlLatitude2.getValue();
+        const long1 = gui.controllers.ctrlLongitude.getValue();
+        const long2 = gui.controllers.ctrlLongitude2.getValue();
+
+        let lessLong = long1 > long2 ? long2 : long1;
+        let bigLong = long1 > long2 ? long1 : long2;
+        let diffLong = (bigLong - lessLong);
+        if (360 - bigLong + lessLong < diffLong) {
+            diffLong = 360 - bigLong + lessLong;
+            // const tmp = lessLong;
+            // lessLong = bigLong;
+            // bigLong = tmp;
+            flipLong = true;
+        }
+        let lessLat = lat1 > lat2 ? lat2 : lat1;
+        let bigLat = lat1 > lat2 ? lat1 : lat2;
+        let diffLat = (bigLat - lessLat);
+        if (360 - bigLat + lessLat < diffLat) {
+            diffLat = 360 - bigLat + lessLat;
+            // const tmp = lessLat;
+            // lessLat = bigLat;
+            // bigLat = tmp;
+            flipLat = true;
+        }
+
+        for (let n = 0; n <= 64; n++) {
+            if (flipLat) {
+                if (flipLong) {
+                    points.push(outerPoint(bigLat + diffLat * n / 64, bigLong + diffLong * n / 64));
+                } else {
+                    points.push(outerPoint(bigLat + diffLat * n / 64, lessLong + diffLong * n / 64));
+                }
+            } else {
+                if (flipLong) {
+                    points.push(outerPoint(lessLat + diffLat * n / 64, bigLong + diffLong * n / 64));
+                } else {
+                    points.push(outerPoint(lessLat + diffLat * n / 64, lessLong + diffLong * n / 64));
+                }
+            }
+        }
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({color: 0xffff00});
+        return new THREE.Line(geometry, material);
+    }
+
+    function makeSphere() {
+        const objTree = [];
+
+        const meshMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            opacity: 0.05,
+            transparent: true
+        });
+
+        const outlineMaterial = new THREE.LineBasicMaterial({
+            color: 0x707080,
+            opacity: 0.75,
+            transparent: true
+        });
+
+        let geometry = new THREE.SphereGeometry(1, 16, 16);
+
+        const sphereBack = new THREE.Mesh(geometry, meshMaterial);
+        sphereBack.material.side = THREE.BackSide;
+        sphereBack.renderOrder = 0;
+        objTree.push(sphereBack);
+        sceneInfo.group.add(sphereBack);
+
+        const sphereFront = new THREE.Mesh(geometry, meshMaterial.clone());
+        sphereFront.material.side = THREE.FrontSide;
+        sphereFront.renderOrder = 1;
+        objTree.push(sphereFront);
+        sceneInfo.group.add(sphereFront);
+
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(edges, outlineMaterial);
+        objTree.push(line);
+        sceneInfo.group.add(line);
+
+        const x = gui.controllers.ctrlX.getValue();
+        const y = gui.controllers.ctrlY.getValue();
+        const z = gui.controllers.ctrlZ.getValue();
+
+        let line1 = drawLine(gui.controllers.ctrlLongitude, gui.controllers.ctrlLatitude, 36);
+        objTree.push(line1);
+        sceneInfo.group.add(line1);
+
+        let line2 = drawLine(gui.controllers.ctrlLongitude2, gui.controllers.ctrlLatitude2, 16);
+        objTree.push(line2);
+        sceneInfo.group.add(line2);
+
+        const flight = drawFlight();
+        objTree.push(flight);
+        sceneInfo.group.add(flight);
+
+        objTree.forEach((obj) => {
+            obj.rotateX(x * math.pi / 180);
+            obj.rotateY(y * math.pi / 180);
+            obj.rotateZ(z * math.pi / 180);
+        });
+
+        return objTree;
+    }
+
+    function getPoints(p1, p2) {
+        const yDiff = p1.y;
+        for (let i = 0; i < 64; i++) {
+        }
+
+        return points;
+    }
+
+    function drawArch(p1, p2) {
+        if (p1.z === p2.z) {
+            return [];
+        }
+        let a1 = p1.z;
+        let a2 = p2.z;
+        if (p1.z > p2.z) {
+            a1 = p2.z;
+            a2 = p1.z;
+        }
+
+        const curve = new THREE.EllipseCurve(
+            0, 0,                                       // ax, aY
+            1, 1,                                       // xRadius, yRadius
+            0, (360 - (a1 - a2)) * Math.PI / 180,       // aStartAngle, aEndAngle
+            false,                                      // aClockwise
+            a1 * Math.PI / 180                          // aRotation
+        );
+
+        const points = curve.getPoints( 64 ); //getPoints(p1, p2);
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+        const material = new THREE.LineBasicMaterial({color: 0xffff00});
+
+        return new THREE.Line(geometry, material);
+    }
+
+    function drawArches() {
+        sceneInfo.clear();
+        const tree = makeSphere();
+    }
+
+    function onResize() {
+        drawChoice();
+    }
+
+    /**
+     * animate objects per frame
+     */
+    function updateObjects() {
+        if (sceneInfo.hasChanged) {
+            sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+            sceneInfo.hasChanged = false;
+        }
+    }
+
+    function animationLoop() {
+        sceneInfo.animationLoopId = requestAnimationFrame(animationLoop);
+        updateObjects();
+        sceneInfo.render();
+    }
+
+    function hasChanged() {
+        sceneInfo.hasChanged = true;
+    }
+
+    function popGui(gui) {
+        gui.options.load = gui.parameters;
+        const datGui = new dat.GUI(gui.options);
+        gui.controllers.ctrlScale = datGui.add(gui.parameters, 'Scale', 0, 10, 0.05).onChange(hasChanged);
+
+        gui.controllers.ctrlX = datGui.add(gui.parameters, 'X', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlY = datGui.add(gui.parameters, 'Y', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlZ = datGui.add(gui.parameters, 'Z', 0, 360, 1).onChange(drawChoice);
+
+        gui.controllers.ctrlLatitude = datGui.add(gui.parameters, 'Latitude1', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLongitude = datGui.add(gui.parameters, 'Longitude1', 0, 360, 1).onChange(drawChoice);
+
+        gui.controllers.ctrlLatitude2 = datGui.add(gui.parameters, 'Latitude2', 0, 360, 1).onChange(drawChoice);
+        gui.controllers.ctrlLongitude2 = datGui.add(gui.parameters, 'Longitude2', 0, 360, 1).onChange(drawChoice);
+    }
+
+    const gui = {
+        options: {name: 'Parameter GUI', autoPlace: true, hideable: true, closed: false, closeOnTop: false},
+        controllers: {
+            ctrlScale: null,
+            ctrlX: null,
+            ctrlY: null,
+            ctrlZ: null,
+            ctrlLongitude1: null,
+            ctrlLatitude1: null,
+            ctrlLongitude2: null,
+            ctrlLatitude2: null,
+        },
+        parameters: {
+            'Scale': 5,
+            'X': 0,
+            'Y': 0,
+            'Z': 0,
+            'Latitude1': 0,
+            'Longitude1': 0,
+            'Latitude2': 0,
+            'Longitude2': 13,
+        }
+    };
+
+    function drawChoice() {
+        switch (type) {
+            case CIRCLES:
+                break;
+            case ARCHES:
+                drawArches();
+                break;
+        }
+    }
+
+    const CIRCLES = 1;
+    const ARCHES = 2;
+    let type = ARCHES;
+
+    const camera = getOrthoCamera(window.innerWidth / 25, window.innerHeight / 25);
+    let sceneInfo = buildScene(document.body, window.innerWidth, window.innerHeight, 3, 0x303035, 0xffffff, camera);
+    window.addEventListener("resize", onResize);
+    popGui(gui);
+    drawAxis(sceneInfo.scene, 40);
+    drawChoice();
+    sceneInfo.scale(gui.controllers.ctrlScale.getValue());
+    animationLoop();
+
+</script>
+
+</body>
+</html>

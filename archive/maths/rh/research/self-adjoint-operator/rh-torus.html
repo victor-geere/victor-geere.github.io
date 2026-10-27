@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reconciled Compactified Riemann Helix — CCM Spectral Triple</title>
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+body { font-family: Georgia, serif; margin:0; background:#f8f7f4; color:#222; }
+header { background:#1a3c5e; color:#fff; padding:20px 40px; text-align:center; }
+h1,h2 { font-family:Georgia,serif; margin:0; }
+.container { display:flex; height:calc(100vh - 80px); }
+#canvas { flex:3; }
+#controls { flex:1; padding:30px; background:#fff; border-left:1px solid #ddd; overflow:auto; }
+label { display:block; margin:18px 0 6px; font-weight:bold; }
+input[type=range]{ width:100%; }
+.value { font-family:monospace; color:#1a3c5e; }
+.math { margin:20px 0; font-size:0.95em; }
+footer { text-align:center; padding:12px; font-size:0.85em; color:#666; }
+</style>
+</head>
+<body>
+<header>
+<h1>Reconciled Compactified Riemann Helix on Torus</h1>
+<p>CCM Zeta Spectral Triple — Zeros Fixed at Identical Poloidal Angle</p>
+</header>
+<div class="container">
+  <div id="canvas"></div>
+  <div id="controls">
+    <h2>Parameters</h2>
+    <label>Scaling \(\lambda\) <span class="value" id="lamVal">6.0</span></label>
+    <input type="range" id="lambda" min="2.5" max="25" step="0.1" value="6">
+    
+    <label>Fourier / Prime Modes \(N\) <span class="value" id="nVal">14</span></label>
+    <input type="range" id="N" min="6" max="35" step="1" value="14">
+    
+    <label>Displayed Zeros <span class="value" id="nzVal">18</span></label>
+    <input type="range" id="numZ" min="6" max="28" step="1" value="18">
+
+    <button id="pauseBtn" style="margin:18px 0 0;width:100%;padding:9px;font-size:1em;cursor:pointer;background:#1a3c5e;color:#fff;border:none;border-radius:4px;">⏸ Pause</button>
+
+    <div class="math">
+      <p>\(L=2\log\lambda\)</p>
+      <p>\(R=1.25\,L/(2\pi)\)</p>
+      <p>Zeros: \(u_n=2\pi\{\log\gamma_n/L\}\), \(v_n=0\) (fixed generator)</p>
+      <p>Torsion: \(\mathrm{d}v/\mathrm{d}u\) modulated by primes at \(u_p=2\pi\{\log p/L\}\)</p>
+    </div>
+  </div>
+</div>
+<footer>
+Reconciled model: zeros remain on a single closed generator; prime logarithms supply only the periodic torsion. 
+Topology of the torus realises the compactification.
+</footer>
+
+<script>
+let scene, camera, renderer, rootGroup, orbit, paused = false;
+
+const gamma = [14.1347,21.0220,25.0109,30.4249,32.9351,37.5862,40.9187,43.3271,48.0052,49.7738,52.9703,56.4462,59.3470,60.8318,65.1125,67.0798,69.5464,72.0672,75.7047,77.1448,79.3374,82.9104,84.7355,87.4253,88.8091,92.4919,94.6513,95.8706];
+
+function init() {
+  const c = document.getElementById('canvas');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xf8f7f4);
+
+  camera = new THREE.PerspectiveCamera(52, c.clientWidth / c.clientHeight, 0.1, 1000);
+  camera.position.set(14, 9, 14);
+  camera.lookAt(0, 0, 0);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(c.clientWidth, c.clientHeight);
+  c.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const dir = new THREE.DirectionalLight(0xffffff, 0.75);
+  dir.position.set(12, 18, 12);
+  scene.add(dir);
+
+  rootGroup = new THREE.Group();
+  scene.add(rootGroup);
+
+  window.addEventListener('resize', () => {
+    camera.aspect = c.clientWidth / c.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(c.clientWidth, c.clientHeight);
+  });
+
+  buildScene();
+  orbit = makeOrbit(camera, renderer.domElement);
+  animate();
+}
+
+function buildScene() {
+  while (rootGroup.children.length) rootGroup.remove(rootGroup.children[0]);
+
+  const lam = parseFloat(document.getElementById('lambda').value);
+  const N   = parseInt(document.getElementById('N').value);
+  const nz  = Math.min(parseInt(document.getElementById('numZ').value), gamma.length);
+
+  document.getElementById('lamVal').innerText = lam.toFixed(1);
+  document.getElementById('nVal').innerText   = N;
+  document.getElementById('nzVal').innerText  = nz;
+
+  const L = 2 * Math.log(lam);
+  const R = 1.25 * L / (2 * Math.PI);
+  const r = 0.98;
+
+  // Torus — Three.js TorusGeometry uses the same XY-plane parameterisation as
+  // the helix below; no extra rotation needed or the two will be misaligned.
+  rootGroup.add(new THREE.Mesh(
+    new THREE.TorusGeometry(R, r, 36, 72),
+    new THREE.MeshPhongMaterial({ color: 0xdddddd, transparent: true, opacity: 0.16, shininess: 4 })
+  ));
+
+  // Helix — v(u) carries prime torsion, zeros forced at v = 0
+  const pts = [];
+  const segs    = 1400;
+  const mainRate = 26 + N * 0.65;
+  const sigma    = 0.055;
+  const bumpAmp  = 4.8;
+  const primes   = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97];
+  const up = primes.map(p => 2 * Math.PI * ((Math.log(p) % L) / L)).filter(u => u < 2 * Math.PI);
+
+  for (let i = 0; i <= segs; i++) {
+    const u = 2 * Math.PI * i / segs;
+    let tau = mainRate;
+    up.forEach((u_p, idx) => {
+      const d = Math.min(Math.abs(u - u_p), 2 * Math.PI - Math.abs(u - u_p));
+      tau += bumpAmp * Math.exp(-d * d / (2 * sigma * sigma)) * (Math.log(primes[idx]) / primes[idx]);
+    });
+    const v = tau * (u / (2 * Math.PI)) * 2 * Math.PI;
+    pts.push(new THREE.Vector3(
+      (R + r * Math.cos(v)) * Math.cos(u),
+      (R + r * Math.cos(v)) * Math.sin(u),
+      r * Math.sin(v)
+    ));
+  }
+  rootGroup.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color: 0x1a3c8e })
+  ));
+
+  // Zeros — forced at v = 0 (outer equator), toroidal angle u_n = 2π{log γ_n / L}
+  const sphGeo = new THREE.SphereGeometry(0.05, 22, 22);
+  const sphMat = new THREE.MeshPhongMaterial({ color: 0xb71c1c, emissive: 0x4a0000 });
+  for (let i = 0; i < nz; i++) {
+    const un = 2 * Math.PI * ((Math.log(gamma[i]) % L) / L);
+    const m  = new THREE.Mesh(sphGeo, sphMat);
+    m.position.set((R + r) * Math.cos(un), (R + r) * Math.sin(un), 0);
+    rootGroup.add(m);
+  }
+}
+
+// Inline orbit controls — drag to orbit, scroll to zoom, auto-spin when idle
+function makeOrbit(cam, dom) {
+  const target = new THREE.Vector3();
+  const sph    = new THREE.Spherical().setFromVector3(cam.position.clone().sub(target));
+  let drag = false, prevX = 0, prevY = 0, thetaV = 0, phiV = 0;
+  const DAMP = 0.88;
+
+  dom.addEventListener('contextmenu', e => e.preventDefault());
+  dom.addEventListener('mousedown', e => {
+    if (e.button === 0) drag = true;
+    prevX = e.clientX; prevY = e.clientY;
+  });
+  window.addEventListener('mouseup',   () => { drag = false; });
+  window.addEventListener('mousemove', e => {
+    const dx = e.clientX - prevX, dy = e.clientY - prevY;
+    prevX = e.clientX; prevY = e.clientY;
+    if (drag) { thetaV -= dx * 0.005; phiV -= dy * 0.005; }
+  });
+  dom.addEventListener('wheel', e => {
+    e.preventDefault();
+    sph.radius = Math.max(5, Math.min(200, sph.radius * (1 + e.deltaY * 0.001)));
+  }, { passive: false });
+
+  return {
+    update() {
+      sph.theta += thetaV + (drag || paused ? 0 : 0.003);
+      sph.phi    = Math.max(0.1, Math.min(Math.PI - 0.1, sph.phi + phiV));
+      thetaV *= DAMP; phiV *= DAMP;
+      cam.position.setFromSpherical(sph).add(target);
+      cam.lookAt(target);
+    }
+  };
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (orbit && !paused) orbit.update();
+  renderer.render(scene, camera);
+}
+
+['lambda', 'N', 'numZ'].forEach(id =>
+  document.getElementById(id).addEventListener('input', buildScene)
+);
+
+document.getElementById('pauseBtn').addEventListener('click', () => {
+  paused = !paused;
+  document.getElementById('pauseBtn').textContent = paused ? '▶ Play' : '⏸ Pause';
+});
+
+window.onload = init;
+</script>
+</body>
+</html>

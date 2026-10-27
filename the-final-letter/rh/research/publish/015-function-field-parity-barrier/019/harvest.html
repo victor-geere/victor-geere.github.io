@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The qrime programme — harvest of the proof map (round 106)</title>
+<style>
+  :root{
+    --ink:#1a1c22; --muted:#5c6270; --line:#e2e4ea; --bg:#fbfbfd; --panel:#ffffff;
+    --accent:#3b4cca; --accent-soft:#eef0fd;
+    --proved:#1b6b3a; --proved-bg:#e6f4ea;
+    --lean:#0b5d7a; --lean-bg:#e4f2f7;
+    --verified:#8a5a00; --verified-bg:#fdf1dc;
+    --open:#9b1f2e; --open-bg:#fbe7e9;
+    --probe:#5b3a99; --probe-bg:#f0ebfb;
+    --refuted:#4a4f5a; --refuted-bg:#eceef2;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.62 Charter, "Iowan Old Style", Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(59,76,202,.25)}
+  a:hover{border-bottom-color:var(--accent)}
+  code,.fml,.mono{font-family:"SF Mono", ui-monospace, Menlo, Consolas, monospace}
+
+  /* ---------- masthead ---------- */
+  header.mast{
+    background:linear-gradient(160deg,#20243a 0%,#2c3355 55%,#3b4cca 100%);
+    color:#f2f3f8; padding:56px 28px 44px;
+  }
+  .mast-inner{max-width:1180px;margin:0 auto}
+  .kicker{
+    font:600 11.5px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
+    letter-spacing:.16em; text-transform:uppercase; color:#b9c0e8; margin:0 0 14px;
+  }
+  h1{font-size:clamp(27px,4vw,43px); line-height:1.12; margin:0 0 16px; font-weight:600; letter-spacing:-.015em}
+  .deck{font-size:clamp(16px,1.6vw,19.5px); color:#dfe3f3; max-width:62ch; margin:0 0 26px; line-height:1.55}
+  .mast-meta{
+    display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center;
+    font:12.5px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; color:#c6cdef;
+  }
+  .mast-meta span.pill{background:rgba(255,255,255,.11); border:1px solid rgba(255,255,255,.17); padding:4px 10px; border-radius:999px}
+  .mast-note{margin-top:24px; padding-top:18px; border-top:1px solid rgba(255,255,255,.16); font-size:13.5px; color:#c9d0ef; max-width:78ch}
+  .mast-note strong{color:#fff}
+
+  /* ---------- layout ---------- */
+  .shell{max-width:1180px; margin:0 auto; display:grid; grid-template-columns:264px minmax(0,1fr); gap:44px; padding:0 28px}
+  aside.toc{
+    position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto;
+    padding:34px 0 40px; font:13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  aside.toc h2{font-size:10.5px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; font-weight:700}
+  aside.toc ol{list-style:none; margin:0; padding:0}
+  aside.toc li{margin:0}
+  aside.toc a{
+    display:block; padding:4.5px 10px 4.5px 12px; color:#3e4453; border:0;
+    border-left:2px solid var(--line); border-radius:0 4px 4px 0;
+  }
+  aside.toc a:hover{background:#f2f3f8; color:var(--ink)}
+  aside.toc a.active{border-left-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:600}
+  aside.toc li.sub a{padding-left:26px; font-size:12.3px; color:#6a7183}
+  aside.toc li.sub a.active{color:var(--accent)}
+
+  main{padding:34px 0 90px; min-width:0}
+  section{margin:0 0 54px; scroll-margin-top:18px}
+  h2.sec{
+    font:600 clamp(21px,2.4vw,27px)/1.25 system-ui,-apple-system,"Segoe UI",sans-serif;
+    letter-spacing:-.01em; margin:0 0 6px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  }
+  h2.sec .num{color:var(--accent); font-weight:700; margin-right:10px; font-variant-numeric:tabular-nums}
+  h3{font:600 17.5px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; margin:32px 0 8px; letter-spacing:-.005em}
+  h3 .fno{
+    display:inline-block; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); margin-right:8px; font-weight:700; vertical-align:2px;
+  }
+  h4{font:600 15px/1.4 system-ui,sans-serif; margin:22px 0 6px; color:#2b3040}
+  p{margin:0 0 12px}
+  ul,ol{margin:0 0 14px; padding-left:22px}
+  li{margin:0 0 5px}
+  small,.fine{font-size:13px; color:var(--muted)}
+
+  /* ---------- status tags ---------- */
+  .tag{
+    display:inline-block; font:700 10.5px/1.4 system-ui,sans-serif; letter-spacing:.06em;
+    text-transform:uppercase; padding:2.5px 7px; border-radius:4px; white-space:nowrap;
+    vertical-align:1.5px; margin-right:6px;
+  }
+  .t-proved{color:var(--proved); background:var(--proved-bg); border:1px solid #c6e3cf}
+  .t-lean{color:var(--lean); background:var(--lean-bg); border:1px solid #bfdde8}
+  .t-verified{color:var(--verified); background:var(--verified-bg); border:1px solid #eed9ab}
+  .t-open{color:var(--open); background:var(--open-bg); border:1px solid #f0c3c8}
+  .t-probe{color:var(--probe); background:var(--probe-bg); border:1px solid #d6c8f2}
+  .t-refuted{color:var(--refuted); background:var(--refuted-bg); border:1px solid #d5d9e1}
+
+  /* ---------- formula, proof, callout ---------- */
+  .fml{
+    background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--accent);
+    padding:13px 16px; margin:14px 0 16px; border-radius:0 5px 5px 0;
+    font-size:13.4px; line-height:1.85; white-space:pre-wrap; overflow-x:auto; color:#20242f;
+  }
+  .fml.sm{font-size:12.4px; line-height:1.75}
+  .proof{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:14px 18px 6px; margin:14px 0 18px;
+  }
+  .proof-label{
+    font:700 10.5px/1.4 system-ui,sans-serif; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--proved); display:block; margin-bottom:8px;
+  }
+  .proof p:last-child{margin-bottom:8px}
+  .qed{float:right; color:var(--muted); font-size:15px}
+  .note,.warn{
+    background:#f6f7fb; border:1px solid var(--line); border-left:3px solid #9aa1b5;
+    padding:12px 16px; margin:16px 0; border-radius:0 5px 5px 0; font-size:14.6px;
+  }
+  .warn{background:#fdf6f0; border-left-color:#c47b2b}
+  .note strong,.warn strong{font-family:system-ui,sans-serif; font-size:13px; letter-spacing:.02em}
+
+  /* ---------- tables ---------- */
+  .tw{overflow-x:auto; max-width:100%; margin:16px 0 18px}
+  table{border-collapse:collapse; width:100%; font:13.6px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  caption{caption-side:top; text-align:left; font:600 12.5px/1.4 system-ui,sans-serif; color:var(--muted); padding:0 0 7px}
+  th,td{text-align:left; padding:8px 11px; border-bottom:1px solid var(--line); vertical-align:top}
+  thead th{background:#f4f5f9; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:#4a5061; border-bottom:1px solid #d8dbe4}
+  tbody tr:nth-child(even){background:#fafbfd}
+  td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
+  td code{font-size:12.4px; background:#f2f3f8; padding:1px 5px; border-radius:3px}
+  tr.dim td{color:var(--muted)}
+
+  /* ---------- stat strip ---------- */
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:12px; margin:22px 0 26px}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:14px 16px}
+  .stat b{display:block; font:600 25px/1.1 system-ui,sans-serif; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+  .stat span{font:11.5px/1.35 system-ui,sans-serif; color:var(--muted); display:block; margin-top:5px}
+
+  /* ---------- abstract card ---------- */
+  .abstract{
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    padding:22px 26px; box-shadow:0 1px 2px rgba(20,25,50,.04);
+  }
+  .abstract h2{font:700 11px/1.4 system-ui,sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0 0 10px}
+  .abstract p{font-size:16.2px; line-height:1.64}
+  .abstract p:last-child{margin-bottom:0}
+  .kw{font:12.5px/1.6 system-ui,sans-serif; color:var(--muted); margin-top:14px; padding-top:12px; border-top:1px dashed var(--line)}
+  .kw b{color:#3e4453}
+
+  /* ---------- glossary ---------- */
+  dl.gl{display:grid; grid-template-columns:minmax(130px,190px) 1fr; gap:0; margin:16px 0; border-top:1px solid var(--line)}
+  dl.gl dt{font:700 13.6px/1.5 system-ui,sans-serif; padding:11px 14px 11px 0; border-bottom:1px solid var(--line); color:#252a38}
+  dl.gl dd{margin:0; padding:11px 0; border-bottom:1px solid var(--line); font-size:14.6px; line-height:1.55}
+  @media (max-width:720px){ dl.gl{grid-template-columns:1fr} dl.gl dt{padding-bottom:0; border-bottom:0} dl.gl dd{padding-top:2px} }
+
+  /* ---------- citations ---------- */
+  ol.cites{padding-left:26px; font-size:14.4px; line-height:1.6}
+  ol.cites li{margin-bottom:9px}
+  ol.cites .src{color:var(--muted); font-size:12.6px}
+
+  /* ---------- to top ---------- */
+  #totop{
+    position:fixed; right:20px; bottom:20px; width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--line); background:var(--panel); color:var(--accent); cursor:pointer;
+    font:16px/1 system-ui,sans-serif; box-shadow:0 2px 8px rgba(20,25,50,.1); opacity:0;
+    transition:opacity .2s; pointer-events:none;
+  }
+  #totop.on{opacity:1; pointer-events:auto}
+
+  footer{border-top:1px solid var(--line); margin-top:10px; padding:24px 0 60px; font:12.6px/1.6 system-ui,sans-serif; color:var(--muted)}
+
+  @media (max-width:900px){
+    body{overflow-x:hidden}
+    .shell{grid-template-columns:minmax(0,1fr); gap:0; padding:0 18px}
+    aside.toc{position:static; max-height:none; border-bottom:1px solid var(--line); padding:22px 0 18px}
+    aside.toc ol{columns:2; column-gap:22px}
+    main{padding-top:26px}
+  }
+  @media print{
+    aside.toc,#totop{display:none}
+    .shell{display:block; max-width:none; padding:0}
+    header.mast{background:#fff; color:#000; padding:0 0 18px; border-bottom:2px solid #000}
+    .deck,.mast-meta,.mast-note{color:#333}
+    .kicker{color:#555}
+    section{page-break-inside:auto}
+    h2.sec{page-break-after:avoid}
+    .proof,.fml,.tw{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-inner">
+    <p class="kicker">Harvest · research map · round 106 · 019 addendum</p>
+    <h1>The qrime programme: what was actually achieved</h1>
+    <p class="deck">
+      A twin-prime analogue over <span class="mono">𝔽<sub>q</sub>[x]</span>, attacked until the problem split into
+      one finite-field inequality, one character-sum identity, and one machine-checked impossibility theorem.
+      This document reports each of those pieces at its true status — proved, Lean-certified, numerically verified,
+      or still open — and explains what the whole structure is worth.
+    </p>
+    <div class="mast-meta">
+      <span class="pill">Source: <code>…/018</code> · addendum: <code>…/019</code></span>
+      <span class="pill">106 round notes</span>
+      <span class="pill">45 Lean modules</span>
+      <span class="pill">111 check scripts</span>
+      <span class="pill">Harvested at round 106</span>
+    </div>
+    <p class="mast-note">
+      <strong>This is not a proof of the twin prime conjecture</strong> — not over ℚ, and not over 𝔽<sub>q</sub>[x] either.
+      It is a harvest of the programme's <em>map</em>: what is proved, what is computed, what is guessed, and where the
+      single remaining gap sits. Speculative items are relabelled <strong>probes</strong> throughout; the sources call
+      them “wild guesses”, and the change of word is deliberate.
+    </p>
+  </div>
+</header>
+
+<div class="shell">
+
+<aside class="toc" id="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#research">1 · The research</a></li>
+    <li class="sub"><a href="#research-dict">1.1 The dictionary</a></li>
+    <li class="sub"><a href="#research-targets">1.2 The three targets</a></li>
+    <li class="sub"><a href="#research-labels">1.3 Reading the labels</a></li>
+    <li><a href="#findings">2 · Findings</a></li>
+    <li class="sub"><a href="#f1">F1 · The separation theorem</a></li>
+    <li class="sub"><a href="#f2">F2 · The d=4 cap</a></li>
+    <li class="sub"><a href="#f3">F3 · Closed forms</a></li>
+    <li class="sub"><a href="#f4">F4 · The last identity</a></li>
+    <li class="sub"><a href="#f5">F5 · The parity theorem</a></li>
+    <li class="sub"><a href="#f6">F6 · The negative map</a></li>
+    <li class="sub"><a href="#f7">F7 · Not achieved</a></li>
+    <li><a href="#ledger">3 · The ledger</a></li>
+    <li><a href="#probes">4 · Speculative probes</a></li>
+    <li><a href="#significance">5 · Significance, in plain terms</a></li>
+    <li><a href="#applications">6 · Application to other problems</a></li>
+    <li><a href="#caveats">7 · Caveats and corrections</a></li>
+    <li><a href="#glossary">8 · Glossary</a></li>
+    <li><a href="#citations">9 · Citations</a></li>
+    <li><a href="#reproduce">10 · Reproduction</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<!-- ============ ABSTRACT ============ -->
+<section id="abstract">
+  <div class="abstract">
+    <h2>Abstract</h2>
+    <p>
+      The programme studies the twin-prime problem in the polynomial model: over a finite field
+      <span class="mono">𝔽<sub>q</sub></span>, “primes” become monic irreducibles (<em>qrimes</em>) and “twin primes”
+      become pairs <span class="mono">(f, f+2)</span> of irreducibles. In that model the twin count is a theorem
+      (Pollack; Bary-Soroker–Stix), so the interest shifts: <em>which statistics can each tool see?</em>
+    </p>
+    <p>
+      Three results stand: (i) a <b>separation theorem</b> — the zeta function determines exactly the linear
+      (one-point) statistics, and no function of it determines the twin count, proved with an explicit witness over
+      <span class="mono">𝔽<sub>7</sub></span> and formalised in Lean; (ii) a <b>finite-field cap</b> — for every quartic
+      over <span class="mono">𝔽<sub>q</sub></span>, the reducible set has size at least
+      <span class="mono">(q+1)/2</span>, proved unconditionally in the degenerate cases and reduced in the generic case
+      to three standard theorems, with the algebraic links machine-checked; (iii) a <b>parity theorem</b> — every
+      bounded-support divisor sum is periodic while the twin indicator is not, so no Selberg-type sieve weight equals
+      the twin indicator, proved and Lean-checked. On the quantitative side, exact closed forms are obtained for the
+      twin-qrime count at degrees 3 and 4 (including <span class="mono">A = (3q²+2q+3)/16</span> and
+      <span class="mono">m = (a²+1)/2</span> for <span class="mono">q = a²+b²</span>), verified at 28 primes and
+      identified with the quartic Jacobi sum <span class="mono">J(χ₄,χ₄)</span>. The entire remaining arithmetic is
+      one twisted-Parseval identity: verified exactly at 80 primes with its hypothesis sharpened to
+      <span class="mono">q ≡ 1 (mod 8)</span>, and still unproved. The programme's own verdict is retained
+      here: the tools it built map a barrier precisely; they do not cross it.
+    </p>
+    <p class="kw">
+      <b>Keywords:</b> function-field twin primes · qrimes · parity barrier · value sets of polynomials ·
+      character sums · Jacobi sums · Selberg sieve · Lean 4 formalisation · negative results
+    </p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>1</b><span>open identity, sharply stated</span></div>
+    <div class="stat"><b>28</b><span>primes confirming the m-formula</span></div>
+    <div class="stat"><b>45</b><span>Lean modules in the certified layer</span></div>
+    <div class="stat"><b>111</b><span>executable check scripts</span></div>
+    <div class="stat"><b>80</b><span>primes, exact F4 test</span></div>
+    <div class="stat"><b>3</b><span>cited theorems behind the cap</span></div>
+    <div class="stat"><b>0</b><span>proofs of the twin prime conjecture</span></div>
+  </div>
+</section>
+
+<!-- ============ 1 RESEARCH ============ -->
+<section id="research">
+  <h2 class="sec"><span class="num">1</span>The research</h2>
+
+  <p>
+    The twin prime conjecture asks whether <span class="mono">n</span> and <span class="mono">n+2</span> are both prime
+    for infinitely many <span class="mono">n</span>. The programme takes the standard move of transplanting the
+    question into <span class="mono">𝔽<sub>q</sub>[x]</span>, where “prime” means “monic irreducible”. The
+    transplant has a cost and a benefit: the <em>count</em> becomes provable (so the experiment can run), while the
+    <em>method</em> that proves it — two-dimensional equidistribution, i.e. Chebotarev for the pair
+    <span class="mono">(f, f+2)</span> — is exactly what is missing over ℤ.
+  </p>
+
+  <h3 id="research-dict">1.1 The dictionary</h3>
+
+  <div class="tw">
+  <table>
+    <caption>The transposition that defines the programme.</caption>
+    <thead><tr><th>ℤ</th><th>𝔽<sub>q</sub>[x]</th></tr></thead>
+    <tbody>
+      <tr><td>integers</td><td>monic polynomials</td></tr>
+      <tr><td>primes <span class="mono">p</span></td><td><b>qrimes</b> — monic irreducibles</td></tr>
+      <tr><td>size <span class="mono">|n|</span></td><td><span class="mono">q<sup>deg</sup></span></td></tr>
+      <tr><td><span class="mono">p, p+2</span></td><td><span class="mono">f, f+2</span> — <b>twin qrimes</b></td></tr>
+      <tr><td><span class="mono">ζ(s) = Σ n<sup>−s</sup></span></td><td><span class="mono">1/(1 − q<sup>1−s</sup>)</span></td></tr>
+      <tr><td><span class="mono">log ζ</span> coefficient</td><td><span class="mono">q<sup>n</sup> = Σ<sub>d|n</sub> d·I(d)</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    Two counting functions carry everything. <span class="mono">I(n)</span> is the number of qrimes of degree
+    <span class="mono">n</span>; <span class="mono">T(n)</span> — written <span class="mono">T(d;q,h)</span> when the
+    shift and degree need emphasis — is the number of monic degree-<span class="mono">n</span> polynomials
+    <span class="mono">f</span> such that both <span class="mono">f</span> and <span class="mono">f+h</span> are
+    irreducible. <span class="mono">I</span> is <b>linear</b> data (a sum of one-point indicators);
+    <span class="mono">T</span> is <b>bilinear</b> (a sum of products of two one-point indicators at a related pair).
+    That distinction is the whole programme.
+  </p>
+
+  <h3 id="research-targets">1.2 The three targets</h3>
+
+  <p>
+    After the early rounds the programme fixed three targets, chosen so that a proof of all three would give a
+    complete, auditable account of the barrier. The synthesis at round 106 states them as follows
+    (<a href="../018/notes/round106-final-synthesis-v2.md">round106-final-synthesis-v2.md</a>).
+  </p>
+
+  <h4>Target A — the <span class="mono">d = 4</span> cap</h4>
+  <div class="fml">|(−Im g) ∪ Q| ≥ (q+1)/2        for every quartic g over 𝔽_q .</div>
+  <p class="fine">
+    Equivalently: for every quartic <span class="mono">g</span> and every constant <span class="mono">b</span>, at most
+    <span class="mono">(q−1)/2</span> values of <span class="mono">b</span> make <span class="mono">g+b</span>
+    reducible. This is a finite, self-contained statement about value sets of quartics — the part of the programme
+    that stands on its own.
+  </p>
+
+  <h4>Target B — closed forms</h4>
+  <p class="fine">
+    Exact formulas for <span class="mono">T(d;q,h)</span> as a function of the shift class and
+    <span class="mono">q</span>, and for the constants inside them. This is the quantitative heart: it says precisely
+    how many twin qrimes there are, up to one integer.
+  </p>
+
+  <h4>Target C — the parity barrier</h4>
+  <p class="fine">
+    A theorem that the twin indicator lies outside the divisor-sum (Selberg-sieve) class, so that no sieve of that
+    type can prove the twin prime conjecture. This is the “negative” target, and the programme treats it as the
+    honest one.
+  </p>
+
+  <h3 id="research-labels">1.3 Reading the labels</h3>
+
+  <p>
+    The single most useful thing a reader can carry into this material is the status ladder. The programme uses
+    several different standards of evidence, and a claim's value depends entirely on which rung it is on.
+  </p>
+
+  <div class="tw">
+  <table>
+    <caption>Status labels used in this document and in the sources.</caption>
+    <thead><tr><th>Label</th><th>Means</th><th>What it does <em>not</em> mean</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag t-lean">Lean</span></td>
+        <td>A Lean 4 / Mathlib theorem exists; the statement is machine-checked from the axioms.</td>
+        <td>Nothing about the informal reading of the statement, which still has to be checked by eye.</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-proved">Proved</span></td>
+        <td>A complete human argument exists, with no gaps the author is aware of.</td>
+        <td>It is not certified, and “modulo X” claims are not included here.</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-verified">Verified</span></td>
+        <td>Checked exactly by computer on a finite set of cases (often primes <span class="mono">q</span>).</td>
+        <td>It is <em>not</em> a proof; a pattern at 28 primes is strong evidence, nothing more.</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-open">Open</span></td>
+        <td>The statement is precisely formulated and unproved.</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-probe">Probe</span></td>
+        <td>A speculative mechanism offered to explain a pattern; the sources' own name for the same register is replaced here (§4).</td>
+        <td>It is not evidence of proof, and several probes in this programme have already been refuted.</td>
+      </tr>
+      <tr>
+        <td><span class="tag t-refuted">Refuted</span></td>
+        <td>Contradicted by an explicit computation or counterexample.</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note">
+    <strong>Rule of thumb used throughout this harvest.</strong> A claim is reported at the weakest rung that
+    honestly supports it. In particular: “proved modulo Ritt + Poincaré + the S₄ decomposition” is filed as
+    <em>conditional</em>, not as proved; “verified at five primes” is filed as <em>verified</em>, not as a theorem — and now at 80 primes, still not a theorem;
+    and a probe is never counted as a finding.
+  </div>
+</section>
+
+<!-- ============ 2 FINDINGS ============ -->
+<section id="findings">
+  <h2 class="sec"><span class="num">2</span>Findings, with proofs</h2>
+
+  <p>
+    Seven findings follow. Each states the result, gives the argument where the argument is short enough to be
+    reproduced, and records the evidence and the status. Proofs of the machine-checked algebraic steps are given in
+    the programme's own notation; the Lean identifiers are cited so the certificate can be located.
+  </p>
+
+  <!-- ---------- F1 ---------- -->
+  <h3 id="f1"><span class="fno">Finding 1</span>The zeta function cannot see the twin count</h3>
+
+  <p>
+    <span class="tag t-proved">Proved</span><span class="tag t-lean">Lean</span>
+    Over <span class="mono">𝔽<sub>q</sub>[x]</span>, the zeta function determines exactly the degree counts of a set
+    of qrimes, and no function of those counts determines the twin count. This is the programme's cleanest
+    structural result, and it is a statement about <em>information</em>, not about primes.
+  </p>
+
+  <h4>Lemma 1.1 (Euler–Möbius)</h4>
+  <p>
+    For a set <span class="mono">S</span> of monic polynomials with
+    <span class="mono">Z(n) = #{f ∈ S : deg f = n}</span> finite, define
+    <span class="mono">ζ<sub>S</sub>(T) = ∏<sub>d≥1</sub>(1−T<sup>d</sup>)<sup>−Z(d)</sup></span>. Then
+  </p>
+  <div class="fml">log ζ_S(T) = Σ_n (1/n) ( Σ_{d|n} d·Z(d) ) T^n ,</div>
+  <p>
+    so <span class="mono">ζ<sub>S</sub></span> and <span class="mono">Z(S)</span> determine each other. For the true
+    world <span class="mono">S = Irr<sub>q</sub></span>, <span class="mono">ζ<sub>S</sub> = 1/(1−qT)</span>, giving
+    <span class="mono">q<sup>n</sup> = Σ<sub>d|n</sub> d·I(d)</span> and, by Möbius inversion,
+    <span class="mono">I(n) = (1/n) Σ<sub>d|n</sub> μ(d) q<sup>n/d</sup></span>.
+  </p>
+
+  <div class="proof">
+    <span class="proof-label">Proof</span>
+    <p>
+      Expand the logarithm of the Euler product:
+      <span class="mono">log ∏<sub>d</sub>(1−T<sup>d</sup>)<sup>−Z(d)</sup>
+      = Σ<sub>d</sub> Z(d)·(−log(1−T<sup>d</sup>))
+      = Σ<sub>d</sub> Z(d) Σ<sub>k≥1</sub> T<sup>dk</sup>/k</span>.
+      Collect the coefficient of <span class="mono">T<sup>n</sup></span>: the pairs
+      <span class="mono">(d,k)</span> with <span class="mono">dk = n</span> contribute
+      <span class="mono">Σ<sub>d|n</sub> Z(d)/ (n/d) = (1/n) Σ<sub>d|n</sub> d·Z(d)</span>. This is a bijection
+      between <span class="mono">(Z(d))<sub>d≥1</sub></span> and the logarithmic derivative of
+      <span class="mono">ζ<sub>S</sub></span>, hence between <span class="mono">Z(S)</span> and
+      <span class="mono">ζ<sub>S</sub></span>; the Möbius form follows by inverting
+      <span class="mono">q<sup>n</sup> = Σ<sub>d|n</sub> d·I(d)</span>. <span class="qed">∎</span>
+    </p>
+  </div>
+
+  <p>
+    A curve's Frobenius eigenvalues likewise determine the point counts
+    <span class="mono">#C(𝔽<sub>q<sup>n</sup></sub>) = Σ<sub>d|n</sub> d·Z<sub>C</sub>(d)</span>, so the zeros also
+    see only linear data. The decisive case is <span class="mono">ℙ¹</span>: its zeta is
+    <span class="mono">1/((1−T)(1−qT))</span>, whose numerator is <span class="mono">1</span> — <b>there are no zeros
+    at all</b>, yet the twin count is positive (over <span class="mono">𝔽<sub>3</sub></span> at
+    <span class="mono">n = 3</span> there is <span class="mono">1</span> such pair; over
+    <span class="mono">𝔽<sub>7</sub></span> at <span class="mono">n = 2</span> there are <span class="mono">7</span>).
+    A function with no zeros cannot be encoding a positive count that varies.
+  </p>
+
+  <h4>Theorem 1.2 (separation)</h4>
+  <p>
+    Quantify over <em>admissible worlds</em>: sets <span class="mono">S ⊆ Irr<sub>q</sub></span> with a degree
+    function. Then there is no <span class="mono">Φ</span> such that
+    <span class="mono">B(S) = Φ(Z(S))</span> for all admissible worlds, where
+    <span class="mono">B(S) = #{f ∈ S : f+2 ∈ S}</span>.
+  </p>
+
+  <div class="proof">
+    <span class="proof-label">Proof (explicit witness over 𝔽<sub>7</sub>, degree 2)</span>
+    <p>All eight degree-2 monic polynomials over <span class="mono">𝔽<sub>7</sub></span> are irreducible. Take</p>
+    <div class="fml sm">S = { x²+1 ,  x²+3x+1 ,  x²+4x+1 ,  x²+3x+6 }      B(S) = 1
+T = { x²+1 ,  x²+3x+1 ,  x²+4x+1 ,  x²+2     }      B(T) = 0</div>
+    <p>
+      Both are sets of qrimes with the same degree profile <span class="mono">Z = (0,4,0,…)</span>, hence the same
+      zeta function. The twin counts differ: in <span class="mono">S</span> the only element whose shift lands back
+      in the set is <span class="mono">x²+3x+6</span> (its shift is <span class="mono">x²+3x+1</span>), while in
+      <span class="mono">T</span> the shift of <span class="mono">x²+2</span> is <span class="mono">x²+4</span>, which
+      is reducible because <span class="mono">4 = 2²</span> is a square. Hence
+      <span class="mono">B(S) ≠ B(T)</span> while <span class="mono">Z(S) = Z(T)</span>, so no
+      <span class="mono">Φ</span> exists. <span class="qed">∎</span>
+    </p>
+  </div>
+
+  <p class="fine">
+    Lean: <code>Separation.no_zeta_observable</code>, <code>Separation.separation_F7</code>,
+    <code>Separation.witness_irreducible</code>. Numerics:
+    <a href="../018/checks/round3.py"><code>checks/round3.py</code></a> §[C] tabulates the twin count on fibres of
+    <span class="mono">Z</span>.
+  </p>
+
+  <p>
+    Two warnings attach to this theorem, and the programme is explicit about both. First, it concerns the
+    <em>indicator</em>, not the count: it does not say twins are infinite, only that this channel of information is
+    insufficient. Second, the theorem is about <span class="mono">Φ</span> depending on the zeta <em>alone</em>; a
+    proof may use the pair structure directly — which is exactly what the function-field theory does, via Chebotarev
+    for <span class="mono">(f, f+2)</span>.
+  </p>
+
+  <p>
+    What the zeta is missing is 2-dimensional equidistribution. Over <span class="mono">𝔽<sub>q</sub>[x]</span> it is
+    available (the Frobenius gives a Galois action on the splitting field of
+    <span class="mono">f·(f+2)</span>); over ℤ there is no Frobenius and no Chebotarev, and the two-point
+    equidistribution is precisely the twin prime conjecture. This is the structural reason a function-field proof
+    exists and a ℤ proof does not follow from it.
+  </p>
+
+  <!-- ---------- F2 ---------- -->
+  <h3 id="f2"><span class="fno">Finding 2</span>The <span class="mono">d = 4</span> cap: a proved inequality about quartics</h3>
+
+  <p>
+    <span class="tag t-proved">Proved</span><span class="tag t-lean">Lean</span> (algebraic links and finite base)
+    For every quartic <span class="mono">g(x) = x⁴+a₃x³+a₂x²+a₁x+b</span> over an odd
+    <span class="mono">𝔽<sub>q</sub></span> and every <span class="mono">b</span>, the reducible set
+    <span class="mono">R(g)</span> satisfies
+  </p>
+  <div class="fml">|R(g)| ≥ (q+1)/2 ,      equivalently      I(a) = q − |Im(a) ∪ Q(a)| ≤ (q−1)/2 .</div>
+
+  <p>
+    Here <span class="mono">I(a)</span> counts the <span class="mono">b</span> making
+    <span class="mono">g<sub>a</sub>+b</span> reducible, <span class="mono">Im(a)</span> is the value set of
+    <span class="mono">g<sub>a</sub> = x⁴+a₃x³+a₂x²+a₁x</span>, and <span class="mono">Q(a)</span> is the set of
+    <span class="mono">b</span> for which <span class="mono">g<sub>a</sub>+b</span> has a quadratic factor. The
+    identity <span class="mono">I = q − |Im ∪ Q|</span> is the observation that a quartic is reducible exactly when
+    it has a linear or a quadratic factor.
+  </p>
+
+  <p>
+    The proof is a four-step reduction. Steps (1)–(3) and the finite base are machine-checked; step (4) invokes three
+    standard theorems.
+  </p>
+
+  <h4>(1) Translation to the depressed quartic</h4>
+  <p>
+    The substitution <span class="mono">x ↦ x − a₃/4</span> is the algebra automorphism
+    <span class="mono">algEquivAevalXAddC (−a₃/4)</span> of <span class="mono">𝔽<sub>q</sub>[x]</span>, hence preserves
+    irreducibility and permutes the family <span class="mono">{g+b}<sub>b</sub></span>. So it suffices to treat
+    <span class="mono">g = x⁴+a₂x²+a₁x</span>. Lean: <code>Shift.irreducible_shift</code>.
+  </p>
+
+  <h4>(2) The reducible set is a union</h4>
+  <p>
+    Factor a reducible quartic as <span class="mono">(x²+px+q)(x²−px+s)</span> — always possible for a depressed
+    quartic whose quadratic factors have no cubic terms. Matching coefficients gives
+  </p>
+  <div class="fml">s + q − p² = a₂ ,      p(s − q) = a₁ ,      qs = b .
+</div>
+  <div class="proof">
+    <span class="proof-label">Proof of the union decomposition</span>
+    <p>
+      If <span class="mono">p ≠ 0</span>, the second relation gives <span class="mono">s = q + a₁/p</span>; adding
+      <span class="mono">2q = a₂ + p² − a₁/p</span> gives
+      <span class="mono">q = (a₂+p²−a₁/p)/2</span>, <span class="mono">s = (a₂+p²+a₁/p)/2</span>, and therefore
+      <span class="mono">b = qs = ((a₂+p²)² − (a₁/p)²)/4</span>. If <span class="mono">p = 0</span>, the second
+      relation forces <span class="mono">a₁ = 0</span> and gives <span class="mono">b = q(a₂−q)</span>. Finally the
+      linear-factor case gives <span class="mono">b = −g(x)</span>. Hence
+      <span class="mono">R = (−Im g) ∪ Q</span> with
+      <span class="mono">Q = Q<sub>p≠0</sub> ∪ (a₁=0 ? {q(a₂−q)} : ∅)</span>. <span class="qed">∎</span>
+    </p>
+  </div>
+  <p class="fine">
+    Verified for all quartics at <span class="mono">q = 11,13,29,37</span>. Lean:
+    <code>Factorization.quadratic_factor</code>, <code>Factorization.even_factor</code>.
+  </p>
+
+  <h4>(3) The composition case <span class="mono">a₁ = 0</span>: the cap holds exactly</h4>
+  <p>
+    Here <span class="mono">g = x⁴+a₂x² = h(x²)</span>. Put <span class="mono">q<sub>0</sub> = x²+a₂</span>. Then for
+    every <span class="mono">x</span>,
+  </p>
+  <div class="fml">−g(x) = −x²(x²+a₂) = q₀·(a₂ − q₀) ∈ Q₀ ,</div>
+  <p>
+    so <span class="mono">−Im g ⊆ Q</span> and <span class="mono">R = Q</span>. Lean:
+    <code>Composition.neg_image_mem_Q</code>. The size of <span class="mono">Q</span> splits into two cases.
+  </p>
+  <ul>
+    <li>
+      <span class="mono">a₂ = 0</span>: <span class="mono">Q = −squares ∪ (fourth powers)/4</span>. If
+      <span class="mono">q ≡ 1 (mod 4)</span> then <span class="mono">−1</span> is a square, so
+      <span class="mono">Q = squares</span> and <span class="mono">|Q| = (q+1)/2</span>; if
+      <span class="mono">q ≡ 3 (mod 4)</span> the fourth powers coincide with the squares and
+      <span class="mono">Q = 𝔽<sub>q</sub></span>. Lean: <code>NegSquare.neg_sq_mem_sq</code>.
+    </li>
+    <li>
+      <span class="mono">a₂ ≠ 0</span>:
+      <div class="fml">|Q| = |Q₀| + |Q₁ \ Q₀| = (q+1)/2 + ⌊(q−1)/4⌋ = q − ⌊(q+2)/4⌋ .</div>
+      The first term is the quadratic image, of size <span class="mono">(q+1)/2</span>. The new part is an orbit
+      count: the involution <span class="mono">σ(u) = −u−2a₂</span> preserves the value
+      <span class="mono">((a₂+u)/2)²</span>, and its character argument
+      <span class="mono">−(2a₂+σ(u)) = u</span> never has value <span class="mono">−1</span> when
+      <span class="mono">u</span> is a square, so the count of remaining square classes is
+      <span class="mono">(N−Σ)/2 − ½·1<sub>χ(−2a₂)=1</sub> = ⌊(q−1)/4⌋</span>, with the character sum
+      <span class="mono">Σ = −(χ(−1)+χ(−2a₂))/2</span>. Lean: <code>QSize.size_identity</code>,
+      <code>QOrbit.sigma_y</code>, <code>QOrbit.sigma_arg</code>.
+    </li>
+  </ul>
+
+  <h4>(4) The generic case <span class="mono">a₁ ≠ 0</span></h4>
+  <p>
+    This is where the three cited theorems enter. The quartic is not a composition (else
+    <span class="mono">a₁ = 0</span>), so by <b>Ritt</b>, in the form of Guralnick–Saxl, its monodromy is
+    <em>primitive</em>. The primitive transitive subgroups of <span class="mono">S₄</span> are
+    <span class="mono">A₄</span> and <span class="mono">S₄</span>, with fibre-size ratios
+    <span class="mono">3/4</span> and <span class="mono">5/8</span>; hence
+    <span class="mono">|Im|/q → ≥ 5/8</span>. In the <span class="mono">S₄</span> case the indicator
+    <span class="mono">1<sub>k≥1</sub></span> is expanded in the class functions of
+    <span class="mono">S₄</span>:
+  </p>
+  <div class="fml">1_{k≥1} = (5/8)·1 + (1/8)·sign + (3/8)·std − (1/8)·(std⊗sign) − (1/4)·χ₂ ,</div>
+  <p class="fine">
+    (here <span class="mono">χ₂</span> is the two-dimensional irreducible of <span class="mono">S₄</span>, not the
+    quadratic character of <span class="mono">𝔽<sub>q</sub></span>). Since
+    <span class="mono">Σ<sub>y</sub>χ<sub>std</sub> = Σ<sub>y</sub>(N(y)−1) = q−q = 0</span>, the three non-trivial
+    class sums give
+  </p>
+  <div class="fml">|Im g| = (5/8)q + (1/8)( S_sign − S_{std⊗sign} ) + O(1) .</div>
+  <p>
+    Both sums are traces of abelian varieties. <span class="mono">S_sign = Σ<sub>y</sub>χ₂(Δ(y))</span> with
+    <span class="mono">Δ</span> the cubic discriminant, which equals <span class="mono">−a<sub>E</sub></span> for the
+    elliptic curve <span class="mono">E : t² = Δ(y)</span>. The pullback identity
+    <span class="mono">Δ(g(x)) = g′(x)²·S(x)</span> with
+  </p>
+  <div class="fml sm">S(x) = −16x⁶ − 32a₂x⁴ − 40a₁x³ − 20a₂²x² − 36a₁a₂x − 27a₁² − 4a₂³</div>
+  <p>
+    makes <span class="mono">S<sub>std⊗sign</sub> = SC − S_sign</span> with
+    <span class="mono">SC = Σ<sub>x</sub>χ₂(S(x))</span>. The genus-2 curve
+    <span class="mono">C : s² = S(x)</span> maps to <span class="mono">E</span> by
+    <span class="mono">(x,s) ↦ (g(x), g′(x)s)</span>, so by <b>Poincaré</b> reducibility
+    <span class="mono">Jac(C) ~ E × E′</span> and
+    <span class="mono">S<sub>std⊗sign</sub> = ±1 − a<sub>E′</sub></span>. The <b>Weil bound</b>
+    <span class="mono">|a<sub>E</sub>| ≤ 2√q</span> then gives
+  </p>
+  <div class="fml">|S_sign| ≤ 2√q ,      |S_{std⊗sign}| ≤ 2√q + 1 ,      |Im g| ≥ (5/8)q − (1/2)√q − O(1) .</div>
+  <p>
+    Finally <span class="mono">(5/8)q − (1/2)√q − 2 ≥ (q+1)/2</span> exactly when
+    <span class="mono">q − 4√q − 20 ≥ 0</span>, i.e. for <span class="mono">q ≥ 49</span>. The range
+    <span class="mono">q &lt; 49</span> is discharged finitely: <span class="mono">q = 5,…,23</span> by the Lean
+    <code>decide</code> theorems <code>SmallCap.cap_*</code>, and <span class="mono">q = 29,31,37,41,43,47</span> by
+    Python checks.
+  </p>
+
+  <div class="warn">
+    <strong>Status.</strong> Steps (1)–(3), the finite base, and the orbit step are Lean-certified. Step (4) is a
+    correct-in-outline argument that depends on Ritt/Guralnick–Saxl, Poincaré reducibility, the Weil bound, and the
+    <span class="mono">S₄</span> class-function decomposition. <em>None of those four is formalised</em>, and the
+    synthesis itself lists their formalisation as the remaining work for Target A. So the honest reading is:
+    <b>the cap is proved modulo three standard theorems plus one unformalised character-theoretic decomposition.</b>
+    It is the strongest result in the programme, and it is not yet a certificate.
+  </div>
+
+  <h4>Sharpness and equality cases</h4>
+  <p>
+    The bound is attained, in two different ways, and the equality analysis is what suggested the “compensation”
+    reading:
+  </p>
+  <div class="tw">
+  <table>
+    <caption>Equality cases of the cap (from the round-14 tabulation).</caption>
+    <thead><tr><th class="num">q</th><th class="num">max I</th><th class="num">(q−1)/2</th><th class="num">min |Im ∪ Q|</th><th class="num">(q+1)/2</th></tr></thead>
+    <tbody>
+      <tr><td class="num">5</td><td class="num">2</td><td class="num">2</td><td class="num">3</td><td class="num">3</td></tr>
+      <tr><td class="num">7</td><td class="num">3</td><td class="num">3</td><td class="num">4</td><td class="num">4</td></tr>
+      <tr><td class="num">11</td><td class="num">5</td><td class="num">5</td><td class="num">6</td><td class="num">6</td></tr>
+      <tr><td class="num">13</td><td class="num">6</td><td class="num">6</td><td class="num">7</td><td class="num">7</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>
+    At <span class="mono">q = 11</span> equality comes from
+    <span class="mono">|Im| = (q+1)/2</span> with <span class="mono">Q ⊆ Im</span>; at
+    <span class="mono">q = 13</span> from <span class="mono">|Im| = 4</span> with
+    <span class="mono">|Q \ Im| = 3</span>, the quadratic condition filling the gap. In both cases the value set alone
+    would not suffice: <span class="mono">Q</span> is doing work. That is the mechanism the cap encodes, and it is a
+    genuinely new finite-field phenomenon relative to the linear statistic.
+  </p>
+
+  <!-- ---------- F3 ---------- -->
+  <h3 id="f3"><span class="fno">Finding 3</span>Closed forms for the twin-qrime count</h3>
+
+  <p>
+    <span class="tag t-proved">Proved</span><span class="tag t-verified">Verified</span>
+    The twin count has an exact structural description at <span class="mono">d = 3, 4</span>: it is constant on
+    <span class="mono">d</span>-th power classes, its amplitudes are a <span class="mono">d</span>-point discrete
+    Fourier transform of integer class counts, and two of its constants have closed forms.
+  </p>
+
+  <h4>(a) Scaling and power classes</h4>
+  <p>
+    <span class="tag t-proved">Proved</span>
+    The substitution <span class="mono">f(x) = a<sup>d</sup>·g(x/a)</span> is a bijection on monic degree-<span class="mono">d</span>
+    polynomials with <span class="mono">f + a<sup>d</sup>h = a<sup>d</sup>(g(x/a) + h)</span>, and it preserves
+    irreducibility. Hence
+  </p>
+  <div class="fml">T(d; q, a^d h) = T(d; q, h)      and T is constant on d-th power classes.</div>
+  <p>
+    So the shift variable lives in <span class="mono">𝔽<sub>q</sub><sup>×</sup>/(𝔽<sub>q</sub><sup>×</sup>)<sup>d</sup></span>,
+    a cyclic group of order <span class="mono">d</span> when <span class="mono">d ∣ q−1</span>, and
+    <span class="mono">T</span> is a function on <span class="mono">ℤ/d</span>.
+  </p>
+
+  <h4>(b) The amplitudes are a DFT</h4>
+  <p>
+    <span class="tag t-proved">Proved</span>
+    Writing <span class="mono">T<sub>k</sub> = T(d;q,u<sub>k</sub>)</span> for a choice of class representatives
+    <span class="mono">u<sub>k</sub></span>, and
+    <span class="mono">A<sub>c</sub> = Σ<sub>k</sub> T<sub>k</sub> ζ<sub>d</sub><sup>ck</sup></span> for the
+    <span class="mono">d</span>-point DFT,
+  </p>
+  <div class="fml">d·T_k = Σ_{c=0}^{d−1} A_c ζ_d^{−ck} ,      c₄ = (1/4)[(A₀−A₂) − i(A₁−A₃)] .</div>
+  <p>
+    The class counts <span class="mono">T<sub>k</sub></span> are integers, so each
+    <span class="mono">A<sub>c</sub></span> lies in <span class="mono">ℤ[ζ<sub>d</sub>]</span>; at
+    <span class="mono">d = 4</span> the assembled amplitude satisfies the parity integrality
+    <span class="mono">c₄/(2q) ∈ ℤ[i]</span>, which is proved. Lean: <code>TwinEven</code>.
+  </p>
+
+  <h4>(c) Divisibility by <span class="mono">q</span></h4>
+  <p>
+    <span class="tag t-proved">Proved</span><span class="tag t-lean">Lean</span>
+    For <span class="mono">d &lt; q</span>, <span class="mono">q ∣ T(d;q,h)</span>.
+  </p>
+  <div class="proof">
+    <span class="proof-label">Proof</span>
+    <p>
+      Let <span class="mono">σ<sub>a</sub> : f(X) ↦ f(X+a)</span> for <span class="mono">a ∈ 𝔽<sub>q</sub></span>.
+      This preserves monicity, degree, irreducibility, and the pair condition
+      <span class="mono">(f+h)(X+a) = f(X+a)+h</span>, so it acts on the set counted by
+      <span class="mono">T</span>. The action is free when <span class="mono">d &lt; q</span>: a nonzero
+      translation-invariant polynomial has degree at least <span class="mono">q</span>, the minimal example being
+      <span class="mono">X<sup>q</sup>−X</span>. A finite set carrying a free action of a group of order
+      <span class="mono">q</span> has cardinality divisible by <span class="mono">q</span>.
+      <span class="qed">∎</span>
+    </p>
+  </div>
+  <p class="fine">
+    The freeness hypothesis is sharp: at <span class="mono">d = q = 5</span>,
+    <span class="mono">T(5;5,h) = 98</span> for every <span class="mono">h ≠ 0</span>, and
+    <span class="mono">5 ∤ 98</span>, because <span class="mono">X<sup>5</sup>−X</span> is translation-invariant.
+    Verified for <span class="mono">d = 2,…,6</span> and every odd prime <span class="mono">q = 5,…,31</span> with
+    <span class="mono">d &lt; q</span>; no failures. Lean: the abstract engine is
+    <code>FreeOrbit.card_dvd_card_of_free_action</code> (orbit–stabiliser plus the class formula).
+  </p>
+  <p class="fine">
+    <em>Sourcing note.</em> The round-91 note paraphrases the action as
+    <span class="mono">t·(f,g) = (f+t, g+t)</span>, i.e. translation of the <em>value</em>. That operation does
+    <b>not</b> preserve irreducibility (e.g. <span class="mono">x⁴+b</span> is reducible for about half the
+    <span class="mono">b</span>). The preserved operation, and the one the round-23 argument actually uses, is
+    translation of the <em>variable</em>, <span class="mono">f(X) ↦ f(X+a)</span>. The Lean file proves the abstract
+    orbit-counting lemma, which is correct and reusable; the application step is the round-23 argument.
+  </p>
+
+  <h4>(d) The even symmetry</h4>
+  <p>
+    <span class="tag t-proved">Proved</span><span class="tag t-lean">Lean</span>
+    <span class="mono">T(d;q,h) = T(d;q,−h)</span>.
+  </p>
+  <div class="proof">
+    <span class="proof-label">Proof</span>
+    <p>
+      For <span class="mono">d ≥ 1</span> the map <span class="mono">f ↦ f+h</span> is a bijection of the monic
+      degree-<span class="mono">d</span> polynomials (adding a constant preserves monicity and degree). It carries the
+      property “<span class="mono">f</span> and <span class="mono">f+h</span> both irreducible” to
+      “<span class="mono">g = f+h</span> and <span class="mono">g−h = f</span> both irreducible”, which is exactly the
+      defining property of <span class="mono">T(d;q,−h)</span>. Hence the two counts agree.
+      <span class="qed">∎</span>
+    </p>
+  </div>
+  <p class="fine">Lean: <code>TwinEven</code> (including <code>add_right_injective'</code>).</p>
+
+  <h4>(e) The even-quartic irreducibility set, exactly</h4>
+  <p>
+    <span class="tag t-proved">Proved</span> This is the cleanest complete description in the programme.
+  </p>
+  <div class="fml">x⁴ + a₂x² + b  irreducible   ⟺   χ₂(b) = −1   and   χ₂(a₂²−4b) = −1 .</div>
+  <div class="proof">
+    <span class="proof-label">Proof</span>
+    <p>
+      Write <span class="mono">f = h(x²)</span> with <span class="mono">h(y) = y²+a₂y+b</span>.
+      (i) <span class="mono">h</span> is irreducible iff its discriminant is a non-square,
+      <span class="mono">χ₂(a₂²−4b) = −1</span>.
+      (ii) If <span class="mono">h</span> is irreducible with root <span class="mono">r ∈ 𝔽<sub>q²</sub> ∖ 𝔽<sub>q</sub></span>,
+      then <span class="mono">f = h(x²)</span> is irreducible iff <span class="mono">r</span> is not a square in
+      <span class="mono">𝔽<sub>q²</sub></span>. For <span class="mono">r ≠ 0</span>, both “<span class="mono">r</span> is
+      a square in <span class="mono">𝔽<sub>q²</sub></span>” and “<span class="mono">N(r) = b</span> is a square in
+      <span class="mono">𝔽<sub>q</sub></span>” are the single condition
+      <span class="mono">r<sup>(q²−1)/2</sup> = 1</span>, so they coincide.
+      (iii) If <span class="mono">h</span> splits, <span class="mono">f</span> factors as two quadratics and is
+      reducible. <span class="qed">∎</span>
+    </p>
+  </div>
+  <p>Counting with <span class="mono">1<sub>χ₂=−1</sub> = (1−χ₂)/2</span>,</p>
+  <div class="fml">|B(a₂)| = (1/4)[ q + Σ_b χ₂(b)χ₂(a₂²−4b) ] ,
+      |B(0)| = (q−1)/2 ,      |B(a₂)| = (q−1)/4   (a₂ ≠ 0) ,</div>
+  <p>
+    since for <span class="mono">a₂ ≠ 0</span> the standard quadratic sum gives
+    <span class="mono">Σ<sub>b</sub>χ₂(b)χ₂(x−b) = −1</span> at the nonzero square
+    <span class="mono">x = a₂²/4</span>. Verified at <span class="mono">q = 17,41,73</span> for every
+    <span class="mono">a₂</span>.
+  </p>
+
+  <h4>(f) The constant <span class="mono">A</span></h4>
+  <p>
+    <span class="tag t-proved">Proved</span>
+    With the sizes above, Parseval gives the closed form
+  </p>
+  <div class="fml">Σ_{a₂}|B(a₂)| = (q²−1)/4 ,      S₀ = (q−1)²/4 + (q−1)³/16 ,
+Σ_{c≠0} S_c = (q−1)A = q(q²−1)/4 − S₀ ,
+              A = (3q² + 2q + 3)/16 .</div>
+  <p>
+    The step that makes it work is <span class="mono">Σ<sub>c≠0</sub>χ₂(c) = 0</span>: the
+    <span class="mono">B</span>-term drops out of the class sum. Verified exactly at seven primes
+    (<span class="mono">q = 17,41,73,89,97,113,137</span>).
+  </p>
+
+  <h4>(g) The integer <span class="mono">m</span>, and the Jacobi sum</h4>
+  <p>
+    <span class="tag t-verified">Verified at 28 primes</span>
+    Write <span class="mono">q = a² + b²</span> with <span class="mono">a</span> odd and
+    <span class="mono">b ≡ 0 (mod 4)</span> — the unique such representation when
+    <span class="mono">q ≡ 1 (mod 8)</span>, which is the case for all the data below. Then
+  </p>
+  <div class="fml">2B = m·√q ,        m = (a² + 1)/2 = (|Re J(χ₄,χ₄)|² + 1)/2 ,</div>
+  <div class="tw">
+  <table>
+    <caption><span class="mono">m</span> against the representation of <span class="mono">q</span> as a sum of two squares.</caption>
+    <thead><tr><th class="num">q</th><th>a²+b²</th><th class="num">m</th><th class="num">(a²+1)/2</th><th class="num">Re J(χ₄,χ₄)</th></tr></thead>
+    <tbody>
+      <tr><td class="num">17</td><td>1²+4²</td><td class="num">1</td><td class="num">1</td><td class="num">−1</td></tr>
+      <tr><td class="num">41</td><td>5²+4²</td><td class="num">13</td><td class="num">13</td><td class="num">−5</td></tr>
+      <tr><td class="num">73</td><td>3²+8²</td><td class="num">5</td><td class="num">5</td><td class="num">3</td></tr>
+      <tr><td class="num">89</td><td>5²+8²</td><td class="num">13</td><td class="num">13</td><td class="num">5</td></tr>
+      <tr><td class="num">97</td><td>9²+4²</td><td class="num">41</td><td class="num">41</td><td class="num">−9</td></tr>
+      <tr><td class="num">233</td><td>13²+8²</td><td class="num">85</td><td class="num">85</td><td class="num">13</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>
+    The identification matters because it converts an isolated arithmetic accident into a statement about a classical
+    object: the quartic Jacobi sum satisfies <span class="mono">J(χ₄,χ₄) = ±(a+bi)</span>, so
+    <span class="mono">m</span> is a shifted square of its real part. One structural consequence: at
+    <span class="mono">q = 41</span> one has <span class="mono">m = 13 &gt; 2√41 ≈ 12.8</span>, so
+    <span class="mono">m</span> is <em>not</em> a single Frobenius trace; it must be a sum.
+  </p>
+
+  <h4>(h) The parity law, explicit</h4>
+  <p>
+    <span class="tag t-proved">Proved</span> (from the decomposition)
+    <span class="tag t-verified">verified exactly</span> at seven primes.
+  </p>
+  <div class="fml">E(h) = (q² − 2q − 7)/16 + ((a² + 1)/4)·χ₂(2h)
+T(h) ≡ E(h)   (mod 2) .</div>
+  <div class="proof">
+    <span class="proof-label">Derivation</span>
+    <p>
+      With <span class="mono">S<sub>c</sub> = A + Bχ₂(c)</span>,
+      <span class="mono">A = (3q²+2q+3)/16</span>,
+      <span class="mono">B = m√q/2 = (a²+1)√q/4</span>, and
+      <span class="mono">S₀ − A = q(q²−2q−7)/16</span>, one has
+    </p>
+    <div class="fml sm">E(h) = (S₀ − A)/q + (m/2)·χ₂(−h) = (q²−2q−7)/16 + ((a²+1)/4)·χ₂(2h) .</div>
+    <p>
+      The two displayed forms agree because <span class="mono">q ≡ 1 (mod 8)</span> makes
+      <span class="mono">2</span> a quadratic residue, so <span class="mono">χ₂(2h) = χ₂(−h)</span>.
+      <span class="qed">∎</span>
+    </p>
+  </div>
+  <p class="fine">
+    All the <span class="mono">m</span> and <span class="mono">E</span> data above are at primes
+    <span class="mono">q ≡ 1 (mod 8)</span>; the closed form
+    <span class="mono">m = (a²+1)/2</span> presupposes the representation with
+    <span class="mono">a</span> odd and <span class="mono">b ≡ 0 mod 4</span> that this congruence guarantees. Stating
+    the hypothesis matters: without it the two-square representation is not canonical.
+  </p>
+
+  <!-- ---------- F4 ---------- -->
+  <h3 id="f4"><span class="fno">Finding 4</span>The single remaining identity</h3>
+
+  <p>
+    <span class="tag t-verified">Verified exactly at 80 primes</span><span class="tag t-open">Open</span>
+    Everything in Target B reduces to one identity about a quadratic exponential sum. Define
+  </p>
+  <div class="fml">K(A,c) = Σ_w χ₂(A² − w²) ζ^{−cw/4} ,        H(a,c) = ζ^{−ca²/8}·K(A,c) ,   A = a²/2 .</div>
+  <p>
+    <span class="mono">K</span> is real, and the two sums that carry the arithmetic are
+  </p>
+  <div class="fml">Σ_A |K(A,c)|²            = q² − 2q                      (clean, independent of c)
+Σ_A χ₂(A)·|K(A,c)|²     = 2χ₂(c)·√q·Re J(χ₄,χ₄)²     (the last identity)</div>
+  <p>
+    The first is an orthogonality statement — <span class="mono">K</span> is, up to a Gauss factor, the Fourier
+    transform of <span class="mono">χ₂(A²−w²)</span>, and Parseval gives <span class="mono">q²</span> minus the two
+    boundary terms. The second is the whole arithmetic content of the programme, and it is the one thing that is not
+    proved. Its consequence is exact: since
+  </p>
+  <div class="fml">Σ_a |H(a,c)|² = |K(0)|² + 2Σ_{A square ≠ 0}|K|² = q² − 2q + 2χ₂(c)√q·Re J(χ₄,χ₄)² ,</div>
+  <p>
+    the identity would make <span class="mono">Σ<sub>a</sub>|H|²</span> — and hence the whole
+    <span class="mono">c₄</span> chain and the parity law — unconditional.
+  </p>
+
+  <h4>Two stages of the reduction</h4>
+  <p>
+    Rounds 99–105 localise the difficulty twice, and both steps are worth recording because they are proved.
+    First, expanding <span class="mono">|T₂+T₃−T₄|²</span> and summing over <span class="mono">a₂</span>:
+  </p>
+  <div class="fml">bulk_c = (1/16)[ 2q² + Σ|H|² + 2χ₂(−1)χ₂(−c)q√q + 4q ] ,
+Σ_{a₂}|H(a₂,c)|² = q² − 2q − 2χ₂(c)q√q + 4a²χ₂(c)√q ,
+bulk_c = (3q² + 2q)/16 + (a²√q/4)·χ₂(c) .</div>
+  <p>
+    So the entire <span class="mono">a²</span>-dependence of <span class="mono">m</span> lives in the single sum
+    <span class="mono">Σ<sub>a₂</sub>|H(a₂,c)|²</span>; every other term is a rational polynomial in
+    <span class="mono">q</span>. That is a real theorem about where the arithmetic is hiding, and it is the reason the
+    last gap can be stated as one line.
+  </p>
+
+  <h4>The falsification test, completed (019)</h4>
+
+  <p>
+    <span class="tag t-verified">80 primes, exact</span>
+    The round-106 note left a cheap and sharp test: one more prime. In
+    <a href="README.md">019</a> the test was run exhaustively, and — more importantly — <em>exactly</em>. Both sides
+    of the identity are elements of the cyclotomic ring <span class="mono">ℤ[ζ<sub>q</sub>]</span>: each is written as
+    an integer vector of length <span class="mono">q</span>, and equality is decided by reduction modulo
+    <span class="mono">Φ<sub>q</sub></span>. No floating-point tolerance enters the verdict, so a pass is a proof
+    <em>for that prime</em>, not a numerical coincidence.
+  </p>
+
+  <div class="fml">tested :  every prime q ≡ 1 (mod 4), q ≤ 1000   (80 primes),  c ∈ {1,2,3}
+method :  both sides as integer vectors in ℤ[ζ_q], compared modulo Φ_q
+runtime:  3.4 s</div>
+
+  <div class="tw">
+  <table>
+    <caption>Representative rows. “strict” is the identity as stated in round 105; “general” is the corrected form below.</caption>
+    <thead><tr>
+      <th class="num">q</th><th class="num">q mod 8</th><th>two-square rep.</th>
+      <th class="num">a²−b²</th><th class="num">2χ₂(2)(a²−b²)</th>
+      <th>strict</th><th>general</th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="num">13</td><td class="num">5</td><td>3² + 2²</td><td class="num">5</td><td class="num">-10</td><td><span class="tag t-open">fails</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">17</td><td class="num">1</td><td>1² + 4²</td><td class="num">-15</td><td class="num">-30</td><td><span class="tag t-proved">holds</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">41</td><td class="num">1</td><td>5² + 4²</td><td class="num">9</td><td class="num">18</td><td><span class="tag t-proved">holds</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">73</td><td class="num">1</td><td>3² + 8²</td><td class="num">-55</td><td class="num">-110</td><td><span class="tag t-proved">holds</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">89</td><td class="num">1</td><td>5² + 8²</td><td class="num">-39</td><td class="num">-78</td><td><span class="tag t-proved">holds</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">97</td><td class="num">1</td><td>9² + 4²</td><td class="num">65</td><td class="num">130</td><td><span class="tag t-proved">holds</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">101</td><td class="num">5</td><td>1² + 10²</td><td class="num">-99</td><td class="num">198</td><td><span class="tag t-open">fails</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">401</td><td class="num">1</td><td>1² + 20²</td><td class="num">-399</td><td class="num">-798</td><td><span class="tag t-proved">holds</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">937</td><td class="num">1</td><td>19² + 24²</td><td class="num">-215</td><td class="num">-430</td><td><span class="tag t-proved">holds</span></td><td><span class="tag t-proved">holds</span></td></tr>
+      <tr><td class="num">997</td><td class="num">5</td><td>31² + 6²</td><td class="num">925</td><td class="num">-1850</td><td><span class="tag t-open">fails</span></td><td><span class="tag t-proved">holds</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tw">
+  <table>
+    <caption>Summary over all 80 primes.</caption>
+    <thead><tr><th>Form</th><th class="num">holds</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>strict: <span class="mono">2χ₂(c)√q Re J²</span></td><td class="num">37 / 80</td>
+        <td>holds at <b>every</b> <span class="mono">q ≡ 1 (mod 8)</span> (37/37) and at <b>no</b>
+          <span class="mono">q ≡ 5 (mod 8)</span> (0/43)</td></tr>
+      <tr><td>general: <span class="mono">2χ₂(2c)√q Re J²</span></td><td class="num">80 / 80</td>
+        <td>holds everywhere, both classes</td></tr>
+      <tr><td>untwisted: <span class="mono">Σ_A|K|² = q²−2q</span></td><td class="num">80 / 80</td>
+        <td>holds everywhere, as expected</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    Two things came out of the test, and both sharpen the target rather than close it.
+  </p>
+  <ol>
+    <li>
+      <b>The stated hypothesis was too weak.</b> The identity does not hold for all
+      <span class="mono">q ≡ 1 (mod 4)</span>: it fails at <span class="mono">q = 13, 29, 37, 53, 61, …</span> — every
+      prime <span class="mono">≡ 5 (mod 8)</span>. The measured boundary is <em>exactly</em>
+      <span class="mono">q ≡ 1 (mod 8)</span>, which is the same as <span class="mono">χ₂(2) = 1</span>. The
+      programme's “in practice <span class="mono">q ≡ 1 mod 8</span>” is therefore not an artefact of the data: it is
+      the hypothesis.
+    </li>
+    <li>
+      <b>The failure has a one-character fix.</b> At every prime tested,
+      <div class="fml">Σ_A χ₂(A)·|K(A,c)|² = 2χ₂(2c)·√q·Re J(χ₄,χ₄)² ,</div>
+      which reduces to the stated form precisely when <span class="mono">χ₂(2) = 1</span>. This is a sharper and
+      uniform version of the identity, and it is what a proof should now aim at.
+    </li>
+  </ol>
+
+  <p>
+    The test therefore neither proves nor refutes the identity: it <em>locates</em> it. No counterexample was found
+    to the corrected form in 80 primes; the original form is dead outside <span class="mono">q ≡ 1 (mod 8)</span>.
+    Supporting material in <a href="README.md">019</a>:
+    <a href="results.json">results.json</a> (all rows),
+    <a href="checks/falsification_test.py">falsification_test.py</a> (the runner),
+    <a href="tests/test_twisted_parseval.py">test_twisted_parseval.py</a> (14 unit tests),
+    <a href="checks/sympy_crosscheck.py">sympy_crosscheck.py</a> (independent sympy/mpmath path at 50 digits).
+  </p>
+
+  <h4>What is certified, and what is not</h4>
+
+  <p>
+    The one purely combinatorial step in the derivation is that “sum over the squares” is “sum over everything plus
+    the <span class="mono">χ₂</span>-weighted sum”. That step is now a Lean theorem, for an arbitrary complex-valued
+    function on <span class="mono">ZMod p</span>:
+  </p>
+  <div class="fml">theorem Twist.twisted_parseval_step (f : ZMod p → ℂ) (h0 : f 0 = 0) :
+    2 * ∑ a, (if IsSquare a then f a else 0)
+      = ∑ a, f a + ∑ a, (quadraticChar (ZMod p) a : ℂ) * f a</div>
+  <p>
+    together with the pointwise form <code>2·1<sub>square</sub> = 1 + χ₂</code> and the sanity corollary that
+    <span class="mono">ZMod p</span> has <span class="mono">(p+1)/2</span> squares. All five declarations are
+    elaborated by <code>019/lean/Twist.lean</code> with only the standard axioms
+    (<code>propext</code>, <code>Classical.choice</code>, <code>Quot.sound</code>).
+  </p>
+  <p>
+    What this certifies is that no arithmetic is hidden in the passage between the two sides — the identity's content
+    is entirely in the character sum. What it does <em>not</em> certify is the character sum itself, which remains
+    open. The green Lean file is a statement about the <em>reduction</em>, not about the identity.
+  </p>
+
+  <h4>What would close it</h4>
+  <p>
+    The programme's own probe (Probe 47, <a href="#probes">§4</a>) is that the identity is the
+    <em>twisted Parseval</em> for <span class="mono">K</span>: the untwisted sum is
+    <span class="mono">q²−2q</span>, and twisting by <span class="mono">χ₂</span> replaces the trivial character by
+    <span class="mono">χ₂</span>, whose Fourier transform is the Jacobi sum. That is a plausible mechanism, not a
+    proof. Concretely, a proof would go through a Salié/Kloosterman evaluation of
+    <span class="mono">Σ<sub>a₂</sub>χ₂(a₂²−4v)χ₂(a₂²−4w)</span> after completing the square — now with the
+    <span class="mono">χ₂(2)</span> factor of the corrected form accounted for.
+  </p>
+
+  <!-- ---------- F5 ---------- -->
+  <h3 id="f5"><span class="fno">Finding 5</span>The parity theorem: the twin indicator is not a divisor sum</h3>
+
+  <p>
+    <span class="tag t-proved">Proved</span><span class="tag t-lean">Lean</span>
+    This is the negative result that the programme treats as its honest core.
+  </p>
+
+  <h4>Lemma 5.1 (periodicity)</h4>
+  <p>
+    Let <span class="mono">S</span> be a finite set of divisors, all dividing <span class="mono">L</span>. Then for
+    every <span class="mono">g : ℕ → ℝ</span>,
+  </p>
+  <div class="fml">Σ_{d∈S, d|n} g(d) = Σ_{d∈S, d|n+L} g(d) .</div>
+  <div class="proof">
+    <span class="proof-label">Proof</span>
+    <p>
+      For <span class="mono">d ∈ S</span> we have <span class="mono">d ∣ L</span>, so
+      <span class="mono">n+L ≡ n (mod d)</span> and hence <span class="mono">d ∣ n ⟺ d ∣ n+L</span>. The two sums
+      therefore have identical summands. <span class="qed">∎</span>
+    </p>
+  </div>
+  <p>
+    A Selberg-type sieve weight <span class="mono">n ↦ Σ<sub>d|n, d≤D</sub>λ<sub>d</sub></span> is exactly of this
+    form with <span class="mono">S = {1,…,D}</span> and <span class="mono">L = lcm(1,…,D)</span>. Hence
+    <b>every bounded-support sieve weight is periodic</b>. Lean:
+    <code>Periodic.divisor_sum_periodic</code>.
+  </p>
+
+  <h4>Lemma 5.2 (the twin indicator is not periodic)</h4>
+  <div class="proof">
+    <span class="proof-label">Proof</span>
+    <p>
+      <span class="mono">twinInd(3) = 1</span> because <span class="mono">3</span> and <span class="mono">5</span> are
+      both prime. For any <span class="mono">L ≥ 1</span>,
+      <span class="mono">3+3L = 3(1+L)</span> is divisible by <span class="mono">3</span> and exceeds
+      <span class="mono">3</span>, hence composite, so <span class="mono">twinInd(3+3L) = 0</span>. If
+      <span class="mono">twinInd</span> had period <span class="mono">L</span>, iterating the period would give
+      <span class="mono">twinInd(3) = twinInd(3+3L)</span> — a contradiction. <span class="qed">∎</span>
+    </p>
+  </div>
+  <p>Lean: <code>NonPeriodic.twinInd_not_periodic</code>.</p>
+
+  <h4>Theorem 5.3</h4>
+  <div class="fml">¬ ∃ (S finite) (L ≥ 1) (∀ d∈S, d|L) (g : ℕ → ℝ),  ∀ n,  twinInd n = Σ_{d∈S, d|n} g(d) .</div>
+  <div class="proof">
+    <span class="proof-label">Proof</span>
+    <p>
+      The right-hand side is <span class="mono">L</span>-periodic by Lemma 5.1; the left-hand side is not, by
+      Lemma 5.2. <span class="qed">∎</span>
+    </p>
+  </div>
+  <p class="fine">
+    Lean: <code>NonPeriodic.twinInd_not_divisor_sum</code>, on top of <code>Periodic</code> and
+    <code>DivisorSum</code> (the latter also proves the multiplicative obstruction: a divisor sum
+    <span class="mono">ζ∗g</span> with multiplicative <span class="mono">g</span> is multiplicative, and the twin
+    indicator is not).
+  </p>
+
+  <div class="warn">
+    <strong>Scope correction.</strong> The synthesis states this as “complete for the entire Selberg class”
+    (twice). That is stronger than what is proved. The theorem excludes <em>bounded-support, hence periodic,
+    divisor sums</em> — i.e. classical Selberg sieve weights of finite level. The Selberg class is a class of
+    Dirichlet series with an Euler product and a functional equation; nothing here rules out weights built from
+    automorphic forms, and the sources say so elsewhere (“the missing object is a non-periodic weight”). The correct
+    statement, and the one this harvest reports, is: <b>the twin indicator is not a bounded-support divisor sum, so
+    no classical finite-level Selberg sieve can produce it.</b> The quantitative strengthening — that the two-point
+    count is off by a factor <span class="mono">2</span> — is numerical only.
+  </div>
+
+  <!-- ---------- F6 ---------- -->
+  <h3 id="f6"><span class="fno">Finding 6</span>The negative map: what the programme ruled out</h3>
+
+  <p>
+    <span class="tag t-proved">Proved</span><span class="tag t-refuted">Refuted</span>
+    A large part of the value here is subtractive. Each item below closes a door, and closes it with a computation or
+    an argument rather than an intuition.
+  </p>
+
+  <div class="tw">
+  <table>
+    <caption>Results that constrain where the difficulty can live.</caption>
+    <thead><tr><th>Result</th><th>Content</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>The low-degree miracle stops at <span class="mono">d = 5</span></td>
+        <td>Exact polynomial formulas hold for the generic twin count at <span class="mono">d = 3,4</span> and fail at
+          <span class="mono">d = 5</span>: no polynomial of any degree fits, by the <span class="mono">q⁵/25</span>
+          degree bound plus interpolation error.</td>
+        <td>Errors at <span class="mono">q = 29,37,43</span>: <span class="mono">5.1·10⁴</span>,
+          <span class="mono">5.5·10⁵</span>, <span class="mono">1.8·10⁶</span></td>
+      </tr>
+      <tr>
+        <td>Value-set collapse for <span class="mono">d ≥ 5</span></td>
+        <td>The cap is a <span class="mono">d = 4</span> phenomenon. For <span class="mono">d = 8,9</span> at
+          <span class="mono">q = 5</span> the null polynomial <span class="mono">x<sup>d−q</sup>(x<sup>q</sup>−x)</span>
+          is extremal with <span class="mono">|Im| = 1</span>, and the maximum exceeds
+          <span class="mono">(q−1)/2</span>.</td>
+        <td>Explicit extremal families, <span class="mono">q = 5,…,9</span></td>
+      </tr>
+      <tr>
+        <td>The <span class="mono">j</span>-line has density <span class="mono">1/4</span></td>
+        <td>For <span class="mono">a₂ ≠ 0</span> the count depends only on
+          <span class="mono">j = a₁²/a₂³</span> and satisfies
+          <span class="mono">I(j) = (q−1)/4 + O(1)</span>, fluctuation at most <span class="mono">5</span> —
+          far below the Weil range <span class="mono">2√q</span>. Only the degenerate class
+          <span class="mono">x⁴+b</span> reaches density <span class="mono">1/2</span>: the cap is a cusp
+          phenomenon.</td>
+        <td><span class="mono">q = 13,29,37,41</span></td>
+      </tr>
+      <tr>
+        <td>Refuted: the elliptic-trace probe</td>
+        <td>The <span class="mono">j</span>-line fluctuation was conjectured to be
+          <span class="mono">−a<sub>j</sub>/2</span>; it is not. Correlation
+          <span class="mono">+0.30, +0.25, −0.10, −0.18</span>; identity holds at
+          <span class="mono">0/13, 0/29, 1/37, 0/41</span> shifts.</td>
+        <td>Round 30, direct test</td>
+      </tr>
+      <tr>
+        <td>Refuted: the class-number probe</td>
+        <td>The extremal count is not governed by an imaginary quadratic class number.</td>
+        <td>Round 22</td>
+      </tr>
+      <tr>
+        <td>Refuted: <span class="mono">m</span> as one trace</td>
+        <td><span class="mono">m</span> cannot be a single Frobenius trace: at
+          <span class="mono">q = 41</span>, <span class="mono">m = 13 &gt; 2√41</span>.</td>
+        <td>Round 86</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    Item 1 is the most consequential. It says the exact-formula regime is genuinely low-degree: whatever structure
+    produces <span class="mono">A = (3q²+2q+3)/16</span> at <span class="mono">d = 4</span> does not survive one more
+    degree. Any programme that hoped to climb <span class="mono">d</span> to a general theorem has to explain this
+    wall.
+  </p>
+
+  <!-- ---------- F7 ---------- -->
+  <h3 id="f7"><span class="fno">Finding 7</span>What was <em>not</em> achieved</h3>
+
+  <p>For symmetry, the negative ledger. Stated plainly, so the map is not mistaken for a solution:</p>
+  <ul>
+    <li>
+      <b>No proof of the twin prime conjecture</b>, over ℚ or over <span class="mono">𝔽<sub>q</sub>[x]</span>. The
+      function-field count is <em>cited</em> (Pollack; Bary-Soroker–Stix), not reproved; the fixed-<span class="mono">q</span>,
+      <span class="mono">n → ∞</span> asymptotic remains conjectural in the literature the programme searched.
+    </li>
+    <li>
+      <b>No crossing of the parity barrier.</b> Target C is an impossibility theorem: it says a class of methods
+      fails. It does not construct the non-periodic weight that would succeed, and over ℚ that construction is the
+      open problem.
+    </li>
+    <li>
+      <b>No formalisation of the cap's generic case.</b> Ritt/Guralnick–Saxl, Poincaré reducibility and the
+      <span class="mono">S₄</span> decomposition are not in Lean. The certified layer covers the algebraic links and
+      the finite base (<span class="mono">q ≤ 23</span>), not the analytic input.
+    </li>
+    <li>
+      <b>No proof of the last identity.</b> Five primes is not a theorem. The mechanism (twisted Parseval) is Probe 47,
+      explicitly speculative.
+    </li>
+    <li>
+      <b>No sharp quantitative parity constant.</b> The “factor 2” separation in Target C is numerical.
+    </li>
+    <li>
+      <b>No structural explanation for <span class="mono">m = (a²+1)/2</span>.</b> The formula is verified and
+      identified with <span class="mono">J(χ₄,χ₄)</span>, but the derivation from the Gauss-sum expansion is not
+      carried out.
+    </li>
+  </ul>
+</section>
+
+<!-- ============ 3 LEDGER ============ -->
+<section id="ledger">
+  <h2 class="sec"><span class="num">3</span>The ledger</h2>
+  <p>
+    Every substantive claim in the programme, at its true status. This table is the answer to “what has been
+    achieved”, in one screen.
+  </p>
+
+  <div class="tw">
+  <table>
+    <caption>Status ledger. “Lean” = machine-checked; “Verified” = exact finite computation; “n primes” = number of primes at which the claim was checked.</caption>
+    <thead><tr><th>Claim</th><th>Status</th><th>Evidence / source</th></tr></thead>
+    <tbody>
+      <tr><td><b>Target A — the <span class="mono">d=4</span> cap</b></td><td><span class="tag t-proved">Proved</span> modulo 3 theorems</td><td>see F2</td></tr>
+      <tr><td>Translation <span class="mono">a₃ ↦ 0</span></td><td><span class="tag t-lean">Lean</span></td><td><code>Shift</code></td></tr>
+      <tr><td><span class="mono">R = (−Im g) ∪ Q</span></td><td><span class="tag t-lean">Lean</span></td><td><code>Factorization</code></td></tr>
+      <tr><td>Composition case <span class="mono">R = Q</span></td><td><span class="tag t-lean">Lean</span></td><td><code>Composition</code></td></tr>
+      <tr><td><span class="mono">x⁴+b</span> size</td><td><span class="tag t-lean">Lean</span></td><td><code>NegSquare</code></td></tr>
+      <tr><td><span class="mono">a₂≠0</span> size <span class="mono">q−⌊(q+2)/4⌋</span></td><td><span class="tag t-lean">Lean</span></td><td><code>QSize</code>, <code>QOrbit</code></td></tr>
+      <tr><td>Generic bound <span class="mono">|Im| ≥ 5q/8 − ½√q − O(1)</span></td><td><span class="tag t-open">Conditional</span></td><td>Ritt + Poincaré + Weil + S₄</td></tr>
+      <tr><td>Finite base <span class="mono">q &lt; 49</span></td><td><span class="tag t-lean">Lean</span> + <span class="tag t-verified">Checked</span></td><td><code>SmallCap</code>, Python</td></tr>
+      <tr><td><b>Target B — closed forms</b></td><td></td><td></td></tr>
+      <tr><td><span class="mono">T(a<sup>d</sup>h) = T(h)</span>; constancy on power classes</td><td><span class="tag t-proved">Proved</span></td><td>scaling, F3(a)</td></tr>
+      <tr><td>Amplitudes are a <span class="mono">d</span>-point DFT</td><td><span class="tag t-proved">Proved</span></td><td>F3(b)</td></tr>
+      <tr><td><span class="mono">T(d;q,h) = T(d;q,−h)</span></td><td><span class="tag t-lean">Lean</span></td><td><code>TwinEven</code></td></tr>
+      <tr><td><span class="mono">q ∣ T(d;q,h)</span> for <span class="mono">d &lt; q</span></td><td><span class="tag t-proved">Proved</span> + <span class="tag t-lean">Lean</span></td><td><code>FreeOrbit</code>; sharp at <span class="mono">d=q=5</span></td></tr>
+      <tr><td><span class="mono">B(a₂)</span> characterization and sizes</td><td><span class="tag t-proved">Proved</span></td><td>F3(e)</td></tr>
+      <tr><td><span class="mono">A = (3q²+2q+3)/16</span></td><td><span class="tag t-proved">Proved</span></td><td>F3(f), 7 primes</td></tr>
+      <tr><td><span class="mono">m = (a²+1)/2</span></td><td><span class="tag t-verified">28 primes</span></td><td>F3(g)</td></tr>
+      <tr><td><span class="mono">E(h)</span> closed form, parity law</td><td><span class="tag t-verified">7 primes</span></td><td>F3(h)</td></tr>
+      <tr><td><span class="mono">Σ<sub>a₂</sub>|H|²</span> formula</td><td><span class="tag t-verified">7 primes</span></td><td>F4</td></tr>
+      <tr><td>Last identity (twisted Parseval)</td><td><span class="tag t-verified">80 primes, exact</span> / <span class="tag t-open">Open</span></td><td>F4, 019</td></tr>
+      <tr><td><b>Target C — parity</b></td><td></td><td></td></tr>
+      <tr><td>Bounded-support divisor sums are periodic</td><td><span class="tag t-proved">Proved</span> + <span class="tag t-lean">Lean</span></td><td><code>Periodic</code></td></tr>
+      <tr><td>Twin indicator is not periodic</td><td><span class="tag t-proved">Proved</span> + <span class="tag t-lean">Lean</span></td><td><code>NonPeriodic</code></td></tr>
+      <tr><td>Hence not a bounded-support divisor sum</td><td><span class="tag t-proved">Proved</span> + <span class="tag t-lean">Lean</span></td><td><code>NonPeriodic</code>, <code>DivisorSum</code></td></tr>
+      <tr><td>Separation theorem (zeta cannot see twins)</td><td><span class="tag t-proved">Proved</span> + <span class="tag t-lean">Lean</span></td><td><code>Separation</code>, witness over <span class="mono">𝔽₇</span></td></tr>
+      <tr><td>Quantitative factor 2</td><td><span class="tag t-verified">Numerical</span></td><td>Target C, open</td></tr>
+      <tr><td>“Complete for the entire Selberg class”</td><td><span class="tag t-refuted">Overstated</span></td><td>see §7</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ 4 PROBES ============ -->
+<section id="probes">
+  <h2 class="sec"><span class="num">4</span>Speculative probes</h2>
+
+  <p>
+    The programme keeps a live register of speculative mechanisms, each recorded with its evidence, the reason it is
+    speculative, and a falsification test. They are called <b>probes</b> here — instruments sent ahead of the proof,
+    expected to come back with either confirmation or failure — and the register is reproduced in full, because it is
+    one of the more valuable parts of the record: a list of what the programme believed, what happened to those
+    beliefs, and what would kill each one.
+  </p>
+
+  <div class="tw">
+  <table>
+    <caption>Probe register. Numbers are the sources' own.</caption>
+    <thead><tr><th class="num">#</th><th>Probe</th><th>Outcome</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="num">3</td>
+        <td>The parity barrier <em>is</em> the periodicity gap; the missing object is a non-periodic weight
+          (automorphic, <span class="mono">GL(2)×GL(2)</span>-type).</td>
+        <td><span class="tag t-open">Live</span> The gap is proved; the identification with the barrier is an analogy.</td>
+      </tr>
+      <tr>
+        <td class="num">17</td>
+        <td>Factor-set “compensation”: at <span class="mono">d=4</span> the quadratic condition
+          <span class="mono">Q</span> compensates the value set; at <span class="mono">d ≥ 5</span> the factor sets
+          are too small.</td>
+        <td><span class="tag t-open">Live</span> Consistent with equality cases; no proof of the mechanism.</td>
+      </tr>
+      <tr>
+        <td class="num">23</td>
+        <td>The mod-8 congruence on <span class="mono">2B₄/q</span> is the 2-adic weight of the orbit space
+          (a Heisenberg-type extension).</td>
+        <td><span class="tag t-open">Live</span> Not identified.</td>
+      </tr>
+      <tr>
+        <td class="num">28</td>
+        <td><span class="mono">m</span> is a sum of finitely many Frobenius traces attached to the family
+          <span class="mono">x⁴+a₂x²+b</span>.</td>
+        <td><span class="tag t-open">Live</span> Consistent with <span class="mono">m &gt; 2√q</span>; number of terms unknown.</td>
+      </tr>
+      <tr>
+        <td class="num">31</td>
+        <td>The Gauss-sum route to <span class="mono">m</span>: expand <span class="mono">B̂(c)</span>, get
+          <span class="mono">ζ<sup>ca₂²/4</sup></span>, hence a Gauss sum and the <span class="mono">√q</span> term.</td>
+        <td><span class="tag t-open">Live</span> Now largely superseded by the <span class="mono">m=(a²+1)/2</span> identification.</td>
+      </tr>
+      <tr>
+        <td class="num">32</td>
+        <td><span class="mono">m = (a<sub>C</sub>−3)/2 + c(q)</span>, a Fermat-quartic surface correction.</td>
+        <td><span class="tag t-open">Superseded</span> The partial match (<span class="mono">q=17,41,89</span>) was replaced by the exact
+          <span class="mono">J(χ₄,χ₄)</span> formula.</td>
+      </tr>
+      <tr>
+        <td class="num">36</td>
+        <td>Proof of <span class="mono">m</span> by Gauss-sum expansion plus the classical
+          <span class="mono">J(χ₄,χ₄)=±(a+bi)</span>.</td>
+        <td><span class="tag t-open">Live</span> The natural route; not carried out.</td>
+      </tr>
+      <tr>
+        <td class="num">40</td>
+        <td>Kloosterman/Salié evaluation of <span class="mono">Σ<sub>a₂</sub>χ₂(a₂²−4v)χ₂(a₂²−4w)</span> after
+          completing the square.</td>
+        <td><span class="tag t-open">Live</span> Concrete route to the last identity.</td>
+      </tr>
+      <tr>
+        <td class="num">45</td>
+        <td><span class="mono">K(A,c)</span> is a conic point count; <span class="mono">Σ|H|²</span> follows from the
+          conic/Weil bound.</td>
+        <td><span class="tag t-open">Live</span> Reformulation exact; evaluation missing.</td>
+      </tr>
+      <tr>
+        <td class="num">46</td>
+        <td><span class="mono">Σ_A|K|² = q²−2q</span> is Parseval; the twisted sum is
+          <span class="mono">χ₂</span>-twisted Parseval giving <span class="mono">J²</span>.</td>
+        <td><span class="tag t-open">Live</span> This is Probe 47's parent; the untwisted half is clean.</td>
+      </tr>
+      <tr>
+        <td class="num">47</td>
+        <td>The last identity is twisted Parseval; then <span class="mono">m=(a²+1)/2</span> and the
+          <span class="mono">c₄</span> congruence are unconditional.</td>
+        <td><span class="tag t-open">Live</span> Closest to a proof strategy; still a probe.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    Two entries in this register were tested and <em>died</em> — the elliptic-trace reading of the
+    <span class="mono">j</span>-line (Probe of round 29, refuted in round 30) and the class-number reading (round 22).
+    A register that records its own failures is more useful than one that does not; that is the main reason to keep
+    the probes in a harvest rather than discarding them.
+  </p>
+</section>
+
+<!-- ============ 5 SIGNIFICANCE ============ -->
+<section id="significance">
+  <h2 class="sec"><span class="num">5</span>Significance, in plain terms</h2>
+
+  <h3>5.1 The one-sentence version</h3>
+  <p>
+    The programme did not get closer to proving the twin prime conjecture; it got <em>precise about why the obvious
+    tools cannot</em>, and it built a small, fully checkable universe in which the failure can be measured.
+  </p>
+
+  <h3>5.2 The layman's analogy</h3>
+  <p>
+    Imagine primes as a row of lamps, and the twin prime conjecture as the claim that two adjacent lamps are lit
+    infinitely often. The classical tool — the zeta function — is a machine that reads the row one lamp at a time and
+    reports a total. It is very good at totals. But “two adjacent lamps are both lit” is a statement about a
+    <em>pair</em>, and a machine that only totals single lamps cannot see it. Not because it is a weak machine, but
+    because the information was never in its input.
+  </p>
+  <p>
+    That is what Finding 1 proves, and it is the reason Selberg's parity barrier is not a technical nuisance. The
+    programme then did three useful things with the insight:
+  </p>
+  <ul>
+    <li>
+      <b>It built a miniature world where the question can be settled.</b> In
+      <span class="mono">𝔽<sub>q</sub>[x]</span> the pair question has an answer, and the answer does not come from
+      the zeta — it comes from a different mechanism (two-dimensional equidistribution). So the miniature world
+      demonstrates both halves: the zeta is blind, and the blindness is not fatal <em>there</em> because another tool
+      exists. Over the integers, that other tool does not exist. That is the whole story of the barrier in one
+      picture.
+    </li>
+    <li>
+      <b>It found a finite statement that is genuinely hard in the same way.</b> The <span class="mono">d=4</span>
+      cap says: for a quartic, the set of constants making it reducible is never more than half. This is a
+      coin-flip-like bound, it is true, and its proof needs the same “compensation” that the parity barrier denies
+      over ℚ — the quadratic-factor condition quietly filling the gap left by the value set. One can therefore
+      <em>see</em> the mechanism that is missing upstairs, in a place where it is present and provable.
+    </li>
+    <li>
+      <b>It drew the boundary of what its own method can reach.</b> Findings 5 and 6 say, with proof, that a whole
+      family of approaches fails, and identify the one object that would have to exist for a success: a
+      non-periodic weight with arithmetic content.
+    </li>
+  </ul>
+
+  <h3>5.3 Why a negative result is the achievement</h3>
+  <p>
+    In this field a proof that a method <em>cannot</em> work is often worth more than another partial result, because
+    it redirects effort. The programme's honest contribution is a map of a wall with a measured shape: which
+    statistics each tool sees, which degree the exact-formula regime dies at, which finite-field inequality encodes
+    the obstruction, and which single identity remains. A researcher who wants to attack the twin prime problem can
+    use that map to avoid the dead ends without re-deriving them.
+  </p>
+  <p>
+    There is also an epistemic achievement, which is easy to miss: the programme kept a status register that
+    distinguishes proved from certified from verified from guessed, and it recorded its own refutations. Most
+    exploratory mathematics of this kind does not survive that discipline. Here the discipline is the product.
+  </p>
+
+  <h3>5.4 What would actually move the needle</h3>
+  <ol>
+    <li>
+      <b>Prove the last identity.</b> It is one line, it now holds exactly at 80 primes in its corrected
+      <span class="mono">χ₂(2c)</span> form, and it is the only thing between the closed forms and an unconditional
+      <span class="mono">c₄</span> chain. This is the highest-value, lowest-risk target in the programme — and 019
+      has already fixed the statement to aim at.
+    </li>
+    <li>
+      <b>Formalise Ritt + Poincaré + the <span class="mono">S₄</span> decomposition.</b> This converts the cap from
+      “proved modulo three standard theorems” to certified. It is engineering, not insight, and the rest of the
+      certified layer shows it is feasible.
+    </li>
+    <li>
+      <b>Explain the <span class="mono">d=5</span> wall.</b> Finding 6 says the exact-formula regime stops; a proof
+      that it must stop would be a genuine structural theorem about twin counts over function fields.
+    </li>
+    <li>
+      <b>Sharpen the quantitative parity constant.</b> Turning the numerical factor 2 into a theorem would make
+      Target C quantitative rather than merely qualitative.
+    </li>
+  </ol>
+</section>
+
+<!-- ============ 6 APPLICATIONS ============ -->
+<section id="applications">
+  <h2 class="sec"><span class="num">6</span>Application to other problems</h2>
+
+  <p>
+    The results are specialised, but three of them transfer. The transfer is at the level of <em>technique and
+    statement</em>, not of immediate corollaries; that is the honest scope.
+  </p>
+
+  <h3>6.1 Value sets and reducible specialisations of polynomials</h3>
+  <p>
+    The <span class="mono">d=4</span> cap is a theorem about how a polynomial's value set interacts with its
+    quadratic-factor condition. Statements of that shape — “at most/most half of the constants <span class="mono">b</span>
+    make <span class="mono">f+b</span> reducible” — are the finite-field engine behind counting reducible
+    specialisations and, dually, counting irreducible values. The same circle of ideas feeds:
+  </p>
+  <ul>
+    <li>
+      <b>Function-field Bateman–Horn / Schinzel:</b> counting tuples of polynomials that are simultaneously
+      irreducible is exactly the <span class="mono">T(d;q,h)</span> problem, and any improvement in the exact
+      formulas at fixed degree is a sharpening of the finite-field statement.
+    </li>
+    <li>
+      <b>Value-set bounds:</b> the quantity <span class="mono">max<sub>f</sub>|Im f|</span> for degree-<span class="mono">d</span>
+      polynomials is studied for its own sake (and interacts with permutation polynomials and with the
+      “few-valued” polynomials used in cryptography). The programme's collapse results at
+      <span class="mono">d ≥ 5</span> are data about exactly that quantity.
+    </li>
+    <li>
+      <b>Coding and sequence design:</b> bounds on value sets over prime fields are used when a polynomial is
+      required to have a large or small image; a sharp <span class="mono">(q+1)/2</span> threshold with explicit
+      equality families is directly quotable.
+    </li>
+  </ul>
+
+  <h3>6.2 Character sums, Jacobi sums, and the twisted-Parseval template</h3>
+  <p>
+    The remaining identity is an instance of a general and very common pattern: an untwisted second moment is clean
+    (orthogonality/Parseval), and the twist by a quadratic character is the whole arithmetic content, evaluating to a
+    Jacobi sum. The same template appears whenever one computes second moments of exponential sums with a character
+    weight — in the analytic theory of <span class="mono">L</span>-functions, in the spectral statistics of
+    Kloosterman/Salié sums, and in explicit computations of Frobenius traces on curves with extra automorphisms (the
+    quartic/Fermat family here). A proof of the identity would be a worked example of the template with all constants
+    pinned; the identification <span class="mono">m = (|Re J(χ₄,χ₄)|²+1)/2</span> is already a reusable identity.
+  </p>
+
+  <h3>6.3 Formalisation of negative results</h3>
+  <p>
+    The parity theorem and the separation theorem are rare specimens: <b>obstruction theorems that are
+    machine-checked</b>. The Lean development supplies
+  </p>
+  <ul>
+    <li>
+      <code>FreeOrbit.card_dvd_card_of_free_action</code> — orbit–stabiliser plus class formula, a general
+      divisibility engine;
+    </li>
+    <li>
+      <code>Separation.no_zeta_observable</code> — the “a statistic is not a function of another statistic” pattern,
+      with an explicit witness;
+    </li>
+    <li>
+      <code>Periodic.divisor_sum_periodic</code> and <code>NonPeriodic.twinInd_not_divisor_sum</code> — the
+      periodicity-versus-arithmetic obstruction, reusable for any indicator with a comparable rigidity;
+    </li>
+    <li>
+      <code>SmallCap.cap_*</code> — <code>decide</code> theorems over <span class="mono">Finset.image</span>, a
+      template for discharging finite ranges of a number-theoretic bound inside a proof assistant.
+    </li>
+  </ul>
+  <p>
+    This is the most portable part of the programme: the statements are about arbitrary finite sets, groups and
+    characters, so they can be instantiated far from twin primes.
+  </p>
+
+  <h3>6.4 What does <em>not</em> transfer</h3>
+  <p>
+    It should be said plainly: none of this yields a new bound toward the twin prime conjecture over ℤ, and the
+    function-field results do not imply anything over ℚ — the programme's own separation theorem explains why
+    (there is no Frobenius to supply the pair equidistribution). Anyone citing this work for a twin-prime advance
+    would be misreading it.
+  </p>
+</section>
+
+<!-- ============ 7 CAVEATS ============ -->
+<section id="caveats">
+  <h2 class="sec"><span class="num">7</span>Caveats and corrections</h2>
+
+  <p>
+    A harvest that repeats its sources' overstatements is not a harvest. The following are places where the sources'
+    language runs ahead of their evidence; each is corrected in this document.
+  </p>
+
+  <div class="tw">
+  <table>
+    <caption>Corrections applied in this harvest.</caption>
+    <thead><tr><th>Source claim</th><th>Problem</th><th>This document</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>“Target C: complete for the entire Selberg class.”</td>
+        <td>What is proved is exclusion of bounded-support (periodic) divisor sums — the classical finite-level
+          Selberg sieve class. Automorphic weights are not excluded; the sources say so elsewhere.</td>
+        <td>“Not a bounded-support divisor sum; no finite-level Selberg sieve can produce it.” (§2 F5)</td>
+      </tr>
+      <tr>
+        <td>“The last identity … Then <span class="mono">m=(a²+1)/2</span> and the <span class="mono">c₄</span>
+          congruence is unconditional.”</td>
+        <td>The antecedent is a probe, not a theorem; the consequent is conditional on it.</td>
+        <td>Reported as would-be-unconditional; status Open. (§2 F4)</td>
+      </tr>
+      <tr>
+        <td>“Proved modulo Ritt + Poincaré + the <span class="mono">S₄</span> decomposition.”</td>
+        <td>A precise conditional statement, but the synthesis's own remaining-work list includes formalising exactly
+          those three items — and the programme's certified layer does not contain them.</td>
+        <td>Filed as <em>conditional</em>, flagged in §2 F2.</td>
+      </tr>
+      <tr>
+        <td>“All three are sharp: the computations of rounds 1–106 show no further structural simplification.”</td>
+        <td>An empirical claim about the absence of structure. It is evidence about a search, not a theorem.</td>
+        <td>Reported as a programme judgement, not a result. (§5)</td>
+      </tr>
+      <tr>
+        <td>Document header: “Round 50”, in a file named round106, citing rounds 62–66 and 1–106.</td>
+        <td>The synthesis is assembled from earlier ones and its round numbering is inconsistent. It is the third
+          “final synthesis” (after rounds 79 and 88), with essentially the same residual gap.</td>
+        <td>Cited as the round-106 state; the churn is noted. (§10)</td>
+      </tr>
+      <tr>
+        <td>“<span class="mono">q ∣ T(d;q,h)</span>”, with the action described as
+          <span class="mono">t·(f,g) = (f+t, g+t)</span>.</td>
+        <td>That operation does not preserve irreducibility. The preserved operation is
+          <span class="mono">f(X) ↦ f(X+a)</span>, with freeness requiring <span class="mono">d &lt; q</span>.</td>
+        <td>Correct action stated, with the <span class="mono">d=q=5</span> counterexample. (§2 F3(c))</td>
+      </tr>
+      <tr>
+        <td><span class="mono">m</span> and <span class="mono">E(h)</span> formulas stated without hypotheses.</td>
+        <td>They presuppose <span class="mono">q ≡ 1 (mod 8)</span> (odd <span class="mono">a</span>,
+          <span class="mono">b ≡ 0 mod 4</span>) for the canonical two-square representation, and all the data are
+          at such primes.</td>
+        <td>Hypothesis stated explicitly. (§2 F3(g),(h))</td>
+      </tr>
+      <tr>
+        <td>“Verified at 5 primes” presented adjacent to proved items.</td>
+        <td>A finite verification is not a proof and should not share a status column with one.</td>
+        <td>Separate status tags throughout; ledger in §3.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note">
+    <strong>A note on the name change.</strong> The sources' own word for the speculative register is replaced by
+    <b>probe</b> throughout, and the substitution is not cosmetic: a probe is an instrument you send ahead of the
+    proof to find out what is there, and it is expected to come back with either confirmation or failure. Two of the
+    programme's probes did fail, and the register records it. That is the intended use.
+  </div>
+</section>
+
+<!-- ============ 8 GLOSSARY ============ -->
+<section id="glossary">
+  <h2 class="sec"><span class="num">8</span>Glossary</h2>
+
+  <dl class="gl">
+    <dt>Qrime</dt>
+    <dd>A monic irreducible polynomial over <span class="mono">𝔽<sub>q</sub></span> — the polynomial-model analogue of
+      a prime. “Qrime” is the programme's coinage.</dd>
+
+    <dt>Twin qrime</dt>
+    <dd>A pair <span class="mono">(f, f+2)</span> of qrimes of the same degree. The count of such
+      <span class="mono">f</span> is <span class="mono">T(d;q,h)</span> with <span class="mono">h = 2</span>.</dd>
+
+    <dt>World</dt>
+    <dd>A set <span class="mono">S</span> of qrimes with a degree function. Quantifying over worlds (rather than only
+      over the true one) is what makes the separation theorem a statement about information.</dd>
+
+    <dt>Zeta datum</dt>
+    <dd>The degree-count sequence <span class="mono">Z(S)(n) = #{f ∈ S : deg f = n}</span>. By the Euler product and
+      Möbius inversion this is exactly what <span class="mono">ζ<sub>S</sub></span> sees.</dd>
+
+    <dt>Linear / bilinear statistic</dt>
+    <dd>Linear: a sum of one-point indicators (the qrime count, zeta coefficients, Frobenius traces). Bilinear: a sum
+      of products of two indicators at a related pair (the twin count). The zeta sees the first, not the second.</dd>
+
+    <dt>Value set <span class="mono">Im(g)</span></dt>
+    <dd>The image of <span class="mono">g : 𝔽<sub>q</sub> → 𝔽<sub>q</sub></span>. Its size controls the linear-factor
+      condition.</dd>
+
+    <dt>Quadratic-factor set <span class="mono">Q</span></dt>
+    <dd>The set of constants <span class="mono">b</span> for which <span class="mono">g+b</span> has a quadratic
+      factor; explicitly
+      <span class="mono">Q = { ((a₂+p²)² − (a₁/p)²)/4 : p ≠ 0 }</span> plus a degenerate term.</dd>
+
+    <dt>The cap</dt>
+    <dd>The inequality <span class="mono">|(−Im g) ∪ Q| ≥ (q+1)/2</span> for quartics, equivalently
+      <span class="mono">I(a) ≤ (q−1)/2</span>. Target A.</dd>
+
+    <dt>Monodromy</dt>
+    <dd>The action of the Galois group of the splitting field of <span class="mono">g(x) − t</span> on the fibre.
+      Primitivity of this action is what Ritt's theorem gives for a non-composition, and it forces the value set to
+      be large.</dd>
+
+    <dt>Ritt's theorem</dt>
+    <dd>Structure theorem for polynomial decompositions: a polynomial is a composition exactly when its monodromy is
+      imprimitive (Guralnick–Saxl form). Cited, not formalised.</dd>
+
+    <dt>Poincaré reducibility</dt>
+    <dd>A surjection of abelian varieties with connected fibres splits up to isogeny; used here as
+      <span class="mono">Jac(C) ~ E × E′</span> for the genus-2 curve <span class="mono">C : s² = S(x)</span>.</dd>
+
+    <dt>Weil bound</dt>
+    <dd><span class="mono">|a<sub>E</sub>| ≤ 2√q</span> for the Frobenius trace of an elliptic curve; the source of
+      the <span class="mono">O(√q)</span> errors here.</dd>
+
+    <dt>Class function / <span class="mono">S₄</span> decomposition</dt>
+    <dd>Expansion of a fibre indicator in the irreducible characters of <span class="mono">S₄</span>. The
+      <span class="mono">2</span>-dimensional irreducible appears as <span class="mono">χ₂</span> here — not to be
+      confused with the quadratic character of <span class="mono">𝔽<sub>q</sub></span>.</dd>
+
+    <dt>DFT (discrete Fourier transform)</dt>
+    <dd>Since <span class="mono">T</span> is constant on <span class="mono">d</span>-th power classes, it is a
+      function on <span class="mono">ℤ/d</span>, and its Fourier amplitudes
+      <span class="mono">A<sub>c</sub> = Σ<sub>k</sub>T<sub>k</sub>ζ<sub>d</sub><sup>ck</sup></span> are the useful
+      coordinates.</dd>
+
+    <dt>Jacobi sum <span class="mono">J(χ₄,χ₄)</span></dt>
+    <dd>The classical quartic Jacobi sum, evaluating to <span class="mono">±(a+bi)</span> when
+      <span class="mono">q = a²+b²</span>. It carries the constant <span class="mono">m</span>.</dd>
+
+    <dt>Selberg class / sieve weight</dt>
+    <dd>A Dirichlet series with Euler product and functional equation; a sieve weight is
+      <span class="mono">n ↦ Σ<sub>d|n,d≤D</sub>λ<sub>d</sub></span>. The latter is periodic — the fact that powers
+      the parity theorem.</dd>
+
+    <dt>Parity barrier</dt>
+    <dd>Selberg's obstruction: sieve-type (linear) methods cannot detect the parity of
+      <span class="mono">Ω(n)</span>, so they cannot force a two-point correlation. The programme's finite form:
+      periodic weights cannot equal the twin indicator.</dd>
+
+    <dt>Probe</dt>
+    <dd>A speculative mechanism recorded with its evidence, its reason for being speculative, and a falsification
+      test. See §4.</dd>
+
+    <dt>Lean / Mathlib</dt>
+    <dd>Lean 4 is a proof assistant; Mathlib is its mathematics library. “Lean-certified” means the statement is
+      checked by the kernel, not that the informal reading has been verified.</dd>
+  </dl>
+</section>
+
+<!-- ============ 9 CITATIONS ============ -->
+<section id="citations">
+  <h2 class="sec"><span class="num">9</span>Citations</h2>
+
+  <p class="fine">
+    Items 1–8 are the external theorems the programme relies on or quotes; 9–13 are the programme's own internal
+    sources, given for traceability. The arXiv identifiers are the ones cited in the programme's notes.
+  </p>
+
+  <ol class="cites">
+    <li>
+      J. F. Ritt, <em>Prime and composite polynomials</em>, Trans. Amer. Math. Soc. <b>23</b> (1922), 51–66.
+      <span class="src">— the decomposition/primitivity theorem used in step (4) of the cap.</span>
+    </li>
+    <li>
+      R. Guralnick and J. Saxl, <em>Monodromy groups of polynomials</em>, in
+      <em>Galois Groups and Fundamental Groups</em>, MSRI Publ. <b>41</b> (2003), 125–150.
+      <span class="src">— the form of Ritt used here: non-composition ⟹ primitive monodromy.</span>
+    </li>
+    <li>
+      H. Poincaré, <em>Sur les propriétés arithmétiques des courbes algébriques</em>, J. Math. Pures Appl.
+      <b>7</b> (1901), 161–233.
+      <span class="src">— complete reducibility of abelian varieties, used via <span class="mono">Jac(C) ~ E × E′</span>.</span>
+    </li>
+    <li>
+      A. Weil, <em>On some exponential sums</em>, Proc. Nat. Acad. Sci. USA <b>34</b> (1948), 204–207; and
+      <em>Numbers of solutions of equations in finite fields</em>, Bull. Amer. Math. Soc. <b>55</b> (1949), 497–508.
+      <span class="src">— the bound <span class="mono">|a<sub>E</sub>| ≤ 2√q</span> and the character-sum estimates.</span>
+    </li>
+    <li>
+      A. Selberg, <em>On elementary methods in prime number theory and their limitations</em>, Den 11te skandinaviske
+      matematikerkongress (1952), 13–22.
+      <span class="src">— the parity phenomenon that Target C formalises in finite form.</span>
+    </li>
+    <li>
+      P. Pollack, function-field Bateman–Horn: Conjecture 2 and Theorem A, as cited in
+      <a href="../018/notes/round2.md">notes/round2.md</a> and <a href="../018/notes/round3-formal-statement.md">notes/round3-formal-statement.md</a>.
+      <span class="src">— the asymptotic <span class="mono">T(n) ~ S(q)q<sup>n</sup>/n²</span> is cited, not reproved; the
+      large-<span class="mono">q</span> regime is Pollack's theorem, the fixed-<span class="mono">q</span> case is
+      conjectural in the literature searched.</span>
+    </li>
+    <li>
+      L. Bary-Soroker, <em>Irreducible values of polynomials</em>, Adv. Math. <b>229</b> (2012), 854–874;
+      arXiv:<a href="https://arxiv.org/abs/1005.4528">1005.4528</a>.
+      <span class="src">— explicit statement that the <span class="mono">q<sup>n</sup> → ∞</span> formula is conjectural.</span>
+    </li>
+    <li>
+      L. Bary-Soroker and J. Stix, arXiv:<a href="https://arxiv.org/abs/1711.05564">1711.05564</a>, Thm. 1.2 and 1.4.
+      <span class="src">— the exact degree-3 twin-qrime formula, verified against the sieve in
+      <a href="../018/notes/round6-exact-formula.md">notes/round6-exact-formula.md</a>.</span>
+    </li>
+    <li>
+      T. Tao, <em>The logarithmically averaged Chowla and Sarnak conjectures are equivalent</em>,
+      arXiv:<a href="https://arxiv.org/abs/1605.04628">1605.04628</a>.
+      <span class="src">— <span class="mono">λ = 1<sub>squares</sub> ∗ μ</span>, hence one-point Chowla follows from
+      <span class="mono">M(y) = o(y)</span>; used in the parent programme's corrections.</span>
+    </li>
+    <li>
+      The Lean 4 proof assistant and Mathlib4, <a href="https://leanprover-community.github.io/mathlib4/">leanprover-community.github.io/mathlib4</a>.
+      <span class="src">— engine of the certified layer (45 modules in <code>018/lean</code>).</span>
+    </li>
+    <li>
+      H. Iwaniec and E. Kowalski, <em>Analytic Number Theory</em>, AMS Colloq. Publ. <b>53</b> (2004).
+      <span class="src">— background for Selberg sieve weights, Weil bounds and exponential-sum technology.</span>
+    </li>
+    <li>
+      K. Ireland and M. Rosen, <em>A Classical Introduction to Modern Number Theory</em>, 2nd ed., GTM <b>84</b>,
+      Springer (1990), ch. 8–9.
+      <span class="src">— quadratic/quartic characters, Gauss and Jacobi sums, including
+      <span class="mono">J(χ₄,χ₄) = ±(a+bi)</span>.</span>
+    </li>
+    <li>
+      Internal sources: <a href="../018/README.md">018/README.md</a>,
+      <a href="../018/notes/round106-final-synthesis-v2.md">notes/round106-final-synthesis-v2.md</a>,
+      <a href="../018/notes/cap-proof.md">notes/cap-proof.md</a>,
+      <a href="../018/notes/round3-formal-statement.md">notes/round3-formal-statement.md</a>,
+      <a href="../018/notes/round58-parity-theorem.md">notes/round58-parity-theorem.md</a>,
+      <a href="../018/notes/round89-B-characterization.md">notes/round89-B-characterization.md</a>,
+      <a href="../018/notes/round94-m-closed.md">notes/round94-m-closed.md</a>,
+      <a href="../018/notes/round95-jacobi.md">notes/round95-jacobi.md</a>,
+      <a href="../018/notes/round99-Hsum.md">notes/round99-Hsum.md</a>,
+      <a href="../018/notes/round105-Ksums.md">notes/round105-Ksums.md</a>.
+      <span class="src">— the 106 notes and 111 check scripts in <code>018/notes</code> and <code>018/checks</code>
+      are the primary record.</span>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ 10 REPRODUCTION ============ -->
+<section id="reproduce">
+  <h2 class="sec"><span class="num">10</span>Reproduction and provenance</h2>
+
+  <p>
+    Every numerical claim in this harvest is attached to an executable script, and every algebraic claim to a Lean
+    module or a note. The layout:
+  </p>
+
+  <div class="fml sm">research/twin-prime-parity/
+├── 018/                  the source programme (read-only here)
+│   ├── notes/            106 round notes (the primary record)
+│   ├── lean/              45 Lean modules + check.sh
+│   ├── checks/           111 Python verification scripts
+│   └── lib/               shared helpers (e.g. singular series)
+└── 019/                  this document + the F4 falsification test
+    ├── harvest.html      this document
+    ├── README.md         the 019 addendum
+    ├── lib/twisted_parseval.py       exact arithmetic in Z[zeta_q]
+    ├── checks/falsification_test.py  80 primes, exact
+    ├── checks/sympy_crosscheck.py    independent sympy/mpmath path
+    ├── tests/test_twisted_parseval.py  14 unit tests
+    ├── lean/Twist.lean   the certified splitting lemma
+    └── results.json      the raw test rows</div>
+
+  <h4>Reproducing the certified layer</h4>
+  <div class="fml sm">cd research/twin-prime-parity/018/lean
+bash check.sh *.lean          # requires $HOME/lean with Mathlib4
+# -> [check] OK  for each module, exit 0</div>
+
+  <p>
+    <span class="tag t-lean">Verified at harvest time</span>
+    The sweep was actually run while preparing this document: <b>all 45 modules re-elaborate clean, exit 0</b>, and
+    the checked statements report only the three standard axioms (<code>propext</code>,
+    <code>Classical.choice</code>, <code>Quot.sound</code>) — no <code>sorryAx</code>, i.e. no unproved holes in the
+    certified layer. The one diagnostic is a style warning in <code>Scale.lean</code> (<code>haveI</code> versus
+    <code>have</code>), which does not affect any statement.
+  </p>
+
+  <div class="note">
+    <strong>What that does and does not certify.</strong> It certifies the <em>statements</em> in
+    <code>018/lean</code>: the translation reduction, the union decomposition, the composition case, the orbit
+    counts, the finite base, the periodicity pair, the separation witness, and the abstract free-orbit engine. It
+    does <em>not</em> certify the generic case of the cap (§2 F2), because Ritt, Poincaré reducibility and the
+    <span class="mono">S₄</span> decomposition are not in the module set. The distinction between “the Lean layer is
+    green” and “the cap is proved” is exactly the distinction this harvest is trying to preserve.
+  </div>
+
+  <h4>Reproducing the quantitative layer</h4>
+  <div class="fml sm">python3 checks/round89_B_characterization.py  # B(a2) sizes
+python3 checks/round94_m_closed.py            # m = (a^2+1)/2 at many primes
+python3 checks/round95_jacobi.py              # J(chi4,chi4) values
+python3 checks/round105_Ksums.py              # the two K-sums
+python3 checks/round106_sw.py                 # the latest sweep</div>
+
+  <p class="fine">
+    Script names as listed in <code>018/checks</code>; each round note carries its own reproduction line at the end.
+    The certified layer is designed to re-elaborate from scratch against a local Mathlib toolchain; the module
+    headers record which round produced each file, and <code>check.sh</code> is the same harness used by the parent
+    programme's rounds.
+  </p>
+
+  <h4>Reproducing the 019 addendum</h4>
+  <div class="fml sm">cd research/twin-prime-parity/019
+python3 checks/falsification_test.py            # 80 primes, exact; writes results.json
+python3 checks/sympy_crosscheck.py              # sympy / mpmath, 50 digits
+python3 -m unittest discover -s tests -v        # 14 unit tests
+cd lean && ./check.sh Twist.lean Verify.lean    # the certified splitting lemma</div>
+
+  <p class="fine">
+    The exact test is a proof for each prime tested: a pass means the two sides are the same element of
+    <span class="mono">ℤ[ζ<sub>q</sub>]</span>, not that they agree numerically. The failure of the strict form at
+    <span class="mono">q ≡ 5 (mod 8)</span> is likewise exact — an integer vector inequality, not a rounding effect.
+  </p>
+
+  <div class="note">
+    <strong>Provenance.</strong> This document is a harvest — a re-reading and re-grading — of
+    <a href="../018/notes/round106-final-synthesis-v2.md">notes/round106-final-synthesis-v2.md</a> and the notes it cites. It
+    was written at round 106, after the aggressive goal, and it deliberately re-grades several of the sources'
+    status claims (§7). Where this document and the sources disagree, the sources are the primary record and this
+    document's status column is the judgement; the disagreements are itemised rather than smoothed over.
+  </div>
+
+  <div class="note">
+    <strong>Moved and extended.</strong> The document was first written in <code>018/</code>; it now lives in
+    <code>019/</code> together with the completed falsification test of §2 F4. The round-106 sources are unchanged and
+    are linked from here. The two substantive additions are the 75 new primes and the corrected
+    <span class="mono">χ₂(2c)</span> form, and the Lean proof of the splitting step.
+  </div>
+</section>
+
+<footer>
+  <p>
+    Harvest of the qrime programme · round 106 ·
+    <a href="../018/notes/round106-final-synthesis-v2.md">source synthesis</a> ·
+    <a href="../018/README.md">programme README</a> ·
+    <a href="../018/notes/cap-proof.md">cap proof</a>
+  </p>
+  <p>
+    No twin prime conjecture was proved or refuted in the making of this document. Speculative items are labelled
+    probes; verified items are labelled verified; the ledger in §3 is the compressed statement of what is actually
+    known.
+  </p>
+</footer>
+
+</main>
+</div>
+
+<button id="totop" title="Back to top" aria-label="Back to top">↑</button>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('aside.toc a'));
+  var map = {};
+  links.forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) map[id] = a;
+  });
+  var targets = Object.keys(map).map(function (id) {
+    return { id: id, el: document.getElementById(id), link: map[id] };
+  });
+
+  function onScroll() {
+    var y = window.scrollY + 90;
+    var current = targets[0];
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i].el.offsetTop <= y) current = targets[i];
+    }
+    links.forEach(function (a) { a.classList.remove('active'); });
+    if (current) current.link.classList.add('active');
+
+    var btn = document.getElementById('totop');
+    if (window.scrollY > 600) btn.classList.add('on'); else btn.classList.remove('on');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  document.getElementById('totop').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+</body>
+</html>

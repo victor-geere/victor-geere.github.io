@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sinc, sine kernel, moments — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:980px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.6rem;font-size:1.08rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.warn{background:#fff8e6;border:1px solid #e8d59a;padding:.8rem 1rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.9em}
+pre{background:#f3f5f7;border:1px solid #dde3ea;padding:.8rem 1rem;overflow-x:auto;border-radius:6px}
+pre code{background:none;padding:0}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem;margin-top:2rem}
+.tag{display:inline-block;font-size:.78rem;padding:.05rem .4rem;border-radius:4px;background:#eef2f6;border:1px solid #d6dee6}
+</style></head><body>
+
+<h1>Sinc, sine kernel, moments</h1>
+<p class="sub">A reconstructed research programme: finite formal core, exact computation, archived claims kept separate</p>
+
+<div class="top"><p><strong>Status.</strong> The finite sinc/sine-kernel layer is formalised in Lean and tested in Python. The archived zeta and random-matrix claims are recorded as <em>Source claim</em> or <em>Open / conjecture</em>, never as theorems. The full dossier is in <a href="README.md">README.md</a>.</p></div>
+
+<h2>Provenance and what the source is</h2>
+<p>The primary source is <a href="../../archive/essays/sinc-zeta.html"><code>archive/essays/sinc-zeta.html</code></a>, with the companion essays <a href="../../archive/essays/kosters-zeta-moments-sinc.html"><code>kosters-zeta-moments-sinc.html</code></a> and <a href="../../archive/essays/shifted-moments-l-theta.html"><code>shifted-moments-l-theta.html</code></a>. They are short AI-generated expository surveys (the first is attributed to Grok 3), not a new proof or a self-contained development. Inventory entry <a href="../../scraps.html">Scraps item 42</a>.</p>
+<p>The reconstruction therefore extracts the finite kernel and moment bookkeeping that the source actually defines, and leaves the zeta asymptotics outside the formal core.</p>
+
+<div class="warn"><p><strong>Normalisation inconsistency.</strong> The source defines <code>sinc(x) = sin(πx)/(πx)</code> but quotes Kösters' limit with the factor <code>sinc(π(μ−ν))</code>. Under its own definition that would be <code>sin(π²(μ−ν))/(π²(μ−ν))</code>; the intended kernel is <code>sin(π(μ−ν))/(π(μ−ν))</code>. This reconstruction formalises the normalised kernel <code>sincN</code> and records the source's displayed expression as a source claim with an ambiguity note.</p></div>
+
+<h2>Reconstructed objects</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>Normalised sinc</td><td><code>sincN x = sin(πx)/(πx)</code> for <code>x ≠ 0</code>, <code>sincN 0 = 1</code></td><td>The source's <code>sinc</code></td></tr>
+<tr><td>Sine kernel</td><td><code>K(x,y) = sincN(x − y)</code></td><td>Pair-correlation kernel</td></tr>
+<tr><td>Montgomery factor</td><td><code>F(α) = 1 − sincN(α)²</code></td><td>The source's <code>1 − (sin πα / πα)²</code></td></tr>
+<tr><td>Kösters kernel</td><td><code>Köst(μ,ν) = exp(−iπ(μ−ν)) · sincN(μ−ν)</code></td><td>Phase-times-sinc factor</td></tr>
+<tr><td>Shifted-moment matrix</td><td><code>M[j,k] = Köst(μ_j, μ_k)</code> for finite shifts</td><td>Finite bookkeeping, not a zeta moment</td></tr>
+<tr><td>Sinc Taylor moment</td><td><code>c_k = (−1)^k π^(2k)/(2k+1)!</code></td><td>Coefficient of <code>x^(2k)</code> in <code>sincN</code></td></tr>
+</tbody></table>
+
+<h2>Theorem ledger</h2>
+<p>A row is <strong>Theorem</strong> only when <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> proves it with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. A row is <strong>Computation</strong> only when <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a> tests it.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Evidence / archived status</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td><code>sincN 0 = 1</code></td><td><code>SincKernel.sincN_zero</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td><code>sincN (1/2) = 2/π</code></td><td><code>SincKernel.sincN_half</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td><code>sincN n = 0</code> for every non-zero integer <code>n</code></td><td><code>SincKernel.sincN_int_eq_zero</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td><code>0 &lt; sincN x</code> for <code>0 &lt; x &lt; 1</code></td><td><code>SincKernel.sincN_pos_of_mem_Ioo</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td><code>K(x,y) = K(y,x)</code> (sine-kernel symmetry)</td><td><code>SincKernel.sineKernel_comm</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td><code>0 ≤ 1 − sincN(α)²</code> (Montgomery factor non-negative)</td><td><code>SincKernel.montgomeryF_nonneg</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td><code>‖Köst(μ,ν)‖ = |sincN(μ−ν)|</code> (the phase factor has unit modulus)</td><td><code>SincKernel.kostersKernel_norm</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td><code>sinc(0)=1</code>, <code>sinc(1/2)=2/π</code>, <code>sinc(1)=sinc(−3)=0</code>, and <code>sinc</code> is even</td><td><code>test_sinc_edge_cases</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td><code>K(x,x)=1</code> and <code>K(x,y)=K(y,x)</code> symbolically</td><td><code>test_sine_kernel_diagonal_and_symmetry</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td><code>F(0)=0</code>, <code>F(1)=1</code>, <code>F(1/2)=1−4/π²</code>, and <code>F ≥ 0</code> on a rational grid</td><td><code>test_montgomery_factor_values_and_nonnegativity</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>The exact even Taylor moments of <code>sinc</code> agree with sympy's series through order 8</td><td><code>test_sinc_taylor_moments</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>Negative Taylor orders are rejected (edge case)</td><td><code>test_invalid_taylor_orders_raise</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td><code>Köst(μ,μ)=1</code> and <code>|Köst(μ,ν)|² = sincN(μ−ν)²</code></td><td><code>test_kosters_kernel_diagonal_and_modulus_squared</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>A finite shifted-moment matrix is Hermitian, has unit diagonal, and has the expected modulus on each entry</td><td><code>test_shifted_moment_bookkeeping</code></td></tr>
+<tr><td>C8</td><td>Computation</td><td><code>sincN x &gt; 0</code> on a rational grid in <code>(0,1)</code></td><td><code>test_sinc_positivity_on_open_unit_interval</code></td></tr>
+<tr><td>S1</td><td>Source claim</td><td>The Riemann hypothesis: all non-trivial zeros of <code>ζ</code> lie on <code>Re(s)=1/2</code></td><td>Archived expository assertion; <strong>open</strong>, not proved here</td></tr>
+<tr><td>S2</td><td>Source claim</td><td>Montgomery's pair-correlation conjecture: zeta-zero statistics match the GUE/sine-kernel prediction</td><td>Archived conjecture; <strong>open</strong></td></tr>
+<tr><td>S3</td><td>Source claim</td><td>Kösters' Theorem 1.1: the second shifted-moment limit is <code>e^(−iπ(μ−ν)) sinc(π(μ−ν))</code></td><td>Published theorem cited by the archive; not formalised, and the archive's sinc normalisation is ambiguous</td></tr>
+<tr><td>S4</td><td>Source claim</td><td>Kösters' Theorem 1.2: the fourth moment has a related <code>sin²(x/2)</code> expression</td><td>Published theorem cited by the archive; not formalised</td></tr>
+<tr><td>S5</td><td>Source claim</td><td>Kösters' Conjecture 1.3 / CFKRS: the sine kernel persists in higher even moments</td><td>Archived conjecture; <strong>open</strong></td></tr>
+<tr><td>S6</td><td>Source claim</td><td>Under GRH, shifted moments of <code>L</code>-functions bound moments of theta functions (Munsch–Shparlinski, Chandee, Ng)</td><td>Cited conditional results; not formalised</td></tr>
+<tr><td>S7</td><td>Source claim</td><td>The sine kernel in shifted moments constrains primes in short intervals</td><td>Speculative interpretation in the archive; no precise statement</td></tr>
+<tr><td>O1</td><td>Open / conjecture</td><td>A precise finite statement of Montgomery pair correlation suitable for formalisation</td><td>Needs zeta-zero counting and a limit theorem</td></tr>
+<tr><td>O2</td><td>Open / conjecture</td><td>Kösters' asymptotic theorem for second and fourth shifted moments</td><td>Needs contour integration and zeta asymptotics</td></tr>
+<tr><td>O3</td><td>Open / conjecture</td><td>Determinantal/GUE statistics of the sine kernel</td><td>Needs random-matrix probability theory</td></tr>
+<tr><td>O4</td><td>Open / conjecture</td><td>Positive semidefiniteness of infinite shifted-moment kernels</td><td>Only finite Hermitian bookkeeping is proved (C7)</td></tr>
+<tr><td>O5</td><td>Open / conjecture</td><td>The intended normalisation of the source's <code>sinc(π(μ−ν))</code> expression</td><td>Textual ambiguity; resolved here by formalising <code>sincN</code></td></tr>
+</tbody></table>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> implements exact sympy mathematics: <code>sinc</code>, <code>sine_kernel</code>, <code>montgomery_F</code>, <code>kosters_kernel</code>, <code>shifted_moment_matrix</code>, <code>moment_ledger</code>, <code>sinc_taylor_coeff</code>, <code>sinc_taylor_polynomial</code>, and <code>sinc_series</code>. Numerical checks use sympy's <code>N(..., 40)</code> with stated tolerances; <code>mpmath</code> is not required. The module has no import side effects.</p>
+<pre><code>cd the-final-letter/topics/sinc-sine-kernel-moments
+python3 -m pytest -q tests</code></pre>
+<p>Recorded result: <strong>8 passed</strong> (about 5 s).</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, works in <code>namespace SincKernel</code>, defines <code>sincN</code>, <code>sineKernel</code>, <code>montgomeryF</code>, and <code>kostersKernel</code>, and proves T1–T7. There is no <code>sorry</code>, no <code>axiom</code>, and no <code>admit</code>. <a href="lean/README.md"><code>lean/README.md</code></a> records what is and is not formalised.</p>
+<pre><code>cd the-final-letter/topics/sinc-sine-kernel-moments
+./lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> — <code>[check] OK Topic.lean</code>.</p>
+
+<h2>Open items and known gaps</h2>
+<ol>
+<li><strong>Montgomery pair correlation.</strong> The source states the conjecture but gives no precise counting statement. A formal version needs the zero-counting function and a limit over test functions.</li>
+<li><strong>Kösters' theorem.</strong> The second- and fourth-moment asymptotics are cited, not proved; they need the analytic theory of <code>ζ</code> and contour integrals.</li>
+<li><strong>GUE / random-matrix statistics.</strong> The finite sine kernel is formalised; the determinantal point process and its spacing statistics are not.</li>
+<li><strong>Infinite moment matrices.</strong> C7 proves finite Hermitian bookkeeping only; positive semidefiniteness of an infinite kernel is open here.</li>
+<li><strong>Source normalisation.</strong> The archive's <code>sinc(π(μ−ν))</code> conflicts with its own definition of <code>sinc</code>; the reconstruction uses the normalised kernel and records the discrepancy.</li>
+<li><strong>No zeta content in Lean.</strong> The Lean file deliberately says nothing about <code>ζ</code>, its zeros, the Riemann hypothesis, or primes.</li>
+</ol>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../scraps.html">Scraps inventory</a> — item 42.</li>
+<li><a href="../../archive/essays/sinc-zeta.html">Primary source: sinc-zeta.html</a></li>
+<li><a href="../../archive/essays/kosters-zeta-moments-sinc.html">Companion: Kösters' sine kernel and shifted moments</a></li>
+<li><a href="../../archive/essays/shifted-moments-l-theta.html">Companion: shifted moments of L functions and theta functions</a></li>
+<li><a href="../README.md">Topic index</a> · <a href="../../index.html">The Final Letter</a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xi Function 3D Plot with Sliders</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+    #plot { width: 100%; height: 80vh; }
+  </style>
+</head>
+<body>
+<h1>3D Plot of the Xi Function</h1>
+<p>Graphing ξ(σ + it) with t on the x-axis, Re[ξ] on the y-axis, and Im[ξ] on the z-axis.</p>
+<label for="sigma-slider">σ: <span id="sigma-value">0.50</span></label>
+<input type="range" id="sigma-slider" min="0" max="2" step="0.01" value="0.5">
+<br>
+<label for="tshift-slider">tShift: <span id="tshift-value">0</span></label>
+<input type="range" id="tshift-slider" min="0" max="100" step="1" value="0">
+<div id="plot"></div>
+
+<script>
+  // Placeholder function to generate Xi data
+  function generateXiData(sigma, tStart, tEnd, steps) {
+    let t = [], re = [], im = [];
+    const dt = (tEnd - tStart) / (steps - 1);
+    for (let i = 0; i < steps; i++) {
+      let ti = tStart + i * dt;
+      t.push(ti);
+      if (sigma === 0.5) {
+        re.push(Math.cos(ti) * Math.exp(-ti * 0.01));
+        im.push(0);
+      } else {
+        let scale = Math.exp(-(sigma - 0.5) * ti * 0.01);
+        re.push(Math.cos(ti) * scale);
+        im.push(Math.sin(ti) * scale);
+      }
+    }
+    return { t: t, re: re, im: im };
+  }
+
+  // Constants
+  const tLength = 500;
+  const steps = 2000;
+
+  // Initial values
+  const initialSigma = 0.5;
+  const initialTShift = 0;
+
+  // Generate initial data
+  const initialData = generateXiData(initialSigma, initialTShift, initialTShift + tLength, steps);
+
+  // Define initial trace
+  const trace = {
+    x: initialData.t,
+    y: initialData.re,
+    z: initialData.im,
+    type: 'scatter3d',
+    mode: 'lines',
+    name: 'σ = ' + initialSigma.toFixed(2),
+    line: { color: 'red', width: 2 }
+  };
+
+  // Define layout
+  const layout = {
+    title: `Xi Function for σ = ${initialSigma.toFixed(2)}, tShift = ${initialTShift}`,
+    scene: {
+      xaxis: { title: 't (Im[s])' },
+      yaxis: { title: 'Re[ξ(s)]' },
+      zaxis: { title: 'Im[ξ(s)]' },
+      aspectratio: { x: 1, y: 1, z: 1 }
+    },
+    margin: { l: 0, r: 0, b: 0, t: 40 }
+  };
+
+  // Render the initial plot
+  Plotly.newPlot('plot', [trace], layout);
+
+  // Get slider and value elements
+  const sigmaSlider = document.getElementById('sigma-slider');
+  const sigmaValue = document.getElementById('sigma-value');
+  const tshiftSlider = document.getElementById('tshift-slider');
+  const tshiftValue = document.getElementById('tshift-value');
+
+  // Function to update the plot
+  function updatePlot() {
+    const sigma = parseFloat(sigmaSlider.value);
+    const tShift = parseInt(tshiftSlider.value, 10);
+    const tStart = tShift;
+    const tEnd = tShift + tLength;
+    const newData = generateXiData(sigma, tStart, tEnd, steps);
+    Plotly.restyle('plot', {
+      x: [newData.t],
+      y: [newData.re],
+      z: [newData.im]
+    }, [0]);
+    Plotly.relayout('plot', {
+      title: `Xi Function for σ = ${sigma.toFixed(2)}, tShift = ${tShift}`
+    });
+  }
+
+  // Add event listeners to sliders
+  sigmaSlider.addEventListener('input', function() {
+    const newSigma = parseFloat(sigmaSlider.value);
+    sigmaValue.textContent = newSigma.toFixed(2);
+    updatePlot();
+  });
+
+  tshiftSlider.addEventListener('input', function() {
+    const newTShift = parseInt(tshiftSlider.value, 10);
+    tshiftValue.textContent = newTShift;
+    updatePlot();
+  });
+</script>
+</body>
+</html>

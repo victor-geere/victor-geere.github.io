@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riemann helix — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.note{background:#fff8e6;border:1px solid #f0dca8;padding:.9rem 1.1rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.92rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.formula{background:#f8fafc;border-left:3px solid #9db8d8;padding:.5rem .9rem;margin:.8rem 0;font-family:"Cambria Math",Georgia,serif;overflow-x:auto}
+.meta{color:#555;font-size:.94rem}
+ul,ol{padding-left:1.4rem}
+</style></head><body>
+
+<h1>Riemann helix</h1>
+<p class="sub">A reconstructed research programme: elementary formal core, exact computation, and an audit of the archived RH-equivalence</p>
+
+<div class="top"><p><strong>Status.</strong> The elementary helix and torsion core is reconstructed and proved. The distributional limit and the Riemann Hypothesis itself remain open and are <strong>not</strong> proved here. The source remains an archived open statement. Full detail is in <a href="README.md">README.md</a>.</p></div>
+
+<h2>What the programme is</h2>
+<p>The archived note proposes a geometric reformulation of the Riemann Hypothesis (RH). Write the non-trivial zeros with positive imaginary part as <code>ρ_n = β_n + iγ_n</code>, with <code>0 &lt; γ_1 &lt; γ_2 &lt; …</code> and no assumption on <code>β_n ∈ (0,1)</code>. Choose a smooth increasing phase <code>φ</code> with <code>φ(γ_n) = 2πn</code>, and consider the unit-radius helix</p>
+
+<div class="formula">C<sub>1</sub>(t) = (cos φ(t), sin φ(t), t).</div>
+
+<p>The note claims that the torsion <code>τ<sub>1</sub></code> of <code>C<sub>1</sub></code> converges, as a distribution, to a prime-supported measure</p>
+
+<div class="formula">τ<sub>0</sub>(t) = Σ<sub>p,m</sub> (log p / p<sup>m/2</sup>) δ(t − m log p) + τ<sub>arch</sub>(t),&nbsp;&nbsp;(1)</div>
+
+<p>independently of the <code>β_n</code>. It then lets <code>r</code> interpolate the real parts, <code>r(γ_n) = β_n</code>, and considers the varying-radius helix</p>
+
+<div class="formula">C<sub>r</sub>(t) = (r(t) cos φ(t), r(t) sin φ(t), t),</div>
+
+<p>whose torsion <code>τ<sub>r</sub></code> acquires extra terms involving <code>r′</code> and <code>r″</code>. The source's Theorem 4.1 asserts that RH (all <code>β_n = ½</code>) is equivalent to the existence of such an interpolation with <code>τ<sub>r</sub> = τ<sub>0</sub></code>.</p>
+
+<p>This folder reconstructs the elementary geometry the argument actually uses, together with the algebraic criterion relating curvature and torsion. It does <strong>not</strong> formalise the distributional limit or the RH equivalence. The source claims are kept at their archived status, and the audit below records two defects in the source's proof sketch.</p>
+
+<h2>Objects and notation</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Circular helix</td><td><code>C<sub>R,c</sub>(t) = (R cos t, R sin t, c t)</code>, radius <code>R &gt; 0</code>, pitch <code>c &gt; 0</code></td></tr>
+<tr><td>Curvature</td><td><code>κ(R,c) = R / (R² + c²)</code></td></tr>
+<tr><td>Torsion</td><td><code>τ(R,c) = c / (R² + c²)</code></td></tr>
+<tr><td>Unit-radius helix</td><td><code>C<sub>1</sub></code> with phase <code>φ</code>, i.e. <code>R = 1</code>, angular derivative <code>φ′</code></td></tr>
+<tr><td>Prime support</td><td><code>{ m log p : p prime, m ≥ 1 }</code>, the logarithms of prime powers</td></tr>
+<tr><td>Conditional helix</td><td><code>C<sub>r</sub>(t) = (r(t) cos φ(t), r(t) sin φ(t), t)</code></td></tr>
+<tr><td>Interpolation</td><td><code>r(γ_n) = β_n</code> for every <code>n</code></td></tr>
+</tbody>
+</table>
+
+<p>The classical helix formulae are the ones the source uses: for <code>C<sub>R,c</sub></code> both curvature and torsion are constant, with <code>τ = c/(R² + c²)</code>. A direct Frenet computation (verified symbolically in the Python layer) gives these closed forms.</p>
+
+<h2>Audit of the archived argument</h2>
+<p>The source is a short fragment (four sections, no detailed derivation of the distributional limit). Three observations matter for reconstruction.</p>
+
+<div class="note">
+<p><strong>1. The displayed torsion formula is not the Frenet torsion.</strong> For <code>C<sub>1</sub>(t) = (cos φ(t), sin φ(t), t)</code> the source displays</p>
+<div class="formula">τ<sub>1</sub> = φ′[φ′⁴ − φ′φ‴ + 3φ″²] / [(φ′² + 1)(φ′⁴ + φ″² + φ′⁶)].</div>
+<p>Direct computation gives the denominator <code>φ′⁶ + φ′⁴ + φ″²</code>. At constant <code>φ′ = k</code> the source's expression is <code>k/(1+k²)²</code>, while the correct torsion is <code>k/(1+k²)</code>. This is checked exactly by <code>test_source_torsion_formula_disagrees</code> (C3).</p>
+
+<p><strong>2. Torsion is not scale invariant.</strong> The source's <code>(i) ⇒ (ii)</code> proof says that <code>C<sub>1/2</sub></code> is “a scaling of the unit-radius helix” and that “scaling does not change the torsion”. Torsion has dimension <code>1/length</code>: uniformly scaling the constant-rate helix by <code>λ</code> gives <code>τ ↦ τ/λ</code>. Moreover <code>C<sub>1/2</sub></code> as displayed is not a uniform scaling of <code>C<sub>1</sub></code>, because the vertical coordinate is left equal to <code>t</code>. In the representative constant-rate case <code>φ(t) = t</code>, the radius-<code>½</code>, pitch-<code>1</code> helix has <code>τ = 4/5</code>, not <code>½</code>. The Lean theorems <code>torsion_scale</code>, <code>torsion_not_scale_invariant</code>, and <code>torsion_half_ne_unit</code> formalise the scaling law and this counterexample.</p>
+
+<p><strong>3. The density wording is slightly too strong.</strong> The source says <code>{m log p}</code> is dense in <code>[0,∞)</code>. Its least element is <code>log 2</code>, so it is not dense in <code>[0,∞)</code>. It is dense in <code>[log 2,∞)</code> assuming the prime number theorem (consecutive prime logarithms differ by <code>→ 0</code>). The argument only needs density on the range of the ordinates <code>γ_n</code>, so this is a presentational rather than structural defect; it is recorded as source claim S6 and not used as a theorem.</p>
+</div>
+
+<p>These defects do not show that no geometric criterion of this kind can work. They do show that the archived proof sketch does not establish the stated equivalence, and that a repaired criterion must handle the physical dimension of torsion (for example by comparing a dimensionless combination such as <code>τ/κ</code>).</p>
+
+<h2>Theorem ledger</h2>
+<p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every <strong>Computation</strong> row is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>Helix lies on a cylinder: <code>x² + y² = R²</code></td><td><code>RiemannHelix.helix_on_cylinder</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td><code>τ(R,c) &gt; 0</code> for <code>R,c &gt; 0</code></td><td><code>RiemannHelix.torsion_pos</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>For fixed <code>c &gt; 0</code>, torsion is strictly decreasing in <code>R</code></td><td><code>RiemannHelix.torsion_strictAnti_radius</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td><code>τ(λR,λc) = τ(R,c)/λ</code> for <code>λ &gt; 0</code></td><td><code>RiemannHelix.torsion_scale</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td><code>λ ≠ 1</code> implies <code>τ(λR,λc) ≠ τ(R,c)</code></td><td><code>RiemannHelix.torsion_not_scale_invariant</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>Constant-rate case: <code>τ(½,1) ≠ τ(1,1)</code>; exact values <code>4/5</code> and <code>1/2</code>. Simplest counterexample to “scaling does not change torsion”.</td><td><code>RiemannHelix.torsion_half_ne_unit</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>Algebraic criterion: <code>κ² + τ² = 1/(R²+c²)</code>, <code>R = κ/(κ²+τ²)</code>, <code>c = τ/(κ²+τ²)</code></td><td><code>RiemannHelix.curvature_torsion_inversion</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>Direct Frenet torsion of <code>C<sub>R,c</sub></code> equals <code>c/(R²+c²)</code></td><td><code>test_frenet_torsion_matches_closed_form</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>Direct Frenet curvature equals <code>R/(R²+c²)</code></td><td><code>test_frenet_curvature_matches_closed_form</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>Source formula disagrees; exact difference at <code>φ′=k</code> is <code>−k³/(1+k²)²</code></td><td><code>test_source_torsion_formula_disagrees</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>Scaling law holds symbolically</td><td><code>test_torsion_scale_law</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td><code>τ(1,1)=1/2</code>, <code>τ(½,1)=4/5</code>, <code>τ(2,2)=1/4</code>; the source's scaling inference fails</td><td><code>test_scaling_changes_torsion</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>Algebraic inversion holds exactly</td><td><code>test_curvature_torsion_inversion</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>Exact AM–GM slack <code>1/(2R) − c/(R²+c²) = (R−c)²/(2R(R²+c²)) ≥ 0</code></td><td><code>test_amgm_bound</code></td></tr>
+<tr><td>C8</td><td>Computation</td><td>Edge case <code>R=0</code>: straight line, torsion <code>nan</code>, AM–GM check raises</td><td><code>test_zero_radius_edge_case</code></td></tr>
+</tbody>
+</table>
+
+<h2>Source claims preserved separately</h2>
+<table>
+<thead><tr><th>#</th><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>S1</td><td>Displayed torsion formula for <code>C<sub>1</sub></code></td><td>Archived formula</td><td>Contradicted by direct computation (C3); recorded, not adopted.</td></tr>
+<tr><td>S2</td><td>Distributional limit (1): <code>τ<sub>1</sub> → τ<sub>0</sub></code> with weights <code>log p / p<sup>m/2</sup></code></td><td>Archived claim, derivation not given</td><td>Not formalised.</td></tr>
+<tr><td>S3</td><td>Theorem 4.1: RH ⇔ existence of <code>r</code> with <code>r(γ_n)=β_n</code> and <code>τ<sub>r</sub>=τ<sub>0</sub></code></td><td>Archived “Theorem”, proof sketch</td><td>Scaling step invalid; RH is not proved. Source claim only.</td></tr>
+<tr><td>S4</td><td>Converse: <code>τ<sub>r</sub>=τ<sub>0</sub></code> forces <code>r′≡r″≡0</code>, hence <code>r</code> constant and <code>β_n=½</code></td><td>Source proof sketch</td><td>Required singularity analysis is asserted, not derived. Not formalised.</td></tr>
+<tr><td>S5</td><td>Smooth interpolating <code>φ</code> and <code>r</code> exist (Hermite interpolation plus mollification)</td><td>Source assertion</td><td>Classical in outline, not formalised here.</td></tr>
+<tr><td>S6</td><td><code>{m log p}</code> dense in <code>[0,∞)</code></td><td>Source claim</td><td>True on <code>[log 2,∞)</code> given PNT; literally false on <code>[0,∞)</code>. Not formalised.</td></tr>
+<tr><td>S7</td><td><code>τ<sub>1</sub>=τ<sub>0</sub></code> independently of <code>β_n</code></td><td>Source claim</td><td>Depends on S1/S2 and a precise <code>φ</code>. Not formalised.</td></tr>
+</tbody>
+</table>
+
+<h2>Open items and known gaps</h2>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th></tr></thead>
+<tbody>
+<tr><td>O1</td><td>Open / conjecture</td><td>The Riemann Hypothesis: all non-trivial zeros satisfy <code>β_n = ½</code>.</td></tr>
+<tr><td>O2</td><td>Open</td><td>Derive the exact varying-radius torsion <code>τ<sub>r</sub></code> and prove <code>τ<sub>r</sub>=τ<sub>0</sub></code> forces <code>r</code> constant (source step S4).</td></tr>
+<tr><td>O3</td><td>Open</td><td>Repair the equivalence with a scale-covariant normalisation (e.g. <code>τ/κ</code>), since torsion has dimension <code>1/length</code>.</td></tr>
+<tr><td>O4</td><td>Open</td><td>Formalise the distributional explicit-formula limit S2, including <code>τ<sub>arch</sub></code>.</td></tr>
+<tr><td>O5</td><td>Open</td><td>Decide whether any criterion of this shape is genuinely equivalent to RH rather than a restatement with an unproved analytic input.</td></tr>
+</tbody>
+</table>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> is an exact sympy layer: <code>helix</code>, <code>frenet_curvature</code>, <code>frenet_torsion</code>, <code>helix_curvature</code>, <code>helix_torsion</code>, <code>source_torsion_formula</code>, <code>torsion_scale_law</code>, <code>curvature_torsion_inversion</code>, <code>amgm_slack</code>, and <code>amgm_bound_holds</code>.</p>
+<pre><code>python3 -m pytest the-final-letter/topics/riemann-helix/tests -q</code></pre>
+<p>Recorded result: <strong>8 passed</strong> (about 7 s).</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> defines <code>RiemannHelix.helix</code>, <code>curvature</code>, and <code>torsion</code>, and proves T1–T7. It imports Mathlib and uses only elementary order, field, and trigonometric facts.</p>
+<pre><code>the-final-letter/topics/riemann-helix/lean/check.sh</code></pre>
+<p>The committed <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a> records the last successful check. What is not formalised — the varying-radius torsion, the distributional limit, and the RH equivalence — is documented in <a href="lean/README.md"><code>lean/README.md</code></a>.</p>
+
+<h2>Provenance</h2>
+<ul>
+<li><a href="../../archive/maths/r-helix/conjecture.html">Archived source: conjecture.html</a> and <a href="../../archive/maths/r-helix/conjecture.tex">conjecture.tex</a></li>
+<li><a href="../../scraps.html">Scraps inventory</a> · item 30, tagged <code>fragment</code> and <code>open statement</code></li>
+<li><a href="../README.md">Topic index</a></li>
+<li>Overlaps inventory items 10 (<code>geometrc-reformulation</code>) and 22 (<code>self-adjoint-operator</code>); this topic isolates the two-file <code>r-helix</code> note.</li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh35 — the frame</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh35 · the frame</h1>
+<p class="sub">The helix is the only stable geometric object the arc has:
+every mesh, grid and ladder is a sampling choice laid on top of it. This
+document carries it as an instrument rather than re-deriving it, and uses it
+to close rh34&#8217;s two open successors. Both close, and neither the way
+rh34 expected. The conditioning of the unwrapped Gram is predicted by none of
+the three statistics tried — the primes have the smallest rate gap of five
+gear sets and the highest floor — and a real search, which rh34 did not run,
+refutes rh32&#8217;s quadrature lemma on the unwrapped Gram as well. The
+lemma is now dead in both samplings.</p>
+<p class="meta">51 named checks, 119 s · four computed
+figures · the thirty-fifth in the series, after <a href="rh34.html">rh34</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> &#167;2&#8217;s
+statements about the construction are arithmetic on the helix and
+unconditional. Everything from &#167;3 on uses rh29&#8217;s zero table
+(4,308 ordinates, &#947; &#8804; 4800) and is conditional on RH in the same
+way every document since rh29 has been. Every &#955;<sub>min</sub> quoted is
+computed twice, by Cholesky inertia bisection and by cyclic Jacobi. Per
+rh30 &#167;10 (c), renewed by rh31 through rh34, this document adds no new
+certificates — the certified set stays at nine.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · order</a>
+<a href="#s2">2 · the frame</a>
+<a href="#s3">3 · what sets the floor</a>
+<a href="#s4">4 · the lemma on G</a>
+<a href="#s5">5 · the helix reading</a>
+<a href="#s6">6 · conjunction</a>
+<a href="#s7">7 · what this leaves</a>
+</nav>
+
+<section id="s1">
+<h2>1 · Where this stands</h2>
+
+<p>rh34 left three successors: (a) price the conditioning of the unwrapped
+Gram G[i][j] = E(log i &#8722; log j); (b) reopen rh32&#8217;s quadrature
+lemma on G, where rh33&#8217;s aliased counterexample cannot reach; (c) no new
+certificates. This document executes all three, and it does so in the
+construction&#8217;s own coordinates rather than in whichever grid happened
+to be convenient.</p>
+
+<p>That change of frame is not decoration. &#167;2 shows that the arc&#8217;s
+Toeplitz matrix — the object it has been bounding since rh17 —
+<strong>is itself the Gram matrix of a set of gear rates</strong>: sampling the
+moment function at v = k&#916; is sampling it at the rates of
+e<sup>k&#916;</sup>, a geometric set with irrational ratios. So rh34&#8217;s &#8220;lattice versus
+multiplicative&#8221; was never two objects. It was two members of one family,
+and the question in (a) is which member does better and why.</p>
+
+<p>The answers, up front. <strong>(a) closes in its negative branch:</strong>
+of the minimum log-gap, the reach and the distinct-difference count, none
+predicts the floor, and two die by explicit counterexample. What is left is a
+measured threshold with no mechanism attached. <strong>(b) closes
+negative:</strong> six restarts of coordinate descent drive
+&#955;<sub>min</sub>(G) to a factor 0.344, past the 0.55
+rh33&#8217;s aliased counterexample reached, so the lemma is refuted on the
+unwrapped Gram too and rh34&#8217;s reading of it was too kind by one
+search.</p>
+</section>
+
+<section id="s2">
+<h2>2 · The frame</h2>
+
+<p>The instrument is <code>rh35_helix</code>, and it fixes the convention
+once: both rotations counted the same way, so
+&#977;(n, t) = (n&#8722;1)&#960; + t&#183;log n, every increment positive in n
+and in t alike. rh34&#8217;s numbers regress against it — the least increment
+in n over n &lt; 4000 and t out to 4800 is 3.145, the increment in t is
+log n — and rh3 &#167;6&#8217;s reversal at x* = 4.4992, level 5,
+stays reproducible and unused, since it belongs to that document&#8217;s
+opposed sign convention.</p>
+
+<p>It fixes the depth convention with the same hand, because the rest of this
+document turns on it. The gears are the levels, and they are laid out as
+rh3 &#167;4 (4) lays them out: gear n at depth z<sub>n</sub> = n &#8722; 1,
+<strong>one unit apart the whole way down, and the unit is the first
+gear&#8217;s radius</strong>. Radii are r<sub>n</sub> = n<sup>&#8722;&#963;</sup>,
+so r<sub>1</sub> = 1 for every &#963;: the circles taper around the ladder
+while the spacing stays put, and rh30 &#167;8 detrends the chain onto exactly
+that axis. <strong>The gear ladder is rigidly uniform, and nothing here
+disturbs it.</strong></p>
+
+<p>What is not uniform is the <em>rate</em>. The torsion drives gear n at
+log n (rh3 &#167;6 (7)), and n &#8614; log n is the only thing in the
+construction that crowds anything: twenty-four equally spaced gears go in, and
+rate gaps running from 0.6931 down to 0.04256 come out. So the vocabulary is
+rh34 &#167;3&#8217;s and it is kept here without slippage — a
+<strong>gear</strong> is a level on the unit ladder, a <strong>gear rate</strong>
+is its log n, and G is built on the rates, never on the gears.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 590" role="img" aria-label="Three bands and a bar panel. Top: the twenty-four gears at depth z = n minus 1, exactly one unit apart, their radii tapering as n to the minus one half, with a dashed square showing that the unit spacing equals the first gear's radius. Middle: tie lines carrying each gear to its rate log n, which crowds towards the deep end. Then the arc's sampling points at k Delta, which are rates of numbers that are not levels. Below: how close the arc's samples sit to real gear rates, against a uniform control and rh33's six resonant moments.">
+<text x="370.0" y="21" class="ftitle">the gears are equidistant &#8212; the logarithm is what crowds them</text>
+<text x="58" y="46" class="flab st hm1">the gears: level n at depth z = n&#8722;1, one unit apart</text>
+<text x="700" y="46" class="flab end">radii taper as r<tspan	class="sb"	dy="3">n</tspan><tspan	dy="-3"></tspan> = n<tspan	class="sb"	dy="-4">&#8722;&#189;</tspan><tspan	dy="4"></tspan>; the spacing never does</text>
+<path d="M58.0 76.1L65.0 79.0L72.0 81.2L78.9 82.9L85.9 84.3L92.9 85.4L99.9 86.3L106.8 87.2L113.8 87.9L120.8 88.5L127.8 89.1L134.8 89.6L141.7 90.0L148.7 90.5L155.7 90.8L162.7 91.2L169.6 91.5L176.6 91.8L183.6 92.1L190.6 92.4L197.6 92.6L204.5 92.8L211.5 93.1L218.5 93.3L225.5 93.5L232.4 93.6L239.4 93.8L246.4 94.0L253.4 94.1L260.3 94.3L267.3 94.4L274.3 94.6L281.3 94.7L288.3 94.8L295.2 94.9L302.2 95.1L309.2 95.2L316.2 95.3L323.1 95.4L330.1 95.5L337.1 95.6L344.1 95.7L351.1 95.8L358.0 95.9L365.0 95.9L372.0 96.0L379.0 96.1L385.9 96.2L392.9 96.3L399.9 96.3L406.9 96.4L413.9 96.5L420.8 96.5L427.8 96.6L434.8 96.7L441.8 96.7L448.7 96.8L455.7 96.9L462.7 96.9L469.7 97.0L476.6 97.0L483.6 97.1L490.6 97.1L497.6 97.2L504.6 97.2L511.5 97.3L518.5 97.3L525.5 97.4L532.5 97.4L539.4 97.5L546.4 97.5L553.4 97.6L560.4 97.6L567.4 97.6L574.3 97.7L581.3 97.7L588.3 97.8L595.3 97.8L602.2 97.8L609.2 97.9L616.2 97.9L623.2 97.9L630.2 98.0L637.1 98.0L644.1 98.0L651.1 98.1L658.1 98.1L665.0 98.1L672.0 98.2L679.0 98.2L686.0 98.2L693.0 98.3L699.9 98.3" class="lnm lnd"/>
+<line x1="58.00" y1="104.0" x2="58.00" y2="76.09" class="ln0"/>
+<circle cx="58.00" cy="76.09" r="2.4" class="hm1"/>
+<line x1="85.91" y1="104.0" x2="85.91" y2="84.26" class="ln0"/>
+<circle cx="85.91" cy="84.26" r="2.4" class="hm1"/>
+<line x1="113.82" y1="104.0" x2="113.82" y2="87.89" class="ln0"/>
+<circle cx="113.82" cy="87.89" r="2.4" class="hm1"/>
+<line x1="141.73" y1="104.0" x2="141.73" y2="90.05" class="ln0"/>
+<circle cx="141.73" cy="90.05" r="2.4" class="hm1"/>
+<line x1="169.64" y1="104.0" x2="169.64" y2="91.52" class="ln0"/>
+<circle cx="169.64" cy="91.52" r="2.4" class="hm1"/>
+<line x1="197.55" y1="104.0" x2="197.55" y2="92.61" class="ln0"/>
+<circle cx="197.55" cy="92.61" r="2.4" class="hm1"/>
+<line x1="225.46" y1="104.0" x2="225.46" y2="93.45" class="ln0"/>
+<circle cx="225.46" cy="93.45" r="2.4" class="hm1"/>
+<line x1="253.37" y1="104.0" x2="253.37" y2="94.13" class="ln0"/>
+<circle cx="253.37" cy="94.13" r="2.4" class="hm1"/>
+<line x1="281.28" y1="104.0" x2="281.28" y2="94.70" class="ln0"/>
+<circle cx="281.28" cy="94.70" r="2.4" class="hm1"/>
+<line x1="309.19" y1="104.0" x2="309.19" y2="95.17" class="ln0"/>
+<circle cx="309.19" cy="95.17" r="2.4" class="hm1"/>
+<line x1="337.10" y1="104.0" x2="337.10" y2="95.58" class="ln0"/>
+<circle cx="337.10" cy="95.58" r="2.4" class="hm1"/>
+<line x1="365.01" y1="104.0" x2="365.01" y2="95.94" class="ln0"/>
+<circle cx="365.01" cy="95.94" r="2.4" class="hm1"/>
+<line x1="392.92" y1="104.0" x2="392.92" y2="96.26" class="ln0"/>
+<circle cx="392.92" cy="96.26" r="2.4" class="hm1"/>
+<line x1="420.83" y1="104.0" x2="420.83" y2="96.54" class="ln0"/>
+<circle cx="420.83" cy="96.54" r="2.4" class="hm1"/>
+<line x1="448.74" y1="104.0" x2="448.74" y2="96.79" class="ln0"/>
+<circle cx="448.74" cy="96.79" r="2.4" class="hm1"/>
+<line x1="476.65" y1="104.0" x2="476.65" y2="97.02" class="ln0"/>
+<circle cx="476.65" cy="97.02" r="2.4" class="hm1"/>
+<line x1="504.56" y1="104.0" x2="504.56" y2="97.23" class="ln0"/>
+<circle cx="504.56" cy="97.23" r="2.4" class="hm1"/>
+<line x1="532.47" y1="104.0" x2="532.47" y2="97.42" class="ln0"/>
+<circle cx="532.47" cy="97.42" r="2.4" class="hm1"/>
+<line x1="560.38" y1="104.0" x2="560.38" y2="97.60" class="ln0"/>
+<circle cx="560.38" cy="97.60" r="2.4" class="hm1"/>
+<line x1="588.29" y1="104.0" x2="588.29" y2="97.76" class="ln0"/>
+<circle cx="588.29" cy="97.76" r="2.4" class="hm1"/>
+<line x1="616.20" y1="104.0" x2="616.20" y2="97.91" class="ln0"/>
+<circle cx="616.20" cy="97.91" r="2.4" class="hm1"/>
+<line x1="644.11" y1="104.0" x2="644.11" y2="98.05" class="ln0"/>
+<circle cx="644.11" cy="98.05" r="2.4" class="hm1"/>
+<line x1="672.02" y1="104.0" x2="672.02" y2="98.18" class="ln0"/>
+<circle cx="672.02" cy="98.18" r="2.4" class="hm1"/>
+<line x1="699.93" y1="104.0" x2="699.93" y2="98.30" class="ln0"/>
+<circle cx="699.93" cy="98.30" r="2.4" class="hm1"/>
+<line x1="50" y1="104.0" x2="708" y2="104.0" class="axis"/>
+<rect x="58.00" y="76.09" width="27.91" height="27.91" class="hl"/>
+<text x="93.9" y="66" class="flab st c4">1 unit = r<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan> = 1, the first gear&#8217;s radius</text>
+<text x="58.00" y="118.0" class="flab mid">1</text>
+<text x="85.91" y="118.0" class="flab mid">2</text>
+<text x="113.82" y="118.0" class="flab mid">3</text>
+<text x="141.73" y="118.0" class="flab mid">4</text>
+<text x="197.55" y="118.0" class="flab mid">6</text>
+<text x="253.37" y="118.0" class="flab mid">8</text>
+<text x="365.01" y="118.0" class="flab mid">12</text>
+<text x="476.65" y="118.0" class="flab mid">16</text>
+<text x="588.29" y="118.0" class="flab mid">20</text>
+<text x="699.93" y="118.0" class="flab mid">24</text>
+<line x1="58.00" y1="128.0" x2="58.00" y2="168.0" class="gearln"/>
+<line x1="85.91" y1="128.0" x2="198.01" y2="168.0" class="gearln"/>
+<line x1="113.82" y1="128.0" x2="279.91" y2="168.0" class="gearln"/>
+<line x1="141.73" y1="128.0" x2="338.02" y2="168.0" class="gearln"/>
+<line x1="169.64" y1="128.0" x2="383.09" y2="168.0" class="gearln"/>
+<line x1="197.55" y1="128.0" x2="419.91" y2="168.0" class="gearln"/>
+<line x1="225.46" y1="128.0" x2="451.05" y2="168.0" class="gearln"/>
+<line x1="253.37" y1="128.0" x2="478.02" y2="168.0" class="gearln"/>
+<line x1="281.28" y1="128.0" x2="501.81" y2="168.0" class="gearln"/>
+<line x1="309.19" y1="128.0" x2="523.10" y2="168.0" class="gearln"/>
+<line x1="337.10" y1="128.0" x2="542.35" y2="168.0" class="gearln"/>
+<line x1="365.01" y1="128.0" x2="559.92" y2="168.0" class="gearln"/>
+<line x1="392.92" y1="128.0" x2="576.09" y2="168.0" class="gearln"/>
+<line x1="420.83" y1="128.0" x2="591.06" y2="168.0" class="gearln"/>
+<line x1="448.74" y1="128.0" x2="604.99" y2="168.0" class="gearln"/>
+<line x1="476.65" y1="128.0" x2="618.03" y2="168.0" class="gearln"/>
+<line x1="504.56" y1="128.0" x2="630.28" y2="168.0" class="gearln"/>
+<line x1="532.47" y1="128.0" x2="641.82" y2="168.0" class="gearln"/>
+<line x1="560.38" y1="128.0" x2="652.74" y2="168.0" class="gearln"/>
+<line x1="588.29" y1="128.0" x2="663.10" y2="168.0" class="gearln"/>
+<line x1="616.20" y1="128.0" x2="672.96" y2="168.0" class="gearln"/>
+<line x1="644.11" y1="128.0" x2="682.35" y2="168.0" class="gearln"/>
+<line x1="672.02" y1="128.0" x2="691.33" y2="168.0" class="gearln"/>
+<line x1="699.93" y1="128.0" x2="699.93" y2="168.0" class="gearln"/>
+<line x1="50" y1="168.0" x2="708" y2="168.0" class="axis"/>
+<line x1="58.0" y1="168.0" x2="58.0" y2="178.0" class="gearln"/>
+<line x1="419.9" y1="168.0" x2="419.9" y2="178.0" class="gearln"/>
+<line x1="523.1" y1="168.0" x2="523.1" y2="178.0" class="gearln"/>
+<line x1="559.9" y1="168.0" x2="559.9" y2="178.0" class="gearln"/>
+<line x1="591.1" y1="168.0" x2="591.1" y2="178.0" class="gearln"/>
+<line x1="605.0" y1="168.0" x2="605.0" y2="178.0" class="gearln"/>
+<line x1="641.8" y1="168.0" x2="641.8" y2="178.0" class="gearln"/>
+<line x1="663.1" y1="168.0" x2="663.1" y2="178.0" class="gearln"/>
+<line x1="673.0" y1="168.0" x2="673.0" y2="178.0" class="gearln"/>
+<line x1="682.4" y1="168.0" x2="682.4" y2="178.0" class="gearln"/>
+<line x1="699.9" y1="168.0" x2="699.9" y2="178.0" class="gearln"/>
+<line x1="198.0" y1="168.0" x2="198.0" y2="188.0" class="ln0"/>
+<line x1="279.9" y1="168.0" x2="279.9" y2="188.0" class="ln0"/>
+<line x1="338.0" y1="168.0" x2="338.0" y2="188.0" class="ln0"/>
+<line x1="383.1" y1="168.0" x2="383.1" y2="188.0" class="ln0"/>
+<line x1="451.1" y1="168.0" x2="451.1" y2="188.0" class="ln0"/>
+<line x1="478.0" y1="168.0" x2="478.0" y2="188.0" class="ln0"/>
+<line x1="501.8" y1="168.0" x2="501.8" y2="188.0" class="ln0"/>
+<line x1="542.3" y1="168.0" x2="542.3" y2="188.0" class="ln0"/>
+<line x1="576.1" y1="168.0" x2="576.1" y2="188.0" class="ln0"/>
+<line x1="618.0" y1="168.0" x2="618.0" y2="188.0" class="ln0"/>
+<line x1="630.3" y1="168.0" x2="630.3" y2="188.0" class="ln0"/>
+<line x1="652.7" y1="168.0" x2="652.7" y2="188.0" class="ln0"/>
+<line x1="691.3" y1="168.0" x2="691.3" y2="188.0" class="ln0"/>
+<text x="198.0" y="202.0" class="flab mid hm1">2</text>
+<text x="279.9" y="202.0" class="flab mid hm1">3</text>
+<text x="338.0" y="202.0" class="flab mid hm1">4</text>
+<text x="383.1" y="202.0" class="flab mid hm1">5</text>
+<text x="451.1" y="202.0" class="flab mid hm1">7</text>
+<text x="478.0" y="202.0" class="flab mid hm1">8</text>
+<text x="501.8" y="202.0" class="flab mid hm1">9</text>
+<text x="542.3" y="202.0" class="flab mid hm1">11</text>
+<text x="576.1" y="202.0" class="flab mid hm1">13</text>
+<text x="652.7" y="202.0" class="flab mid hm1">19</text>
+<text x="691.3" y="202.0" class="flab mid hm1">23</text>
+<text x="58" y="220" class="flab st hm1">the gear rates: log n, the prime powers picked out &#8212; the same gears, seen through the logarithm</text>
+<line x1="82.2" y1="274.0" x2="82.2" y2="250.0" class="stem" fill="none"/>
+<circle cx="82.2" cy="250.0" r="2.6" class="hm4"/>
+<line x1="106.5" y1="274.0" x2="106.5" y2="250.0" class="stem" fill="none"/>
+<circle cx="106.5" cy="250.0" r="2.6" class="hm4"/>
+<line x1="130.7" y1="274.0" x2="130.7" y2="250.0" class="stem" fill="none"/>
+<circle cx="130.7" cy="250.0" r="2.6" class="hm4"/>
+<line x1="155.0" y1="274.0" x2="155.0" y2="250.0" class="stem" fill="none"/>
+<circle cx="155.0" cy="250.0" r="2.6" class="hm4"/>
+<line x1="179.2" y1="274.0" x2="179.2" y2="250.0" class="stem" fill="none"/>
+<circle cx="179.2" cy="250.0" r="2.6" class="hm4"/>
+<line x1="203.4" y1="274.0" x2="203.4" y2="250.0" class="stem" fill="none"/>
+<circle cx="203.4" cy="250.0" r="2.6" class="hm4"/>
+<line x1="227.7" y1="274.0" x2="227.7" y2="250.0" class="stem" fill="none"/>
+<circle cx="227.7" cy="250.0" r="2.6" class="hm4"/>
+<line x1="251.9" y1="274.0" x2="251.9" y2="250.0" class="stem" fill="none"/>
+<circle cx="251.9" cy="250.0" r="2.6" class="hm4"/>
+<line x1="276.1" y1="274.0" x2="276.1" y2="250.0" class="stem" fill="none"/>
+<circle cx="276.1" cy="250.0" r="2.6" class="hm4"/>
+<line x1="300.4" y1="274.0" x2="300.4" y2="250.0" class="stem" fill="none"/>
+<circle cx="300.4" cy="250.0" r="2.6" class="hm4"/>
+<line x1="324.6" y1="274.0" x2="324.6" y2="250.0" class="stem" fill="none"/>
+<circle cx="324.6" cy="250.0" r="2.6" class="hm4"/>
+<line x1="348.9" y1="274.0" x2="348.9" y2="250.0" class="stem" fill="none"/>
+<circle cx="348.9" cy="250.0" r="2.6" class="hm4"/>
+<line x1="373.1" y1="274.0" x2="373.1" y2="250.0" class="stem" fill="none"/>
+<circle cx="373.1" cy="250.0" r="2.6" class="hm4"/>
+<line x1="397.3" y1="274.0" x2="397.3" y2="250.0" class="stem" fill="none"/>
+<circle cx="397.3" cy="250.0" r="2.6" class="hm4"/>
+<line x1="421.6" y1="274.0" x2="421.6" y2="250.0" class="stem" fill="none"/>
+<circle cx="421.6" cy="250.0" r="2.6" class="hm4"/>
+<line x1="445.8" y1="274.0" x2="445.8" y2="250.0" class="stem" fill="none"/>
+<circle cx="445.8" cy="250.0" r="2.6" class="hm4"/>
+<line x1="470.1" y1="274.0" x2="470.1" y2="250.0" class="stem" fill="none"/>
+<circle cx="470.1" cy="250.0" r="2.6" class="hm4"/>
+<line x1="494.3" y1="274.0" x2="494.3" y2="250.0" class="stem" fill="none"/>
+<circle cx="494.3" cy="250.0" r="2.6" class="hm4"/>
+<line x1="518.5" y1="274.0" x2="518.5" y2="250.0" class="stem" fill="none"/>
+<circle cx="518.5" cy="250.0" r="2.6" class="hm4"/>
+<line x1="542.8" y1="274.0" x2="542.8" y2="250.0" class="stem" fill="none"/>
+<circle cx="542.8" cy="250.0" r="2.6" class="hm4"/>
+<line x1="567.0" y1="274.0" x2="567.0" y2="250.0" class="stem" fill="none"/>
+<circle cx="567.0" cy="250.0" r="2.6" class="hm4"/>
+<line x1="591.2" y1="274.0" x2="591.2" y2="250.0" class="stem" fill="none"/>
+<circle cx="591.2" cy="250.0" r="2.6" class="hm4"/>
+<line x1="615.5" y1="274.0" x2="615.5" y2="250.0" class="stem" fill="none"/>
+<circle cx="615.5" cy="250.0" r="2.6" class="hm4"/>
+<line x1="639.7" y1="274.0" x2="639.7" y2="250.0" class="stem" fill="none"/>
+<circle cx="639.7" cy="250.0" r="2.6" class="hm4"/>
+<line x1="664.0" y1="274.0" x2="664.0" y2="250.0" class="stem" fill="none"/>
+<circle cx="664.0" cy="250.0" r="2.6" class="hm4"/>
+<line x1="688.2" y1="274.0" x2="688.2" y2="250.0" class="stem" fill="none"/>
+<circle cx="688.2" cy="250.0" r="2.6" class="hm4"/>
+<line x1="50" y1="274.0" x2="708" y2="274.0" class="axis"/>
+<text x="58" y="294" class="flab st hm4">the arc&#8217;s samples: k&#916;, &#916; = 0.12 &#8212; rates of e<tspan	class="sb"	dy="-4">k&#916;</tspan><tspan	dy="4"></tspan>, which are not levels</text>
+<text x="250" y="330" class="flab st">distance to the nearest gear rate, as a fraction of the local gap</text>
+<rect x="330" y="344" width="158.4" height="19.6" class="bar hmo"/>
+<text x="324" y="360.5" class="flab end">uniform</text>
+<text x="494.4" y="360.5" class="flab st">0.495</text>
+<rect x="330" y="374" width="122.9" height="19.6" class="bar hm4"/>
+<text x="324" y="390.5" class="flab end">the grid</text>
+<text x="458.9" y="390.5" class="flab st">0.384</text>
+<rect x="330" y="404" width="82.9" height="19.6" class="bar hm1"/>
+<text x="324" y="420.5" class="flab end">rh33&#8217;s six</text>
+<text x="418.9" y="420.5" class="flab st">0.259</text>
+<text x="30" y="450" class="flab st">Top: the gears themselves. Level n sits at depth z = n&#8722;1, one unit apart all the way down, and the unit is r<tspan	class="sb"	dy="3">1</tspan><tspan	dy="-3"></tspan> = 1, the</text>
+<text x="30" y="468" class="flab st">first gear&#8217;s radius (rh3 &#167;4, rh30 &#167;8). The dashed square says it twice over: its base is the gap from gear 1 to gear 2,</text>
+<text x="30" y="486" class="flab st">its side is gear 1&#8217;s radius. Middle: the same twenty-four gears carried to their rates by n &#8614; log n. That map is the only</text>
+<text x="30" y="504" class="flab st">thing that crowds them: uniform rungs in, rate gaps from 0.6931 (1&#8594;2) down to 0.04256 (23&#8594;24) out, a ratio of 16.3.</text>
+<text x="30" y="522" class="flab st">G is built on these rates, and the Toeplitz matrix the arc has bounded since rh17 is that same matrix &#8212; checked to</text>
+<text x="30" y="540" class="flab st">4.0&#215;10&#8315;&#185;&#8309; of the mass. Bottom: the arc&#8217;s samples k&#916; are rates too, of e<tspan	class="sb"	dy="-4">k&#916;</tspan><tspan	dy="4"></tspan>, and those are not levels &#8212; k = log m/&#916; is</text>
+<text x="30" y="558" class="flab st">5.776 at m = 2, 9.155 at m = 3, never an integer. Below: a sample&#8217;s distance to the nearest rate over the local gap.</text>
+</svg></div>
+<figcaption>The gears, one unit apart with the unit fixed by the first gear&#8217;s
+radius; their rates, which are not; and the points the arc samples.</figcaption>
+</figure>
+
+<p>Then the identity that makes it a frame. Build G on the rates of the
+geometric set of ratio e<sup>&#916;</sup> and it reproduces the arc&#8217;s
+Toeplitz matrix
+to 4.0&#215;10&#8315;&#185;&#8309; of the mass — not approximately, but because they are the same
+matrix written twice. <strong>The arc has been sampling the moment function at
+rates the construction does not have</strong> — and it is worse than that:
+e<sup>k&#916;</sup> is never a level, since k = log m / &#916; is 5.776 at
+m = 2 and 9.155 at m = 3 and never an integer, so those rates belong to no gear
+at all.</p>
+
+<p>The instrument then measures how far off. Normalise the distance from a
+sample to the nearest gear rate by the local gap, so that landing on a rate
+reads 0
+and sitting as far from both neighbours as possible reads 1; uniform samples
+average a half, and 4,000 of them read 0.495. The arc&#8217;s sixty lattice
+points at &#916; = 0.12 read 0.384 — closer to the construction than
+chance, but not by much. rh33&#8217;s six resonant moments read 0.259, and
+the instrument picks them out without being told which they were.</p>
+</section>
+
+<section id="s3">
+<h2>3 · What sets the floor</h2>
+
+<p>rh34 §6 found the multiplicative sampling worse conditioned than the
+lattice and blamed bunching, on one number. (a) asked for that priced. Slide
+the integers&#8217; log-positions linearly towards equispaced over the same
+range, so that nothing changes but the spacing.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 474" role="img" aria-label="The smallest eigenvalue of the Gram matrix as the integers’ log-positions slide towards equispaced. Nothing happens at one part in ten thousand; the floor doubles at one part in a hundred; then it saturates.">
+<text x="370.0" y="21" class="ftitle">a perturbation no gap statistic can see</text>
+<line x1="66" y1="288" x2="690" y2="288" class="axis"/>
+<line x1="66" y1="62" x2="66" y2="288" class="axis"/>
+<line x1="66" y1="251.5" x2="690" y2="251.5" class="grid"/>
+<text x="60" y="255.0" class="flab end">0.3</text>
+<line x1="66" y1="178.6" x2="690" y2="178.6" class="grid"/>
+<text x="60" y="182.1" class="flab end">0.5</text>
+<line x1="66" y1="105.7" x2="690" y2="105.7" class="grid"/>
+<text x="60" y="109.2" class="flab end">0.7</text>
+<text x="91.3" y="305.0" class="flab mid">0 (the integers)</text>
+<text x="205.2" y="305.0" class="flab mid">10&#8315;&#8308;</text>
+<text x="319.1" y="305.0" class="flab mid">10&#8315;&#179;</text>
+<text x="433.1" y="305.0" class="flab mid">10&#8315;&#178;</text>
+<text x="547.0" y="305.0" class="flab mid">0.1</text>
+<text x="660.9" y="305.0" class="flab mid">1 (equispaced)</text>
+<text x="378.0" y="324.0" class="flab mid">slide &#952; towards equispaced</text>
+<text x="68" y="50" class="flab st">&#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan>(G) / mass</text>
+<path d="M91.3 253.8L205.2 253.8L319.1 248.0L433.1 146.1L512.7 106.8L567.1 93.1L626.6 91.2L660.9 97.2" class="ln0"/>
+<circle cx="91.3" cy="253.8" r="4.2" class="hm1"/>
+<circle cx="205.2" cy="253.8" r="4.2" class="hm1"/>
+<circle cx="319.1" cy="248.0" r="4.2" class="hm1"/>
+<circle cx="433.1" cy="146.1" r="4.2" class="hm1"/>
+<circle cx="512.7" cy="106.8" r="4.2" class="hm1"/>
+<circle cx="567.1" cy="93.1" r="4.2" class="hm1"/>
+<circle cx="626.6" cy="91.2" r="4.2" class="hm1"/>
+<circle cx="660.9" cy="97.2" r="4.2" class="hm1"/>
+<line x1="433.1" y1="62" x2="433.1" y2="288" class="hl"/>
+<text x="425.1" y="76" class="flab end c4">positions move 0.006 in log &#8212; a seventh of the smallest gap</text>
+<text x="30" y="350" class="flab st">Slide the integers&#8217; log-positions linearly towards equispaced over the same range. At the integers &#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan>(G)/mass</text>
+<text x="30" y="368" class="flab st">is 0.294. At &#952; = 10&#8315;&#8308; it is 0.2938 &#8212; unchanged, so this is not a discontinuity and the exactness of the integers&#8217;</text>
+<text x="30" y="386" class="flab st">multiplicative relations is not the mechanism. At &#952; = 10&#8315;&#178; it has doubled, to 0.589, while the smallest gap has</text>
+<text x="30" y="404" class="flab st">moved from 0.04256 to 0.04352. Past 5% the curve saturates, wobbling inside a factor 1.06 rather than climbing.</text>
+<text x="30" y="422" class="flab st">Something with a scale of about 0.006 in log sets this floor, and no statistic tried in &#167;3 is sensitive at that</text>
+<text x="30" y="440" class="flab st">scale.</text>
+</svg></div>
+<figcaption>Nothing at one part in ten thousand; doubled at one part in a
+hundred; saturated thereafter.</figcaption>
+</figure>
+
+<p>At the integers &#955;<sub>min</sub>(G)/mass is 0.2939. At
+&#952; = 10<sup>&#8722;4</sup> it is 0.2938 — unchanged, so this is not a
+discontinuity, and the <em>exactness</em> of the integers&#8217;
+multiplicative relations is not the mechanism. At
+&#952; = 10<sup>&#8722;2</sup> it has doubled, to 0.589, while the
+positions have moved by 0.006 in log and the smallest gap has gone from
+0.04256 to 0.04352. Past 5% the curve saturates, wobbling inside a factor
+1.06 rather than climbing.</p>
+
+<p>So the effect has a scale — about 0.006 in log, a seventh of the smallest
+gap — and the next question is whether any simple statistic is sensitive at
+it. Five gear sets at matched dimension N = 24 say no.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 510" role="img" aria-label="Five gear sets at matched dimension, with their floors against the minimum log gap. The primes have the smallest gap and the highest floor, so the gap does not order the floor.">
+<text x="370.0" y="21" class="ftitle">the primes have the smallest gap and the highest floor</text>
+<line x1="78" y1="288" x2="430" y2="288" class="axis"/>
+<line x1="78" y1="62" x2="78" y2="288" class="axis"/>
+<line x1="78" y1="254.8" x2="430" y2="254.8" class="grid"/>
+<text x="72" y="258.3" class="flab end">0.3</text>
+<line x1="78" y1="188.3" x2="430" y2="188.3" class="grid"/>
+<text x="72" y="191.8" class="flab end">0.5</text>
+<line x1="78" y1="121.8" x2="430" y2="121.8" class="grid"/>
+<text x="72" y="125.3" class="flab end">0.7</text>
+<text x="110.0" y="305.0" class="flab mid">0.03</text>
+<text x="206.0" y="305.0" class="flab mid">0.06</text>
+<text x="302.0" y="305.0" class="flab mid">0.09</text>
+<text x="398.0" y="305.0" class="flab mid">0.12</text>
+<text x="254.0" y="324.0" class="flab mid">smallest log-gap in the set</text>
+<text x="80" y="50" class="flab st">&#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan>(G) / mass</text>
+<circle cx="150.2" cy="256.8" r="5.5" class="hm1"/>
+<text x="160.2" y="260.8" class="flab st">integers</text>
+<circle cx="106.8" cy="258.9" r="5.5" class="hm1"/>
+<text x="96.8" y="262.9" class="flab end">squarefree</text>
+<circle cx="115.6" cy="155.8" r="5.5" class="hm3"/>
+<text x="125.6" y="159.8" class="flab st">primepowers</text>
+<circle cx="102.9" cy="91.9" r="5.5" class="hm3"/>
+<text x="112.9" y="95.9" class="flab st">primes</text>
+<circle cx="398.0" cy="90.7" r="5.5" class="hm4"/>
+<text x="388.0" y="94.7" class="flab end">geometric</text>
+<path d="M102.9 91.9L150.2 256.8" class="rule"/>
+<text x="129.2" y="178.3" class="flab st c4">the wrong way round</text>
+<text x="470" y="50" class="flab st">distinct log-differences, as a fraction of N&#178;</text>
+<rect x="562" y="80.0" width="60.6" height="19.6" class="bar hm1"/>
+<text x="556" y="96.5" class="flab end">integers</text>
+<text x="628.6" y="96.5" class="flab st">0.62</text>
+<rect x="562" y="119.2" width="72.7" height="19.6" class="bar hm1"/>
+<text x="556" y="135.7" class="flab end">squarefree</text>
+<text x="640.7" y="135.7" class="flab st">0.75</text>
+<rect x="562" y="158.4" width="91.0" height="19.6" class="bar hm3"/>
+<text x="556" y="174.9" class="flab end">primepowers</text>
+<text x="659.0" y="174.9" class="flab st">0.94</text>
+<rect x="562" y="197.6" width="93.3" height="19.6" class="bar hm3"/>
+<text x="556" y="214.1" class="flab end">primes</text>
+<text x="661.3" y="214.1" class="flab st">0.96</text>
+<rect x="562" y="236.8" width="7.9" height="19.6" class="bar hm4"/>
+<text x="556" y="253.3" class="flab end">geometric</text>
+<text x="575.9" y="253.3" class="flab st">0.08</text>
+<text x="30" y="350" class="flab st">Five gear sets, all at N = 24, so the dimension is matched. Left: the floor against the smallest log-gap. The primes</text>
+<text x="30" y="368" class="flab st">sit at the smallest gap of the five, 0.0278, and the highest floor, 0.790; the integers sit at a gap half again as</text>
+<text x="30" y="386" class="flab st">wide and a floor a third the size. The dashed line runs the wrong way, and over the five the correlation is +0.36 &#8212;</text>
+<text x="30" y="404" class="flab st">too weak to carry a story and pointing the wrong way for this one. Right: the coincidence count fares no better. The</text>
+<text x="30" y="422" class="flab st">geometric set has the FEWEST distinct log-differences of all, 0.08 of N&#178;, and the highest floor; the primes have the</text>
+<text x="30" y="440" class="flab st">MOST, 0.96, and a high floor too; the integers sit in the middle at 0.62 with the lowest floor of the five. Reach</text>
+<text x="30" y="458" class="flab st">does not order it either (&#8722;0.20). Of the three statistics tried, none predicts the floor and two die by explicit</text>
+<text x="30" y="476" class="flab st">counterexample.</text>
+</svg></div>
+<figcaption>Left: the floor against the smallest gap, running the wrong way.
+Right: the coincidence count, no better.</figcaption>
+</figure>
+
+<p>The <strong>primes</strong> have the smallest minimum log-gap of the five,
+0.0278, and the <em>highest</em> floor, 0.790; the integers sit at a gap
+half again as wide and a floor a third the size. Correlation over the five:
++0.36 — too weak to carry a story and pointing the wrong way for this
+one. The <strong>coincidence count</strong> fares no better: the geometric set
+has the <em>fewest</em> distinct log-differences of all, 0.08 of
+N&#178;, and the highest floor; the primes have the <em>most</em>, 0.96,
+and a high floor too; the integers sit in the middle at 0.62 with the
+lowest floor of the five (&#8722;0.15). Reach does not order it either (&#8722;0.20).</p>
+
+<p>(a) therefore closes in the branch rh34 explicitly allowed for. None of the
+three predicts the floor; two are refuted outright. What replaces them is not
+an explanation but a measurement: a displacement of 0.006 in log, invisible to
+every statistic tried, is worth a factor two.</p>
+</section>
+
+<section id="s4">
+<h2>4 · The lemma on G</h2>
+
+<p>rh34 &#167;5 tried eleven modulation frequencies by hand, found that
+rh33&#8217;s counterexample does not transfer, and concluded that
+rh32&#8217;s quadrature lemma was <em>merely unproven</em> on G rather than
+dead. It also named the failure branch: <em>&#8220;the search drives
+&#955;<sub>min</sub>(G) below rh33&#8217;s 0.55 factor, in which case the
+lemma is dead on G too and (b) closes negative.&#8221;</em></p>
+
+<p>Six restarts of coordinate descent over an eight-frequency weight profile,
+7,702 evaluations, the profile held nonnegative throughout:
+&#955;<sub>min</sub>(G)/mass falls from 0.2939 to 0.1010, a factor
+0.344. That is past rh34&#8217;s own 0.707 and past
+rh33&#8217;s 0.55. <strong>The failure branch has fired.</strong></p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 454" role="img" aria-label="What the search chose: the whole weight budget on one gear rate, log 2, driving the floor below what rh33’s aliased counterexample reached.">
+<text x="370.0" y="21" class="ftitle">one gear rate is enough</text>
+<line x1="66" y1="250" x2="400" y2="250" class="axis"/>
+<line x1="66" y1="66" x2="66" y2="250" class="axis"/>
+<line x1="66" y1="195.9" x2="400" y2="195.9" class="grid"/>
+<text x="60" y="199.4" class="flab end">0.1</text>
+<line x1="66" y1="141.8" x2="400" y2="141.8" class="grid"/>
+<text x="60" y="145.3" class="flab end">0.2</text>
+<line x1="66" y1="87.6" x2="400" y2="87.6" class="grid"/>
+<text x="60" y="91.1" class="flab end">0.3</text>
+<rect x="87.7" y="90.9" width="40.1" height="159.1" class="bar hm1"/>
+<text x="107.8" y="83.9" class="flab mid">0.294</text>
+<text x="107.8" y="267.0" class="flab mid">no modulation</text>
+<rect x="171.2" y="137.6" width="40.1" height="112.4" class="bar hmo"/>
+<text x="191.2" y="130.6" class="flab mid">0.208</text>
+<text x="191.2" y="267.0" class="flab mid">rh34&#8217;s best</text>
+<rect x="254.7" y="162.5" width="40.1" height="87.5" class="bar hm4"/>
+<text x="274.8" y="155.5" class="flab mid">0.162</text>
+<text x="274.8" y="267.0" class="flab mid">rh33&#8217;s alias</text>
+<rect x="338.2" y="195.3" width="40.1" height="54.7" class="bar hm3"/>
+<text x="358.2" y="188.3" class="flab mid">0.101</text>
+<text x="358.2" y="267.0" class="flab mid">this search</text>
+<text x="68" y="54" class="flab st">&#955;<tspan	class="sb"	dy="3">min</tspan><tspan	dy="-3"></tspan>(G) / mass at N = 24</text>
+<text x="470" y="54" class="flab st">where the search put its budget</text>
+<rect x="542" y="80.0" width="150.0" height="10.4" class="bar hm3"/>
+<text x="536" y="89.0" class="flab end">log 2</text>
+<rect x="542" y="100.0" width="1.0" height="10.4" class="bar hmo"/>
+<text x="536" y="109.0" class="flab end">log 5</text>
+<rect x="542" y="120.0" width="1.0" height="10.4" class="bar hmo"/>
+<text x="536" y="129.0" class="flab end">log 3</text>
+<rect x="542" y="140.0" width="1.0" height="10.4" class="bar hmo"/>
+<text x="536" y="149.0" class="flab end">0.90 (no gear rate)</text>
+<rect x="542" y="160.0" width="1.0" height="10.4" class="bar hmo"/>
+<text x="536" y="169.0" class="flab end">log 4</text>
+<rect x="542" y="180.0" width="1.0" height="10.4" class="bar hmo"/>
+<text x="536" y="189.0" class="flab end">log 6</text>
+<rect x="542" y="200.0" width="1.0" height="10.4" class="bar hmo"/>
+<text x="536" y="209.0" class="flab end">1.25 (no gear rate)</text>
+<rect x="542" y="220.0" width="1.0" height="10.4" class="bar hmo"/>
+<text x="536" y="229.0" class="flab end">log 7</text>
+<text x="700" y="254.0" class="flab end">1.000 on log 2, 2.9&#215;10&#8315;&#185;&#178; on the rest</text>
+<text x="30" y="312" class="flab st">rh34 &#167;5 tried eleven modulation frequencies by hand, got a factor 0.707 at best, and concluded that rh32&#8217;s</text>
+<text x="30" y="330" class="flab st">quadrature lemma was merely unproven on the unwrapped Gram. Six restarts of coordinate descent over an</text>
+<text x="30" y="348" class="flab st">eight-frequency weight profile, 7702 evaluations, held nonnegative throughout, reach 0.101 &#8212; a factor 0.344, past</text>
+<text x="30" y="366" class="flab st">rh33&#8217;s 0.55. The failure branch rh34 &#167;8 (b) named in advance has fired, and the lemma is refuted in both samplings.</text>
+<text x="30" y="384" class="flab st">The optimum is degenerate and every restart finds it to five figures: the entire budget on ONE gear rate, log 2, at the</text>
+<text x="30" y="402" class="flab st">extreme the nonnegativity constraint allows. Confirmed by cyclic Jacobi against Cholesky inertia bisection to</text>
+<text x="30" y="420" class="flab st">3.6&#215;10&#8315;&#185;&#179;.</text>
+</svg></div>
+<figcaption>What the search chose: the whole budget on one gear rate.</figcaption>
+</figure>
+
+<p>The optimum is degenerate, and every restart finds it to five figures: the
+entire budget on <em>one</em> frequency, log 2, at the extreme the
+nonnegativity constraint allows — weight 1.000 on gear 2&#8217;s rate and
+2.9&#215;10&#8315;&#185;&#178; on everything else. Confirmed by cyclic Jacobi against Cholesky inertia
+bisection to 3.6&#215;10&#8315;&#185;&#179;.</p>
+
+<p>What survives from rh34 &#167;5 is narrower and still true: the
+<em>same</em> modulation rh33 used does not transfer, because there is no
+alias to carry it. A different one, built on a gear rate, does more damage than
+rh33&#8217;s ever did. The lemma is dead in both samplings, and the arc has
+no surviving version of it.</p>
+</section>
+
+<section id="s5">
+<h2>5 · The helix reading</h2>
+
+<p>Stated in the construction&#8217;s coordinates, the two halves of this
+document point at opposite ends of the same thread.</p>
+
+<p>The gears are no help in locating either half, and that is the point: they
+are one unit apart everywhere, so the ladder distinguishes no place from any
+other. Both halves are located in the <em>rates</em>, and it is
+n &#8614; log n that puts them where they are.</p>
+
+<p>&#167;3&#8217;s floor is set where the <em>rates crowd</em>. On the
+integers at N = 24 the closest pair is levels 23 and 24 — one unit apart on
+the ladder, like every other adjacent pair, but only 0.04256 apart in rate.
+That is the deep end, and the compression there is rh3 &#167;6&#8217;s
+increment &#961;<sub>n+1</sub> &#8722; &#961;<sub>n</sub> =
+&#8722;t&#183;log(1 + 1/n) dying away: the torsion shears the deep end least,
+which is why rh5 &#167;3 called the picture dull there.</p>
+
+<p>&#167;4&#8217;s attack is mounted where the rates are <em>sparse</em>. The
+frequency the search chose is log 2 — the rate of gear 2, at depth 1, the
+shallowest gear above the seed. Its gap of 0.6931 from log 1 = 0 is the widest
+in the set, at the shallow end where the torsion shears hardest. Every
+frequency the search kept is a gear rate and it spent nothing off them.</p>
+
+<p>That is what the instrument buys. Neither statement is available in
+(&#916;, n) coordinates, because in those coordinates neither the crowding nor
+the rates exist — &#916; and n describe the sampling, and the sampling is
+not the object. Nor is either available on the ladder alone, which is uniform
+and therefore silent.</p>
+</section>
+
+<section id="s6">
+<h2>6 · Where this leaves the conjunction</h2>
+
+<p>Nowhere new, and it is worth being exact about how little was gained
+against how much was closed. rh32 proposed a quadrature lemma; rh33 refuted it
+on the wrapped lattice; rh34 showed that refutation was an aliasing artifact
+and reopened the question on the unwrapped Gram; rh35 refutes it there too, by
+a search rh34 should have run. <strong>Four documents, and the outcome is that
+a line of attack has been closed off from the inside.</strong></p>
+
+<p>What the frame adds is that the closing is legible. The damage lives on the
+gear rates and the conditioning lives in their crowding, and both are statements
+about the construction rather than about a grid. That is worth having and it
+is not worth more than it is.</p>
+
+<p>The arc&#8217;s position is rh33 &#167;7&#8217;s, unchanged: a
+certified-computation programme whose certified set grows only by paying for
+it. Nine points, and no lemma coming.</p>
+</section>
+
+<section id="s7">
+<h2>7 · What this document leaves</h2>
+
+<dl class="dict">
+<dt>(a) the threshold, explained</dt>
+<dd>&#167;3 leaves a measured phenomenon with no mechanism: a displacement of
+0.006 in log doubles the floor, and nothing in the gap statistics is sensitive
+at that scale. The obvious next instrument is the one this document did not
+build — the spectrum of G rather than its smallest eigenvalue, and in
+particular which eigenvector the perturbation destroys. If that vector is
+supported on the crowded deep end, the story is local and finishable; if it is
+spread, it is not.</dd>
+<dt>(b) whether one gear rate is special or the first one is</dt>
+<dd>&#167;4&#8217;s optimum puts everything on log 2. That may be because 2 is
+the smallest prime, because log 2 opens the widest gap in the rate set, because
+gear 2 is the shallowest level above the seed, or simply because log 2 is the
+first <em>nonzero</em> rate there is — gear 1 turns at log 1 = 0, so the ladder
+starts with a rate the modulation cannot use. Four readings, and the search
+separates none of them. Re-run it on gear sets with 2 removed, and on a set
+whose first gear is 3, and they come apart.</dd>
+<dt>(c) the certified set stays closed</dt>
+<dd>Standing order, renewed a sixth time. It should be read alongside
+&#167;6: with the lemma dead in both samplings, there is now no pending
+result that would convert measurements into certificates wholesale, and the
+set grows only one paid-for point at a time.</dd>
+</dl>
+
+<p class="foot">51 named checks in 119 s. Four computed SVG
+figures, light and dark verified. Anchors and CSS classes audited against
+rh4&#8211;rh34. No new certificates. Previous:
+<a href="rh34.html">rh34 · no mod 2&#960;</a>.</p>
+</section>
+
+
+</div>
+</body>
+</html>

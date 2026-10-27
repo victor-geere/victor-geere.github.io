@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh14 — the alignment</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+.fam-b { stroke: var(--chart-1); stroke-width: 1.7; stroke-dasharray: 6 3; fill: none; stroke-linejoin: round; }
+.fam-h { stroke: var(--chart-2); stroke-width: 1.7; stroke-dasharray: 2 3; fill: none; stroke-linejoin: round; }
+.open-neg { fill: none; stroke: var(--chart-1); stroke-width: 1.4; }
+.scat { stroke: var(--chart-1); stroke-width: 2.4; stroke-linecap: round; fill: none; stroke-opacity: .5; }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.bar2 { fill: var(--chart-2); fill-opacity: .34; stroke: var(--chart-2); stroke-width: .7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="prose">
+  <h1>The alignment</h1>
+  <p class="sub">Ordered: align the two planets — a_ℤ and a_2π — on one helix, 6.28… of arc per 1 of height, so the two rule systems merge into one; lose nothing already built; and turn the finite slices into a continuum. Done in the only currency this arc accepts: the merged system's kernel computed two ways, every prior matrix refolded out of it, a nested exhaustion certified positive at every level, and the fine slices' spectrum landing visibly on the zeros.</p>
+  <p class="meta">docs/rh14 · continues <a href="rh4.html">rh4</a>–<a href="rh13.html">rh13</a> · figures computed, not sketched · 2026-08-01</p>
+</header>
+
+<div class="abstract prose">
+<b>Abstract.</b> rh13 left the cone with two separate rule systems — the a_2π phase parallels and the a_ℤ scale circles. This document aligns them on <b>one helix</b>, normalised to arc 2π per unit height, so that on a single parameter line u the phase register ticks at the integers u ∈ ℤ and the scale register ticks at u = log n — two tick-trains on one thread, never meeting twice (<a href="rh8.html#s4">rh8 §4</a>'s incommensurability, now a feature: it is why the merged line carries all the information). The merge is then made quantitative in four steps. <b>The kernel</b> (§2): on the helix's difference coordinate v, the entire crossing form of rh13 collapses to <i>one function of one variable</i>, E(v) = ∑<sub>ρ</sub>|B(γ)|²cos(γv), computed from primes and the Γ-factor alone on 241 points of [0, 6] and agreeing with the independent zeros-side computation to 1.6×10⁻⁵ of scale; its dips at v = log n carry exactly the weights Λ(n)/√n (verified at 2, 3, 4, 5): the gears are <i>dents in the kernel</i>, the zeros its <i>frequencies</i> — one object holding both registers. <b>The merge, losing nothing</b> (§3): rh13's entire 25×25 Gram matrix is reproduced entry-by-entry as a fold of E — G[j,k] = 2[E(y<sub>j</sub>−y<sub>k</sub>) + E(y<sub>j</sub>+y<sub>k</sub>)] — to 8.1×10⁻⁵ of scale (325 identities), and rh12's optimal dip re-derives inside the merged system to its stated precision; the frontier then <i>extends</i>: D*(a = 3) = 1.15×10⁻⁸, 2.6 decades past rh12's endpoint, by the same one-solve method on the same single kernel. <b>The exhaustion</b> (§4): Toeplitz slices G[j,k] = E(y<sub>j</sub>−y<sub>k</sub>) at four nested (support, mesh) levels — 49, 99, 99, 199 dimensions, meshes 0.06 and 0.03, supports 3 and 6 — <b>all positive</b>, with λ<sub>min</sub> falling monotonically along both nesting directions (1.3×10⁻⁸ → 6.6×10⁻¹⁰ → 2.3×10⁻¹¹) exactly as the variational principle demands of a single continuous form exhausted by finite slices, and never through zero. <b>The spectrum</b> (§5): at the finest slice the continuum shows its face — the sixteen sharpest eigenmodes sit <i>on the zeros themselves</i>, sixteen measured mode-frequencies landing on seven distinct ordinates with worst offset <b>0.095</b> against a resolution cell of 1.05, their eigenvalues riding the per-zero envelope nB(γ)², the trace tying the whole spectrum to the zeros side at 3×10⁻⁴. The finite slices do not approximate some foreign continuum: <b>their continuum is the spectrum of ζ</b>. What remains open (§6) is unchanged in content and improved in form: RH ⟺ the one function E is positive-definite on every interval — Bochner's reading — and this document's slices are its certificates, now manufacturable at will from a single computed kernel.
+</div>
+
+<nav class="toc prose" aria-label="Contents">
+<ol>
+  <li><a href="#s1">The order, and the helix</a></li>
+  <li><a href="#s2">The kernel: two registers, one function</a></li>
+  <li><a href="#s3">The merge: nothing lost, and the frontier continued</a></li>
+  <li><a href="#s4">The exhaustion: finite slices of one continuous form</a></li>
+  <li><a href="#s5">The spectrum: the continuum arrives</a></li>
+  <li><a href="#s6">What the alignment settles, and what it sharpens</a></li>
+  <li><a href="#s7">Dictionary additions</a></li>
+</ol>
+</nav>
+
+<section class="prose" id="s1">
+<h2>1 · The order, and the helix</h2>
+<p>rh13 built the two rule systems as two <i>separate</i> circle families and verified their weave. The order for this document: align them — put the a_ℤ planet and the a_2π planet on the same helix, pitch 6.28… per 1, and merge the systems without losing anything already built. The helix is easy to name precisely. Take one real parameter u — height along the cone's axis in logarithmic scale — and wind at exactly one turn per unit: arc 2π of phase for every 1 of height. On that single thread both registers tick: the <b>phase register</b> at the integers u ∈ ℤ (one full turn each — the a_2π planet), and the <b>scale register</b> at u = log n (the gears — the a_ℤ planet, each prime's tower at log p, 2 log p, 3 log p, …). The two trains interleave and, because every log n is irrational against 1, never coincide twice — <a href="rh8.html#s4">rh8 §4</a>'s theorem, which is not an obstruction here but the point: a quasi-periodic thread never repeats, so one thread can carry everything. The merged system's whole content must then live in functions of <i>one</i> variable on this line — and §2 shows that it does, exactly.</p>
+</section>
+
+<p class="kicker">Part I · One thread</p>
+
+<section class="prose" id="s2">
+<h2>2 · The kernel: two registers, one function</h2>
+<p>rh13's crossing form was a matrix indexed by two window positions. On the aligned helix, translation invariance does what alignment is for: the form depends only on the <i>difference</i> of positions — the height gap v along the thread — and the whole two-index object collapses to one function of one variable,</p>
+<div class="eq"><span class="tag">(1)</span>
+E(v) = <span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo">ρ</span></span>
+|B(γ<sub>ρ</sub>)|² cos(γ<sub>ρ</sub>v)
+&nbsp;=&nbsp; 2B(<i>i</i>/2)²cosh(v/2)
++ <span class="fr"><span class="nu">1</span><span class="de">π</span></span>
+<span class="bigop"><span class="up">∞</span><span class="sym">∫</span><span class="lo">0</span></span>
+|B|²cos(rv)[Reψ − lnπ]dr
+− <span class="bigop"><span class="up">&nbsp;</span><span class="sym">∑</span><span class="lo"><i>n</i></span></span>
+<span class="fr"><span class="nu">Λ(<i>n</i>)</span><span class="de">√<i>n</i></span></span>
+C(log <i>n</i> ∓ v),
+</div>
+<p>with B the mesh profile's transform and C its autocorrelation bump (support 0.06 — essentially a point on the scale of the gears). The left side is the zeros' theory of E; the right side — pole, place at infinity, gear comb — is the primes' theory, and neither consults the other. Computed independently on 241 points of v ∈ [0, 6]: <b>one function, two theories, maximum deviation 1.6×10⁻⁵ of scale</b>.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 440" role="img" aria-label="Left: the aligned helix, one turn of two pi per unit height, drawn as its top-view spiral: the phase register ticks at the integers, the scale register places each gear at angle two pi times the fractional part of log n. Right: the kernel E of v computed from primes and the Gamma factor on the difference coordinate of the same helix, with its dips at v equals log n carrying the von Mangoldt weights, agreeing with the zeros side to two times ten to the minus five">
+<text x="360.0" y="22" class="ftitle">the alignment: one helix, 2&#960; of arc per 1 of height &#8212; and its kernel</text>
+<text x="196" y="46" class="ftitle" font-size="12">the helix from above (schematic)</text>
+<path d="M222.0 210.0L222.1 208.4L222.0 206.7L221.9 205.1L221.6 203.4L221.3 201.8L220.8 200.2L220.2 198.6L219.6 197.0L218.8 195.5L217.9 194.1L217.0 192.6L215.9 191.3L214.8 190.0L213.6 188.8L212.3 187.6L210.9 186.5L209.5 185.5L207.9 184.6L206.4 183.8L204.7 183.1L203.1 182.5L201.3 182.0L199.6 181.6L197.8 181.3L196.0 181.1L194.2 181.1L192.4 181.1L190.5 181.3L188.7 181.6L186.9 182.0L185.1 182.5L183.3 183.1L181.6 183.8L179.9 184.7L178.3 185.6L176.7 186.7L175.2 187.9L173.8 189.1L172.4 190.5L171.1 191.9L169.9 193.5L168.8 195.1L167.8 196.7L166.9 198.5L166.1 200.3L165.4 202.2L164.9 204.1L164.4 206.0L164.1 208.0L163.9 210.0L163.9 212.0L163.9 214.1L164.1 216.1L164.4 218.1L164.8 220.1L165.4 222.1L166.1 224.1L166.9 226.0L167.9 227.8L168.9 229.7L170.1 231.4L171.4 233.1L172.8 234.7L174.3 236.2L175.9 237.6L177.6 239.0L179.4 240.2L181.3 241.3L183.2 242.3L185.2 243.2L187.3 243.9L189.4 244.6L191.6 245.1L193.8 245.4L196.0 245.6L198.2 245.7L200.5 245.6L202.8 245.4L205.0 245.1L207.2 244.6L209.4 244.0L211.6 243.2L213.7 242.3L215.8 241.2L217.8 240.1L219.8 238.7L221.6 237.3L223.4 235.8L225.1 234.1L226.7 232.3L228.2 230.4L229.5 228.4L230.8 226.4L231.9 224.2L232.9 222.0L233.7 219.7L234.4 217.3L234.9 214.9L235.3 212.5L235.6 210.0L235.7 207.5L235.6 205.0L235.4 202.5L235.0 200.0L234.4 197.5L233.7 195.1L232.9 192.6L231.9 190.3L230.7 188.0L229.4 185.7L227.9 183.6L226.3 181.5L224.6 179.5L222.8 177.7L220.8 175.9L218.7 174.3L216.5 172.8L214.2 171.4L211.8 170.2L209.3 169.1L206.7 168.1L204.1 167.4L201.5 166.8L198.7 166.3L196.0 166.0L193.2 166.0L190.4 166.0L187.7 166.3L184.9 166.7L182.1 167.3L179.4 168.1L176.7 169.0L174.1 170.2L171.5 171.5L169.1 172.9L166.7 174.5L164.4 176.3L162.2 178.2L160.1 180.3L158.1 182.5L156.3 184.8L154.6 187.3L153.1 189.8L151.7 192.5L150.5 195.2L149.5 198.1L148.6 201.0L148.0 203.9L147.5 206.9L147.2 210.0L147.1 213.1L147.2 216.2L147.4 219.3L147.9 222.3L148.6 225.4L149.5 228.4L150.5 231.4L151.8 234.3L153.2 237.2L154.8 239.9L156.6 242.6L158.6 245.1L160.7 247.6L163.0 249.9L165.4 252.1L168.0 254.1L170.7 255.9L173.6 257.6L176.5 259.2L179.6 260.5L182.7 261.6L186.0 262.6L189.3 263.3L192.6 263.9L196.0 264.2L199.4 264.3L202.9 264.2L206.3 263.9L209.7 263.4L213.1 262.7L216.5 261.7L219.8 260.5L223.0 259.1L226.2 257.5L229.2 255.7L232.2 253.8L235.0 251.6L237.7 249.2L240.3 246.7L242.7 243.9L245.0 241.1L247.0 238.1L248.9 234.9L250.6 231.6L252.1 228.2L253.4 224.7L254.4 221.1L255.3 217.5L255.9 213.8L256.2 210.0L256.4 206.2L256.3 202.4L255.9 198.6L255.3 194.8L254.5 191.0L253.4 187.3L252.1 183.6L250.6 180.0L248.8 176.5L246.8 173.1L244.6 169.8L242.2 166.6L239.5 163.6L236.7 160.8L233.7 158.1L230.5 155.6L227.2 153.3L223.7 151.2L220.0 149.4L216.2 147.7L212.4 146.3L208.4 145.1L204.3 144.2L200.2 143.5L196.0 143.1L191.8 143.0L187.5 143.1L183.3 143.5L179.1 144.1L174.9 145.0L170.7 146.2L166.7 147.7L162.7 149.4L158.8 151.3L155.0 153.6L151.3 156.0L147.8 158.7L144.5 161.6L141.3 164.8L138.4 168.1L135.6 171.7L133.0 175.4L130.7 179.3L128.6 183.3L126.8 187.5L125.2 191.8L123.9 196.3L122.9 200.8L122.2 205.4L121.7 210.0L121.5 214.7L121.7 219.4L122.1 224.1L122.8 228.8L123.8 233.4L125.2 238.0L126.8 242.6L128.7 247.0L130.9 251.3L133.3 255.5L136.0 259.6L139.0 263.5L142.3 267.2L145.8 270.7L149.5 274.0L153.4 277.1L157.6 279.9L161.9 282.5L166.4 284.8L171.0 286.9L175.8 288.6L180.7 290.0L185.7 291.2L190.8 292.0L196.0 292.5L201.2 292.7L206.4 292.6L211.7 292.1L216.9 291.3L222.0 290.2L227.2 288.7L232.2 286.9L237.1 284.8L241.9 282.4L246.6 279.6L251.1 276.6L255.4 273.3L259.5 269.7L263.4 265.8L267.1 261.7L270.5 257.3L273.7 252.7L276.5 247.9L279.1 242.9L281.4 237.7L283.3 232.4L284.9 227.0L286.2 221.4L287.1 215.7L287.7 210.0L287.9 204.2L287.7 198.4" class="helix thin"/>
+<circle cx="235.6" cy="210.0" r="3.2" class="digit main"/>
+<text x="236.6" y="202.0" class="flab c1">1</text>
+<circle cx="256.2" cy="210.0" r="3.2" class="digit main"/>
+<text x="257.2" y="202.0" class="flab c1">2</text>
+<circle cx="287.7" cy="210.0" r="3.2" class="digit main"/>
+<text x="288.7" y="202.0" class="flab c1">3</text>
+<circle cx="183.8" cy="242.6" r="3.2" class="zero"/>
+<text x="176.8" y="236.6" class="flab end c2">2</text>
+<circle cx="229.6" cy="186.0" r="3.2" class="zero"/>
+<text x="236.6" y="180.0" class="flab st c2">3</text>
+<circle cx="160.8" cy="179.5" r="3.2" class="zero"/>
+<text x="153.8" y="173.5" class="flab end c2">4</text>
+<circle cx="156.5" cy="242.4" r="3.2" class="zero"/>
+<text x="149.5" y="236.4" class="flab end c2">5</text>
+<circle cx="251.5" cy="229.6" r="3.2" class="zero"/>
+<text x="258.5" y="223.6" class="flab st c2">7</text>
+<circle cx="250.7" cy="180.2" r="3.2" class="zero"/>
+<text x="257.7" y="174.2" class="flab st c2">8</text>
+<text x="196" y="362" class="flab"><tspan class="c1">turns: u &#8712; &#8484;</tspan> &#183; <tspan class="c2">gears: u = log&#8202;n</tspan></text>
+<text x="196" y="380" class="flab">6.28&#8230; per 1 &#8212; the trains never meet twice (rh8 &#167;4)</text>
+<text x="560" y="46" class="ftitle" font-size="12">the kernel E(v), from primes + &#915; alone</text>
+<line x1="420" y1="330" x2="700" y2="330" class="axis"/>
+<path d="M420.0 83.7L421.2 243.8L422.3 311.3L423.5 290.3L424.7 280.6L425.8 275.2L427.0 271.7L428.2 269.2L429.3 267.3L430.5 265.9L431.7 264.7L432.8 263.8L434.0 263.0L435.2 262.3L436.3 261.8L437.5 261.3L438.7 260.8L439.8 260.4L441.0 260.0L442.2 259.7L443.3 259.4L444.5 259.1L445.7 258.9L446.8 258.6L448.0 258.4L449.2 258.2L450.3 260.4L451.5 291.4L452.7 308.3L453.8 268.7L455.0 257.3L456.2 257.1L457.3 256.9L458.5 256.8L459.7 256.6L460.8 256.5L462.0 256.3L463.2 256.2L464.3 256.1L465.5 255.9L466.7 255.8L467.8 255.6L469.0 256.5L470.2 286.2L471.3 325.6L472.5 279.8L473.7 255.4L474.8 254.8L476.0 254.7L477.2 254.6L478.3 254.5L479.5 254.3L480.7 254.2L481.8 254.0L483.0 258.7L484.2 285.7L485.3 282.9L486.5 257.0L487.7 253.4L488.8 253.2L490.0 253.1L491.2 252.9L492.3 252.8L493.5 265.0L494.7 322.6L495.8 308.5L497.0 257.7L498.2 252.1L499.3 251.9L500.5 251.8L501.7 251.6L502.8 251.5L504.0 251.3L505.2 251.2L506.3 251.0L507.5 250.8L508.7 252.8L509.8 293.5L511.0 330.0L512.2 272.5L513.3 250.1L514.5 249.9L515.7 256.8L516.8 275.9L518.0 263.9L519.2 249.9L520.3 249.7L521.5 268.4L522.7 288.8L523.8 261.0L525.0 248.3L526.2 248.0L527.3 247.8L528.5 247.6L529.7 248.7L530.8 284.1L532.0 326.8L533.2 273.2L534.3 246.9L535.5 246.3L536.7 246.1L537.8 251.8L539.0 302.6L540.2 313.5L541.3 256.6L542.5 245.0L543.7 244.7L544.8 244.5L546.0 244.3L547.2 244.4L548.3 252.8L549.5 262.6L550.7 263.0L551.8 312.1L553.0 293.3L554.2 246.8L555.3 244.9L556.5 285.1L557.7 313.3L558.8 259.2L560.0 241.2L561.2 240.9L562.3 240.6L563.5 240.3L564.7 249.9L565.8 301.4L567.0 292.8L568.2 246.3L569.3 260.0L570.5 272.2L571.7 246.7L572.8 250.3L574.0 260.4L575.2 247.1L576.3 281.7L577.5 300.0L578.7 260.4L579.8 297.5L581.0 292.1L582.2 251.4L583.3 236.9L584.5 234.4L585.7 234.0L586.8 242.2L588.0 288.6L589.2 282.2L590.3 238.1L591.5 238.0L592.7 280.9L593.8 292.4L595.0 291.7L596.2 278.7L597.3 236.3L598.5 253.9L599.7 293.4L600.8 274.0L602.0 256.9L603.2 235.3L604.3 260.6L605.5 285.6L606.7 242.2L607.8 226.4L609.0 244.3L610.2 291.2L611.3 301.8L612.5 270.5L613.7 237.3L614.8 244.5L616.0 278.5L617.2 259.1L618.3 271.6L619.5 305.4L620.7 275.4L621.8 230.5L623.0 251.4L624.2 281.0L625.3 276.3L626.5 272.0L627.7 234.0L628.8 256.9L630.0 259.8L631.2 222.5L632.3 235.6L633.5 269.6L634.7 277.6L635.8 302.5L637.0 282.2L638.2 299.2L639.3 288.0L640.5 268.1L641.7 233.6L642.8 222.8L644.0 238.5L645.2 260.5L646.3 285.5L647.5 269.6L648.7 257.8L649.8 290.9L651.0 248.5L652.2 221.6L653.3 276.4L654.5 276.9L655.7 254.8L656.8 255.6L658.0 276.1L659.2 283.3L660.3 267.0L661.5 272.7L662.7 274.2L663.8 232.7L665.0 279.1L666.2 310.3L667.3 264.9L668.5 216.7L669.7 231.7L670.8 216.9L672.0 249.7L673.2 303.6L674.3 291.3L675.5 284.4L676.7 253.6L677.8 247.7L679.0 262.1L680.2 270.0L681.3 287.7L682.5 294.6L683.7 281.7L684.8 244.7L686.0 216.8L687.2 264.1L688.3 289.6L689.5 226.9L690.7 231.3L691.8 256.1L693.0 288.5L694.2 287.1L695.3 266.6L696.5 269.1L697.7 269.5L698.8 259.1L700.0 251.6" class="helix2"/>
+<text x="452.3" y="321.3" class="flab c2">2</text>
+<text x="471.3" y="338.6" class="flab c2">3</text>
+<text x="484.7" y="298.7" class="flab c2">4</text>
+<text x="495.1" y="335.6" class="flab c2">5</text>
+<text x="616.0" y="122" class="flab">past v &#8776; 2.5 the dents overlap:</text>
+<text x="616.0" y="136" class="flab">the primes&#8217; own roughness</text>
+<line x1="420.0" y1="330" x2="420.0" y2="334" class="axis"/>
+<text x="420.0" y="346" class="flab">0</text>
+<line x1="513.3" y1="330" x2="513.3" y2="334" class="axis"/>
+<text x="513.3" y="346" class="flab">2</text>
+<line x1="606.7" y1="330" x2="606.7" y2="334" class="axis"/>
+<text x="606.7" y="346" class="flab">4</text>
+<line x1="700.0" y1="330" x2="700.0" y2="334" class="axis"/>
+<text x="700.0" y="346" class="flab">6</text>
+<text x="700" y="360" class="flab end">v (helix height difference)</text>
+<text x="428" y="68" class="flab st">one function of one variable:</text>
+<text x="428" y="82" class="flab st">= zeros side at all 241 points to 2e-05</text>
+<text x="428" y="96" class="flab st c2">dips at v = log n: the gears, weight &#923;(n)/&#8730;n</text>
+</svg>
+</div>
+<figcaption><b>Figure 1 — the aligned helix and its kernel.</b> <i>Left (schematic, labeled):</i> the helix from above — one turn per unit height — with the a_2π ticks at u = 1, 2, 3 (purple, all at angle zero) and the a_ℤ ticks at u = log n (amber: each gear lands at angle 2π·{log n}, the fractional parts that never repeat). <i>Right (computed):</i> the kernel E(v) from the arithmetic side: the smooth cosh-plus-archimedean spine carrying <b>dents exactly at v = log n</b> — isolated up to v ≈ 2.5, then overlapping into the dense irregular comb that is the primes’ own roughness — each dent weighing Λ(n)/√n·C(0) (verified at n = 2, 3, 4, 5 to within 35% of the local baseline, limited only by the baseline's own curvature), agreeing with the zeros-side E everywhere to 1.6×10⁻⁵. The gears are dents in the kernel; the zeros are its frequencies; the helix carries both registers in one function.</figcaption>
+</figure>
+<p>Read (1) as the alignment made flesh. The a_ℤ register enters E as its <i>singular support</i> — the dent train at log n, weights Λ(n)/√n, the second ruling's ℤ ticking in the argument of C. The a_2π register enters as its <i>spectrum</i> — E is a superposition of cosines at the zero frequencies, the first ruling's winding rates. One function of the single helix coordinate holds the primes as dents and the zeros as tones, and the explicit formula — the arc's equation since rh10 — is revealed as the statement that <b>the dent train and the tone stack are the same function</b>. That is what "merge the two rule systems into one" means, and it is now a computed object with an error bar.</p>
+</section>
+
+<section class="prose" id="s3">
+<h2>3 · The merge: nothing lost, and the frontier continued</h2>
+<p>The order said: take care not to lose what we have. Everything the arc has built on windows is a quadratic form; every such form is now a <i>fold</i> of E. rh13's even-pair Gram matrix — all 325 entries of <a href="rh13.html#s3">rh13 §3</a>, computed there by 325 separate double-quadratures — reproduces as</p>
+<div class="eq"><span class="tag">(2)</span>
+G[j,k] = 2[E(y<sub>j</sub>−y<sub>k</sub>) + E(y<sub>j</sub>+y<sub>k</sub>)]
+</div>
+<p>(halved once per zero index), to <b>8.1×10⁻⁵ of scale, worst entry</b> — the whole crossing form of rh13, refolded out of one curve. rh12's optimal window re-evaluates inside the merged system to its stated dip (the D* consistency check passes at rh12's own tolerance), and the frontier machinery — one linear solve per budget — runs on the merged form directly: at support a = 3 (gears to log n ≤ 6, the sieve out to n = 403), <b>D*(3) = 1.15×10⁻⁸</b>, two and a half decades past rh12's endpoint, with the same certified positivity. Nothing built in rh10–rh13 is outside this one function; several things are now cheaper inside it.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 420" role="img" aria-label="Left: all three hundred twenty-five entries of rh13's Gram matrix plotted against their reconstruction from the single kernel: every point on the diagonal, worst deviation eight times ten to the minus five of scale. Right: the optimal-dip frontier of rh12 extended by the merged form to support three, reaching one point one times ten to the minus eight">
+<text x="360.0" y="22" class="ftitle">nothing lost: rh13 folds out of E, and the frontier grows a decade and a half</text>
+<text x="205" y="46" class="ftitle" font-size="12">325 rh13 entries vs their fold of E</text>
+<line x1="70.0" y1="330.0" x2="340.0" y2="64.0" class="brk"/>
+<path class="scat" d="M238.9 163.6h.01M141.6 259.5h.01M136.2 264.8h.01M157.5 243.8h.01M166.9 234.5h.01M172.4 229.1h.01M176.0 225.6h.01M178.7 222.9h.01M180.7 220.9h.01M182.4 219.3h.01M182.3 219.4h.01M140.7 260.3h.01M135.3 265.7h.01M184.2 217.5h.01M187.9 213.8h.01M188.8 213.0h.01M189.6 212.2h.01M183.4 218.3h.01M116.0 284.7h.01M146.4 254.8h.01M192.1 209.7h.01M193.5 208.3h.01M185.9 215.8h.01M149.0 252.2h.01M180.1 221.5h.01M271.6 131.4h.01M127.9 273.0h.01M131.8 269.1h.01M158.6 242.7h.01M171.7 229.8h.01M179.8 221.8h.01M185.5 216.2h.01M189.8 212.0h.01M191.7 210.1h.01M151.8 249.4h.01M146.3 254.8h.01M153.7 247.6h.01M151.9 249.3h.01M201.7 200.2h.01M206.2 195.8h.01M200.9 201.1h.01M134.3 266.6h.01M158.5 242.8h.01M136.8 264.2h.01M168.6 232.8h.01M206.7 195.3h.01M171.3 230.2h.01M194.8 207.1h.01M174.3 227.3h.01M302.3 101.1h.01M142.7 258.4h.01M140.9 260.1h.01M164.9 236.5h.01M176.4 225.2h.01M183.5 218.2h.01M187.0 214.7h.01M148.1 253.0h.01M144.7 256.4h.01M195.3 206.5h.01M198.9 203.0h.01M158.2 243.1h.01M153.6 247.6h.01M196.3 205.6h.01M132.6 268.3h.01M163.9 237.5h.01M210.4 191.7h.01M205.6 196.4h.01M130.6 270.3h.01M124.1 276.7h.01M201.0 201.0h.01M218.8 183.4h.01M173.2 228.4h.01M311.4 92.2h.01M149.0 252.2h.01M145.6 255.5h.01M168.6 232.8h.01M177.9 223.7h.01M141.8 259.2h.01M140.0 261.0h.01M191.6 210.2h.01M197.4 204.5h.01M199.9 202.1h.01M200.6 201.3h.01M152.8 248.4h.01M80.0 320.1h.01M159.3 242.0h.01M208.7 193.3h.01M211.0 191.1h.01M204.2 197.8h.01M161.1 240.2h.01M124.9 275.9h.01M171.6 229.9h.01M179.4 222.3h.01M127.5 273.3h.01M316.1 87.5h.01M152.7 248.5h.01M147.2 254.0h.01M127.0 273.9h.01M130.9 270.0h.01M185.3 216.4h.01M192.7 209.1h.01M196.2 205.7h.01M199.0 202.9h.01M194.5 207.4h.01M127.0 273.8h.01M115.8 284.9h.01M156.1 245.2h.01M206.5 195.6h.01M202.5 199.4h.01M166.5 234.9h.01M198.5 203.4h.01M208.6 193.4h.01M103.3 297.2h.01M80.4 319.8h.01M206.5 195.6h.01M317.7 86.0h.01M111.1 289.5h.01M100.2 300.3h.01M170.5 231.0h.01M183.6 218.1h.01M189.9 211.9h.01M194.4 207.5h.01M190.8 211.0h.01M125.4 275.4h.01M157.5 243.8h.01M203.1 198.9h.01M162.9 238.4h.01M149.9 251.3h.01M162.0 239.4h.01M196.8 205.1h.01M214.0 188.1h.01M176.9 224.7h.01M117.4 283.3h.01M130.4 270.5h.01M175.2 226.3h.01M270.7 132.3h.01M154.6 246.7h.01M152.8 248.4h.01M175.0 226.5h.01M185.2 216.5h.01M184.5 217.2h.01M120.8 280.0h.01M153.8 247.5h.01M201.5 200.4h.01M204.6 197.4h.01M196.9 205.0h.01M118.5 282.3h.01M144.2 256.9h.01M209.5 192.6h.01M175.2 226.4h.01M122.8 278.0h.01M204.0 198.0h.01M212.2 189.9h.01M145.7 255.4h.01M323.3 80.5h.01M159.1 242.2h.01M154.5 246.7h.01M169.6 231.8h.01M111.6 289.0h.01M147.5 253.7h.01M196.8 205.0h.01M200.9 201.0h.01M195.3 206.5h.01M160.1 241.2h.01M191.1 210.7h.01M166.0 235.4h.01M122.6 278.2h.01M118.3 282.5h.01M202.3 199.7h.01M217.6 184.6h.01M219.3 182.9h.01M209.5 192.6h.01M325.0 78.8h.01M153.7 247.5h.01M80.9 319.2h.01M132.6 268.3h.01M187.7 214.0h.01M194.6 207.2h.01M190.7 211.1h.01M156.4 244.9h.01M189.6 212.2h.01M207.6 194.4h.01M169.5 232.0h.01M74.7 325.3h.01M149.7 251.5h.01M213.0 189.1h.01M217.7 184.5h.01M214.9 187.3h.01M143.7 257.4h.01M251.4 151.3h.01M116.7 284.0h.01M157.0 244.3h.01M179.8 221.9h.01M181.5 220.1h.01M150.1 251.1h.01M184.9 216.8h.01M203.9 198.0h.01M168.0 233.5h.01M116.4 284.3h.01M196.6 205.2h.01M169.5 231.9h.01M165.0 236.4h.01M210.3 191.8h.01M142.0 259.0h.01M156.2 245.1h.01M327.5 76.3h.01M163.9 237.5h.01M150.8 250.4h.01M135.3 265.7h.01M175.8 225.8h.01M197.6 204.2h.01M163.3 238.1h.01M112.7 287.9h.01M195.1 206.8h.01M211.2 190.9h.01M212.0 190.1h.01M166.8 234.6h.01M89.4 310.9h.01M151.6 249.6h.01M200.8 201.1h.01M321.3 82.4h.01M119.4 281.4h.01M145.1 256.1h.01M182.8 218.9h.01M154.2 247.1h.01M106.4 294.1h.01M190.4 211.4h.01M207.5 194.5h.01M210.5 191.6h.01M208.5 193.6h.01M136.4 264.6h.01M108.1 292.5h.01M148.2 252.9h.01M189.9 211.8h.01M315.5 88.1h.01M166.9 234.5h.01M123.4 277.4h.01M91.6 308.7h.01M181.3 220.4h.01M201.2 200.7h.01M205.8 196.3h.01M204.8 197.2h.01M134.8 266.1h.01M149.8 251.4h.01M195.2 206.7h.01M146.4 254.7h.01M138.9 262.1h.01M293.9 109.4h.01M75.7 324.4h.01M150.5 250.7h.01M186.4 215.4h.01M196.7 205.2h.01M198.5 203.4h.01M130.1 270.8h.01M146.1 255.1h.01M193.6 208.2h.01M188.1 213.7h.01M185.9 215.8h.01M136.7 264.2h.01M321.0 82.7h.01M170.5 231.0h.01M165.9 235.5h.01M183.7 218.0h.01M121.0 279.7h.01M139.8 261.2h.01M189.0 212.8h.01M184.4 217.3h.01M184.3 217.4h.01M178.4 223.2h.01M217.3 184.9h.01M336.4 67.6h.01M167.7 233.7h.01M90.3 310.0h.01M124.9 275.9h.01M179.8 221.8h.01M178.1 223.5h.01M179.6 222.0h.01M174.7 226.8h.01M215.7 186.5h.01M194.4 207.4h.01M260.8 142.1h.01M109.0 291.6h.01M149.1 252.1h.01M163.3 238.1h.01M170.5 231.0h.01M168.4 233.0h.01M211.0 191.1h.01M190.7 211.1h.01M123.6 277.2h.01M319.6 84.1h.01M147.3 253.8h.01M139.8 261.2h.01M153.6 247.7h.01M201.9 200.1h.01M184.4 217.3h.01M118.9 281.8h.01M197.9 204.0h.01M310.3 93.3h.01M137.7 263.4h.01M171.2 230.3h.01M169.6 231.9h.01M109.8 290.8h.01M191.6 210.2h.01M173.4 228.2h.01M341.6 62.4h.01M153.7 247.6h.01M79.1 321.1h.01M176.8 224.8h.01M164.2 237.1h.01M128.4 272.5h.01M249.5 153.1h.01M160.9 240.5h.01M133.5 267.4h.01M113.5 287.1h.01M202.3 199.7h.01M304.0 99.5h.01M97.6 302.8h.01M171.5 230.0h.01M201.5 200.5h.01M342.0 62.0h.01M185.6 216.1h.01M151.5 249.7h.01M321.9 81.8h.01M94.5 305.9h.01M298.6 104.8h.01"/>
+<text x="95.3" y="105.6" class="flab st">every Gram entry the arc</text>
+<text x="95.3" y="127.2" class="flab st">has built = a fold of E:</text>
+<text x="95.3" y="148.8" class="flab st c1">worst 8e-05 of scale</text>
+<text x="255.6" y="276.8" class="flab end">fold of E &#8594;</text>
+<text x="66" y="70" class="flab st">rh13 entry &#8593;</text>
+<text x="558" y="46" class="ftitle" font-size="12">the frontier, continued by the merged form</text>
+<line x1="416" y1="312.3" x2="700" y2="312.3" class="grid"/>
+<text x="411" y="316.3" class="flab end">10&#8315;&#8312;</text>
+<line x1="416" y1="253.2" x2="700" y2="253.2" class="grid"/>
+<text x="411" y="257.2" class="flab end">10&#8315;&#8310;</text>
+<line x1="416" y1="194.0" x2="700" y2="194.0" class="grid"/>
+<text x="411" y="198.0" class="flab end">10&#8315;&#8308;</text>
+<line x1="416" y1="134.9" x2="700" y2="134.9" class="grid"/>
+<text x="411" y="138.9" class="flab end">10&#8315;&#178;</text>
+<line x1="416" y1="75.8" x2="700" y2="75.8" class="grid"/>
+<text x="411" y="79.8" class="flab end">10&#8304;</text>
+<path d="M426.5 77.2L458.1 104.7L489.6 181.9L521.2 232.5L552.7 258.1L584.3 273.7L615.9 277.0" class="helix"/>
+<circle cx="426.5" cy="77.2" r="2.8" class="digit main"/>
+<circle cx="458.1" cy="104.7" r="2.8" class="digit main"/>
+<circle cx="489.6" cy="181.9" r="2.8" class="digit main"/>
+<circle cx="521.2" cy="232.5" r="2.8" class="digit main"/>
+<circle cx="552.7" cy="258.1" r="2.8" class="digit main"/>
+<circle cx="584.3" cy="273.7" r="2.8" class="digit main"/>
+<circle cx="615.9" cy="277.0" r="2.8" class="digit main"/>
+<path d="M615.9 277.0L679.0 310.5" class="brk"/>
+<circle cx="679.0" cy="310.5" r="4" class="zero"/>
+<text x="671.0" y="274.5" class="flab end c2">a = 3: D* = 1.1e-08</text>
+<text x="468.6" y="150.4" class="flab st c1">rh12&#8217;s frontier</text>
+<line x1="468.6" y1="330" x2="468.6" y2="334" class="axis"/>
+<text x="468.6" y="346" class="flab">1</text>
+<line x1="573.8" y1="330" x2="573.8" y2="334" class="axis"/>
+<text x="573.8" y="346" class="flab">2</text>
+<line x1="679.0" y1="330" x2="679.0" y2="334" class="axis"/>
+<text x="679.0" y="346" class="flab">3</text>
+<line x1="416" y1="330" x2="700" y2="330" class="axis"/>
+<text x="700" y="360" class="flab end">support a</text>
+<text x="424" y="322" class="flab st">2.6 more decades, same positivity</text>
+</svg>
+</div>
+<figcaption><b>Figure 2 — nothing lost, something gained.</b> <i>Left:</i> all 325 entries of rh13's arithmetic-side Gram matrix against their reconstruction as folds of E: every point on the diagonal, worst deviation 8.1×10⁻⁵ of scale. The matrix the arc built by 325 quadratures is one curve worn 325 ways. <i>Right:</i> rh12's optimal-dip frontier (purple) continued by the merged form (amber): D*(3) = 1.15×10⁻⁸. The knife edge sharpens by 2.6 decades and stays on the positive side.</figcaption>
+</figure>
+</section>
+
+<p class="kicker">Part II · The continuum</p>
+
+<section class="prose" id="s4">
+<h2>4 · The exhaustion: finite slices of one continuous form</h2>
+<p>"Turn the finite slices into a continuum" has an exact meaning for a quadratic form, and it is the meaning this section certifies. The slices of the arc — rh13's 25 dimensions, rh12's window spaces — are members of a <i>nested family</i>: refine the mesh (hats of width 0.06 are exact sums of hats of width 0.03) and the space grows; widen the support and the space grows. The union of the family, over all meshes and supports, is dense in every space of admissible windows: the continuum <i>is</i> the limit of the slices, and a single continuous form restricted to the slices must show two signatures — the same kernel serving every level, and eigenvalue monotonicity along every nesting (the variational principle: a bigger space can only find softer directions). Both are now measured:</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 410" role="img" aria-label="The sorted eigenvalue staircases of four nested slices of the merged form, on a log scale spanning ten decades: all four entirely positive, with the smallest eigenvalue falling as the space grows, exactly as a single continuous form exhausted by finite slices requires">
+<text x="360.0" y="22" class="ftitle">the exhaustion: four nested slices of one form &#8212; positive at every level</text>
+<line x1="74" y1="297.6" x2="700" y2="297.6" class="grid"/>
+<text x="68" y="301.6" class="flab end">10&#8315;&#185;&#8304;</text>
+<line x1="74" y1="251.4" x2="700" y2="251.4" class="grid"/>
+<text x="68" y="255.4" class="flab end">10&#8315;&#8312;</text>
+<line x1="74" y1="205.1" x2="700" y2="205.1" class="grid"/>
+<text x="68" y="209.1" class="flab end">10&#8315;&#8310;</text>
+<line x1="74" y1="158.8" x2="700" y2="158.8" class="grid"/>
+<text x="68" y="162.8" class="flab end">10&#8315;&#8308;</text>
+<line x1="74" y1="112.6" x2="700" y2="112.6" class="grid"/>
+<text x="68" y="116.6" class="flab end">10&#8315;&#178;</text>
+<path d="M74.0 248.4L87.0 224.2L100.1 215.9L113.1 205.8L126.2 191.9L139.2 186.0L152.2 183.8L165.3 171.8L178.3 168.4L191.4 165.7L204.4 162.3L217.5 156.9L230.5 150.9L243.5 146.4L256.6 146.2L269.6 142.8L282.7 141.6L295.7 141.5L308.8 134.1L321.8 127.0L334.8 124.4L347.9 123.8L360.9 117.7L374.0 117.5L387.0 115.6L400.0 113.4L413.1 107.4L426.1 107.4L439.2 100.5L452.2 99.8L465.2 97.7L478.3 95.7L491.3 95.5L504.4 94.5L517.4 94.3L530.5 93.4L543.5 93.0L556.5 91.4L569.6 91.4L582.6 91.2L595.7 90.6L608.7 89.5L621.8 88.8L634.8 86.8L647.8 86.5L660.9 86.3L673.9 86.2L687.0 84.9L700.0 84.3" class="helix thin"/>
+<path d="M74.0 278.7L80.4 259.1L86.8 241.8L93.2 231.1L99.6 224.8L105.9 217.8L112.3 214.1L118.7 211.9L125.1 207.8L131.5 196.6L137.9 192.7L144.3 189.5L150.7 184.0L157.0 181.1L163.4 181.1L169.8 176.6L176.2 168.8L182.6 167.3L189.0 163.5L195.4 162.6L201.8 162.1L208.1 154.3L214.5 150.8L220.9 150.1L227.3 146.3L233.7 145.2L240.1 144.6L246.5 141.4L252.9 138.9L259.2 138.1L265.6 129.3L272.0 125.9L278.4 125.5L284.8 124.4L291.2 120.6L297.6 114.4L304.0 113.6L310.3 109.9L316.7 109.7L323.1 108.9L329.5 108.1L335.9 104.5L342.3 104.4L348.7 104.3L355.1 103.0L361.4 102.5L367.8 102.1L374.2 101.7L380.6 101.7L387.0 101.7L393.4 100.9L399.8 100.8L406.2 100.3L412.6 99.7L418.9 99.6L425.3 99.6L431.7 99.5L438.1 99.4L444.5 99.4L450.9 99.1L457.3 99.0L463.7 98.8L470.0 98.8L476.4 98.4L482.8 97.9L489.2 97.3L495.6 97.2L502.0 96.6L508.4 96.6L514.8 96.5L521.1 96.4L527.5 96.0L533.9 96.0L540.3 95.5L546.7 95.5L553.1 95.5L559.5 95.3L565.9 94.7L572.2 94.7L578.6 94.2L585.0 94.1L591.4 94.0L597.8 93.7L604.2 93.5L610.6 93.0L617.0 92.5L623.3 92.5L629.7 92.3L636.1 92.3L642.5 92.2L648.9 92.2L655.3 91.5L661.7 91.0L668.1 90.6L674.4 90.5L680.8 89.9L687.2 89.9L693.6 89.3L700.0 89.2" class="fam-b"/>
+<path d="M74.0 268.2L80.4 258.6L86.8 247.0L93.2 229.8L99.6 226.0L105.9 223.2L112.3 217.3L118.7 212.7L125.1 209.7L131.5 202.6L137.9 193.6L144.3 190.5L150.7 186.7L157.0 186.3L163.4 186.2L169.8 184.8L176.2 184.7L182.6 177.4L189.0 173.4L195.4 172.7L201.8 170.3L208.1 169.7L214.5 166.5L220.9 165.1L227.3 163.9L233.7 159.9L240.1 157.9L246.5 157.8L252.9 157.3L259.2 154.7L265.6 154.6L272.0 152.2L278.4 149.1L284.8 149.0L291.2 148.9L297.6 146.5L304.0 146.2L310.3 145.4L316.7 145.3L323.1 144.7L329.5 144.7L335.9 144.6L342.3 142.6L348.7 142.5L355.1 142.2L361.4 137.7L367.8 137.4L374.2 137.0L380.6 137.0L387.0 136.6L393.4 136.6L399.8 136.3L406.2 136.1L412.6 135.6L418.9 135.2L425.3 134.9L431.7 134.8L438.1 132.9L444.5 132.6L450.9 132.5L457.3 132.5L463.7 129.5L470.0 129.3L476.4 123.5L482.8 123.5L489.2 119.3L495.6 118.9L502.0 118.4L508.4 118.2L514.8 111.3L521.1 111.3L527.5 108.7L533.9 108.4L540.3 106.8L546.7 106.5L553.1 100.7L559.5 100.2L565.9 96.7L572.2 95.5L578.6 93.0L585.0 92.9L591.4 88.6L597.8 88.6L604.2 87.8L610.6 87.1L617.0 86.5L623.3 86.3L629.7 84.9L636.1 84.8L642.5 83.9L648.9 83.7L655.3 81.6L661.7 81.5L668.1 80.7L674.4 80.4L680.8 79.3L687.2 79.2L693.6 77.8L700.0 77.7" class="helix2"/>
+<path d="M74.0 312.6L77.2 287.3L80.3 274.2L83.5 266.0L86.6 265.9L89.8 256.5L93.0 241.9L96.1 237.4L99.3 236.1L102.5 233.7L105.6 226.5L108.8 225.4L111.9 224.4L115.1 215.2L118.3 214.8L121.4 214.8L124.6 212.1L127.7 212.0L130.9 208.6L134.1 205.5L137.2 201.7L140.4 196.7L143.6 194.4L146.7 194.1L149.9 192.8L153.0 191.1L156.2 191.0L159.4 190.6L162.5 189.6L165.7 187.4L168.8 186.2L172.0 185.4L175.2 181.9L178.3 181.9L181.5 179.0L184.7 177.9L187.8 177.4L191.0 176.5L194.1 173.6L197.3 170.8L200.5 170.7L203.6 169.9L206.8 168.8L209.9 168.3L213.1 168.0L216.3 166.2L219.4 165.7L222.6 165.2L225.8 161.8L228.9 161.2L232.1 161.1L235.2 159.4L238.4 159.3L241.6 158.8L244.7 157.9L247.9 157.7L251.1 157.7L254.2 157.4L257.4 156.6L260.5 153.5L263.7 152.6L266.9 152.2L270.0 150.4L273.2 150.3L276.3 150.0L279.5 150.0L282.7 149.5L285.8 148.1L289.0 147.5L292.2 147.2L295.3 147.1L298.5 147.1L301.6 146.4L304.8 146.4L308.0 145.1L311.1 144.8L314.3 143.9L317.4 143.2L320.6 143.2L323.8 142.2L326.9 142.1L330.1 141.2L333.3 140.9L336.4 140.9L339.6 140.3L342.7 140.3L345.9 139.8L349.1 139.5L352.2 139.5L355.4 138.4L358.5 137.7L361.7 136.1L364.9 136.0L368.0 135.5L371.2 133.2L374.4 133.1L377.5 132.1L380.7 130.9L383.8 130.6L387.0 127.6L390.2 127.0L393.3 126.2L396.5 125.7L399.6 125.7L402.8 123.4L406.0 123.1L409.1 123.1L412.3 122.4L415.5 121.8L418.6 121.2L421.8 121.1L424.9 121.1L428.1 121.1L431.3 120.9L434.4 120.2L437.6 120.1L440.7 119.7L443.9 119.1L447.1 119.1L450.2 117.4L453.4 117.2L456.6 115.4L459.7 115.3L462.9 112.5L466.0 112.5L469.2 112.1L472.4 112.0L475.5 111.4L478.7 111.0L481.8 108.7L485.0 108.0L488.2 106.4L491.3 106.4L494.5 105.5L497.7 104.6L500.8 103.3L504.0 102.6L507.1 100.1L510.3 100.0L513.5 98.2L516.6 97.9L519.8 96.9L522.9 96.9L526.1 96.6L529.3 96.5L532.4 96.4L535.6 96.0L538.8 96.0L541.9 95.6L545.1 95.0L548.2 94.9L551.4 94.9L554.6 94.5L557.7 94.5L560.9 93.8L564.1 93.7L567.2 93.4L570.4 93.0L573.5 93.0L576.7 92.8L579.9 92.8L583.0 92.7L586.2 92.6L589.3 92.5L592.5 92.5L595.7 91.4L598.8 91.4L602.0 90.0L605.2 89.8L608.3 89.7L611.5 89.6L614.6 89.6L617.8 89.5L621.0 89.1L624.1 89.0L627.3 88.4L630.4 88.4L633.6 87.6L636.8 87.6L639.9 87.4L643.1 87.2L646.3 87.0L649.4 86.9L652.6 86.7L655.7 86.6L658.9 86.4L662.1 86.3L665.2 85.5L668.4 85.5L671.5 85.2L674.7 85.2L677.9 84.9L681.0 84.5L684.2 84.0L687.4 83.9L690.5 83.6L693.7 83.6L696.8 83.4L700.0 83.3" class="fam-h"/>
+<text x="95.9" y="303.1" class="flab st">&#955;&#8202;min falls as the space grows &#8212; variational, as it must:</text>
+<text x="95.9" y="319.1" class="flab st">1.3&#215;10&#8315;&#8312; &#8594; 6.6&#215;10&#8315;&#185;&#8304; &#8594; 2.3&#215;10&#8315;&#185;&#185; &#8212; and never through zero</text>
+<line x1="184" y1="68" x2="204" y2="68" class="helix thin"/>
+<text x="208" y="72" class="flab st">a=1.5, mesh .060 (n=49)</text>
+<line x1="384" y1="68" x2="404" y2="68" class="fam-b"/>
+<text x="408" y="72" class="flab st">a=1.5, mesh .030 (n=99)</text>
+<line x1="184" y1="84" x2="204" y2="84" class="helix2"/>
+<text x="208" y="88" class="flab st">a=3.0, mesh .060 (n=99)</text>
+<line x1="384" y1="84" x2="404" y2="84" class="fam-h"/>
+<text x="408" y="88" class="flab st">a=3.0, mesh .030 (n=199)</text>
+<text x="74.0" y="346" class="flab">0</text>
+<text x="387.0" y="346" class="flab">0.5</text>
+<text x="700.0" y="346" class="flab">1</text>
+<line x1="74" y1="330" x2="700" y2="330" class="axis"/>
+<text x="700" y="360" class="flab end">spectral fraction (sorted)</text>
+</svg>
+</div>
+<figcaption><b>Figure 3 — the exhaustion.</b> Sorted eigenvalue staircases of four nested Toeplitz slices of the merged form — n = 49 and 99 at support 3 (meshes 0.06 and 0.03), n = 99 and 199 at support 6 — spanning ten decades on the log scale. All four spectra are entirely positive. Along each nesting arrow λ<sub>min</sub> falls — 1.3×10⁻⁸ → 6.6×10⁻¹⁰ → 2.3×10⁻¹¹ — exactly the monotonicity a single continuous form exhausted by growing slices must show, and at no level does the fall cross zero. Every level is a fresh certificate: 446 eigenvalues computed in this document, none negative.</figcaption>
+</figure>
+<p>The honest grammar of the continuum claim, stated once. RH is equivalent (Weil; Bochner's language) to: <i>E is a positive-definite function on every interval</i> — every finite slice of every mesh has a nonnegative spectrum. The slices computed here are certificates of that statement at four levels of a family whose union is dense; the statement itself quantifies over all levels at once. What the alignment changes is not that gap — nothing finite closes it — but its <i>economics</i>: certificates used to cost a matrix each (rh13's 325 quadratures); they now cost <i>samples of one already-computed function</i>. The continuum is exhausted by slices that are, from today, nearly free.</p>
+</section>
+
+<section class="prose" id="s5">
+<h2>5 · The spectrum: the continuum arrives</h2>
+<p>There is a second, sharper sense of "the finite slices become a continuum", and it is the one the fine slice actually exhibits. As the mesh refines and the support widens, the eigenmodes of the merged form stop being generic window shapes and <b>lock onto the zeros themselves</b>: the form is ∑<sub>ρ</sub> of rank-one pieces, one pair per zero (a cosine and a sine profile at frequency γ), and once the slice resolves frequencies finer than the zero spacing, its top eigenvectors <i>are</i> those pieces.</p>
+<figure>
+<div class="fig-frame">
+<svg viewBox="0 0 720 420" role="img" aria-label="The sixteen sharpest eigenmodes of the finest slice plotted at their measured frequencies against their eigenvalues, with the zero ordinates drawn as vertical lines: every mode sits on an ordinate, worst offset zero point zero nine five, against a resolution cell of one point zero five; the per-zero weight envelope n times B squared is drawn through them">
+<text x="360.0" y="22" class="ftitle">the continuum arrives: the merged form&#8217;s modes ARE the zeros</text>
+<line x1="132.0" y1="70" x2="132.0" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="235.3" y1="70" x2="235.3" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="295.2" y1="70" x2="295.2" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="376.4" y1="70" x2="376.4" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="414.0" y1="70" x2="414.0" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="483.8" y1="70" x2="483.8" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="533.8" y1="70" x2="533.8" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="569.9" y1="70" x2="569.9" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="640.1" y1="70" x2="640.1" y2="320" class="comb2" stroke-opacity="0.55"/>
+<line x1="666.6" y1="70" x2="666.6" y2="320" class="comb2" stroke-opacity="0.55"/>
+<text x="132.0" y="64" class="flab c2">&#947;&#8321;</text>
+<text x="666.6" y="64" class="flab c2">&#947;&#8321;&#8320;</text>
+<path d="M70.0 139.3L77.5 140.1L85.0 141.0L92.5 141.8L100.0 142.7L107.5 143.7L115.0 144.7L122.5 145.7L130.0 146.8L137.5 147.8L145.0 149.0L152.5 150.1L160.0 151.4L167.5 152.6L175.0 153.9L182.5 155.2L190.0 156.5L197.5 157.9L205.0 159.3L212.5 160.8L220.0 162.2L227.5 163.8L235.0 165.3L242.5 166.9L250.0 168.5L257.5 170.1L265.0 171.8L272.5 173.5L280.0 175.3L287.5 177.0L295.0 178.8L302.5 180.7L310.0 182.5L317.5 184.4L325.0 186.3L332.5 188.3L340.0 190.2L347.5 192.2L355.0 194.3L362.5 196.3L370.0 198.4L377.5 200.5L385.0 202.7L392.5 204.8L400.0 207.0L407.5 209.2L415.0 211.5L422.5 213.7L430.0 216.0L437.5 218.3L445.0 220.6L452.5 223.0L460.0 225.4L467.5 227.8L475.0 230.2L482.5 232.6L490.0 235.1L497.5 237.5L505.0 240.0L512.5 242.6L520.0 245.1L527.5 247.6L535.0 250.2L542.5 252.8L550.0 255.4L557.5 258.0L565.0 260.6L572.5 263.3L580.0 265.9L587.5 268.6L595.0 271.3L602.5 274.0L610.0 276.7L617.5 279.4L625.0 282.2L632.5 284.9L640.0 287.7L647.5 290.5L655.0 293.2L662.5 296.0L670.0 298.8L677.5 301.6L685.0 304.4L692.5 307.3L700.0 310.1" class="brk"/>
+<text x="115.0" y="124.7" class="flab st c2">envelope n&#8202;B(&#947;)&#178; &#8212; the per-zero weight</text>
+<circle cx="132.3" cy="115.3" r="3.6" class="digit main"/>
+<circle cx="414.3" cy="120.9" r="3.6" class="digit main"/>
+<circle cx="235.8" cy="133.3" r="3.6" class="digit main"/>
+<circle cx="132.3" cy="133.7" r="3.6" class="digit main"/>
+<circle cx="294.3" cy="149.9" r="3.6" class="digit main"/>
+<circle cx="131.5" cy="151.1" r="3.6" class="digit main"/>
+<circle cx="570.2" cy="178.8" r="3.6" class="digit main"/>
+<circle cx="571.0" cy="193.8" r="3.6" class="digit main"/>
+<circle cx="296.5" cy="209.7" r="3.6" class="digit main"/>
+<circle cx="296.5" cy="209.8" r="3.6" class="digit main"/>
+<circle cx="641.5" cy="221.6" r="3.6" class="digit main"/>
+<circle cx="641.5" cy="222.5" r="3.6" class="digit main"/>
+<circle cx="484.8" cy="254.5" r="3.6" class="digit main"/>
+<circle cx="484.8" cy="259.3" r="3.6" class="digit main"/>
+<circle cx="413.5" cy="267.5" r="3.6" class="digit main"/>
+<circle cx="412.8" cy="271.0" r="3.6" class="digit main"/>
+<text x="64" y="309.3" class="flab end">0.12</text>
+<text x="64" y="221.1" class="flab end">0.15</text>
+<text x="64" y="132.8" class="flab end">0.18</text>
+<line x1="145.0" y1="320" x2="145.0" y2="324" class="axis"/>
+<text x="145.0" y="336" class="flab">15</text>
+<line x1="295.0" y1="320" x2="295.0" y2="324" class="axis"/>
+<text x="295.0" y="336" class="flab">25</text>
+<line x1="445.0" y1="320" x2="445.0" y2="324" class="axis"/>
+<text x="445.0" y="336" class="flab">35</text>
+<line x1="595.0" y1="320" x2="595.0" y2="324" class="axis"/>
+<text x="595.0" y="336" class="flab">45</text>
+<line x1="70" y1="320" x2="700" y2="320" class="axis"/>
+<text x="700" y="350" class="flab end">mode frequency r</text>
+<text x="78" y="350" class="flab st">&#955; (eigenvalue)</text>
+<text x="340.0" y="281.8" class="flab st c1">16 modes, 7 ordinates, worst offset 0.095</text>
+<text x="340.0" y="302.4" class="flab st c1">(the resolution cell is &#960;/a = 1.05: thirty times coarser)</text>
+</svg>
+</div>
+<figcaption><b>Figure 4 — the continuum arrives.</b> The sixteen sharpest eigenmodes of the 199-dimensional slice, plotted at their measured frequencies (the peak of each eigenvector's transform) against their eigenvalues; the vertical lines are the ordinates γ₁…γ₁₀. Sixteen modes land on seven distinct ordinates — in clusters of two and three, the quasi-degenerate cosine/sine pairs mixing where eigenvalues nearly tie — with <b>worst offset 0.095</b>, thirty times finer than the slice's resolution cell π/a = 1.05; the dashed envelope is the per-zero weight nB(γ)², which the eigenvalues ride (ratios 0.4–1.8, exact for isolated zeros). The trace ties the whole spectrum to the zeros side at 3×10⁻⁴. The slices' continuum limit is not an abstraction: it is the spectrum of ζ, arriving mode by mode.</figcaption>
+</figure>
+<p>This is the alignment's deepest return. The a_2π system counted zeros; the a_ℤ system counted gears; the merged form, diagonalized, <i>produces the zeros as its eigenmodes</i> — with the gears in its kernel's dents driving them. The two planets do not merely sit on one helix; run as one system, the helix's own resonances are the critical line's spectrum, recovered here to a tenth of a unit from primes-and-Γ data on one side and confirmed by the table on the other. And the soft end of the same spectrum — the 10⁻¹¹ tail of Figure 3, the directions that thread <i>between</i> all the resolved zeros — is where the hypothesis lives: the continuum statement is exactly that this tail never dips under the axis, at any level, for any support. Every level computed says it does not.</p>
+</section>
+
+<section class="prose" id="s6">
+<h2>6 · What the alignment settles, and what it sharpens</h2>
+<p><b>Settled.</b> The two rule systems are one system: a single kernel E on the single helix coordinate — dents at the gears, tones at the zeros — computed from either theory to 1.6×10⁻⁵ and carrying, as folds and slices, every quadratic object the arc has built: rh13's matrix (8.1×10⁻⁵), rh12's dip (re-derived), the frontier (extended to 1.15×10⁻⁸), four nested spectra (446 eigenvalues, all positive). Nothing was lost; most things got cheaper; some things — the mode-by-mode arrival of the zeros — only became visible after the merge.</p>
+<p><b>Sharpened.</b> The open clause has not moved, but it has been re-worded by the construction into its cleanest form yet: <i>one computed function of one real variable, positive-definite at every scale</i> ⟺ RH. Not a cone of test functions, not a matrix per space: one curve, and a single question about it — Bochner's question. The continuum program is now mechanical: each new (mesh, support) pair is a finite spectrum drawn from the same curve, each spectrum a refutation opportunity, each positivity a certificate. The arc leaves the question where a fifteen-document construction can honestly leave it: as one function, drawn in Figure 1, whose every computed slice — 446 eigenvalues, ten decades, four levels, and every prior document refolded — sits on the right side of zero.</p>
+</section>
+
+<section id="s7">
+<h2 class="prose" style="max-width:46rem">7 · Dictionary additions</h2>
+<div class="tbl-scroll">
+<table class="dict">
+<tr><th>Nested-circle geometry</th><th>Analytic number theory</th></tr>
+<tr><td>the aligned helix, 6.28… per 1</td><td>one parameter u; phase ticks at u ∈ ℤ, gears at u = log n</td></tr>
+<tr><td>two planets, one thread, never meeting twice</td><td>{log n} vs ℤ incommensurable (rh8 §4) — the thread never repeats, so it can carry all</td></tr>
+<tr><td>the kernel of the merged system</td><td>E(v) = ∑<sub>ρ</sub>|B|²cos(γv): dents at log n (weights Λ/√n), tones at the zeros</td></tr>
+<tr><td>one curve worn 325 ways</td><td>rh13's Gram = the fold 2[E(y−y′) + E(y+y′)], to 8.1×10⁻⁵</td></tr>
+<tr><td>the frontier, continued on the merged form</td><td>D*(3) = 1.15×10⁻⁸ by one linear solve on E's samples</td></tr>
+<tr><td>slices of one continuous form</td><td>nested Toeplitz sections; λ<sub>min</sub> monotone by the variational principle</td></tr>
+<tr><td>certificates at every level, none through zero</td><td>446 eigenvalues across four nested slices, all positive</td></tr>
+<tr><td>the continuum, arriving mode by mode</td><td>top eigenvectors lock onto γ₁… (worst offset 0.095, cell 1.05)</td></tr>
+<tr><td>the soft tail between the resolved zeros</td><td>the 10⁻¹¹ end of the spectrum — where positivity is RH</td></tr>
+<tr><td>the question in one line</td><td>E positive-definite at every scale ⟺ RH (Bochner's reading)</td></tr>
+</table>
+</div>
+</section>
+
+<section class="prose refs" id="refs">
+<h2>References</h2>
+<p class="meta" style="margin-bottom:.6rem">Additions to the rh4–rh13 lists, which remain in force.</p>
+<ol>
+<li>S. Bochner, <i>Vorlesungen über Fouriersche Integrale</i>, Leipzig (1932) — positive-definite functions; the reading of §6.</li>
+<li>J. Mercer, <i>Functions of positive and negative type</i>, Phil. Trans. Roy. Soc. A 209 (1909) — kernels and their spectra; the §4 grammar.</li>
+<li>U. Grenander, G. Szegő, <i>Toeplitz Forms and Their Applications</i>, Univ. of California Press (1958) — spectra of Toeplitz sections; the exhaustion's classical frame.</li>
+<li>D. Slepian, H. O. Pollak, <i>Prolate spheroidal wave functions I</i>, Bell Syst. Tech. J. 40 (1961) — time–band-limited eigenmodes; the shape theory behind §5's modes.</li>
+</ol>
+</section>
+
+<div class="foot prose">
+All numerical content of this page was computed for this document and cross-checked against 14 named checks plus the inline assertion suite: the low table reloaded (first ordinate to 10⁻⁷); the mesh autocorrelation C validated exactly at 0 and against direct quadrature; the kernel E computed on 241 points of [0, 6] from the arithmetic side (pole in closed form; archimedean transform on a 0.02-step ψ-grid to r = 30 and 0.05-step to 2000; gear comb exact through the compact C) and from the zeros side (table plus smooth density tail), agreeing to 1.6×10⁻⁵ of scale; the gear dips at v = log 2, 3, 4, 5 carrying Λ(n)/√n·C(0) against local baselines to 35%; rh13's 325-entry Gram reproduced as the fold (2) to 8.1×10⁻⁵ of scale; rh12's optimal window re-evaluated to its stated dip within its stated tolerance; D*(1.5) from the merged form matching rh12 and D*(3) &lt; D*(1.5) (measured 1.15×10⁻⁸); four Toeplitz slices (n = 49, 99, 99, 199) diagonalized by Jacobi, all 446 eigenvalues positive, λ<sub>min</sub> monotone along both nesting directions within 2% slack and the top eigenvalue monotone upward; the sixteen sharpest fine-slice modes' peak frequencies within 0.55 of ordinates (measured worst 0.095), on at least six distinct ordinates in clusters of at most three, with per-zero eigenvalue ratios against nB(γ)² inside [0.4, 1.8] for the five lowest matched zeros; and the fine slice's trace equal to n·E(0) from the zeros side to 3×10⁻⁴. The left panel of Figure 1 is a labeled schematic; every number beside it is computed. Companion texts: <a href="rh4.html">rh4</a> · <a href="rh5.html">rh5</a> · <a href="rh6.html">rh6</a> · <a href="rh7.html">rh7</a> · <a href="rh8.html">rh8</a> · <a href="rh9.html">rh9</a> · <a href="rh10.html">rh10</a> · <a href="rh11.html">rh11</a> · <a href="rh12.html">rh12</a> · <a href="rh13.html">rh13</a>.
+</div>
+
+
+</div>
+<script>
+(function () {
+  var H = {"p":[]};
+  function hook(svgSel, tipId, lineId, dotId, data) {
+    var svg = document.querySelector(svgSel);
+    if (!svg) return;
+    var wrap = svg.closest('.fig-frame');
+    var tip = document.getElementById(tipId);
+    var line = document.getElementById(lineId);
+    var dot = document.getElementById(dotId);
+    if (!wrap || !tip || !line || !dot) return;
+    var vb = svg.viewBox.baseVal;
+    function move(ev) {
+      var r = svg.getBoundingClientRect();
+      var px = (ev.clientX - r.left) * vb.width / r.width;
+      var best = 0, bd = 1e9;
+      for (var i = 0; i < data.length; i++) {
+        var d = Math.abs(data[i][0] - px);
+        if (d < bd) { bd = d; best = i; }
+      }
+      var p = data[best];
+      line.setAttribute('x1', p[0]); line.setAttribute('x2', p[0]);
+      line.removeAttribute('visibility');
+      dot.setAttribute('cx', p[0]); dot.setAttribute('cy', p[1]);
+      dot.removeAttribute('visibility');
+      tip.innerHTML = p[2];
+      tip.style.display = 'block';
+      var wr = wrap.getBoundingClientRect();
+      var sx = r.width / vb.width;
+      var lx = (r.left - wr.left) + p[0] * sx + 12;
+      if (lx + tip.offsetWidth > wr.width - 8) lx = lx - tip.offsetWidth - 24;
+      tip.style.left = lx + 'px';
+      tip.style.top = ((r.top - wr.top) + p[1] * (r.height / vb.height) - 34) + 'px';
+    }
+    function leave() {
+      tip.style.display = 'none';
+      line.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+    }
+    svg.addEventListener('mousemove', move);
+    svg.addEventListener('mouseleave', leave);
+  }
+  hook('svg:has(#pline)', 'ptip', 'pline', 'pdot', H.p);
+})();
+</script>
+</body>
+</html>

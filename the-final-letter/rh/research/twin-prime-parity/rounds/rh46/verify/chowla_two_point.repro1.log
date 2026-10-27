@@ -1,0 +1,376 @@
+rh46  the two-point Chowla correlation for the Liouville function
+started 2026-10-04 03:37:08
+python 3.13.13 | numpy 2.5.0
+
+#####################################################################
+# (STAR)  sum_{n<=x} lambda(n)lambda(n+2) = o(x)   is OPEN.          #
+# Every number in this file is a FINITE CHECK.  Nothing here proves  #
+# (STAR); SS4 proves that no finite check could.                    #
+#####################################################################
+
+==============================================================================
+SS0  Correctness of the segmented sieve (this is a check on the tool,
+     not on (STAR))
+==============================================================================
+
+[PASS] S0.sieve.matches.reference   |  (-1)^Omega from the segmented sieve equals the independent smallest-prime-factor recurrence for every n <= 5000, in blocks of 977
+[PASS] S0.lambda.small   |  lambda(1..10) = [1, -1, -1, 1, -1, 1, -1, -1, 1, 1]
+[PASS] S0.sieve.deep.spotchecks   |  direct trial division at sampled n near 1e6, 1.23e8 and 9.99e8 agrees with the sieve
+
+Running the segmented scan to NMAX = 1000000000 with BLOCK = 10000000 windows
+(~2.5 s of sieve per 10^7 window on this machine, so ~4-5 min of
+sieve for this cap, plus the correlation work) ...
+    [sieve] n <= 100000000   blocks= 10  23.1s  S(x)=4632
+    [sieve] n <= 200000000   blocks= 20  47.4s  S(x)=-4740
+    [sieve] n <= 300000000   blocks= 30  71.1s  S(x)=1364
+    [sieve] n <= 400000000   blocks= 40  93.2s  S(x)=17656
+    [sieve] n <= 500000000   blocks= 50  115.9s  S(x)=37082
+    [sieve] n <= 600000000   blocks= 60  138.3s  S(x)=43200
+    [sieve] n <= 700000000   blocks= 70  160.8s  S(x)=32784
+    [sieve] n <= 800000000   blocks= 80  183.9s  S(x)=30480
+    [sieve] n <= 900000000   blocks= 90  206.6s  S(x)=35402
+    [sieve] n <= 1000000000  blocks=100  230.0s  S(x)=43790
+scan finished in 230.0s; reached n <= 1000000000
+
+==============================================================================
+SS1  The correlation and its size -- FINITE COMPUTATION ONLY
+==============================================================================
+
+  S(x) = sum_{n<=x} lambda(n)lambda(n+2).  Sieve: SEGMENTED, window
+  BLOCK = 10000000, Omega obtained by stripping prime factors of the
+  multiples inside each window (memory O(BLOCK); no array of size x).
+  Lambda is exact -- (-1)^Omega on every n, never a model or a
+  pseudorandom surrogate.  The sum is int64: |S(x)| <= x < 2^63.
+
+  x            S(x)                 S(x)/x              max_{x'<=x}|S(x')|    max/sqrt(x)
+  --------------------------------------------------------------------------------------------
+  10          -4                   -0.4000000          4                   1.264911
+  100         -2                   -0.0200000          8                   0.800000
+  1000        -30                  -0.0300000          30                  0.948683
+  10000       12                   0.0012000           73                  0.730000
+  100000      258                  0.0025800           282                 0.891762
+  1000000     68                   6.8000000e-05       689                 0.689000
+  10000000    1246                 0.0001246           3059                0.967341
+  100000000   4632                 4.6320000e-05       6454                0.645400
+  1000000000  43790                4.3790000e-05       48700               1.540029
+
+  FINITE-CHECK STATEMENT.  These are exact values of S at 9 points;
+  they say nothing about any x beyond 1000000000.  Small S(x)/x at the top of
+  the table is CONSISTENT with (STAR) and is not evidence for it: SS4
+  constructs a sequence with the same prefix and S(x)/x -> 1/4.
+[PASS] S1.trivial.bound   |  |S(x)| <= x at all 9 computed x (the trivial bound: each summand has modulus 1); max |S(x)|/x over the table = 0.4000
+[PASS] S1.reached.1e8   |  segmented sieve reached n <= 1000000000 (100 full blocks of 10000000)
+[PASS] S1.crosscheck.direct   |  S(x) from the segmented pass equals S(x) from one flat lambda array and a single cumsum at x = 100000, 1000000, 10000000 (this is what detects the dropped pair straddling a window boundary)
+[PASS] S1.crosscheck.weighted   |  the 1/n weighted sums of SS3 also agree with the flat computation (x=100000: |diff|=0.00e+00; x=1000000: |diff|=0.00e+00; x=10000000: |diff|=0.00e+00), so the logarithmic averages below are not an artefact of the block structure
+[PASS] S1.reached.1e9   |  reached the 10^9 cap; the whole table x = 10^1..10^9 is exact
+
+==============================================================================
+SS2  The trivial bound and the OBSERVED growth exponent
+==============================================================================
+
+  Trivial: |S(x)| <= x.  (STAR) is exactly the statement that this is
+  far from sharp: S(x)/x -> 0.  The relevant quantitative question is
+  the growth of the running maximum M(x) = max_{x'<=x} |S(x')|.
+
+  log-log fit  log M(x) = alpha*log x + b   over x = 1000, 10000, 100000, 1e+06, 1e+07, 1e+08, 1e+09:
+      alpha = 0.5200 +/- 0.0249        b = -0.4038
+      rms residual in log M = 0.2562  (over 7 points, 6 decades)
+
+  The same quantity normalised by the classical x^{1/2} barrier:
+      x            M(x)                M(x)/sqrt(x)
+      1000         30                  0.948683
+      10000        73                  0.730000
+      100000       282                 0.891762
+      1000000      689                 0.689000
+      10000000     3059                0.967341
+      100000000    6454                0.645400
+      1000000000   48700               1.540029
+
+  HONEST READING OF alpha.
+   * alpha is the exponent of a RUNNING MAXIMUM over 6 decades; a
+     running maximum can only grow, so it is biased upward relative to
+     the true pointwise size, by roughly +1/(2*#decades).
+   * Values M(x)/sqrt(x) that drift upward slowly are exactly the
+     x^{1/2+eps} behaviour one expects; alpha slightly above 1/2 is
+     that drift, not evidence against the x^{1/2} barrier.
+   * alpha strictly below 1 is the finite shadow of o(x).  It is NOT a
+     proof of o(x): a finite fit cannot exclude a later excursion, and
+     SS4 makes that precise.  Nothing here is a claim about (STAR).
+[PASS] S2.bound.holds.for.max   |  M(x) <= x at every computed x, so the trivial bound is respected by the running maximum too
+[PASS] S2.exponent.in.range   |  observed alpha = 0.5200 +/- 0.0249, strictly between 0 (which would suggest (STAR)) and 1 (the trivial bound); consistent with the x^{1/2+eps} barrier
+[PASS] S2.sublinear.observed   |  max_x |S(x)|/x over the table = 0.4000, i.e. S is sublinear on the computed range; a finite observation, not a theorem
+[PASS] S2.no.claim.from.fit   |  RECORDED: alpha is a description of 7 points over 6 decades; no asymptotic statement follows from it
+
+==============================================================================
+SS3  The logarithmic average -- an unconditional THEOREM, checked
+     finitely (this is the one section whose target is known)
+==============================================================================
+
+  THEOREM (Tao 2015; logarithmically averaged Chowla, fixed shift h):
+      L_h(x) := (1/log x) sum_{n<=x} lambda(n)lambda(n+h)/n -> 0.
+  This is unconditional and holds for every fixed h.  It does NOT give
+  (STAR) and (STAR) does not give it: the weight 1/n concentrates on
+  n <= x^{o(1)}, where the two statements carry no information about
+  each other.  The elementary implication that does exist is one-way:
+      S(t) = O(t^{1-delta}) for some delta > 0  ==>  L_h(x) -> 0,
+  by Abel summation, sum_{n<=x} f(n)/n = S(x)/x + int_1^x S(t)/t^2 dt,
+  whose integral converges under the hypothesis.  That hypothesis is
+  UNPROVEN (it is a power saving in the correlation, essentially RH-
+  strength); Tao's proof avoids it.  The identity is what makes the
+  logarithmic average strictly weaker than (STAR).
+
+  h = 2:   x            sum lambda(n)lambda(n+2)/n      L_2(x)
+  --------------------------------------------------------------------------
+           100000       -1.35427338                 -0.1176306913
+           1000000      -1.35611730                 -0.0981590430
+           10000000     -1.35631338                 -0.0841484884
+           100000000    -1.35639595                 -0.0736344098
+           1000000000   -1.35634567                 -0.0654503824
+
+  h = 1:   x            sum lambda(n)lambda(n+1)/n      L_1(x)
+  --------------------------------------------------------------------------
+           100000       -0.83826375                 -0.0728106641
+           1000000      -0.84285215                 -0.0610076728
+           10000000     -0.84241629                 -0.0522652492
+           100000000    -0.84248851                 -0.0457360136
+           1000000000   -0.84249019                 -0.0406543156
+
+  PRECISION.  The weighted sums are accumulated in float64 over
+  n <= 1000000000.  Each term has |lambda(n)lambda(n+h)/n| <= 1/n, and the
+  partial sums here are O(1); the accumulated rounding is bounded by
+  (number of additions) * eps * max partial sum ~ 1e9 * 2.2e-16 * 1
+  = 2.2e-7 in the worst case (in practice far less, since the terms
+  are mostly tiny).  The reported digits at the 1e-3 level are safe.
+
+  Decay fit of the requested kind, |L(x)| ~ x^{-beta} over x=100000, 1e+06, 1e+07, 1e+08, 1e+09:
+      beta(h=2) = -0.0634 +/- 0.0031      beta(h=1) = -0.0631 +/- 0.0030
+  A power law is the WRONG model here (see below), so beta is quoted
+  as a description of the range only; it is small, i.e. the decay is
+  far slower than any power, which is exactly 1/log x behaviour.
+
+  WHAT THE THEOREM DOES AND DOES NOT PREDICT.  It predicts L_h(x) -> 0
+  and nothing about the rate.  The weighted sum W_h(x) =
+  sum_{n<=x} lambda(n)lambda(n+h)/n need NOT converge to 0 for the
+  theorem to hold (W_h could oscillate and L_h = W_h/log x would still
+  vanish).  What is CHECKED below is that (i) |L_h| decreases over the
+  computed range, and (ii) it does so at the 1/log x scale, i.e.
+  L_h(x)*log x = W_h(x) is nearly constant -- equivalently a
+  through-origin fit |L_h| = c/log x has a small relative residual.
+  Both are finite observations on 5 points; neither is a theorem.
+
+  h=2:  fitted c in L = c/log x :  -1.35557853
+       |L|*log x ranges over [1.35427338, 1.35639595], spread 1.57e-03
+       max relative residual of the fit: 9.64e-04
+  h=1:  fitted c in L = c/log x :  -0.84110811
+       |L|*log x ranges over [0.83826375, 0.84285215], spread 5.47e-03
+       max relative residual of the fit: 3.39e-03
+
+  NOTE on the sign of c for h = 2: f(1) = lambda(1)lambda(3) = -1 alone
+  contributes -1 to W_2, and that single term dominates the limit.  The
+  n >= 2 part of W_2 is only about -0.356.  The theorem is about L -> 0,
+  not about W -> 0, and W_2 -> c_2 = -1.355579 is CONSISTENT with it.
+[PASS] S3.h2.toward.zero   |  |L_2| decreases over the range: 0.117631 at x=100000, 0.084148 at x=10000000, 0.065450 at x=1000000000, and L_2(x)*log x is nearly constant, i.e. L_2 vanishes at the 1/log x scale
+[PASS] S3.h1.toward.zero   |  |L_1| decreases from 0.072811 at x=100000 to 0.040654 at x=1000000000
+[PASS] S3.logarithmic.scale   |  the 1/log x model fits to a relative residual of 9.64e-04 (h=2) and 3.39e-03 (h=1), and the fitted c agrees with the computed weighted sum to 7.7e-04 (h=2): the decay seen is the 1/log x normalisation, not a power saving
+[PASS] S3.unconditional.label   |  RECORDED: SS3 is a finite check of an UNCONDITIONAL THEOREM (Tao 2015).  The numerics confirm the theorem on the computed range and are not evidence about (STAR)
+
+Running the Dirichlet partial-sum pass (SS5) to 100000000 ...
+dirichlet pass finished in 28.4s
+
+==============================================================================
+SS4  Why no finite check can settle (STAR) -- an explicit construction
+==============================================================================
+
+  PROPOSITION (proved by construction; the algebra is verified exactly
+  below).  For every X there are sequences lambda+ , lambda- : N ->
+  {+1,-1} with lambda+-(n) = lambda(n) for ALL n <= X and
+      S+(x)/x -> +0.248...   and   S-(x)/x -> -0.248... ,
+  while S(x)/x -> 0 must hold if (STAR) is true.  Hence 'S(x) = o(x)'
+  is not a finite-prefix property: any computation that inspects only
+  n <= X returns LITERALLY THE SAME DATA for lambda, lambda+ and
+  lambda-, so no such computation can decide (STAR).
+
+  CONSTRUCTION.  Let A be a set of integers with minimum gap >= 3 (use
+  A subset of {n : 4 | n}) and put lambda'(n) = -lambda(n) for n in A,
+  lambda'(n) = lambda(n) otherwise.  Flipping lambda at n changes the
+  correlation summand at index n (term lambda(n)lambda(n+2)) and at
+  index n-2 (term lambda(n-2)lambda(n)); gap >= 3 makes these pairs
+  disjoint, so with f(n) = lambda(n)lambda(n+2),
+      S'(x) - S(x) = -2 * [ sum_{n in A, n<=x} f(n)
+                            + sum_{n in A, n<=x+2} f(n-2) ].
+  Choose A = A+ := { n > X+2, 4 | n, f(n) = f(n-2) = -1 }: then every
+  term in brackets equals -1 and
+      S+(x) - S(x) = 4*#{n in A+ : n <= x} + 2*eps,  eps in {0,1},
+  which grows like (#A+/x)*4*x.  The mirror choice
+      A- := { n > X+2, 4 | n, f(n) = f(n-2) = +1 }
+  gives S-(x) - S(x) = -4*#{n in A- : n <= x} - 2*eps.
+  The sets use the TRUE values of f at indices n > X+2 only; on the
+  prefix [1,X] the sequences are identical, by construction.
+  As a control, the 'naive' choice A0 = {n > X, 4 | n} (flip every
+  multiple of 4) is also computed: it is NOT a witness, which is worth
+  recording -- Liouville correlations resist naive arithmetic tampering.
+
+  X = 10000, exact computation up to x = 10000000 (f and S are integer).
+
+  (a) PREFIX AGREEMENT (the whole point):
+[PASS] S4.prefix.identical   |  lambda, lambda+ and lambda- agree on every n <= 10000 (0 differences); the first index in A+ or A- is n = 10012
+[PASS] S4.prefix.sums.identical   |  and the correlation partial sums agree EXACTLY for every x <= 10000: S(x) = S+(x) = S-(x) there
+[PASS] S4.identity.exact   |  the identity S+-(x) - S(x) = +/-4*#{n in A+- : n <= x} +/- 2*eps (eps in {0,1}) holds EXACTLY at every x <= 10000000
+
+  (b) THE SUMS, at x up to 1000 X:
+      x          S(x)        S+(x)      S+(x)/x     S-(x)      S-(x)/x     S0(x)/x (control)
+      ------------------------------------------------------------------------------------------------
+      10000      12          12          0.00120     12         0.00120     0.001200
+      100000     258         22762       0.22762     -22394     -0.22394    0.001100
+      1000000    68          247744      0.24774     -247536    -0.24754    0.000140
+      10000000   1246        2500246     0.25002     -2496886   -0.24969    0.000211
+      (S0 is the naive A0 = {4|n, n>X} control; it is not a witness.)
+
+[PASS] S4.witness.positive   |  x=10000000: S+(x)/x = 0.25002 (density of A+ over [1,x] is 0.06248, and 4*density = 0.24990 matches)
+[PASS] S4.witness.negative   |  x=10000000: S-(x)/x = -0.24969, the mirror witness
+[PASS] S4.control.not.a.witness   |  the naive A0 control gives S0(x)/x = 0.000211 at x=10000000: flipping every multiple of 4 produces NO linear bias here (an observation, and a warning that the witness must be built from the data above X)
+[PASS] S4.three.prefixes.one.data.set   |  the same prefix 1..10000 supports slopes 0.25002 and -0.24969 at x=10000000: (STAR) cannot be settled by any inspection of n <= 10000
+[PASS] S4.logical.conclusion   |  CONCLUSION: (STAR) is a statement about the tail.  SS1-SS3 certify values of S on a finite set and are all compatible both with (STAR) and with its failure
+
+  WHAT THIS DOES AND DOES NOT SHOW.  It shows that validity on a finite
+  prefix does not imply (STAR); it does NOT show that (STAR) is false,
+  because lambda+ and lambda- are not the Liouville function (they are
+  not even completely multiplicative).  The correct conclusion is
+  EPISTEMIC: a proof of (STAR) requires global structure (e.g. Tao's
+  entropy-decrement method for the logarithmic average), never more
+  numerical values.
+
+==============================================================================
+SS5  Status of the analytic route -- what is known, what is open,
+     and what is finitely checkable
+==============================================================================
+
+  (a) UNCONDITIONALLY KNOWN (theorems; quoted, not reproved here):
+      * Tao 2015: the logarithmically averaged two-point Chowla
+        conjecture holds for every fixed shift h, h = 2 included.
+        [checked finitely in SS3]
+      * Matomaki-Radziwill-Tao 2015/2016: the two-point correlation
+        vanishes for ALMOST ALL shifts h in a short range, and the
+        logarithmically averaged statement holds for all h in short
+        ranges.
+      * Trivially |S(x)| <= x (SS2).
+
+  (b) OPEN.  The sharp un-averaged statement (STAR), S(x) = o(x) for
+      the single shift h = 2, is a CONJECTURE.  It is not a theorem and
+      not a corollary of anything cited here.  In particular NO
+      RH-conditional proof is asserted: this file makes no claim that
+      RH implies (STAR).  Nor can multiplicativity be invoked: for the
+      deterministic multiplicative function lambda == 1 the analogue is
+      sum_{n<=x} 1 = x, not o(x).
+
+  (c) WHY THE ELEMENTARY EULER-PRODUCT/PERRON ROUTE DOES NOT APPLY --
+      a finite algebraic fact, verified numerically here.  Write
+          f(n) = lambda(n)lambda(n+2),   D(s) = sum_n f(n) n^{-s}.
+      The route would need f multiplicative, so that D(s) has an Euler
+      product and zeta controls the shift prime by prime.  It is not:
+[PASS] S5.not.multiplicative   |  f(1) = lambda(1)lambda(3) = -1 (multiplicativity would need f(1)=1), and coprime counterexamples exist: f(2)f(11) = -1*1 = -1 != f(22) = 1; f(2)f(13) = -1*-1 = 1 != f(26) = -1; f(2)f(17) = -1*1 = -1 != f(34) = 1
+
+      s = 2 test (absolute convergence, so both sides are defined and
+      every truncation is bounded):
+        D(2) = sum_{n<=1000000} f(n)/n^2            = -1.12681304
+        tail bound  |sum_{n>N} f(n)/n^2|       <= 2.00000000e-06
+        prod_{p<=1e5} (1 + sum_k f(p^k)/p^{2k}) = 0.88759631
+        tail bound for that product            <= 1.80898647
+        |D(2) - product|                       = 2.01440934
+[PASS] S5.no.euler.product   |  the naive Euler product differs from D(2) by 2.014409, which exceeds the sum of the truncation bounds 1.808988: f has no Euler product, so the zeta-based RH route is unavailable for this shift
+
+  (d) WHAT IS FINITELY CHECKABLE ABOUT D(s), AND WHAT IT DOES NOT DO.
+      Absolute convergence for Re s >= 1 + delta is trivial (|f| <= 1):
+      the tail is bounded by sum_{n>N} n^{-1-delta} <= N^{-delta}/delta,
+      an explicit bound on the discarded part.  Divergence or
+      convergence at Re s <= 1 is NOT unconditional: with no Euler
+      product there is no independent handle.  The one general
+      implication that does hold is one-directional,
+          D(s) converges on Re s > beta   ==>   S(x) = O(x^{beta+eps}),
+      by partial summation, so a proven beta <= 1/2 would give (STAR).
+      Nothing computes beta.  The partial sums below are a FINITE
+      diagnostic and are reported as nothing more:
+
+      s            N           |D_N(s)|            |D_N| * N^{sigma-1}
+      --------------------------------------------------------------------
+      1.50         1000000     1.191997            1191.997023
+      1.50         2511886     1.191998            1889.188697
+      1.50         6309573     1.191997            2994.162144
+      1.50         15848932    1.191997            4745.427283
+      1.50         39810717    1.191997            7520.995496
+      1.50         100000000   1.191997            11919.974595
+      0.90         1000000     1.407436            0.353532
+      0.90         2511886     1.409504            0.322899
+      0.90         6309573     1.408328            0.294241
+      0.90         15848932    1.408050            0.268298
+      0.90         39810717    1.408387            0.244750
+      0.90         100000000   1.408326            0.223205
+      0.60         1000000     1.525771            0.006074
+      0.60         2511886     1.644154            0.004528
+      0.60         6309573     1.530860            0.002917
+      0.60         15848932    1.501680            0.001980
+      0.60         39810717    1.540554            0.001405
+      0.60         100000000   1.507025            0.000951
+      0.60+17.00i  1000000     3.159118            0.012577
+      0.60+17.00i  2511886     3.109893            0.008565
+      0.60+17.00i  6309573     3.284223            0.006258
+      0.60+17.00i  15848932    3.304670            0.004356
+      0.60+17.00i  39810717    3.130453            0.002855
+      0.60+17.00i  100000000   3.053607            0.001927
+
+[PASS] S5.absolute.region   |  sigma=1.5: |sum_{n<=100000000} f(n)n^{-1.5}| = 1.191997 <= zeta(1.5) = 2.612375 (rigorous, since |f| <= 1).  The explicit tail bound sum_{n>N} n^{-1.5} <= 2*N^{-1/2} = 0.000200 bounds the DISTANCE to the limit, not |D_N| itself; the first-to-last drift here is 4.369676e-07 <= 2*N_1^{-1/2}, so convergence at sigma = 1.5 is a theorem and this is a consistency check of it
+[PASS] S5.strip.diagnostic.only   |  sigma=0.6: |D_N| = 1.52577 at N=1000000 and 1.50703 at N=100000000 (factor 1.0124 decrease).  CONSISTENT with convergence in the strip, but this is a finite partial-sum observation with no bound on the tail: beta <= 1/2 remains UNPROVEN and is equivalent in strength to what (STAR) needs
+[PASS] S5.complex.sample   |  a non-real sample point s = 0.6+17i gives |D_N| = 3.15912 at N=1000000 falling to 3.05361 at N=100000000; recorded as a finite diagnostic of the same kind, not as evidence for convergence
+
+  (e) STATUS.  Nothing in SS5 proves (STAR) or any power saving in
+      S(x).  What SS5 establishes is negative and algebraic: the
+      coefficient sequence is not multiplicative and has no Euler
+      product, so the elementary zeta-based route that the phrase
+      'RH implies Chowla' might suggest is simply not available for the
+      shifted correlation.  The average over h (MRTT) is where
+      multiplicativity re-enters, and there the results are theorems.
+[PASS] S5.status.stated   |  RECORDED STATUS: (STAR) is OPEN/conjectural.  No RH-conditional proof of (STAR) is asserted in this file
+
+==============================================================================
+SUMMARY -- every check above is a finite computation; none of them
+proves or disproves (STAR):  sum_{n<=x} lambda(n)lambda(n+2) = o(x).
+==============================================================================
+  [PASS] S0.sieve.matches.reference
+  [PASS] S0.lambda.small
+  [PASS] S0.sieve.deep.spotchecks
+  [PASS] S1.trivial.bound
+  [PASS] S1.reached.1e8
+  [PASS] S1.crosscheck.direct
+  [PASS] S1.crosscheck.weighted
+  [PASS] S1.reached.1e9
+  [PASS] S2.bound.holds.for.max
+  [PASS] S2.exponent.in.range
+  [PASS] S2.sublinear.observed
+  [PASS] S2.no.claim.from.fit
+  [PASS] S3.h2.toward.zero
+  [PASS] S3.h1.toward.zero
+  [PASS] S3.logarithmic.scale
+  [PASS] S3.unconditional.label
+  [PASS] S4.prefix.identical
+  [PASS] S4.prefix.sums.identical
+  [PASS] S4.identity.exact
+  [PASS] S4.witness.positive
+  [PASS] S4.witness.negative
+  [PASS] S4.control.not.a.witness
+  [PASS] S4.three.prefixes.one.data.set
+  [PASS] S4.logical.conclusion
+  [PASS] S5.not.multiplicative
+  [PASS] S5.no.euler.product
+  [PASS] S5.absolute.region
+  [PASS] S5.strip.diagnostic.only
+  [PASS] S5.complex.sample
+  [PASS] S5.status.stated
+
+------------------------------------------------------------------------------
+30 checks pass, 0 fail   (wall clock 264.1s)
+------------------------------------------------------------------------------
+STATUS OF (STAR): OPEN.  The averaged/logarithmic forms are theorems
+(Tao 2015; Matomaki-Radziwill-Tao 2015/2016); SS3 checks the
+logarithmic one finitely.  The un-averaged o(x) is not known, and
+SS4 shows no finite computation could establish it.
+log written to /Users/victor/workspace/rh/rh46/verify/chowla_two_point.log

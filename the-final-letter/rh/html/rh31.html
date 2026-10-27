@@ -1,0 +1,1659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rh31 — the emptiest arc</title>
+<style>
+:root {
+  --bg: #fbfaf8;
+  --fg: #1b1a17;
+  --muted: #6a655c;
+  --rule: #e0dcd4;
+  --rule-strong: #c9c3b8;
+  --panel: #f4f1ec;
+  --code-bg: #efece6;
+  --link: #1f5fa8;
+  --chart-1: #6d4aa8;
+  --chart-2: #a86b16;
+  --thm: #1f7a4d;
+  --thm-bg: #e6f4ec;
+  --rh: #6d4aa8;
+  --rh-bg: #f0eaf9;
+  --warn: #a86b16;
+  --warn-bg: #f9f0e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+    --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329;
+    --link: #7fb2ec;
+    --chart-1: #9878d6; --chart-2: #b9832e;
+    --thm: #5fc78e; --thm-bg: #16291f;
+    --rh: #b295e8; --rh-bg: #241d33;
+    --warn: #e0ac5c; --warn-bg: #2b2214;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf8; --fg: #1b1a17; --muted: #6a655c; --rule: #e0dcd4;
+  --rule-strong: #c9c3b8; --panel: #f4f1ec; --code-bg: #efece6; --link: #1f5fa8;
+  --chart-1: #6d4aa8; --chart-2: #a86b16;
+  --thm: #1f7a4d; --thm-bg: #e6f4ec; --rh: #6d4aa8; --rh-bg: #f0eaf9;
+  --warn: #a86b16; --warn-bg: #f9f0e2;
+}
+:root[data-theme="dark"] {
+  --bg: #16161a; --fg: #e6e3dd; --muted: #9d978c; --rule: #2e2e35;
+  --rule-strong: #45444d; --panel: #1e1e24; --code-bg: #232329; --link: #7fb2ec;
+  --chart-1: #9878d6; --chart-2: #b9832e;
+  --thm: #5fc78e; --thm-bg: #16291f; --rh: #b295e8; --rh-bg: #241d33;
+  --warn: #e0ac5c; --warn-bg: #2b2214;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.62 ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  overflow-x: hidden;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+.prose { max-width: 46rem; }
+
+h1 {
+  font-size: clamp(1.7rem, 4.2vw, 2.5rem); line-height: 1.15;
+  letter-spacing: -0.018em; margin: 0 0 .6rem; font-weight: 600;
+}
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.6rem); font-weight: 600;
+  letter-spacing: -0.012em; margin: 3.4rem 0 .9rem;
+  padding-top: 1.1rem; border-top: 1px solid var(--rule);
+}
+h3 { font-size: 1.08rem; font-weight: 600; margin: 2.1rem 0 .55rem; }
+.kicker {
+  font: 600 .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  margin: 3.8rem 0 -.4rem;
+}
+.kicker:first-of-type { margin-top: 2.6rem; }
+p { margin: .95rem 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.sub { color: var(--muted); font-size: 1.02rem; margin-bottom: 2.2rem; }
+.meta { color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+
+.abstract {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 1.1rem 1.3rem; margin: 1.8rem 0 2.4rem; font-size: .97rem;
+}
+.abstract b { font-weight: 600; }
+
+.toc { font-size: .92rem; columns: 2; column-gap: 2.5rem; margin: 1rem 0 1.5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+.toc ol { margin: 0; padding-left: 1.3rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+@media (max-width: 640px) { .toc { columns: 1; } }
+
+.eq {
+  margin: 1.2rem 0; text-align: center; font-size: 1.05em;
+  overflow-x: auto; padding: .25rem 0; position: relative;
+}
+.eq .tag { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1.2; margin: 0 .18em; font-size: .94em; }
+.fr .nu { border-bottom: 1px solid currentColor; padding: 0 .3em .1em; display:block; }
+.fr .de { padding: .1em .3em 0; display:block; }
+.bigop { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; line-height: 1; margin: 0 .3em; }
+.bigop .sym { font-size: 1.5em; }
+.bigop .up, .bigop .lo { font-size: .66em; line-height: 1.25; }
+sup, sub { line-height: 0; }
+
+.box { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 8px;
+  padding: .85rem 1.15rem; margin: 1.4rem 0; }
+.box .lbl { font: 600 .74rem/1.3 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .1em; text-transform: uppercase; display: block; margin-bottom: .35rem; }
+.box.thm { border-left-color: var(--thm); background: var(--thm-bg); }
+.box.thm .lbl { color: var(--thm); }
+.box.rh  { border-left-color: var(--rh); background: var(--rh-bg); }
+.box.rh .lbl { color: var(--rh); }
+.box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.box.warn .lbl { color: var(--warn); }
+.box p { margin: .45rem 0; }
+
+figure { margin: 2.2rem 0; }
+.fig-frame { background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 10px; padding: 1rem; overflow-x: auto; position: relative; }
+figcaption { font-size: .92rem; color: var(--muted); margin-top: .65rem; line-height: 1.55; }
+figcaption b { color: var(--fg); font-weight: 600; }
+.fig-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fig-row .cell { flex: 1 1 300px; min-width: 270px; }
+svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+.legend { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center;
+  font: .82rem/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--fg);
+  padding: 0 0 .7rem .2rem; }
+.legend .chip { display: inline-flex; align-items: center; gap: .45rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-c1 { background: var(--chart-1); }
+.sw-c2 { background: var(--chart-2); }
+
+/* SVG mark classes */
+.gear { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.digit { fill: var(--muted); }
+.digit.main { fill: var(--chart-1); }
+.digit.alt { fill: var(--chart-2); }
+.sine { stroke: var(--chart-1); stroke-width: 1.6; fill: none; stroke-opacity: .9; }
+.sine.irr { stroke: var(--chart-2); }
+.chord { stroke: var(--chart-1); stroke-width: 1.1; stroke-opacity: .55; }
+.chord.hi { stroke: var(--chart-2); stroke-width: 2.2; stroke-opacity: 1; }
+.helix { stroke: var(--chart-1); stroke-width: 2; stroke-linejoin: round; fill: none; }
+.helix.thin { stroke-width: 1.7; }
+.axis { stroke: var(--rule-strong); stroke-width: 1; }
+.grid { stroke: var(--rule); stroke-width: 1; }
+.brk { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+.cell { fill: var(--bg); stroke: var(--rule-strong); stroke-width: 1; }
+.cell.frac { fill: none; stroke: var(--rule); }
+.dig { fill: var(--fg); font: 600 13px ui-monospace, Menlo, Consolas, monospace;
+  text-anchor: middle; }
+.dig.frac { fill: var(--muted); font-weight: 400; }
+.radix { stroke: var(--chart-2); stroke-width: 2; }
+.flab { fill: var(--muted); font: 11.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.flab.st { text-anchor: start; }
+.flab.end { text-anchor: end; }
+.flab.c1, tspan.c1 { fill: var(--chart-1); }
+.flab.c2, tspan.c2 { fill: var(--chart-2); }
+.ftitle { fill: var(--fg); font: 600 13.5px ui-sans-serif, system-ui, sans-serif; text-anchor: middle; }
+.cross { stroke: var(--rule-strong); stroke-width: 1; stroke-dasharray: 3 3; }
+.crossdot { fill: var(--chart-1); }
+.ztip { position: absolute; pointer-events: none; display: none;
+  background: var(--bg); border: 1px solid var(--rule-strong); border-radius: 6px;
+  padding: .25rem .55rem; font: .78rem/1.4 ui-sans-serif, system-ui, sans-serif;
+  color: var(--fg); white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+table.dict { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 1.2rem 0;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.dict th { text-align: left; font-weight: 600; padding: .5rem .7rem;
+  border-bottom: 2px solid var(--rule-strong); }
+table.dict td { padding: .45rem .7rem; border-bottom: 1px solid var(--rule);
+  vertical-align: top; }
+table.dict td:first-child { color: var(--chart-1); }
+table.zeros { border-collapse: collapse; font-size: .88rem; margin: 1rem auto;
+  font-family: ui-sans-serif, system-ui, sans-serif; }
+table.zeros td, table.zeros th { padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  text-align: right; font-variant-numeric: tabular-nums; }
+table.zeros th { border-bottom: 2px solid var(--rule-strong); font-weight: 600; }
+.tbl-scroll { overflow-x: auto; }
+
+.refs { font-size: .88rem; color: var(--fg); }
+.refs ol { padding-left: 1.4rem; }
+.refs li { margin: .4rem 0; }
+code, .mono { font: .88em ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg); border-radius: 4px; padding: .08em .35em; }
+.foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  color: var(--muted); font-size: .85rem; font-family: ui-sans-serif, system-ui, sans-serif; }
+i { letter-spacing: .01em; }
+.nowrap { white-space: nowrap; }
+
+/* rh8 additions */
+.stair { stroke: var(--rule-strong); stroke-width: 1.6; fill: none; }
+.comb { stroke: var(--muted); stroke-width: 1.3; stroke-opacity: .75; }
+.zeroline { stroke: var(--chart-1); stroke-width: 1.6; }
+.zero { fill: var(--chart-2); }
+.origin { fill: var(--bg); stroke: var(--fg); stroke-width: 1.6; }
+.torus { fill: none; stroke: var(--rule-strong); stroke-width: 1.2; }
+.wind { stroke: var(--chart-2); stroke-width: .7; stroke-opacity: .5; fill: none; }
+.axhi { stroke: var(--chart-2); stroke-width: 2.4; }
+.axhi2 { stroke: var(--chart-2); stroke-width: 2.4; stroke-opacity: .55; }
+.pred { stroke: var(--chart-2); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.poi { stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 2 3; fill: none; }
+
+/* rh9 additions */
+.critical { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.strip { fill: var(--chart-1); fill-opacity: .05; stroke: none; }
+.stripin { fill: var(--bg); stroke: none; }
+.align { stroke: var(--chart-2); stroke-width: 1.2; stroke-dasharray: 4 3; stroke-opacity: .85; }
+.band { fill: var(--chart-2); fill-opacity: .07; stroke: none; }
+.stem { stroke: var(--chart-1); stroke-width: 1.6; }
+.bar { fill: var(--chart-1); fill-opacity: .34; stroke: var(--chart-1); stroke-width: .7; }
+
+/* rh10 additions */
+.helix2 { stroke: var(--chart-2); stroke-width: 1.8; stroke-linejoin: round; fill: none; }
+.spiral { stroke: var(--chart-2); stroke-width: 1.3; fill: none; stroke-opacity: .85; }
+.spiral.in { stroke-opacity: .5; stroke-dasharray: 3 3; }
+.comb2 { stroke: var(--chart-2); stroke-width: 1.5; }
+.target { stroke: var(--chart-2); stroke-width: 1.8; stroke-dasharray: 6 4; }
+
+:root { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+@media (prefers-color-scheme: dark) {
+  :root { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+}
+:root[data-theme="light"] { --chart-3: #1f7a4d; --chart-4: #a8324a; }
+:root[data-theme="dark"]  { --chart-3: #5fc78e; --chart-4: #dd7f92; }
+.flab.mid { text-anchor: middle; }
+.flab.end { text-anchor: end; }
+.flab.st  { text-anchor: start; }
+.flab.c3, tspan.c3 { fill: var(--chart-3); }
+.flab.c4, tspan.c4 { fill: var(--chart-4); }
+.hm1 { fill: var(--chart-1); }
+.hm2 { fill: var(--chart-2); }
+.hm3 { fill: var(--chart-3); }
+.hm4 { fill: var(--chart-4); }
+.hmo { fill: var(--muted); fill-opacity: .75; }
+.flab.hm1 { fill: var(--chart-1); }
+.flab.hm2 { fill: var(--chart-2); }
+.flab.hm3 { fill: var(--chart-3); }
+.flab.hm4 { fill: var(--chart-4); }
+.flab.hmo { fill: var(--muted); }
+.ln0 { stroke: var(--chart-1); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln1 { stroke: var(--chart-3); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.ln2 { stroke: var(--chart-2); stroke-width: 1.7; fill: none; stroke-linejoin: round; }
+.ln4 { stroke: var(--chart-4); stroke-width: 1.9; fill: none; stroke-linejoin: round; }
+.lnm { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-linejoin: round; stroke-opacity: .8; }
+.lnd { stroke-dasharray: 5 3; }
+.rule { stroke: var(--chart-4); stroke-width: 1.5; fill: none; stroke-dasharray: 6 3; }
+.bar { stroke: none; }
+.mk { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.sb { font-size: .74em; }
+.gearln { fill: none; stroke: var(--rule-strong); stroke-width: .9; stroke-opacity: .55; }
+.hl { fill: none; stroke: var(--chart-4); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.stem { stroke: var(--rule-strong); stroke-width: 1; }
+.cardbox {
+  border: 1px solid var(--rule); border-left: 3px solid var(--chart-1);
+  border-radius: 6px; background: var(--panel);
+  padding: .85rem 1.05rem; margin: 1.2rem 0;
+  font-size: .93rem; line-height: 1.85;
+  font-variant-numeric: tabular-nums; overflow-x: auto;
+}
+dl.dict { margin: 1.1rem 0; font-size: .93rem; }
+dl.dict dt {
+  font-weight: 600; color: var(--chart-1); margin-top: .8rem;
+}
+dl.dict dd {
+  margin: .18rem 0 0 0; padding-left: 1.1rem;
+  border-left: 2px solid var(--rule); color: var(--fg);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>rh31 · the emptiest arc</h1>
+<p class="sub">rh30 ended by ordering a change of direction: stop accumulating
+certificates, and test its one family-level law to destruction before anyone
+tries to prove it. This document executes both orders. The law breaks — cleanly,
+instructively — and what it was a shadow of survives every attempt made here to
+kill it: &#955;<sub>min</sub> is the density of the measure&#8217;s emptiest
+arc, tight to a factor below two across sixteen window families, every outlier,
+and one window built specifically to fool it.</p>
+<p class="meta">47 named checks, 116 s · four computed figures ·
+336 grid points over sixteen weight families · no new certificates · the
+thirtieth in the series, after <a href="rh30.html">rh30</a></p>
+</header>
+
+<div class="cardbox">
+<strong>What is conditional and what is not.</strong> The measure &#956; is
+rh29&#8217;s and is conditional on RH; every statement below about &#956; is a
+statement about what RH predicts. Two things are not: the theorem of &#167;2 is
+classical and holds for any positive-definite Toeplitz matrix, and the crystal
+lemma of &#167;6 is elementary. Per rh30 &#167;10 (c), this document adds no new
+certificates — the certified set stays at nine, on purpose.
+</div>
+
+<nav class="toc">
+<a href="#s1">1 · order</a>
+<a href="#s2">2 · the uniform content</a>
+<a href="#s3">3 · the destruction</a>
+<a href="#s4">4 · the wrong coordinate</a>
+<a href="#s5">5 · the emptiest arc</a>
+<a href="#s6">6 · the position laws</a>
+<a href="#s7">7 · conjunction</a>
+<a href="#s8">8 · what this leaves</a>
+</nav>
+
+<section id="s1">
+<h2>1 · Where this stands</h2>
+
+<p>rh30 &#167;10 left three orders rather than three questions: (a) test the
+collapse — the claim that &#955;<sub>min</sub>/E<sub>h</sub>(0) is a function
+of the single ratio n/N<sub>eff</sub> — to destruction on a wider family before
+trying to prove it; (b) find an inequality that uses the positivity of
+q&nbsp;=&nbsp;|p|&#178; rather than its variation; (c) stop extending the
+certified set.</p>
+
+<p>All three are executed here. (c) is trivial to execute and is executed: no
+new certificates. (a) is &#167;3, and the collapse fails off the family it was
+discovered on. (b) arrives from an unexpected side: the classical moment
+problem hands over an exact restatement of &#955;<sub>min</sub> (&#167;2), the
+restatement suggests where the floor really comes from, and the quantity that
+survives all of &#167;&#167;3&#8211;5&#8217;s attempts to break it is a local
+density — precisely the kind of object a positivity-aware inequality would
+bound.</p>
+
+<p>Regressions: the zero-side row still reproduces rh27c&#8217;s published
+&#955;<sub>min</sub> at &#916;&#8242; = 0.12 to 5.2&#215;10&#8315;&#8308; relative; rh30&#8217;s
+N<sub>eff</sub> = 95.7 is reproduced; the zero table is rh29&#8217;s
+4,308 ordinates at the matched cut.</p>
+</section>
+
+<section id="s2">
+<h2>2 · The uniform content</h2>
+
+<p>The theorem first, because everything else in this document is downstream of
+the way it makes you look at &#955;<sub>min</sub>.</p>
+
+<div class="cardbox">
+<strong>Theorem (Carath&#233;odory&#8211;Toeplitz, restated).</strong>
+&#955;<sub>min</sub>(T<sub>n</sub>) is the largest c such that the row
+(E<sub>h</sub>(0)&nbsp;&#8722;&nbsp;c, E<sub>h</sub>(&#916;&#8242;), &#8230;,
+E<sub>h</sub>((n&#8722;1)&#916;&#8242;)) is still the moment sequence of a
+positive measure. <em>Proof:</em> T<sub>n</sub> &#8722; cI is Toeplitz with
+exactly that row; a Toeplitz matrix is PSD iff its row is a truncated moment
+sequence (Carath&#233;odory&#8211;Toeplitz); and the largest c with
+T<sub>n</sub> &#8722; cI &#8880; 0 is &#955;<sub>min</sub> by definition. &#8718;
+</div>
+
+<p>In rh29&#8217;s measure picture this says: <em>&#955;<sub>min</sub> is the
+uniform content of &#956; at resolution n</em> — the largest amount of uniform
+measure &#956; can shed, &#956; &#8776; &#955;&#183;U + &#957;, and still
+present the same first n moments with a positive remainder &#957;. Szeg&#337;
+(rh29 &#167;4) is the n &#8594; &#8734; limit: an atomic measure has no uniform
+part, so the content drains to zero. What was missing is what the draining
+looks like at finite n, and that is constructible.</p>
+
+<p>At the extreme c = &#955;<sub>min</sub> the matrix T<sub>n</sub> &#8722;
+&#955;I is singular, and the representing measure &#957; is supported on the
+circle roots of its kernel vector&#8217;s polynomial. Constructed at
+&#916;&#8242; = 0.12: at n = 24 the minimal eigenpolynomial has 23 roots
+on the circle; they come in mirror pairs because the row is real, and fold to
+12 atoms on the half-circle. Solving the moment equations on those
+atoms:</p>
+
+<div class="cardbox">
+n = 12 &nbsp; 11 circle roots &#8594; 6 folded atoms &nbsp; min weight 6.8&#215;10&#8315;&#8308; &nbsp; mass 0.018830 = E<sub>h</sub>(0) &#8722; &#955;<sub>min</sub> &nbsp; moment residual 3.6&#215;10&#8315;&#185;&#8309;<br>
+n = 24 &nbsp; 23 circle roots &#8594; 12 folded atoms &nbsp; min weight 2.0&#215;10&#8315;&#179; &nbsp; mass 0.061929 = E<sub>h</sub>(0) &#8722; &#955;<sub>min</sub> &nbsp; moment residual 6.1&#215;10&#8315;&#185;&#8310;<br>
+n = 40 &nbsp; 39 circle roots &#8594; 20 folded atoms &nbsp; min weight 2.4&#215;10&#8315;&#179; &nbsp; mass 0.112653 = E<sub>h</sub>(0) &#8722; &#955;<sub>min</sub> &nbsp; moment residual 1.2&#215;10&#8315;&#185;&#8309;
+</div>
+
+<p>Every weight strictly positive — no pruning, no sign repair, once the mirror
+fold is made. Moments matched to machine. Mass exactly
+E<sub>h</sub>(0)&nbsp;&#8722;&nbsp;&#955;<sub>min</sub>. And the geometry is
+the point:</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 556" role="img" aria-label="Top: the sixty heaviest atoms of the measure on the folded half-circle as stems, with the twelve atoms of the dual witness at n = 24 marked on top of them. Bottom: as the resolution grows from 12 to 40 the witness swallows more of the measure and the uniform remainder — lambda-min — drains.">
+<text x="370.0" y="21" class="ftitle">the dual witness: &#956; &#8776; &#955;&#8344;&#7522;&#8345;&#183;U + &#957;, seen at resolution n</text>
+<line x1="56" y1="210" x2="700" y2="210" class="axis"/>
+<text x="56.0" y="226" class="flab mid">0</text>
+<text x="378.0" y="226" class="flab mid">&#960;/2</text>
+<text x="700.0" y="226" class="flab mid">&#960;</text>
+<line x1="60.3" y1="210" x2="60.3" y2="137.1" class="stem"/>
+<circle cx="60.3" cy="137.1" r="1.8" class="hm1"/>
+<line x1="63.5" y1="210" x2="63.5" y2="82.6" class="stem"/>
+<circle cx="63.5" cy="82.6" r="1.8" class="hm1"/>
+<line x1="88.4" y1="210" x2="88.4" y2="141.4" class="stem"/>
+<circle cx="88.4" cy="141.4" r="1.8" class="hm1"/>
+<line x1="92.3" y1="210" x2="92.3" y2="84.5" class="stem"/>
+<circle cx="92.3" cy="84.5" r="1.8" class="hm1"/>
+<line x1="98.6" y1="210" x2="98.6" y2="132.5" class="stem"/>
+<circle cx="98.6" cy="132.5" r="1.8" class="hm1"/>
+<line x1="99.9" y1="210" x2="99.9" y2="82.0" class="stem"/>
+<circle cx="99.9" cy="82.0" r="1.8" class="hm1"/>
+<line x1="116.3" y1="210" x2="116.3" y2="86.1" class="stem"/>
+<circle cx="116.3" cy="86.1" r="1.8" class="hm1"/>
+<line x1="129.7" y1="210" x2="129.7" y2="128.7" class="stem"/>
+<circle cx="129.7" cy="128.7" r="1.8" class="hm1"/>
+<line x1="134.4" y1="210" x2="134.4" y2="82.2" class="stem"/>
+<circle cx="134.4" cy="82.2" r="1.8" class="hm1"/>
+<line x1="142.9" y1="210" x2="142.9" y2="88.2" class="stem"/>
+<circle cx="142.9" cy="88.2" r="1.8" class="hm1"/>
+<line x1="155.6" y1="210" x2="155.6" y2="125.6" class="stem"/>
+<circle cx="155.6" cy="125.6" r="1.8" class="hm1"/>
+<line x1="184.6" y1="210" x2="184.6" y2="83.9" class="stem"/>
+<circle cx="184.6" cy="83.9" r="1.8" class="hm1"/>
+<line x1="216.9" y1="210" x2="216.9" y2="96.0" class="stem"/>
+<circle cx="216.9" cy="96.0" r="1.8" class="hm1"/>
+<line x1="222.7" y1="210" x2="222.7" y2="86.2" class="stem"/>
+<circle cx="222.7" cy="86.2" r="1.8" class="hm1"/>
+<line x1="226.7" y1="210" x2="226.7" y2="117.4" class="stem"/>
+<circle cx="226.7" cy="117.4" r="1.8" class="hm1"/>
+<line x1="236.7" y1="210" x2="236.7" y2="98.6" class="stem"/>
+<circle cx="236.7" cy="98.6" r="1.8" class="hm1"/>
+<line x1="263.4" y1="210" x2="263.4" y2="113.6" class="stem"/>
+<circle cx="263.4" cy="113.6" r="1.8" class="hm1"/>
+<line x1="266.7" y1="210" x2="266.7" y2="89.9" class="stem"/>
+<circle cx="266.7" cy="89.9" r="1.8" class="hm1"/>
+<line x1="284.6" y1="210" x2="284.6" y2="111.6" class="stem"/>
+<circle cx="284.6" cy="111.6" r="1.8" class="hm1"/>
+<line x1="284.9" y1="210" x2="284.9" y2="105.3" class="stem"/>
+<circle cx="284.9" cy="105.3" r="1.8" class="hm1"/>
+<line x1="286.4" y1="210" x2="286.4" y2="91.9" class="stem"/>
+<circle cx="286.4" cy="91.9" r="1.8" class="hm1"/>
+<line x1="292.8" y1="210" x2="292.8" y2="138.3" class="stem"/>
+<circle cx="292.8" cy="138.3" r="1.8" class="hm1"/>
+<line x1="297.2" y1="210" x2="297.2" y2="107.2" class="stem"/>
+<circle cx="297.2" cy="107.2" r="1.8" class="hm1"/>
+<line x1="314.3" y1="210" x2="314.3" y2="95.0" class="stem"/>
+<circle cx="314.3" cy="95.0" r="1.8" class="hm1"/>
+<line x1="333.4" y1="210" x2="333.4" y2="136.2" class="stem"/>
+<circle cx="333.4" cy="136.2" r="1.8" class="hm1"/>
+<line x1="338.0" y1="210" x2="338.0" y2="107.6" class="stem"/>
+<circle cx="338.0" cy="107.6" r="1.8" class="hm1"/>
+<line x1="349.2" y1="210" x2="349.2" y2="115.3" class="stem"/>
+<circle cx="349.2" cy="115.3" r="1.8" class="hm1"/>
+<line x1="351.0" y1="210" x2="351.0" y2="135.4" class="stem"/>
+<circle cx="351.0" cy="135.4" r="1.8" class="hm1"/>
+<line x1="363.7" y1="210" x2="363.7" y2="106.1" class="stem"/>
+<circle cx="363.7" cy="106.1" r="1.8" class="hm1"/>
+<line x1="376.5" y1="210" x2="376.5" y2="102.9" class="stem"/>
+<circle cx="376.5" cy="102.9" r="1.8" class="hm1"/>
+<line x1="384.5" y1="210" x2="384.5" y2="121.1" class="stem"/>
+<circle cx="384.5" cy="121.1" r="1.8" class="hm1"/>
+<line x1="408.2" y1="210" x2="408.2" y2="104.4" class="stem"/>
+<circle cx="408.2" cy="104.4" r="1.8" class="hm1"/>
+<line x1="414.3" y1="210" x2="414.3" y2="133.3" class="stem"/>
+<circle cx="414.3" cy="133.3" r="1.8" class="hm1"/>
+<line x1="416.1" y1="210" x2="416.1" y2="108.5" class="stem"/>
+<circle cx="416.1" cy="108.5" r="1.8" class="hm1"/>
+<line x1="424.1" y1="210" x2="424.1" y2="127.7" class="stem"/>
+<circle cx="424.1" cy="127.7" r="1.8" class="hm1"/>
+<line x1="438.4" y1="210" x2="438.4" y2="132.9" class="stem"/>
+<circle cx="438.4" cy="132.9" r="1.8" class="hm1"/>
+<line x1="452.3" y1="210" x2="452.3" y2="113.8" class="stem"/>
+<circle cx="452.3" cy="113.8" r="1.8" class="hm1"/>
+<line x1="454.0" y1="210" x2="454.0" y2="103.9" class="stem"/>
+<circle cx="454.0" cy="103.9" r="1.8" class="hm1"/>
+<line x1="472.3" y1="210" x2="472.3" y2="135.8" class="stem"/>
+<circle cx="472.3" cy="135.8" r="1.8" class="hm1"/>
+<line x1="479.2" y1="210" x2="479.2" y2="117.9" class="stem"/>
+<circle cx="479.2" cy="117.9" r="1.8" class="hm1"/>
+<line x1="498.3" y1="210" x2="498.3" y2="132.7" class="stem"/>
+<circle cx="498.3" cy="132.7" r="1.8" class="hm1"/>
+<line x1="509.5" y1="210" x2="509.5" y2="141.8" class="stem"/>
+<circle cx="509.5" cy="141.8" r="1.8" class="hm1"/>
+<line x1="513.2" y1="210" x2="513.2" y2="105.2" class="stem"/>
+<circle cx="513.2" cy="105.2" r="1.8" class="hm1"/>
+<line x1="528.2" y1="210" x2="528.2" y2="105.9" class="stem"/>
+<circle cx="528.2" cy="105.9" r="1.8" class="hm1"/>
+<line x1="529.4" y1="210" x2="529.4" y2="125.4" class="stem"/>
+<circle cx="529.4" cy="125.4" r="1.8" class="hm1"/>
+<line x1="545.5" y1="210" x2="545.5" y2="133.4" class="stem"/>
+<circle cx="545.5" cy="133.4" r="1.8" class="hm1"/>
+<line x1="552.2" y1="210" x2="552.2" y2="128.7" class="stem"/>
+<circle cx="552.2" cy="128.7" r="1.8" class="hm1"/>
+<line x1="562.8" y1="210" x2="562.8" y2="108.0" class="stem"/>
+<circle cx="562.8" cy="108.0" r="1.8" class="hm1"/>
+<line x1="564.4" y1="210" x2="564.4" y2="141.8" class="stem"/>
+<circle cx="564.4" cy="141.8" r="1.8" class="hm1"/>
+<line x1="582.7" y1="210" x2="582.7" y2="139.1" class="stem"/>
+<circle cx="582.7" cy="139.1" r="1.8" class="hm1"/>
+<line x1="592.5" y1="210" x2="592.5" y2="135.0" class="stem"/>
+<circle cx="592.5" cy="135.0" r="1.8" class="hm1"/>
+<line x1="593.7" y1="210" x2="593.7" y2="134.6" class="stem"/>
+<circle cx="593.7" cy="134.6" r="1.8" class="hm1"/>
+<line x1="604.9" y1="210" x2="604.9" y2="111.4" class="stem"/>
+<circle cx="604.9" cy="111.4" r="1.8" class="hm1"/>
+<line x1="610.7" y1="210" x2="610.7" y2="135.9" class="stem"/>
+<circle cx="610.7" cy="135.9" r="1.8" class="hm1"/>
+<line x1="622.7" y1="210" x2="622.7" y2="133.2" class="stem"/>
+<circle cx="622.7" cy="133.2" r="1.8" class="hm1"/>
+<line x1="652.6" y1="210" x2="652.6" y2="138.2" class="stem"/>
+<circle cx="652.6" cy="138.2" r="1.8" class="hm1"/>
+<line x1="657.8" y1="210" x2="657.8" y2="142.8" class="stem"/>
+<circle cx="657.8" cy="142.8" r="1.8" class="hm1"/>
+<line x1="660.6" y1="210" x2="660.6" y2="117.4" class="stem"/>
+<circle cx="660.6" cy="117.4" r="1.8" class="hm1"/>
+<line x1="667.7" y1="210" x2="667.7" y2="126.7" class="stem"/>
+<circle cx="667.7" cy="126.7" r="1.8" class="hm1"/>
+<line x1="698.3" y1="210" x2="698.3" y2="122.5" class="stem"/>
+<circle cx="698.3" cy="122.5" r="1.8" class="hm1"/>
+<circle cx="56.0" cy="191.9" r="4" class="mk"/>
+<circle cx="101.8" cy="167.3" r="4" class="mk"/>
+<circle cx="148.7" cy="175.1" r="4" class="mk"/>
+<circle cx="223.5" cy="167.6" r="4" class="mk"/>
+<circle cx="284.5" cy="162.0" r="4" class="mk"/>
+<circle cx="345.5" cy="174.9" r="4" class="mk"/>
+<circle cx="396.4" cy="188.5" r="4" class="mk"/>
+<circle cx="425.1" cy="181.3" r="4" class="mk"/>
+<circle cx="476.0" cy="180.3" r="4" class="mk"/>
+<circle cx="539.7" cy="170.2" r="4" class="mk"/>
+<circle cx="597.5" cy="178.1" r="4" class="mk"/>
+<circle cx="670.7" cy="176.5" r="4" class="mk"/>
+<text x="60" y="44" class="flab st hm1">&#9475; the 60 heaviest atoms of &#956; (weight as height)</text>
+<text x="60" y="60" class="flab st">&#9711; the 12 atoms of the witness &#957; at n = 24 (height &#8733; its weight)</text>
+<text x="378" y="244" class="flab mid">&#966; = &#916;&#8242;&#183;&#947; mod 2&#960;, folded to [0, &#960;] &#8212; window &#916;&#8242; = 0.12, mesh 0.12</text>
+<text x="378" y="264" class="flab mid">the decomposition E&#8341;(0) = &#955;&#8344;&#7522;&#8345; + &#8214;&#957;&#8214;, as n grows</text>
+<rect x="96" y="304" width="140.6" height="22" class="bar hm1"/>
+<rect x="236.6" y="304" width="9.4" height="22" class="bar hm3"/>
+<text x="171" y="296" class="flab mid">n = 12</text>
+<text x="96" y="344" class="flab st hm1">&#955; = 0.281</text>
+<text x="246" y="344" class="flab end hm3">&#8214;&#957;&#8214; = 0.019</text>
+<rect x="306" y="304" width="119.1" height="22" class="bar hm1"/>
+<rect x="425.1" y="304" width="30.9" height="22" class="bar hm3"/>
+<text x="381" y="296" class="flab mid">n = 24</text>
+<text x="306" y="344" class="flab st hm1">&#955; = 0.238</text>
+<text x="456" y="344" class="flab end hm3">&#8214;&#957;&#8214; = 0.062</text>
+<rect x="516" y="304" width="93.7" height="22" class="bar hm1"/>
+<rect x="609.7" y="304" width="56.3" height="22" class="bar hm3"/>
+<text x="591" y="296" class="flab mid">n = 40</text>
+<text x="516" y="344" class="flab st hm1">&#955; = 0.188</text>
+<text x="666" y="344" class="flab end hm3">&#8214;&#957;&#8214; = 0.113</text>
+<text x="24" y="432" class="flab st">Caratheodory&#8211;Toeplitz, read constructively. T&#8345; &#8722; cI is Toeplitz, and it stays positive exactly while its row remains</text>
+<text x="24" y="450" class="flab st">the moment sequence of a positive measure; the largest such c is &#955;&#8344;&#7522;&#8345;. At the extreme the representing measure &#957; is</text>
+<text x="24" y="468" class="flab st">exhibited: its atoms are the folded roots of the minimal eigenpolynomial, every weight comes out strictly positive,</text>
+<text x="24" y="486" class="flab st">the moments match to 10&#8315;&#185;&#8309;, and its mass is exactly E&#8341;(0) &#8722; &#955;&#8344;&#7522;&#8345;. The witness sits on the heavy atoms of &#956; &#8212; median</text>
+<text x="24" y="504" class="flab st">distance 0.018 against a heavy-atom spacing of 0.105 &#8212; and as n grows it swallows more of the measure: Szeg&#337; happening</text>
+<text x="24" y="522" class="flab st">in slow motion.</text>
+</svg></div>
+<figcaption>The witness sits on the heavy atoms; the uniform remainder drains
+as n grows.</figcaption></figure>
+
+<p>The witness&#8217;s atoms sit on the heavy atoms of &#956; — median distance
+0.018 against a heavy-atom spacing of 0.105 — because &#957; must
+reproduce the oscillating moments, and those come from where &#956;&#8217;s
+mass is. What is left over after &#957; has claimed the atoms it can resolve is
+uniform, and that remainder is the certificate. <em>&#955;<sub>min</sub>
+measures what the measure looks like between its resolved atoms.</em> Which is
+a density statement, and it is why the rest of this document is about
+arcs.</p>
+</section>
+
+<section id="s3">
+<h2>3 · The destruction</h2>
+
+<p>rh30&#8217;s collapse was measured on five windows — all five produced by
+the arc&#8217;s own optimiser. The destruction grid adds eleven families no
+optimiser touched: the bare envelope (A &#8801; const), six random coefficient
+vectors drawn uniformly from the same sphere, and four interpolations between
+the searched window and fresh random draws. Sixteen families spanning
+N<sub>eff</sub> from 7.0 to 467, three meshes, seven depths:
+336 certificates-that-could-have-been.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 444" role="img" aria-label="Left: 336 certificates from sixteen weight families plotted against n over N-eff; the five searched families trace rh30's single curve while random and interpolated windows fall below it. Right: the spread within each bin, searched versus all — the one-coordinate collapse breaks off the searched family.">
+<text x="370.0" y="21" class="ftitle">the collapse, tested to destruction</text>
+<line x1="56" y1="278.8" x2="452" y2="278.8" class="grid"/>
+<text x="51" y="282.3" class="flab end">10&#8315;&#8310;</text>
+<line x1="56" y1="243.5" x2="452" y2="243.5" class="grid"/>
+<line x1="56" y1="208.1" x2="452" y2="208.1" class="grid"/>
+<text x="51" y="211.6" class="flab end">10&#8315;&#8308;</text>
+<line x1="56" y1="172.8" x2="452" y2="172.8" class="grid"/>
+<line x1="56" y1="137.5" x2="452" y2="137.5" class="grid"/>
+<text x="51" y="141.0" class="flab end">10&#8315;&#178;</text>
+<line x1="56" y1="102.2" x2="452" y2="102.2" class="grid"/>
+<line x1="56" y1="66.8" x2="452" y2="66.8" class="grid"/>
+<text x="51" y="70.3" class="flab end">10&#8304;</text>
+<text x="122.0" y="316" class="flab mid">10&#8315;&#178;</text>
+<text x="210.0" y="316" class="flab mid">10&#8315;&#185;</text>
+<text x="298.0" y="316" class="flab mid">10&#8304;</text>
+<text x="386.0" y="316" class="flab mid">10&#185;</text>
+<line x1="56" y1="300" x2="452" y2="300" class="axis"/>
+<line x1="56" y1="58" x2="56" y2="300" class="axis"/>
+<circle cx="276.4" cy="70.7" r="2.2" class="hm1"/>
+<circle cx="302.9" cy="74.1" r="2.2" class="hm1"/>
+<circle cx="329.4" cy="84.0" r="2.2" class="hm1"/>
+<circle cx="354.6" cy="108.9" r="2.2" class="hm1"/>
+<circle cx="380.5" cy="134.1" r="2.2" class="hm1"/>
+<circle cx="406.7" cy="164.2" r="2.2" class="hm1"/>
+<circle cx="433.0" cy="188.7" r="2.2" class="hm1"/>
+<circle cx="276.4" cy="75.3" r="2.2" class="hm1"/>
+<circle cx="302.9" cy="76.1" r="2.2" class="hm1"/>
+<circle cx="329.4" cy="81.7" r="2.2" class="hm1"/>
+<circle cx="354.6" cy="98.2" r="2.2" class="hm1"/>
+<circle cx="380.5" cy="126.1" r="2.2" class="hm1"/>
+<circle cx="406.7" cy="159.8" r="2.2" class="hm1"/>
+<circle cx="433.0" cy="180.7" r="2.2" class="hm1"/>
+<circle cx="276.4" cy="78.4" r="2.2" class="hm1"/>
+<circle cx="302.9" cy="84.7" r="2.2" class="hm1"/>
+<circle cx="329.4" cy="103.4" r="2.2" class="hm1"/>
+<circle cx="354.6" cy="129.7" r="2.2" class="hm1"/>
+<circle cx="380.5" cy="162.9" r="2.2" class="hm1"/>
+<circle cx="406.7" cy="217.9" r="2.2" class="hm1"/>
+<circle cx="433.0" cy="245.7" r="2.2" class="hm1"/>
+<circle cx="242.0" cy="68.1" r="2.2" class="hm1"/>
+<circle cx="268.5" cy="70.1" r="2.2" class="hm1"/>
+<circle cx="295.0" cy="79.8" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="85.4" r="2.2" class="hm1"/>
+<circle cx="346.2" cy="94.0" r="2.2" class="hm1"/>
+<circle cx="372.3" cy="131.2" r="2.2" class="hm1"/>
+<circle cx="398.7" cy="164.1" r="2.2" class="hm1"/>
+<circle cx="242.0" cy="77.7" r="2.2" class="hm1"/>
+<circle cx="268.5" cy="80.3" r="2.2" class="hm1"/>
+<circle cx="295.0" cy="82.5" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="89.8" r="2.2" class="hm1"/>
+<circle cx="346.2" cy="103.4" r="2.2" class="hm1"/>
+<circle cx="372.3" cy="130.2" r="2.2" class="hm1"/>
+<circle cx="398.7" cy="161.7" r="2.2" class="hm1"/>
+<circle cx="242.0" cy="73.5" r="2.2" class="hm1"/>
+<circle cx="268.5" cy="80.8" r="2.2" class="hm1"/>
+<circle cx="295.0" cy="86.4" r="2.2" class="hm1"/>
+<circle cx="320.3" cy="87.9" r="2.2" class="hm1"/>
+<circle cx="346.2" cy="93.1" r="2.2" class="hm1"/>
+<circle cx="372.3" cy="125.4" r="2.2" class="hm1"/>
+<circle cx="398.7" cy="152.9" r="2.2" class="hm1"/>
+<circle cx="176.7" cy="67.0" r="2.2" class="hm1"/>
+<circle cx="203.1" cy="67.3" r="2.2" class="hm1"/>
+<circle cx="229.6" cy="70.7" r="2.2" class="hm1"/>
+<circle cx="254.9" cy="73.2" r="2.2" class="hm1"/>
+<circle cx="280.8" cy="79.7" r="2.2" class="hm1"/>
+<circle cx="307.0" cy="94.5" r="2.2" class="hm1"/>
+<circle cx="333.3" cy="133.4" r="2.2" class="hm1"/>
+<circle cx="176.7" cy="67.3" r="2.2" class="hm1"/>
+<circle cx="203.1" cy="67.5" r="2.2" class="hm1"/>
+<circle cx="229.6" cy="68.0" r="2.2" class="hm1"/>
+<circle cx="254.9" cy="72.1" r="2.2" class="hm1"/>
+<circle cx="280.8" cy="77.1" r="2.2" class="hm1"/>
+<circle cx="307.0" cy="83.5" r="2.2" class="hm1"/>
+<circle cx="333.3" cy="108.3" r="2.2" class="hm1"/>
+<circle cx="176.7" cy="68.0" r="2.2" class="hm1"/>
+<circle cx="203.1" cy="68.2" r="2.2" class="hm1"/>
+<circle cx="229.6" cy="68.5" r="2.2" class="hm1"/>
+<circle cx="254.9" cy="69.7" r="2.2" class="hm1"/>
+<circle cx="280.8" cy="73.4" r="2.2" class="hm1"/>
+<circle cx="307.0" cy="83.2" r="2.2" class="hm1"/>
+<circle cx="333.3" cy="107.6" r="2.2" class="hm1"/>
+<circle cx="147.2" cy="67.0" r="2.2" class="hm1"/>
+<circle cx="173.7" cy="67.1" r="2.2" class="hm1"/>
+<circle cx="200.2" cy="68.1" r="2.2" class="hm1"/>
+<circle cx="225.4" cy="70.1" r="2.2" class="hm1"/>
+<circle cx="251.3" cy="75.3" r="2.2" class="hm1"/>
+<circle cx="277.5" cy="85.3" r="2.2" class="hm1"/>
+<circle cx="303.8" cy="98.8" r="2.2" class="hm1"/>
+<circle cx="147.2" cy="66.9" r="2.2" class="hm1"/>
+<circle cx="173.7" cy="67.0" r="2.2" class="hm1"/>
+<circle cx="200.2" cy="67.3" r="2.2" class="hm1"/>
+<circle cx="225.4" cy="68.6" r="2.2" class="hm1"/>
+<circle cx="251.3" cy="71.9" r="2.2" class="hm1"/>
+<circle cx="277.5" cy="80.3" r="2.2" class="hm1"/>
+<circle cx="303.8" cy="91.8" r="2.2" class="hm1"/>
+<circle cx="147.2" cy="67.2" r="2.2" class="hm1"/>
+<circle cx="173.7" cy="67.3" r="2.2" class="hm1"/>
+<circle cx="200.2" cy="67.4" r="2.2" class="hm1"/>
+<circle cx="225.4" cy="67.7" r="2.2" class="hm1"/>
+<circle cx="251.3" cy="70.5" r="2.2" class="hm1"/>
+<circle cx="277.5" cy="74.5" r="2.2" class="hm1"/>
+<circle cx="303.8" cy="82.7" r="2.2" class="hm1"/>
+<circle cx="116.1" cy="67.0" r="2.2" class="hm1"/>
+<circle cx="142.5" cy="67.1" r="2.2" class="hm1"/>
+<circle cx="169.0" cy="68.0" r="2.2" class="hm1"/>
+<circle cx="194.3" cy="69.0" r="2.2" class="hm1"/>
+<circle cx="220.2" cy="71.1" r="2.2" class="hm1"/>
+<circle cx="246.4" cy="76.7" r="2.2" class="hm1"/>
+<circle cx="272.7" cy="84.9" r="2.2" class="hm1"/>
+<circle cx="116.1" cy="66.9" r="2.2" class="hm1"/>
+<circle cx="142.5" cy="67.1" r="2.2" class="hm1"/>
+<circle cx="169.0" cy="67.4" r="2.2" class="hm1"/>
+<circle cx="194.3" cy="68.4" r="2.2" class="hm1"/>
+<circle cx="220.2" cy="70.2" r="2.2" class="hm1"/>
+<circle cx="246.4" cy="73.2" r="2.2" class="hm1"/>
+<circle cx="272.7" cy="81.6" r="2.2" class="hm1"/>
+<circle cx="116.1" cy="67.0" r="2.2" class="hm1"/>
+<circle cx="142.5" cy="67.1" r="2.2" class="hm1"/>
+<circle cx="169.0" cy="67.2" r="2.2" class="hm1"/>
+<circle cx="194.3" cy="67.5" r="2.2" class="hm1"/>
+<circle cx="220.2" cy="68.8" r="2.2" class="hm1"/>
+<circle cx="246.4" cy="70.9" r="2.2" class="hm1"/>
+<circle cx="272.7" cy="76.2" r="2.2" class="hm1"/>
+<circle cx="164.6" cy="66.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="191.1" cy="67.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="217.6" cy="71.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="242.9" cy="77.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="268.8" cy="85.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="294.9" cy="96.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="321.3" cy="137.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="164.6" cy="67.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="191.1" cy="67.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="217.6" cy="67.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="242.9" cy="71.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="268.8" cy="82.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="294.9" cy="99.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="321.3" cy="114.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="164.6" cy="67.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="191.1" cy="67.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="217.6" cy="68.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="242.9" cy="68.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="268.8" cy="73.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="294.9" cy="87.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="321.3" cy="110.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="219.5" cy="67.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="246.0" cy="67.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="272.5" cy="72.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="297.8" cy="82.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="323.7" cy="93.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="349.8" cy="115.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="376.2" cy="150.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="219.5" cy="75.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="246.0" cy="76.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="272.5" cy="77.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="297.8" cy="82.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="323.7" cy="87.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="349.8" cy="103.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="376.2" cy="136.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="219.5" cy="72.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="246.0" cy="78.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="272.5" cy="81.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="297.8" cy="84.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="323.7" cy="88.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="349.8" cy="98.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="376.2" cy="122.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="193.6" cy="67.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="220.1" cy="67.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="246.6" cy="71.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="271.9" cy="78.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="297.7" cy="86.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="323.9" cy="103.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="350.3" cy="136.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="193.6" cy="73.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="220.1" cy="74.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="246.6" cy="75.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="271.9" cy="79.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="297.7" cy="90.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="323.9" cy="99.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="350.3" cy="138.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="193.6" cy="73.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="220.1" cy="78.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="246.6" cy="82.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="271.9" cy="84.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="297.7" cy="89.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="323.9" cy="98.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="350.3" cy="117.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="197.0" cy="66.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="223.5" cy="67.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="250.0" cy="71.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="275.3" cy="79.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="301.1" cy="91.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="327.3" cy="103.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="353.7" cy="133.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="197.0" cy="71.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="223.5" cy="72.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="250.0" cy="72.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="275.3" cy="77.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="301.1" cy="87.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="327.3" cy="101.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="353.7" cy="125.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="197.0" cy="72.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="223.5" cy="76.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="250.0" cy="78.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="275.3" cy="79.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="301.1" cy="82.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="327.3" cy="102.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="353.7" cy="128.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="210.9" cy="67.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="237.4" cy="68.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="263.9" cy="71.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="289.2" cy="82.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="315.1" cy="92.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="341.3" cy="120.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="367.6" cy="138.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="210.9" cy="67.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="237.4" cy="69.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="263.9" cy="71.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="289.2" cy="78.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="315.1" cy="94.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="341.3" cy="117.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="367.6" cy="131.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="210.9" cy="72.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="237.4" cy="74.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="263.9" cy="75.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="289.2" cy="77.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="315.1" cy="87.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="341.3" cy="99.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="367.6" cy="128.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="235.6" cy="67.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="262.1" cy="69.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="288.6" cy="76.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="313.9" cy="85.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="339.8" cy="95.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="365.9" cy="105.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="392.3" cy="142.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="235.6" cy="71.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="262.1" cy="72.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="288.6" cy="74.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="313.9" cy="80.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="339.8" cy="93.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="365.9" cy="107.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="392.3" cy="127.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="235.6" cy="72.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="262.1" cy="76.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="288.6" cy="78.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="313.9" cy="79.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="339.8" cy="87.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="365.9" cy="102.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="392.3" cy="122.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="223.9" cy="67.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="250.4" cy="68.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="276.9" cy="73.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="302.2" cy="79.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="328.0" cy="88.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="354.2" cy="114.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="380.5" cy="148.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="223.9" cy="82.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="250.4" cy="88.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="276.9" cy="91.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="302.2" cy="92.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="328.0" cy="106.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="354.2" cy="126.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="380.5" cy="160.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="223.9" cy="77.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="250.4" cy="83.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="276.9" cy="92.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="302.2" cy="98.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="328.0" cy="103.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="354.2" cy="114.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="380.5" cy="137.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="178.8" cy="67.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="205.3" cy="67.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="231.7" cy="70.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="257.0" cy="73.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="282.9" cy="79.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="309.1" cy="94.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="335.4" cy="131.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="178.8" cy="66.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="205.3" cy="67.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="231.7" cy="68.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="257.0" cy="71.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="282.9" cy="76.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="309.1" cy="84.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="335.4" cy="110.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="178.8" cy="69.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="205.3" cy="70.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="231.7" cy="70.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="257.0" cy="71.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="282.9" cy="74.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="309.1" cy="85.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="335.4" cy="110.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="196.0" cy="67.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="222.5" cy="67.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="249.0" cy="71.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="274.2" cy="79.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="300.1" cy="85.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="326.3" cy="106.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="352.6" cy="135.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="196.0" cy="68.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="222.5" cy="68.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="249.0" cy="70.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="274.2" cy="75.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="300.1" cy="81.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="326.3" cy="92.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="352.6" cy="130.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="196.0" cy="75.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="222.5" cy="80.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="249.0" cy="83.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="274.2" cy="84.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="300.1" cy="91.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="326.3" cy="103.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="352.6" cy="120.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="199.0" cy="67.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="225.4" cy="67.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="251.9" cy="72.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="277.2" cy="78.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="303.1" cy="84.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="329.3" cy="103.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="355.6" cy="144.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="199.0" cy="68.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="225.4" cy="68.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="251.9" cy="69.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="277.2" cy="74.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="303.1" cy="85.9" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="329.3" cy="102.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="355.6" cy="125.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="199.0" cy="79.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="225.4" cy="84.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="251.9" cy="87.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="277.2" cy="88.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="303.1" cy="93.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="329.3" cy="108.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="355.6" cy="129.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="189.8" cy="67.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="216.2" cy="67.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="242.7" cy="71.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="268.0" cy="79.6" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="293.9" cy="88.8" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="320.1" cy="104.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="346.4" cy="134.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="189.8" cy="69.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="216.2" cy="69.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="242.7" cy="70.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="268.0" cy="74.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="293.9" cy="82.7" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="320.1" cy="102.3" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="346.4" cy="133.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="189.8" cy="77.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="216.2" cy="82.0" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="242.7" cy="84.1" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="268.0" cy="85.2" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="293.9" cy="93.5" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="320.1" cy="105.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="346.4" cy="137.4" r="2.6" class="hm3" fill-opacity=".55"/>
+<circle cx="250.4" cy="88.7" r="7" class="mk"/>
+<circle cx="70" cy="234" r="2.2" class="hm1"/>
+<text x="80" y="238" class="flab st hm1">the five searched windows &#8212; rh30&#8217;s curve</text>
+<circle cx="70" cy="251" r="2.6" class="hm3" fill-opacity=".55"/>
+<text x="80" y="255" class="flab st hm3">envelope, random, interpolated &#8212; eleven more</text>
+<circle cx="70" cy="268" r="5" class="mk"/>
+<text x="80" y="272" class="flab st c4">half the searched floor, same coordinate</text>
+<text x="254" y="334" class="flab mid">n/N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan></text>
+<text x="490" y="64" class="flab st">spread within a bin:</text>
+<text x="490" y="86" class="flab st">bin</text>
+<text x="598" y="86" class="flab end">searched</text>
+<text x="686" y="86" class="flab end">all 16</text>
+<line x1="490" y1="92" x2="690" y2="92" class="axis"/>
+<text x="490" y="108" class="flab st">[0.03, 0.1)</text>
+<text x="598" y="108" class="flab end">1.14&#215;</text>
+<text x="686" y="108" class="flab end c4">2.21&#215;</text>
+<text x="490" y="127" class="flab st">[0.1, 0.3)</text>
+<text x="598" y="127" class="flab end">1.93&#215;</text>
+<text x="686" y="127" class="flab end c4">4.11&#215;</text>
+<text x="490" y="146" class="flab st">[0.3, 1.0)</text>
+<text x="598" y="146" class="flab end">2.97&#215;</text>
+<text x="686" y="146" class="flab end c4">7.04&#215;</text>
+<text x="490" y="175" class="flab st">rh30 asked for its own law to</text>
+<text x="490" y="192" class="flab st">be tested to destruction</text>
+<text x="490" y="209" class="flab st">before anyone tried to prove</text>
+<text x="490" y="226" class="flab st">it. Tested: one coordinate is</text>
+<text x="490" y="243" class="flab st">not the law.</text>
+<text x="24" y="356" class="flab st">Same axes as rh30&#8217;s collapse figure, with eleven window families the optimiser never touched added to the five it</text>
+<text x="24" y="374" class="flab st">produced. The searched five still trace one curve; the others obey no single-coordinate law &#8212; at the same n/N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan></text>
+<text x="24" y="392" class="flab st">they fall up to a factor of two below the searched band, and the bin spreads double or worse. N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan> measures the</text>
+<text x="24" y="410" class="flab st">weights; what it cannot see is where those weights LAND.</text>
+</svg></div>
+<figcaption>The collapse, tested to destruction: the searched five keep their
+curve, the wider family does not.</figcaption></figure>
+
+<div class="cardbox">
+bin [0.03, 0.1) &nbsp; searched 1.14&#215; &nbsp; all sixteen 2.21&#215;<br>
+bin [0.1, 0.3) &nbsp; searched 1.93&#215; &nbsp; all sixteen 4.11&#215;<br>
+bin [0.3, 1.0) &nbsp; searched 2.97&#215; &nbsp; all sixteen 7.04&#215;
+</div>
+
+<p>On the searched family alone the law holds exactly as published — spread
+1.93&#215; in the bin [0.1, 0.3), matching rh30&#8217;s 1.99&#215; on a different
+grid. Over all sixteen families the same bin spreads 4.11&#215;, and even the
+early bin [0.03, 0.1) opens from 1.14&#215; to 2.21&#215;. The worst offender is a
+random window at n/N<sub>eff</sub> = 0.29: &#955;/E<sub>h</sub>(0) =
+0.241, half the searched band&#8217;s floor at the same coordinate.</p>
+
+<p>So rh30&#8217;s one-coordinate law is a property of the searched windows,
+not of the measure. rh30 asked for exactly this test before anyone attempted a
+proof; the answer is that there is nothing there to prove in one variable.
+N<sub>eff</sub> is a functional of the <em>weights</em> alone. What it cannot
+see is where the weights land.</p>
+</section>
+
+<section id="s4">
+<h2>4 · The wrong second coordinate</h2>
+
+<p>There is an obvious candidate for the missing position information, and it
+performs almost perfectly right up until it is refuted. The weighted star
+discrepancy D*<sub>w</sub> of the atoms (rh30 &#167;5&#8217;s object) is
+mesh-dependent, position-sensitive, and orders the destruction&#8217;s
+deviations: within the bin [0.1, 0.3), the third of grid points with smallest
+N<sub>eff</sub>&#183;D*<sub>w</sub> has median &#955;/E<sub>h</sub>(0) =
+0.92 and the third with largest has 0.50. It also explains why one
+coordinate sufficed before: the searched windows sit near the discrepancy floor
+D*<sub>w</sub> &#8805; 1/(2N<sub>eff</sub>) — their
+N<sub>eff</sub>&#183;D*<sub>w</sub> stays below 2.4 while the random and
+interpolated windows reach 5.9. On the floor, the second coordinate is a
+function of the first.</p>
+
+<p>Then the refutation, by construction. Minimise D*<sub>w</sub> itself over
+the same coefficient family (coordinate descent from the envelope, at
+&#916;&#8242; = 0.12):</p>
+
+<div class="cardbox">
+anchored discrepancy D*&#8339; &nbsp; searched 0.01362 &nbsp; D*-minimised 0.00681 &nbsp; (halved)<br>
+N<sub>eff</sub> &nbsp; searched 95.7 &nbsp; D*-minimised 175.5 &nbsp; (&#215;1.83)<br>
+&#955;<sub>min</sub> &nbsp; searched 8.55&#215;10&#8315;&#178; &nbsp; D*-minimised 3.02&#215;10&#8315;&#179; &nbsp; (&#247;28)
+</div>
+
+<p>The discrepancy comes out halved and N<sub>eff</sub> nearly doubled —
+better on <em>both</em> candidate coordinates — and &#955;<sub>min</sub> comes
+out 28 times <em>smaller</em>. Anchored discrepancy is not what the
+certificate sees. It also settles a question &#167;4 raised implicitly:
+thirteen documents of window searching were <em>not</em> a discrepancy
+minimiser in disguise, because the actual discrepancy minimiser is a much
+worse window.</p>
+</section>
+
+<section id="s5">
+<h2>5 · The law that survives</h2>
+
+<p>&#167;2 says &#955;<sub>min</sub> is what remains between the resolved
+atoms. The natural quantification is the emptiest-arc density: take the
+Fej&#233;r kernel K<sub>n</sub> — a bump of width ~2&#960;/n — and slide it
+around the circle:</p>
+
+<p class="eq">C<sub>n</sub>(&#956;) = min<sub>&#952;</sub> &#8747;
+K<sub>n</sub>(&#952; &#8722; t) d&#956;(t).</p>
+
+<p>C<sub>n</sub> &#8805; &#955;<sub>min</sub> always, by one line: the
+plane-wave vector localised at the emptiest &#952; is a unit test vector whose
+Rayleigh quotient is exactly the integral (rh28&#8217;s ceiling, rh30
+&#167;4&#8217;s plane wave — the arc has been computing this object since two
+documents before it knew what it was). The content is how tight it is, and for
+whom:</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 480" role="img" aria-label="Left: the window built to minimise the weighted discrepancy halves it and nearly doubles N-eff, and its smallest eigenvalue comes out 28 times smaller — both candidate coordinates refuted at once. Right: the ratio of the emptiest-arc Fejer density to lambda-min for all 336 points: below 1.81 everywhere in the bulk, for every family including the adversarial window.">
+<text x="370.0" y="21" class="ftitle">the wrong coordinate, and the law that survives</text>
+<text x="179" y="56" class="flab mid">searched window vs the D*-minimised one</text>
+<text x="44" y="80" class="flab st">D*&#8339; (anchored discrepancy)</text>
+<rect x="44" y="86" width="190.0" height="13" class="bar hm1"/>
+<text x="240.0" y="97" class="flab st">0.0136</text>
+<rect x="44" y="106" width="95.0" height="13" class="bar hm3"/>
+<text x="145.0" y="117" class="flab st">0.0068</text>
+<text x="44" y="154" class="flab st">N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan></text>
+<rect x="44" y="160" width="103.6" height="13" class="bar hm1"/>
+<text x="153.6" y="171" class="flab st">96</text>
+<rect x="44" y="180" width="190.0" height="13" class="bar hm3"/>
+<text x="240.0" y="191" class="flab st">176</text>
+<text x="44" y="228" class="flab st">&#955;&#8344;&#7522;&#8345; (absolute)</text>
+<rect x="44" y="234" width="190.0" height="13" class="bar hm1"/>
+<text x="240.0" y="245" class="flab st">0.0855</text>
+<rect x="44" y="254" width="6.7" height="13" class="bar hm3"/>
+<text x="56.7" y="265" class="flab st c4">0.0030</text>
+<text x="44" y="296" class="flab st hm1">&#9632; searched (rh27c)</text>
+<text x="174" y="296" class="flab st hm3">&#9632; D*-minimised</text>
+<text x="44" y="318" class="flab st c4">better on both coordinates, 28&#215; worse in fact:</text>
+<text x="44" y="336" class="flab st c4">neither coordinate is the law</text>
+<line x1="386" y1="300.0" x2="716" y2="300.0" class="grid"/>
+<text x="381" y="303.5" class="flab end">10&#8304;</text>
+<line x1="386" y1="227.8" x2="716" y2="227.8" class="grid"/>
+<text x="381" y="231.3" class="flab end">10&#185;</text>
+<line x1="386" y1="155.5" x2="716" y2="155.5" class="grid"/>
+<text x="381" y="159.0" class="flab end">10&#178;</text>
+<line x1="386" y1="83.3" x2="716" y2="83.3" class="grid"/>
+<text x="381" y="86.8" class="flab end">10&#179;</text>
+<text x="441.0" y="316" class="flab mid">10&#8315;&#178;</text>
+<text x="514.3" y="316" class="flab mid">10&#8315;&#185;</text>
+<text x="587.7" y="316" class="flab mid">10&#8304;</text>
+<text x="661.0" y="316" class="flab mid">10&#185;</text>
+<line x1="386" y1="300" x2="716" y2="300" class="axis"/>
+<line x1="386" y1="58" x2="386" y2="300" class="axis"/>
+<line x1="587.7" y1="58" x2="587.7" y2="300" class="rule"/>
+<text x="582.7" y="70" class="flab end c4">n = N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan></text>
+<circle cx="569.6" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="591.7" cy="297.1" r="2.3" class="hm1"/>
+<circle cx="613.8" cy="292.8" r="2.3" class="hm1"/>
+<circle cx="634.9" cy="276.4" r="2.3" class="hm1"/>
+<circle cx="656.4" cy="243.4" r="2.3" class="hm1"/>
+<circle cx="678.2" cy="201.4" r="2.3" class="hm1"/>
+<circle cx="700.2" cy="177.1" r="2.3" class="hm1"/>
+<circle cx="569.6" cy="297.7" r="2.3" class="hm1"/>
+<circle cx="591.7" cy="298.5" r="2.3" class="hm1"/>
+<circle cx="613.8" cy="294.2" r="2.3" class="hm1"/>
+<circle cx="634.9" cy="288.1" r="2.3" class="hm1"/>
+<circle cx="656.4" cy="268.2" r="2.3" class="hm1"/>
+<circle cx="678.2" cy="208.2" r="2.3" class="hm1"/>
+<circle cx="700.2" cy="194.6" r="2.3" class="hm1"/>
+<circle cx="569.6" cy="289.8" r="2.3" class="hm1"/>
+<circle cx="591.7" cy="295.2" r="2.3" class="hm1"/>
+<circle cx="613.8" cy="280.4" r="2.3" class="hm1"/>
+<circle cx="634.9" cy="247.0" r="2.3" class="hm1"/>
+<circle cx="656.4" cy="204.0" r="2.3" class="hm1"/>
+<circle cx="678.2" cy="111.1" r="2.3" class="hm1"/>
+<circle cx="700.2" cy="76.4" r="2.3" class="hm1"/>
+<circle cx="541.0" cy="299.4" r="2.3" class="hm1"/>
+<circle cx="563.1" cy="298.7" r="2.3" class="hm1"/>
+<circle cx="585.2" cy="297.6" r="2.3" class="hm1"/>
+<circle cx="606.2" cy="293.6" r="2.3" class="hm1"/>
+<circle cx="627.8" cy="292.7" r="2.3" class="hm1"/>
+<circle cx="649.6" cy="243.5" r="2.3" class="hm1"/>
+<circle cx="671.6" cy="203.6" r="2.3" class="hm1"/>
+<circle cx="541.0" cy="297.6" r="2.3" class="hm1"/>
+<circle cx="563.1" cy="297.0" r="2.3" class="hm1"/>
+<circle cx="585.2" cy="297.4" r="2.3" class="hm1"/>
+<circle cx="606.2" cy="295.1" r="2.3" class="hm1"/>
+<circle cx="627.8" cy="289.7" r="2.3" class="hm1"/>
+<circle cx="649.6" cy="255.8" r="2.3" class="hm1"/>
+<circle cx="671.6" cy="209.3" r="2.3" class="hm1"/>
+<circle cx="541.0" cy="299.3" r="2.3" class="hm1"/>
+<circle cx="563.1" cy="296.7" r="2.3" class="hm1"/>
+<circle cx="585.2" cy="294.9" r="2.3" class="hm1"/>
+<circle cx="606.2" cy="295.0" r="2.3" class="hm1"/>
+<circle cx="627.8" cy="291.3" r="2.3" class="hm1"/>
+<circle cx="649.6" cy="269.1" r="2.3" class="hm1"/>
+<circle cx="671.6" cy="220.9" r="2.3" class="hm1"/>
+<circle cx="486.5" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="508.6" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="530.7" cy="296.8" r="2.3" class="hm1"/>
+<circle cx="551.8" cy="298.1" r="2.3" class="hm1"/>
+<circle cx="573.3" cy="296.8" r="2.3" class="hm1"/>
+<circle cx="595.1" cy="291.1" r="2.3" class="hm1"/>
+<circle cx="617.1" cy="239.5" r="2.3" class="hm1"/>
+<circle cx="486.5" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="508.6" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="530.7" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="551.8" cy="297.3" r="2.3" class="hm1"/>
+<circle cx="573.3" cy="297.8" r="2.3" class="hm1"/>
+<circle cx="595.1" cy="296.6" r="2.3" class="hm1"/>
+<circle cx="617.1" cy="285.3" r="2.3" class="hm1"/>
+<circle cx="486.5" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="508.6" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="530.7" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="551.8" cy="298.8" r="2.3" class="hm1"/>
+<circle cx="573.3" cy="298.3" r="2.3" class="hm1"/>
+<circle cx="595.1" cy="290.6" r="2.3" class="hm1"/>
+<circle cx="617.1" cy="272.9" r="2.3" class="hm1"/>
+<circle cx="462.0" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="484.1" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="506.1" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="527.2" cy="299.2" r="2.3" class="hm1"/>
+<circle cx="548.8" cy="299.5" r="2.3" class="hm1"/>
+<circle cx="570.6" cy="296.8" r="2.3" class="hm1"/>
+<circle cx="592.5" cy="291.0" r="2.3" class="hm1"/>
+<circle cx="462.0" cy="300.0" r="2.3" class="hm1"/>
+<circle cx="484.1" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="506.1" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="527.2" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="548.8" cy="298.6" r="2.3" class="hm1"/>
+<circle cx="570.6" cy="297.8" r="2.3" class="hm1"/>
+<circle cx="592.5" cy="296.0" r="2.3" class="hm1"/>
+<circle cx="462.0" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="484.1" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="506.1" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="527.2" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="548.8" cy="298.8" r="2.3" class="hm1"/>
+<circle cx="570.6" cy="298.3" r="2.3" class="hm1"/>
+<circle cx="592.5" cy="296.6" r="2.3" class="hm1"/>
+<circle cx="436.0" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="458.1" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="480.2" cy="299.7" r="2.3" class="hm1"/>
+<circle cx="501.3" cy="299.7" r="2.3" class="hm1"/>
+<circle cx="522.8" cy="298.7" r="2.3" class="hm1"/>
+<circle cx="544.6" cy="297.5" r="2.3" class="hm1"/>
+<circle cx="566.6" cy="296.6" r="2.3" class="hm1"/>
+<circle cx="436.0" cy="300.0" r="2.3" class="hm1"/>
+<circle cx="458.1" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="480.2" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="501.3" cy="299.7" r="2.3" class="hm1"/>
+<circle cx="522.8" cy="298.4" r="2.3" class="hm1"/>
+<circle cx="544.6" cy="298.9" r="2.3" class="hm1"/>
+<circle cx="566.6" cy="297.5" r="2.3" class="hm1"/>
+<circle cx="436.0" cy="300.0" r="2.3" class="hm1"/>
+<circle cx="458.1" cy="300.0" r="2.3" class="hm1"/>
+<circle cx="480.2" cy="299.9" r="2.3" class="hm1"/>
+<circle cx="501.3" cy="299.8" r="2.3" class="hm1"/>
+<circle cx="522.8" cy="299.3" r="2.3" class="hm1"/>
+<circle cx="544.6" cy="298.8" r="2.3" class="hm1"/>
+<circle cx="566.6" cy="297.9" r="2.3" class="hm1"/>
+<circle cx="476.5" cy="299.9" r="2.3" class="hm3"/>
+<circle cx="498.6" cy="299.8" r="2.3" class="hm3"/>
+<circle cx="520.7" cy="297.1" r="2.3" class="hm3"/>
+<circle cx="541.7" cy="297.9" r="2.3" class="hm3"/>
+<circle cx="563.3" cy="295.4" r="2.3" class="hm3"/>
+<circle cx="585.1" cy="291.7" r="2.3" class="hm3"/>
+<circle cx="607.1" cy="237.5" r="2.3" class="hm3"/>
+<circle cx="476.5" cy="300.0" r="2.3" class="hm3"/>
+<circle cx="498.6" cy="299.9" r="2.3" class="hm3"/>
+<circle cx="520.7" cy="299.7" r="2.3" class="hm3"/>
+<circle cx="541.7" cy="297.2" r="2.3" class="hm3"/>
+<circle cx="563.3" cy="297.2" r="2.3" class="hm3"/>
+<circle cx="585.1" cy="281.5" r="2.3" class="hm3"/>
+<circle cx="607.1" cy="275.5" r="2.3" class="hm3"/>
+<circle cx="476.5" cy="299.9" r="2.3" class="hm3"/>
+<circle cx="498.6" cy="299.8" r="2.3" class="hm3"/>
+<circle cx="520.7" cy="299.7" r="2.3" class="hm3"/>
+<circle cx="541.7" cy="299.8" r="2.3" class="hm3"/>
+<circle cx="563.3" cy="295.5" r="2.3" class="hm3"/>
+<circle cx="585.1" cy="293.5" r="2.3" class="hm3"/>
+<circle cx="607.1" cy="272.9" r="2.3" class="hm3"/>
+<circle cx="522.3" cy="299.9" r="2.3" class="hm2"/>
+<circle cx="544.3" cy="299.5" r="2.3" class="hm2"/>
+<circle cx="566.4" cy="297.9" r="2.3" class="hm2"/>
+<circle cx="587.5" cy="297.0" r="2.3" class="hm2"/>
+<circle cx="609.0" cy="287.5" r="2.3" class="hm2"/>
+<circle cx="630.9" cy="274.8" r="2.3" class="hm2"/>
+<circle cx="652.8" cy="213.5" r="2.3" class="hm2"/>
+<circle cx="522.3" cy="298.4" r="2.3" class="hm2"/>
+<circle cx="544.3" cy="297.6" r="2.3" class="hm2"/>
+<circle cx="566.4" cy="298.6" r="2.3" class="hm2"/>
+<circle cx="587.5" cy="294.7" r="2.3" class="hm2"/>
+<circle cx="609.0" cy="297.4" r="2.3" class="hm2"/>
+<circle cx="630.9" cy="275.8" r="2.3" class="hm2"/>
+<circle cx="652.8" cy="240.5" r="2.3" class="hm2"/>
+<circle cx="522.3" cy="297.9" r="2.3" class="hm2"/>
+<circle cx="544.3" cy="296.4" r="2.3" class="hm2"/>
+<circle cx="566.4" cy="295.9" r="2.3" class="hm2"/>
+<circle cx="587.5" cy="297.8" r="2.3" class="hm2"/>
+<circle cx="609.0" cy="297.6" r="2.3" class="hm2"/>
+<circle cx="630.9" cy="294.2" r="2.3" class="hm2"/>
+<circle cx="652.8" cy="266.1" r="2.3" class="hm2"/>
+<circle cx="500.7" cy="299.9" r="2.3" class="hm2"/>
+<circle cx="522.8" cy="300.0" r="2.3" class="hm2"/>
+<circle cx="544.8" cy="296.1" r="2.3" class="hm2"/>
+<circle cx="565.9" cy="299.2" r="2.3" class="hm2"/>
+<circle cx="587.5" cy="296.5" r="2.3" class="hm2"/>
+<circle cx="609.3" cy="288.7" r="2.3" class="hm2"/>
+<circle cx="631.2" cy="243.7" r="2.3" class="hm2"/>
+<circle cx="500.7" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="522.8" cy="298.6" r="2.3" class="hm2"/>
+<circle cx="544.8" cy="298.8" r="2.3" class="hm2"/>
+<circle cx="565.9" cy="298.3" r="2.3" class="hm2"/>
+<circle cx="587.5" cy="295.9" r="2.3" class="hm2"/>
+<circle cx="609.3" cy="292.4" r="2.3" class="hm2"/>
+<circle cx="631.2" cy="237.2" r="2.3" class="hm2"/>
+<circle cx="500.7" cy="295.9" r="2.3" class="hm2"/>
+<circle cx="522.8" cy="297.9" r="2.3" class="hm2"/>
+<circle cx="544.8" cy="296.3" r="2.3" class="hm2"/>
+<circle cx="565.9" cy="297.7" r="2.3" class="hm2"/>
+<circle cx="587.5" cy="296.7" r="2.3" class="hm2"/>
+<circle cx="609.3" cy="294.7" r="2.3" class="hm2"/>
+<circle cx="631.2" cy="279.4" r="2.3" class="hm2"/>
+<circle cx="503.5" cy="300.0" r="2.3" class="hm2"/>
+<circle cx="525.6" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="547.7" cy="298.6" r="2.3" class="hm2"/>
+<circle cx="568.7" cy="298.1" r="2.3" class="hm2"/>
+<circle cx="590.3" cy="292.1" r="2.3" class="hm2"/>
+<circle cx="612.1" cy="281.7" r="2.3" class="hm2"/>
+<circle cx="634.0" cy="246.4" r="2.3" class="hm2"/>
+<circle cx="503.5" cy="299.2" r="2.3" class="hm2"/>
+<circle cx="525.6" cy="299.0" r="2.3" class="hm2"/>
+<circle cx="547.7" cy="299.3" r="2.3" class="hm2"/>
+<circle cx="568.7" cy="296.6" r="2.3" class="hm2"/>
+<circle cx="590.3" cy="297.8" r="2.3" class="hm2"/>
+<circle cx="612.1" cy="286.5" r="2.3" class="hm2"/>
+<circle cx="634.0" cy="267.5" r="2.3" class="hm2"/>
+<circle cx="503.5" cy="299.8" r="2.3" class="hm2"/>
+<circle cx="525.6" cy="298.3" r="2.3" class="hm2"/>
+<circle cx="547.7" cy="298.1" r="2.3" class="hm2"/>
+<circle cx="568.7" cy="298.4" r="2.3" class="hm2"/>
+<circle cx="590.3" cy="297.7" r="2.3" class="hm2"/>
+<circle cx="612.1" cy="292.1" r="2.3" class="hm2"/>
+<circle cx="634.0" cy="253.1" r="2.3" class="hm2"/>
+<circle cx="515.1" cy="299.4" r="2.3" class="hm2"/>
+<circle cx="537.2" cy="299.5" r="2.3" class="hm2"/>
+<circle cx="559.3" cy="296.5" r="2.3" class="hm2"/>
+<circle cx="580.3" cy="296.3" r="2.3" class="hm2"/>
+<circle cx="601.9" cy="291.2" r="2.3" class="hm2"/>
+<circle cx="623.7" cy="260.2" r="2.3" class="hm2"/>
+<circle cx="645.7" cy="241.8" r="2.3" class="hm2"/>
+<circle cx="515.1" cy="299.9" r="2.3" class="hm2"/>
+<circle cx="537.2" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="559.3" cy="298.6" r="2.3" class="hm2"/>
+<circle cx="580.3" cy="297.7" r="2.3" class="hm2"/>
+<circle cx="601.9" cy="289.1" r="2.3" class="hm2"/>
+<circle cx="623.7" cy="263.4" r="2.3" class="hm2"/>
+<circle cx="645.7" cy="261.1" r="2.3" class="hm2"/>
+<circle cx="515.1" cy="299.7" r="2.3" class="hm2"/>
+<circle cx="537.2" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="559.3" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="580.3" cy="298.8" r="2.3" class="hm2"/>
+<circle cx="601.9" cy="289.6" r="2.3" class="hm2"/>
+<circle cx="623.7" cy="290.2" r="2.3" class="hm2"/>
+<circle cx="645.7" cy="258.2" r="2.3" class="hm2"/>
+<circle cx="535.7" cy="299.9" r="2.3" class="hm2"/>
+<circle cx="557.8" cy="298.3" r="2.3" class="hm2"/>
+<circle cx="579.8" cy="297.4" r="2.3" class="hm2"/>
+<circle cx="600.9" cy="294.7" r="2.3" class="hm2"/>
+<circle cx="622.5" cy="293.5" r="2.3" class="hm2"/>
+<circle cx="644.3" cy="286.3" r="2.3" class="hm2"/>
+<circle cx="666.2" cy="234.0" r="2.3" class="hm2"/>
+<circle cx="535.7" cy="299.3" r="2.3" class="hm2"/>
+<circle cx="557.8" cy="298.7" r="2.3" class="hm2"/>
+<circle cx="579.8" cy="298.4" r="2.3" class="hm2"/>
+<circle cx="600.9" cy="297.5" r="2.3" class="hm2"/>
+<circle cx="622.5" cy="292.1" r="2.3" class="hm2"/>
+<circle cx="644.3" cy="290.9" r="2.3" class="hm2"/>
+<circle cx="666.2" cy="260.4" r="2.3" class="hm2"/>
+<circle cx="535.7" cy="297.0" r="2.3" class="hm2"/>
+<circle cx="557.8" cy="298.3" r="2.3" class="hm2"/>
+<circle cx="579.8" cy="297.5" r="2.3" class="hm2"/>
+<circle cx="600.9" cy="298.5" r="2.3" class="hm2"/>
+<circle cx="622.5" cy="292.6" r="2.3" class="hm2"/>
+<circle cx="644.3" cy="290.5" r="2.3" class="hm2"/>
+<circle cx="666.2" cy="279.8" r="2.3" class="hm2"/>
+<circle cx="525.9" cy="299.6" r="2.3" class="hm2"/>
+<circle cx="548.0" cy="299.3" r="2.3" class="hm2"/>
+<circle cx="570.1" cy="298.2" r="2.3" class="hm2"/>
+<circle cx="591.1" cy="298.1" r="2.3" class="hm2"/>
+<circle cx="612.7" cy="292.1" r="2.3" class="hm2"/>
+<circle cx="634.5" cy="274.7" r="2.3" class="hm2"/>
+<circle cx="656.4" cy="228.3" r="2.3" class="hm2"/>
+<circle cx="525.9" cy="296.3" r="2.3" class="hm2"/>
+<circle cx="548.0" cy="293.8" r="2.3" class="hm2"/>
+<circle cx="570.1" cy="295.3" r="2.3" class="hm2"/>
+<circle cx="591.1" cy="296.7" r="2.3" class="hm2"/>
+<circle cx="612.7" cy="290.0" r="2.3" class="hm2"/>
+<circle cx="634.5" cy="268.2" r="2.3" class="hm2"/>
+<circle cx="656.4" cy="225.6" r="2.3" class="hm2"/>
+<circle cx="525.9" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="548.0" cy="295.2" r="2.3" class="hm2"/>
+<circle cx="570.1" cy="291.1" r="2.3" class="hm2"/>
+<circle cx="591.1" cy="291.6" r="2.3" class="hm2"/>
+<circle cx="612.7" cy="290.8" r="2.3" class="hm2"/>
+<circle cx="634.5" cy="290.2" r="2.3" class="hm2"/>
+<circle cx="656.4" cy="256.7" r="2.3" class="hm2"/>
+<circle cx="488.3" cy="299.7" r="2.3" class="hm2"/>
+<circle cx="510.4" cy="299.8" r="2.3" class="hm2"/>
+<circle cx="532.5" cy="297.9" r="2.3" class="hm2"/>
+<circle cx="553.5" cy="298.3" r="2.3" class="hm2"/>
+<circle cx="575.1" cy="297.1" r="2.3" class="hm2"/>
+<circle cx="596.9" cy="292.4" r="2.3" class="hm2"/>
+<circle cx="618.8" cy="244.3" r="2.3" class="hm2"/>
+<circle cx="488.3" cy="300.0" r="2.3" class="hm2"/>
+<circle cx="510.4" cy="299.7" r="2.3" class="hm2"/>
+<circle cx="532.5" cy="299.8" r="2.3" class="hm2"/>
+<circle cx="553.5" cy="296.8" r="2.3" class="hm2"/>
+<circle cx="575.1" cy="298.6" r="2.3" class="hm2"/>
+<circle cx="596.9" cy="292.9" r="2.3" class="hm2"/>
+<circle cx="618.8" cy="277.5" r="2.3" class="hm2"/>
+<circle cx="488.3" cy="299.5" r="2.3" class="hm2"/>
+<circle cx="510.4" cy="299.4" r="2.3" class="hm2"/>
+<circle cx="532.5" cy="299.6" r="2.3" class="hm2"/>
+<circle cx="553.5" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="575.1" cy="298.5" r="2.3" class="hm2"/>
+<circle cx="596.9" cy="293.8" r="2.3" class="hm2"/>
+<circle cx="618.8" cy="275.9" r="2.3" class="hm2"/>
+<circle cx="502.6" cy="300.0" r="2.3" class="hm2"/>
+<circle cx="524.7" cy="299.5" r="2.3" class="hm2"/>
+<circle cx="546.8" cy="297.9" r="2.3" class="hm2"/>
+<circle cx="567.9" cy="298.1" r="2.3" class="hm2"/>
+<circle cx="589.4" cy="294.5" r="2.3" class="hm2"/>
+<circle cx="611.2" cy="275.5" r="2.3" class="hm2"/>
+<circle cx="633.2" cy="235.1" r="2.3" class="hm2"/>
+<circle cx="502.6" cy="299.8" r="2.3" class="hm2"/>
+<circle cx="524.7" cy="299.6" r="2.3" class="hm2"/>
+<circle cx="546.8" cy="299.3" r="2.3" class="hm2"/>
+<circle cx="567.9" cy="298.5" r="2.3" class="hm2"/>
+<circle cx="589.4" cy="294.3" r="2.3" class="hm2"/>
+<circle cx="611.2" cy="288.5" r="2.3" class="hm2"/>
+<circle cx="633.2" cy="237.7" r="2.3" class="hm2"/>
+<circle cx="502.6" cy="299.4" r="2.3" class="hm2"/>
+<circle cx="524.7" cy="297.6" r="2.3" class="hm2"/>
+<circle cx="546.8" cy="296.1" r="2.3" class="hm2"/>
+<circle cx="567.9" cy="297.2" r="2.3" class="hm2"/>
+<circle cx="589.4" cy="297.8" r="2.3" class="hm2"/>
+<circle cx="611.2" cy="289.0" r="2.3" class="hm2"/>
+<circle cx="633.2" cy="268.0" r="2.3" class="hm2"/>
+<circle cx="505.1" cy="299.9" r="2.3" class="hm2"/>
+<circle cx="527.2" cy="299.8" r="2.3" class="hm2"/>
+<circle cx="549.3" cy="296.4" r="2.3" class="hm2"/>
+<circle cx="570.3" cy="297.1" r="2.3" class="hm2"/>
+<circle cx="591.9" cy="296.5" r="2.3" class="hm2"/>
+<circle cx="613.7" cy="282.2" r="2.3" class="hm2"/>
+<circle cx="635.7" cy="220.5" r="2.3" class="hm2"/>
+<circle cx="505.1" cy="299.8" r="2.3" class="hm2"/>
+<circle cx="527.2" cy="299.8" r="2.3" class="hm2"/>
+<circle cx="549.3" cy="299.3" r="2.3" class="hm2"/>
+<circle cx="570.3" cy="296.8" r="2.3" class="hm2"/>
+<circle cx="591.9" cy="297.7" r="2.3" class="hm2"/>
+<circle cx="613.7" cy="285.3" r="2.3" class="hm2"/>
+<circle cx="635.7" cy="251.6" r="2.3" class="hm2"/>
+<circle cx="505.1" cy="298.0" r="2.3" class="hm2"/>
+<circle cx="527.2" cy="296.0" r="2.3" class="hm2"/>
+<circle cx="549.3" cy="296.5" r="2.3" class="hm2"/>
+<circle cx="570.3" cy="296.9" r="2.3" class="hm2"/>
+<circle cx="591.9" cy="296.4" r="2.3" class="hm2"/>
+<circle cx="613.7" cy="283.7" r="2.3" class="hm2"/>
+<circle cx="635.7" cy="275.5" r="2.3" class="hm2"/>
+<circle cx="497.5" cy="300.0" r="2.3" class="hm2"/>
+<circle cx="519.5" cy="299.6" r="2.3" class="hm2"/>
+<circle cx="541.6" cy="297.7" r="2.3" class="hm2"/>
+<circle cx="562.7" cy="298.2" r="2.3" class="hm2"/>
+<circle cx="584.2" cy="292.9" r="2.3" class="hm2"/>
+<circle cx="606.0" cy="283.1" r="2.3" class="hm2"/>
+<circle cx="628.0" cy="246.5" r="2.3" class="hm2"/>
+<circle cx="497.5" cy="299.7" r="2.3" class="hm2"/>
+<circle cx="519.5" cy="299.7" r="2.3" class="hm2"/>
+<circle cx="541.6" cy="299.9" r="2.3" class="hm2"/>
+<circle cx="562.7" cy="298.9" r="2.3" class="hm2"/>
+<circle cx="584.2" cy="294.0" r="2.3" class="hm2"/>
+<circle cx="606.0" cy="285.5" r="2.3" class="hm2"/>
+<circle cx="628.0" cy="246.0" r="2.3" class="hm2"/>
+<circle cx="497.5" cy="298.7" r="2.3" class="hm2"/>
+<circle cx="519.5" cy="296.9" r="2.3" class="hm2"/>
+<circle cx="541.6" cy="296.2" r="2.3" class="hm2"/>
+<circle cx="562.7" cy="297.6" r="2.3" class="hm2"/>
+<circle cx="584.2" cy="297.5" r="2.3" class="hm2"/>
+<circle cx="606.0" cy="284.3" r="2.3" class="hm2"/>
+<circle cx="628.0" cy="246.5" r="2.3" class="hm2"/>
+<circle cx="582.9" cy="290.5" r="6.5" class="mk"/>
+<text x="551" y="334" class="flab mid">n/N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan></text>
+<text x="551" y="32" class="flab mid">(emptiest-arc density) / &#955;&#8344;&#7522;&#8345;</text>
+<text x="394" y="84" class="flab st">in the bulk: median 1.04,</text>
+<text x="394" y="101" class="flab st">max 1.81 (the envelope);</text>
+<text x="394" y="118" class="flab st">&#9711; the D*-window, 1.35</text>
+<text x="24" y="356" class="flab st">Left: minimising the weighted star discrepancy over the same coefficient family halves D*&#8339; and nearly doubles</text>
+<text x="24" y="374" class="flab st">N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan>, and &#955;&#8344;&#7522;&#8345; falls by a factor of 28 &#8212; so neither rh30&#8217;s coordinate nor the discrepancy that seemed to order its</text>
+<text x="24" y="392" class="flab st">failures is what the certificate sees. Right: what it does see. The Fej&#233;r average &#8747;K&#8345;d&#956; at the emptiest angle bounds</text>
+<text x="24" y="410" class="flab st">&#955;&#8344;&#7522;&#8345; above by a one-line test vector, and across all 336 points &#8212; all sixteen families, every outlier, the adversarial</text>
+<text x="24" y="428" class="flab st">window &#8212; the bound is tight to a factor below two throughout the bulk, detaching only past n &#8776; N<tspan	class="sb"	dy="3">eff</tspan><tspan	dy="-3"></tspan> where the</text>
+<text x="24" y="446" class="flab st">atoms are resolved.</text>
+</svg></div>
+<figcaption>The refutation of the discrepancy coordinate, and the emptiest-arc
+ratio across all 336 points.</figcaption></figure>
+
+<p>Across every bulk grid point — all sixteen families, the outliers that broke
+&#167;3&#8217;s collapse, and the adversarial window of &#167;4 — the ratio
+C<sub>n</sub>/&#955;<sub>min</sub> has median 1.04 and never exceeds
+1.81. The worst fit is the envelope window, the one whose heavy atoms
+are the first hundred <em>consecutive</em> zeros, at 1.81; every other
+family stays below 1.39. The D*-window of &#167;4 obeys the law at
+1.35: its tiny &#955;<sub>min</sub> is not an anomaly, it is the law
+reading a genuinely empty arc that the anchored discrepancy cannot see. Past
+n &#8776; N<sub>eff</sub> the ceiling detaches — reaching 1.2&#215;10&#179; on this
+grid — which is rh30&#8217;s regime where the atoms are resolved and no smooth
+test vector is optimal.</p>
+
+<p>This unifies the last three documents. rh30&#8217;s collapse was the shadow
+of the emptiest-arc law on a family whose emptiest arc happens to be a function
+of n/N<sub>eff</sub> — that is what sitting on the discrepancy floor does. The
+destruction&#8217;s outliers are windows whose emptiest arc is emptier than
+their N<sub>eff</sub> predicts. The D*-refutation is a window with small
+anchored discrepancy and a nearly-empty arc. One quantity, three
+explanations.</p>
+
+<p>And it is the right <em>kind</em> of quantity for rh30 &#167;10 (b). The
+missing inequality was named there as one that uses q = |p|&#178; &#8805; 0
+rather than its variation. The measured statement — &#955;<sub>min</sub>
+&#8805; C<sub>n</sub>(&#956;)/1.81 across everything tried — <em>is</em>
+a positivity statement: it says the minimising |p|&#178; concentrates its mass
+in the emptiest arc and can do only a bounded factor better than the
+Fej&#233;r bump that does the same. Proving that localisation, for atomic
+measures with equidistributed atoms, is now the sharpest available formulation
+of the arc&#8217;s one analytic question.</p>
+</section>
+
+<section id="s6">
+<h2>6 · The position laws</h2>
+
+<p>If &#955;<sub>min</sub> prices the emptiest arc, then with the weights
+flattened it should read the pure geometry of the wrapped ordinates
+{&#947;&#916;&#8242; mod 2&#960;}. Three reference geometries, m = 300 atoms
+each, mirrored as the measure is:</p>
+
+<p>The crystal first, because it has a one-line law. m equispaced atoms on
+(0,&#960;), mirrored, are 2m equispaced points on the circle, so E(k) = 0 for
+every 0 &lt; k &lt; 2m — verified to machine zero — and T<sub>n</sub> is the
+mass times the identity out to n = 2m. The crystal&#8217;s law is a step
+function: &#955;/mass = 1, then nothing.</p>
+
+<figure>
+<div class="fig-frame"><svg viewBox="0 0 740 486" role="img" aria-label="Lambda over mass against n over 2m for equal-weight atom sets: the mirrored crystal stays at one out to n equal to 2m; jittered crystals fall in an ordered family; twelve Poisson draws form a band; and the wrapped zero ordinates at six meshes ride that Poisson band, with one marginal excess at mesh 0.09.">
+<text x="370.0" y="21" class="ftitle">what position law do the wrapped ordinates obey?</text>
+<line x1="60" y1="274.7" x2="508" y2="274.7" class="grid"/>
+<text x="55" y="278.2" class="flab end">10&#8315;&#8308;</text>
+<line x1="60" y1="222.5" x2="508" y2="222.5" class="grid"/>
+<text x="55" y="226.0" class="flab end">10&#8315;&#179;</text>
+<line x1="60" y1="170.3" x2="508" y2="170.3" class="grid"/>
+<text x="55" y="173.8" class="flab end">10&#8315;&#178;</text>
+<line x1="60" y1="118.0" x2="508" y2="118.0" class="grid"/>
+<text x="55" y="121.5" class="flab end">10&#8315;&#185;</text>
+<line x1="60" y1="65.8" x2="508" y2="65.8" class="grid"/>
+<text x="55" y="69.3" class="flab end">10&#8304;</text>
+<text x="78.7" y="322" class="flab mid">0.1</text>
+<text x="218.7" y="322" class="flab mid">0.4</text>
+<text x="358.7" y="322" class="flab mid">0.7</text>
+<text x="498.7" y="322" class="flab mid">1</text>
+<line x1="60" y1="306" x2="508" y2="306" class="axis"/>
+<line x1="60" y1="58" x2="60" y2="306" class="axis"/>
+<path d="M60.0 65.8L484.7 65.8" class="ln1"/>
+<text x="265.3" y="58.8" class="flab mid hm3">the crystal: exactly 1 to n = 2m</text>
+<path d="M78.7 66.4L148.7 68.0L218.7 70.8L288.7 74.6L358.7 82.7L428.7 87.5L484.7 90.9" class="ln2" fill="none"/>
+<path d="M78.7 67.0L148.7 70.6L218.7 76.5L288.7 86.5L358.7 104.3L428.7 130.3L484.7 147.6" class="ln2 lnd" fill="none"/>
+<path d="M78.7 68.2L148.7 75.3L218.7 89.7L288.7 108.1L358.7 158.1L428.7 194.7L484.7 286.9" class="lnm" fill="none"/>
+<path d="M78.7 77.7L148.7 93.5L218.7 128.0L288.7 197.0L358.7 302.0" class="ln4 lnd" fill="none"/>
+<path d="M78.7 87.5L148.7 136.9L218.7 225.4L288.7 306.0" class="ln4" fill="none"/>
+<circle cx="78.7" cy="79.8" r="2.6" class="hm1"/>
+<circle cx="148.7" cy="116.1" r="2.6" class="hm1"/>
+<circle cx="218.7" cy="167.2" r="2.6" class="hm1"/>
+<circle cx="288.7" cy="246.2" r="2.6" class="hm1"/>
+<circle cx="358.7" cy="306.0" r="2.6" class="hm1"/>
+<circle cx="78.7" cy="78.9" r="2.6" class="hm1"/>
+<circle cx="148.7" cy="119.9" r="2.6" class="hm1"/>
+<circle cx="218.7" cy="173.0" r="2.6" class="hm1"/>
+<circle cx="288.7" cy="277.4" r="2.6" class="hm1"/>
+<circle cx="358.7" cy="306.0" r="2.6" class="hm1"/>
+<circle cx="78.7" cy="73.9" r="2.6" class="hm1"/>
+<circle cx="148.7" cy="91.3" r="2.6" class="hm1"/>
+<circle cx="218.7" cy="136.6" r="2.6" class="hm1"/>
+<circle cx="288.7" cy="184.0" r="2.6" class="hm1"/>
+<circle cx="358.7" cy="299.2" r="2.6" class="hm1"/>
+<circle cx="428.7" cy="306.0" r="2.6" class="hm1"/>
+<circle cx="78.7" cy="80.5" r="2.6" class="hm1"/>
+<circle cx="148.7" cy="100.4" r="2.6" class="hm1"/>
+<circle cx="218.7" cy="136.4" r="2.6" class="hm1"/>
+<circle cx="288.7" cy="241.8" r="2.6" class="hm1"/>
+<circle cx="358.7" cy="306.0" r="2.6" class="hm1"/>
+<circle cx="78.7" cy="81.8" r="2.6" class="hm1"/>
+<circle cx="148.7" cy="120.0" r="2.6" class="hm1"/>
+<circle cx="218.7" cy="190.4" r="2.6" class="hm1"/>
+<circle cx="288.7" cy="291.1" r="2.6" class="hm1"/>
+<circle cx="358.7" cy="306.0" r="2.6" class="hm1"/>
+<circle cx="78.7" cy="80.0" r="2.6" class="hm1"/>
+<circle cx="148.7" cy="123.4" r="2.6" class="hm1"/>
+<circle cx="218.7" cy="190.0" r="2.6" class="hm1"/>
+<circle cx="288.7" cy="272.2" r="2.6" class="hm1"/>
+<circle cx="358.7" cy="306.0" r="2.6" class="hm1"/>
+<circle cx="148.7" cy="91.3" r="6.5" class="mk"/>
+<text x="60" y="358" class="flab st hm2">&#8212; jitter &#188;, &#189; spacing</text>
+<text x="230" y="358" class="flab st hmo">&#8212; jitter 1</text>
+<text x="308" y="358" class="flab st hm4">&#8212; Poisson: median, largest of 12</text>
+<circle cx="66" cy="372" r="2.6" class="hm1"/>
+<text x="74" y="376" class="flab st hm1">the ordinates, wrapped at six meshes</text>
+<circle cx="314" cy="372" r="5" class="mk"/>
+<text x="324" y="376" class="flab st c4">&#916;&#8242; = 0.09: above all twelve draws, by 10%</text>
+<text x="284" y="340" class="flab mid">n / 2m &nbsp; (m = 300 atoms, equal weights, mirrored)</text>
+<text x="546" y="62" class="flab st">The crystal lemma is one</text>
+<text x="546" y="79" class="flab st">line: m equispaced atoms</text>
+<text x="546" y="96" class="flab st">mirrored are 2m equispaced</text>
+<text x="546" y="113" class="flab st">points, so E(k) = 0 for 0</text>
+<text x="546" y="130" class="flab st">< k < 2m and the law is a</text>
+<text x="546" y="147" class="flab st">step. The ordinates are</text>
+<text x="546" y="164" class="flab st">nowhere near it: at every</text>
+<text x="546" y="181" class="flab st">mesh tried they ride the</text>
+<text x="546" y="198" class="flab st">Poisson band, a factor of</text>
+<text x="546" y="215" class="flab st">eight below even the</text>
+<text x="546" y="232" class="flab st">full-spacing jitter.</text>
+<text x="546" y="257" class="flab st c4">So at the arc's scales the</text>
+<text x="546" y="274" class="flab st c4">certificates measure</text>
+<text x="546" y="291" class="flab st c4">equidistribution. GUE</text>
+<text x="546" y="308" class="flab st c4">rigidity is invisible at</text>
+<text x="546" y="325" class="flab st c4">this resolution, and</text>
+<text x="546" y="342" class="flab st c4">lambda is not a rigidity</text>
+<text x="546" y="359" class="flab st c4">meter.</text>
+<text x="24" y="398" class="flab st">Equal weights isolate the POSITIONS, which rh30&#8217;s controls showed carry the floor. The wrapped ordinate &#916;&#8242;&#183;&#947; mod 2&#960;</text>
+<text x="24" y="416" class="flab st">steps a fraction of a turn per zero, so neighbours on the circle are zeros far apart on the line, and the local GUE</text>
+<text x="24" y="434" class="flab st">structure never arrives at the circle&#8217;s scale &#8212; what remains is equidistribution, which is exactly what the</text>
+<text x="24" y="452" class="flab st">emptiest-arc law of the previous figure prices.</text>
+</svg></div>
+<figcaption>Crystal, jittered crystal, Poisson band, and the wrapped ordinates
+at six meshes.</figcaption></figure>
+
+<p>Between the crystal and Poisson noise runs the jitter family — crystal plus
+uniform jitter of &#177;&#945; spacings — and it is cleanly ordered: at
+n/(2m) = 0.55 the medians run 0.68, 0.40, 0.16 as &#945; grows from &#188; to 1,
+with Poisson below 10&#8315;&#179;. The wrapped ordinates, at all six meshes
+from 0.05 to 0.24, ride the Poisson band: at n/(2m) = 0.4 every mesh sits
+<em>inside</em> the twelve-draw band, the largest at 0.69 of the largest
+draw and a factor of 7.8 below even the full-spacing jitter. One marginal
+excess survives: at &#916;&#8242; = 0.09 the mid-bulk value 0.325 clears all
+twelve Poisson draws — by 10%. The other five meshes run 0.08 to 0.22, inside
+the band. It is arithmetic in the mesh, not a property of the ordinates
+alone.</p>
+
+<p>The sober conclusion: at the arc&#8217;s scales the certificates measure
+<em>equidistribution</em>. The wrapped ordinate steps a fraction of a turn per
+zero, so neighbours on the circle are zeros far apart on the line, and GUE
+rigidity never arrives at the circle&#8217;s scale. &#955;<sub>min</sub> is not
+a rigidity meter — a temptation rh30 &#167;9 flirted with, now measured away.</p>
+</section>
+
+<section id="s7">
+<h2>7 · Where the conjunction stands</h2>
+
+<p>Nine certified points, unchanged by design. What changed is that the arc now
+knows what its certificates are made of, at three levels of exactness:</p>
+
+<dl class="dict">
+<dt>exactly</dt>
+<dd>&#955;<sub>min</sub> is the uniform content of &#956; at resolution n
+(&#167;2, a theorem), and the atomic remainder is constructible, positive, and
+sits on the heavy atoms.</dd>
+<dt>to a measured factor below two</dt>
+<dd>&#955;<sub>min</sub> is the emptiest-arc Fej&#233;r density (&#167;5),
+across sixteen families, three meshes, seven depths, every outlier and one
+adversarial window. No counterexample found, including by construction aimed
+at the neighbouring quantity.</dd>
+<dt>and not at all</dt>
+<dd>&#955;<sub>min</sub> is not a function of n/N<sub>eff</sub> (&#167;3
+breaks rh30&#8217;s law off its native family), not a function of the anchored
+discrepancy (&#167;4 refutes it by construction), and not a GUE-rigidity meter
+(&#167;6).</dd>
+</dl>
+
+<p>The conjunction-shaped statement this leaves is sharper than the one rh30
+left. Then: &#8220;prove the collapse.&#8221; Now: <em>prove that for a
+positive atomic measure the minimising nonnegative polynomial localises — that
+&#955;<sub>min</sub> &#8805; c&#183;min<sub>&#952;</sub>&#8747;K<sub>n</sub>
+d&#956; for an absolute constant c, in the regime n below the resolved-atom
+count.</em> The measured c is 1/1.81 on everything tried. A proof would
+convert every emptiest-arc computation — which is elementary, no eigenvalue
+needed — into a certified floor, for every window at once. That is a family
+statement, it quantifies over the same objects Weil&#8217;s criterion does,
+and it is false past the bulk, so its boundary is part of its content.</p>
+
+<p>It should be said plainly that this is still a statement about forms, not
+about &#950;. But it is the first question the arc has produced where the
+obstruction is a single, clean localisation lemma with a measured constant —
+not five decades of lost ground (rh30 &#167;5), not a conspiracy (rh29
+&#167;7), not a search (rh22&#8211;27).</p>
+</section>
+
+<section id="s8">
+<h2>8 · What this document leaves</h2>
+
+<dl class="dict">
+<dt>(a) the localisation lemma</dt>
+<dd>Prove &#955;<sub>min</sub> &#8805; c&#183;C<sub>n</sub>(&#956;) for
+n &#8804; N<sub>eff</sub>-ish resolutions, atomic &#956;, absolute c. The
+measured c is 1/1.81 &#8776; 0.55; the natural tools are the ones rh30 &#167;10 named
+(Beurling&#8211;Selberg, one-sided approximants) now aimed at a localisation
+rather than a global floor. Fail honestly: find the measure that drives c to
+zero, which would itself be a structure statement about where certificates
+die.</dd>
+<dt>(b) the envelope anomaly</dt>
+<dd>The one family at 1.81 rather than &#8804; 1.39 is the one
+whose heavy atoms are consecutive zeros. Consecutive wrapped ordinates carry
+the only long-range structure &#167;6 detected (the &#916;&#8242; = 0.09
+excess). Whether the envelope&#8217;s worse fit and the 0.09 excess are the
+same arithmetic phenomenon is a cheap, sharp question.</dd>
+<dt>(c) the certified set stays closed</dt>
+<dd>Standing order from rh30, renewed. The machinery idles until (a) either
+produces a lemma — at which point every emptiest-arc number becomes a
+certificate wholesale — or produces the counterexample measure, at which point
+the arc will finally know what a certificate cannot be made of.</dd>
+</dl>
+
+<p class="foot">47 named checks in 116 s. Four computed SVG
+figures, light and dark verified. Anchors and CSS classes audited against
+rh4&#8211;rh30. No new certificates. Previous: <a href="rh30.html">rh30 · how
+many atoms the window can see</a>.</p>
+</section>
+
+
+</div>
+</body>
+</html>

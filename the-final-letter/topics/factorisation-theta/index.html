@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factorisation and theta — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.6rem;font-size:1.08rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.warn{background:#fff8e6;border:1px solid #ead9a8;padding:1rem 1.2rem;border-radius:8px}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+pre{background:#f3f5f7;border:1px solid #dde3ea;padding:.8rem 1rem;border-radius:6px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+ul,ol{padding-left:1.4rem}
+</style></head><body>
+
+<h1>Factorisation and theta</h1>
+<p class="sub">A reconstructed research programme: finite formal core, exact computation, and an open theta–zeta bridge</p>
+
+<div class="top"><p><strong>Status.</strong> Speculative essay vein. The finite detector algebra and finite theta sums are reconstructed and checked; the theta–zeta bridge and every analytic limit remain source claims or open items. Full provenance, theorem ledger, and usage are in <a href="README.md">README.md</a>.</p></div>
+
+<h2>Provenance and source assessment</h2>
+<p>The source is a single short HTML essay, <a href="../../archive/essays/factorisation-theta-zeta.html">“The Theta Function and Its Mathematical Connections”</a> (about 10 KB, seven prose sections). It has no numbered theorem environments, no proofs beyond substitution and differentiation, and no bibliography. Its content is a chain: the divisor detector, the claim that its roots are exactly the integer divisors of <code>k</code>, the classical theta function, a Mellin-transform sketch of the zeta functional equation, and a finite divisor theta sum. The essay itself concedes that a direct map from the detector to theta is “elusive” and that the correspondence “remains indirect”.</p>
+<p>It is therefore an expository, speculative vein, not a proof of new arithmetic. <strong>Nothing in it states or proves the Riemann hypothesis.</strong> The only bridge to zeta is the standard theta–Mellin derivation, quoted without convergence or continuation details. This dossier formalises the genuine elementary layer and keeps the analytic bridge explicitly open.</p>
+<p>One erratum: the source writes the derivative of <code>cos(2πk/x)</code> with a leading minus sign. The correct derivative is <code>+(2πk/x²) sin(2πk/x)</code>. The conclusion <code>f'(d)=0</code> at a divisor is unaffected, and the computation layer certifies the correct second derivative.</p>
+
+<h2>Reconstructed objects and notation</h2>
+<table>
+<thead><tr><th>Object</th><th>Definition</th><th>Role in the source</th></tr></thead>
+<tbody>
+<tr><td>Divisor detector</td><td><code>f_k(x) = cos(2πk/x) + cos(2πx) − 2</code>, <code>k ∈ ℕ₊</code>, <code>x ≠ 0</code></td><td>Roots at divisors of <code>k</code></td></tr>
+<tr><td>Integer divisors</td><td><code>D(k) = {d ∈ ℤ : d ∣ k}</code></td><td>Root set claimed by the source</td></tr>
+<tr><td>Detector multiplicity</td><td><code>f_k(d) = f_k'(d) = 0</code>, <code>f_k''(d) = −4π²((k/d)²/d² + 1) ≠ 0</code></td><td>“Double zeros” claim</td></tr>
+<tr><td>Theta function</td><td><code>θ(t) = Σ_{n∈ℤ} e^{−πn²t}</code>, <code>t &gt; 0</code></td><td>Classical object introduced in §4</td></tr>
+<tr><td>Finite theta sum</td><td><code>Θ_N(t) = Σ_{n=0}^{N−1} e^{−πn²t}</code></td><td>Truncation used in the formal core</td></tr>
+<tr><td>Divisor theta sum</td><td><code>s_k(t) = Σ_{d∈D(k)} e^{−πd²t}</code></td><td>Source’s finite “restricted theta”</td></tr>
+<tr><td>Zeta</td><td><code>ζ(s) = Σ n^{−s}</code> for <code>Re s &gt; 1</code>, then by continuation</td><td>Only reached through the classical Mellin sketch</td></tr>
+</tbody>
+</table>
+
+<h2>Theorem ledger</h2>
+<p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>. Every <strong>Computation</strong> row is exercised in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>. Source claims and open items are <em>not</em> theorems of this reconstruction.</p>
+<p>The Lean definition uses totalised division, so <code>divisorDetector k 0 = 0</code> and both cosines equal <code>1</code> at <code>x = 0</code>. That is a Lean convention, not a claim that <code>0</code> divides <code>k</code>; T4/T5 are stated for non-zero inputs. The Python layer rejects <code>x = 0</code>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean / test name</th></tr></thead>
+<tbody>
+<tr><td>T1</td><td>Theorem</td><td>The detector is non-positive: <code>f_k(x) ≤ 0</code> for all real <code>x</code> (total convention at <code>x = 0</code>).</td><td><code>FactorisationTheta.divisorDetector_nonpos</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td><code>f_k(x) = 0</code> iff both cosines equal <code>1</code>.</td><td><code>FactorisationTheta.divisorDetector_eq_zero_iff</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>The detector is even: <code>f_k(−x) = f_k(x)</code>, so roots come in <code>±d</code> pairs.</td><td><code>FactorisationTheta.divisorDetector_neg</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>Every non-zero divisor <code>d</code> of <code>k</code> is a root: <code>f_k(d) = 0</code>.</td><td><code>FactorisationTheta.divisorDetector_of_dvd</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>For a non-zero integer <code>x</code>, <code>f_k(x) = 0 ↔ x ∣ k</code>.</td><td><code>FactorisationTheta.divisorDetector_eq_zero_iff_dvd</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>The finite theta sum is positive when non-empty: <code>0 &lt; Θ_N(t)</code> for <code>N &gt; 0</code>.</td><td><code>FactorisationTheta.finiteTheta_pos</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>The finite theta sum is antitone in <code>t</code>: <code>t₁ ≤ t₂ → Θ_N(t₂) ≤ Θ_N(t₁)</code>.</td><td><code>FactorisationTheta.finiteTheta_antitone</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>Every signed integer divisor of <code>k ∈ {1,2,6,12}</code> is an exact root.</td><td><code>test_divisor_detector_roots_at_all_integer_divisors</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>Non-divisors are not roots: <code>f_6(4) = −2</code>, <code>f_6(9) = −3/2</code>, plus a numerical grid on <code>k = 12</code>.</td><td><code>test_divisor_detector_is_negative_off_divisors</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>Divisors are exactly double zeros: <code>f''(d) = −4π²((k/d)²/d² + 1) ≠ 0</code> for all positive divisors of <code>12</code>.</td><td><code>test_divisors_are_double_zeros</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td><code>s_k(t) = 2 Σ_{d|k,d&gt;0} e^{−πd²t}</code> exactly, for <code>k ∈ {1,6,12,36}</code>.</td><td><code>test_divisor_theta_is_twice_the_positive_side</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td><code>Θ_N(t) &gt; 0</code> and <code>Θ_N</code> decreases on a grid; edge case <code>Θ_0(t) = 1</code>.</td><td><code>test_finite_theta_positive_and_antitone</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>Truncated <code>θ(1/t) = √t θ(t)</code> residual <code>&lt; 10⁻⁴⁰</code> at 50 digits for <code>t ∈ {0.7, 1, 2}</code> (numerical evidence only).</td><td><code>test_theta_functional_equation_numerically</code></td></tr>
+</tbody>
+</table>
+<p>The edge-case and input-validation checks live in <code>test_invalid_inputs_and_edge_cases</code>; they are supporting tests, not ledger rows.</p>
+
+<h2>Source claims (not promoted to theorems)</h2>
+<table>
+<thead><tr><th>Claim</th><th>Source status</th><th>Reconstruction note</th></tr></thead>
+<tbody>
+<tr><td>The roots of <code>f_k</code> are precisely the integer divisors of <code>k</code>, positive and negative.</td><td>Source assertion, §2</td><td>T4 gives divisor ⇒ root and T5 gives root ⇒ divisor for non-zero <strong>integer</strong> inputs. The reduction from an arbitrary real root to an integer input is not formalised in Lean. C1/C2 test the finite cases.</td></tr>
+<tr><td>Every root is a double zero.</td><td>Source assertion, §2</td><td>The source’s derivative display has a sign typo. C3 checks <code>f(d)=f'(d)=0</code> and <code>f''(d)≠0</code> for <code>k=12</code>; the general Lean statement of multiplicity is not formalised.</td></tr>
+<tr><td><code>ζ(s)² = Σ τ(n) n^{−s}</code> for <code>Re s &gt; 1</code>.</td><td>Source = classical Dirichlet-series identity</td><td>Not formalised; background only.</td></tr>
+<tr><td><code>θ(t) &gt; 0</code> for all <code>t &gt; 0</code>, with no real zeros.</td><td>Source assertion, §4</td><td>T6 proves positivity of the finite truncation only. The infinite statement is not formalised.</td></tr>
+<tr><td><code>θ(1/t) = √t θ(t)</code>.</td><td>Source = classical theta functional equation, attributed to Poisson summation</td><td>Not formalised. C6 is a numerical truncation check, not a proof.</td></tr>
+<tr><td>The Mellin transform of <code>(θ(t)−1)/2</code> gives <code>π^{−s/2} Γ(s/2) ζ(s)</code> and, after splitting at <code>1</code>, the zeta functional equation.</td><td>Source sketch, §5</td><td>Not formalised. Requires measure theory, the incomplete gamma integral, and analytic continuation.</td></tr>
+<tr><td><code>s_k(t) = 2 Σ_{d|k,d&gt;0} e^{−πd²t}</code>.</td><td>Source assertion, §6</td><td>C4 verifies it exactly; it is a finite identity, not an infinite-theta result.</td></tr>
+<tr><td>A direct expression of <code>f_k</code> in terms of <code>θ</code> exists.</td><td>Source explicitly says this is elusive/indirect</td><td>Recorded as open; no formula is asserted by the source.</td></tr>
+</tbody>
+</table>
+
+<h2>Open items and gaps</h2>
+<ol>
+<li><strong>No zeta or RH theorem.</strong> The source does not state RH and proves nothing about the zeros of <code>ζ</code>. The theta–Mellin route is the ordinary classical construction; it is not a new proof of the functional equation, and it says nothing about the critical line.</li>
+<li><strong>Real-root characterisation.</strong> Extend T5 from integer inputs to all real <code>x ≠ 0</code> in Lean, using <code>Real.cos_eq_one_iff</code> twice.</li>
+<li><strong>Exact multiplicity in general.</strong> Formalise <code>f_k''(d) = −4π²((k/d)²/d² + 1) ≠ 0</code> for all positive divisors, not only the tested <code>k = 12</code> cases.</li>
+<li><strong>Infinite theta algebra.</strong> Formalise convergence of <code>θ(t)</code>, its positivity, and the functional equation. This needs Poisson summation or the classical modular transformation.</li>
+<li><strong>Mellin/zeta bridge.</strong> Formalise the Mellin transform computation and the zeta functional equation, including convergence and continuation. Deliberately left open.</li>
+<li><strong>The <code>f_k</code>–<code>θ</code> dictionary.</strong> The source itself concedes that no precise mapping is known. Any such dictionary would be a new conjecture, not a result of this essay.</li>
+</ol>
+
+<h2>Python layer</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> uses sympy for exact work: <code>divisor_detector</code> and its derivatives, <code>positive_divisors</code>/<code>integer_divisors</code>, <code>double_zero_certificate</code>, <code>divisor_theta</code>/<code>divisor_theta_positive_side</code>, <code>finite_theta</code>, <code>functional_equation_residual</code>, and <code>detector_sign_on_integers</code>.</p>
+<pre><code>cd the-final-letter/topics/factorisation-theta
+python3 -m pytest -q tests</code></pre>
+<p>Recorded result: <strong>20 passed</strong> (7 test functions, several parametrised), in under 20 seconds (about 1 second warm). Numerical assertions state their tolerance in the test names/docstrings (<code>1e−30</code> for sign and monotonicity checks, <code>1e−40</code> for the functional-equation residual).</p>
+
+<h2>Lean layer</h2>
+<p><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> imports Mathlib, opens the namespace <code>FactorisationTheta</code>, and proves T1–T7. It contains no <code>sorry</code>, <code>axiom</code>, or <code>admit</code>.</p>
+<pre><code>cd the-final-letter/topics/factorisation-theta
+./lean/check.sh</code></pre>
+<p>Recorded build: <a href="lean/BUILD.log"><code>lean/BUILD.log</code></a>. What is and is not formalised is explained in <a href="lean/README.md"><code>lean/README.md</code></a>.</p>
+
+<div class="warn"><p><strong>Honesty note.</strong> The archived essay is short and speculative. Its divisor-root statements are elementary and are reconstructed here; its theta functional equation and Mellin/zeta bridge are classical source claims, not theorems of this programme. No Riemann-hypothesis claim is made or implied.</p></div>
+
+<h2>Provenance and links</h2>
+<ul>
+<li><a href="../../archive/essays/factorisation-theta-zeta.html">Source essay: “The Theta Function and Its Mathematical Connections”</a></li>
+<li><a href="../../scraps.html">Scraps inventory</a> · item 43</li>
+<li><a href="../README.md">Topic index</a> · <a href="../PROGRAMME-STANDARD.md">Programme standard</a></li>
+</ul>
+
+<p class="meta"><a href="README.md">README</a> · <a href="../README.md">Topics</a> · <a href="../../scraps.html">Scraps</a> · <a href="../../index.html">The Final Letter</a></p>
+</body></html>

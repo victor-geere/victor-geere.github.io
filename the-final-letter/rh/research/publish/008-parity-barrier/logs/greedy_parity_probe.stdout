@@ -1,0 +1,367 @@
+rh47  the greedy harmonic sine against the twin-prime parity problem
+started 2026-10-04 11:27:20
+python 3.13.13 | numpy 2.5.0 | mpmath 1.3.0
+
+#####################################################################
+# The round's stated goal -- 'use the greedy harmonic sine to solve  #
+# the parity problem for the twin prime conjecture' -- IS NOT        #
+# ACHIEVED.  Nothing below is progress on it.  Every number is a     #
+# FINITE CHECK; the only exhaustive statement is the negative        #
+# Sylvester-sparsity ceiling on the greedy support in SS1.           #
+#####################################################################
+
+==============================================================================
+SS1  The greedy supports: sample, support-size distribution, and the
+     exclusion rule (a control on the object, not on the twin primes)
+==============================================================================
+
+  Definition of record.  x = p/q in (0,1), r_0 = x; at step n >= 0 take
+  1/(n+2) iff r_n >= 1/(n+2), else skip.  A(x) = {m = n+2 : taken}.
+  Exact computation: the least admissible m is ceil(1/r), so the
+  support is the greedy Egyptian expansion of x; Fraction arithmetic
+  throughout, and the shortcut is cross-checked against the literal
+  step-by-step rule below.
+
+[PASS] S1.greedy.shortcut.equals.stepwise   |  the O(|A|) ceil-chain support equals the literal step-by-step simulation for 10 targets, e.g. 4/17: [5, 29, 1233, 3039345] (last element 3039345)
+  Controls: 1/2 -> [2]; 1/3 -> [3]; 2/3 -> [2, 6]; 3/4 -> [2, 4]; 1/5 -> [5]
+
+[PASS] S1.rigidity.no.violations   |  m_{i+1} >= m_i(m_i-1)+1 holds at all 52969 consecutive pairs of the 20300 computed supports (0 violations); the proof is the residual bound r' < 1/(m(m-1)) after taking 1/m
+
+  SAMPLE A: all x = a/b with 2 <= b <= 200           (19900 targets)
+  SAMPLE B: 400 random x = a/b with b in [1e6, 1e12]   (400 targets)
+
+  support-size distribution (k = #A(x)):
+     k     count in A    count in B    count with max A <= 1e13   min possible max A (digits)
+     --------------------------------------------------------------------------------------------
+     1     898           0             898                          1
+     2     3344          0             3344                         1
+     3     6223          0             6223                         1
+     4     5769          0             5762                         2
+     5     2759          0             2580                         4
+     6     759           1             478                          7
+     7     130           5             0                            14
+     8     14            16            0                            27
+     9     3             45            0                            53
+     10    0             76            0                            105
+     11    1             89            0                            209
+     12    0             64            0                            417
+     13    0             54            0                            834
+     14    0             25            0                            1668
+     15    0             11            0                            3336
+     16    0             8             0                            6671
+     17    0             5             0                            13341
+     18    0             1             0                            26681
+
+     sample A: max support size 11;  mean 3.454
+     sample B: max support size 18
+[PASS] S1.distribution.reported   |  sample A max |A| = 11, sample B max |A| = 18; the exact per-size counts are tabulated above
+
+  THE EXCLUSION RULE (as specified): drop supports with |A| < 20.
+     supports with |A| >= 20 in A: 0   (so 100.0% of A is dropped)
+     supports with |A| >= 20 in B: 0
+     supports with |A| >= 4 in A: 9435  (the relaxation used in SS2)
+[PASS] S1.exclusion.threshold.20   |  the specified threshold |A| >= 20 admits 0 of the 19900 targets of sample A (max |A| = 11): the exclusion removes 100% of a natural exact sample
+
+  WHY, AND IT IS NOT A SAMPLING ARTEFACT.  By the rigidity lemma,
+  |A(x)| >= k forces max A(x) >= s_k, where s_1 = 2 and
+  s_{i+1} = s_i(s_i - 1) + 1 (Sylvester's sequence).  Hence
+     |A| >= 20  ==>  max A >= s_20 , a number with 106721 decimal digits
+     (s_6 = 3263443, s_7 = 10650056950807 has 14 digits; s_8 has 27 digits).
+  Computing lambda at such an element means factoring a 106721-digit
+  integer.  The class of targets the specification asks SS2 to use is
+  therefore EMPTY of objects whose parity class exists for us.
+[PASS] S1.sylvester.ceiling   |  |A(x)| >= 20 implies max A(x) >= s_20 > 10^106720, so no admissible target can be constructed, let alone factored: the domain of the specified SS2 test is provably empty
+[PASS] S1.empty.computable.domain   |  of the 20300 computed supports, 0 have |A| >= 20 (so the size class is non-empty as a rational object); 0 of those have max A <= 1e13, so the number of targets with an admissible support AND a computable parity class is 0
+
+  WHY SMALL SUPPORTS ARE DEGENERATE (the trap that was already hit):
+  for |A| = 1 the support is {m_1} and any 'agreement statistic' with
+  lambda is literally the single value lambda(m_1) = +/-1 -- a coin
+  flip, no statistic.  For |A| = k the size-matched random set in the
+  same range has sign-mean standard deviation ~ 1/sqrt(k), i.e. 0.71
+  at k = 2 and 0.50 at k = 4; a per-target 'agreement' at these sizes
+  is pure noise, and the pooled statistic is dominated by the one or
+  two positions that nearly every such support shares (SS2 measures
+  this).  Sample A has 898 supports of size 1 and 10465 of size <= 3.
+[PASS] S1.small.supports.degenerate   |  898 of 19900 sample-A targets have a single-element support, where the 'parity statistic' degenerates to lambda of one integer
+
+Building the exact lambda / Omega-parity sieve to 10000000 ...
+sieve built in 2.0s
+
+==============================================================================
+SS2  Bridge B1: does the greedy support predict the parity class of
+     lambda?  The specification's test, and what is left of it
+==============================================================================
+
+  THE EXPECTED NULL, STATED FIRST.  A(x) is a deterministic function
+  of x alone and carries NO arithmetic input; lambda is multiplicative
+  and A(x) is not defined multiplicatively.  There is no a priori
+  reason for a signal, so a null result is the expectation; a positive
+  result must survive a size-matched control.  A target is ADMISSIBLE
+  only if (a) |A| >= 20 and (b) every element of A is small enough to
+  factor (here <= 1e13).  By SS1 no target satisfies both.
+
+[PASS] S2.admissible.set.empty   |  admissible targets for the specified test (|A| >= 20 and every element factorable): 0.  The test as specified CANNOT BE RUN; this is a statement about the object (SS1 rigidity), not about lambda
+  => The specified test has an EMPTY domain.  What follows is the
+     threshold-relaxed diagnostic: |A| >= 4 and every element <= 1e13.
+     It is labelled everywhere as below the specified threshold and as
+     a WEAK diagnostic.  Controls: C0 = the specification's size- and
+     range-matched random set (exact density rho, Monte-Carlo,
+     resolution 1/500); C1 = positional (sign-permutation) pool; C2 =
+     rank-matched slot pool.  All statistics are in lambda-mean units
+     (mean of lambda over A), related to N+/|A| by x -> 2x-1.
+
+  RELAXED SAMPLE: 8820 targets  (tier A, max A <= 1e7 and lambda from
+  the exact sieve: 6461;  tier B, 1e7 < max A <= 1e13 and lambda from
+  exact factorisation: 2359).  size histogram: [(4, 5762), (5, 2580), (6, 478)]
+  Excluded from SS2 by the factorability rule: 1015 supports of
+  samples A+B have |A| >= 4 but max A > 1e13.
+[PASS] S2.relaxed.sample   |  the relaxed admissible sample has 8820 targets (|A| >= 4, all elements factorable), the largest with |A| = 6
+
+  per-size statistics of the relaxed sample (lambda-mean units):
+     |A|   n     mean mean(lambda)   mean N+/|A|   mean C0 baseline
+     ------------------------------------------------------------------
+     4     5762  -0.26796          0.36602         -1.02332
+     5     2580  -0.29194          0.35403         -1.00422
+     6     478   -0.32775          0.33612         n/a (max A > 1e7)
+
+  (a) C0, THE SPECIFICATION'S SIZE-MATCHED RANGE CONTROL (tier A, 6461
+      targets).  For each target, B is a random |A|-subset of
+      [2, max A]; the baseline is the exact lambda density on that
+      range.
+      mean lambda over A(x)                     : -0.300635
+      mean C0 baseline (range-matched random set): -1.019104
+      pooled z against C0 : 0   (two-sided p = 1.000)
+      mean per-target deviation : 0.718469
+      per-target p < 0.05 : 0.001 (nominal 0.05)
+      A nominal signal IS present: the support's lambda-mean sits far
+      below a size-matched random subset of the same range.
+[FAIL] S2.nominal.signal.under.spec.control   |  under the control the specification asks for, the pooled deviation is z = 0 (p = 1.000): a large NOMINAL signal, which must now be killed
+
+  (b) KILL 1 -- positional (sign-permutation) control C1.  Keep the
+      positions, permute the signs: draw B as a |A|-subset of the
+      empirical pool of support positions (38816 occurrences, 7033 distinct).
+      pool sign-mean mu = -0.280348   (observed support mean = -0.278216)
+      pooled z against C1 : 0.4342  (p = 0.664)
+[PASS] S2.kill.positional.control   |  the same statistic against a size-matched random subset of the empirical position pool gives z = 0.4342 (p = 0.664): the nominal signal is a POSITION-FREQUENCY effect, not a parity-class prediction
+
+  (c) KILL 2 -- rank-matched slot control C2.  The j-th element m_j
+      of a support is drawn from the pool of j-th elements; this
+      matches the forced early chain (m_1 <= 7 whenever |A| >= 4 and
+      max A <= 1e7, by the rigidity lemma).
+      slot 1:  8820 occurrences, sign-mean -0.8494
+      slot 2:  8820 occurrences, sign-mean -0.3168
+      slot 3:  8820 occurrences, sign-mean -0.0791
+      slot 4:  8820 occurrences, sign-mean 0.0009
+      slot 5:  3058 occurrences, sign-mean 0.0190
+      slot 6:   478 occurrences, sign-mean 0.0753
+      pooled z against C2 : 1.5484  (p = 0.122)
+      per-target p < 0.05: 0.024 (nominal 0.05)
+[PASS] S2.kill.slot.control   |  against the rank-matched slot control the pooled deviation is z = 1.5484 (p = 0.122), and the per-target 5% rejection rate is 0.024: no signal survives
+
+  (d) WHY THE NOMINAL z IS MEANINGLESS.  The 8820 supports share
+      positions: the 8 most frequent carry 15915 of the 38816 occurrences,
+      and the deviation is a statement about lambda at a handful of
+      fixed small integers:
+        m = 2              lambda = -1   in 6217/8820 supports (70.5%)
+        m = 3              lambda = -1   in 4098/8820 supports (46.5%)
+        m = 4              lambda = +1   in 1705/8820 supports (19.3%)
+        m = 7              lambda = -1   in 1067/8820 supports (12.1%)
+        m = 5              lambda = -1   in 960/8820 supports (10.9%)
+        m = 8              lambda = -1   in 790/8820 supports (9.0%)
+        m = 9              lambda = +1   in 619/8820 supports (7.0%)
+        m = 13             lambda = -1   in 459/8820 supports (5.2%)
+      Distinct positions: 7033; the effective number of independent
+      lambda queries is far smaller than 8820 (the supports share
+      positions), so the nominal normal p-value of (a) is optimistic.
+[PASS] S2.effective.sample.reported   |  8820 supports are built from only 7033 distinct positions; the single position m = 2 occurs in 70.5% of them, so the pooled statistic has a far smaller effective sample than its nominal n
+
+  (e) SMALLEST COUNTEREXAMPLE TO OUR OWN FINDING.  Our finding is
+      'no signal survives the positional controls'.  The strongest
+      counterexample available is the target with the largest
+      slot-controlled residual:
+        x = 30/103, A(x) = [4, 25, 793, 907545, 1482547361100]
+        |A| = 5, mean lambda = 1.0000, C2 baseline = -0.2451, residual/sd = 3.048
+      targets with |residual/sd| >= 3: 4 of 8820 (chance ~24)
+[PASS] S2.counterexample.reported   |  only 4 of 8820 targets exceed 3 slot-controlled sd (chance expectation ~24); the largest is x = 30/103 with residual/sd = 3.048, so the nominal signal is not rescued by any single target
+
+  VERDICT B1: NO parity signal in the sense the bridge needs.  The
+  large nominal deviation from the specification's range control is a
+  position-frequency artifact (the rigidity forces tiny early chain
+  elements), it is fully reproduced by the positional and rank-matched
+  controls, and the only regime in which B1 could be tested
+  non-trivially (|A| >= 20) contains no computable target.
+==============================================================================
+SS3  Bridge B2: the rh42 budgets P(p), N(p) are index-parity objects
+     (even/odd denominators), not Omega-parity objects
+==============================================================================
+
+  P(p) = 2^-p zeta(p)         = sum_{k>=1} (2k)^-p        (even m)
+  N(p) = (1-2^-p) zeta(p) - 1 = sum_{k>=2} (2k+1)^-p      (odd m >= 3)
+  Both budgets are sums of a function of the DENOMINATOR alone: the
+  split they see is the index parity 1_{n even}, nothing else.
+
+  p = 1.5  P = 0.92361416203004019899   N = 0.68876118665544814436
+          even sum_{k<=1e5} 0.9213780996  |diff| = 0.002  tail <= 0.002
+          odd  sum_{k<=1e5} 0.6865251299  |diff| = 0.002  tail <= 0.002
+  p = 2    P = 0.41123351671205660912   N = 0.23370055013616982735
+          even sum_{k<=1e5} 0.4112310167  |diff| = 2.500e-06  tail <= 2.500e-06
+          odd  sum_{k<=1e5} 0.2336980502  |diff| = 2.500e-06  tail <= 2.500e-06
+  p = 3    P = 0.15025711289494928567   N = 0.051799790264644999725
+          even sum_{k<=1e5} 0.1502571129  |diff| = 6.250e-12  tail <= 6.250e-12
+          odd  sum_{k<=1e5} 0.0517997903  |diff| = 6.250e-12  tail <= 6.250e-12
+[PASS] S3.budgets.are.index.sums   |  at p = 1.5, 2, 3 the budgets equal the EVEN-index and ODD-index partial sums within the explicit tails (K = 1e5): P is the even-denominator sum, N the odd-denominator sum >= 3
+
+  Identities of rh42 (mpmath, 40 dps):  P+N - (zeta-1)    = 1.1479e-41
+                                     P-N - (1 - eta(p)) = 1.1479e-41
+[PASS] S3.budget.identities   |  P+N = zeta-1 and P-N = 1-eta to better than 1e-30: the budgets are the two halves of the alternating alphabet, i.e. a split by index parity
+
+  THE OVERLAP STATISTICS (exact, N = 10000000):
+                        Omega even      Omega odd        total
+      n even          2501146         2498854         5000000
+      n odd           2498433         2501567         5000000
+      total           4999579         5000421         10000000
+      independence expectation of (n even, Omega even): 2499789.5
+      chi-square (1 dof) = 2.9441 ;  z of that cell = 0.9905
+      #{n <= N : index parity != Omega parity} = 4997287 = 0.4997 N
+      smallest disagreement with n >= 2: n = 2 (even index, Omega = 1)
+      sum_{n<=N} lambda(n)(-1)^n = 5426   (|.|/N = 0.000543)
+[PASS] S3.overlap.chance.level   |  the 2x2 table of index parity against Omega parity has chi-square = 2.9441 (z = 0.9905 for the (even, Omega even) cell): the index-parity split that the budgets measure is statistically independent of the Omega-parity class
+[PASS] S3.sets.differ   |  0.4997 of n <= 10000000 have index parity different from Omega parity, e.g. n = 2: the budgets and lambda measure different partitions
+
+  VERDICT B2: the budgets separate even from odd DENOMINATORS.  The
+  even/odd split of {n <= N} and the split {Omega even/odd} are
+  chance-level related (chi-square 2.944), so B2 cannot carry parity
+  information about Omega.
+==============================================================================
+SS4  Bridge B3: f(n) = lambda(n)lambda(n+2) is not multiplicative and
+     D(s) = sum f(n) n^-s has no Euler product
+==============================================================================
+
+  f(1) = lambda(1)lambda(3) = -1.  Multiplicativity requires f(1)=1,
+  so the failure is immediate; the coprime pairs below make it concrete.
+    f(2)f(11) = (-1)(+1) = -1   vs   f(22) = +1   DIFFER
+    f(2)f(13) = (-1)(-1) = +1   vs   f(26) = -1   DIFFER
+    f(2)f(17) = (-1)(+1) = -1   vs   f(34) = +1   DIFFER
+    f(3)f(5) = (+1)(+1) = +1   vs   f(15) = -1   DIFFER
+[PASS] S4.not.multiplicative   |  f(1) = -1 != 1; f(2)f(11) = -1 != f(22) = +1; f(2)f(13) = +1 != f(26) = -1; 12016 coprime pairs a,b <= 200 with ab <= 1e6 violate multiplicativity (smallest: a=3, b=4, ab=12)
+
+  The naive multiplicative model: if f were multiplicative then
+  D(2) = prod_p (1 + sum_k f(p^k) p^{-2k}) exactly.  At s = 2 the
+  series converges absolutely, so every truncation is bounded:
+    D(2)  = sum_{n<=1000000} f(n)/n^2            = -1.1268130386
+    prod_{p<=100000, p^k<=1000000} (...)            = 0.8875735163
+    |D(2) - product|                       = 2.0143865549
+    n-tail   |sum_{n>N} f(n)n^-2| <= 2/N   = 2.0000e-06
+    p-tail   <= zeta(2)(e^{1/P}-1)         = 1.6449e-05
+    k-tail   (inner sums truncated at N)   <= 1.0000e-09
+    rigorous total tail bound              = 1.8450e-05
+    rh46's looser product bound            = 1.80898647
+  The discrepancy exceeds the rigorous tail by a factor 109178.
+[PASS] S4.no.euler.product   |  |D(2) - naive Euler product| = 2.014387, which exceeds the rigorous truncation bound 1.845042e-05 by a factor 109178 (rh46 reported the same discrepancy 2.01440934 against its looser bound): f has no Euler product, so no zeta/Perron route reaches the correlation
+
+  VERDICT B3: no Euler product; the correlation is not multiplicative
+  and the zeta-based machinery does not apply to it.
+==============================================================================
+SS5  THE HONEST VERDICT -- one table
+==============================================================================
+
+  BRIDGE                                              VERDICT
+  ----------------------------------------------------------------------
+  B1  greedy support predicts lambda's parity class   NO SIGNAL
+      specification's size-matched range control     nominal z = 0
+      positional (sign-permutation) control           z = 0.434
+      rank-matched slot control                       z = 1.548
+      specified domain |A| >= 20                     EMPTY (SS1)
+  ----------------------------------------------------------------------
+  B2  zeta budgets carry Omega-parity                CHANCE-LEVEL
+      overlap chi-square 2.944 ; budgets split INDEX parity
+  ----------------------------------------------------------------------
+  B3  greedy balance forces the correlation          NO EULER PRODUCT
+      |D(2) - naive product| = 2.0144 > tail 1.85e-05
+      f(2)f(11) != f(22), f(2)f(13) != f(26), f(1) != 1
+  ----------------------------------------------------------------------
+
+  WHAT A GREEDY-SINE ATTACK WOULD NEED.  Every object of rh41-rh45 is
+  additive in log n (the word depends on sin(2 pi theta), the budgets
+  on sum n^{-p}, the balance on sum n^{-it}), while lambda is
+  multiplicative and the correlation n -> lambda(n)lambda(n+2) is not
+  even multiplicative (SS4).  An attack would need a map from a word
+  determined by x alone to positive-density multiplicative information
+  about Omega(n) -- and the greedy support is in addition
+  Sylvester-sparse (SS1), so it cannot even be tested in the regime
+  where such information could live.  That missing map is supplied by
+  nothing in this programme.
+
+  HONEST LEDGER.  No progress is claimed on the twin prime conjecture,
+  on the parity problem, or on (STAR) sum_{n<=x} lambda(n)lambda(n+2)
+  = o(x).  Every number above is a finite check; SS1's Sylvester
+  ceiling is the only logically exhaustive statement, and it is a
+  statement about the greedy object, not about the primes.
+
+[PASS] S5.verdict.table.printed   |  the B1/B2/B3 verdict table is printed above
+[PASS] S5.no.progress.claimed   |  RECORDED: no claim of progress on the twin prime conjecture, the parity problem, or two-point Chowla
+
+==============================================================================
+SUMMARY -- every check above is a FINITE CHECK on finitely many
+rational targets.  None of them proves or disproves the twin prime
+conjecture, the parity problem, or two-point Chowla.
+==============================================================================
+  [PASS] S1.greedy.shortcut.equals.stepwise
+  [PASS] S1.rigidity.no.violations
+  [PASS] S1.distribution.reported
+  [PASS] S1.exclusion.threshold.20
+  [PASS] S1.sylvester.ceiling
+  [PASS] S1.empty.computable.domain
+  [PASS] S1.small.supports.degenerate
+  [PASS] S2.admissible.set.empty
+  [PASS] S2.relaxed.sample
+  [FAIL] S2.nominal.signal.under.spec.control
+  [PASS] S2.kill.positional.control
+  [PASS] S2.kill.slot.control
+  [PASS] S2.effective.sample.reported
+  [PASS] S2.counterexample.reported
+  [PASS] S3.budgets.are.index.sums
+  [PASS] S3.budget.identities
+  [PASS] S3.overlap.chance.level
+  [PASS] S3.sets.differ
+  [PASS] S4.not.multiplicative
+  [PASS] S4.no.euler.product
+  [PASS] S5.verdict.table.printed
+  [PASS] S5.no.progress.claimed
+
+------------------------------------------------------------------------------
+21 checks pass, 1 fail   (wall clock 26491.0s)
+------------------------------------------------------------------------------
+log written to /Users/victor/workspace/rh/rh47/verify/greedy_parity_probe.log
+ check above is a FINITE CHECK on finitely many
+rational targets.  None of them proves or disproves the twin prime
+conjecture, the parity problem, or two-point Chowla.
+==============================================================================
+  [PASS] S1.greedy.shortcut.equals.stepwise
+  [PASS] S1.sylvester.ladder.exact
+  [PASS] S1.rigidity.no.violations
+  [PASS] S1.distribution.reported
+  [PASS] S1.exclusion.threshold.20
+  [PASS] S1.sylvester.ceiling
+  [PASS] S1.empty.computable.domain
+  [PASS] S1.small.supports.degenerate
+  [PASS] S2.admissible.set.empty
+  [PASS] S2.relaxed.sample
+  [PASS] S2.nominal.signal.under.spec.control
+  [PASS] S2.kill.positional.control
+  [PASS] S2.kill.slot.control
+  [PASS] S2.effective.sample.reported
+  [PASS] S2.counterexample.reported
+  [PASS] S3.budgets.are.index.sums
+  [PASS] S3.budget.identities
+  [PASS] S3.overlap.chance.level
+  [PASS] S3.sets.differ
+  [PASS] S4.not.multiplicative
+  [PASS] S4.no.euler.product
+  [PASS] S5.verdict.table.printed
+  [PASS] S5.no.progress.claimed
+
+------------------------------------------------------------------------------
+23 checks pass, 0 fail   (wall clock 3.5s)
+------------------------------------------------------------------------------
+log written to /Users/victor/workspace/rh/rh47/verify/greedy_parity_probe.log

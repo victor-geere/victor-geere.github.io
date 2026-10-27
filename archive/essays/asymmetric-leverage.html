@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trading Simulation with Simulated Annealing</title>
+  <style>
+    body { font-family: Arial; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+<h1>Forex Trading Simulation for EUR/USD using OU Process</h1>
+<h2>OU Parameters Sliders</h2>
+<label for="theta">Theta (reversion speed): </label><input type="range" id="theta" min="0.01" max="1" step="0.01" value="0.1"><span id="theta_val">0.1</span><br>
+<label for="sigma">Sigma (volatility): </label><input type="range" id="sigma" min="0.001" max="0.1" step="0.001" value="0.01"><span id="sigma_val">0.01</span><br>
+<label for="mu">Mu (mean): </label><input type="range" id="mu" min="1.0" max="1.2" step="0.001" value="1.1"><span id="mu_val">1.1</span><br>
+<label for="dt">dt: </label><input type="range" id="dt" min="0.001" max="0.1" step="0.001" value="0.01"><span id="dt_val">0.01</span><br>
+<button id="start">Start Optimization</button>
+<button id="pause">Pause</button>
+<div id="result"></div>
+
+<script>
+  const startBtn = document.getElementById('start');
+  const pauseBtn = document.getElementById('pause');
+  const resultDiv = document.getElementById('result');
+  let paused = false;
+  let history = [];
+
+  pauseBtn.addEventListener('click', () => paused = true);
+
+  ['theta', 'sigma', 'mu', 'dt'].forEach(id => {
+    const slider = document.getElementById(id);
+    const val = document.getElementById(id + '_val');
+    slider.addEventListener('input', () => val.textContent = slider.value);
+  });
+
+  startBtn.addEventListener('click', () => {
+    paused = false;
+    resultDiv.innerHTML = 'Running...';
+    setTimeout(() => runOptimization(), 0);
+  });
+
+  function getOUParams() {
+    return {
+      theta: parseFloat(document.getElementById('theta').value),
+      sigma: parseFloat(document.getElementById('sigma').value),
+      mu: parseFloat(document.getElementById('mu').value),
+      dt: parseFloat(document.getElementById('dt').value),
+      num_steps: 10000,
+      spread: 0.0001,
+    };
+  }
+
+  function gaussianRandom() {
+    let u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  function openPositionA(balance, params, bid, ask) {
+    const leverage = 10;
+    const fraction = params.a_fraction;
+    const size = fraction * balance * leverage;
+    const open_price = bid;
+    const tp_price = open_price - params.a_tp * 0.0001;
+    const sl_price = open_price + params.a_sl * 0.0001;
+    return { open_price, tp_price, sl_price, size, isShort: true };
+  }
+
+  function openPositionB(balance, params, bid, ask) {
+    const leverage = 100;
+    const fraction = params.b_fraction;
+    const size = fraction * balance * leverage;
+    const open_price = ask;
+    const tp_price = open_price + params.b_tp * 0.0001;
+    const sl_price = open_price - params.b_sl * 0.0001;
+    return { open_price, tp_price, sl_price, size, isShort: false };
+  }
+
+  function simulate(simParams) {
+    const { theta, sigma, mu, dt, num_steps, spread } = simParams;
+    let P = mu;
+    let balanceA = 100000;
+    let balanceB = 100000;
+    let equity = [balanceA + balanceB];
+    let positionA = openPositionA(balanceA, simParams, P - spread / 2, P + spread / 2);
+    let positionB = openPositionB(balanceB, simParams, P - spread / 2, P + spread / 2);
+    let waitingA = false;
+    let delayCountA = 0;
+    let waitingB = false;
+    let delayCountB = 0;
+
+    for (let t = 1; t < num_steps; t++) {
+      if (paused) return {balanceA: 0, balanceB: 0, total: 0, equity: []};
+      let dP = theta * (mu - P) * dt + sigma * Math.sqrt(dt) * gaussianRandom();
+      P += dP;
+      let bid = P - spread / 2;
+      let ask = P + spread / 2;
+
+      if (positionA) {
+        if (ask >= positionA.sl_price) {
+          let pnl = positionA.size * (positionA.open_price - ask);
+          balanceA += pnl;
+          positionA = null;
+          waitingA = true;
+          delayCountA = 0;
+        } else if (bid <= positionA.tp_price) {
+          let pnl = positionA.size * (positionA.open_price - ask);
+          balanceA += pnl;
+          positionA = null;
+          waitingA = true;
+          delayCountA = 0;
+        }
+      }
+      if (waitingA) {
+        let favorable = P > mu;
+        delayCountA++;
+        if (favorable || delayCountA > simParams.a_delay) {
+          positionA = openPositionA(balanceA, simParams, bid, ask);
+          waitingA = false;
+        }
+      }
+
+      if (positionB) {
+        if (bid <= positionB.sl_price) {
+          let pnl = positionB.size * (bid - positionB.open_price);
+          balanceB += pnl;
+          positionB = null;
+          waitingB = true;
+          delayCountB = 0;
+        } else if (ask >= positionB.tp_price) {
+          let pnl = positionB.size * (bid - positionB.open_price);
+          balanceB += pnl;
+          positionB = null;
+          waitingB = true;
+          delayCountB = 0;
+        }
+      }
+      if (waitingB) {
+        let favorable = P < mu;
+        delayCountB++;
+        if (favorable || delayCountB > simParams.b_delay) {
+          positionB = openPositionB(balanceB, simParams, bid, ask);
+          waitingB = false;
+        }
+      }
+
+      let total = balanceA + balanceB;
+      if (balanceA > (2 / 3) * total || balanceB > (2 / 3) * total) {
+        let target = total / 2;
+        if (balanceA > target) {
+          let transfer = balanceA - target;
+          balanceA -= transfer;
+          balanceB += transfer;
+        } else if (balanceB > target) {
+          let transfer = balanceB - target;
+          balanceB -= transfer;
+          balanceA += transfer;
+        }
+      }
+      equity.push(balanceA + balanceB);
+    }
+    return {balanceA, balanceB, total: balanceA + balanceB, equity};
+  }
+
+  function computeMetrics(equity) {
+    if (equity.length < 2) return {calmar: 0, sortino: 0};
+    let initial = equity[0];
+    let finalVal = equity[equity.length - 1];
+    let cumReturn = (finalVal - initial) / initial;
+    let cagr = cumReturn; // assuming period = 1 year
+    let maxDD = 0;
+    let peak = equity[0];
+    for (let val of equity) {
+      if (val > peak) peak = val;
+      let dd = (peak - val) / peak;
+      if (dd > maxDD) maxDD = dd;
+    }
+    let calmar = maxDD > 0 ? cagr / maxDD : (cagr > 0 ? 1000 : -1000);
+
+    let returns = [];
+    for (let i = 1; i < equity.length; i++) {
+      returns.push((equity[i] - equity[i - 1]) / equity[i - 1]);
+    }
+    let meanR = returns.reduce((a, b) => a + b, 0) / returns.length;
+    let downSum = 0;
+    for (let r of returns) {
+      let down = Math.min(r, 0);
+      downSum += down * down;
+    }
+    let downDev = Math.sqrt(downSum / returns.length);
+    let periods = returns.length;
+    let annMean = meanR * periods;
+    let annDown = downDev * Math.sqrt(periods);
+    let sortino = annDown > 0 ? annMean / annDown : (annMean > 0 ? 1000 : -1000);
+    return {calmar, sortino};
+  }
+
+  function evaluate(params) {
+    let num_runs = params.num_steps;
+    let sum_a = 0;
+    let sum_b = 0;
+    let sum_total = 0;
+    let sum_calmar = 0;
+    let sum_sortino = 0;
+    for (let i = 0; i < num_runs; i++) {
+      let res = simulate({ ...getOUParams(), ...params });
+      if (paused) return {a: 0, b: 0, total: 0, calmar: 0, sortino: 0};
+      sum_a += res.balanceA;
+      sum_b += res.balanceB;
+      sum_total += res.total;
+      let metrics = computeMetrics(res.equity);
+      sum_calmar += metrics.calmar;
+      sum_sortino += metrics.sortino;
+    }
+    return {
+      a: sum_a / num_runs,
+      b: sum_b / num_runs,
+      total: sum_total / num_runs,
+      calmar: sum_calmar / num_runs,
+      sortino: sum_sortino / num_runs
+    };
+  }
+
+  function perturb(params) {
+    let newParams = { ...params };
+    newParams.a_fraction = Math.max(0.01, Math.min(0.5, newParams.a_fraction + (Math.random() - 0.5) * 0.05));
+    newParams.b_fraction = Math.max(0.01, Math.min(0.5, newParams.b_fraction + (Math.random() - 0.5) * 0.05));
+    newParams.a_tp = Math.max(10, Math.min(100, newParams.a_tp + (Math.random() - 0.5) * 10));
+    newParams.b_tp = Math.max(10, Math.min(100, newParams.b_tp + (Math.random() - 0.5) * 10));
+    newParams.a_sl = Math.max(20, Math.min(200, newParams.a_sl + (Math.random() - 0.5) * 20));
+    newParams.b_sl = Math.max(20, Math.min(200, newParams.b_sl + (Math.random() - 0.5) * 20));
+    newParams.a_delay = Math.max(0, Math.min(3, Math.round(newParams.a_delay + (Math.random() - 0.5))));
+    newParams.b_delay = Math.max(0, Math.min(3, Math.round(newParams.b_delay + (Math.random() - 0.5))));
+    return newParams;
+  }
+
+  function runOptimization(initialParams = null) {
+    let params = initialParams || {
+      a_fraction: 0.1,
+      b_fraction: 0.1,
+      a_tp: 50,
+      b_tp: 50,
+      a_sl: 100,
+      b_sl: 100,
+      a_delay: 2,
+      b_delay: 2,
+      score: 200000,
+      num_steps: 2000
+    };
+    let currentResult = evaluate({...params, num_steps: 3});
+    let currentScore = currentResult.total;
+    let best = { ...params, score: currentScore };
+
+    let temp = 1000;
+    let cooling = 0.99;
+    let iter = 0;
+    const maxIter = 2000;
+
+    function step() {
+      if (paused || iter > maxIter) {
+        displayResult(best);
+        return;
+      }
+      let newParams = perturb(params);
+      let newResult = evaluate(newParams);
+      let newScore = newResult.total;
+      if (newScore > best.score) {
+        best = {...newParams, score: newScore};
+        console.log(best.score, {best})
+      }
+      let delta = newScore - currentScore;
+      if (delta > 0 || Math.random() < Math.exp(delta / temp)) {
+        params = newParams;
+        currentResult = newResult;
+        currentScore = newScore;
+      }
+      temp *= cooling;
+      iter++;
+      resultDiv.innerHTML = `Iteration: ${iter}, Best Score: ${best.score.toFixed(2)}`;
+      setTimeout(step, 0);
+    }
+    step();
+  }
+
+  function reoptimize(index) {
+    const initialParams = history[index].params;
+    paused = false;
+    resultDiv.innerHTML = 'Running reoptimization...';
+    setTimeout(() => runOptimization(initialParams), 0);
+  }
+
+  function displayResult(best) {
+    // let optResult = evaluate(best);
+    let forwardParams = { ...best };
+    let forwardResult = evaluate(forwardParams);
+    history.push({ params: best, opt: best.score, forward: forwardResult });
+
+    let html = `<h2>Optimal Parameters for Latest Run</h2>
+            <p>After Optimization Total Balance: ${optResult.total.toFixed(2)} (A: ${optResult.a.toFixed(2)}, B: ${optResult.b.toFixed(2)})</p>
+            <p>After Forward Test Total Balance: ${forwardResult.total.toFixed(2)} (A: ${forwardResult.a.toFixed(2)}, B: ${forwardResult.b.toFixed(2)}), Calmar: ${forwardResult.calmar.toFixed(2)}, Sortino: ${forwardResult.sortino.toFixed(2)}</p>
+            <p>Account A:</p>
+            <ul>
+            <li>Fraction: ${best.a_fraction.toFixed(3)}</li>
+            <li>TP pips: ${best.a_tp}</li>
+            <li>SL pips: ${best.a_sl}</li>
+            <li>Delay: ${best.a_delay}</li>
+            </ul>
+            <p>Account B:</p>
+            <ul>
+            <li>Fraction: ${best.b_fraction.toFixed(3)}</li>
+            <li>TP pips: ${best.b_tp}</li>
+            <li>SL pips: ${best.b_sl}</li>
+            <li>Delay: ${best.b_delay}</li>
+            </ul>
+            <h2>Optimization History</h2>
+            <table>
+                <tr>
+                    <th>Run</th>
+                    <th>a_fraction</th>
+                    <th>a_tp</th>
+                    <th>a_sl</th>
+                    <th>a_delay</th>
+                    <th>b_fraction</th>
+                    <th>b_tp</th>
+                    <th>b_sl</th>
+                    <th>b_delay</th>
+                    <th>After Opt A</th>
+                    <th>After Opt B</th>
+                    <th>After Opt Total</th>
+                    <th>After Fwd A</th>
+                    <th>After Fwd B</th>
+                    <th>After Fwd Total</th>
+                    <th>After Fwd Calmar</th>
+                    <th>After Fwd Sortino</th>
+                    <th>Action</th>
+                </tr>`;
+
+    history.forEach((rec, i) => {
+      let p = rec.params;
+      html += `<tr>
+                    <td>${i + 1}</td>
+                    <td>${p.a_fraction.toFixed(3)}</td>
+                    <td>${p.a_tp}</td>
+                    <td>${p.a_sl}</td>
+                    <td>${p.a_delay}</td>
+                    <td>${p.b_fraction.toFixed(3)}</td>
+                    <td>${p.b_tp}</td>
+                    <td>${p.b_sl}</td>
+                    <td>${p.b_delay}</td>
+                    <td>${rec.opt.a.toFixed(2)}</td>
+                    <td>${rec.opt.b.toFixed(2)}</td>
+                    <td>${rec.opt.total.toFixed(2)}</td>
+                    <td>${rec.forward.a.toFixed(2)}</td>
+                    <td>${rec.forward.b.toFixed(2)}</td>
+                    <td>${rec.forward.total.toFixed(2)}</td>
+                    <td>${rec.forward.calmar.toFixed(2)}</td>
+                    <td>${rec.forward.sortino.toFixed(2)}</td>
+                    <td><button onclick="reoptimize(${i})">Reoptimize from here</button></td>
+                </tr>`;
+    });
+
+    html += `</table>`;
+    resultDiv.innerHTML = html;
+  }
+</script>
+
+<h2>Explanation of Asymmetry</h2>
+<p>There is an inherent asymmetry in the trading setup due to the different leverage ratios (1:10 for Account A vs. 1:100 for Account B) and the fixed directional constraints—Account A always takes short positions, while Account B always takes long positions. This leads to differing risk exposures and optimal parameter sets, as higher leverage allows Account B to amplify gains (or losses) more significantly in mean-reverting conditions, potentially favoring wider stop losses or aggressive sizing for B compared to the more conservative A.</p>
+
+<h2>Asymmetric Series Modification</h2>
+<p>The equity series tracked during the forward test simulations, representing the total balance over time, is derived from the symmetric Ornstein-Uhlenbeck price process but can be artificially made asymmetric by decomposing it using empirical mode decomposition (EMD) into intrinsic mode functions (IMFs) and selectively amplifying or damping the higher-frequency IMFs on one side of the mean to introduce skewness, inspired by mathematical concepts like asymmetric volatility in ARCH models. Alternatively, split the series into two halves chronologically and apply a periodic function, such as a cosine wave modulated by a game-theoretic payoff matrix that alternates between cooperative and competitive regimes every N steps, altering the growth rules to simulate asymmetric market dynamics.</p>
+</body>
+</html>

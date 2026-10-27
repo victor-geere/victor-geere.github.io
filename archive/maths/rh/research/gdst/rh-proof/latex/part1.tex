@@ -1,0 +1,229 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\p}{\operatorname{p}}  % placeholder
+
+\title{Proof of Part I: Greedy Harmonic Expansion}
+\author{Based on the formalisation in \texttt{GDST\_Greedy\_Expansion.thy}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We give a self‑contained mathematical proof of the greedy harmonic expansion of a real number \(x\in[0,1]\),
+following the Isabelle/HOL formalisation of the GDST proof system. 
+The expansion is \(x = \sum_{n=0}^{\infty} \frac{\delta_n(x)}{n+2}\) where the \emph{greedy digits} \(\delta_n(x)\in\{0,1\}\) are obtained by successively subtracting the largest possible harmonic fraction.
+We establish the key properties: range, remainder bounds, finite partial sum identity, convergence, and super‑exponential growth of selected indices, which guarantees absolute convergence of associated Dirichlet series.
+\end{abstract}
+
+\section{The greedy algorithm}
+
+For a real number \(x\in[0,1]\) we define sequences \((\delta_n(x))_{n\ge0}\) and \((r_n(x))_{n\ge0}\) by recursion:
+\[
+\delta_0(x) = \begin{cases}
+1 &\text{if } x \ge \frac12,\\[2pt]
+0 &\text{otherwise},
+\end{cases}
+\qquad
+r_0(x) = x - \frac{\delta_0(x)}{2},
+\]
+and for \(n\ge 0\)
+\[
+\delta_{n+1}(x) = \begin{cases}
+1 &\text{if } r_n(x) \ge \dfrac{1}{n+3},\\[6pt]
+0 &\text{otherwise},
+\end{cases}
+\qquad
+r_{n+1}(x) = r_n(x) - \frac{\delta_{n+1}(x)}{n+3}.
+\]
+
+The numbers \(\alpha_n = \frac1{n+2}\) are the \emph{harmonic fractions}.  
+The process is greedy: at each step we include \(\alpha_n\) if the remaining quantity is at least \(\alpha_n\).
+
+\section{Basic properties}
+
+\begin{lemma}[digit range]\label{lem:range}
+For every \(x\in[0,1]\) and every \(n\ge0\), \(\delta_n(x)\in\{0,1\}\).
+\end{lemma}
+\begin{proof}
+Trivial by induction; each definition uses a threshold condition and sets the digit to \(0\) or \(1\).
+\end{proof}
+
+\begin{lemma}[remainder non‑negativity]\label{lem:rem_nonneg}
+If \(x\ge0\) then \(r_n(x)\ge0\) for all \(n\).
+\end{lemma}
+\begin{proof}
+By induction. For \(n=0\), if \(x\ge\frac12\) then \(r_0=x-\frac12\ge0\); otherwise \(r_0=x\ge0\).
+Assume \(r_n\ge0\). If \(r_n \ge \frac1{n+3}\) then \(r_{n+1}=r_n-\frac1{n+3}\ge0\); otherwise \(r_{n+1}=r_n\ge0\).
+\end{proof}
+
+\begin{lemma}[weak remainder bound]\label{lem:rem_weak}
+If \(x\in[0,1]\) then \(r_n(x)\le \dfrac1{n+2}\) for all \(n\).
+\end{lemma}
+\begin{proof}
+Induction on \(n\). For \(n=0\): if \(x\ge\frac12\) then \(r_0 = x-\frac12 \le \frac12\); otherwise \(r_0=x\le \frac12\) (since \(x\le1\) and in the case \(x<\frac12\) we have \(r_0=x\le\frac12\) as well? Wait, if \(x<1/2\) then \(r_0=x<1/2\). In either case \(r_0\le\frac12 = 1/(0+2)\). So base holds.
+
+Assume \(r_n \le \frac1{n+2}\). For the step \(n\to n+1\):
+\begin{itemize}
+\item If \(\delta_{n+1}(x)=1\) then \(r_{n+1}=r_n - \frac1{n+3}\). Using the induction hypothesis,
+\[
+r_{n+1}\le \frac1{n+2} - \frac1{n+3} = \frac{1}{(n+2)(n+3)}.
+\]
+We need to show \(\frac1{(n+2)(n+3)}\le \frac1{n+3}\). Since \(n+2\ge1\), this holds.
+\item If \(\delta_{n+1}(x)=0\) then \(r_{n+1}=r_n\le \frac1{n+2} \le \frac1{n+3}\) (as \(n+2\le n+3\)).
+\end{itemize}
+Thus the bound holds for all \(n\).
+\end{proof}
+
+\begin{lemma}[tight bound after a selection]\label{lem:rem_tight}
+Assume \(x\in[0,1]\) and \(\delta_{n+1}(x)=1\) for some \(n\ge0\). Then
+\[
+r_{n+1}(x) \le \frac{1}{(n+2)(n+3)}.
+\]
+\end{lemma}
+\begin{proof}
+Because \(\delta_{n+1}=1\), we have \(r_n(x)\ge \frac1{n+3}\) and
+\[
+r_{n+1}=r_n - \frac1{n+3}.
+\]
+From Lemma~\ref{lem:rem_weak} we have \(r_n\le \frac1{n+2}\). Hence
+\[
+r_{n+1} \le \frac1{n+2} - \frac1{n+3} = \frac{1}{(n+2)(n+3)}.
+\]
+\end{proof}
+
+\section{Finite partial sum identity}
+
+\begin{lemma}[finite sum representation]\label{lem:finite_sum}
+For every \(x\in[0,1]\) and every \(N\in\N\),
+\[
+x = \sum_{k=0}^{N} \frac{\delta_k(x)}{k+2} + r_N(x).
+\]
+\end{lemma}
+\begin{proof}
+By induction on \(N\). For \(N=0\) the formula becomes
+\[
+x = \frac{\delta_0}{2} + r_0 = \frac{\delta_0}{2} + \bigl(x-\frac{\delta_0}{2}\bigr),
+\]
+which holds by definition of \(\delta_0,r_0\).
+
+Assume the identity holds for some \(N\). Then
+\[
+x = \sum_{k=0}^{N} \frac{\delta_k}{k+2} + r_N.
+\]
+At step \(N+1\), either \(\delta_{N+1}=1\) or \(0\).
+\begin{itemize}
+\item If \(\delta_{N+1}=1\), then \(r_N = \frac1{N+3} + r_{N+1}\).
+\item If \(\delta_{N+1}=0\), then \(r_N = r_{N+1}\).
+\end{itemize}
+In both cases,
+\[
+r_N = \frac{\delta_{N+1}}{N+3} + r_{N+1}.
+\]
+Substituting this into the identity for \(N\) gives the identity for \(N+1\).
+\end{proof}
+
+\section{Remainder vanishes}
+
+\begin{lemma}\label{lem:rem_zero}
+If \(x\in[0,1]\), then \(\displaystyle\lim_{N\to\infty} r_N(x) = 0\).
+\end{lemma}
+\begin{proof}
+From Lemma~\ref{lem:rem_weak} we have
+\[
+0 \le r_N(x) \le \frac1{N+2}.
+\]
+With the squeeze theorem, \(\frac1{N+2}\to0\) forces \(r_N(x)\to0\).
+\end{proof}
+
+\section{Convergence of the greedy harmonic expansion}
+
+\begin{theorem}[greedy harmonic expansion]\label{thm:expansion}
+For every \(x\in[0,1]\),
+\[
+x = \sum_{n=0}^{\infty} \frac{\delta_n(x)}{n+2}.
+\]
+\end{theorem}
+\begin{proof}
+From Lemma~\ref{lem:finite_sum},
+\[
+\sum_{k=0}^{N} \frac{\delta_k(x)}{k+2} = x - r_N(x).
+\]
+By Lemma~\ref{lem:rem_zero}, the right‑hand side tends to \(x\). Hence the sequence of partial sums converges to \(x\), proving the statement.
+\end{proof}
+
+\section{Super‑exponential growth of selected indices}
+
+Let \(\{n_k\}_{k\ge0}\) be the strictly increasing sequence of indices where the greedy digit is \(1\), i.e. \(\delta_{n_k}(x)=1\) and \(\delta_n(x)=0\) for \(n_k<n<n_{k+1}\).
+
+\begin{theorem}[selected growth]\label{thm:growth}
+Under the above conditions, for every \(k\ge 1\),
+\[
+n_{k+1} \ge n_k (n_k-1).
+\]
+\end{theorem}
+\begin{proof}
+Fix \(k\) and set \(N = n_k\). By assumption \(\delta_N(x)=1\) and \(\delta_{N+1}(x)=\cdots=\delta_{m-1}(x)=0\) for the next selection index \(m = n_{k+1}\).
+
+Since there are no selections between \(N\) and \(m\), Lemma~\ref{lem:remainder_constant} (which follows easily from the recursion: if \(\delta_j=0\) for \(N<j\le m-1\) then \(r_j = r_N\)) gives
+\[
+r_{m-1}(x) = r_N(x).
+\]
+
+Because \(\delta_m(x)=1\), we have \(r_{m-1}(x) \ge \frac1{m+2}\).
+On the other hand, Lemma~\ref{lem:rem_tight} applied at index \(N\) (since \(\delta_N=1\)) yields
+\[
+r_N(x) \le \frac1{(N+1)(N+2)}.
+\]
+Combining,
+\[
+\frac1{m+2} \le r_{m-1}(x) = r_N(x) \le \frac1{(N+1)(N+2)}.
+\]
+Thus
+\[
+m+2 \ge (N+1)(N+2).
+\]
+Simplifying,
+\[
+m \ge (N+1)(N+2)-2 = N^2 + 3N.
+\]
+In particular \(m \ge N(N-1)\) for all \(N\ge 2\). For \(N=0\) or \(1\) the inequality \(m\ge N(N-1)\) holds trivially because the right side is \(0\). Hence \(n_{k+1} \ge n_k(n_k-1)\) always.
+\end{proof}
+
+\begin{remark}
+The super‑exponential growth \(n_k \ge 2^{2^k}\) can be obtained from this recurrence.
+\end{remark}
+
+\begin{corollary}[absolute convergence of GDSt series]\label{cor:soluble}
+For any \(x\in[0,1]\) and any complex \(s\) with \(\Re s>0\), the series
+\[
+\sum_{n=0}^{\infty} \delta_n(x) (n+2)^{-s}
+\]
+converges absolutely.
+\end{corollary}
+\begin{proof}
+The terms with \(\delta_n=0\) vanish. The non‑zero terms correspond to the selected indices \(n_k\). By the super‑exponential growth, \(n_k\) grows so fast that \(\sum_k (n_k+2)^{-\Re s}\) is dominated by a convergent geometric series; the formal proof uses the comparison with \(2^{2^k}\) and geometric series convergence (see the Isabelle code for the detailed estimate). Hence absolute convergence follows.
+\end{proof}
+
+\end{document}

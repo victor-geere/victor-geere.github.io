@@ -1,0 +1,195 @@
+
+==============================================================================
+0. Weight family and closed form
+==============================================================================
+  phi_{theta,a,b}(u) = e^{i theta} u^a (1-u)^b ,  a,b > 0
+  M_phi(s) = e^{i theta} B(a+1-s, b+1);  at s=1/2+it:
+  M_phi(1/2+it) = e^{i theta} B(a+1/2-it, b+1)
+
+==============================================================================
+1. Closed form vs direct numerical integration of M_phi
+==============================================================================
+  (mpmath.quad of integral_0^1 e^{i theta} u^{a-s}(1-u)^b du, dps=50)
+
+      a     b    theta            t           |M| closed    rel.err vs quad
+  --------------------------------------------------------------------------
+      1     3      0.0    14.134725 0.000136142963880291                0.0
+      1     3 1.0471976         30.0  7.24192372197379e-6          1.408e-51
+      1     3      0.7         50.0  9.52183096129547e-7          1.496e-51
+      2     1      0.0     21.02204  0.00221647821138378                0.0
+    0.5     6     -1.1         20.0  4.75445157175268e-7          2.537e-49
+      3     3      0.0    14.134725 0.000117718448844836                0.0
+    [PASS] closed form == direct quadrature (max rel.err < 1e-25): max rel.err = 2.537e-49
+
+==============================================================================
+2. theta only rotates the phase: |M_phi| is independent of theta
+==============================================================================
+
+      a     b          t          |M| theta=0       |M| theta=pi/3        |M| theta=0.7
+  --------------------------------------------------------------------------------
+      1     3       50.0  9.52183096129547e-7  9.52183096129547e-7  9.52183096129547e-7
+      2     4    14.1347  3.28043743379281e-5  3.28043743379281e-5  3.28043743379281e-5
+    0.5     2      200.0   2.4995625765484e-7   2.4995625765484e-7   2.4995625765484e-7
+    [PASS] |M_phi| independent of theta (spread < 1e-40): max spread = 0.0
+
+==============================================================================
+3. No zero of M_phi on the critical line (analyticity + fine grid)
+==============================================================================
+  B(a+1/2-it,b+1) = Gamma(z)Gamma(w)/Gamma(z+w),  z=a+1/2-it, w=b+1, z+w=a+b+3/2-it.
+  Gamma has no zeros; Re z, Re w, Re(z+w) > 0 for a,b > 0, so no Gamma pole.
+  Hence |M_phi(1/2+it)| > 0 for ALL real t (for any theta).
+
+  Numerical confirmation on a fine grid over [0,200] (step 0.01, 20001 points):
+
+      a     b           smallest |M|       at t  #points > min   monotone
+  --------------------------------------------------------------------------
+      1     3         3.748078971e-9      200.0          20001        yes
+    [PASS] a=1, b=3: no zero on grid, grid min > 0, |M| decreasing in t: grid min = 3.748079e-9 > 0 at t=200.0; 0 non-monotone steps
+    0.5     2         2.499562577e-7      200.0          20001        yes
+    [PASS] a=0.5, b=2: no zero on grid, grid min > 0, |M| decreasing in t: grid min = 2.4995626e-7 > 0 at t=200.0; 0 non-monotone steps
+      2     4         7.48958142e-11      200.0          20001        yes
+    [PASS] a=2, b=4: no zero on grid, grid min > 0, |M| decreasing in t: grid min = 7.4895814e-11 > 0 at t=200.0; 0 non-monotone steps
+      1     6        5.613082776e-14      200.0          20001        yes
+    [PASS] a=1, b=6: no zero on grid, grid min > 0, |M| decreasing in t: grid min = 5.6130828e-14 > 0 at t=200.0; 0 non-monotone steps
+    [PASS] inf over all of R equals 0 (power decay): |M(1/2+i*1e6)|(a=1,b=3) = 6.0e-24 -> 0; so the 'c>0 for all t' branch is FALSE
+
+==============================================================================
+4. Table: inf_{0<=t<=T} |M_phi(1/2+it)|   (|M| decreasing => inf at t=T)
+==============================================================================
+  Reported value is min over a fine grid; because |M| decreases monotonically
+  (section 3), it equals |M_phi(1/2+iT)| and the true infimum on [0,T].
+
+  theta=     0.0  a=   1  b=  3 :
+        T=10.0 (step  0.02):  inf =  0.0004954723292   at t=10.0
+        T=50.0 (step  0.05):  inf =   9.521830961e-7   at t=50.0
+        T=200.0 (step   0.1):  inf =   3.748078971e-9   at t=200.0
+    [PASS] inf table theta=0.0,a=1,b=3: all > 0, decreasing in T: T=10,50,200 -> 0.000495472, 9.52183e-7, 3.74808e-9
+  theta=  1.0472  a=   1  b=  3 :
+        T=10.0 (step  0.02):  inf =  0.0004954723292   at t=10.0
+        T=50.0 (step  0.05):  inf =   9.521830961e-7   at t=50.0
+        T=200.0 (step   0.1):  inf =   3.748078971e-9   at t=200.0
+    [PASS] inf table theta=1.047,a=1,b=3: all > 0, decreasing in T: T=10,50,200 -> 0.000495472, 9.52183e-7, 3.74808e-9
+  theta=     0.7  a=   2  b=  4 :
+        T=10.0 (step  0.02):  inf =  0.0001472299116   at t=10.0
+        T=50.0 (step  0.05):  inf =   7.511989337e-8   at t=50.0
+        T=200.0 (step   0.1):  inf =   7.48958142e-11   at t=200.0
+    [PASS] inf table theta=0.7,a=2,b=4: all > 0, decreasing in T: T=10,50,200 -> 0.00014723, 7.51199e-8, 7.48958e-11
+  theta=     0.0  a=   3  b=  3 :
+        T=10.0 (step  0.02):  inf =  0.0003794027981   at t=10.0
+        T=50.0 (step  0.05):  inf =   9.401716828e-7   at t=50.0
+        T=200.0 (step   0.1):  inf =    3.74508326e-9   at t=200.0
+    [PASS] inf table theta=0.0,a=3,b=3: all > 0, decreasing in T: T=10,50,200 -> 0.000379403, 9.40172e-7, 3.74508e-9
+  theta=     0.0  a= 0.5  b=  2 :
+        T=10.0 (step  0.02):  inf =   0.001869129492   at t=10.0
+        T=50.0 (step  0.05):  inf =   1.595532507e-5   at t=50.0
+        T=200.0 (step   0.1):  inf =   2.499562577e-7   at t=200.0
+    [PASS] inf table theta=0.0,a=0.5,b=2: all > 0, decreasing in T: T=10,50,200 -> 0.00186913, 1.59553e-5, 2.49956e-7
+  theta=     0.0  a=   1  b=  6 :
+        T=10.0 (step  0.02):  inf =   3.494424285e-5   at t=10.0
+        T=50.0 (step  0.05):  inf =  8.910646316e-10   at t=50.0
+        T=200.0 (step   0.1):  inf =  5.613082776e-14   at t=200.0
+    [PASS] inf table theta=0.0,a=1,b=6: all > 0, decreasing in T: T=10,50,200 -> 3.49442e-5, 8.91065e-10, 5.61308e-14
+
+==============================================================================
+5. Explicit weights with |M_phi| <= 1e-6 on [0,50]; smallest b
+==============================================================================
+  Since |M| is decreasing in t on [0,50], |M| <= 1e-6 on [0,50]
+  iff |M_phi(1/2+50i)| <= 1e-6.
+
+  Clean witness:  theta = 0 (any theta), a = 1, b = 3
+      phi(u) = u(1-u)^3
+      |M_phi(1/2+i*50)| = 9.52183096129547e-7   (<= 1e-6: True)
+    [PASS] explicit witness |M_phi| <= 1e-6 on [0,50]: a=1, b=3, |M| = 9.521830961e-7
+    [PASS] clean witness consistent with fine grid on [0,50]: fine-grid inf = 9.521830961e-7
+
+  Smallest b (a = 1) with |M_phi(1/2+i*50)| = 1e-6 exactly:
+      b* = 2.981603661885829941954495
+      check |M| at b*:      1.0e-6
+      |M| at b*-1e-12:      1.00000000000266606e-6  (> 1e-6)
+      |M| at b*+1e-12:      9.99999999997333937e-7  (< 1e-6)
+    [PASS] b* is the exact threshold (b*-eps fails, b*+eps succeeds): b* = 2.981603661885829942; |M|(b*-1e-12)=1.0e-6, |M|(b*+1e-12)=1.0e-6
+    [PASS] b* fine-grid inf on [0,50] equals 1e-6 (argmin at t=50): grid inf = 1.0e-6
+
+==============================================================================
+6. Decay exponent: fit log|M| vs log t, compare with -(b+1)
+==============================================================================
+  B(z,w) ~ Gamma(w) z^{-w} as |z|->inf, so |M_phi(1/2+it)| ~ Gamma(b+1) t^{-(b+1)}.
+  Least-squares fit over t in [1000, 100000] (41 log-spaced points):
+
+      a    b    fitted exponent   predicted -(b+1)      |error|   prefactor Gamma(b+1)
+  ------------------------------------------------------------------------------------
+      1    3     -3.99999756567                 -4     2.434e-6                    6.0
+      2    4     -4.99999339469                 -5     6.605e-6                   24.0
+      1    6     -6.99998992136                 -7     1.008e-5                  720.0
+    0.5    5     -5.99999459699                 -6     5.403e-6                  120.0
+      3    2      -2.9999962743                 -3     3.726e-6                    2.0
+    [PASS] fitted decay exponent == -(b+1) (|error| < 1e-4): max |error| = 1.008e-5
+
+==============================================================================
+7. The honest N-t trade-off (multiplicative in |M_phi|)
+==============================================================================
+  error(t,N) ~ sqrt(N) |M_phi(1/2+it)|, so accuracy eps is reachable iff
+      N <= (eps/|M_phi|)^2 .
+
+  Example: phi(u) = u(1-u)^3 (a=1,b=3), Gamma(b+1) = 6.0
+
+           t        |M(1/2+it)|      N_max(eps=1e-3)      N_max(eps=1e-6)       t^{2(b+1)}
+  ----------------------------------------------------------------------------------------
+        10.0    0.0004954723292            4.0734387         4.0734387e-6           1.0e+8
+        50.0     9.521830961e-7            1102958.2            1.1029582      3.90625e+13
+       200.0     3.748078971e-9        7.1184024e+10            71184.024         2.56e+18
+      1000.0    5.999877002e-12        2.7778917e+16        2.7778917e+10          1.0e+24
+     10000.0     5.99999877e-16        2.7777789e+24        2.7777789e+18          1.0e+32
+
+  Power-law form with gamma_w = Gamma(b+1) and eps fixed:
+      N_max(t) ~ (eps/gamma_w)^2 t^{2(b+1)}   (polynomial gain in t),
+      t_max(N) ~ (gamma_w sqrt(N)/eps)^{1/(b+1)} .
+
+  Fit of d log N_max / d log t over [1e3, 1e5]: 7.99999513134 ; predicted 2(b+1) = 8 ; |error| = 4.869e-6
+  Ratio check: N_max(40000)/N_max(10000) = 65535.9748096 ; 4^{2(b+1)} = 65536.0 ; rel.dev = 3.844e-7
+    [PASS] N_max exponent == 2(b+1) (fit |error| < 1e-4; ratio rel.dev < 1e-5): fitted slope 7.999995131 vs 8; ratio rel.dev 3.844e-7
+
+==============================================================================
+8. Resolution of OP-14
+==============================================================================
+  (1) IDENTICALLY ZERO IS IMPOSSIBLE.  For every nonzero phi the Mellin
+      transform M_phi(s) is a Laplace/Mellin transform; if it vanished on the
+      line Re s = 1/2 it would vanish identically (analytic continuation) and
+      injectivity would force phi = 0.  For the family e^{i theta}u^a(1-u)^b
+      this is visible directly: M_phi = e^{i theta}B(a+1/2-it,b+1) and the Beta
+      function is a ratio of Gamma values, none of which vanishes on the line.
+  (2) NO POSITIVE LOWER BOUND ON ALL OF R.  |M_phi(1/2+it)| ~ Gamma(b+1)|t|^{-(b+1)}
+      -> 0, so inf_{t in R} |M_phi| = 0; the 'c > 0 for all t' branch is FALSE.
+  (3) WINDOW BRANCH ACHIEVED.  Finite windows [0,T] have a positive minimum; the
+      clean weight phi(u)=u(1-u)^3 (theta=0, a=1, b=3) has
+      inf_{[0,50]} |M_phi| = 9.521830961e-7 <= 1e-6, and the smallest
+      admissible power is b* = 2.98160366189 (at a = 1).
+  (4) HONEST TRADE-OFF.  error ~ sqrt(N)|M_phi(1/2+it)|: multiplicative in
+      |M_phi|, giving N <= eps^2/|M_phi|^2, i.e. N_max ~ t^{2(b+1)}.  The sqrt(N)
+      is never removed; only the constant is improved, by a power of t.
+
+==============================================================================
+PASS/FAIL SUMMARY
+==============================================================================
+  [PASS] closed form == direct quadrature (max rel.err < 1e-25)
+  [PASS] |M_phi| independent of theta (spread < 1e-40)
+  [PASS] a=1, b=3: no zero on grid, grid min > 0, |M| decreasing in t
+  [PASS] a=0.5, b=2: no zero on grid, grid min > 0, |M| decreasing in t
+  [PASS] a=2, b=4: no zero on grid, grid min > 0, |M| decreasing in t
+  [PASS] a=1, b=6: no zero on grid, grid min > 0, |M| decreasing in t
+  [PASS] inf over all of R equals 0 (power decay)
+  [PASS] inf table theta=0.0,a=1,b=3: all > 0, decreasing in T
+  [PASS] inf table theta=1.047,a=1,b=3: all > 0, decreasing in T
+  [PASS] inf table theta=0.7,a=2,b=4: all > 0, decreasing in T
+  [PASS] inf table theta=0.0,a=3,b=3: all > 0, decreasing in T
+  [PASS] inf table theta=0.0,a=0.5,b=2: all > 0, decreasing in T
+  [PASS] inf table theta=0.0,a=1,b=6: all > 0, decreasing in T
+  [PASS] explicit witness |M_phi| <= 1e-6 on [0,50]
+  [PASS] clean witness consistent with fine grid on [0,50]
+  [PASS] b* is the exact threshold (b*-eps fails, b*+eps succeeds)
+  [PASS] b* fine-grid inf on [0,50] equals 1e-6 (argmin at t=50)
+  [PASS] fitted decay exponent == -(b+1) (|error| < 1e-4)
+  [PASS] N_max exponent == 2(b+1) (fit |error| < 1e-4; ratio rel.dev < 1e-5)
+
+  19/19 checks passed, 0 failed.
+  RESULT: PASS

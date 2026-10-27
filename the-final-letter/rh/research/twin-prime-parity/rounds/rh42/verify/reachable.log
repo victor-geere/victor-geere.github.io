@@ -1,0 +1,129 @@
+==============================================================================
+rh42/reachable.py — the exact reachable set of the signed (Tau) alphabet
+==============================================================================
+
+1. Brown's criterion   a_n <= T_{n+1} for all n  <=>  sub-sums = [0,A]
+  PASS  BC  p = 2: no sub-sum of the first 16 positive terms lies in the gap (T_2, 1/4) = (0.16123..., 0.25)  (exact enumeration, 2^16 subsets)   [offending sub-sums: 0]
+  PASS  BC  p = 2: the tail from index 2 approaches T_2 from below, staying <= T_2 (exact rational partial sums)   [T_2 - partial in (0, 1/(4*200000))]
+  PASS  BC  the single condition a_1 <= A - a_1 is not sufficient: the sequence (1/2, 2/5, 1/20, 1/20) has a_1 = A - a_1 = 1/2 yet misses 1/5   [A = 1; sub-sums [Fraction(0, 1), Fraction(1, 20), Fraction(1, 10), Fraction(2, 5), Fraction(9, 20), Fraction(1, 2), Fraction(11, 20), Fraction(3, 5), Fraction(9, 10), Fraction(19, 20), Fraction(1, 1)]]
+  PASS  BC  h(n+1)-h(n) = n^-p - 2(n+1)^-p changes sign once, and {h<0} is an initial segment, for every exponent tested   [0 violations over 9 exponents]
+  PASS  BC  {n : h(p,n) < 0} = {1,...,n_min-1} exactly, for every exponent tested
+  PASS  BC  the odd half-series (2k+1)^-p obeys the same unimodal law
+  PASS  BC  greedy optimality is NOT general: on (1/2, 3/10, 3/10), x = 3/5, the greedy takes 1/2 while max{s in S : s <= 3/5} = 3/5   [greedy 1/2, optimum 3/5]
+      p        h(1)             n_min     T_{n_min}
+        1.2   3.59158244118      1     2.433877621942
+        1.5  0.612375348685      1   0.92361416203004
+        1.7  0.0542887568378      1   0.632281531594518
+        1.8  -0.117770381897      2   0.253353927761094
+          2  -0.355065933152      2   0.161233516712057
+        2.5  -0.658512742749      3   0.0291169888227296
+          3  -0.79794309684      3   0.00963211289494929
+          4  -0.917676766289      5   0.000223206543674532
+          6  -0.982656938016      8   1.28842448537935e-7
+         10  -0.999005424872     13   1.42223880001339e-14
+
+2. Census theorem   #intervals = 2^(n_min-1),  measure = 2^(n_min-1) T_{n_min}
+  PASS  CEN  #intervals = 2^(n_min-1) for every exponent tested   [[(1, 1), (1, 1), (1, 1), (2, 2), (2, 2), (2, 2), (4, 4), (4, 4), (16, 16), (128, 128), (1024, 1024), (4096, 4096), (32768, 32768)]]
+  PASS  CEN  measure = 2^(n_min-1) * T_{n_min} for every exponent tested
+  PASS  CEN  the census formula and the plain interval recursion agree (two independent routes)   [max endpoint difference 3.89e-62]
+  PASS  CEN  the census intervals are disjoint, start at 0, end at P(p), and the first is exactly [0, T_{n_min}]
+  PASS  CEN  the reachable fraction of the budget is 1 exactly while n_min = 1 (p <= p*) and strictly less afterwards
+      p          P(p)          n_min  #intervals      measure     measure/P
+        1.2   2.43387762194      1           1  2.43387762194         1.0
+        1.5   0.92361416203      1           1  0.92361416203         1.0
+        1.7  0.632281531595      1           1  0.632281531595         1.0
+        1.8   0.54052851651      2           2  0.506707855522  0.93743039
+          2  0.411233516712      2           2  0.322467033424   0.7841458
+        2.2  0.324398317892      2           2  0.213521354137  0.65820734
+        2.5  0.237143684119      3           4  0.116467955291  0.49112822
+          3  0.150257112895      3           4  0.0385284515798  0.25641682
+          4  0.0676452021069      5          16  0.00357130469879  0.052794649
+          6  0.0158959853435      8         128  1.64918334129e-5  0.0010374842
+          8  0.00392217717265     11        1024  3.97707269737e-8  1.0139962e-5
+         10  0.000977533764773     13        4096  5.82549012485e-11  5.9593748e-8
+         12  0.000244200704725     16       32768  5.73072881237e-14  2.346729e-10
+  PASS  CEN  the negative half obeys the same census theorem   [[('1.5', 1, 1), ('2', 1, 1), ('2.2', 2, 2), ('2.5', 2, 2), ('3', 3, 4), ('4', 4, 8), ('6', 7, 64)]]
+      negative half:  p, n_min(odd), #intervals, 2^(n_min-1), measure/N
+        1.5  n_min=  1         1         1          1.0
+          2  n_min=  1         1         1          1.0
+        2.2  n_min=  2         2         2   0.92631689
+        2.5  n_min=  2         2         2   0.77040764
+          3  n_min=  3         4         4   0.52222244
+          4  n_min=  4         8         8   0.17215358
+          6  n_min=  7        64        64   0.0080202367
+
+3. p = 2 exactly:  S_2 = [0, pi^2/24 - 1/4] u [1/4, pi^2/24], one gap
+  PASS  P2  pi^2 is enclosed by exact rationals (Machin, pi = 16 atan(1/5) - 4 atan(1/239))   [width 5.615e-84, pi^2 in [9.869604401089358, 9.869604401089358]]
+  PASS  P2  the gap is (pi^2/24 - 1/4, 1/4) = (0.161233516712..., 0.25)   [T_2 in [0.161233516712057, 0.161233516712057]]
+  PASS  P2  exact reachability of rational targets matches the interval structure   [10 targets, failures []]
+  PASS  P2  x = 1/5: the greedy takes exactly the even indices 2..2K and nothing else (exact Fractions)   [20000 takes, first [2, 4, 6, 8, 10]]
+  PASS  P2  x = 1/5: residual = x - (taken sum) exactly, and the deficit from x - T_2 is the missing tail, in (0, 1/(4K) + width)   [residual 0.038778982350511, x - T_2 ~ 0.038766483287943]
+  PASS  P2  x = 3/20 (< T_2, in the complete first interval): residual < 1e-5   [residual 1.312e-14]
+
+3b. p = 3:  four intervals, predicted exactly (n_min = 3)
+  PASS  P3  zeta(3) enclosed by exact rationals (Euler-Maclaurin, outward rounded)   [width 3.125e-18, zeta(3) in [1.2020569031595942, 1.2020569031595942]]
+  PASS  P3  T_3 = P(3) - 1/8 - 1/64 = 0.00963211289...   [T_3 in [0.009632112894949, 0.009632112894949]]
+  PASS  P3  reachable = [0,0.009632] u [0.015625,0.025257] u [0.125,0.134632] u [0.140625,0.150257]   [[('0.0', '0.0096321129'), ('0.015625', '0.025257113'), ('0.125', '0.13463211'), ('0.140625', '0.15025711')]]
+  PASS  P3  x = 1/50: reachable -> 0 (exactly)   [residual 7.99095692249e-18 (tolerance 5.1e-11)]
+  PASS  P3  x = 1/20: stalls at x - 0.02474288711   [residual 0.0247428871113 (tolerance 5.1e-11)]
+  PASS  P3  x = 7/50: stalls at x - 0.005367887105   [residual 0.0053678871113 (tolerance 5.1e-11)]
+  PASS  P3  x = 13/100: reachable -> 0 (exactly)   [residual 0.0 (tolerance 5.1e-11)]
+  PASS  P3  x = 1/5: stalls at x - 0.04974288711   [residual 0.0497428871113 (tolerance 5.1e-11)]
+  PASS  P3  x = 1/8: reachable -> 0 (exactly)   [residual 0.0 (tolerance 5.1e-11)]
+  PASS  P3  x = 3/20: reachable -> 0 (exactly)   [residual 2.38480594122e-22 (tolerance 5.1e-11)]
+
+4. Greedy optimality   stall residual = x - max{s in S : s <= x}
+  PASS  OPT  p = 2 exactly: x = 1/5 (in the gap) stalls at 1/5 - T_2, and max{s in S : s <= 1/5} = T_2   [residual 0.038774816204630]
+  PASS  OPT  for p = 2.5, 3, 4, 6 and every interval midpoint and every gap midpoint, the residual matches x - max{s in S : s <= x} within the remaining tail   [worst deviation / tail bound = 1.0 at ('2.5', '0.118572')]
+  PASS  OPT  the case analysis holds: for n < n_min, T_{n+1} <= a_n; for n >= n_min, every further tail is complete
+
+5. Thresholds   pN < pP < p* < q, each enclosed rigorously
+  PASS  THR  p*: rigorous sign change on [1.72864723899810998, 1.72864723899824641] (width 1.4e-13), published 1.7286472389981836181   [certified interval contains the published root]
+  PASS  THR  pP: rigorous sign change on [1.46498458780406505, 1.46498458780624784] (width 2.2e-12), published 1.4649845878051603837   [certified interval contains the published root]
+  PASS  THR  pN: rigorous sign change on [1.37778516983707959, 1.37778516983817098] (width 1.1e-12), published 1.3777851698375411838   [certified interval contains the published root]
+  PASS  THR  q: rigorous sign change on [2.07677517921067642, 2.07677517921071053] (width 3.4e-14), published 2.07677517921069   [certified interval contains the published root]
+  PASS  THR  pN < pP < p* < q   [p* = 1.728647239  pP = 1.4649845878  pN = 1.37778516984  q = 2.07677517921]
+  PASS  THR  at p* the budget interval has length zeta(p*) - 1 = 1 exactly   [P(p*) + N(p*) = 1.00000000000013]
+  PASS  THR  the positive half is complete iff p <= p*  (n_min = 1 iff zeta(p) >= 2)   [n_min = 1 just below p*, > 1 just above]
+  PASS  THR  the negative half is complete iff p <= q  (n_min(odd) = 1 iff N(p) >= 2*3^-p)
+
+6. The sign ledger: the alphabet totals 1 - ln 2 = +0.30685281944005469058
+  PASS  SGN  ln 2 is enclosed by exact rationals from 2 artanh(1/3)   [width 6.264e-41, ln 2 in [0.69314718055994529, 0.69314718055994529]]
+  PASS  SGN  sum_{n>=0} (-1)^n/(n+2) = 1 - ln 2 = +0.306852819440054... (the pages print ln 2 - 1, the wrong sign)   [1 - ln 2 in [0.30685281944005471, 0.30685281944005471]]
+  PASS  SGN  p = 1.5: P + N = zeta - 1 and P - N = 1 - eta, with P > N   [P-N = 0.234852975375]
+  PASS  SGN  p = 2: P + N = zeta - 1 and P - N = 1 - eta, with P > N   [P-N = 0.177532966576]
+  PASS  SGN  p = 3: P + N = zeta - 1 and P - N = 1 - eta, with P > N   [P-N = 0.0984573226303]
+  PASS  SGN  p = 4: P + N = zeta - 1 and P - N = 1 - eta, with P > N   [P-N = 0.0529671705028]
+  PASS  SGN  P(2) = pi^2/24, N(2) = pi^2/8 - 1, P(4) = pi^4/1440, N(4) = pi^4/96 - 1   [P(2) = 0.411233516712056609]
+  PASS  SGN  p = 1: both budgets diverge (the pole of zeta, once on each side)   [P(1.001) = 499.942, N(1.001) = 499.635]
+
+7. Parity lock and the transfer of rh41's complexity law
+  PASS  PAR  p = 1, theta = 0.05: every take has the parity of the sign of x   [3 takes]
+  PASS  PAR  p = 1, theta = 0.2: every take has the parity of the sign of x   [5 takes]
+  PASS  PAR  p = 1, theta = 0.3: every take has the parity of the sign of x   [5 takes]
+  PASS  PAR  p = 2, theta = 0.05: every take has the parity of the sign of x   [8 takes]
+  PASS  PAR  p = 2, theta = 0.2: every take has the parity of the sign of x   [10000 takes]
+  PASS  PAR  p = 2, theta = 0.3: every take has the parity of the sign of x   [10000 takes]
+  PASS  PAR  p = 1: the positive half is the classical Egyptian greedy at 2x (support {0} <-> {1}, {2,10} <-> {2,6}, ...)
+  PASS  PAR  rh41 Theorem 1 holds verbatim on every parity-locked support tested   [supports (0,2,4,10), (2,6,38), (0,8), (0,2,4); failures []]
+  PASS  PAR  every gap of a signed support is even and >= 2   [gaps [[2, 2, 6], [4, 32], [8], [2, 2, 2, 14]]]
+  PASS  PAR  the min gap of a signed support is even, so the C1 bound L <= min gap is contained in {1,2} exactly when the min gap is 2 (min gaps 2, 4, 8, 2)   [min gaps [2, 4, 8, 2]]
+  PASS  PAR  C1 on (4, 8, 12), N = 20: range L <= 4 and p(L) = L+1 there   [min gap 4, values [2, 3, 4, 5]]
+  PASS  PAR  C1 on (2, 6, 38), N = 22: range L <= 2 and p(L) = L+1 there   [min gap 4, values [2, 3]]
+  PASS  PAR  C1 on (2, 4), N = 12: range L <= 2 and p(L) = L+1 there   [min gap 2, values [2, 3]]
+  PASS  PAR  signed support {0,2,4,10}, N = 22: a_0 = 0 empties the C1 range, yet p(1) = 2, p(2) = 3, and L = 3 already violates L <= min gap = 2   [p(1)=2, p(2)=3, p(3)=5]
+  PASS  PAR  the onset of a signed word is not determined by (gaps, N) either: the parity is automatic, so the absolute position matters   [210 of 402 keys are multi-valued]
+  PASS  PAR  Corollary 4 on signed words: max_L p(L) = a_m + 2 for N >= 2 a_m + 2
+
+8. The helix: the word sees sin(2 pi theta), never the turn count
+  PASS  HEL  theta = 0.1: theta, theta+1, theta+2 and 1/2 - theta give the same word (200 dps, above the 1e-100 floor)   [4 takes]
+  PASS  HEL  theta = 0.3: theta, theta+1, theta+2 and 1/2 - theta give the same word (200 dps, above the 1e-100 floor)   [5 takes]
+  PASS  HEL  theta = 0.42: theta, theta+1, theta+2 and 1/2 - theta give the same word (200 dps, above the 1e-100 floor)   [5 takes]
+  PASS  HEL  theta = 0.77: theta, theta+1, theta+2 and 1/2 - theta give the same word (200 dps, above the 1e-100 floor)   [8 takes]
+  PASS  HEL  theta -> 1 - theta flips the height, hence the word   [sin(2 pi t) = 0.95105652]
+  PASS  HEL  the lift (cos, sin, theta) is not periodic: the third coordinate is kept   [definitional]
+
+==============================================================================
+ALL 70 CHECKS PASS
+==============================================================================
+exit=0
