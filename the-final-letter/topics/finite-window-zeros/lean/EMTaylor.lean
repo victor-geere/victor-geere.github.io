@@ -316,4 +316,30 @@ theorem iteratedDeriv_psiTerm_four (j : ℕ) (s : ℂ) :
   ring
 
 
+/-- **The `j`-th derivative of `Ψ₃`** (all five terms), for `s ≠ 1`. -/
+theorem iteratedDeriv_Psi3 (j : ℕ) (s : ℂ) (hs : s ≠ 1) :
+    iteratedDeriv j Psi3 s
+      = 21 * ((-1 : ℂ)^j * (((j.factorial : ℕ)) : ℂ) * (((s - 1) ^ (j + 1))⁻¹))
+        + (if j = 0 then (1 / 2 : ℂ) else 0)
+        + (if j = 0 then s / 252 else if j = 1 then (1 / 252 : ℂ) else 0)
+        + (1 / (720 * 9261 : ℂ)) * ((-1 : ℂ)^j * ((polyIter j (descPochhammer ℂ 3)).eval (-s)))
+        - (1 / (30240 * 4084101 : ℂ)) * ((-1 : ℂ)^j * ((polyIter j (descPochhammer ℂ 5)).eval (-s))) := by
+  have hs1 : s - 1 ≠ 0 := sub_ne_zero.mpr hs
+  rw [Psi3_eq_sum, iteratedDeriv_finset_sum]
+  · simp only [Fin.sum_univ_five, iteratedDeriv_psiTerm_zero, iteratedDeriv_psiTerm_one,
+      iteratedDeriv_psiTerm_two, iteratedDeriv_psiTerm_three, iteratedDeriv_psiTerm_four,
+      iteratedDeriv_inv_sub_one j hs, iteratedDeriv_polynomial_neg]
+    ring
+  · intro i hi
+    fin_cases i
+    · simp only [psiTerm]; fun_prop
+    · simp only [psiTerm]; fun_prop
+    · simp only [psiTerm]; fun_prop
+    · simp only [psiTerm]
+      exact ContDiffAt.div_const (contDiffAt_polynomial_eval_neg (descPochhammer ℂ 3) _ s) _
+    · simp only [psiTerm]
+      exact ContDiffAt.neg (ContDiffAt.div_const
+        (contDiffAt_polynomial_eval_neg (descPochhammer ℂ 5) _ s) _)
+
+
 end FiniteWindowZeros

@@ -649,3 +649,19 @@ each `psiTerm i`; the only non-obvious ones are
 `ContDiffAt.inv` for term 0 (`sub_ne_zero.mpr hs`) and
 `contDiffAt_polynomial_eval_neg` (T405) for terms 3–4.  Then
 `d^j Ψ₃(s14)` follows from T402/T403.
+
+### 2026-10-27 — I.305: `Ψ₃^{(j)}` is done (T413)
+
+`iteratedDeriv_Psi3` now compiles — the closed form of `d^j Ψ₃` for `s ≠ 1`,
+combining T404 + T406 + T407–T412 + T402 + T403.  The assembly needed only two
+non-`fun_prop` `ContDiffAt` goals (the polynomial terms 3 and 4), supplied by
+`ContDiffAt.div_const`/`ContDiffAt.neg` of `contDiffAt_polynomial_eval_neg`
+(T405); `fun_prop` handles the pole, constant and `s/252` terms.
+
+**So the whole `c_k` input chain is now proved.**  For `k = 1..6`:
+`gen3^{(k)}(s14) = −Σ_{n≤20}(log n)^k n^{-s14} + 21^{-s14}·S_k` with
+`S_k = Σ_{j≤k} C(k,j) Ψ₃^{(j)}(s14)(−log21)^{k−j}` (exact values in I.303).
+The remaining work is the box construction
+(`dsPowPow k` + `cpowBox 21 S14 · scalarBox k` + the `R₃` Cauchy correction),
+the `sup|ζ^{(6)}|` bound, the Taylor remainder (`taylor_mean_remainder_bound`,
+`K = 6`), and the `h2` / `zeta_zero_14_of_bounds` assembly.
