@@ -1,5 +1,9 @@
 # Research journal 002 — continuation bootstrap
 
+> **Superseded (I.293).** Live state, next steps, constants and traps have moved
+> to [`research-journal-003.md`](research-journal-003.md). This file is now dated
+> history (I.282–I.292); append new entries to 003, not here.
+
 **Purpose.** `research-journal.md` (001) has reached 3000+ lines. This file is
 the *only* thing a fresh session needs to read in order to continue the
 `finite-window-zeros` Krawczyk programme. It holds live state, the exact next

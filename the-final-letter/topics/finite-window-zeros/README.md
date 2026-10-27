@@ -435,6 +435,39 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T356 | Theorem | **Generic ball-triangle step:** `‖s - s14‖ ≤ r` and `‖s14 + t‖ ≤ c` give `‖s + t‖ ≤ r + c`. | `ball_add_le` (`EMDeriv.lean`) |
 | T357 | Theorem | **`P₅` on the ball:** `‖s - s14‖ ≤ 0.35 → ‖P₅(s)‖ ≤ 2000000`. | `norm_P5_ball` (`EMDeriv.lean`) |
 | T358 | Theorem | **`P₆` on the ball:** `‖s - s14‖ ≤ 0.35 → ‖P₆(s)‖ ≤ 3·10⁷` (needed for `M_R(K=3)`). | `norm_P6_ball` (`EMDeriv.lean`) |
+| T359 | Theorem | **Open-ball bridge:** `s ∈ ball s14 (1/2) ↔ ‖s - s14‖ < 1/2`. | `mem_ball_half` (`EMDeriv.lean`) |
+| T360 | Theorem | **`Re s > 0` on the `1/2`-ball:** the strip hypothesis that lets `ζ` be replaced by `zetaEM 20`. | `re_pos_of_ball_half` (`EMDeriv.lean`) |
+| T361 | Theorem | **`1 < Im s < 20` on the `1/2`-ball.** | `im_bounds_of_ball_half` (`EMDeriv.lean`) |
+| T362 | Theorem | **The open `1/2`-ball avoids the pole `1`.** | `ne_one_of_ball_half` (`EMDeriv.lean`) |
+| T363 | Theorem | **`‖s14 + 4‖ ≤ 18.5`.** | `norm_s14_add_four_le` (`EMDeriv.lean`) |
+| T364 | Theorem | **`‖s14 + 5‖ ≤ 19.5`.** | `norm_s14_add_five_le` (`EMDeriv.lean`) |
+| T365 | Theorem | **`‖s‖ ≤ 15` on the `1/2`-ball.** | `norm_s_ball_half` (`EMDeriv.lean`) |
+| T366 | Theorem | **`‖s + 1‖ ≤ 16` on the `1/2`-ball.** | `norm_s_add_one_ball_half` (`EMDeriv.lean`) |
+| T367 | Theorem | **`‖s + 2‖ ≤ 17` on the `1/2`-ball.** | `norm_s_add_two_ball_half` (`EMDeriv.lean`) |
+| T368 | Theorem | **`‖s + 3‖ ≤ 18` on the `1/2`-ball.** | `norm_s_add_three_ball_half` (`EMDeriv.lean`) |
+| T369 | Theorem | **`‖s + 4‖ ≤ 19` on the `1/2`-ball.** | `norm_s_add_four_ball_half` (`EMDeriv.lean`) |
+| T370 | Theorem | **`‖s + 5‖ ≤ 20` on the `1/2`-ball.** | `norm_s_add_five_ball_half` (`EMDeriv.lean`) |
+| T371 | Theorem | **`P₃` on the `1/2`-ball:** `‖P₃(s)‖ ≤ 4080 = 15·16·17`. | `norm_P3_ball_half` (`EMDeriv.lean`) |
+| T372 | Theorem | **`P₅` on the `1/2`-ball:** `‖P₅(s)‖ ≤ 1395360 = 15·…·19`. | `norm_P5_ball_half` (`EMDeriv.lean`) |
+| T373 | Theorem | **`P₆` on the `1/2`-ball:** `‖P₆(s)‖ ≤ 27907200 = 15·…·20`. | `norm_P6_ball_half` (`EMDeriv.lean`) |
+| T374 | Theorem | **`21^(-5) = 1/4084101`.** | `pow21_neg_five` (`EMDeriv.lean`) |
+| T375 | Theorem | **`21^(-6) = 1/85766121`.** | `pow21_neg_six` (`EMDeriv.lean`) |
+| T376 | Theorem | **`ζ(6) = π⁶/945`** (from `riemannZeta_two_mul_nat` and `B₆ = 1/42`). | `riemannZeta_six` (`EMDeriv.lean`) |
+| T377 | Theorem | **`K = 3` Euler–Maclaurin constant:** `2·Re ζ(6)/(2π)⁶ = 1/30240`. | `emConst_six` (`EMDeriv.lean`) |
+| T378 | Theorem | **`|B₄| ≤ 62/100000` on the `1/2`-ball.** | `norm_b4_ball_half` (`EMDeriv.lean`) |
+| T379 | Theorem | **`|B₆| ≤ 12/1000000` on the `1/2`-ball.** | `norm_b6_ball_half` (`EMDeriv.lean`) |
+| T380 | Theorem | **`M_R(K = 3) ≤ 6/100000` on the `1/2`-ball** (T305 with `σ ≥ 0`). | `norm_remainder_three_ball_le` (`EMDeriv.lean`) |
+| T381 | Theorem | **`zetaEMGen 3 20 = zetaEMGen 1 20 + B₄ + B₆`.** | `zetaEMGen_three_expand` (`EMDeriv.lean`) |
+| T382 | Theorem | **`zetaEMGen 1 20` is differentiable off `1`.** | `differentiableAt_zetaEMGen_one` (`EMDeriv.lean`) |
+| T383 | Theorem | **`H = ζ − zetaEMGen 1 20` is differentiable on the `1/2`-ball.** | `differentiableOn_zetaResid` (`EMDeriv.lean`) |
+| T384 | Theorem | **`‖H‖ ≤ 7·10⁻⁴` on the `1/2`-ball** (sum of the `B₄`, `B₆`, `M_R` bounds). | `norm_zetaResid_le` (`EMDeriv.lean`) |
+| T385 | Theorem | ****`h1(b)`**: `‖H′(s14)‖ ≤ 28·10⁻⁴`** by one Cauchy application at `ρ = 1/2`. | `norm_deriv_zetaResid_le` (`EMDeriv.lean`) |
+| T386 | Theorem | **`ζ′ = (zetaEMGen 1 20)′ + H′` at `s14`.** | `deriv_zeta_eq_gen_one_add` (`EMDeriv.lean`) |
+| T387 | Theorem | **`Yk` lies in its point box `Ybox`.** | `mem_Ybox` (`EMDeriv.lean`) |
+| T388 | Theorem | **`1 − Yk·V` lies in `Wbox` for every `V ∈ Vbox`.** | `mem_Wbox` (`EMDeriv.lean`) |
+| T389 | Theorem | ****`Wbox` corner test:**** corner² ≤ (1/2000)², by `native_decide` (true value `|1 − Yk·V| = 3.62·10⁻⁴`). | `corner_Wbox` (`EMDeriv.lean`) |
+| T390 | Theorem | **`‖1 − Yk·V‖ ≤ 1/2000`.** | `norm_Wbox_le` (`EMDeriv.lean`) |
+| T391 | Theorem | ****`h1` (step 4, point enclosure):**** `‖1 − Yk·ζ′(1/2+14i)‖ ≤ 1/200`; the only remaining Krawczyk input is `h2`. | `h1_deriv` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

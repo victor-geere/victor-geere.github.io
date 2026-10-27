@@ -546,4 +546,449 @@ theorem norm_P6_ball {s : ℂ} (hs : ‖s - s14‖ ≤ (0.35 : ℝ)) :
     mul_le_mul m4 p5 (norm_nonneg _) (by norm_num)
   exact m5.trans (by norm_num)
 
+/-! ## `h1(b)`: the residual ball at radius `1/2`
+
+`ζ′ = (zetaEMGen 1 20)′ + H′` with `H = ζ − zetaEMGen 1 20 = B₄ + B₆ + R₃` on the
+open `1/2`-ball around `s14`.  The radius `1/2` is the *integer-exponent* choice:
+`Re z > 0` on the ball, so `21^{-Re z - 3} ≤ 21^{-3}` (and likewise for `-5`, `-6`)
+with no `rpow`-at-a-rational-exponent lemma.  One Cauchy application gives `|H′|`
+(the three-piece split of an earlier plan is the same `2M/ρ`, with more plumbing).
+-/
+
+theorem mem_ball_half {s : ℂ} : s ∈ Metric.ball s14 (1/2 : ℝ) ↔ ‖s - s14‖ < (1/2 : ℝ) := by
+  rw [Metric.mem_ball, dist_eq_norm]
+
+/-- On the open `1/2`-ball, `Re s > 0`. -/
+theorem re_pos_of_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) : 0 < s.re := by
+  have h := Complex.abs_re_le_norm (s - s14)
+  rw [Complex.sub_re] at h
+  have hsre : s14.re = (1/2 : ℝ) := by norm_num [s14]
+  rw [hsre] at h
+  have := (abs_lt.mp (lt_of_le_of_lt h hs)).1
+  linarith
+
+/-- On the open `1/2`-ball, `1 < Im s < 20`. -/
+theorem im_bounds_of_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    1 < s.im ∧ s.im < 20 := by
+  have h := Complex.abs_im_le_norm (s - s14)
+  rw [Complex.sub_im] at h
+  have hsim : s14.im = (14 : ℝ) := by norm_num [s14]
+  rw [hsim] at h
+  have h2 := abs_lt.mp (lt_of_le_of_lt h hs)
+  constructor <;> linarith [h2.1, h2.2]
+
+/-- The open `1/2`-ball avoids the pole at `1`. -/
+theorem ne_one_of_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) : s ≠ 1 := by
+  intro h
+  subst h
+  have h2 := Complex.abs_im_le_norm ((1 : ℂ) - s14)
+  have h3 : ((1 : ℂ) - s14).im = -14 := by norm_num [s14]
+  rw [h3] at h2
+  norm_num at h2
+  linarith
+
+theorem norm_s14_add_four_le : ‖s14 + (4 : ℂ)‖ ≤ (18.5 : ℝ) := by
+  have h2 := norm_add_le s14 (4 : ℂ)
+  have h3 : ‖(4 : ℂ)‖ = (4 : ℝ) := by norm_num
+  rw [h3] at h2
+  linarith [norm_s14_le]
+
+theorem norm_s14_add_five_le : ‖s14 + (5 : ℂ)‖ ≤ (19.5 : ℝ) := by
+  have h2 := norm_add_le s14 (5 : ℂ)
+  have h3 : ‖(5 : ℂ)‖ = (5 : ℝ) := by norm_num
+  rw [h3] at h2
+  linarith [norm_s14_le]
+
+theorem norm_s_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) : ‖s‖ ≤ (15 : ℝ) := by
+  have h1 : ‖s‖ ≤ ‖s - s14‖ + ‖s14‖ := by
+    have h := norm_add_le (s - s14) s14
+    simpa using h
+  have h2 : ‖s14‖ ≤ (14.5 : ℝ) := norm_s14_le
+  linarith
+
+theorem norm_s_add_one_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖s + 1‖ ≤ (16 : ℝ) := by
+  have h1 : ‖s + 1‖ ≤ ‖s - s14‖ + ‖s14 + 1‖ := by
+    have h := norm_add_le (s - s14) (s14 + (1 : ℂ))
+    rwa [show s - s14 + (s14 + (1 : ℂ)) = s + 1 by ring] at h
+  have h2 : ‖s14 + 1‖ ≤ (15.5 : ℝ) := norm_s14_add_one_le
+  linarith
+
+theorem norm_s_add_two_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖s + 2‖ ≤ (17 : ℝ) := by
+  have h1 : ‖s + 2‖ ≤ ‖s - s14‖ + ‖s14 + 2‖ := by
+    have h := norm_add_le (s - s14) (s14 + (2 : ℂ))
+    rwa [show s - s14 + (s14 + (2 : ℂ)) = s + 2 by ring] at h
+  have h2 : ‖s14 + 2‖ ≤ (16.5 : ℝ) := norm_s14_add_two_le
+  linarith
+
+theorem norm_s_add_three_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖s + 3‖ ≤ (18 : ℝ) := by
+  have h1 : ‖s + 3‖ ≤ ‖s - s14‖ + ‖s14 + 3‖ := by
+    have h := norm_add_le (s - s14) (s14 + (3 : ℂ))
+    rwa [show s - s14 + (s14 + (3 : ℂ)) = s + 3 by ring] at h
+  have h2 : ‖s14 + 3‖ ≤ (17.5 : ℝ) := norm_s14_add_three_le
+  linarith
+
+theorem norm_s_add_four_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖s + 4‖ ≤ (19 : ℝ) := by
+  have h1 : ‖s + 4‖ ≤ ‖s - s14‖ + ‖s14 + 4‖ := by
+    have h := norm_add_le (s - s14) (s14 + (4 : ℂ))
+    rwa [show s - s14 + (s14 + (4 : ℂ)) = s + 4 by ring] at h
+  have h2 : ‖s14 + 4‖ ≤ (18.5 : ℝ) := norm_s14_add_four_le
+  linarith
+
+theorem norm_s_add_five_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖s + 5‖ ≤ (20 : ℝ) := by
+  have h1 : ‖s + 5‖ ≤ ‖s - s14‖ + ‖s14 + 5‖ := by
+    have h := norm_add_le (s - s14) (s14 + (5 : ℂ))
+    rwa [show s - s14 + (s14 + (5 : ℂ)) = s + 5 by ring] at h
+  have h2 : ‖s14 + 5‖ ≤ (19.5 : ℝ) := norm_s14_add_five_le
+  linarith
+
+/-- On the `1/2`-ball, `‖P₃(s)‖ ≤ 15·16·17 = 4080`. -/
+theorem norm_P3_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖(descPochhammer ℂ 3).eval (-s)‖ ≤ (4080 : ℝ) := by
+  have h3 : (descPochhammer ℂ 3).eval (-s) = (-s) * (-s - 1) * (-s - 2) := by
+    simp [descPochhammer]
+    ring
+  rw [h3, norm_mul, norm_mul]
+  have e0 : ‖-s‖ = ‖s‖ := norm_neg s
+  have e1 : ‖-s - 1‖ = ‖s + 1‖ := by rw [show -s - 1 = -(s + 1) by ring, norm_neg]
+  have e2 : ‖-s - 2‖ = ‖s + 2‖ := by rw [show -s - 2 = -(s + 2) by ring, norm_neg]
+  rw [e0, e1, e2]
+  have p0 : ‖s‖ ≤ (15 : ℝ) := norm_s_ball_half hs
+  have p1 : ‖s + 1‖ ≤ (16 : ℝ) := norm_s_add_one_ball_half hs
+  have p2 : ‖s + 2‖ ≤ (17 : ℝ) := norm_s_add_two_ball_half hs
+  have m1 : ‖s‖ * ‖s + 1‖ ≤ 15 * 16 :=
+    mul_le_mul p0 p1 (norm_nonneg _) (by norm_num)
+  have m2 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ ≤ 15 * 16 * 17 :=
+    mul_le_mul m1 p2 (norm_nonneg _) (by norm_num)
+  exact m2.trans (by norm_num)
+
+/-- On the `1/2`-ball, `‖P₅(s)‖ ≤ 15·…·19 = 1395360`. -/
+theorem norm_P5_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖(descPochhammer ℂ 5).eval (-s)‖ ≤ (1395360 : ℝ) := by
+  have h5 : (descPochhammer ℂ 5).eval (-s) =
+      (-s) * (-s - 1) * (-s - 2) * (-s - 3) * (-s - 4) := by
+    simp [descPochhammer]
+    ring
+  rw [h5, norm_mul, norm_mul, norm_mul, norm_mul]
+  have e0 : ‖-s‖ = ‖s‖ := norm_neg s
+  have e1 : ‖-s - 1‖ = ‖s + 1‖ := by rw [show -s - 1 = -(s + 1) by ring, norm_neg]
+  have e2 : ‖-s - 2‖ = ‖s + 2‖ := by rw [show -s - 2 = -(s + 2) by ring, norm_neg]
+  have e3 : ‖-s - 3‖ = ‖s + 3‖ := by rw [show -s - 3 = -(s + 3) by ring, norm_neg]
+  have e4 : ‖-s - 4‖ = ‖s + 4‖ := by rw [show -s - 4 = -(s + 4) by ring, norm_neg]
+  rw [e0, e1, e2, e3, e4]
+  have p0 : ‖s‖ ≤ (15 : ℝ) := norm_s_ball_half hs
+  have p1 : ‖s + 1‖ ≤ (16 : ℝ) := norm_s_add_one_ball_half hs
+  have p2 : ‖s + 2‖ ≤ (17 : ℝ) := norm_s_add_two_ball_half hs
+  have p3 : ‖s + 3‖ ≤ (18 : ℝ) := norm_s_add_three_ball_half hs
+  have p4 : ‖s + 4‖ ≤ (19 : ℝ) := norm_s_add_four_ball_half hs
+  have m1 : ‖s‖ * ‖s + 1‖ ≤ 15 * 16 :=
+    mul_le_mul p0 p1 (norm_nonneg _) (by norm_num)
+  have m2 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ ≤ 15 * 16 * 17 :=
+    mul_le_mul m1 p2 (norm_nonneg _) (by norm_num)
+  have m3 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ ≤ 15 * 16 * 17 * 18 :=
+    mul_le_mul m2 p3 (norm_nonneg _) (by norm_num)
+  have m4 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ * ‖s + 4‖ ≤ 15 * 16 * 17 * 18 * 19 :=
+    mul_le_mul m3 p4 (norm_nonneg _) (by norm_num)
+  exact m4.trans (by norm_num)
+
+/-- On the `1/2`-ball, `‖P₆(s)‖ ≤ 15·…·20 = 27907200`. -/
+theorem norm_P6_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖(descPochhammer ℂ 6).eval (-s)‖ ≤ (27907200 : ℝ) := by
+  have h6 : (descPochhammer ℂ 6).eval (-s) =
+      (-s) * (-s - 1) * (-s - 2) * (-s - 3) * (-s - 4) * (-s - 5) := by
+    simp [descPochhammer]
+    ring
+  rw [h6, norm_mul, norm_mul, norm_mul, norm_mul, norm_mul]
+  have e0 : ‖-s‖ = ‖s‖ := norm_neg s
+  have e1 : ‖-s - 1‖ = ‖s + 1‖ := by rw [show -s - 1 = -(s + 1) by ring, norm_neg]
+  have e2 : ‖-s - 2‖ = ‖s + 2‖ := by rw [show -s - 2 = -(s + 2) by ring, norm_neg]
+  have e3 : ‖-s - 3‖ = ‖s + 3‖ := by rw [show -s - 3 = -(s + 3) by ring, norm_neg]
+  have e4 : ‖-s - 4‖ = ‖s + 4‖ := by rw [show -s - 4 = -(s + 4) by ring, norm_neg]
+  have e5 : ‖-s - 5‖ = ‖s + 5‖ := by rw [show -s - 5 = -(s + 5) by ring, norm_neg]
+  rw [e0, e1, e2, e3, e4, e5]
+  have p0 : ‖s‖ ≤ (15 : ℝ) := norm_s_ball_half hs
+  have p1 : ‖s + 1‖ ≤ (16 : ℝ) := norm_s_add_one_ball_half hs
+  have p2 : ‖s + 2‖ ≤ (17 : ℝ) := norm_s_add_two_ball_half hs
+  have p3 : ‖s + 3‖ ≤ (18 : ℝ) := norm_s_add_three_ball_half hs
+  have p4 : ‖s + 4‖ ≤ (19 : ℝ) := norm_s_add_four_ball_half hs
+  have p5 : ‖s + 5‖ ≤ (20 : ℝ) := norm_s_add_five_ball_half hs
+  have m1 : ‖s‖ * ‖s + 1‖ ≤ 15 * 16 :=
+    mul_le_mul p0 p1 (norm_nonneg _) (by norm_num)
+  have m2 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ ≤ 15 * 16 * 17 :=
+    mul_le_mul m1 p2 (norm_nonneg _) (by norm_num)
+  have m3 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ ≤ 15 * 16 * 17 * 18 :=
+    mul_le_mul m2 p3 (norm_nonneg _) (by norm_num)
+  have m4 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ * ‖s + 4‖ ≤ 15 * 16 * 17 * 18 * 19 :=
+    mul_le_mul m3 p4 (norm_nonneg _) (by norm_num)
+  have m5 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ * ‖s + 4‖ * ‖s + 5‖ ≤
+      15 * 16 * 17 * 18 * 19 * 20 :=
+    mul_le_mul m4 p5 (norm_nonneg _) (by norm_num)
+  exact m5.trans (by norm_num)
+
+/-! ### The three residual pieces on the `1/2`-ball -/
+
+theorem pow21_neg_five : (21 : ℝ) ^ (-(5 : ℝ)) = 1 / 4084101 := by
+  rw [show (-(5 : ℝ)) = ((-5 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]
+  norm_num
+
+theorem pow21_neg_six : (21 : ℝ) ^ (-(6 : ℝ)) = 1 / 85766121 := by
+  rw [show (-(6 : ℝ)) = ((-6 : ℤ) : ℝ) by norm_num, Real.rpow_intCast]
+  norm_num
+
+/-- `ζ(6) = π⁶/945` (from `riemannZeta_two_mul_nat` and `B₆ = 1/42`). -/
+theorem riemannZeta_six : riemannZeta (6 : ℂ) = ((Real.pi ^ 6 / 945 : ℝ) : ℂ) := by
+  have hz := riemannZeta_two_mul_nat (k := 3) (by norm_num : (3 : ℕ) ≠ 0)
+  have h6c : (6 : ℂ) = 2 * ((3 : ℕ) : ℂ) := by norm_num
+  rw [h6c, hz]
+  have hb : (((_root_.bernoulli (2 * 3) : ℚ)) : ℂ) = (1 / 42 : ℂ) := by
+    have h0 : _root_.bernoulli 6 = (1 / 42 : ℚ) := by decide +kernel
+    have h1 : _root_.bernoulli (2 * 3) = _root_.bernoulli 6 := by norm_num
+    rw [h1, h0]
+    norm_num
+  have hf : ((((Nat.factorial (2 * 3)) : ℕ)) : ℂ) = (720 : ℂ) := by
+    have h0 : Nat.factorial (2 * 3) = 720 := by decide +kernel
+    rw [h0]
+    norm_num
+  rw [hb, hf]
+  have h1 : (-1 : ℂ) ^ (3 + 1) = 1 := by norm_num
+  have h2 : (2 : ℂ) ^ (2 * 3 - 1) = 32 := by norm_num
+  have h3 : (Real.pi : ℂ) ^ (2 * 3) = (Real.pi : ℂ) ^ 6 := by norm_num
+  rw [h1, h2, h3]
+  push_cast
+  field_simp
+  ring
+
+/-- The `K = 3` Euler–Maclaurin constant: `2·Re ζ(6)/(2π)⁶ = 1/30240`. -/
+theorem emConst_six : 2 * (riemannZeta (6 : ℂ)).re / (2 * Real.pi) ^ 6 = (1 / 30240 : ℝ) := by
+  have hpi : Real.pi ≠ 0 := Real.pi_ne_zero
+  have h6 : (riemannZeta (6 : ℂ)).re = Real.pi ^ 6 / 945 := by
+    rw [riemannZeta_six, Complex.ofReal_re]
+  rw [h6]
+  field_simp
+  ring
+
+/-- `|B₄| ≤ (1/720)·4080·21^{-3}` on the `1/2`-ball. -/
+theorem norm_b4_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖(-(emCoef 2) : ℂ) * emGShift s 20 3 0‖ ≤ (62 / 100000 : ℝ) := by
+  rw [norm_mul]
+  have he : ‖(-(emCoef 2) : ℂ)‖ = (1 / 720 : ℝ) := by
+    rw [emCoef_two]
+    norm_num
+  rw [he]
+  have hg : ‖emGShift s 20 3 0‖ =
+      ‖(descPochhammer ℂ 3).eval (-s)‖ * ((0 + (20 : ℝ) + 1) ^ (-s.re - 3)) :=
+    norm_emGShift s 20 3 (le_refl 0)
+  rw [hg]
+  have h21 : ((0 : ℝ) + 20 + 1) = 21 := by norm_num
+  rw [h21]
+  have hP := norm_P3_ball_half hs
+  have hsig : 0 ≤ s.re := le_of_lt (re_pos_of_ball_half hs)
+  have hexp : -s.re - 3 ≤ -(3 : ℝ) := by linarith
+  have hpow : (21 : ℝ) ^ (-s.re - 3) ≤ (21 : ℝ) ^ (-(3 : ℝ)) :=
+    Real.rpow_le_rpow_of_exponent_le (by norm_num) hexp
+  rw [pow21_neg_three] at hpow
+  calc (1 / 720) * (‖(descPochhammer ℂ 3).eval (-s)‖ * (21 : ℝ) ^ (-s.re - 3))
+      ≤ (1 / 720) * ((4080 : ℝ) * (1 / 9261)) := by
+        apply mul_le_mul_of_nonneg_left _ (by norm_num)
+        exact mul_le_mul hP hpow (by positivity) (by norm_num)
+    _ ≤ (62 / 100000 : ℝ) := by norm_num
+
+/-- `|B₆| ≤ (1/30240)·1395360·21^{-5}` on the `1/2`-ball. -/
+theorem norm_b6_ball_half {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖(-(emCoef 3) : ℂ) * emGShift s 20 5 0‖ ≤ (12 / 1000000 : ℝ) := by
+  rw [norm_mul]
+  have he : ‖(-(emCoef 3) : ℂ)‖ = (1 / 30240 : ℝ) := by
+    rw [emCoef_three]
+    norm_num
+  rw [he]
+  have hg : ‖emGShift s 20 5 0‖ =
+      ‖(descPochhammer ℂ 5).eval (-s)‖ * ((0 + (20 : ℝ) + 1) ^ (-s.re - 5)) :=
+    norm_emGShift s 20 5 (le_refl 0)
+  rw [hg]
+  have h21 : ((0 : ℝ) + 20 + 1) = 21 := by norm_num
+  rw [h21]
+  have hP := norm_P5_ball_half hs
+  have hsig : 0 ≤ s.re := le_of_lt (re_pos_of_ball_half hs)
+  have hexp : -s.re - 5 ≤ -(5 : ℝ) := by linarith
+  have hpow : (21 : ℝ) ^ (-s.re - 5) ≤ (21 : ℝ) ^ (-(5 : ℝ)) :=
+    Real.rpow_le_rpow_of_exponent_le (by norm_num) hexp
+  rw [pow21_neg_five] at hpow
+  calc (1 / 30240) * (‖(descPochhammer ℂ 5).eval (-s)‖ * (21 : ℝ) ^ (-s.re - 5))
+      ≤ (1 / 30240) * ((1395360 : ℝ) * (1 / 4084101)) := by
+        apply mul_le_mul_of_nonneg_left _ (by norm_num)
+        exact mul_le_mul hP hpow (by positivity) (by norm_num)
+    _ ≤ (12 / 1000000 : ℝ) := by norm_num
+
+/-- **`M_R(K = 3)` on the `1/2`-ball**: `‖zetaEMRemainder 3 20 s‖ ≤ 6·10⁻⁵`. -/
+theorem norm_remainder_three_ball_le {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖zetaEMRemainder 3 20 s‖ ≤ (6 / 100000 : ℝ) := by
+  have hre : 0 < s.re := re_pos_of_ball_half hs
+  have h := norm_zetaEMRemainder_le_of_re_pos 3 20 (by norm_num) s hre
+  rw [show (2 * 3 : ℕ) = 6 from by norm_num] at h
+  simp only [Nat.cast_ofNat] at h
+  rw [emConst_six, show ((20 : ℝ) + 1) = 21 from by norm_num] at h
+  have hP := norm_P6_ball_half hs
+  have hA : (21 : ℝ) ^ (-s.re - 6) ≤ (1 / 85766121 : ℝ) := by
+    have hexp : -s.re - 6 ≤ -(6 : ℝ) := by linarith
+    have h1 := Real.rpow_le_rpow_of_exponent_le (by norm_num : (1 : ℝ) ≤ 21) hexp
+    rwa [pow21_neg_six] at h1
+  have hB : (21 : ℝ) ^ (1 - s.re - 6) / (s.re + 6 - 1) ≤ (1 / 20420505 : ℝ) := by
+    have hexp : 1 - s.re - 6 ≤ -(5 : ℝ) := by linarith
+    have h1 := Real.rpow_le_rpow_of_exponent_le (by norm_num : (1 : ℝ) ≤ 21) hexp
+    have hpos : (0 : ℝ) < s.re + 6 - 1 := by linarith
+    have hden : (5 : ℝ) ≤ s.re + 6 - 1 := by linarith
+    have h2 : (21 : ℝ) ^ (1 - s.re - 6) / (s.re + 6 - 1) ≤
+        (21 : ℝ) ^ (-(5 : ℝ)) / (s.re + 6 - 1) :=
+      div_le_div_of_nonneg_right h1 (le_of_lt hpos)
+    have h3 : (21 : ℝ) ^ (-(5 : ℝ)) / (s.re + 6 - 1) ≤ (21 : ℝ) ^ (-(5 : ℝ)) / 5 :=
+      div_le_div_of_nonneg_left (by positivity) (by norm_num) hden
+    calc (21 : ℝ) ^ (1 - s.re - 6) / (s.re + 6 - 1)
+        ≤ (21 : ℝ) ^ (-(5 : ℝ)) / (s.re + 6 - 1) := h2
+      _ ≤ (21 : ℝ) ^ (-(5 : ℝ)) / 5 := h3
+      _ = (1 / 20420505 : ℝ) := by rw [pow21_neg_five]; norm_num
+  calc ‖zetaEMRemainder 3 20 s‖
+      ≤ (1 / 30240) * ‖(descPochhammer ℂ 6).eval (-s)‖ *
+          ((21 : ℝ) ^ (-s.re - 6) + (21 : ℝ) ^ (1 - s.re - 6) / (s.re + 6 - 1)) := h
+    _ ≤ (1 / 30240) * (27907200 : ℝ) *
+          ((1 / 85766121 : ℝ) + (1 / 20420505 : ℝ)) := by
+        apply mul_le_mul
+        · exact mul_le_mul_of_nonneg_left hP (by norm_num)
+        · exact add_le_add hA hB
+        · have h1 : (0 : ℝ) < (21 : ℝ) ^ (-s.re - 6) := Real.rpow_pos_of_pos (by norm_num) _
+          have h2 : (0 : ℝ) < (21 : ℝ) ^ (1 - s.re - 6) := Real.rpow_pos_of_pos (by norm_num) _
+          have h3 : (0 : ℝ) < s.re + 6 - 1 := by linarith
+          exact add_nonneg (le_of_lt h1) (le_of_lt (div_pos h2 h3))
+        · norm_num
+    _ ≤ (6 / 100000 : ℝ) := by norm_num
+
+/-! ### The residual function and its Cauchy bound -/
+
+/-- `ζ` minus the `K = 1` generator; on the `1/2`-ball this is `B₄ + B₆ + R₃`. -/
+def zetaResid (s : ℂ) : ℂ := riemannZeta s - zetaEMGen 1 20 s
+
+theorem zetaEMGen_three_expand (s : ℂ) :
+    zetaEMGen 3 20 s = zetaEMGen 1 20 s
+      + (-(emCoef 2) : ℂ) * emGShift s 20 3 0
+      + (-(emCoef 3) : ℂ) * emGShift s 20 5 0 := by
+  have h2 : zetaEMGen 3 20 s = zetaEMGen 2 20 s + (-(emCoef 3) : ℂ) * emGShift s 20 5 0 := by
+    have h := zetaEMGen_succ 2 20 s
+    simpa using h
+  have h1 : zetaEMGen 2 20 s = zetaEMGen 1 20 s + (-(emCoef 2) : ℂ) * emGShift s 20 3 0 := by
+    have h := zetaEMGen_succ 1 20 s
+    simpa using h
+  rw [h2, h1]
+
+theorem differentiableAt_zetaEMGen_one {s : ℂ} (hs : s ≠ 1) :
+    DifferentiableAt ℂ (zetaEMGen 1 20) s :=
+  (hasDerivAt_zetaEMGen_one s hs).differentiableAt
+
+theorem differentiableOn_zetaResid :
+    DifferentiableOn ℂ zetaResid (Metric.ball s14 (1/2 : ℝ)) := by
+  intro s hs
+  have hne : s ≠ 1 := ne_one_of_ball_half (mem_ball_half.mp hs)
+  exact ((differentiableAt_riemannZeta hne).sub
+    (differentiableAt_zetaEMGen_one hne)).differentiableWithinAt
+
+/-- `‖H‖ ≤ 7·10⁻⁴` on the `1/2`-ball, where `H = ζ − zetaEMGen 1 20`. -/
+theorem norm_zetaResid_le {s : ℂ} (hs : ‖s - s14‖ < (1/2 : ℝ)) :
+    ‖zetaResid s‖ ≤ (7 / 10000 : ℝ) := by
+  have hζ : riemannZeta s = zetaEM 20 s :=
+    zeta_eq_zetaEM_of_im 20 (re_pos_of_ball_half hs) (im_bounds_of_ball_half hs).1
+      (im_bounds_of_ball_half hs).2
+  have hsplit : zetaEM 20 s = zetaEMGen 3 20 s + zetaEMRemainder 3 20 s := by
+    rw [zetaEMRemainder]
+    ring
+  have hval : zetaResid s = (-(emCoef 2) : ℂ) * emGShift s 20 3 0
+      + (-(emCoef 3) : ℂ) * emGShift s 20 5 0 + zetaEMRemainder 3 20 s := by
+    rw [zetaResid, hζ, hsplit, zetaEMGen_three_expand]
+    ring
+  have h4 := norm_b4_ball_half hs
+  have h6 := norm_b6_ball_half hs
+  have hr := norm_remainder_three_ball_le hs
+  calc ‖zetaResid s‖
+      = ‖(-(emCoef 2) : ℂ) * emGShift s 20 3 0 + (-(emCoef 3) : ℂ) * emGShift s 20 5 0
+          + zetaEMRemainder 3 20 s‖ := by rw [hval]
+    _ ≤ ‖(-(emCoef 2) : ℂ) * emGShift s 20 3 0
+            + (-(emCoef 3) : ℂ) * emGShift s 20 5 0‖
+          + ‖zetaEMRemainder 3 20 s‖ := norm_add_le _ _
+    _ ≤ (‖(-(emCoef 2) : ℂ) * emGShift s 20 3 0‖
+            + ‖(-(emCoef 3) : ℂ) * emGShift s 20 5 0‖)
+          + ‖zetaEMRemainder 3 20 s‖ := by
+        linarith [norm_add_le ((-(emCoef 2) : ℂ) * emGShift s 20 3 0)
+          ((-(emCoef 3) : ℂ) * emGShift s 20 5 0)]
+    _ ≤ (62 / 100000 : ℝ) + (12 / 1000000 : ℝ) + (6 / 100000 : ℝ) := by
+        linarith [h4, h6, hr]
+    _ ≤ (7 / 10000 : ℝ) := by norm_num
+
+/-- **`h1(b)`**: `|H′(s14)| ≤ 2·(7·10⁻⁴)/(1/2) = 28·10⁻⁴`, one Cauchy application. -/
+theorem norm_deriv_zetaResid_le : ‖deriv zetaResid s14‖ ≤ (28 / 10000 : ℝ) := by
+  have hR : (0 : ℝ) < 1 / 2 := by norm_num
+  have h := norm_deriv_le_of_norm_le_on_ball (f := zetaResid) (c := s14) (R := 1 / 2)
+    (M := 7 / 10000) hR differentiableOn_zetaResid
+    (fun z hz => norm_zetaResid_le (mem_ball_half.mp hz))
+  have h2 : 2 * (7 / 10000 : ℝ) / (1 / 2) = (28 / 10000 : ℝ) := by norm_num
+  linarith [h, h2]
+
+theorem deriv_zeta_eq_gen_one_add :
+    deriv riemannZeta s14 = deriv (zetaEMGen 1 20) s14 + deriv zetaResid s14 := by
+  have hfun : riemannZeta = fun s => zetaEMGen 1 20 s + zetaResid s := by
+    funext s
+    show riemannZeta s = zetaEMGen 1 20 s + (riemannZeta s - zetaEMGen 1 20 s)
+    ring
+  rw [hfun]
+  exact deriv_add (differentiableAt_zetaEMGen_one s14_ne_one)
+    ((differentiableAt_riemannZeta s14_ne_one).sub (differentiableAt_zetaEMGen_one s14_ne_one))
+
+/-! ### `h1(c)`: the box for `1 - Yk·(gen₁)′` and the assembly -/
+
+/-- `Yk` as a point box. -/
+def Ybox : Cx := ptBox (12436403768 / 10000000000) (-3397942771 / 10000000000)
+
+/-- The box for `1 - Yk·V`, with `V ∈ Vbox`. -/
+def Wbox : Cx := (ptBox 1 0).sub (Ybox.mul Vbox)
+
+theorem mem_Ybox : Ybox.mem Yk := by
+  apply mem_ptBox <;> simp [Yk]
+
+theorem mem_Wbox :
+    Wbox.mem (1 - Yk * deriv (zetaEMGen 1 20) s14) :=
+  Cx.mem_sub (mem_ptBox (by simp) (by simp)) (Cx.mem_mul mem_Ybox mem_Vbox)
+
+/-- The corner test for `Wbox`: the true value `|1 − Yk·V| = 3.62·10⁻⁴`. -/
+theorem corner_Wbox :
+    (maxAbsIv Wbox.re) ^ 2 + (maxAbsIv Wbox.im) ^ 2 ≤ ((1 / 2000 : ℚ)) ^ 2 := by
+  native_decide
+
+theorem norm_Wbox_le :
+    ‖1 - Yk * deriv (zetaEMGen 1 20) s14‖ ≤ (1 / 2000 : ℝ) := by
+  apply norm_le_of_mem_box mem_Wbox (by norm_num)
+  have hcast : ((maxAbsIv Wbox.re) ^ 2 + (maxAbsIv Wbox.im) ^ 2 : ℝ) ≤
+      (((1 / 2000 : ℚ) : ℝ)) ^ 2 := by
+    exact_mod_cast corner_Wbox
+  simpa using hcast
+
+/-- **`h1` — the point enclosure of `ζ′` at `1/2 + 14i`.**
+
+`1 − Yk·ζ′ = (1 − Yk·(gen₁)′) − Yk·H′` with `|H′| ≤ 28·10⁻⁴` (T…), so
+`‖1 − Yk·ζ′‖ ≤ 1/2000 + 1.29·28·10⁻⁴ = 4.112·10⁻³ ≤ 1/200`. -/
+theorem h1_deriv : ‖1 - Yk * deriv riemannZeta s14‖ ≤ (1 / 200 : ℝ) := by
+  have hsplit : 1 - Yk * deriv riemannZeta s14 =
+      (1 - Yk * deriv (zetaEMGen 1 20) s14) - Yk * deriv zetaResid s14 := by
+    rw [deriv_zeta_eq_gen_one_add]
+    ring
+  calc ‖1 - Yk * deriv riemannZeta s14‖
+      = ‖(1 - Yk * deriv (zetaEMGen 1 20) s14) - Yk * deriv zetaResid s14‖ := by rw [hsplit]
+    _ ≤ ‖1 - Yk * deriv (zetaEMGen 1 20) s14‖ + ‖Yk * deriv zetaResid s14‖ :=
+        norm_sub_le _ _
+    _ ≤ (1 / 2000 : ℝ) + 1.29 * (28 / 10000 : ℝ) := by
+        have hm : ‖Yk * deriv zetaResid s14‖ ≤ (1.29 : ℝ) * (28 / 10000 : ℝ) := by
+          rw [norm_mul]
+          exact mul_le_mul norm_Yk_le norm_deriv_zetaResid_le (norm_nonneg _) (by norm_num)
+        linarith [norm_Wbox_le, hm]
+    _ ≤ (1 / 200 : ℝ) := by norm_num
+
 end FiniteWindowZeros

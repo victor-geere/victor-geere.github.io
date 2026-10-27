@@ -115,7 +115,7 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
 | 1. Euler-acceleration bounds in `EtaEM.lean` | **superseded** — the expansion is asymptotic, not convergent; see "Route change" |
 | 2. Replace the 10⁶-term block | **superseded** — Euler–Maclaurin reaches the bound with 21 atoms |
 | 3. `‖ζ(1/2+14i)‖ ≤ 1/8` | **DONE** (T320/T321), sharpened to `23/200` (T322) |
-| 4. `hC` | **REDUCED to `h1` + `h2`** (T329); `h2` has a concrete plan with no analytic unknowns |
+| 4. `hC` | **REDUCED to `h1` + `h2`** (T329); `h1` is **DONE** (T391, `h1_deriv`), `h2` has a concrete plan with no analytic unknowns |
 | 5. Final zero theorem | **DONE, conditional on step 4** (`zeta_zero_14_of_bounds`, T329) |
 
 Old blockers 1–3 (noncomputable box evaluation, slow Python mirror, algebraic-only
@@ -355,15 +355,22 @@ Do this first, then the finite sum over `n ≤ 20`, then the pole term
 (`‖1 - Yk·ζ′‖ ≤ 1/4` on `‖w-s0‖ ≤ 1/4`) is still open, so **no zero is
 certified yet**. No RH or infinite-positivity claim is made anywhere.
 
-## Next steps, in order (current — round 17)
+## Next steps, in order (current — round I.294)
+
+`h1` is **done**: `h1_deriv : ‖1 - Yk * deriv riemannZeta s14‖ ≤ 1/200`
+(`EMDeriv.lean`, T391; the `h1(a)/(b)/(c)` split and the `ρ = 1/2` radius
+change are recorded in `research-journal-003.md`, I.293–I.294).  What remains
+is `h2` only.
 
 See "The remaining work for `h2` — resolved design" above.  In short:
 
 1. Point enclosures of `c_k = ζ^{(k)}(s14)/k!`, `k = 1..5` (the bulk of the work;
-   no `Cx.inv` needed).
+   no `Cx.inv` needed).  Reuse the `21^{-s14}`-atom + scalar-box pattern of
+   T330–T351 (`Vbox`), with `Cx` powers of the `log 21` box for the higher
+   derivatives.
 2. Modulus bounds `sup|G^{(6)}| ≤ 2134` over the `1/5`-ball.
 3. Taylor inequality via `norm_sub_le_of_deriv_bound` + `AnalyticAt.fderiv`.
-4. `h2`, then `h1` from `c_1`, then `zeta_zero_14_of_bounds h1 h2`.
+4. `h2`, then the unconditional `zeta_zero_14_of_bounds h1_deriv h2`.
 
 Budget: several rounds.  Probe item 1's enclosure numerically before writing it.
 
