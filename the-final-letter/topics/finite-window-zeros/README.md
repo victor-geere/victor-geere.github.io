@@ -476,6 +476,9 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T397 | Theorem | ****Factorization of `zetaEMGen 3 20`:**** `Σ_{n≤20} n^{-s} + 21^{-s}·Ψ₃(s)` with `Ψ₃` rational (`def Psi3`); every derivative at `s14` is thus a Gaussian rational times a power of `log 21`. | `gen3_eq_sum_psi` (`EMTaylor.lean`) |
 | T398 | Theorem | **`iteratedDeriv k (b^{-s}) = (-log b)^k · b^{-s}`** (`b ≠ 0`): the exponential factor of every Taylor coefficient (powers of `log 21`, moments `(log n)^k`). | `iteratedDeriv_cpow_neg` (`EMTaylor.lean`) |
 | T399 | Theorem | **`s ↦ b^{-s}` is `C^∞` for `b ≠ 0`** (via `b^{-s} = exp(-s·log b)`), the differentiability input for `iteratedDeriv` of the base sum. | `contDiffAt_cpow_neg` (`EMTaylor.lean`) |
+| T400 | Theorem | ****Base sum, `k`-th derivative:**** `iteratedDeriv k (Σ_{n≤20} n^{-s}) = Σ (log n)^k n^{-s}` (via an `Finset.sum_apply` bridge and `iteratedDeriv_sum`). | `iteratedDeriv_sum_cpow` (`EMTaylor.lean`) |
+| T401 | Theorem | ****Leibniz with `21^{-s}`:**** `iteratedDeriv k (21^{-s}·g(s)) = Σ_i C(k,i) (−log21)^i 21^{-s} · g^{(k−i)}`. | `iteratedDeriv_mul_pow21` (`EMTaylor.lean`) |
+| T402 | Theorem | ****Pole factor, `j`-th derivative:**** `iteratedDeriv j ((s−1)⁻¹) = (−1)^j j! ((s−1)^{j+1})⁻¹` for `s ≠ 1`. | `iteratedDeriv_inv_sub_one` (`EMTaylor.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

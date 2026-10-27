@@ -464,3 +464,34 @@ robust fallback, not yet tried, is `Finset.induction` on the sum with
 or state the result as an equality of *functions*
 (`iteratedDeriv k (∑ n ∈ range 20, fun z => …) = …`) so the expected type fixes
 all implicits.  `EMTaylor.lean` is green at T399; nothing is left uncommitted.
+
+### 2026-10-27 — I.299: the derivative toolkit for `c_k` (T400–T402)
+
+Three of the four derivative formulas needed for the Taylor coefficients now
+compile in `EMTaylor.lean`:
+
+* `iteratedDeriv_sum_cpow` — `iteratedDeriv k (Σ_{n≤20} n^{-s}) s =
+  Σ (log n)^k n^{-s}`.  **The `iteratedDeriv_sum` friction of I.297/I.298 is
+  solved**: (i) bridge the lambda to a sum of *functions* first
+  (`hfun : (fun z => ∑ n, g n z) = ∑ n, fun z => g n z`, by
+  `funext; simp [Finset.sum_apply]`), (ii) pass **every** implicit explicitly —
+  `iteratedDeriv_sum (n := k) (x := s) (I := Finset.range 20)
+  (f := fun (n : ℕ) => fun z => …)` — the `(n : ℕ)` annotation is essential
+  or Lean infers the index type `ℝ`.
+* `iteratedDeriv_mul_pow21` — Leibniz with the exponential factor.
+* `iteratedDeriv_inv_sub_one` — `d^j (s−1)⁻¹ = (−1)^j j! ((s−1)^{j+1})⁻¹`,
+  state:d pointwise with `s ≠ 1`; the induction uses
+  `Filter.EventuallyEq.deriv_eq` on the punctured neighbourhood (add
+  `open Filter Topology` for `𝓝`).
+
+Still needed: the polynomial factor `iteratedDeriv j (fun s => p.eval (-s)) s =
+(-1)^j (p.derivative^[j]).eval (-s)` for `p = descPochhammer ℂ 3, 5`.  There is
+**no** `Polynomial.hasDerivAt` in this Mathlib; the next step is to locate the
+derivative-of-polynomial-eval lemma (candidates: `Polynomial.deriv_eval`,
+`Polynomial.derivative_eval`, or the `HasDerivAt` instance in
+`Mathlib/Analysis/Calculus/Deriv/Polynomial.lean` — not yet found), or to prove
+it from `Polynomial.derivative` by induction on the polynomial.
+
+After that: evaluate `Ψ₃^{(j)}(s14)` (`j ≤ 6`) as Gaussian rationals in the ring
+`ℚ(i)[log 21]`, box them with the `Vbox`-style arithmetic, and bound
+`|c_k|`.  The numerical targets are in §2b.

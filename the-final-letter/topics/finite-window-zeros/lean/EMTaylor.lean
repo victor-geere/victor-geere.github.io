@@ -24,6 +24,7 @@ noncomputable section
 namespace FiniteWindowZeros
 
 open PartialTail
+open Filter Topology
 
 /-! ## Folding the higher `21`-powers -/
 
@@ -122,5 +123,91 @@ theorem contDiffAt_cpow_neg (b : ℂ) (hb : b ≠ 0) (n : WithTop ℕ∞) (s : �
     rw [Complex.cpow_def, if_neg hb, mul_comm]
   rw [hfun]
   exact Complex.contDiff_exp.contDiffAt.comp s (by fun_prop)
+
+/-- **The base sum differentiated `k` times.** -/
+theorem iteratedDeriv_sum_cpow (k : ℕ) (s : ℂ) :
+    iteratedDeriv k
+        (fun z : ℂ => ∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-z))) s
+      = ∑ n ∈ Finset.range 20,
+          (-Complex.log ((((n + 1 : ℝ)) : ℂ))) ^ k * ((((n + 1 : ℝ)) : ℂ) ^ (-s)) := by
+  have hf : ∀ n ∈ Finset.range 20,
+      ContDiffAt ℂ (k : WithTop ℕ∞) (fun z : ℂ => ((((n + 1 : ℝ)) : ℂ) ^ (-z))) s := by
+    intro n hn
+    refine contDiffAt_cpow_neg _ ?_ k s
+    intro hzero
+    have hre := congrArg Complex.re hzero
+    rw [Complex.ofReal_re, Complex.zero_re] at hre
+    have hn0 : (0:ℝ) ≤ (n:ℝ) := Nat.cast_nonneg n
+    linarith
+  have hfun : (fun z : ℂ => ∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+      = ∑ n ∈ Finset.range 20, fun z : ℂ => ((((n + 1 : ℝ)) : ℂ) ^ (-z)) := by
+    funext z
+    simp [Finset.sum_apply]
+  rw [hfun]
+  rw [iteratedDeriv_sum (n := k) (x := s) (I := Finset.range 20)
+    (f := fun (n : ℕ) => fun z : ℂ => ((((n + 1 : ℝ)) : ℂ) ^ (-z))) hf]
+  apply Finset.sum_congr rfl
+  intro n hn
+  exact congrFun (iteratedDeriv_cpow_neg _ (by
+    intro hzero
+    have hre := congrArg Complex.re hzero
+    rw [Complex.ofReal_re, Complex.zero_re] at hre
+    have hn0 : (0:ℝ) ≤ (n:ℝ) := Nat.cast_nonneg n
+    linarith) k) s
+
+
+/-- **Leibniz with the `21^{-s}` factor.** -/
+theorem iteratedDeriv_mul_pow21 (k : ℕ) (g : ℂ → ℂ) (s : ℂ)
+    (hg : ContDiffAt ℂ (k : WithTop ℕ∞) g s) :
+    iteratedDeriv k (fun s : ℂ => (21 : ℂ) ^ (-s) * g s) s
+      = ∑ i ∈ Finset.range (k + 1),
+          (k.choose i : ℂ) * ((-Complex.log 21) ^ i * (21 : ℂ) ^ (-s))
+            * iteratedDeriv (k - i) g s := by
+  have hf : ContDiffAt ℂ (k : WithTop ℕ∞) (fun s : ℂ => (21 : ℂ) ^ (-s)) s :=
+    contDiffAt_cpow_neg _ (by norm_num) k s
+  have hfm : (fun s : ℂ => (21 : ℂ) ^ (-s) * g s)
+      = (fun s : ℂ => (21 : ℂ) ^ (-s)) * g := rfl
+  rw [hfm, iteratedDeriv_mul (n := k) (x := s) (f := fun s : ℂ => (21 : ℂ) ^ (-s))
+    (g := g) hf hg]
+  apply Finset.sum_congr rfl
+  intro i hi
+  rw [iteratedDeriv_cpow_neg (21 : ℂ) (by norm_num) i]
+
+
+/-- **`d^j/ds^j (s-1)^{-1} = (-1)^j · j! · ((s-1)^{j+1})^{-1}`.** -/
+theorem iteratedDeriv_inv_sub_one (j : ℕ) {s : ℂ} (hs : s ≠ 1) :
+    iteratedDeriv j (fun s : ℂ => (s - 1)⁻¹) s
+      = (-1 : ℂ) ^ j * (((j.factorial : ℕ)) : ℂ) * (((s - 1) ^ (j + 1))⁻¹) := by
+  induction j generalizing s with
+  | zero =>
+      rw [iteratedDeriv_zero]
+      simp
+  | succ j ih =>
+      rw [iteratedDeriv_succ]
+      have heq : iteratedDeriv j (fun s : ℂ => (s - 1)⁻¹) =ᶠ[𝓝 s]
+          fun t => (-1 : ℂ) ^ j * (((j.factorial : ℕ)) : ℂ) * (((t - 1) ^ (j + 1))⁻¹) := by
+        filter_upwards [isOpen_ne.mem_nhds hs] with t ht
+        exact ih ht
+      rw [heq.deriv_eq]
+      have hs1 : s - 1 ≠ 0 := sub_ne_zero.mpr hs
+      have hpow : HasDerivAt (fun t : ℂ => (t - 1) ^ (j + 1))
+          ((j + 1 : ℕ) * (s - 1) ^ j) s := by
+        have h1 : HasDerivAt (fun t : ℂ => t - 1) (1 : ℂ) s :=
+          (hasDerivAt_id s).sub_const (1 : ℂ)
+        have hp := h1.pow (j + 1)
+        convert hp using 1
+        push_cast
+        ring
+      have hinv : HasDerivAt (fun t : ℂ => ((t - 1) ^ (j + 1))⁻¹)
+          (-((j + 1 : ℕ) * (s - 1) ^ j) / ((s - 1) ^ (j + 1)) ^ 2) s :=
+        hpow.inv (pow_ne_zero _ hs1)
+      have hc := hinv.const_mul ((-1 : ℂ) ^ j * (((j.factorial : ℕ)) : ℂ))
+      rw [hc.deriv]
+      have hnp : (s - 1) ^ (j + 1) ≠ 0 := pow_ne_zero _ hs1
+      rw [Nat.factorial_succ]
+      push_cast
+      field_simp
+      ring
+
 
 end FiniteWindowZeros
