@@ -703,3 +703,27 @@ obstacles, both in supplying the `ContDiffAt` hypotheses:
 The main file is green and committed at T414; the probe was deleted.  **Next
 session**: supply the sum's `ContDiffAt` by *induction over `Finset.range 20`*
 (or `ContDiffAt.sum` with all implicits), then the corollary.
+
+### 2026-10-27 — I.308: the `gen3^{(k)}` corollary (T415)
+
+`iteratedDeriv_gen3` compiles — the closed form of the `k`-th derivative of the
+`K = 3` generator, i.e. **the input to the `c_k` boxes**:
+
+```lean
+iteratedDeriv k (zetaEMGen 3 20) s
+  = Σ_{n≤20} (−log n)^k n^{−s}
+    + Σ_{i≤k} C(k,i)(−log21)^i 21^{−s} · iteratedDeriv (k−i) Ψ₃ s     (s ≠ 1)
+```
+
+Both obstacles of I.307 solved:
+1. `ContDiffAt.sum`'s conclusion is *already* `ContDiffAt _ _ (fun x => ∑ i, f i x)`
+   — so do **not** apply the `Finset.sum_apply` bridge first (it moves the goal
+   away from the lemma); just `apply ContDiffAt.sum`.
+2. `gen3_eq_sum_psi` is a *pointwise* equality, so `rw` cannot rewrite under
+   `iteratedDeriv`; build the function equality first
+   (`funext z; exact gen3_eq_sum_psi z`), then `rw`, then the
+   `(fun z => A z + B z) = A + B` `rfl`-bridge for `iteratedDeriv_add`.
+
+**Next:** evaluate at `s = s14`, build the boxes
+`(dsPowPow k) + cpowBox 21 S14 · scalarBox k` (exact `Ψ₃^{(j)}(s14)` and `S_k` in
+I.303), add the `R₃` Cauchy correction, and bound `|c_k|`.

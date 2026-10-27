@@ -363,4 +363,39 @@ theorem contDiffAt_Psi3 (n : WithTop ℕ∞) {s : ℂ} (hs : s ≠ 1) :
       (contDiffAt_polynomial_eval_neg (descPochhammer ℂ 5) _ s) _)
 
 
+/-- **The `k`-th derivative of the `K = 3` generator**, in closed form. -/
+theorem iteratedDeriv_gen3 (k : ℕ) {s : ℂ} (hs : s ≠ 1) :
+    iteratedDeriv k (zetaEMGen 3 20) s
+      = (∑ n ∈ Finset.range 20,
+            (-Complex.log ((((n + 1 : ℝ)) : ℂ))) ^ k * ((((n + 1 : ℝ)) : ℂ) ^ (-s)))
+        + ∑ i ∈ Finset.range (k + 1),
+            (k.choose i : ℂ) * ((-Complex.log 21) ^ i * (21 : ℂ) ^ (-s))
+              * iteratedDeriv (k - i) Psi3 s := by
+  have hsum : ContDiffAt ℂ (k : WithTop ℕ∞)
+      (fun z : ℂ => ∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-z))) s := by
+    apply ContDiffAt.sum
+    intro n hn
+    refine contDiffAt_cpow_neg _ ?_ k s
+    intro hzero
+    have hre := congrArg Complex.re hzero
+    rw [Complex.ofReal_re, Complex.zero_re] at hre
+    have hn0 : (0:ℝ) ≤ (n:ℝ) := Nat.cast_nonneg n
+    linarith
+  have hprod : ContDiffAt ℂ (k : WithTop ℕ∞)
+      (fun z : ℂ => (21 : ℂ) ^ (-z) * Psi3 z) s :=
+    (contDiffAt_cpow_neg 21 (by norm_num) k s).mul (contDiffAt_Psi3 k hs)
+  have hfun : (zetaEMGen 3 20 : ℂ → ℂ)
+      = fun z : ℂ => (∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+        + (21 : ℂ) ^ (-z) * Psi3 z := by
+    funext z
+    exact gen3_eq_sum_psi z
+  rw [hfun]
+  rw [show (fun z : ℂ => (∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+        + (21 : ℂ) ^ (-z) * Psi3 z)
+      = (fun z : ℂ => ∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-z)))
+        + (fun z : ℂ => (21 : ℂ) ^ (-z) * Psi3 z) from rfl]
+  rw [iteratedDeriv_add hsum hprod, iteratedDeriv_sum_cpow,
+    iteratedDeriv_mul_pow21 k Psi3 s (contDiffAt_Psi3 _ hs)]
+
+
 end FiniteWindowZeros
