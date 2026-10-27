@@ -230,3 +230,35 @@ Currently 218 lines, so no split yet.
 on the sum side, `cpowBox_mem` × `scalarBox` (`mem_ptBox`, `mem_logBox`,
 `Cx.mem_mul`) on the `21^{-s14}` side, then `scalar_eq_deriv` to match the
 scalar and `ofReal_log_natCast` to match the logs.
+
+### 2026-10-27 — I.285: `V_eq` proved; the membership's cast problem named
+
+`V_eq` (T349a) compiled **first try**:
+
+    -(sum n^-s log n) + 21^(1-s)(...) - log21 21^-s/2 + (1/12)(21^-(s+1) - s log21 21^-(s+1))
+      = -(sum n^-s log n) + 21^-s (log21 * A1c + A0c)
+
+by `rw [pow21_one_sub, pow21_neg_succ]` then
+`linear_combination 21^(-s14) * scalar_eq_deriv`.  That is the whole algebraic
+content of `h1(a)`.
+
+The **membership wiring itself hit trap #4** and was not finished.  The precise
+problem, so it does not have to be rediscovered:
+
+* `cpowBox 21 S14` and `logIvRat 20 21` are keyed by `b : ℕ`, so their values
+  are phrased with `(((21 : ℕ) : ℝ) : ℂ)` — i.e. `↑↑21`;
+* T339 / `V_eq` / `pow21_one_sub` / `pow21_neg_succ` use `(21 : ℂ)`, i.e.
+  `↑21` (OfNat);
+* `mem_logBox` concludes with `↑(Real.log (b:ℝ))`, not `Complex.log`.
+
+Added `mem_logBox'` (T349), which concludes with
+`Complex.log (((b : ℕ) : ℝ) : ℂ)` — one `rw [← ofReal_log_natCast]` — so the
+`log` side now matches the box directly.  **Next session should settle the
+`↑↑21` vs `↑21` side the same way**: either restate `pow21_one_sub`,
+`pow21_neg_succ`, `V_eq` with `(((21 : ℕ) : ℝ) : ℂ)` throughout (recommended —
+then every object in the membership speaks the same dialect), or insert a
+`Complex.cpow` congruence lemma `(21:ℂ) = ((↑21:ℕ):ℝ:ℂ)` once and rewrite.
+
+Note: `grep sorry` in `EMDeriv.lean` only hits the header prose line; the audit
+strips block comments, so that is not a violation (other files carry the same
+line).

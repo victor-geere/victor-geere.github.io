@@ -310,4 +310,24 @@ theorem ofReal_log_natCast (b : ℕ) (hb : 1 ≤ b) :
     ((Real.log (b : ℝ) : ℝ) : ℂ) = Complex.log ((b : ℝ) : ℂ) :=
   Complex.ofReal_log (by positivity)
 
+/-- **`V` refactored.**  T339's derivative at `s14`, with the `21`-powers folded
+onto `21^{-s14}` (T342/T343) and the scalar factored (T347). -/
+theorem V_eq :
+    -(∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-s14)) * Complex.log ((((n + 1 : ℝ)) : ℂ)))
+        + (21 : ℂ) ^ (1 - s14) * (-(Complex.log 21) / (s14 - 1) - 1 / (s14 - 1) ^ 2)
+        - Complex.log 21 * (21 : ℂ) ^ (-s14) / 2
+        + (1 / 12 : ℂ) * ((21 : ℂ) ^ (-(s14 + 1))
+            + s14 * (-(Complex.log 21) * (21 : ℂ) ^ (-(s14 + 1))))
+      = -(∑ n ∈ Finset.range 20, ((((n + 1 : ℝ)) : ℂ) ^ (-s14)) * Complex.log ((((n + 1 : ℝ)) : ℂ)))
+        + (21 : ℂ) ^ (-s14) * (Complex.log 21 * A1c + A0c) := by
+  rw [pow21_one_sub, pow21_neg_succ]
+  linear_combination ((21 : ℂ) ^ (-s14)) * scalar_eq_deriv
+
+/-- **The `log` box, phrased with `Complex.log`** so that the membership proof
+does not have to bridge `↑(Real.log b)` to `Complex.log ↑b` inside the goal. -/
+theorem mem_logBox' (N b : ℕ) (hb : 1 ≤ b) :
+    (⟨logIvRat N b, (⟨0, 0⟩ : Iv)⟩ : Cx).mem (Complex.log (((b : ℕ) : ℝ) : ℂ)) := by
+  rw [← ofReal_log_natCast b hb]
+  exact mem_logBox N b hb
+
 end FiniteWindowZeros
