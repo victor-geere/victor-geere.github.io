@@ -488,4 +488,62 @@ theorem norm_P5_ball {s : ℂ} (hs : ‖s - s14‖ ≤ (0.35 : ℝ)) :
     mul_le_mul m3 p4 (norm_nonneg _) (by norm_num)
   exact m4.trans (by norm_num)
 
+/-- On the `0.35`-ball, `‖P₆(s)‖ <= 30000000`. -/
+theorem norm_P6_ball {s : ℂ} (hs : ‖s - s14‖ ≤ (0.35 : ℝ)) :
+    ‖(descPochhammer ℂ 6).eval (-s)‖ ≤ (30000000 : ℝ) := by
+  have h6 : (descPochhammer ℂ 6).eval (-s) =
+      (-s) * (-s - 1) * (-s - 2) * (-s - 3) * (-s - 4) * (-s - 5) := by
+    simp [descPochhammer]
+    ring
+  rw [h6, norm_mul, norm_mul, norm_mul, norm_mul, norm_mul]
+  have e0 : ‖-s‖ = ‖s‖ := norm_neg s
+  have e1 : ‖-s - 1‖ = ‖s + 1‖ := by rw [show -s - 1 = -(s + 1) by ring, norm_neg]
+  have e2 : ‖-s - 2‖ = ‖s + 2‖ := by rw [show -s - 2 = -(s + 2) by ring, norm_neg]
+  have e3 : ‖-s - 3‖ = ‖s + 3‖ := by rw [show -s - 3 = -(s + 3) by ring, norm_neg]
+  have e4 : ‖-s - 4‖ = ‖s + 4‖ := by rw [show -s - 4 = -(s + 4) by ring, norm_neg]
+  have e5 : ‖-s - 5‖ = ‖s + 5‖ := by rw [show -s - 5 = -(s + 5) by ring, norm_neg]
+  rw [e0, e1, e2, e3, e4, e5]
+  have p0 : ‖s‖ ≤ (14.85 : ℝ) := norm_le_ball hs
+  have p1 : ‖s + 1‖ ≤ (15.85 : ℝ) := by
+    have h := ball_add_le (s := s) hs (t := (1:ℂ)) (c := 15.5) norm_s14_add_one_le
+      (by norm_num) (by norm_num)
+    linarith
+  have p2 : ‖s + 2‖ ≤ (16.85 : ℝ) := by
+    have h := ball_add_le (s := s) hs (t := (2:ℂ)) (c := 16.5) norm_s14_add_two_le
+      (by norm_num) (by norm_num)
+    linarith
+  have p3 : ‖s + 3‖ ≤ (17.85 : ℝ) := by
+    have h := ball_add_le (s := s) hs (t := (3:ℂ)) (c := 17.5) norm_s14_add_three_le
+      (by norm_num) (by norm_num)
+    linarith
+  have p4 : ‖s + 4‖ ≤ (18.85 : ℝ) := by
+    have h : ‖s14 + (4:ℂ)‖ ≤ (18.5 : ℝ) := by
+      have h2 := norm_add_le s14 (4 : ℂ)
+      have h3 : ‖(4 : ℂ)‖ = (4 : ℝ) := by norm_num
+      rw [h3] at h2
+      linarith [norm_s14_le]
+    have hb := ball_add_le (s := s) hs (t := (4:ℂ)) (c := 18.5) h (by norm_num) (by norm_num)
+    linarith
+  have p5 : ‖s + 5‖ ≤ (19.85 : ℝ) := by
+    have h : ‖s14 + (5:ℂ)‖ ≤ (19.5 : ℝ) := by
+      have h2 := norm_add_le s14 (5 : ℂ)
+      have h3 : ‖(5 : ℂ)‖ = (5 : ℝ) := by norm_num
+      rw [h3] at h2
+      linarith [norm_s14_le]
+    have hb := ball_add_le (s := s) hs (t := (5:ℂ)) (c := 19.5) h (by norm_num) (by norm_num)
+    linarith
+  have m1 : ‖s‖ * ‖s + 1‖ ≤ 14.85 * 15.85 :=
+    mul_le_mul p0 p1 (norm_nonneg _) (by norm_num)
+  have m2 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ ≤ 14.85 * 15.85 * 16.85 :=
+    mul_le_mul m1 p2 (norm_nonneg _) (by norm_num)
+  have m3 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ ≤ 14.85 * 15.85 * 16.85 * 17.85 :=
+    mul_le_mul m2 p3 (norm_nonneg _) (by norm_num)
+  have m4 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ * ‖s + 4‖ ≤
+      14.85 * 15.85 * 16.85 * 17.85 * 18.85 :=
+    mul_le_mul m3 p4 (norm_nonneg _) (by norm_num)
+  have m5 : ‖s‖ * ‖s + 1‖ * ‖s + 2‖ * ‖s + 3‖ * ‖s + 4‖ * ‖s + 5‖ ≤
+      14.85 * 15.85 * 16.85 * 17.85 * 18.85 * 19.85 :=
+    mul_le_mul m4 p5 (norm_nonneg _) (by norm_num)
+  exact m5.trans (by norm_num)
+
 end FiniteWindowZeros

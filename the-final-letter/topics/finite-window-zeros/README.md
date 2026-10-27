@@ -434,6 +434,7 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T355 | Theorem | **`P₃` on the ball:** `‖s - s14‖ ≤ 0.35 → ‖P₃(s)‖ ≤ 4500`. | `norm_P3_ball` (`EMDeriv.lean`) |
 | T356 | Theorem | **Generic ball-triangle step:** `‖s - s14‖ ≤ r` and `‖s14 + t‖ ≤ c` give `‖s + t‖ ≤ r + c`. | `ball_add_le` (`EMDeriv.lean`) |
 | T357 | Theorem | **`P₅` on the ball:** `‖s - s14‖ ≤ 0.35 → ‖P₅(s)‖ ≤ 2000000`. | `norm_P5_ball` (`EMDeriv.lean`) |
+| T358 | Theorem | **`P₆` on the ball:** `‖s - s14‖ ≤ 0.35 → ‖P₆(s)‖ ≤ 3·10⁷` (needed for `M_R(K=3)`). | `norm_P6_ball` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

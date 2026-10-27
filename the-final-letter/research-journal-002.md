@@ -406,3 +406,25 @@ fixes it — **when a lemma is polymorphic over a shift, take a `ℂ`, not a `�
 
 `h1(b)` now needs only: `M_R(K=3)` over the `0.35`-ball, three
 `norm_deriv_le_of_norm_le_on_ball` applications, and the `h1` assembly.
+
+### 2026-10-27 — I.292: `P₆` ball bound (T358)
+
+`norm_P6_ball`: on `‖s - s14‖ ≤ 0.35`, `‖P₆(s)‖ ≤ 3·10⁷` (true product
+`14.85·…·19.85 = 2.648·10⁷`).  Straight copy of `norm_P5_ball` with six factors;
+`ball_add_le` (T356) made the two extra shift bounds one line each.
+
+**Arithmetic for the remaining `M_R(K=3)` step** (checked by hand; re-verify
+before writing Lean): with `σ = Re z ≥ 0.5 - 0.35 = 0.15`,
+
+    M_R <= (1/30240) · 3e7 · (21^-6.15 + 21^-5.15/5.15)
+        <= (1/30240) · 3e7 · (1/85766121 + 1/20420505)
+         = 992 · 6.06e-8 = 6.0e-5
+
+so use `M_R(K=3, 0.35-ball) <= 6e-5` (the journal's earlier `3.97e-5` was for
+`σ = 0.05`; the ball forces `σ ≥ 0.15`).  At `ρ = 0.35` this gives
+`|R₃'| <= 2·6e-5/0.35 = 3.4e-4`, so the I.289 table's `2.27e-4` becomes `3.4e-4`
+and the total `1.29·(2.15e-3 + 3.9e-5 + 3.4e-4) = 3.27e-3` — still well inside
+the `5e-3` budget, so `ρ = 0.35` remains the right choice.
+
+`h1(b)` now needs only: that `M_R` statement, three
+`norm_deriv_le_of_norm_le_on_ball` applications, and the `h1` assembly.
