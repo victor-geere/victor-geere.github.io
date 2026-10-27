@@ -679,3 +679,27 @@ and fails) — use `fun_prop` instead.
 This was the last missing `ContDiffAt`, so `iteratedDeriv k (zetaEMGen 3 20) s`
 now follows from `gen3_eq_sum_psi`, `iteratedDeriv_add` (both sides smooth:
 T399-sum and `ContDiffAt.mul` of T399 with T414), T400 and T401 — the next step.
+
+### 2026-10-27 — I.307: state of the `gen3^{(k)}` corollary
+
+Attempted (in a throwaway probe, not committed) the corollary
+
+```lean
+iteratedDeriv k (zetaEMGen 3 20) s
+  = Σ_{n≤20} (−log n)^k n^{−s}
+    + Σ_{i≤k} C(k,i) (−log21)^i 21^{−s} · iteratedDeriv (k−i) Ψ₃ s
+```
+
+from `gen3_eq_sum_psi` (T397) + `iteratedDeriv_add` + T400 + T401.  Two Lean
+obstacles, both in supplying the `ContDiffAt` hypotheses:
+
+1. `ContDiffAt.sum` would not unify after the `Finset.sum_apply` bridge — likely
+   the same implicit-shape problem as `iteratedDeriv_sum` (needs every implicit
+   `(I := …) (f := …)`, and the index type annotated).
+2. `rw [gen3_eq_sum_psi]` left the goal in a shape where `iteratedDeriv_add`'s
+   LHS `iteratedDeriv n (f + g) x` did not match syntactically — rewrite with an
+   explicit `show (fun z => A z + B z) = A + B from rfl` first.
+
+The main file is green and committed at T414; the probe was deleted.  **Next
+session**: supply the sum's `ContDiffAt` by *induction over `Finset.range 20`*
+(or `ContDiffAt.sum` with all implicits), then the corollary.
