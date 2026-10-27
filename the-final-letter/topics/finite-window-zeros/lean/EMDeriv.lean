@@ -249,4 +249,17 @@ theorem dsPow_mem (M : ℕ)
 example : (maxAbsIv Vbox.re) ^ 2 + (maxAbsIv Vbox.im) ^ 2 ≤ ((4 / 5 : ℚ)) ^ 2 := by
   native_decide
 
+/-! ## Folding the `21`-powers onto one atom -/
+
+/-- `21^(1-s) = 21 · 21^(-s)`. -/
+theorem pow21_one_sub (s : ℂ) : (21 : ℂ) ^ (1 - s) = 21 * (21 : ℂ) ^ (-s) := by
+  rw [show (1 : ℂ) - s = (1 : ℂ) + (-s) by ring,
+    Complex.cpow_add _ _ (by norm_num : (21 : ℂ) ≠ 0), Complex.cpow_one]
+
+/-- `21^(-(s+1)) = 21^(-s) / 21`. -/
+theorem pow21_neg_succ (s : ℂ) : (21 : ℂ) ^ (-(s + 1)) = (21 : ℂ) ^ (-s) / 21 := by
+  rw [show -(s + 1) = (-s) + (-1 : ℂ) by ring,
+    Complex.cpow_add _ _ (by norm_num : (21 : ℂ) ≠ 0), Complex.cpow_neg_one,
+    div_eq_mul_inv]
+
 end FiniteWindowZeros

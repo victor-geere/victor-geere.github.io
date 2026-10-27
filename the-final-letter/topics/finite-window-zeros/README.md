@@ -418,6 +418,8 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T339 | Theorem | **`zetaEMGen 1 20` differentiated:** `d/ds = -Σ(n+1)^(-s)log(n+1) + 21^(1-s)(-log21/(s-1) - 1/(s-1)²) - log21·21^(-s)/2 + (1/12)(21^(-(s+1)) - s·log21·21^(-(s+1)))`. | `hasDerivAt_zetaEMGen_one` (`EMDeriv.lean`) |
 | T340 | Theorem | **`log` box membership:** `⟨logIvRat N b, 0⟩` contains `↑(Real.log b)`. | `mem_logBox` (`EMDeriv.lean`) |
 | T341 | Theorem | **Derivative-sum fold:** `dsPow M` contains `Σ_{n<M} (n+1)^(-s14)·log(n+1)`; the `ζ′` enclosure (defined as `Vbox`, corner `≤ 4/5`) is built on it. | `dsPow_mem` (`EMDeriv.lean`) |
+| T342 | Theorem | **Fold `21^(1-s)`:** `21^(1-s) = 21·21^(-s)`, via `Complex.cpow_add`. | `pow21_one_sub` (`EMDeriv.lean`) |
+| T343 | Theorem | **Fold `21^(-(s+1))`:** `21^(-(s+1)) = 21^(-s)/21`. | `pow21_neg_succ` (`EMDeriv.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

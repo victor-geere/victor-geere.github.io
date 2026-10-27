@@ -3020,3 +3020,14 @@ Two design corrections this round:
 Remaining for `h1`: the *membership* proof `Cx.mem (T339 at s14) Vbox` (needs
 `Complex.cpow_add` to fold the `21`-powers onto one atom, and the scalar
 arithmetic), the ball for `B₄′+B₆′+R₃′`, and the final assembly.
+
+### 2026-10-27 — Phase I.281: folding the 21-powers
+
+T342-T343: `21^(1-s) = 21·21^(-s)` and `21^(-(s+1)) = 21^(-s)/21` via
+`Complex.cpow_add`.  These are the rewrites that fold T339's three separate
+`21`-powers onto the single `21^{-s}` atom, which is what makes `Vbox` a
+one-atom enclosure rather than four.
+
+Both compiled first try — the `cpow_add` statement already carries the
+`x ≠ 0` hypothesis, so `by norm_num` discharges it inline and no `if_neg`
+dance is needed (unlike `cpow_def`, which is piecewise).
