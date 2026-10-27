@@ -2754,3 +2754,27 @@ a 9%-margin problem.
 specifically a bound on `deriv (deriv riemannZeta)` (for `h2`) and a point
 enclosure of `ζ′` (for `h1`).  The blocker is a second-derivative analogue of
 the T305 remainder bound; nothing else stands in the way.
+
+### 2026-10-27 — Phase I.269: the second-derivative remainder is unnecessary
+
+Rounds 12–14 identified "a second-derivative analogue of T305" as the blocker
+for `hC`, and that looked like the hardest remaining piece because
+`EulerMaclaurin.lean` has no machinery for differentiating the `S_even` series.
+
+That framing was wrong.  The remainder is *numerically tiny* — `R = zetaEM 20 -
+zetaEMGen 1 20` is bounded by `3.124·10⁻³` over the `0.45`-disk (T305 at
+`K=2`, `N=20`, `Re s >= 0.05`) — so Cauchy's estimate on `R` itself gives
+`|R'| <= M_R/(0.45-0.2) = 0.01249` with no new analysis at all.
+
+Then `|ζ'(z) - ζ'(s14)| <= 0.2·sup|G''| + 2·0.01249` where `G = zetaEMGen 1 20`
+is explicit, and the budget is `47/250 = 0.188`.  This needs
+`sup|G''| <= 0.815`; the true value is `0.75863`, a 7.4% margin, and the total
+MVT estimate is `0.1767`.  So `h2` is reachable.
+
+The only genuinely new infrastructure required is a complex reciprocal on boxes
+(`Cx.inv`) for the `1/(s-1)^k` factors; `Re(s-1)` is bounded away from zero so
+this is straightforward, and it can live in the topic's own file rather than the
+shared `IBox.lean`.
+
+Lesson recorded: "we need a derivative of the remainder" was an assumption, not
+a fact.  Cauchy on a *small* quantity is far cheaper than differentiating it.

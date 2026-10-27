@@ -293,26 +293,48 @@ follows by the triangle inequality (`hC_of_bounds`, T328):
 The **true** values are `‖1 − Ykζ′(s14)‖ ≈ 10⁻¹⁰` and the Lipschitz constant
 `0.1517`, so `h1` has a factor-`10⁶` slack and `h2` has 24% slack.
 
-### The remaining blocker
+### The remaining work for `h2` — a plan that works
 
-`sup|ζ″| ≤ 0.96` over the `1/5`-disk (true value `0.75863`) **cannot be got
-from Cauchy**: `|ζ″(z)| ≤ 2 sup|ζ|/ρ²` with the circle of radius `ρ` inside the
-`1/2`-disk gives `≥ 22·0.14 ≈ 3.1`. Nor from a modulus sum of the
-differentiated EM terms (≥ 30).
+**Key realisation (round 15): no second-derivative remainder theory is needed.**
+The remainder `R = zetaEM 20 - zetaEMGen 1 20` is *tiny* (`~3·10⁻³` over the
+`0.45`-disk, T305 at `K=2`), so `R′` can be bounded by **Cauchy on `R`
+itself**:
 
-Two viable routes, both needing new layers:
+```
+|R'(z)| <= M_R / rho,   rho = 0.45 - 0.2 = 0.25
+```
 
-1. **Second-derivative EM enclosure.** Differentiate `zetaEMGen 1 20` twice
-   and bound `‖S_even''‖` — a second-derivative analogue of T304/T305. Gives
-   `sup|ζ″|` directly and also `1 - Yk ζ′(s14)`. Largest new piece.
-2. **First-derivative EM enclosure over a covering of the `1/5`-disk by boxes
-   lying inside it** (~10–20 cells). Each cell needs the differentiated
-   `zetaEMGen 1 20` box, which for a *box* `S` needs complex inversion on `Cx`
-   for the pole term `21^{1-s}/(s-1)` — `Cx` has no `inv` (only
-   `Interval.lean`'s separate `ComplexInterval` does), so that must be added.
+with `M_R` from T305 at `K = 2`, `N = 20` over `Re s >= 0.05`:
 
-Both need: `logIvRat` boxes for `log n` (`d/ds n^{-s} = -log n · n^{-s}`),
-which is the only *already available* ingredient.
+| quantity | value |
+|---|---|
+| `‖s‖` max on the `0.45`-disk | `14.4812` |
+| `‖(s)₄‖ ≤` | `64590` |
+| `M_R` | `3.124·10⁻³` |
+| `|R′| ≤ M_R/0.25` | `0.01249` |
+| needed `sup‖G″‖ ≤ (47/250 − 2·0.01249)/0.2` | **`0.815`** |
+| true `sup‖ζ″‖` on the `1/5`-ball | `0.75863` (7.4% margin) |
+| total MVT `0.2·0.7586 + 2·0.0125` | `0.1767 ≤ 0.188` ✓ |
+
+So `h2` follows from `sup‖G″‖ ≤ 0.815` where `G = zetaEMGen 1 20`, and `G″`
+is **explicit**: differentiating `Σ_{n≤20} n^{-s}`, the pole term and the
+`21^{-s}` multiples twice gives a finite expression in `n^{-s}`, `log n`,
+`log 21`, and powers of `1/(s-1)`.
+
+Remaining pieces, in order:
+
+1. `M_R` over the `0.45`-disk (a small variant of T306; same shape).
+2. `|R′| ≤ M_R/ρ` by Cauchy (`Complex.norm_deriv_le_div_of_mapsTo_ball` is
+   already used in `EulerMaclaurin.lean`).
+3. **`Cx.inv`** — a complex reciprocal on boxes with soundness, for the
+   `1/(s-1)`, `1/(s-1)²`, `1/(s-1)³` factors. `Cx` has no `inv`;
+   `Interval.lean`'s separate `ComplexInterval` does. This is the only genuinely
+   new piece of infrastructure. Safe to add locally (not in the shared
+   `IBox.lean`) since `Re(s-1) ∈ [-0.45,-0.05]` is bounded away from `0`.
+4. The `G″` box formula and `sup‖G″‖ ≤ 0.815` by `native_decide`.
+5. MVT assembly → `h2`; then `h1` in the same style (point enclosure of `ζ′`).
+
+Nothing here is analytically hard any more; items 3–4 are mechanical but bulky.
 
 ### What this does *not* give
 
