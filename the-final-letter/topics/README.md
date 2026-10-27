@@ -54,7 +54,7 @@ The table also carries the three programme objectives: item 1 (Riemann wall), it
 | 44 | Finance / trading ebooks | separate scope (outside the RH programme) | [finance-trading](finance-trading/README.md) | [`archive/ebooks/index.html`](../archive/ebooks/index.html) |
 | 45 | Partial sum plus tail (Objective III) | harvested — integrated as Objective III | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | `~/workspace/rh/research/twin-prime-parity/012/` |
 | 46 | Euler–Maclaurin layer (annex to Objective III) | structural pass — mirror of the canonical Lean file | [euler-maclaurin](euler-maclaurin/README.md) | [`topics/partial-sum-plus-tail/lean/EulerMaclaurin.lean`](partial-sum-plus-tail/lean/EulerMaclaurin.lean) |
-| 47 | Finite-window zeros (P3) | done (point) — `ζ(1/2+5i) ≠ 0`; segment open | [finite-window-zeros](finite-window-zeros/README.md) | P3/R14 of [`status.html`](../status.html) §7 |
+| 47 | Finite-window zeros (P3) | done — `ζ(1/2+5i) ≠ 0`, a zero-free segment, and a simple zero on the critical line at `1/2+14i`; P4 open | [finite-window-zeros](finite-window-zeros/README.md) | P3/R14 of [`status.html`](../status.html) §7 |
 | 48 | Finite explicit formula (P4) | partial — fixed tent function, autocorrelation and finite prime side certified | [finite-explicit-formula](finite-explicit-formula/README.md) | P4 of [`status.html`](../status.html) §7 |
 
 ## How to use these folders

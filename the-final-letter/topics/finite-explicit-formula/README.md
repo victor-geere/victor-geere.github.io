@@ -91,8 +91,10 @@ The prime side is **finite** because `g` is supported on `[-2,2]`: only `n` with
 - **Archimedean term.** Needs a rigorous integral enclosure of the
   `Γ'/Γ` factor against `g`.
 - **Zero side.** Requires certified zeros *with their real parts*, plus a
-  zero-counting tail. The P3 dossier certifies non-vanishing at `1/2+5i` and a
-  thin zero-free segment; it does **not** isolate a zero.
+  zero-counting tail. The finite-window-zeros dossier certifies a non-vanishing
+  point at `1/2+5i`, a thin zero-free segment, and (T492) **one simple zero on the
+  critical line** at `1/2+14i` with `|Im z − 14| ≤ 1/5`; what it does **not** give is
+  a count, so the zero side still needs a zero-counting tail.
 - **Finite-window positivity (B5).** Needs the analytic formula, the
   archimedean term and the zero side together.
 

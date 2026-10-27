@@ -52,7 +52,8 @@
 <p class="sub">The Final Letter · what four dossiers are actually worth</p>
 
 <p class="lede"><strong>One-sentence verdict.</strong> Of the four dossiers, one is a
-<em>result</em> (a Lean-certified zero of <code>ζ</code> at <code>1/2 + 14i</code>), one is
+<em>result</em> (a simple Lean-certified zero of <code>ζ</code> on the critical line at
+<code>1/2 + 14i</code>), one is
 an <em>instrument</em> (the certified evaluator), one is a <em>map</em> with a durable
 no-go core (geometric DQPT), and one is a <em>component</em> whose value waits on P4 (the
 finite explicit formula). All four are honest about their gaps; none crosses a wall, and
@@ -107,8 +108,8 @@ objectives?), <strong>reuse</strong> (can the next claim be built without rework
 <tr>
   <td><a href="topics/finite-window-zeros/README.md">finite-window-zeros</a></td>
   <td><span class="tag a">A</span></td>
-  <td class="num">486</td><td class="num">11</td><td class="num">0</td><td class="num">18</td><td class="num">17 in build</td>
-  <td>One unconditional certified zero of <code>ζ</code>, plus the complete Krawczyk chain in Lean.</td>
+  <td class="num">494</td><td class="num">11</td><td class="num">0</td><td class="num">18</td><td class="num">18 in build</td>
+  <td>One unconditional zero of <code>ζ</code> on the critical line, simple, plus the complete Krawczyk chain in Lean.</td>
 </tr>
 <tr>
   <td><a href="topics/partial-sum-plus-tail/README.md">partial-sum-plus-tail</a></td>
@@ -143,25 +144,37 @@ computations, a bookkeeping drift noted in §9.</p>
 a value enclosure <code>‖ζ(s14)‖ ≤ 23/200</code>, a derivative enclosure
 <code>‖1 − Yk·ζ′(s14)‖ ≤ 1/200</code> (T391, <code>h1_deriv</code>), a Lipschitz bound
 <code>‖ζ′(z) − ζ′(s14)‖ ≤ 47/250</code> on the closed <code>1/5</code>-ball (T485,
-<code>h2_deriv</code>), and the Krawczyk map at <code>r = 1/5</code>.</p>
+<code>h2_deriv</code>), and the Krawczyk map at <code>r = 1/5</code>. The ball is then
+upgraded to a <em>line</em> certificate: the same inequality is a contraction, and the
+functional-equation reflection fixes the zero's real part (T487–T494).</p>
 
-<pre><code>theorem zeta_zero_14 :
-    ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0</code></pre>
+<pre><code>theorem zeta_zero_14_on_line_simple :
+    ∃ z ∈ Metric.closedBall s14 (1/5),
+      riemannZeta z = 0 ∧ z.re = (1/2 : ℝ) ∧ deriv riemannZeta z ≠ 0</code></pre>
 
-<p><strong>What is certified.</strong> 486 ledger theorems over 17 Lean files in the default
+<p><strong>What is certified.</strong> 494 ledger theorems over 18 Lean files in the default
 build, no <code>sorry</code>/<code>axiom</code>/<code>admit</code>, and no source claims left in
 the ledger. The older layers are also unconditional: <code>ζ(1/2+5i) ≠ 0</code>, the zero-free
 segment <code>{1/2 + it : t ∈ [5, 5.000003]}</code>, and the Euler–Maclaurin remainder at
-<code>0 &lt; Re s</code> for every <code>K</code>. The new Taylor layer (T465–T486) proves the
+<code>0 &lt; Re s</code> for every <code>K</code>. The Taylor layer (T465–T486) proves the
 chain rule <code>iteratedDeriv k (t ↦ f (s14 + t·w)) = f^{(k)}(s14 + t·w)·w^k</code>, assembles
 <code>sup|ζ^{(7)}| ≤ 43393</code> on the ball, and closes the Lagrange remainder at
-<code>≤ 24/1000</code>; the resulting <code>h2</code> uses <code>0.178 ≤ 0.188</code> of its budget.</p>
+<code>≤ 24/1000</code>; the resulting <code>h2</code> uses <code>0.178 ≤ 0.188</code> of its budget.
+The on-line layer (T487–T494) adds the uniqueness and reflection steps below.</p>
 
 <p><strong>Where the value is.</strong></p>
 <ul class="tight">
 <li><em>Certification:</em> this is the only dossier of the four whose headline is an
-unconditional statement about the zeros of <code>ζ</code>. <code>#print axioms zeta_zero_14</code>
-shows only the three standard Lean axioms.</li>
+unconditional statement about the zeros of <code>ζ</code>. <code>#print axioms
+zeta_zero_14_on_line_simple</code> shows only the three standard Lean axioms.</li>
+<li><em>Location:</em> the ball certificate alone is two-dimensional and only brackets
+<code>Re z</code> to <code>[3/10, 7/10]</code>. It is upgraded without any critical-strip
+evaluator: the Krawczyk inequality <code>‖1 − Yk·ζ′‖ ≤ 1/4</code> is a contraction, so the zero
+in the ball is <em>unique</em>; conjugation plus Mathlib's functional equation make the
+reflection <code>s ↦ 1 − conj s</code> preserve zeros; the ball is invariant under it; hence the
+unique zero is fixed by it and <code>Re z = 1/2</code>. The same inequality gives
+<code>ζ′(z) ≠ 0</code>. No partial-sum-plus-tail evaluator, no <code>Γ</code>, no
+<code>θ</code>.</li>
 <li><em>Template:</em> the end-to-end closure (Euler–Maclaurin value box → <code>c_k</code> boxes →
 Cauchy/Ψ₃ bounds → Taylor remainder → Krawczyk) is now a worked, reproducible pattern. A second
 zero costs a calibration, not a redesign.</li>
@@ -170,16 +183,16 @@ zero costs a calibration, not a redesign.</li>
 <code>25000</code>), and it was made by restating, not by weakening a committed theorem.</li>
 </ul>
 
-<div class="warnbox"><strong>The cap on its value.</strong> The conclusion is membership in a
-closed ball of radius <code>1/5</code>, so it certifies a zero with
-<code>3/10 ≤ Re z ≤ 7/10</code>. It does <em>not</em> certify that the zero lies on the critical
-line, and it does not count zeros. As a P4 input it is a certified zero, not yet a certified
-zero <em>on the line</em>. That distinction is the whole distance between Class A and a
-breakthrough, and this dossier is honest about it: it claims a zero, not a location.</div>
+<div class="warnbox"><strong>The cap on its value.</strong> The conclusion is one zero, with
+<code>Re z = 1/2</code> and <code>|Im z − 14| ≤ 1/5</code>; it is not a zero count, not a
+zero-free window, and not a statement about RH. The ordinate is bracketed, not pinned. As a P4
+input it supplies a located, simple zero on the line — what remains for the explicit-formula zero
+side is the <em>count</em> in the window, which this certificate does not give.</div>
 
-<p><strong>Verdict.</strong> Worth one unconditional existence theorem about the zeros of
-<code>ζ</code> plus a reusable certification template — small in mathematical extent, real in
-kind. Class A stands.</p>
+<p><strong>Verdict.</strong> Worth one unconditional theorem about the zeros of <code>ζ</code> —
+existence, location on the line, and simplicity — plus a reusable certification template. Small
+in mathematical extent, real in kind. Class A stands, and it is the only dossier of the four
+whose headline concerns <code>ζ</code> itself.</p>
 
 <h2 id="s4">4. partial-sum-plus-tail — Class B, an instrument</h2>
 
@@ -293,9 +306,9 @@ scaffold — value deferred, not value delivered. Class D.</p>
 
 <h2 id="s7">7. The four together</h2>
 
-<p>The four dossiers account for <strong>673 of the letter's 944 ledger theorems</strong> (71%),
+<p>The four dossiers account for <strong>681 of the letter's 952 ledger theorems</strong> (72%),
 <strong>35 of 393 computations</strong>, and <strong>89 of 457 tests</strong>. That proportion is
-misleading as a measure of value: the single most valuable row of the 673 is
+misleading as a measure of value: the single most valuable row of the 681 is
 <code>zeta_zero_14</code>, and the largest block (the geometric-DQPT dossier's 108 rows) is finite
 bookkeeping and no-go lemmas. Value is not proportional to rows.</p>
 
@@ -308,9 +321,10 @@ the same Euler–Maclaurin remainder machinery.</td></tr>
 <tr><td>interval engine → explicit formula</td><td><span class="tag d">not joined</span></td>
 <td>The prime side is certified as a rational interval, but the archimedean term and the zero side
 are absent, so B5 cannot yet be stated.</td></tr>
-<tr><td>zero certificate → explicit formula</td><td><span class="tag d">not joined</span></td>
-<td><code>zeta_zero_14</code> gives a zero in a <code>1/5</code>-ball, not one on the line, and not
-a count; the zero side needs location and counting.</td></tr>
+<tr><td>zero certificate → explicit formula</td><td><span class="tag c">partly joined</span></td>
+<td><code>zeta_zero_14_on_line_simple</code> now supplies location on the line and simplicity; the
+ordinate is bracketed only to <code>|Im z − 14| ≤ 1/5</code>, and the zero side also needs a
+<em>count</em>, which no current certificate gives.</td></tr>
 <tr><td>everything → a wall</td><td><span class="tag d">not joined</span></td>
 <td>No theorem about either wall consumes a certified enclosure as a hypothesis. This is the
 letter's F11 boundary, unchanged by any of the four.</td></tr>
@@ -331,14 +345,15 @@ defect.</p>
 width bound (R13). This is the step that lets the evaluator become a <em>hypothesis</em> in a
 theorem about a wall (R14), converting Class B into a bridge candidate. The analytic content is
 already proved; this is wiring and width arithmetic.</li>
-<li><strong>finite-window-zeros — from a zero in a ball to a zero on the line, then a count.</strong>
-The cheapest route is not a smaller Krawczyk ball (a ball can never confine
-<code>Re z</code> to <code>1/2</code>) but a sign-change argument for the real-valued
-Riemann–Siegel <code>Z</code> function, with the count pinned by Turing's method. The logic for
-exactly this — uniqueness from a sign change and a positive derivative, and the
-certified-set/window-count reduction — is already ported and proved in the geometric-DQPT dossier
-(<code>CertifiedZero.lean</code>). Joining that logic to an enclosure of <code>Z</code> would turn
-Class A into a genuine zero-count certificate; it would still not touch RH.</li>
+<li><strong>finite-window-zeros — a count on the line.</strong> The location step is <em>done</em>
+(T492): the Krawczyk contraction plus the functional-equation reflection already put the zero on
+the line, and simplicity falls out. What remains is a <em>count</em>, which a single ball can
+never give. The logic for it — uniqueness from a sign change and a positive derivative, and the
+certified-set/window-count reduction (Turing) — is already ported and proved in the
+geometric-DQPT dossier (<code>CertifiedZero.lean</code>); it needs, as input, certified
+evaluations along the line, which is the critical-strip job of the partial-sum-plus-tail layer
+(item 1). Joining the two would turn Class A from one located zero into a zero-count certificate.
+It would still not touch RH.</li>
 <li><strong>finite-explicit-formula — the archimedean term, then the zero side.</strong> A rigorous
 integral enclosure of the <code>Γ′/Γ</code> factor against <code>g</code>, plus the count and
 location just described, would make B5 a finite-window positivity statement. Still not RH; still
@@ -355,9 +370,9 @@ least chance of changing the ledger's bottom line soon.</li>
 <ul class="tight">
 <li>It does not claim the Riemann hypothesis, twin primes, Chowla, Sarnak or Elliott, and none of
 the four dossiers does.</li>
-<li>"Certified zero" means a zero in the closed ball of radius <code>1/5</code> at
-<code>1/2 + 14i</code>; it does not mean a zero certified to lie on the critical line, and it is not
-a zero count.</li>
+<li>"Certified zero" now means a zero at <code>1/2 + 14i</code> with
+<code>Re z = 1/2</code> (T492), <code>|Im z − 14| ≤ 1/5</code>, and <code>ζ′(z) ≠ 0</code>. It is
+still not a zero count and not a zero-free statement.</li>
 <li>The value classes are a judgement, not a measurement. The measured columns are ledger and test
 counts, and they drift: the geometric-DQPT dossier's ledger has 108 theorem rows while
 <a href="topics/STATUS.md">topics/STATUS.md</a> still records 67 theorems and 47 computations for

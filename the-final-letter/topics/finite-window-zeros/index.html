@@ -33,12 +33,18 @@
 the pair estimate, the identity <code>(1-2^{1-s})ζ(s) = η(s)</code> for every
 <code>0 &lt; Re s</code>, <code>s ≠ 1</code>, the tail bound and the verified complex-power
 atom are Lean-proved. <code>Cert.lean</code> assembles a 100-pair certificate and proves
-<code>ζ(1/2 + 5i) ≠ 0</code> with no atom hypothesis. <strong>A second zero is certified
-at <code>1/2 + 14i</code></strong> (T465–T486, <code>EMTaylorStep.lean</code>):
-<code>zeta_zero_14 : ∃ z ∈ closedBall s14 (1/5), riemannZeta z = 0</code>, with no
-numerical hypothesis left. These are pointwise finite-window theorems — one certified
-zero in a <code>1/5</code>-ball, not a zero count and not a statement about RH; a
-segment remains open.</p>
+<code>ζ(1/2 + 5i) ≠ 0</code> with no atom hypothesis. <strong>A second zero is
+certified at <code>1/2 + 14i</code>, on the critical line and simple</strong> (T465–T494,
+<code>EMTaylorStep.lean</code> + <code>EMOnLine.lean</code>):
+<code>∃ z ∈ closedBall s14 (1/5), ζ z = 0 ∧ z.re = 1/2 ∧ ζ′(z) ≠ 0</code>, with no
+numerical hypothesis left. The ball certificate alone brackets the real part to
+<code>[3/10, 7/10]</code>; the upgrade uses two ingredients already in the topic — the
+Krawczyk inequality is a contraction (so the zero in the ball is <em>unique</em>), and
+the functional equation plus conjugation make the reflection
+<code>s ↦ 1 − conj s</code> preserve zeros (so the unique zero is fixed by it). The
+partial-sum-plus-tail evaluator is not used. These are pointwise finite-window
+theorems: one zero, not a zero count and not a statement about RH; a segment remains
+open.</p>
 
 <h2>Provenance</h2>
 <p>P3/R14 of <a href="../../status.html">status.html</a> §7. The eta/zeta identity is the
@@ -572,6 +578,14 @@ Nothing here asserts RH.</p>
 <tr><td>T484</td><td>Theorem</td><td><strong><code>h2</code> from the remainder:</strong> a bound <code>24/1000</code> gives <code>‖ζ′(z) − ζ′(s14)‖ ≤ 47/250</code> (<code>0.1536 + 0.024 = 0.178 ≤ 0.188</code>).</td><td><code>h2_of_taylor_remainder_wide</code> (<code>EMTaylorStep.lean</code>)</td></tr>
 <tr><td>T485</td><td>Theorem</td><td><strong><code>h2</code> proved:</strong> <code>‖ζ′(z) − ζ′(s14)‖ ≤ 47/250</code> on the closed <code>1/5</code>-ball.</td><td><code>h2_deriv</code> (<code>EMTaylorStep.lean</code>)</td></tr>
 <tr><td>T486</td><td>Theorem</td><td><strong>A Lean-certified zero of <code>ζ</code> at <code>1/2 + 14i</code>:</strong> <code>∃ z ∈ closedBall s14 (1/5), riemannZeta z = 0</code> (from T485 and <code>h1_deriv</code>).</td><td><code>zeta_zero_14</code> (<code>EMTaylorStep.lean</code>)</td></tr>
+<tr><td>T487</td><td>Theorem</td><td><strong>Uniqueness from the contraction:</strong> if the Newton map <code>z ↦ z − Y f z</code> is a <code>q</code>-contraction (<code>q < 1</code>) on the closed ball, a zero of <code>f</code> in that ball is unique.</td><td><code>`zero_unique_of_contraction`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T488</td><td>Theorem</td><td><strong>The certified zero is unique in the closed <code>1/5</code>-ball</strong> (contraction <code>1/4 < 1</code>).</td><td><code>`zeta_zero_unique`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T489</td><td>Theorem</td><td><strong>Zeros reflect through <code>s ↦ 1 − conj s</code>:</strong> conjugation (<code>riemannZeta_conj</code>) plus the functional equation (<code>riemannZeta_one_sub</code>); off the real axis the factor is harmless.</td><td><code>`zeta_zero_one_sub_conj`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T490</td><td>Theorem</td><td><strong>The <code>1/5</code>-ball at <code>s14</code> is invariant under that reflection</strong> (it is centred on the critical line).</td><td><code>`mem_ball_one_sub_conj`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T491</td><td>Theorem</td><td><strong>The ball avoids the real axis:</strong> <code>|Im z − 14| ≤ 1/5</code>, so <code>z.im ≠ 0</code> and the functional-equation hypotheses hold.</td><td><code>`im_ne_zero_of_ball`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T492</td><td>Theorem</td><td><strong>A simple zero on the critical line:</strong> <code>∃ z ∈ closedBall s14 (1/5), ζ z = 0 ∧ z.re = 1/2 ∧ ζ′(z) ≠ 0</code>.</td><td><code>`zeta_zero_14_on_line_simple`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T493</td><td>Theorem</td><td><strong><code>Re z = 1/2</code></strong> for the certified zero.</td><td><code>`zeta_zero_14_on_line`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T494</td><td>Theorem</td><td><strong><code>ζ′(z) ≠ 0</code></strong> for the certified zero (the same Krawczyk inequality).</td><td><code>`zeta_zero_14_simple`</code> (<code>EMOnLine.lean</code>)</td></tr>
 <tr><td>C1</td><td>Computation</td><td>Regrouping agrees at <code>s = 2, 3, 3/2, 2+i/3</code> to <code>&lt; 10^{-30}</code>.</td><td><code>test_finite_regrouping_is_exact</code></td></tr>
 <tr><td>C2</td><td>Computation</td><td>Pair estimate on a grid, to <code>&lt; 10^{-25}</code>.</td><td><code>test_pair_estimate_holds</code></td></tr>
 <tr><td>C3</td><td>Computation</td><td>Tail bound positive and decreasing with <code>M</code>.</td><td><code>test_tail_bound_positive_and_decreasing</code></td></tr>

@@ -39,7 +39,20 @@ from `h1_deriv` and `h2_deriv` (T486).  Note the remainder constant: the
 `sup|ζ^{(7)}| ≤ 25000`; the proved `43393` gives `0.0232`, so the closing file
 uses the restated `h2_of_taylor_remainder_wide` with budget `24/1000`.
 
-Counts: **T1–T486 · 944 ledger theorems · 48/48 topics · 17 Lean files green ·
+**The zero is on the critical line, and simple** (I.317): `EMOnLine.lean` (18th
+file) upgrades the ball certificate to
+
+```lean
+zeta_zero_14_on_line_simple :
+  ∃ z ∈ closedBall s14 (1/5), ζ z = 0 ∧ z.re = 1/2 ∧ deriv ζ z ≠ 0
+```
+
+using two ingredients already present in the topic — the Krawczyk contraction
+gives uniqueness in the ball, and the functional equation plus conjugation make
+the reflection `s ↦ 1 − conj s` preserve zeros.  The partial-sum-plus-tail
+evaluator is not used.
+
+Counts: **T1–T494 · 952 ledger theorems · 48/48 topics · 18 Lean files green ·
 audit 48/48 · links 0 broken**.
 
 *File size note:* this journal is now ~830 lines, well past the ~500-line split
@@ -933,67 +946,57 @@ commit.  `check.sh` never listed it, so the build stayed green.)
 
 **Concurrency note.**  Two sessions were working the same checkout in this round
 (commits `66cffb00`, `8c10577b` interleaved with I.312's).  Future rounds should
-check `git log`/`git status` and the file mtimes before editing `EMTaylorCert.lean`
-or `check.sh`; `git add -A` will otherwise sweep up another session's in-progress
-files.
 
-### 2026-10-27 — I.314: `Ψ₃` Cauchy bound + `h2` reduced to one remainder estimate
+### 2026-10-27 — I.317: the zero is on the critical line (and simple) — no PST needed
 
-Process housekeeping first: several **stray background jobs from a second
-session on this checkout** were still editing `EMTaylorH2.lean` and launching
-`check.sh EMTaylorH2.lean` in a loop.  They were killed (`pkill -9 -f
-EMTaylorH2` / `check-lean.sh`, repeated until `pgrep` was empty).  As I.313
+**Question asked.** Can `finite-window-zeros` (FWZ) and `partial-sum-plus-tail` (PST)
+be used *together* to certify a zero and certify that it lies on the critical line?
 
-### 2026-10-27 — I.316: `h2` proved — a Lean-certified zero at `1/2 + 14i`
+**Answer.** Not together, and the pairing is the wrong one — but the upgrade is much
+cheaper than a critical-strip evaluator, and it needs no PST at all.
 
-**The programme is closed.** New file `lean/EMTaylorStep.lean` (17th in
-`check.sh`, 390 lines, 22 theorems T465–T486, 7 s in the full build; all 17
-files green) contains exactly the four remaining pieces:
+* Two blockers rule out the combination as it stands.  (i) PST's closed rectangle
+  enclosure is proved only for `Re s > 1`; the critical-strip wiring
+  `0 < Re s ≤ 1` is open (R13), so PST cannot evaluate `ζ(1/2 + it)` at all.
+  (ii) Even with the strip, pointwise value enclosures cannot certify "on the line":
+  a zero is isolated and a value box is an open condition, so no finite set of
+  evaluations can pin a real part.  "On the line" needs a region-level argument
+  (sign change of a real function, a winding number, or symmetry + uniqueness).
+* FWZ already contains both ingredients, one of them written for another purpose:
+  1. **Uniqueness.** `hC : ‖1 − Yk·ζ′‖ ≤ 1/4` on the ball is a `1/4`-contraction of
+     the Newton map `z ↦ z − Yk·ζ(z)`; `norm_newton_sub_le` (`Krawczyk.lean`,
+     used in the Krawczyk existence proof) gives `‖x − y‖ ≤ (1/4)‖x − y‖` for two
+     zeros.  Hence the zero in the closed `1/5`-ball is **unique**.
+  2. **Reflection.** `riemannZeta_conj` (real coefficients) and Mathlib's proved
+     functional equation `riemannZeta_one_sub` make `ρ(s) = 1 − conj s` preserve
+     zeros.  The ball is `ρ`-invariant — it is centred on the line — and the ball
+     avoids the real axis, so the functional-equation hypotheses hold.
+* A unique zero fixed by the reflection has `1 − conj z = z`, i.e. `Re z = 1/2`.
+  The same inequality also gives `Yk·ζ′(z) ≠ 0`, so the zero is **simple**.
 
-1. **The chain rule** (T465–T467): `hasDerivAt_comp_ofReal_mul` first, then
-   `iteratedDeriv_comp_ofReal_mul`
-   `iteratedDeriv k (fun t : ℝ => f (z + ↑t·w)) t = f^{(k)}(z + ↑t·w)·w^k`
-   by induction.  Getting `DifferentiableAt (iteratedDeriv k f)` from
-   `ContDiffAt ℂ (k+1) f` had no Mathlib pointwise lemma: `ContDiffAt.contDiffOn`
-   gives a `ContDiffOn` on an open `v`, `ContDiffOn.differentiableOn_iteratedDerivWithin`
-   differentiates, and `iteratedDerivWithin_of_isOpen` + `DifferentiableAt.congr_of_eventuallyEq`
-   (note: **`DifferentiableAt.congr` does not exist** in this Mathlib) transfers
-   back.  Trap: `ContDiffAt.comp`, `HasDerivAt.comp` both take the point `x`
-   **explicitly** here (`ContDiffAt.comp x hf hg`), unlike the docstring order.
-2. **`sup|ζ^{(7)}| ≤ 43393`** on the closed `1/5`-ball (T468–T476), exactly the
-   three pieces budgeted in I.315: base `13189`, `21`-part `25204` (numeric sum
-   by `native_decide` over ℚ), `R₃^{(7)} ≤ 5000` (Cauchy radius `1/4`: `4955`).
-   Analyticity at a general ball point is `DifferentiableOn` + `analyticOnNhd`
-   (as at `s14`), then `AnalyticAt.deriv` for the derivatives.
-3. **The Taylor remainder** (T477–T483): `taylor_mean_remainder_bound` with
-   `F t = ζ′(s14 + ↑t·w)`, `n = 5`, `[0,1]`, `hC y = 43393·‖w‖^6` (from the
-   chain rule at `k = 6` and `iteratedDerivWithin_eq_iteratedDeriv`),
-   `taylorWithinEval F 5 [0,1] 0 1 = taylorPoly w` (T480–T481), giving
-   `‖ζ′(s14 + w) − taylorPoly w‖ ≤ 0.024` (true `0.0232`).
-4. **`h2` and the zero** (T484–T486): `h2_deriv` and
+**New file** `lean/EMOnLine.lean` (18th in `check.sh`, 31 s standalone; 18/18 files
+green) adds T487–T494:
 
-   ```lean
-   theorem zeta_zero_14 : ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0
-   ```
+| row | statement |
+|---|---|
+| T487 | `zero_unique_of_contraction` — a contraction gives uniqueness of a zero in a closed ball. |
+| T488 | `zeta_zero_unique` — the certified zero is unique in the closed `1/5`-ball. |
+| T489 | `zeta_zero_one_sub_conj` — zeros reflect through `s ↦ 1 − conj s`. |
+| T490 | `mem_ball_one_sub_conj` — the ball is invariant under that reflection. |
+| T491 | `im_ne_zero_of_ball` — the ball avoids the real axis. |
+| T492 | `zeta_zero_14_on_line_simple` — `∃ z ∈ ball, ζ z = 0 ∧ z.re = 1/2 ∧ ζ′(z) ≠ 0`. |
+| T493 | `zeta_zero_14_on_line` — `Re z = 1/2`. |
+| T494 | `zeta_zero_14_simple` — `ζ′(z) ≠ 0`. |
 
-**Correction to I.314/I.315's bookkeeping.** `EMTaylorH2.h2_of_taylor_remainder`
-hard-codes a `14/1000` remainder budget, which was computed for
-`sup|ζ^{(7)}| ≤ 25000` (`25000·(1/5)^6/5! = 0.0133`).  The *proved* sup is
-`43393`, giving `43393/15625/120 = 0.02314 > 0.014`.  So `h2_of_taylor_remainder`
-**cannot** be applied to the proved remainder; `EMTaylorStep.lean` restates it as
-`h2_of_taylor_remainder_wide` with the correct budget `34/1000` (uses `24/1000`):
-`0.1536 + 0.024 = 0.178 ≤ 47/250 = 0.188`.  Nothing committed is modified — the
-old lemma stays as the `25000`-regime statement.
+**What this is and is not.** It is one zero on the critical line, simple, with
+`|Im z − 14| ≤ 1/5` — the weak form of a zero certificate, and a real strengthening
+of T486 (the ball alone only gave `3/10 ≤ Re z ≤ 7/10`).  It is **not** a zero count,
+not a zero-free window, and not a statement about RH.  PST still has a real job for the
+next stage: an argument-principle/Turing **count** in a window (zeros come in `ρ`-pairs,
+so an odd certified count forces an on-line zero), and the explicit-formula zero side,
+both of which need critical-strip evaluation.
 
-**Margin levers if a future refactor wants the `14/1000` statement to apply**
-(both from I.315, neither used): a closed-form `|Ψ₃| ≤ 2.18` cuts the sup to
-`≈ 14200` (remainder `0.0076`); `R₃` Cauchy at radius `29/100` cuts `5000` to
-`1753`.
-
-**What remains.** Nothing for the `1/2 + 14i` zero — `#print axioms zeta_zero_14`
-uses only the three standard Lean axioms, no `sorry`.  P5 stays finite-shadow-only,
-and no RH/twin-prime/Chowla/infinite-Weil-positivity claim is made (the theorem is
-a single certified zero in a `1/5`-ball, not a zero count).
-
-**Process note.** This round had no competing session; `git log`/`git status` were
-clean at `7bd0d156`, and no `check-lean.sh` kills were needed.
+**Process.** The result was first verified as a 103-line scratch probe, then
+productionised with a combined `_on_line_simple` theorem and two corollaries.  The
+tree also carries an unrelated uncommitted edit to `the-final-letter/research-journal.md`
+from another session (dated 2026-10-25); it was left untouched.

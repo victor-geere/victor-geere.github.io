@@ -1,7 +1,10 @@
 # Handoff — verified Krawczyk certificate at `1/2 + 14i`
 
-Status: **complete (2026-10-27, I.316)**. `zeta_zero_14` certifies one zero of
-`ζ` in the closed `1/5`-ball at `1/2 + 14i`; the Krawczyk chain is closed.
+Status: **complete (2026-10-27, I.316–I.317)**. `zeta_zero_14_on_line_simple`
+certifies one zero of `ζ` in the closed `1/5`-ball at `1/2 + 14i`, **on the
+critical line** (`Re = 1/2`) and **simple** (`ζ′ ≠ 0`); the Krawczyk chain is
+closed, and the ball certificate is upgraded by the contraction + functional
+equation.
 P3 (`ζ(1/2+5i) ≠ 0`) remains done. P5 remains finite-shadow-only.
 No RH, twin-prime, Chowla, or infinite Weil-positivity claim is made anywhere.
 
@@ -9,7 +12,7 @@ No RH, twin-prime, Chowla, or infinite Weil-positivity claim is made anywhere.
 
 | item | state |
 |---|---|
-| counts | **944 theorems · 393 computations · 457 tests · 48/48 Lean builds (17 files)** |
+| counts | **952 theorems · 393 computations · 457 tests · 48/48 Lean builds (18 files)** |
 | audit | `python3 topics/tools/audit_topics.py` → 48/48 OK |
 | links | `python3 tools/check-links.py` → 0 broken |
 | default build | `./lean/check.sh` OK |
@@ -46,6 +49,7 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
 | `lean/EMBox14.lean` | `ptBox`, `inv_s14_sub_one`, `csPow`/`csPow_mem`, `Bzeta`; corner test **open** (see below). |
 | `python/emit_em.py` | Reference emitter for the `zetaEMGen 1 N` box at `1/2+14i`; calibrates the `CpowBox` parameters. |
 | `lean/EMTaylor*.lean` | T400–T486: the Taylor model of `h2` — `c_k` boxes and bounds, `Ψ₃` Cauchy bounds, the chain rule, `sup|ζ^{(7)}| ≤ 43393`, the Lagrange remainder (0.024) and `zeta_zero_14`. |
+| `lean/EMOnLine.lean` | T487–T494: uniqueness from the Krawczyk contraction, the reflection `s ↦ 1 − conj s` via the functional equation, and **`zeta_zero_14_on_line_simple`** (`Re z = 1/2`, `ζ′(z) ≠ 0`). |
 | `lean/Cert.lean`, `lean/Seg.lean` | P3 certificates for `1/2+5i`. |
 | `python/emit_blocks.py` | Python rational mirror of the `CpowBox` layer (reference emitter). |
 
@@ -118,7 +122,7 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
 | 2. Replace the 10⁶-term block | **superseded** — Euler–Maclaurin reaches the bound with 21 atoms |
 | 3. `‖ζ(1/2+14i)‖ ≤ 1/8` | **DONE** (T320/T321), sharpened to `23/200` (T322) |
 | 4. `hC` | **DONE** — `h1` (T391, `h1_deriv`) and `h2` (T485, `h2_deriv`) are both proved |
-| 5. Final zero theorem | **DONE, unconditional** — `zeta_zero_14` (T486, `EMTaylorStep.lean`) |
+| 5. Final zero theorem | **DONE, unconditional** — `zeta_zero_14` (T486) and `zeta_zero_14_on_line_simple` (T492, `EMOnLine.lean`) |
 
 Old blockers 1–3 (noncomputable box evaluation, slow Python mirror, algebraic-only
 Euler transformation) are all resolved or bypassed; see "Route change" and
@@ -357,10 +361,11 @@ Do this first, then the finite sum over `n ≤ 20`, then the pole term
 (`‖1 - Yk·ζ′‖ ≤ 1/4` on `‖w-s0‖ ≤ 1/4`) is still open, so **no zero is
 certified yet**. No RH or infinite-positivity claim is made anywhere.
 
-**Superseded (I.316):** `hC` is now proved (`h1_deriv` + `h2_deriv`) and
-`zeta_zero_14` is unconditional.  The paragraph above records round 18 only.
+**Superseded (I.316–I.317):** `hC` is now proved (`h1_deriv` + `h2_deriv`),
+`zeta_zero_14` is unconditional, and `zeta_zero_14_on_line_simple` places the zero at
+`Re = 1/2` with `ζ′ ≠ 0`.  The paragraph above records round 18 only.
 
-## Next steps (current — round I.316: none)
+## Next steps (current — round I.317: none)
 
 **The programme is closed.** `EMTaylorStep.lean` (17th file in `check.sh`, T465–T486)
 proves the chain rule, assembles `sup|ζ^{(7)}| ≤ 43393`, applies
@@ -370,6 +375,20 @@ and concludes
 ```lean
 theorem zeta_zero_14 : ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0
 ```
+
+`EMOnLine.lean` (18th file, T487–T494) then uses two ingredients already in the
+topic — the Krawczyk contraction `‖1 − Yk·ζ′‖ ≤ 1/4` (uniqueness of the zero in the
+ball) and the functional equation plus conjugation (the reflection `s ↦ 1 − conj s`
+preserves zeros) — to conclude
+
+```lean
+theorem zeta_zero_14_on_line_simple :
+    ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0 ∧ z.re = (1/2 : ℝ) ∧
+      deriv riemannZeta z ≠ 0
+```
+
+No critical-strip evaluator is used, and none is needed for this step.  What a count
+would need is discussed under "Where the value is" in `topical-value.html`.
 
 If the `h2` remainder ever needs to be tightened to the `14/1000` budget of
 `EMTaylorH2.h2_of_taylor_remainder`, the two levers are in journal I.315

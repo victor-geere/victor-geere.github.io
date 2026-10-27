@@ -21,19 +21,25 @@ theorem zeta_ne_zero_segment {s : ℂ} (hs : Cx.mem s Sseg) :
 
 for `Sseg = {1/2 + it : t ∈ [5, 5.000003]}`.
 
-**A second zero is certified at `1/2 + 14i`** (T465–T486, `EMTaylorStep.lean`,
-I.316): the Krawczyk chain for `s14 = 1/2 + 14i` is closed and
+**A second zero is certified at `1/2 + 14i`, on the critical line and simple**
+(T465–T494, `EMTaylorStep.lean` + `EMOnLine.lean`, I.316–I.317). The Krawczyk
+chain for `s14 = 1/2 + 14i` is closed:
 
 ```lean
-theorem zeta_zero_14 : ∃ z ∈ Metric.closedBall s14 (1/5), riemannZeta z = 0
+theorem zeta_zero_14_on_line_simple :
+    ∃ z ∈ Metric.closedBall s14 (1/5),
+      riemannZeta z = 0 ∧ z.re = (1/2 : ℝ) ∧ deriv riemannZeta z ≠ 0
 ```
 
-holds with no numerical hypothesis left. This is a single certified zero in a
-`1/5`-ball, not a zero count, and not a statement about RH.
-
-These are finite-window
-zero-free statements, not a zero count and not a statement about RH. Wider
-segments and P4 remain open.
+with no numerical hypothesis left. The ball certificate alone only brackets the
+real part to `[3/10, 7/10]`; the upgrade uses **two ingredients already in this
+topic**: the Krawczyk inequality `‖1 − Yk·ζ′‖ ≤ 1/4` on the ball is a contraction,
+so the zero in the ball is **unique** (`zeta_zero_unique`), and
+`riemannZeta_conj` plus the functional equation make the reflection
+`s ↦ 1 − conj s` preserve zeros, so the unique zero is fixed by it
+(`Re = 1/2`); the same inequality gives `ζ′(z) ≠ 0`. The
+partial-sum-plus-tail evaluator is not used. This is one zero, not a zero count,
+and not a statement about RH; wider segments and P4 remain open.
 **Source:** P3/R14 of [`status.html`](../../status.html) §7; the eta/zeta identity
 is the standard alternating-series identity, recorded as a source theorem in
 [`topics/partial-sum-plus-tail/lean/SourceClaims.lean`](../partial-sum-plus-tail/lean/SourceClaims.lean)
@@ -575,6 +581,14 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T484 | Theorem | **`h2` from the remainder:** a bound `24/1000` gives `‖ζ′(z) − ζ′(s14)‖ ≤ 47/250` (`0.1536 + 0.024 = 0.178 ≤ 0.188`). | `h2_of_taylor_remainder_wide` (`EMTaylorStep.lean`) |
 | T485 | Theorem | **`h2` proved:** `‖ζ′(z) − ζ′(s14)‖ ≤ 47/250` on the closed `1/5`-ball. | `h2_deriv` (`EMTaylorStep.lean`) |
 | T486 | Theorem | **A Lean-certified zero of `ζ` at `1/2 + 14i`:** `∃ z ∈ closedBall s14 (1/5), riemannZeta z = 0` (from T485 and `h1_deriv`). | `zeta_zero_14` (`EMTaylorStep.lean`) |
+| T487 | Theorem | **Uniqueness from the contraction:** if the Newton map `z ↦ z − Y f z` is a `q`-contraction (`q < 1`) on the closed ball, a zero of `f` in that ball is unique. | `zero_unique_of_contraction` (`EMOnLine.lean`) |
+| T488 | Theorem | **The certified zero is unique in the closed `1/5`-ball** (contraction `1/4 < 1`). | `zeta_zero_unique` (`EMOnLine.lean`) |
+| T489 | Theorem | **Zeros reflect through `s ↦ 1 − conj s`:** conjugation (`riemannZeta_conj`) plus the functional equation (`riemannZeta_one_sub`); off the real axis the factor is harmless. | `zeta_zero_one_sub_conj` (`EMOnLine.lean`) |
+| T490 | Theorem | **The `1/5`-ball at `s14` is invariant under that reflection** (it is centred on the critical line). | `mem_ball_one_sub_conj` (`EMOnLine.lean`) |
+| T491 | Theorem | **The ball avoids the real axis:** `|Im z − 14| ≤ 1/5`, so `z.im ≠ 0` and the functional-equation hypotheses hold. | `im_ne_zero_of_ball` (`EMOnLine.lean`) |
+| T492 | Theorem | **A simple zero on the critical line:** `∃ z ∈ closedBall s14 (1/5), ζ z = 0 ∧ z.re = 1/2 ∧ ζ′(z) ≠ 0`. | `zeta_zero_14_on_line_simple` (`EMOnLine.lean`) |
+| T493 | Theorem | **`Re z = 1/2`** for the certified zero. | `zeta_zero_14_on_line` (`EMOnLine.lean`) |
+| T494 | Theorem | **`ζ′(z) ≠ 0`** for the certified zero (the same Krawczyk inequality). | `zeta_zero_14_simple` (`EMOnLine.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |
