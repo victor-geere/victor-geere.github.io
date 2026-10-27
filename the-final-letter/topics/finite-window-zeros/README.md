@@ -468,6 +468,12 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T389 | Theorem | ****`Wbox` corner test:**** corner² ≤ (1/2000)², by `native_decide` (true value `|1 − Yk·V| = 3.62·10⁻⁴`). | `corner_Wbox` (`EMDeriv.lean`) |
 | T390 | Theorem | **`‖1 − Yk·V‖ ≤ 1/2000`.** | `norm_Wbox_le` (`EMDeriv.lean`) |
 | T391 | Theorem | ****`h1` (step 4, point enclosure):**** `‖1 − Yk·ζ′(1/2+14i)‖ ≤ 1/200`; the only remaining Krawczyk input is `h2`. | `h1_deriv` (`EMDeriv.lean`) |
+| T392 | Theorem | **`21^(-3) = 1/9261`** in `ℂ` (via `Complex.cpow_intCast`). | `cpow21_neg_three` (`EMTaylor.lean`) |
+| T393 | Theorem | **`21^(-5) = 1/4084101`** in `ℂ`. | `cpow21_neg_five` (`EMTaylor.lean`) |
+| T394 | Theorem | **`21^(-(s+3)) = 21^(-s)/9261`.** | `pow21_neg_add_three` (`EMTaylor.lean`) |
+| T395 | Theorem | **`21^(-(s+5)) = 21^(-s)/4084101`.** | `pow21_neg_add_five` (`EMTaylor.lean`) |
+| T396 | Theorem | ****`K = 3` generator, explicit:**** `zetaEMGen 3 20 s` as its six pieces (base sum, pole, half, `B₂`, `B₄`, `B₆`). | `zetaEMGen_three_explicit` (`EMTaylor.lean`) |
+| T397 | Theorem | ****Factorization of `zetaEMGen 3 20`:**** `Σ_{n≤20} n^{-s} + 21^{-s}·Ψ₃(s)` with `Ψ₃` rational (`def Psi3`); every derivative at `s14` is thus a Gaussian rational times a power of `log 21`. | `gen3_eq_sum_psi` (`EMTaylor.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |

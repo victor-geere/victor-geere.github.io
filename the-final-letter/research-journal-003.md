@@ -376,3 +376,52 @@ The individual coefficients are tabulated in §2b; the key design simplification
 is the factorization `zetaEMGen 3 20 s = Σ n^{-s} + 21^{-s}·Ψ(s)` with `Ψ`
 rational, which reduces every `c_k` to Gaussian rationals times powers of
 `log 21`, i.e. one induction plus point-box arithmetic.
+
+### 2026-10-27 — I.295: `h2` setup — the `Ψ₃` factorization (T392–T397)
+
+Opened `lean/EMTaylor.lean` (now the 14th file in `check.sh`, 16 s) with the
+structural fact on which the whole `h2` computation rests:
+
+```lean
+Psi3 (s : ℂ) := 21/(s-1) + 1/2 + s/252
+                  + P₃(-s)/(720·9261) - P₅(-s)/(30240·4084101)
+gen3_eq_sum_psi :
+  zetaEMGen 3 20 s = Σ_{n≤20} n^{-s} + 21^{-s} * Psi3 s
+```
+
+with the supporting folds `pow21_neg_add_three` (`21^(-(s+3)) = 21^(-s)/9261`),
+`pow21_neg_add_five`, and the `ℂ`-versions of `21^{-3}`, `21^{-5}`.  The
+explicit six-piece expansion is `zetaEMGen_three_explicit`.
+
+**Why this matters.** `Ψ₃` is *rational*, so with
+`dᵏ[21^{-s}Ψ₃(s)] = 21^{-s} Σ_{j≤k} C(k,j) Ψ₃^{(j)}(s) (-log21)^{k-j}`
+every Taylor coefficient of the `K = 3` generator at `s14` is a Gaussian
+rational (from `(s14-1)^{-m}`, `P₃(-s14)`, `P₅(-s14)`) times a polynomial in
+`log 21` — exactly the point-box arithmetic that `Vbox` already does.  The only
+remaining piece for `c_k` is therefore the Leibniz induction plus the
+`Ψ₃^{(j)}(s14)` values, and `ζ = gen₃ + R₃` adds only the small `R₃`
+correction `≤ 6·10⁻⁵/ρ^k` (Cauchy).
+
+Two Lean frictions, both from unfolding `descPochhammer`: `simp [descPochhammer]`
+turns `(descPochhammer ℂ 3).eval (-s)` into a nested `Polynomial.comp` which no
+longer matches the hand-written product; and `norm_num` alone leaves a
+cast-vs-literal mismatch (`↑(-1/720) * 2` against `-1/360`).  The recipe that
+worked: prove the product forms `hP3`, `hP5` separately, do **not** put
+`descPochhammer` in the `simp only` set (only `descPochhammer_zero`), then
+`rw [emCoef_two, emCoef_three]; push_cast; ring`.
+
+**Next:** the Taylor remainder.  `Mathlib.Analysis.Calculus.Taylor` has exactly
+what is needed — `taylor_mean_remainder_bound` for `f : ℝ → E` (so `E = ℂ`):
+
+```
+‖f x - taylorWithinEval f n (Icc a b) a x‖ ≤ C * (x - a)^(n+1) / n!
+```
+
+Apply with `a = 0`, `b = 1`, `f t = deriv ζ (s14 + t·w)`, `n = K-1`, and
+`C = sup|ζ^{(K+1)}| · r^K`; the remainder is then `≤ sup·r^K/(K-1)!`.  For
+`K = 6`: `sup·1.067·10⁻⁷`, so even a crude `sup|ζ^{(7)}| ≤ 3000` gives
+`3.2·10⁻⁴`.  Bookkeeping to prove: `iteratedDeriv k (t ↦ ζ(s14+t·w)) t =
+iteratedDeriv k ζ (s14+t·w) · w^k` for `k ≤ K+1` (induction with the chain
+rule), `ContDiffOn ℝ (K+1)` of the parametrised function from analyticity of
+`ζ` on the ball, and `iteratedDerivWithin_eq_iteratedDeriv` on the interior of
+`[0,1]`.
