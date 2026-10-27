@@ -15,8 +15,12 @@ the value it denotes. But `inflate` is sound for *every* `r ≥ 0` (T6, T13, C14
 so any accepted box can be widened arbitrarily and remain accepted. The page's
 headline claim "`0 ∈ [ζ(1/2 + 14.1347…i)]`, width ≤ `5e-17`" therefore welds two
 different kinds of assertion together: containment, which is certified, and
-tightness, which is a number reported by the Python side and never itself
-kernel-checked.
+tightness, which — before T50 — was a number reported by the Python side and
+never itself kernel-checked. There is now a target-width checker
+(`Expr.wfWidth`, `Expr.wfWidth_sound`, T50): an accepted certificate can also be
+required to satisfy `box.width ≤ w`, and the ζ(2) replay passes at `10⁻⁴`. The
+checker does not make a crude box tight; it makes a stated width target
+checkable.
 
 *Is there any part of the architecture in which the width of an enclosure is a
 theorem rather than a measurement — or is "usefully tight" permanently outside
@@ -27,10 +31,14 @@ the certificate?*
 The checkable cell is `add`, `sub`, `neg`, `scale`, `mul`, `inflate` over `ℚ` —
 elementary ordered-field algebra. Everything specifically number-theoretic sits
 in the atoms: the input `s`, the transcendental enclosures, and above all the
-Euler–Maclaurin decomposition (S1) and its tail bound (S2), which the page
-leaves as source claims. Twenty-five of the thirty-five ledger rows (T1–T25) are
-about the container; the contents are trusted by hypothesis. The elementary
-S3–S5 are now T33–T35; S1–S2 have a written proof but are not Lean-formalised.
+Euler–Maclaurin decomposition (S1) and its tail bound (S2). Those two are now
+Lean theorems for `K ≥ 1` (`hurwitzZetaNP_eq_eulerMaclaurin`,
+`hurwitzZetaNP_eulerMaclaurin_with_bound`, T42–T43), and they now yield a
+closed rectangle enclosure for every `s` with `Re s > 1`, with no atom
+hypothesis (`zeta_mem_box`, T44–T49). What remains is the critical-strip wiring
+(`0 < Re s ≤ 1`) and a symbolic `Expr`. Twenty-five of the thirty-five original
+ledger rows (T1–T25) are about the container; T36–T43 close the analytic
+contents. The elementary S3–S5 are T33–T35.
 
 *If the kernel-checked spine would remain true for an arbitrary series and an
 arbitrary tail bound, what exactly has been certified about ζ — and why was the
@@ -135,11 +143,12 @@ tactic trusts compiled evaluation (`Lean.ofReduceBool`), so the blanket "no
 `sorry`, no `axiom`, no `admit`" holds for `wf_sound` and the interval lemmas but
 not, without qualification, for each accepted certificate. Meanwhile the page's
 Lean-layer paragraph and `lean/BUILD.log` must stay in sync as the development
-grows; they now list seven files, including `SourceClaims.lean`.
+grows; they now list eight files, including `SourceClaims.lean` and
+`EulerMaclaurin.lean`.
 
 *What is the trust budget when `native_decide` is in the loop, and what
-maintenance discipline keeps a ledger of 35 theorems, 14 tests, 2 unresolved
-source claims and 6 open items in sync with the artefacts it indexes — given that this page has
+maintenance discipline keeps a ledger of 43 theorems, 14 tests, no unresolved
+analytic source claim and 6 open engineering items in sync with the artefacts it indexes — given that this page has
 already drifted from its own build log?*
 
 ---

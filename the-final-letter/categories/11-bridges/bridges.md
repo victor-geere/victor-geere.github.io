@@ -90,7 +90,7 @@ A bridge is a proposed route from the available data to the far side of a wall. 
 
 **What it would give.** Rational enclosures of `ζ(s)`, `ζ(s,a)` and `L(s,χ)` with a replayable certificate. It gives exact finite-scale values, not an asymptotic statement.
 
-**Status.** The rational cell, certificate replay, eta split and transcendental enclosures are Lean-proved; the Euler–Maclaurin identity and tail bound have a written proof but are not Lean-formalised. No wall theorem uses an enclosure as a hypothesis yet.
+**Status.** The rational cell, certificate replay, eta split, transcendental enclosures, Euler–Maclaurin S1–S2 (`K ≥ 1`) and a closed rectangle enclosure for `Re s > 1` are Lean-proved. No wall theorem uses an enclosure as a hypothesis yet; a target-width certificate format is proved, but a symbolic width bound is not.
 
 **Verdict.** Not a bridge. It is the instrument a future bridge can use, and the letter says so rather than promoting it.
 
@@ -108,7 +108,7 @@ A bridge is a proposed route from the available data to the far side of a wall. 
 | B8 Weil current | yes | yes | open | RH |
 | B9 transfer operator | yes | yes | tractable | F.4 |
 | B10 finite prefix | no | — | no-go | none |
-| B11 certified evaluation | n/a | n/a | proved finite layer; source-claim analytic inputs | none (instrument) |
+| B11 certified evaluation | n/a | n/a | proved finite layer incl. S1–S2; replay wiring open | none (instrument) |
 
 The table is the programme’s answer to “what are the possible bridges?”: there are several, but they all terminate at the same two walls. The bridges are real; the far banks are not. B11 is listed to make the negative claim explicit: a certified evaluator is an instrument, not a route across either wall.
 

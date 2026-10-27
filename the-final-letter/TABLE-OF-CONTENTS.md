@@ -12,12 +12,14 @@ Complete file-level index of `the-final-letter/`. The single-page [`index.html`]
 - [GLOSSARY.md](GLOSSARY.md) — Shared vocabulary.
 - [TABLE-OF-CONTENTS.md](TABLE-OF-CONTENTS.md) — This index.
 - [index.html](index.html) — Single-page HTML with MathJax.
+- [status.html](status.html) — Research status: the two walls, how Objective III applies to them, outstanding items, bridges and roadmap.
 - [EVIDENCE.md](EVIDENCE.md) — What was imported, what is a snapshot, and how to check the links.
 - [scraps.html](scraps.html) — Inventory of research programmes not yet harvested.
 - [topics/](topics/index.html) — Reconstructed research programmes, one folder per scraps item.
-- [topics/STATUS.md](topics/STATUS.md) — Theorem, computation, test, and Lean build ledger for all 45 topics.
+- [topics/STATUS.md](topics/STATUS.md) — Theorem, computation, test, and Lean build ledger for all 47 topics.
 - [topics/PROGRAMME-STANDARD.md](topics/PROGRAMME-STANDARD.md) — The reconstruction standard.
 - [topics/partial-sum-plus-tail/](topics/partial-sum-plus-tail/README.md) — Objective III: certified partial-sum-plus-tail evaluation of `ζ` and `L`.
+- [topics/euler-maclaurin/](topics/euler-maclaurin/README.md) — Annex to Objective III: the Euler–Maclaurin Lean layer, T36–T43.
 - [geometric-dynamical-phase-transitions/](geometric-dynamical-phase-transitions/README.md) — Self-contained bundle of the canonical paper and its local dependencies.
 
 ## Folders at a glance

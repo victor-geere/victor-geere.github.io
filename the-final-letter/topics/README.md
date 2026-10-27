@@ -4,7 +4,7 @@ One folder per item in the [scraps inventory](../scraps.html), grouped under `th
 
 A reconstructed programme does not make the source's claims true. Every dossier separates **Theorem** (Lean-proved), **Computation** (tested), **Source claim** (archived, not adopted), and **Open/conjecture**.
 
-The table also carries the three programme objectives: item 1 (Riemann wall), item 2 (parity wall), and item 45 (Objective III, certified partial-sum-plus-tail evaluation).
+The table also carries the three programme objectives: item 1 (Riemann wall), item 2 (parity wall), and item 45 (Objective III, certified partial-sum-plus-tail evaluation). Item 46 is a focused annex to Objective III: the Euler–Maclaurin Lean layer that closes S1–S2.
 
 | # | Topic | Status | Folder | Source |
 |---|---|---|---|---|
@@ -53,6 +53,9 @@ The table also carries the three programme objectives: item 1 (Riemann wall), it
 | 43 | Factorisation and theta | speculative | [factorisation-theta](factorisation-theta/README.md) | [`archive/essays/factorisation-theta-zeta.html`](../archive/essays/factorisation-theta-zeta.html) |
 | 44 | Finance / trading ebooks | separate scope (outside the RH programme) | [finance-trading](finance-trading/README.md) | [`archive/ebooks/index.html`](../archive/ebooks/index.html) |
 | 45 | Partial sum plus tail (Objective III) | harvested — integrated as Objective III | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | `~/workspace/rh/research/twin-prime-parity/012/` |
+| 46 | Euler–Maclaurin layer (annex to Objective III) | structural pass — mirror of the canonical Lean file | [euler-maclaurin](euler-maclaurin/README.md) | [`topics/partial-sum-plus-tail/lean/EulerMaclaurin.lean`](partial-sum-plus-tail/lean/EulerMaclaurin.lean) |
+| 47 | Finite-window zeros (P3) | done (point) — `ζ(1/2+5i) ≠ 0`; segment open | [finite-window-zeros](finite-window-zeros/README.md) | P3/R14 of [`status.html`](../status.html) §7 |
+| 48 | Finite explicit formula (P4) | partial — fixed tent function, autocorrelation and finite prime side certified | [finite-explicit-formula](finite-explicit-formula/README.md) | P4 of [`status.html`](../status.html) §7 |
 
 ## How to use these folders
 

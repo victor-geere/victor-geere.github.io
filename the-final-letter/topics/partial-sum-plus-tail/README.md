@@ -2,14 +2,18 @@
 
 **Status:** Objective III of the Final Letter, integrated as the programme's
 positive computation layer. The rational interval algebra, the certificate
-replay, the truncation transport, the eta cos/sin split, and the
-transcendental enclosures (`π`, `log`, `exp`, `sin`, `cos`) are proved in
-Lean. The Euler–Maclaurin formula and the explicit tail bound have a written
-proof in [`notes/euler-maclaurin-proof.md`](notes/euler-maclaurin-proof.md) but
-remain unformalised in Lean: they are the only parts outside Lean. The
-elementary source claims S3–S5 (the zeta bound, the eta identity and the
-`L`-reduction) are proved in `SourceClaims.lean`. The layer is an instrument, not a hypothesis: no theorem
-about either wall yet uses a certified enclosure as a premise.
+replay, the truncation transport, the eta cos/sin split, the transcendental
+enclosures (`π`, `log`, `exp`, `sin`, `cos`), and the Euler–Maclaurin identity
+and explicit tail bound (S1–S2, for `K ≥ 1`) are proved in Lean. The written
+proof is retained in [`notes/euler-maclaurin-proof.md`](notes/euler-maclaurin-proof.md)
+as the human-readable companion. The elementary source claims S3–S5 (the zeta
+bound, the eta identity and the `L`-reduction) are proved in
+`SourceClaims.lean`. S1–S2 now yield a closed rectangle enclosure for every `s`
+with `Re s > 1`, arbitrary `M, K`, with no atom hypothesis (`ReplayGeneral.lean`,
+T44–T49). What remains is the critical-strip wiring (`0 < Re s ≤ 1`) and a
+symbolic `Expr` emission, not the analytic content. The layer is an instrument,
+not a hypothesis: no theorem about either wall yet uses a certified enclosure as
+a premise.
 
 **Objective:** the third objective of the Final Letter. The first two
 objectives are the two walls (RH and parity). This one is the positive
@@ -29,7 +33,7 @@ The Final Letter has three objectives. The first two are the walls (RH and
 parity); this is the positive computation layer they need. Its integration
 is as an instrument, not as a bridge:
 
-- [05 — Proofs, section C](../../categories/05-proofs/proofs.md#c-the-certified-evaluation-layer) records the theorem groups C1–C7 (interval algebra, certificate soundness, truncation transport, eta split, ζ(2) replay, transcendental enclosures, S3–S5) and the two analytic inputs S1–S2.
+- [05 — Proofs, section C](../../categories/05-proofs/proofs.md#c-the-certified-evaluation-layer) records the theorem groups C1–C8b (interval algebra, certificate soundness, truncation transport, eta split, ζ(2) replay, transcendental enclosures, S3–S5, the Euler–Maclaurin layer S1–S2, and the rectangle enclosure/width groups C8a–C8b).
 - [06 — Findings, F11](../../categories/06-findings/findings.md#f11-certified-evaluation-is-an-instrument-not-a-key) states what the layer does and does not do.
 - [07 — Significance, section 8](../../categories/07-significance/significance.md#8-a-reusable-certified-computation-layer) records it as a reusable positive residue.
 - [08 — Novelty, N7](../../categories/08-novelty/novelty.md#n7-a-certified-evaluator-inside-the-letters-argument) is explicit that the method is inherited and the integration is the contribution.
@@ -157,6 +161,23 @@ Every row is proved in Lean with no `sorry`, `axiom` or `admit`.
 | T33 | `ζ(m) ≤ 1 + 1/(m−1)` for `m ≥ 2` (as a bound on the real part). | `PartialTail.riemannZeta_nat_re_le` |
 | T34 | `η(s) = (1−2^{1−s})ζ(s)` for `Re s > 1`. | `PartialTail.eta_eq_one_sub_two_cpow_mul_zeta` |
 | T35 | `L(s,χ) = N^{−s} Σ_{j≠0} χ(j) ζ(s,j/N)` for modulus `N ≠ 1`, as an erase-zero Hurwitz sum. | `PartialTail.LFunction_eq_hurwitz_sum` |
+| T36 | The finite Euler–Maclaurin identity for a smooth `f` on an integer interval, all `K`. | `PartialTail.finite_eulerMaclaurin` |
+| T37 | The finite Euler–Maclaurin identity for the Hurwitz term `(a+x)^{-s}`. | `PartialTail.finite_eulerMaclaurin_hurwitz` |
+| T38 | Fourier inversion for the periodic Bernoulli functions, `n ≥ 2`. | `PartialTail.hasSum_periodicBernoulli_fourier` |
+| T39 | The odd Bernoulli supremum bound `‖B̃_{2K+1}‖∞ ≤ 2(2K+1)! ζ(2K+1)/(2π)^(2K+1)`, `K ≥ 1`. | `PartialTail.iSup_norm_periodicBernoulli_odd_le_zeta` |
+| T40 | The non-periodic Hurwitz zeta is differentiable away from `s = 0, 1`. | `PartialTail.differentiableAt_hurwitzZetaNP` |
+| T41 | The iterated derivative of the Hurwitz term is `(−1)^n (s)_n (a+x)^{−s−n}`, and every derivative is integrable on the tail. | `PartialTail.iteratedDeriv_hurwitzTerm_eqOn`, `integrableOn_iteratedDeriv_hurwitzTerm` |
+| T42 | The integral form of the S2 tail bound: `‖∫ B̃_{2K+1}(x) f^{(2K+1)}(x)‖ ≤ …`. | `PartialTail.norm_integral_periodicBernoulli_mul_odd_le` |
+| T43 | S1 decomposition of `ζ(s,a)` and S2 explicit tail bound, together, for `K ≥ 1`. | `PartialTail.hurwitzZetaNP_eq_eulerMaclaurin`, `PartialTail.hurwitzZetaNP_eulerMaclaurin_with_bound` |
+| T44 | W1 domain bridge: at `a = 1` the non-periodic Hurwitz zeta is the Riemann zeta, for `s ≠ 0`. | `PartialTail.zeta_eq_hurwitzZetaNP_one` |
+| T45 | Modulus bounds for real-base complex powers, with explicit rational radii: `‖b^{−s}‖ ≤ b^{−⌊Re lo⌋}` and `‖b^{−s−n}‖ ≤ (b^{⌊Re lo⌋+n})^{−1}` on a rectangle. | `PartialTail.norm_cpow_neg_le_radius`, `norm_cpow_neg_sub_le` |
+| T46 | Integral atom: `‖∫_M^∞ (1+x)^{−s} dx‖` is bounded by the rational `integralRadius`. | `PartialTail.norm_integral_le_radius` |
+| T47 | Derivative and Bernoulli atoms: the iterated derivative at `M` and each Euler–Maclaurin correction term are bounded by rational `derivRadius`/`bernoulliRadius`. | `PartialTail.norm_iteratedDeriv_le`, `norm_bernoulli_le` |
+| T48 | Uniform tail atom: `ζ(2K+1) ≤ 2` and `‖R_K(s)‖ ≤ tailRadius` on a rectangle, for `K ≥ 1`. | `PartialTail.riemannZeta_nat_re_le_two`, `norm_tail_le` |
+| T49 | **P1 (rectangle form):** a closed rational enclosure `zetaBox S M K` of `ζ(s)` for every `s` with `Re s > 1`, arbitrary `M ≥ 1`, `K ≥ 1`, no atom hypothesis; checked at ζ(2). | `PartialTail.zeta_mem_box`, `zeta_two_mem_box` |
+| T50 | **P2:** target-width certificate checker `Expr.wfWidth`, soundness, and the ζ(2) replay accepted at width `10⁻⁴`. | `PartialTail.Expr.wfWidth_sound`, `Replay.cert_wfWidth`, `cert_mem_width` |
+| T51 | **R14 template:** an enclosure that excludes `0` certifies nonvanishing at the enclosed point. | `PartialTail.ne_zero_of_mem_of_not_mem_zero` |
+| T52 | **Verified complex-power atom:** `cpowBox` combines the proved `log`/`exp`/`cos`/`sin` enclosures into a box for `b^{-s}` on a rational rectangle; `cpowBox_mem` is its soundness theorem, with a concrete `3^{-(1/2+5i)}` check. | `PartialTail.cpowBox`, `cpowBox_mem` |
 
 ## Computation ledger
 
@@ -210,14 +231,14 @@ The concrete theorems are `piIv_memR`, `expIvGeneral_memR`, `logIv_memR`,
 `cosBox_memR`, `sinBox_memR`, `cosReduce_memR` and `sinReduce_memR`. The
 checks `log_two_check`, `exp_one_check`, `sin_one_check`, `cos_one_check` and
 `piIv_check` are kernel-checked instances. The concrete ζ(2) replay already has
-every atom discharged (`ReplayAtoms.lean`, `cert_mem_closed`). What remains is
-to wire the general transcendental theorems into a `Replay` for arbitrary `s`,
-and to use a certified enclosure as a hypothesis in a theorem about a wall.
-The Euler–Maclaurin formula and its tail bound have a written proof but remain
-unformalised in Lean, so the final Lean enclosure of `ζ(s)` is still
-conditional on S1–S2, not on the transcendentals.
+every atom discharged (`ReplayAtoms.lean`, `cert_mem_closed`). The general
+transcendental theorems and Euler–Maclaurin S1/S2 are now consumed by a closed
+rectangle enclosure for every `s` with `Re s > 1` (`ReplayGeneral.lean`,
+T44–T49); the remaining conditionality is the eta reduction to `Re s > 0` and
+the emission of a single symbolic `Expr` whose `wf` is checked. The target-width
+checker is proved (`Width.lean`, T50); a symbolic width theorem is not.
 
-## Source claims (not Lean-formalised)
+## Analytic inputs (now Lean theorems)
 
 | # | Claim | Status |
 |---|---|---|
@@ -232,21 +253,18 @@ S3 is T33 (`riemannZeta_nat_re_le`), S4 is T34
 
 ## Open items
 
-1. **Euler–Maclaurin formula.** The `exp`/`log`/`sin`/`cos` enclosures are
-   proved in `Transcend.lean`, and the atom hypotheses of the concrete ζ(2)
-   replay are discharged in `ReplayAtoms.lean` (`cert_mem_closed`). What
-   remains is S1–S2: the identity that the replay value is `ζ(s)` and the
-   explicit tail bound. Both now have a written proof in
-   [`notes/euler-maclaurin-proof.md`](notes/euler-maclaurin-proof.md), but they
-   are still not Lean theorems. S3–S5 are Lean theorems in `SourceClaims.lean`
+1. **Wiring Euler–Maclaurin into a closed enclosure.** Done for
+   `Re s > 1`, arbitrary `M ≥ 1`, `K ≥ 1`, with no atom hypothesis
+   (`ReplayGeneral.lean`, T44–T49). Remaining: the eta reduction to
+   `0 < Re s ≤ 1`, and a symbolic `Expr` whose `wf` is checked rather than a
+   direct box assembly. S3–S5 are Lean theorems in `SourceClaims.lean`
    (T33–T35).
 2. **Use as a hypothesis.** No theorem about either wall yet consumes a
-   certified enclosure. Wiring the general transcendentals into a `Replay`
-   for arbitrary `s` and using that replay in a finite-scale theorem is the
-   integration task recorded as R14 in the letter.
-3. **Width, not just soundness.** `inflate` accepts any `r ≥ 0`, so the
-   narrow widths are Python measurements, not Lean theorems. R15 records the
-   target: a checked width bound.
+   certified enclosure. The R14 template is recorded (T51), but its numerical
+   premise needs a critical-strip enclosure, which is the missing half of P1.
+3. **Width, not just soundness.** The certificate format now checks a target
+   width (`Expr.wfWidth`, T50; ζ(2) at `10⁻⁴`). A symbolic width theorem for
+   `zetaBox` is still open: the rectangle enclosure is deliberately crude.
 4. **Derivatives.** `partial_tail.py` encloses values, not `L'/L`; adding
    derivatives costs a `div` soundness lemma and differentiated tail atoms.
 5. **`s = 1`.** The individual Hurwitz terms have a pole that cancels only in
@@ -286,11 +304,14 @@ cd the-final-letter/topics/partial-sum-plus-tail
 the certificate language and `wf_sound`; `lean/Replay.lean` is a concrete
 ζ(2) replay; `lean/ReplayAtoms.lean` discharges its atom boxes; `lean/Topic.lean` adds the transport lemmas and the eta cos/sin
 split; `lean/SourceClaims.lean` proves the zeta bound, the eta identity and
-the `L`-reduction. `lean/EulerMaclaurin.lean` starts the Euler–Maclaurin
-formalisation: it defines the periodic Bernoulli functions and a non-periodic
-Hurwitz zeta, proves that the latter is the ordinary Hurwitz series for
-`Re s > 1`, and proves the `K = 0` finite Euler–Maclaurin identity and the interior derivative of the periodic Bernoulli functions, the polynomial integration-by-parts identity for the unit intervals, the raw unit-interval recursion, the global recursion obtained by summing over adjacent intervals, and its odd specialisation. The finite Euler–Maclaurin induction, Fourier inversion and the
-analytic continuation are still open. The recorded build is
+the `L`-reduction. `lean/EulerMaclaurin.lean` proves the Euler–Maclaurin
+layer in full: periodic Bernoulli functions, a non-periodic Hurwitz zeta, its
+series representation and differentiability, the finite Euler–Maclaurin
+identity for smooth functions and for the Hurwitz term, Fourier inversion and
+the Bernoulli supremum bound, the integral form of the tail bound, and the
+S1 decomposition with the explicit S2 tail bound for `K ≥ 1`. No analytic
+input remains outside Lean; the outstanding work is the replay wiring. The
+recorded build is
 `[check] OK IBox.lean`, `[check] OK Expr.lean`, `[check] OK Transcend.lean`,
 `[check] OK Replay.lean`, `[check] OK ReplayAtoms.lean`, `[check] OK Topic.lean`,
 `[check] OK SourceClaims.lean`, `[check] OK EulerMaclaurin.lean` in

@@ -196,4 +196,59 @@ theorem gramForm_re_nonneg {N M : ℕ} (w γ : Fin N → ℝ) (a : Fin M → ℂ
   rw [hk]
   exact mul_nonneg (hw k) (Complex.normSq_nonneg _)
 
+/-! ## Finite Gram positivity and a DH-shaped negative witness (P5)
+
+A rational Cholesky certificate is the finite form of a positive Gram matrix:
+if `G = Lᴴ L`, then `G` is positive semidefinite. The second matrix flips one
+off-diagonal sign, the finite analogue of the DH twist; an explicit rational
+vector makes its form negative. These are finite linear-algebra certificates for
+the P5 shadow, not the infinite Weil form.
+-/
+
+open Matrix
+
+/-- A rational lower-triangular factor. -/
+def L3 : Matrix (Fin 3) (Fin 3) ℚ := !![1, 0, 0; 1, 1, 0; 1, 1, 1]
+
+/-- The Gram matrix `L3ᴴ * L3`. -/
+def G3 : Matrix (Fin 3) (Fin 3) ℚ := !![3, 2, 1; 2, 2, 1; 1, 1, 1]
+
+theorem G3_eq : G3 = L3ᴴ * L3 := by
+  ext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [G3, L3, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_three] <;> norm_num
+
+/-- **Finite positivity certificate.**  The Gram matrix with a rational Cholesky
+factor is positive semidefinite. -/
+theorem G3_posSemidef : G3.PosSemidef := by
+  rw [G3_eq]
+  exact Matrix.posSemidef_conjTranspose_mul_self L3
+
+/-- A DH-shaped finite twist: flip the sign of the off-diagonal entry. -/
+def GDH : Matrix (Fin 2) (Fin 2) ℚ := !![1, 2; 2, 1]
+
+/-- The rational witness vector `(1, -1)`. -/
+def vDH : Fin 2 → ℚ := ![1, -1]
+
+/-- **Negative witness.**  The DH-shaped Gram matrix is not positive semidefinite;
+the form at `(1,-1)` is `-2`. -/
+theorem GDH_not_posSemidef : ¬ GDH.PosSemidef := by
+  intro h
+  have hv := h.dotProduct_mulVec_nonneg vDH
+  norm_num [GDH, vDH, dotProduct, mulVec, Fin.sum_univ_two] at hv
+
+/-- **Generic finite P5 certificate.**  Any matrix of the form `Lᴴ L` with a
+rational factor is positive semidefinite. -/
+theorem posSemidef_of_cholesky {n : Type*} [Fintype n] [DecidableEq n]
+    (L : Matrix n n ℚ) : (Lᴴ * L).PosSemidef :=
+  Matrix.posSemidef_conjTranspose_mul_self L
+
+/-- **Generic negative witness.**  A rational vector with negative form value
+refutes positive semidefiniteness. -/
+theorem not_posSemidef_of_neg {n : Type*} [Fintype n] [DecidableEq n]
+    {M : Matrix n n ℚ} {v : n → ℚ}
+    (h : star v ⬝ᵥ (M *ᵥ v) < 0) : ¬ M.PosSemidef := by
+  intro hM
+  exact (not_le_of_gt h) (hM.dotProduct_mulVec_nonneg v)
+
 end PrimeSpectrumTensor

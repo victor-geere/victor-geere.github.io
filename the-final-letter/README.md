@@ -10,13 +10,13 @@ The programme does **not** prove the Riemann hypothesis, the twin-prime conjectu
 |---|---|
 | RH conversion; Davenport–Heilbronn sharpness (C.10) | Written proof in the accompanying paper; not machine-checked, not peer-reviewed |
 | Finite-prefix indeterminacy theorem | Lean-checked (`FinalLetter/Synthesis.lean`) |
-| Certified evaluator: rational cell, certificate replay, transcendental enclosures | Lean-checked (`topics/partial-sum-plus-tail/lean`); Euler–Maclaurin and the tail bound have a written proof but are not Lean-formalised |
+| Certified evaluator: rational cell, certificate replay, transcendental enclosures, Euler–Maclaurin S1–S2 | Lean-checked (`topics/partial-sum-plus-tail/lean`); S1–S2 are proved for `K ≥ 1` |
 | Sylvester-sparsity theorem; five-bridge refutation | Argument about this programme's own proposed routes, not a survey of the literature |
 | Lean spine | Lean-checked, but covers only the finite layer and the wall definitions |
 
 ## The third objective
 
-The two walls are the programme's negative results. The **third objective** is positive: a certified partial-sum-plus-tail evaluator for `ζ`, `ζ(s,a)` and `L(s,χ)`. It supplies a rational interval layer, an independent certificate checker, a kernel-checked Lean replay of every rational operation, kernel-checked enclosures for `π`, `exp`, `log`, `sin` and `cos`, and a concrete ζ(2) replay with every atom discharged. It is the computation layer the walls need, not a bridge across either. In the letter it is integrated as Objective III: it is described in [01 — Description](categories/01-description/description.md), recorded in the [proof ledger](categories/05-proofs/proofs.md#c-the-certified-evaluation-layer), and carried into the findings, significance, novelty and further research. It is an instrument, not a hypothesis: no theorem about either wall uses a certified enclosure as a premise yet. The dossier is [topics/partial-sum-plus-tail](topics/partial-sum-plus-tail/README.md).
+The two walls are the programme's negative results. The **third objective** is positive: a certified partial-sum-plus-tail evaluator for `ζ`, `ζ(s,a)` and `L(s,χ)`. It supplies a rational interval layer, an independent certificate checker, a kernel-checked Lean replay of every rational operation, kernel-checked enclosures for `π`, `exp`, `log`, `sin` and `cos`, a concrete ζ(2) replay with every atom discharged, and a Lean-proved Euler–Maclaurin identity and explicit tail bound. It is the computation layer the walls need, not a bridge across either. In the letter it is integrated as Objective III: it is described in [01 — Description](categories/01-description/description.md), recorded in the [proof ledger](categories/05-proofs/proofs.md#c-the-certified-evaluation-layer), and carried into the findings, significance, novelty and further research. It is an instrument, not a hypothesis: no theorem about either wall uses a certified enclosure as a premise yet. The dossier is [topics/partial-sum-plus-tail](topics/partial-sum-plus-tail/README.md), with a focused annex at [topics/euler-maclaurin](topics/euler-maclaurin/README.md).
 
 ## Read the programme
 
@@ -39,11 +39,12 @@ The numbered sections are grouped under [categories/](categories/README.md); the
 | Bridges | [categories/11-bridges/bridges.md](categories/11-bridges/bridges.md) |
 | Final note | [categories/12-final-note/final-note.md](categories/12-final-note/final-note.md) |
 | Scraps — unharvested programmes | [scraps.html](scraps.html) |
-| Third objective — certified evaluation | [topics/partial-sum-plus-tail](topics/partial-sum-plus-tail/README.md) · [proof ledger C](categories/05-proofs/proofs.md#c-the-certified-evaluation-layer) |
+| Third objective — certified evaluation | [topics/partial-sum-plus-tail](topics/partial-sum-plus-tail/README.md) · [Euler–Maclaurin annex](topics/euler-maclaurin/README.md) · [proof ledger C](categories/05-proofs/proofs.md#c-the-certified-evaluation-layer) |
+| Research status — walls, bridges, roadmap | [status.html](status.html) |
 | Topic folders | [topics/](topics/index.html) · [status](topics/STATUS.md) |
 | Paper bundle | [geometric-dynamical-phase-transitions/](geometric-dynamical-phase-transitions/README.md) |
 
-The single-page HTML version is [`index.html`](index.html); it is the canonical reading artefact, and the Markdown files in this folder are the source text. The status ledger is [`STATUS.md`](STATUS.md); the gap ledger is [`GAP-LEDGER.md`](GAP-LEDGER.md).
+The single-page HTML version is [`index.html`](index.html); it is the canonical reading artefact, and the Markdown files in this folder are the source text. The status ledger is [`STATUS.md`](STATUS.md); the live research status, including the wall-by-wall application of Objective III, the outstanding items and the bridge requirements, is [`status.html`](status.html). The gap ledger is [`GAP-LEDGER.md`](GAP-LEDGER.md).
 
 ## The thesis in five sentences
 
@@ -61,11 +62,11 @@ The single-page HTML version is [`index.html`](index.html); it is the canonical 
 - The Sylvester-sparsity theorem and the five-bridge refutation — arguments over the programme's own proposed routes.
 - The one clean parity theorem and the barrier ledger P1–P19, B1–B5, N1–N3.
 - The Lean spine: `FinalLetter/Chowla.lean`, `FinalLetter/Synthesis.lean`, `FinalLetter.lean`, all `[check] OK` — the finite layer only.
-- The rational interval/certificate core of the third objective, with the eta cos/sin split, the `π`/`exp`/`log`/`sin`/`cos` enclosures, and the integer zeta bound, eta identity and `L`-reduction, all `[check] OK`; the Euler–Maclaurin identity and the explicit tail bound have a written proof but are not Lean-formalised.
+- The rational interval/certificate core of the third objective, with the eta cos/sin split, the `π`/`exp`/`log`/`sin`/`cos` enclosures, the integer zeta bound, eta identity and `L`-reduction, and the Euler–Maclaurin identity and explicit tail bound for `K ≥ 1`, all `[check] OK`.
 
 ## What is not proved
 
-RH, twin primes, Chowla for `k ≥ 2`, Sarnak, Elliott, `(M)`, OP-19, F.4, `Λ=0`, the Jensen/Li tower, uniform slow passage. The evaluator's Euler–Maclaurin identity and explicit tail bound have a written proof but are not Lean-formalised.
+RH, twin primes, Chowla for `k ≥ 2`, Sarnak, Elliott, `(M)`, OP-19, F.4, `Λ=0`, the Jensen/Li tower, uniform slow passage. The evaluator's Euler–Maclaurin identity and explicit tail bound are Lean theorems for `K ≥ 1`, and they now yield a closed rectangle enclosure for `Re s > 1`; no wall theorem consumes the evaluator, and only the target-width certificate format, not a symbolic width bound, is proved.
 
 ## Lean
 

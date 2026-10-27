@@ -21,7 +21,7 @@
 - 13 ledger sections + 140 result rows.
 - 15 papers + 147 statements.
 - 19 OPs + 36 open items.
-- 1 certified evaluator dossier: 35 Lean theorems, 14 tested computations, 2 analytic inputs (S1–S2) with written proofs but no Lean formalisation.
+- 1 certified evaluator dossier: 43 Lean theorems, 14 tested computations, and the Euler–Maclaurin S1–S2 layer Lean-proved for `K ≥ 1`; 1 annex dossier for the Euler–Maclaurin layer.
 - 1 Lean synthesis, 3 modules, `[check] OK`.
 
 [Back to README](../../README.md) · [Folder TOC](TOC.md)

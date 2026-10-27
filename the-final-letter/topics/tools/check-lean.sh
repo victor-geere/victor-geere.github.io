@@ -25,7 +25,7 @@ if [ ! -x "$LEAN_BIN" ]; then
 fi
 
 BASE_PATH="$(cd "$MATHLIB" && ELAN_HOME="$ELAN_HOME" "$ELAN_HOME/bin/lake" env printenv LEAN_PATH)"
-export LEAN_PATH="$HERE:$BASE_PATH"
+export LEAN_PATH="$HERE:$BASE_PATH${LEAN_EXTRA_PATH:+:$LEAN_EXTRA_PATH}"
 
 if [ $# -eq 0 ]; then
   FILES=()
@@ -39,6 +39,15 @@ for f in "${FILES[@]}"; do
   case "$f" in /*) target="$f" ;; *) target="$HERE/$f" ;; esac
   [ -f "$target" ] || { echo "[check] MISS $f" >&2; status=1; continue; }
   start=$(date +%s)
+  if [ -n "${LEAN_EXTRA_PATH:-}" ]; then
+    if "$LEAN_BIN" -o "${target%.lean}.olean" "$target"; then
+      printf '[check] OK   %s (%ss)\n' "${f#"$HERE"/}" "$(( $(date +%s) - start ))"
+    else
+      printf '[check] FAIL %s\n' "${f#"$HERE"/}" >&2
+      status=1
+    fi
+    continue
+  fi
   if "$LEAN_BIN" -R "$HERE" -o "${target%.lean}.olean" "$target"; then
     printf '[check] OK   %s (%ss)\n' "${f#"$HERE"/}" "$(( $(date +%s) - start ))"
   else

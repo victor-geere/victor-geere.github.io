@@ -3,8 +3,8 @@
 **Status.** This review was written before the folder was published. The
 misleading wording and structural errors it identified have since been fixed;
 what follows is the short list of issues that remain. Verification after the
-fixes: `406 passed` across the 45 Python suites, 45/45 topic folders pass the
-structural audit, and `tools/check-links.py` reports **18,323 internal links,
+fixes: `424 passed` across the 46 Python suites, 46/46 topic folders pass the
+structural audit, and `tools/check-links.py` reports **18,436 internal links,
 0 leaving the folder, 0 broken outside `rh/`** (22 informational dangling
 references inside the `rh/` snapshot).
 
@@ -89,17 +89,17 @@ heuristic.
 
 `topics/partial-sum-plus-tail/` is now internally consistent: the
 transcendentals are proved in `Transcend.lean`, the ζ(2) atoms are discharged
-in `ReplayAtoms.lean`, only Euler–Maclaurin and the tail bound remain outside Lean;
-they have a written proof but are not Lean-formalised, and the dossier is integrated as Objective III — an instrument, not a
-hypothesis. The remaining technical caveats:
+in `ReplayAtoms.lean`, and Euler–Maclaurin S1–S2 are proved in
+`EulerMaclaurin.lean` for `K ≥ 1`. The dossier is integrated as Objective III
+— an instrument, not a hypothesis. The remaining technical caveats:
 
-- The enclosures are **sound** but their **width is not certified**; `inflate`
+- The enclosures are **sound**, and a concrete certificate can now be **checked against a target width** (`Expr.wfWidth`, T50); a symbolic width bound is not certified, and `inflate`
   is sound for every `r ≥ 0`, so any box can be widened and remain accepted.
   The narrow widths are Python measurements, not theorems.
 - A certificate that `0 ∈ η(1/2 + iγ₁)` is a containment, not a proof that a
   zero exists; no sign change or argument-principle count accompanies it.
-- The final ζ enclosure remains conditional on S1–S2, where the analytic
-  content lives.
+- The general S1/S2 theorem is not yet wired into a certificate `Replay` for
+  arbitrary `s`; that is engineering, not analysis.
 - No section of the letter uses the evaluator as a hypothesis; the dossier is
   integrated as an instrument, and the use-as-hypothesis task is recorded as
   R14 in the further-research list.
@@ -213,8 +213,8 @@ still a reconstruction, not a peer-reviewed proof.
 ## Appendix — verification log
 
 ```
-python3 topics/tools/audit_topics.py          # OK: 45 topic folders pass
-bash    topics/tools/run-tests.sh             # 406 passed, 45 suites
+python3 topics/tools/audit_topics.py          # OK: 46 topic folders pass
+bash    topics/tools/run-tests.sh             # 424 passed, 46 suites
 bash    topics/tools/check-all-lean.sh        # 61 x [check] OK (review-time run)
 python3 tools/check-links.py                  # 18323 internal; 0 external; 0 broken curated; 22 informational in rh/
 bash    topics/tools/verify-all.sh            # includes publication.html SHA-256 check

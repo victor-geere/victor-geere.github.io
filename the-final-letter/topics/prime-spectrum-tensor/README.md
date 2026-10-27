@@ -66,6 +66,10 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | T5 | Theorem | The one-frequency Gram form equals `w · Z · conj Z` with `Z = Σ_j a_j e^{iγu_j}`. | `PrimeSpectrumTensor.atomForm_eq` |
 | T6 | Theorem | The finite Gram form factors as `Σ_k w_k · Z_k · conj Z_k`. | `PrimeSpectrumTensor.gramForm_eq` |
 | T7 | Theorem | If all atomic weights are non-negative, the finite Gram form has non-negative real part. | `PrimeSpectrumTensor.gramForm_re_nonneg` |
+| T8 | Theorem | **Finite P5 certificate:** a rational Cholesky factor `L3` gives `G3 = L3ᴴ L3`, hence `G3` is positive semidefinite. | `PrimeSpectrumTensor.G3_posSemidef` |
+| T9 | Theorem | **DH-shaped negative witness:** the sign-flipped finite Gram matrix `GDH` is not positive semidefinite; the rational vector `(1,-1)` gives form value `-2`. | `PrimeSpectrumTensor.GDH_not_posSemidef` |
+| T10 | Theorem | **Generic finite P5 certificate:** any rational matrix `Lᴴ L` is positive semidefinite. | `PrimeSpectrumTensor.posSemidef_of_cholesky` |
+| T11 | Theorem | **Generic negative witness:** a rational vector with negative form value refutes positive semidefiniteness. | `PrimeSpectrumTensor.not_posSemidef_of_neg` |
 | C1 | Computation | `Λ` is exact (`Λ(8)=log 2`, `Λ(9)=log 3`, `Λ(6)=Λ(12)=0`) with the `n<0` edge case rejected. | `test_von_mangoldt_exact_and_edge_cases` |
 | C2 | Computation | Prime weights are non-negative; the finite prime current on the constant test function is positive and vanishes for an empty truncation. | `test_prime_weights_are_nonnegative` |
 | C3 | Computation | The pole weight identity `|f̂₀(i/2)|² = 4 cos²(γ/4) e^{-(γ²-1/4)/2}` is exact (sympy, no tolerance). | `test_pole_weight_identity_is_exact` |

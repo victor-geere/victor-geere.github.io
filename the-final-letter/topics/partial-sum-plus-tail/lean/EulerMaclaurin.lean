@@ -2,20 +2,29 @@ import Mathlib
 import Mathlib.NumberTheory.LSeries.HurwitzZeta
 
 /-!
-# Euler–Maclaurin infrastructure — first stage
+# Euler–Maclaurin layer — S1–S2
 
-This file starts the Lean formalisation of the written proof in
-`notes/euler-maclaurin-proof.md`.
+This file formalises the written proof in
+`notes/euler-maclaurin-proof.md` for the non-periodic Hurwitz zeta.
 
-It contains the two self-contained definitions and their first lemmas:
+It contains:
 
-* `periodicBernoulli`, the periodic Bernoulli function on `ℝ`;
+* `periodicBernoulli`, the periodic Bernoulli function on `ℝ`, and its
+  elementary laws;
 * `hurwitzZetaNP`, a non-periodic Hurwitz zeta built from Mathlib's periodic
-  `HurwitzZeta.hurwitzZeta`.
+  `HurwitzZeta.hurwitzZeta`, with its series representation for `Re s > 1`,
+  differentiability and iterated derivatives;
+* the general finite Euler–Maclaurin identity for smooth functions
+  (`finite_eulerMaclaurin`) and for the Hurwitz term
+  (`finite_eulerMaclaurin_hurwitz`);
+* Fourier inversion and the Bernoulli supremum bound
+  (`hasSum_periodicBernoulli_fourier`,
+  `iSup_norm_periodicBernoulli_odd_le_zeta`);
+* the S1 decomposition (`hurwitzZetaNP_eq_eulerMaclaurin`) and the combined
+  S1/S2 theorem with the explicit tail bound for `K ≥ 1`
+  (`hurwitzZetaNP_eulerMaclaurin_with_bound`).
 
-The finite Euler–Maclaurin induction, Fourier inversion and the analytic
-continuation are not yet formalised here.  No `sorry`, `axiom` or `admit` is
-used.
+No `sorry`, `axiom` or `admit` is used.
 -/
 
 noncomputable section

@@ -1,6 +1,6 @@
 # Reconstruction status
 
-45 topics · 403 ledger theorems · 372 tested computations · 406 pytest tests · 45/45 Lean builds OK.
+48 topics · 750 ledger theorems · 393 tested computations · 457 pytest tests · 48/48 Lean builds OK.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
@@ -32,10 +32,13 @@
 | [isabelle-afp](isabelle-afp/README.md) | 7 | 7 | 8 | 7 | OK |
 | [nested-spheres-continuous-cone](nested-spheres-continuous-cone/README.md) | 7 | 6 | 15 | 6 | OK |
 | [padic-stochastic-zeta](padic-stochastic-zeta/README.md) | 7 | 7 | 0 | 7 | OK |
-| [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | 35 | 14 | 2 | 14 | OK |
+| [finite-explicit-formula](finite-explicit-formula/README.md) | 27 | 6 | 14 | 2 | OK |
+| [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | 52 | 14 | 2 | 14 | OK |
+| [euler-maclaurin](euler-maclaurin/README.md) | 8 | 4 | 0 | 18 | OK |
+| [finite-window-zeros](finite-window-zeros/README.md) | 292 | 11 | 0 | 18 | OK |
 | [periodic-orbits](periodic-orbits/README.md) | 7 | 7 | 8 | 7 | OK |
 | [phase-interference](phase-interference/README.md) | 7 | 7 | 8 | 7 | OK |
-| [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 7 | 7 | 9 | 7 | OK |
+| [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 11 | 7 | 9 | 7 | OK |
 | [proof-99-global-harmonic-framework](proof-99-global-harmonic-framework/README.md) | 7 | 6 | 12 | 7 | OK |
 | [qefe](qefe/README.md) | 7 | 8 | 9 | 8 | OK |
 | [qefe-research-notes](qefe-research-notes/README.md) | 7 | 6 | 7 | 6 | OK |

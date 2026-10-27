@@ -28,7 +28,7 @@ The programme is written as a letter rather than a paper: it states what has bee
 
 ## N7 — A certified evaluator inside the letter's argument
 
-Objective III is not a new numerical method: Euler–Maclaurin, rational interval arithmetic, Machin's formula, and Taylor enclosures are standard. What is new here is the arrangement: the evaluator is reconstructed as a programme with a 35-row Lean ledger, a 14-row computation ledger, an independent certificate replay, kernel-checked transcendental enclosures, and an explicit boundary between the proved rational cell and the two analytic inputs, which have a written proof but are not Lean-formalised. The letter reads that layer as an instrument for finite-scale claims, not as a bridge. The integration is the novelty; the mathematics of the evaluator is inherited.
+Objective III is not a new numerical method: Euler–Maclaurin, rational interval arithmetic, Machin's formula, and Taylor enclosures are standard. What is new here is the arrangement: the evaluator is reconstructed as a programme with a 51-row Lean ledger, a 14-row computation ledger, an independent certificate replay, kernel-checked transcendental enclosures, and a Lean-proved Euler–Maclaurin layer, with an explicit boundary between what is proved and the replay wiring that remains. The letter reads that layer as an instrument for finite-scale claims, not as a bridge. The integration is the novelty; the mathematics of the evaluator is inherited.
 
 ## What is not novel
 

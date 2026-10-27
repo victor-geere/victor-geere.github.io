@@ -4,7 +4,7 @@
 
 | Objective | Statement | Status |
 |---|---|---|
-| Certified evaluation | Rational enclosures of `ζ(s)`, `ζ(s,a)`, `L(s,χ)` via Euler–Maclaurin partial sum + tail | Interval algebra, certificate replay, transport, eta cos/sin split, the `π`/`exp`/`log`/`sin`/`cos` enclosures, and the former source claims S3–S5 are proved in Lean; the Euler–Maclaurin formula and the tail bound have a written proof but are not Lean-formalised. Integrated into the letter as Objective III (proof ledger C, finding F11, further research R13–R15). It is the positive computation layer, not a hypothesis in a theorem about either wall. |
+| Certified evaluation | Rational enclosures of `ζ(s)`, `ζ(s,a)`, `L(s,χ)` via Euler–Maclaurin partial sum + tail | Interval algebra, certificate replay, transport, eta cos/sin split, the `π`/`exp`/`log`/`sin`/`cos` enclosures, the former source claims S3–S5, the Euler–Maclaurin identity and explicit tail bound (S1–S2, `K ≥ 1`), a closed rectangle enclosure of `ζ(s)` for `Re s > 1` with no atom hypothesis, and a target-width certificate format are proved in Lean. Integrated into the letter as Objective III (proof ledger C/C8a–C8b, finding F11, further research R13–R15). It is the positive computation layer, not a hypothesis in a theorem about either wall. |
 
 The two walls are the programme's negative results; the third objective is the positive computation layer. See [`topics/partial-sum-plus-tail`](topics/partial-sum-plus-tail/README.md) and [05 — Proofs](categories/05-proofs/proofs.md#c-the-certified-evaluation-layer).
 
@@ -48,8 +48,9 @@ The programme converts both and proves the limits of the local toolboxes. It doe
 - OP-19; OP-1; OP-4; OP-9; OP-16; OP-17; OP-18.
 - `(M)`; Weil positivity; F.4; `Λ=0`; Jensen/Li; uniform slow passage.
 - Formalising the conversion theorem and the greedy/budget layers in Lean.
-- Formalising the Euler–Maclaurin identity and its explicit tail bound in Lean (S1–S2 have a written proof).
-- Wiring the general transcendental theorems into a `Replay` for arbitrary `s`, and using a certified enclosure as a hypothesis in a theorem about a wall.
+- Extending the `Re s > 1` rectangle enclosure to the critical strip via the eta reduction, and emitting a single symbolic `Expr` whose `wf` is checked (R13, second half).
+- Using a certified critical-strip enclosure as a hypothesis in a theorem about a wall (R14); only the logical template is proved.
+- A symbolic width theorem for the rectangle enclosure; the target-width certificate format for a concrete certificate is proved (R15, format done).
 
 ## Refuted / withdrawn
 

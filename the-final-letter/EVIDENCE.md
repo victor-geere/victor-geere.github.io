@@ -17,7 +17,7 @@ read-only evidence, not a second copy of the live corpora.
 | [`rh/`](rh/README.md) | 2585 | 47 MB | `~/workspace/rh` | working source snapshot backing `summary-rh/` citations |
 | [`categories/`](categories/README.md) | 42 | 0.19 MB | reconstructed in this folder | the thirteen numbered sections, 00–12 |
 | [`geometric-dynamical-phase-transitions/`](geometric-dynamical-phase-transitions/README.md) | 17 | 0.52 MB | repository root | canonical paper bundle, already self-contained |
-| [`topics/`](topics/README.md) | 628 | 25 MB | reconstructed in this folder | 45 topic dossiers, tests, Lean cores |
+| [`topics/`](topics/README.md) | 661 | 31 MB | reconstructed in this folder | 46 topic dossiers, tests, Lean cores (counts include local build artefacts) |
 | [`lean/`](lean/README.md) | 9 | 0.66 MB | reconstructed in this folder | the `FinalLetter` Lean synthesis |
 | `main.css`, `favicon.ico` | 2 | 3 KB | repository root | assets referenced by the imported archive pages |
 

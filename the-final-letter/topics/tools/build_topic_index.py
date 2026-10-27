@@ -17,7 +17,10 @@ RATINGS = {
     "adelic-transfer-operator": (4, 3, 4, 2),
     "dyadic-sheaf-cohomology": (4, 2, 3, 1),
     "eml-universal-operator": (3, 3, 3, 4),
+    "euler-maclaurin": (3, 4, 3, 5),
     "factorisation-theta": (2, 3, 2, 5),
+    "finite-window-zeros": (4, 2, 4, 3),
+    "finite-explicit-formula": (2, 1, 3, 2),
     "finance-trading": (1, 3, 1, 5),
     "frozen-truths": (3, 4, 3, 5),
     "gap-inventory-strengthening": (2, 3, 2, 5),
@@ -87,7 +90,10 @@ def score(v: int, label: str) -> str:
 
 
 rows = []
-for topic in sorted(p for p in ROOT.iterdir() if p.is_dir() and p.name != "tools"):
+for topic in sorted(
+        p for p in ROOT.iterdir()
+        if p.is_dir() and p.name != "tools" and not p.name.startswith(".")
+    ):
     if topic.name not in RATINGS:
         raise SystemExit(f"missing rating for {topic.name}")
     rows.append((topic.name, title_for(topic), status_for(topic), *RATINGS[topic.name]))

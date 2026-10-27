@@ -68,21 +68,21 @@ OP-18 is not well-posed as phrased; on a fixed class it is the existential dual 
 
 The finite-prefix theorem is about one slice. A general meta-theorem — any predicate determined by finitely many values cannot imply a limit statement — would be a reusable no-go principle. It is not currently formalised.
 
-### R13. Formalise Euler–Maclaurin and the explicit tail bound
+### R13. Wire Euler–Maclaurin into the certificate replay
 
-Objective III's rational cell is Lean-proved, but the identity that its replay value is `ζ(s,a)` (S1) and the explicit tail bound (S2) have a written proof in [`notes/euler-maclaurin-proof.md`](../../topics/partial-sum-plus-tail/notes/euler-maclaurin-proof.md) and are not Lean-formalised. A Lean proof of S1–S2 would make the final enclosure of `ζ(s)` unconditional. The tail bound is the smaller target; the Euler–Maclaurin identity is the analytic content.
+Objective III's rational cell is Lean-proved, the identity that its replay value is `ζ(s,a)` (S1) and the explicit tail bound (S2) are Lean theorems for `K ≥ 1` in `EulerMaclaurin.lean` (T36–T43), and S1–S2 are now consumed by a closed rectangle enclosure for every `s` with `Re s > 1`, arbitrary `M, K`, with no atom hypothesis (`ReplayGeneral.lean`, T44–T49). That is the lowering in rectangle form. What remains is the eta reduction to `0 < Re s ≤ 1` and the emission of a single symbolic `Expr` whose `wf` is checked, rather than a direct box assembly.
 
-**Why it matters:** it is the only remaining gap between the evaluator and an unconditional certified enclosure of `ζ(s)`, `ζ(s,a)` and `L(s,χ)`.
+**Why it matters:** it is the last engineering step between the evaluator and an unconditional, replayable certified enclosure of `ζ(s)`, `ζ(s,a)` and `L(s,χ)`.
 
 ### R14. Use a certified enclosure as a hypothesis
 
-No theorem in the letter yet consumes a certified enclosure. Candidate targets are finite-window zero counts, interval Newton or bisection for zeros on a line, and rigorous evaluation of a truncated explicit formula. The point is not to replace the analytic proof but to remove floating point from a finite-scale step that a theorem actually cites.
+No theorem in the letter yet consumes a certified enclosure. The logical template is now recorded (`ne_zero_of_mem_of_not_mem_zero`), but the numerical premise it needs must live in the critical strip, which the P1 rectangle enclosure does not reach. Candidate targets remain finite-window zero counts, interval Newton or bisection for zeros on a line, and rigorous evaluation of a truncated explicit formula. The point is not to replace the analytic proof but to remove floating point from a finite-scale step that a theorem actually cites.
 
 **Why it matters:** this is the difference between an evaluator as a library and an evaluator as part of an argument.
 
 ### R15. Certify enclosure width, not only soundness
 
-`inflate` is sound for every `r ≥ 0`, so a certificate can always be widened. The recorded narrow widths are Python measurements, not Lean theorems. A width theorem — or a certificate format that records a target width and checks it — would make “the enclosure is narrow” a checkable claim rather than a measurement.
+`inflate` is sound for every `r ≥ 0`, so a certificate can always be widened. A certificate format that records a target width and checks it is now proved (`Expr.wfWidth`, `Expr.wfWidth_sound`, T50), and the ζ(2) replay passes at width `10⁻⁴`. What remains is a symbolic width theorem for the rectangle enclosure `zetaBox`, whose crude balls are far wider than any efficiency target.
 
 **Why it matters:** soundness without a width bound is enough for containment but not for the efficiency claims that make a certified evaluator useful.
 
@@ -94,6 +94,6 @@ No theorem in the letter yet consumes a certified enclosure. Candidate targets a
 - **Do not promote `CONJECTURED` heuristics to targets.** Eleven of the 36 harvested items are recorded expectations, not commitments.
 - **Do not restore X1–X6.** The errata are part of the result.
 - **Do not treat a zero inside an interval as a proof that a zero exists.** The evaluator certifies containment, not a sign change or a zero count.
-- **Do not quote a width that the Lean layer does not check.** `inflate` is sound for every non-negative radius; the recorded narrow widths are measurements.
+- **Do not quote a width that the Lean layer does not check.** A concrete certificate can now be checked against a target width (`Expr.wfWidth`), but the rectangle enclosure is deliberately crude; do not quote its width as an efficiency claim.
 
 [Back to README](README.md) · [Back to index](../../index.html)

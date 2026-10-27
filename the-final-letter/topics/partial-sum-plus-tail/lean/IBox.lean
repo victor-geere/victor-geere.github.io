@@ -168,6 +168,21 @@ def mul (A B : Iv) : Iv :=
   ⟨min4 (A.lo * B.lo) (A.lo * B.hi) (A.hi * B.lo) (A.hi * B.hi),
    max4 (A.lo * B.lo) (A.lo * B.hi) (A.hi * B.lo) (A.hi * B.hi)⟩
 
+@[simp] lemma zero_mul (A : Iv) : (⟨0, 0⟩ : Iv).mul A = ⟨0, 0⟩ := by
+  simp [mul, min4, max4]
+
+@[simp] lemma mul_zero (A : Iv) : A.mul (⟨0, 0⟩ : Iv) = ⟨0, 0⟩ := by
+  simp [mul, min4, max4]
+
+@[simp] lemma add_zero (A : Iv) : A.add ⟨0, 0⟩ = A := by
+  simp [add]
+
+@[simp] lemma zero_add (A : Iv) : (⟨0, 0⟩ : Iv).add A = A := by
+  simp [add]
+
+@[simp] lemma sub_zero (A : Iv) : A.sub ⟨0, 0⟩ = A := by
+  simp [sub, add, neg]
+
 /-- Add `± r` to the endpoints; `r ≥ 0` is required for soundness. -/
 def inflate (r : ℚ) (A : Iv) : Iv := ⟨A.lo - r, A.hi + r⟩
 

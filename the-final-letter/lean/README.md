@@ -27,6 +27,13 @@ Recorded clean build: [`BUILD.log`](BUILD.log).
 
 The RH conversion theorem, the Davenport–Heilbronn sharpness, the measure-theoretic tightness/limit theorems, the greedy complexity law, the budget/balance theory, and the explicit formula. They are formalised to varying degrees in `~/workspace/rh` (`Rh41`, `Rh42`, `Rh43`, `Rh45`, `Rh46`, `Rh47`, `Op56`, `ConeLean`, `TppLean`) and cited in [Proofs](../categories/05-proofs/proofs.md).
 
+## Objective III
+
+The certified evaluator is a separate development under
+[`../topics/partial-sum-plus-tail/lean`](../topics/partial-sum-plus-tail/lean/README.md).
+Its Euler–Maclaurin layer is proved in `EulerMaclaurin.lean` (T36–T43), with a
+focused mirror and tests in [`../topics/euler-maclaurin`](../topics/euler-maclaurin/README.md).
+
 ## Status
 
 `[check] OK` for all three modules; no `sorry`; no `axiom`. The open statements are `def`s. The inherited deprecation/unused-variable linters are disabled at the top of the vendored file; this changes no proof.

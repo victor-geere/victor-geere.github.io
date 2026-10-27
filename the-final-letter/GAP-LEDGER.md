@@ -14,7 +14,7 @@ The sources were written separately. This ledger lists the gaps that appeared wh
 | G8 | No explicit statement of futility | [12 — Final note](categories/12-final-note/final-note.md) argues that the failure is structural, not accidental. |
 | G9 | No unified evidence map | [00 — Provenance](categories/00-provenance/README.md) maps the two summaries and the source repositories. |
 | G10 | Open problems were sometimes stated as if they were theorems | The Lean synthesis uses `def` for RH, twin primes, and Chowla; no `axiom`. [STATUS.md](STATUS.md) keeps the list separate. |
-| G11 | Computations used for the finite-scale claims were floating point, with no replayable certificate | Objective III supplies exact rational interval arithmetic, a straight-line certificate replayed by an independent checker, and a kernel-checked Lean soundness theorem. The transcendental enclosures are Lean theorems; only the Euler–Maclaurin identity and the tail bound remain outside Lean; they have a written proof but are not Lean-formalised. |
+| G11 | Computations used for the finite-scale claims were floating point, with no replayable certificate | Objective III supplies exact rational interval arithmetic, a straight-line certificate replayed by an independent checker, and a kernel-checked Lean soundness theorem. The transcendental enclosures and the Euler–Maclaurin identity and tail bound are Lean theorems (`EulerMaclaurin.lean`, S1–S2 for `K ≥ 1`); what remains is the replay wiring and a certified width. |
 
 ## Gaps inside the source corpora that the letter records
 
@@ -31,6 +31,6 @@ The sources were written separately. This ledger lists the gaps that appeared wh
 - The greedy/budget/balance layers are not imported into the `FinalLetter` build.
 - The two walls are not proved; the letter does not pretend otherwise.
 - OP-19, `(M)`, F.4, `Λ=0`, and the Jensen/Li tower remain open.
-- The Euler–Maclaurin identity and the explicit tail bound of the certified evaluator have a written proof but remain unformalised in Lean; the evaluator is not yet used as a hypothesis in any theorem about either wall.
+- The Euler–Maclaurin identity and the explicit tail bound of the certified evaluator are Lean theorems for `K ≥ 1`, and they now yield a closed rectangle enclosure for every `s` with `Re s > 1` (no atom hypothesis). The evaluator is not yet wired into the critical strip, and it is not used as a hypothesis in any theorem about either wall. A concrete certificate can be checked against a target width; a symbolic width theorem is not proved.
 
 [Back to README](README.md) · [Back to index](index.html)

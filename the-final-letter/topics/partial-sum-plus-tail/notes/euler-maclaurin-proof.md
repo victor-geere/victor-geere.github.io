@@ -1,10 +1,12 @@
 # Euler–Maclaurin decomposition and tail bound
 
-**Status.** This is a written proof of the two analytic source claims S1 and
-S2 of the dossier. It is not Lean-checked. The Lean file
-[`../lean/SourceClaims.lean`](../lean/SourceClaims.lean) proves the elementary
-claims S3–S5; S1–S2 remain the formalisation target recorded as R13 in the
-letter.
+**Status.** This is the human-readable proof of S1 and S2. The Lean
+counterpart is [`../lean/EulerMaclaurin.lean`](../lean/EulerMaclaurin.lean),
+which proves the finite identity, Fourier inversion, the Bernoulli supremum
+bound, differentiability, the integral tail bound and the combined S1/S2
+statement for `K ≥ 1` (T36–T43). The written argument below is retained as
+commentary, not as the source of record. The elementary claims S3–S5 are
+proved in [`../lean/SourceClaims.lean`](../lean/SourceClaims.lean).
 
 We use the standard Bernoulli conventions
 \[
@@ -245,8 +247,9 @@ minimum:
    `HurwitzZeta.hurwitzZeta` is periodic in \(a\)) and the identity theorem
    step.
 
-Items 1–3 are the substantive new formalisation; item 4 is mostly a matter of
-choosing the right definition. Until those are in place, S1–S2 should be
-recorded as a **written proof, not a Lean theorem**.
+Items 1–3 are the substantive formalisation; item 4 is the definition choice.
+All four are now in place in `EulerMaclaurin.lean`, and S1–S2 are Lean theorems
+for `K ≥ 1` (T42–T43). What remains is the replay wiring recorded as R13, not
+the analytic content.
 
 [Back to the dossier](../README.md)

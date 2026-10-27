@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status — The Final Letter</title>
+<style>
+  :root{
+    --ink:#1a202c; --muted:#555; --rule:#d8d8d8; --bg:#fcfcfb;
+    --accent:#1a5fb4; --panel:#f3f5f7; --warn:#8a5a00;
+    --green:#1f6b3a; --red:#9b2226;
+  }
+  *{box-sizing:border-box}
+  body{font-family:Georgia,serif;max-width:1080px;margin:2.4rem auto;padding:0 1.3rem;
+       line-height:1.65;color:var(--ink);background:var(--bg)}
+  h1{font-size:2.15rem;margin:0 0 .25rem}
+  h2{margin-top:2.6rem;border-bottom:1px solid var(--rule);padding-bottom:.3rem;font-size:1.5rem}
+  h3{margin-top:1.8rem;font-size:1.17rem}
+  h4{margin-top:1.3rem;font-size:1.02rem}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{background:#f1f3f5;padding:.08rem .25rem;border-radius:3px;font-size:.92em}
+  pre{background:var(--panel);padding:.8rem 1rem;border-radius:6px;overflow-x:auto;font-size:.9rem}
+  table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+  th,td{border:1px solid var(--rule);padding:.42rem .55rem;text-align:left;vertical-align:top}
+  th{background:var(--panel)}
+  .sub{color:var(--muted);font-style:italic;margin-top:0}
+  .lede{background:var(--panel);border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+  .note{background:#fbfbf7;border-left:4px solid #c9b458;padding:.75rem 1rem;margin:1rem 0}
+  .good{background:#eef6ee;border:1px solid #cfe3cf;padding:.75rem 1rem;border-radius:8px}
+  .warnbox{background:#fff6e5;border:1px solid #ecd39a;padding:.75rem 1rem;border-radius:8px}
+  .bad{background:#fbeeee;border:1px solid #e5c2c2;padding:.75rem 1rem;border-radius:8px}
+  .tag{display:inline-block;font-size:.74rem;letter-spacing:.02em;padding:.08rem .42rem;
+       border-radius:999px;border:1px solid var(--rule);background:#fff;color:var(--muted)}
+  .tag.proved{border-color:#b9d8c1;color:var(--green);background:#f1f8f3}
+  .tag.open{border-color:#e3c6c6;color:var(--red);background:#fcf5f5}
+  .tag.partial{border-color:#e4d3a8;color:var(--warn);background:#fdf9ee}
+  .toc{columns:2;column-gap:2.4rem;font-size:.95rem}
+  .toc a{display:block;margin:.18rem 0}
+  .small{font-size:.9rem;color:var(--muted)}
+  .num{font-variant-numeric:tabular-nums}
+  .footer{margin-top:3rem;border-top:1px solid var(--rule);padding-top:1rem;font-size:.92rem}
+  @media (max-width:700px){.toc{columns:1}}
+</style>
+</head>
+<body>
+
+<h1>Status</h1>
+<p class="sub">The Final Letter · research status after the Euler–Maclaurin Lean layer</p>
+
+<p class="lede"><strong>One-sentence status.</strong> The map is complete and the third
+objective's analytic layer is now Lean-proved, but the walls are not crossed: the
+certified evaluator is an instrument, not a bridge, and no theorem about either wall
+yet consumes a certified enclosure as a hypothesis.</p>
+
+<p>This page is the live status document referred to by
+<a href="research-journal.md">research-journal.md</a>. It replaces the stale split between
+the proof ledger (which already recorded S1–S2 as Lean theorems) and the status pages
+(which still called them source claims). The canonical machine-checked facts are the Lean
+files; where prose and Lean disagree, the Lean files win. Sections 5–7 are the working
+plan: §5 lists what is outstanding, §6 lists the bridges and what each would require, and
+§7 turns the list into a roadmap.</p>
+
+<h2 id="toc">Contents</h2>
+<div class="toc">
+<a href="#s1">1. The three objectives at a glance</a>
+<a href="#s2">2. The two walls (first two objectives)</a>
+<a href="#s3">3. The third objective and its Lean layer</a>
+<a href="#s4">4. How the third objective applies to the first two</a>
+<a href="#s5">5. What is still outstanding</a>
+<a href="#s6">6. What would bridge the walls, and what each bridge requires</a>
+<a href="#s7">7. Roadmap</a>
+<a href="#s8">8. Verification and provenance</a>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s1">1. The three objectives at a glance</h2>
+
+<table>
+<thead><tr><th>Objective</th><th>Statement</th><th>Current status</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>I. Riemann wall</strong></td>
+  <td>Every non-trivial zero of <code>ζ</code> has real part <code>1/2</code>; equivalently the
+      balanced and unrestricted spectral measures have the same support.</td>
+  <td><span class="tag open">open</span> Conversion proved; Davenport–Heilbronn sharpness proved;
+      the missing input is a global arithmetic positivity (Weil positivity for the repaired
+      current).</td>
+</tr>
+<tr>
+  <td><strong>II. Parity wall</strong></td>
+  <td>The twin-prime conjecture / two-point Chowla: <code>Σ<sub>n≤N</sub>λ(n)λ(n+h)=o(N)</code>
+      for every fixed <code>h</code>.</td>
+  <td><span class="tag open">open</span> Finite-prefix indeterminacy and Sylvester sparsity
+      proved; all five proposed greedy-sine bridges refuted; the missing input is a sign-blind
+      rule with positive-density multiplicative coupling to <code>Ω</code>.</td>
+</tr>
+<tr>
+  <td><strong>III. Certified evaluation</strong></td>
+  <td>A partial-sum-plus-tail evaluator for <code>ζ(s)</code>, <code>ζ(s,a)</code> and
+      <code>L(s,χ)</code>, with every rational operation recorded in a certificate and
+      kernel-checked in Lean.</td>
+  <td><span class="tag proved">proved finite layer</span> The rational cell, certificate
+      soundness, transport, eta split, transcendental enclosures, ζ(2) replay, S3–S5 and now
+      Euler–Maclaurin S1–S2 (for <code>K ≥ 1</code>) are Lean theorems. A closed rectangle
+      enclosure of <code>ζ(s)</code> for every <code>Re s &gt; 1</code>, with no atom
+      hypothesis, and a target-width certificate checker are also proved. The extension to
+      <code>Re s &gt; 0</code> is open; the first enclosure-as-hypothesis theorem
+      (<code>ζ(1/2+5i) ≠ 0</code>) is proved, but no wall-facing theorem uses one.</td>
+</tr>
+</tbody>
+</table>
+
+<div class="warnbox">
+<strong>The sentence this page is answering.</strong>
+<a href="index.html#third-objective"><code>index.html#third-objective</code></a> says:
+<em>“It does not prove either wall, and no theorem about a wall yet uses a certified
+enclosure as a hypothesis.”</em> That sentence is still true, and this page keeps it true
+while explaining exactly where the third objective does apply, where it cannot, and what
+would have to be built for it to become part of a proof rather than an instrument.
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s2">2. The two walls (first two objectives)</h2>
+
+<h3>2.1 The Riemann wall</h3>
+<p>The Riemann programme converts RH into an equality of supports. Let <code>Ξ</code> be the
+completed zeta function, <code>K = ¼ Re ξ</code> and <code>S = ¼ Im ξ</code>. The
+<em>conversion theorem</em> proves the equivalence of:</p>
+<ol>
+<li>every non-trivial zero of <code>Ξ</code> lies on <code>Re s = 1/2</code>;</li>
+<li>every unrestricted path-closure is balanced for all sufficiently large <code>N</code>;</li>
+<li>every weak-star limit of the unrestricted measures is supported on the critical line;</li>
+<li>the balanced and unrestricted limiting measures coincide, with common support the
+    non-trivial zeros.</li>
+</ol>
+<p>This is an equivalence, not a proof. The <em>Davenport–Heilbronn sharpness theorem</em>
+shows that the conversion returns the correct verdict for a function with an off-line zero
+(Spira's zero), so the additive toolbox that proves the equivalence cannot be the missing
+input. The tensor programme then refutes the naive positivity <code>(★)</code> and identifies
+the correct positive statement: <strong>Weil positivity for the repaired current
+<code>W</code></strong>, whose spectral resolution is exactly the zero measure. That
+positivity is open.</p>
+
+<p><strong>What is proved on this side.</strong> The conversion (A1), the DH sharpness (A2),
+the limitative consequence (A3), the tensor refutation and repair (A4), and the modular
+shadow/straightening-field identities (A5). <strong>What is not proved.</strong> RH itself,
+Weil positivity, <code>(M)</code>, F.4, <code>Λ = 0</code>, the Jensen/Li tower, and uniform
+slow passage.</p>
+
+<h3>2.2 The parity wall</h3>
+<p>The parity programme studies the greedy harmonic sine and its two-point Liouville
+correlation. It proves:</p>
+<ul>
+<li>the factor-complexity law for the greedy word;</li>
+<li>the budget identities, Brown reachability and parity lock;</li>
+<li>balance and the equal split;</li>
+<li>that smoothing does not remove the <code>√N</code> barrier;</li>
+<li>the corrected explicit formula and the finite-window certificates <code>T=15, 33</code>;</li>
+<li><strong>finite-prefix indeterminacy</strong>: for every <code>a ≠ 0</code> and every
+    <code>h</code>, a function <code>g</code> can agree with <code>λ</code> below
+    <code>a</code>, differ from <code>λ</code>, and reproduce every prefix of
+    <code>corr h N</code> with <code>N+h &lt; a</code>;</li>
+<li><strong>Sylvester sparsity</strong> and the non-multiplicativity of
+    <code>n ↦ λ(n)λ(n+2)</code>;</li>
+<li>the refutation of all five proposed bridges from the greedy sine to parity.</li>
+</ul>
+<p>The missing input is a <em>sign-blind rule with positive-density multiplicative coupling
+to <code>Ω</code></em>. Density statements and finite prefixes cannot supply it.</p>
+
+<div class="note">
+<strong>Why both are “global-input walls”.</strong> Neither wall is an estimate wall. On the
+Riemann side the missing object is a positivity/multiplicativity that fails for the
+Davenport–Heilbronn twist. On the parity side it is a positive-density multiplicative coupling
+that fails for the greedy support. They are structurally analogous, not logically equivalent.
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s3">3. The third objective and its Lean layer</h2>
+
+<p>Objective III is the positive computation layer. For <code>a &gt; 0</code>,
+<code>s = σ + it</code>, <code>b = a + M</code>, it decomposes the Hurwitz zeta by
+Euler–Maclaurin:</p>
+
+<pre><code>ζ(s,a) = Σ_{k&lt;M} (a+k)^{-s}
+       + ∫_M^∞ (a+x)^{-s} dx
+       + b^{-s}/2
+       + Σ_{j=1}^K B_{2j}/(2j)! · (s)_{2j-1} · b^{-s-2j+1}
+       + R_K(s),</code></pre>
+
+<p>with the explicit tail bound</p>
+
+<pre><code>|R_K(s)| ≤ |(s)_{2K+1}| · 2ζ(2K+1)/(2π)^{2K+1} · b^{-σ-2K}/(σ+2K).</code></pre>
+
+<p>Every rational operation is recorded in a straight-line certificate; the certificate is
+replayed by an independent Python checker and kernel-checked in Lean (<code>Expr.wf</code>,
+<code>Expr.wf_sound</code>). The transcendental factors are enclosed by Lean theorems in
+<code>Transcend.lean</code>. The concrete ζ(2) replay has every atom discharged in
+<code>ReplayAtoms.lean</code>.</p>
+
+<h3>3.1 What the Euler–Maclaurin layer changed</h3>
+<p>Before the Euler–Maclaurin layer, the evaluator's status was split: the finite/rational
+layer was Lean-proved, but the identity that the replay value is <code>ζ(s,a)</code> (S1) and
+the explicit tail bound (S2) were source claims with a written proof. They are now Lean
+theorems for <code>K ≥ 1</code> in
+<a href="topics/partial-sum-plus-tail/lean/EulerMaclaurin.lean"><code>EulerMaclaurin.lean</code></a>:</p>
+
+<table>
+<thead><tr><th>#</th><th>What is now proved</th><th>Lean name</th></tr></thead>
+<tbody>
+<tr><td>T36</td><td>Finite Euler–Maclaurin identity for smooth <code>f</code>, all <code>K</code>.</td><td><code>finite_eulerMaclaurin</code></td></tr>
+<tr><td>T37</td><td>The same identity for the Hurwitz term.</td><td><code>finite_eulerMaclaurin_hurwitz</code></td></tr>
+<tr><td>T38</td><td>Fourier inversion for periodic Bernoulli functions.</td><td><code>hasSum_periodicBernoulli_fourier</code></td></tr>
+<tr><td>T39</td><td>Odd Bernoulli supremum bound.</td><td><code>iSup_norm_periodicBernoulli_odd_le_zeta</code></td></tr>
+<tr><td>T40</td><td>Differentiability of the non-periodic zeta away from <code>s = 0, 1</code>.</td><td><code>differentiableAt_hurwitzZetaNP</code></td></tr>
+<tr><td>T41</td><td>Iterated derivative formula and tail integrability.</td><td><code>iteratedDeriv_hurwitzTerm_eqOn</code>, <code>integrableOn_iteratedDeriv_hurwitzTerm</code></td></tr>
+<tr><td>T42</td><td>Integral form of the tail bound.</td><td><code>norm_integral_periodicBernoulli_mul_odd_le</code></td></tr>
+<tr><td>T43</td><td><strong>S1</strong> decomposition and <strong>S2</strong> tail bound together, <code>K ≥ 1</code>.</td><td><code>hurwitzZetaNP_eq_eulerMaclaurin</code>, <code>hurwitzZetaNP_eulerMaclaurin_with_bound</code></td></tr>
+</tbody>
+</table>
+
+<p>The focused annex is
+<a href="topics/euler-maclaurin/index.html"><code>topics/euler-maclaurin</code></a>; the
+authoritative dossier remains
+<a href="topics/partial-sum-plus-tail/index.html"><code>topics/partial-sum-plus-tail</code></a>.</p>
+
+<h3>3.2 What is still conditional in the evaluator</h3>
+<ul>
+<li><strong>Replay wiring (R13) — half closed.</strong> The general S1/S2 theorem is now
+    instantiated at the evaluator's parameters on any rational rectangle with
+    <code>Re s &gt; 1</code>, producing a closed enclosure with no atom hypothesis
+    (<code>zeta_mem_box</code> in <code>ReplayGeneral.lean</code>; checked at ζ(2) as
+    <code>zeta_two_mem_box</code>). What is still missing is the <code>Re s &gt; 0</code>
+    extension through the eta split, and the emission of a <em>single</em> <code>Expr</code>
+    whose own <code>wf</code> is checked for symbolic parameters; the rectangle theorem is the
+    analytic content of that emission.</li>
+<li><strong>Width (R15) — closed as a certificate format.</strong>
+    <code>Cx.width</code> and <code>Expr.wfWidth</code> in <code>Width.lean</code> check a
+    target width as well as containment, with soundness
+    <code>Expr.wfWidth_sound</code>. The ζ(2) replay passes the checker at width
+    <code>10<sup>−4</sup></code> (<code>cert_wfWidth</code>). A symbolic width theorem for
+    <code>zetaBox</code> is still a measurement, not a theorem, so the efficiency claim for
+    arbitrary parameters is not yet proved.</li>
+<li><strong>Use as a hypothesis (R14) — first instance.</strong> The critical-strip
+    enclosure is now available at one point: <code>zeta_half_plus_five_ne_zero</code> proves
+    <code>ζ(1/2+5i) ≠ 0</code> from a 100-pair Lean certificate. No theorem about either wall
+    consumes an enclosure yet; that remains the logical gap.</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="s4">4. How the third objective applies to the first two</h2>
+
+<p>The honest answer has three parts: <strong>where it applies</strong>, <strong>where it
+cannot</strong>, and <strong>what the logical shape of a genuine application would be</strong>.
+The third objective is a finite-scale instrument. Both walls are asymptotic/global statements.
+That mismatch is the whole story.</p>
+
+<h3>4.1 The general shape of an application</h3>
+<p>A certified enclosure proves a statement of the form</p>
+<pre><code>∀ x ∈ [lo, hi],  value(x) ∈ [L, U],</code></pre>
+<p>or, for a concrete replay, a single closed-box membership. A theorem about a wall has the
+form</p>
+<pre><code>∀ s with ζ(s)=0 and 0 &lt; Re s &lt; 1,  Re s = 1/2
+∀ h,  Σ_{n≤N} λ(n)λ(n+h) = o(N).</code></pre>
+<p>A finite family of boxes does not imply a universal statement. The correct use of the
+evaluator is therefore as a <em>hypothesis-discharger inside a theorem schema</em>:</p>
+
+<div class="good">
+<strong>Template.</strong> Suppose a theorem has the form
+<code>(finite-scale premise P) ∧ (transfer principle T) ⇒ (wall statement)</code>.
+The evaluator can discharge <code>P</code> by a Lean-checked certificate. It cannot supply
+<code>T</code>. The programme currently has no <code>T</code> that is not exactly the missing
+global input. That is why R14 is open and why B11 is not a bridge.
+</div>
+
+<h3>4.2 Application to the Riemann wall</h3>
+
+<h4>Where it applies</h4>
+<ul>
+<li><strong>Zero containment and localisation.</strong> Given a rational rectangle, the
+    evaluator can certify that <code>ζ</code> takes a value in a box on that rectangle. With a
+    sign change or an argument-principle count, this can support a finite-window zero
+    statement. Containment alone is <em>not</em> existence; the evaluator certifies
+    <code>0 ∈ box</code>, not “there is a zero”.</li>
+<li><strong>Finite-window explicit formula.</strong> The <code>T=15/33</code> certificates are
+    unconditional finite-window statements. The evaluator can evaluate the truncated explicit
+    formula and the archimedean term rigorously on a finite window, replacing floating point in
+    a statement the programme actually cites (B5).</li>
+<li><strong>The Davenport–Heilbronn litmus.</strong> The off-line zero of the DH twist can be
+    enclosed and checked rigorously in a neighbourhood. This makes the sharpness witness
+    machine-checkable at finite scale.</li>
+<li><strong>Finite-dimensional positivity tests.</strong> For a fixed test function
+    <code>f</code>, the Weil current <code>W(f)</code> and finite Gram matrices can be
+    evaluated with enclosures. A negative value is a rigorous refutation of a proposed
+    positivity statement on that test class.</li>
+<li><strong>Finite identities used by the map.</strong> The eta cos/sin split and the
+    <code>L</code>-reduction are finite identities; the evaluator certifies their numerical
+    instances.</li>
+</ul>
+
+<h4>Where it cannot apply</h4>
+<ul>
+<li><strong>Global support equality.</strong> RH is a statement about all zeros. A finite set
+    of enclosures cannot exclude an off-line zero outside the boxes.</li>
+<li><strong>Weil positivity over an infinite cone.</strong> Positivity for every test function
+    in a cone is an infinite-dimensional statement. Finite-dimensional checks do not imply it.</li>
+<li><strong>“Inequality <code>(★)</code> is true”.</strong> The programme already has a
+    refutation; the evaluator can sharpen the witness, not prove a false statement.</li>
+<li><strong>The DH litmus itself.</strong> Enclosures are additive and apply verbatim to the
+    DH twist. A bridge built only from enclosures would therefore fail the litmus. This is a
+    structural reason, not a limitation of precision.</li>
+</ul>
+
+<h4>Verdict for Objective I</h4>
+<p><span class="tag partial">instrument, not input</span> The evaluator can make finite-scale
+Riemann-side claims exact and auditable. It cannot supply the global positivity that the wall
+lacks. Its legitimate Riemann-side roles are (i) finite-window certificates, (ii) rigorous
+local zero work, and (iii) finite-dimensional refutation of proposed positivity statements.</p>
+
+<h3>4.3 Application to the parity wall</h3>
+
+<h4>Where it applies</h4>
+<ul>
+<li><strong>Finite correlations.</strong> <code>corr h N = Σ_{n≤N} λ(n)λ(n+h)</code> is a
+    finite integer sum. The evaluator's arithmetic layer can certify exact values and interval
+    bounds for finitely many <code>N</code>.</li>
+<li><strong>The finite-prefix witness.</strong> The slice perturbation identity and the
+    <code>h=2, a=5</code> witness can be checked exactly, including the ℓ²-mass
+    <code>4</code>.</li>
+<li><strong>Refutation of proposed bridges.</strong> A bridge that predicts a sign, a density,
+    or a correlation on a finite range can be tested; a mismatch is a rigorous refutation. The
+    five-bridge refutation is the model: the failures are structural, and finite computation
+    can corroborate the counterexamples.</li>
+<li><strong>Greedy-word data.</strong> Exact support, gaps, budgets and digit-word statistics
+    can be certified on finite ranges.</li>
+</ul>
+
+<h4>Where it cannot apply</h4>
+<ul>
+<li><strong>The limit <code>o(N)</code>.</strong> Finite-prefix indeterminacy says that for any
+    finite prefix there is a different function reproducing it. A certificate about finitely
+    many <code>N</code> is therefore compatible with every possible limit behaviour that the
+    programme can currently express. The finite-prefix theorem is precisely the statement that
+    this kind of evidence cannot decide the wall.</li>
+<li><strong>Positive-density multiplicative coupling.</strong> The missing object is a rule
+    coupling to <code>Ω</code> at positive density. An evaluator computes values; it does not
+    manufacture an arithmetic coupling.</li>
+<li><strong>Sign-blindness.</strong> The evaluator is sign-blind: it knows values, not the
+    multiplicative origin of a sign pattern. More precision does not change that.</li>
+</ul>
+
+<h4>Verdict for Objective II</h4>
+<p><span class="tag partial">refutation only</span> The evaluator can refute a finite-range
+parity claim and can certify finite correlations. It cannot establish the asymptotic
+statement, and the finite-prefix theorem explains why a finite certificate cannot be promoted
+to one.</p>
+
+<h3>4.4 The one place the third objective could become a hypothesis</h3>
+<p>R14 asks for a theorem whose <em>only</em> numerical input is a certified enclosure. The
+cleanest candidates are:</p>
+<ol>
+<li><strong>Finite-window zero counts.</strong> A theorem of the form “if
+    <code>ζ</code> has exactly <code>n</code> zeros in the rectangle <code>R</code> and
+    <code>ζ</code> has a sign change on each of <code>n</code> disjoint intervals, then …”
+    The count and the signs can be certified. This is still a finite-window theorem, not RH.</li>
+<li><strong>Interval Newton / bisection.</strong> A certified enclosure with a derivative bound
+    can prove existence and isolation of a zero in a box. Again local, not global.</li>
+<li><strong>Truncated explicit formula.</strong> A finite-window positivity statement for a
+    fixed test function can be certified. It is a finite-dimensional shadow of Weil positivity,
+    not the infinite-dimensional statement.</li>
+</ol>
+<p>Each is a genuine theorem with an enclosure as a hypothesis. None closes a wall. Building one
+of them is the right next step because it converts the evaluator from a library into part of an
+argument, and it makes precise exactly how much of the wall remains.</p>
+
+<!-- ============================================================ -->
+<h2 id="s5">5. What is still outstanding</h2>
+
+<p>The list is split into <strong>resolved since the last status</strong>, <strong>Objective III
+engineering</strong>, <strong>research items that would move a wall</strong>, and
+<strong>formalisation debt</strong>.</p>
+
+<h3>5.1 Resolved</h3>
+<table>
+<thead><tr><th>Item</th><th>Old status</th><th>New status</th></tr></thead>
+<tbody>
+<tr><td>Euler–Maclaurin identity S1</td><td>written proof; source claim</td><td><span class="tag proved">Lean theorem</span> <code>hurwitzZetaNP_eq_eulerMaclaurin</code>, <code>K ≥ 1</code></td></tr>
+<tr><td>Explicit tail bound S2</td><td>written proof; source claim</td><td><span class="tag proved">Lean theorem</span> <code>hurwitzZetaNP_eulerMaclaurin_with_bound</code>, <code>K ≥ 1</code></td></tr>
+<tr><td>S3–S5 (integer zeta bound, eta identity, <code>L</code>-reduction)</td><td>source claims</td><td><span class="tag proved">Lean theorems</span> <code>SourceClaims.lean</code></td></tr>
+<tr><td>Transcendental enclosures <code>π, exp, log, sin, cos</code></td><td>open</td><td><span class="tag proved">Lean theorems</span> <code>Transcend.lean</code></td></tr>
+<tr><td>Concrete ζ(2) atom boxes</td><td>atom hypotheses</td><td><span class="tag proved">discharged</span> <code>cert_mem_closed</code></td></tr>
+<tr><td>Rectangle enclosure for <code>Re s &gt; 1</code> (P1/R13, first half)</td><td>analytic S1–S2 only, no wiring</td><td><span class="tag proved">Lean theorem</span> <code>zeta_mem_box</code>, no atom hypothesis</td></tr>
+<tr><td>Target-width certificate (P2/R15, format)</td><td>containment only; widths were measurements</td><td><span class="tag proved">Lean theorem</span> <code>Expr.wfWidth</code>, <code>wfWidth_sound</code>; ζ(2) at <code>10<sup>−4</sup></code></td></tr>
+<tr><td>First enclosure-as-hypothesis theorem (P3/R14)</td><td>no theorem consumed a certificate</td><td><span class="tag proved">Lean theorem</span> <code>zeta_half_plus_five_ne_zero</code>, 100-pair certificate</td></tr>
+</tbody>
+</table>
+
+<h3>5.2 Objective III engineering</h3>
+<table>
+<thead><tr><th>#</th><th>Item</th><th>Why it matters</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>R13</td><td><strong>Replay wiring.</strong> Instantiate S1/S2 at the evaluator's parameters and connect it to a certificate <code>Replay</code> for arbitrary <code>s</code>, <code>a</code>, character.</td><td>Makes the final enclosure unconditional and replayable, not just the analytic identity.</td><td><span class="tag partial">half done</span> <code>zeta_mem_box</code> (<code>Re s &gt; 1</code>); eta extension open</td></tr>
+<tr><td>R14</td><td><strong>Use as a hypothesis.</strong> A theorem whose numerical premise is discharged by a certified enclosure.</td><td>The difference between a library and an argument.</td><td><span class="tag proved">first instance</span> <code>zeta_half_plus_five_ne_zero</code>; no wall-facing theorem yet</td></tr>
+<tr><td>R15</td><td><strong>Width.</strong> A checked width bound, or a certificate format that records a target width.</td><td>Soundness without width is enough for containment, not for the efficiency claims.</td><td><span class="tag partial">done (format)</span> <code>Expr.wfWidth</code>; symbolic width open</td></tr>
+<tr><td>—</td><td>Derivatives <code>L'/L</code>; the <code>s = 1</code> pole; larger certificates.</td><td>Needed for a full evaluator API.</td><td><span class="tag open">open</span></td></tr>
+</tbody>
+</table>
+
+<h3>5.3 Research items that would move a wall</h3>
+<table>
+<thead><tr><th>#</th><th>Item</th><th>What it is</th><th>Why it is outstanding</th></tr></thead>
+<tbody>
+<tr><td>R1 / B6</td><td><strong>OP-19</strong> (log-indicator barrier)</td><td>For every log-arc rule <code>A<sub>I</sub></code>, is <code>C<sub>I</sub>(x)=Σ<sub>n≤x</sub>1<sub>A<sub>I</sub></sub>(n)λ(n)=o(x)</code>?</td><td>A proof would be a genuine parity result; a counterexample kills the sign-blind programme.</td></tr>
+<tr><td>R2 / B1, B8</td><td><strong>Weil positivity for the repaired current <code>W</code></strong></td><td>Positivity of <code>W</code> on the correct test-function cone; equivalently RH given the explicit formula.</td><td>It is the exact form of the missing arithmetic positivity on the RH side. The naive current <code>P</code> and <code>(★)</code> are refuted; <code>W</code> is the repaired object.</td></tr>
+<tr><td>R3 / B2</td><td><strong>(M) in a class containing <code>ζ</code></strong></td><td>A multiplicativity/positivity input that fails for a sum of two Euler products and reaches <code>σ=1/2</code>.</td><td>Removes the DH obstruction but does not prove RH; the useful strengthening is open.</td></tr>
+<tr><td>R4 / B3, B9</td><td><strong>Lee–Yang / F.4</strong></td><td>A ferromagnetic spin system whose finite partition functions are the polygon, or a reweighting confining every finite zero to a line.</td><td>It passes the DH litmus and is the one known mechanism forcing finite zeros onto a line; no construction yet.</td></tr>
+<tr><td>B4</td><td><strong>Hilbert–Pólya / CCM</strong></td><td>A self-adjoint operator with the zero ordinates as spectrum; CCM reduces it to Conjecture 1.</td><td>No operator is constructed; the far side is a conjecture.</td></tr>
+<tr><td>R5 / B5</td><td><strong>de Bruijn–Newman <code>Λ=0</code></strong></td><td>RH is <code>Λ=0</code>; known <code>0 ≤ Λ ≤ 0.22</code>.</td><td>The last <code>0.22</code> is not a proof.</td></tr>
+<tr><td>R6</td><td><strong>Jensen/Li tower uniformity</strong></td><td>Uniformity in the degree, not just fixed degree at large shift.</td><td>Uniformity is the full tower.</td></tr>
+<tr><td>R7, R8</td><td><strong>Uniform slow passage; uniform isolation</strong></td><td><code>|ζ′(ρ)| ≤ N<sup>ε</sup></code> on the tightness window; a pair-correlation bound.</td><td>GUE/HKO predictions, not theorems; would make parts of the conversion uniform.</td></tr>
+<tr><td>—</td><td><strong>B7 straightening field (E.1)</strong></td><td>An admissible contour reaching the critical line.</td><td>Proved identities are finite-data; the contour condition is explicit and open.</td></tr>
+<tr><td>—</td><td><strong>OP-3 / OP-18, OP-1, OP-4, OP-9, OP-16, OP-17</strong></td><td>Open problems recorded in the letter.</td><td>OP-3 is not well-posed; OP-19 replaces it. OP-18 needs a fixed class.</td></tr>
+</tbody>
+</table>
+
+<h3>5.4 Formalisation debt</h3>
+<ul>
+<li>The Riemann-side conversion theorem, Davenport–Heilbronn sharpness, tightness/limit
+    theorems, the greedy complexity law, budgets/balance and the explicit formula are not in
+    the <code>FinalLetter</code> Lean build (R9, R10).</li>
+<li>The Euler–Maclaurin layer is Lean-proved, and its first consumption by a closed enclosure is
+    now proved for <code>Re s &gt; 1</code> (<code>zeta_mem_box</code>); the eta reduction to
+    <code>Re s &gt; 0</code> and the symbolic single-<code>Expr</code> emission are not (R13).</li>
+<li>The width of an enclosure is checkable for a concrete certificate and is not yet a symbolic
+    theorem for <code>zetaBox</code> (R15).</li>
+<li>A general “no finite prefix” meta-theorem (R12) is not formalised.</li>
+</ul>
+
+<div class="bad">
+<strong>What is not outstanding because it is false.</strong> <code>(★) ≥ 0</code>; <code>Φ</code>
+positive type; the K-sign law; the OP-5 <code>O(1/p)</code> error; X1–X6; the two
+<code>maths/</code> working-note RH claims. These are refuted or withdrawn, not open.
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s6">6. What would bridge the walls, and what each bridge requires</h2>
+
+<p>A bridge is a route from the available data to the far side of a wall. The programme tests
+every candidate by three questions:</p>
+<ol>
+<li><strong>Does it pass the Davenport–Heilbronn litmus?</strong> It must fail for the DH
+    twist, or it is not consuming the missing arithmetic input.</li>
+<li><strong>Is it pointwise or only density-level?</strong> Density statements are blind to
+    density-zero off-line sets.</li>
+<li><strong>Is it proved, conditional, or open?</strong> A re-description is not a bridge.</li>
+</ol>
+
+<h3>6.1 Bridge ledger</h3>
+<table>
+<thead><tr><th>Bridge</th><th>Passes DH litmus?</th><th>Pointwise?</th><th>Status</th><th>Far side</th></tr></thead>
+<tbody>
+<tr><td>B1 Weil positivity</td><td>yes</td><td>yes</td><td><span class="tag open">open</span></td><td>RH</td></tr>
+<tr><td>B2 (M)</td><td>yes</td><td>yes</td><td><span class="tag partial">conditional</span></td><td>GRH conversion</td></tr>
+<tr><td>B3 Lee–Yang</td><td>yes</td><td>yes</td><td><span class="tag open">open</span></td><td>F.4</td></tr>
+<tr><td>B4 Hilbert–Pólya/CCM</td><td>yes</td><td>yes</td><td><span class="tag open">open</span></td><td>CCM Conj 1</td></tr>
+<tr><td>B5 heat flow</td><td>yes</td><td>yes</td><td><span class="tag open">open</span></td><td><code>Λ=0</code></td></tr>
+<tr><td>B6 OP-19</td><td>yes</td><td>yes</td><td><span class="tag open">open</span></td><td>parity</td></tr>
+<tr><td>B7 straightening</td><td>no Euler product</td><td>yes</td><td><span class="tag partial">conditional (E.1)</span></td><td>zero count</td></tr>
+<tr><td>B8 Weil current</td><td>yes</td><td>yes</td><td><span class="tag open">open</span></td><td>RH</td></tr>
+<tr><td>B9 transfer operator</td><td>yes</td><td>yes</td><td><span class="tag partial">tractable</span></td><td>F.4</td></tr>
+<tr><td>B10 finite prefix</td><td>no</td><td>—</td><td><span class="tag open">no-go</span></td><td>none</td></tr>
+<tr><td>B11 certified evaluation</td><td>n/a</td><td>n/a</td><td><span class="tag partial">proved finite layer; not a bridge</span></td><td>none (instrument)</td></tr>
+</tbody>
+</table>
+
+<h3>6.2 What each bridge requires</h3>
+
+<h4>B1 / B8 — Weil positivity for the repaired current</h4>
+<p><strong>What it would give.</strong> Positivity of <code>W</code> on the cone is equivalent
+to RH; its spectral resolution is exactly the zero measure.</p>
+<p><strong>What is already there.</strong> The correct statement is identified (Theorem C of
+<code>tensor.md</code>). The naive current <code>P</code> and <code>(★)</code> are refuted, so
+the bridge must use <code>W</code>, not <code>P</code>.</p>
+<p><strong>What is required to build it.</strong></p>
+<ol>
+<li><strong>A precise cone.</strong> Fix the test-function class and the inner product on which
+    <code>W</code> is positive. The statement must be strong enough to imply the support
+    equality and weak enough to be provable.</li>
+<li><strong>An arithmetic positivity.</strong> Prove <code>W(f*f̄) ≥ 0</code> using a
+    multiplicativity/Euler-product input that <em>fails</em> for the DH twist. This is the
+    missing global input. It cannot be an estimate that DH also satisfies.</li>
+<li><strong>The explicit-formula bridge.</strong> Show that positivity of <code>W</code> is
+    equivalent to the critical-line support. The explicit formula supplies this; the
+    archimedean and prime terms must be handled pointwise.</li>
+<li><strong>A finite-scale shadow.</strong> Identify the finite-dimensional Gram matrices whose
+    positivity is necessary, and certify them with enclosures. This is where Objective III can
+    legitimately help: it can test finite shadows and refute false strengthenings. It cannot
+    prove the infinite cone.</li>
+<li><strong>Formalisation.</strong> The finite shadows and the explicit formula can be
+    formalised; the global positivity is a research theorem, not a Lean engineering task.</li>
+</ol>
+<div class="note"><strong>Why the evaluator does not shorten this.</strong> A certificate proves
+<code>W(f) ∈ [L,U]</code> for one <code>f</code>. Weil positivity is
+<code>∀ f in the cone, W(f) ≥ 0</code>. The quantifier is the wall.</div>
+
+<h4>B2 — Hypothesis (M) and Saias–Weingartner</h4>
+<p><strong>Requires.</strong> A proof of (M) — no zeros in <code>σ&gt;1</code> — in a class
+containing <code>ζ</code> but failing for a sum of two Euler products, plus a multiplicativity
+input strong enough to reach <code>σ=1/2</code>. (M) alone removes the DH obstruction and gives
+a conditional conversion; it does not prove RH. The evaluator can certify zeros and values,
+not the class statement.</p>
+
+<h4>B3 / B9 — Lee–Yang / ferromagnetic confinement and the transfer operator</h4>
+<p><strong>Requires.</strong> A ferromagnetic spin system whose finite partition functions are
+the polygon, or a reweighting confining every finite zero to a line (F.4). The computable part
+is the transfer-operator form: write the polygon as a trace over the <code>N</code>-spin chain
+and compute the sign of the induced couplings. A negative coupling settles F.4 negatively for
+that representation; positive couplings for all <code>N</code> would be the first Lee–Yang-shaped
+input that passes the litmus. The evaluator can compute finite partition functions and couplings;
+it cannot construct the system or prove the all-<code>N</code> statement.</p>
+
+<h4>B4 — Hilbert–Pólya / CCM</h4>
+<p><strong>Requires.</strong> A self-adjoint operator whose spectrum is the zero ordinates. CCM
+reduces this to Conjecture 1 (the ground-state eigenvector is a prime sum). The evaluator can
+check finite spectra and finite sums; it cannot produce the operator or prove the conjecture.</p>
+
+<h4>B5 — Heat flow / de Bruijn–Newman</h4>
+<p><strong>Requires.</strong> <code>Λ=0</code>. Known <code>0 ≤ Λ ≤ 0.22</code>. The flow is a
+genuine deformation; the endpoint <code>τ=0</code> is the wall. The evaluator can certify
+finite-time zero-free regions and values; it cannot close the endpoint.</p>
+
+<h4>B6 — Log-arc rules / OP-19</h4>
+<p><strong>Requires.</strong> A sign-blind rule <code>A<sub>I</sub></code> with positive-density
+multiplicative coupling to <code>Ω</code> for which
+<code>C<sub>I</sub>(x)=Σ<sub>n≤x</sub>1<sub>A<sub>I</sub></sub>(n)λ(n)=o(x)</code>. A proof is a
+genuine parity result; a counterexample kills the sign-blind programme. The evaluator can
+compute <code>C<sub>I</sub>(x)</code> on finite ranges and refute; it cannot prove the limit.</p>
+
+<h4>B7 — The straightening field</h4>
+<p><strong>Requires.</strong> An admissible contour reaching the critical line (condition E.1).
+The identities are proved; the contour is open. The evaluator can compute the two finite Euler
+sums; it cannot supply the contour.</p>
+
+<h4>B10 — Finite-prefix data</h4>
+<p><strong>Status.</strong> A proved no-go. It can refute, not establish. The finite-prefix
+theorem is the precise statement that a certain class of bridges cannot exist. The evaluator
+lives on the same side of that no-go: a finite certificate is finite-prefix data.</p>
+
+<h4>B11 — Certified evaluation (explicitly not a bridge)</h4>
+<p><strong>What it gives.</strong> Rational enclosures of <code>ζ(s)</code>,
+<code>ζ(s,a)</code> and <code>L(s,χ)</code> with a replayable certificate. It gives exact
+finite-scale values, not an asymptotic statement.</p>
+<p><strong>Status.</strong> The rational cell, certificate replay, eta split, transcendental
+enclosures, Euler–Maclaurin S1–S2 (<code>K ≥ 1</code>), a closed rectangle enclosure for
+<code>Re s &gt; 1</code>, a target-width certificate checker, and one critical-strip
+enclosure-as-hypothesis theorem (<code>ζ(1/2+5i) ≠ 0</code>) are Lean-proved. No wall theorem
+uses an enclosure as a hypothesis yet.</p>
+<p><strong>Verdict.</strong> Not a bridge. It is the instrument a future bridge can use, and
+the letter says so rather than promoting it.</p>
+
+<h3>6.3 The common requirement</h3>
+<p>Every genuine bridge must supply an <strong>arithmetic positivity</strong> that the local,
+additive, finite-prefix, density-level or sign-blind data cannot manufacture. On the Riemann
+side this is Weil positivity for <code>W</code>; on the parity side it is a positive-density
+multiplicative coupling to <code>Ω</code>. The two objects are structurally analogous, not
+identical. The evaluator supplies neither. What it supplies is the ability to make the finite
+shadows of either bridge exact, and to refute a proposed bridge on a finite witness.</p>
+
+<div class="good">
+<strong>What would make the third objective part of a bridge.</strong> A theorem schema with a
+finite-scale premise that is <em>necessary</em> for the wall and whose remaining gap is exactly
+the global input. The evaluator would discharge the premise. The programme has candidates for
+the finite-scale premise (§4.4) but no theorem in which that premise is both necessary and
+sufficient up to the global input. Building such a theorem is the research task; building the
+certificate is the engineering task.
+</div>
+
+<!-- ============================================================ -->
+<h2 id="s7">7. Roadmap</h2>
+
+<p>The roadmap is ordered by dependency, not by ambition. P0 is done. P1–P3 are engineering and
+should be completed before any new wall-facing claim is made. P4–P8 are research.</p>
+
+<table>
+<thead><tr><th>#</th><th>Task</th><th>Acceptance criterion</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>P0</td><td>Lean-prove Euler–Maclaurin S1–S2</td><td><code>EulerMaclaurin.lean</code> builds with no <code>sorry</code>/<code>axiom</code>; T36–T43 in the ledger; documented in proof layer C and all status pages.</td><td><span class="tag proved">done</span></td></tr>
+<tr><td>P1</td><td>Wire S1/S2 into a closed enclosure</td><td>A Lean theorem instantiating the general S1/S2 statement at the evaluator's parameters and producing a closed enclosure for arbitrary <code>s</code>, with no atom hypothesis; tested on ζ(2).</td><td><span class="tag partial">partial</span> <code>Re s &gt; 1</code></td></tr>
+<tr><td>P2</td><td>Certify width</td><td>A theorem or certificate format that checks a target width, not only containment.</td><td><span class="tag proved">done (format)</span></td></tr>
+<tr><td>P3</td><td>Use an enclosure as a hypothesis</td><td>One theorem (e.g. a finite-window zero count or interval-Newton isolation) whose numerical premise is discharged by a Lean certificate.</td><td><span class="tag proved">done</span> <a href="topics/finite-window-zeros/index.html">dossier</a>: <code>ζ(1/2+5i) ≠ 0</code> and the thin segment <code>t ∈ [5, 5.000003]</code>, certified by a 100-pair enclosure; wider segments open</td></tr>
+<tr><td>P4</td><td>Rigorous finite-window explicit formula</td><td>A certified finite-window positivity/evaluation statement for a fixed test function, replacing floating point in B5.</td><td><span class="tag partial">partial</span> <a href="topics/finite-explicit-formula/index.html">dossier</a>: fixed tent test function, autocorrelation and finite prime side certified; analytic formula, archimedean term and zero side open</td></tr>
+<tr><td>P5</td><td>Weil positivity for <code>W</code></td><td>A proof on the correct cone, with a DH-failing arithmetic input.</td><td><span class="tag partial">partial</span> finite Cholesky / negative certificates only; the infinite <code>W</code> is untouched</td></tr>
+<tr><td>P6</td><td>OP-19</td><td>A proof or refutation for every log-arc rule.</td><td><span class="tag open">research wall</span></td></tr>
+<tr><td>P7</td><td>Lee–Yang / F.4</td><td>A ferromagnetic representation of the polygon, or a negative coupling settling the representation.</td><td><span class="tag open">research wall</span></td></tr>
+<tr><td>P8</td><td>Formalise the map</td><td>Conversion, DH sharpness, greedy/budget and the explicit formula in Lean (R9, R10).</td><td><span class="tag open">debt</span></td></tr>
+</tbody>
+</table>
+
+<h3>7.1 What was actually proved this round</h3>
+<p>The next theorem was attacked in its rectangle form, which is the analytic content of the
+replay. In <a href="topics/partial-sum-plus-tail/lean/ReplayGeneral.lean"><code>ReplayGeneral.lean</code></a>:</p>
+<pre><code>theorem zeta_mem_box {S : Cx} (hS : 1 &lt; S.re.lo) (M K : ℕ)
+    (hM : 1 ≤ M) (hK : 1 ≤ K) {s : ℂ} (hs : Cx.mem s S) :
+    Cx.mem (riemannZeta s) (zetaBox S M K)</code></pre>
+<p>This is a closed rational rectangle containing <code>ζ(s)</code> for <em>every</em>
+<code>s</code> in a rational rectangle with <code>Re s &gt; 1</code>, for arbitrary
+<code>M ≥ 1</code> and <code>K ≥ 1</code>. There is no atom hypothesis. The box
+<code>zetaBox</code> is a sum of five ball components, each discharged by a proved lemma:</p>
+<ol>
+<li>each partial-sum term, by the complex-power bound <code>norm_cpow_neg_le_radius</code>
+    (using <code>‖b<sup>−s</sup>‖ = b<sup>−σ</sup></code>, then <code>σ ≥ ⌊Re lo⌋</code>);</li>
+<li>the integral, by <code>integral_Ioi_norm_iteratedDeriv_hurwitzTerm</code> and a rational
+    majorant (<code>integralRadius</code>);</li>
+<li>the boundary term (<code>boundaryRadius</code>);</li>
+<li>each Bernoulli correction, by the iterated-derivative formula
+    <code>iteratedDeriv_hurwitzTerm_eqOn</code> plus a rising-factorial bound
+    (<code>norm_bernoulli_le</code>);</li>
+<li>the tail, by the proved S2 bound plus the crude arithmetic
+    <code>ζ(2K+1) ≤ 2</code> and <code>π ≥ 3</code> (<code>norm_tail_le</code>).</li>
+</ol>
+<p>The box is deliberately crude; it is an existence enclosure, not a narrow one. It is checked
+at <code>s = 2</code>, <code>M = 3</code>, <code>K = 2</code>:</p>
+<pre><code>theorem zeta_two_mem_box : Cx.mem (riemannZeta 2) (zetaBox (pointBox 2) 3 2)</code></pre>
+<p>The decomposition into W1–W5 is implemented as follows: W1 is
+<code>zeta_eq_hurwitzZetaNP_one</code>; W2 is the integral bound; W3 is the power and Bernoulli
+atom bounds; W4 is the uniform tail bound; W5 is the assembly <code>zeta_mem_box</code>. The
+design note is <a href="topics/euler-maclaurin/notes/replay-wiring.md"><code>replay-wiring.md</code></a>.</p>
+
+<div class="note">
+<strong>A precise distinction the round exposed.</strong> The generated ζ(2) file
+<code>Replay.lean</code>/<code>ReplayAtoms.lean</code> proves
+<code>cert.eval σ ∈ cert.box</code> with the atom values <code>σ</code> instantiated as
+expected. It does not prove that <code>cert.eval σ</code> is <code>ζ(2)</code>: the tail atom is
+set to <code>0</code>, and the outer inflation accounts for the tail radius analytically. The
+missing link from the certificate value to <code>ζ</code> is exactly what S1/S2 supplies, and
+<code>zeta_mem_box</code> now supplies it uniformly for <code>Re s &gt; 1</code>. This is why P1
+is described as partial rather than done: the analytic bridge exists, but it is not yet emitted
+as the <code>wf</code>-checked <code>Expr</code> for symbolic parameters.
+</div>
+
+<h3>7.2 What not to do</h3>
+<ul>
+<li>Do not run more zeros to “support” RH. Finite computation cannot decide a universal
+    statement; the finite-prefix theorem is the precise form of this for Chowla.</li>
+<li>Do not sharpen an estimate that the DH twist also satisfies. The litmus says it cannot be
+    the missing input.</li>
+<li>Do not treat density statements as pointwise. Bombieri–Hejhal show they are blind to
+    density-zero off-line sets.</li>
+<li>Do not promote <code>CONJECTURED</code> heuristics to targets.</li>
+<li>Do not restore X1–X6.</li>
+<li>Do not treat a zero inside an interval as a proof that a zero exists.</li>
+<li>Do not quote a width that the Lean layer does not check.</li>
+</ul>
+
+<h3>7.3 P1–P4 after the round</h3>
+<table>
+<thead><tr><th>#</th><th>What is now in the repository</th><th>What remains</th></tr></thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td><code>zeta_mem_box</code> (rectangle enclosure, <code>Re s &gt; 1</code>, arbitrary
+<code>M, K</code>, no atom hypothesis); W1–W5 lemmas; ζ(2) instance
+<code>zeta_two_mem_box</code>.</td>
+<td>Eta reduction to <code>0 &lt; Re s ≤ 1</code>; a symbolic <code>Expr</code> whose
+<code>wf</code> is checked, rather than a direct box assembly; a narrow (target-width) box.</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><code>Cx.width</code>, <code>Expr.wfWidth</code>, <code>Expr.wfWidth_sound</code>;
+ζ(2) certificate accepted at target <code>10<sup>−4</sup></code> with every atom discharged.</td>
+<td>A symbolic width theorem for <code>zetaBox</code> (the current rectangle enclosure is far
+wider than any useful target, by design).</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>The R14 template <code>ne_zero_of_mem_of_not_mem_zero</code>, and the dossier
+<a href="topics/finite-window-zeros/index.html"><code>finite-window-zeros</code></a>:
+finite regrouping, pair estimate, summability for <code>Re s &gt; 0</code>, the
+<strong>eta identity</strong> <code>(1-2^{1-s})ζ = η</code> for every
+<code>0 &lt; Re s</code>, <code>s ≠ 1</code>, the transfer
+<code>η(s) ≠ 0 ⇒ ζ(s) ≠ 0</code>, the tail comparison and norm tail bound
+(T10–T11), the verified complex-power atom (T52), and a 100-pair certificate
+proving <code>ζ(1/2 + 5i) ≠ 0</code> (T12).</td>
+<td><strong>First instance and thin segment done:</strong> <code>zeta_half_plus_five_ne_zero</code> (<code>Cert.lean</code>) and <code>zeta_ne_zero_segment</code> (<code>Seg.lean</code>), the latter for <code>t ∈ [5, 5.000003]</code>. A 100-pair rational enclosure of <code>η</code>, the Lean tail bound, and a box-excludes-zero test do the work; no atom hypothesis. Remaining: wider segments and any wall-facing use. This is not a zero count and says nothing about RH.</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>The dossier <a href="topics/finite-explicit-formula/index.html"><code>finite-explicit-formula</code></a>:
+the fixed tent function <code>f(x)=max(0,1-|x|)</code>, its autocorrelation
+<code>g</code>, the Lean theorems <code>tent_nonneg</code>, <code>tentAutocorr_nonneg</code>,
+<code>tentAutocorr_even</code>, <code>tentAutocorr_pos</code> (strict inside the support),
+<code>tent_continuous</code>, the integral identity
+<code>∫<sub>-1</sub><sup>1</sup> f² = 2/3</code> (<code>integral_tent_sq</code>) and
+<code>∫<sub>-1</sub><sup>1</sup> f = 1</code> (<code>integral_tent</code>),
+and a Lean-certified rational enclosure of the **full five-term** prime side
+(<code>primeSideValue_negative</code>; the dominant <code>n=2</code> term is
+<code>term2Value_negative</code>), exact rational values of <code>g</code>, and a certified
+<code>mpmath.iv</code> enclosure of the finite prime side for support <code>2</code>
+(prime powers <code>2,3,4,5,7</code>).</td>
+<td><strong>Full-P4 route started.</strong> A feasibility probe finds winding number <code>1</code>
+of <code>η</code> around the first-zero rectangle <code>Re ∈ [0.4,0.6]</code>,
+<code>Im ∈ [14.0,14.3]</code>, and a 50-digit numerical ordinate
+<code>14.13472514173469379045…</code> (not certificates). An Euler–Maclaurin interval enclosure now gives a rigorous box for
+<code>ζ</code> at <code>1/2+14i</code> of width <code>~5·10⁻³⁰</code>
+(<code>N=K=20</code>). A numerical Krawczyk step on
+<code>Re ∈ [0.499,0.501]</code>, <code>Im ∈ [14.1345,14.1349]</code> gives
+<code>K(X) ⊂ int X</code>, isolating a zero numerically. The Krawczyk theorem
+and the interval arithmetic are not yet formalised in Lean. The full five-term
+prime side and the test-function moments remain Lean-certified.</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>The finite atomic Gram model in
+<a href="topics/prime-spectrum-tensor/index.html"><code>prime-spectrum-tensor</code></a>
+(T1–T11): a rational Cholesky certificate `G3 = L3ᴴ L3 ⇒ G3 ⪰ 0`, a sign-flipped
+model `GDH` with the rational witness `(1,-1)` giving form value `-2`, and the generic
+certificate lemmas `posSemidef_of_cholesky` and `not_posSemidef_of_neg`.</td>
+<td><strong>Finite shadow only.</strong> These are rational linear-algebra certificates in
+the shape of the P5 litmus; they are not the infinite Weil form for <code>W</code>, and
+no DH-failing arithmetic input for the actual current is constructed. P5 remains a
+research wall.</td>
+</tr>
+</tbody>
+</table>
+<p>The dependency order is the honest one: P2 is a format that now exists; P1 is half done; P3
+has its first finite-window instance (a point, not a segment, and not a wall statement); P4 is
+downstream; P5 has only a finite rational certificate format. No status claim about either
+wall changes.</p>
+
+<!-- ============================================================ -->
+<h2 id="s8">8. Verification and provenance</h2>
+
+<h3>8.1 Machine-checked facts</h3>
+<table>
+<thead><tr><th>Artifact</th><th>Verification</th></tr></thead>
+<tbody>
+<tr><td><code>topics/partial-sum-plus-tail/lean/EulerMaclaurin.lean</code></td><td><code>[check] OK</code> in <code>BUILD.log</code>; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/partial-sum-plus-tail/lean/ReplayGeneral.lean</code></td><td><code>[check] OK</code>; <code>zeta_mem_box</code>, <code>zeta_two_mem_box</code>; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/partial-sum-plus-tail/lean/Width.lean</code>, <code>WidthCheck.lean</code></td><td><code>[check] OK</code>; <code>Expr.wfWidth_sound</code>, ζ(2) width certificate at <code>10<sup>−4</sup></code>.</td></tr>
+<tr><td><code>topics/partial-sum-plus-tail/lean/EnclosureHypothesis.lean</code></td><td><code>[check] OK</code>; R14 template, no numerical instance claimed.</td></tr>
+<tr><td><code>topics/finite-window-zeros/lean/Topic.lean</code></td><td><code>[check] OK</code>; finite regrouping, pair estimate, summability, eta identity, tail bound; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/partial-sum-plus-tail/lean/CpowBox.lean</code></td><td><code>[check] OK</code>; verified box for <code>b^{-s}</code> from the log/exp/trig enclosures; concrete <code>3^{-(1/2+5i)}</code> check.</td></tr>
+<tr><td><code>topics/finite-window-zeros/lean/Cert.lean</code></td><td><code>[check] OK</code>; <code>zeta_half_plus_five_ne_zero</code>, no atom hypothesis; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/finite-window-zeros/lean/Seg.lean</code></td><td><code>[check] OK</code>; <code>zeta_ne_zero_segment</code> for <code>t ∈ [5, 5.000003]</code>; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/finite-window-zeros/lean/Krawczyk.lean</code></td><td><code>[check] OK</code>; complex mean value inequality <code>norm_sub_le_of_deriv_bound</code>; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/prime-spectrum-tensor/lean/Topic.lean</code></td><td><code>[check] OK</code>; T8–T9 finite Cholesky and negative certificates; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/finite-explicit-formula/lean/Topic.lean</code></td><td><code>[check] OK</code>; tent non-negativity, autocorrelation non-negativity and evenness; no <code>sorry</code>/<code>axiom</code>/<code>admit</code>.</td></tr>
+<tr><td><code>topics/euler-maclaurin/lean/Topic.lean</code></td><td>Byte-for-byte mirror of the canonical file; built with <code>[check] OK Topic.lean</code>.</td></tr>
+<tr><td><code>topics/euler-maclaurin/tests/test_programme.py</code></td><td>18 tests pass; exact rational Euler–Maclaurin, Bernoulli values, tail shape, mirror check.</td></tr>
+<tr><td><code>topics/partial-sum-plus-tail/tests</code></td><td>14 tests pass (the full evaluator suite).</td></tr>
+<tr><td>Topic structural audit</td><td><code>audit_topics.py</code>: 46/46 folders pass.</td></tr>
+</tbody>
+</table>
+
+<h3>8.2 Documentation</h3>
+<ul>
+<li><a href="categories/05-proofs/proofs.md#c-the-certified-evaluation-layer">Proof layer C</a> — groups C1–C8b, T1–T51.</li>
+<li><a href="categories/05-proofs/lean.md">Lean formalisation</a> — module inventory and build.</li>
+<li><a href="topics/partial-sum-plus-tail/index.html">Objective III dossier</a> and <a href="topics/euler-maclaurin/index.html">Euler–Maclaurin annex</a>.</li>
+<li><a href="STATUS.md">STATUS.md</a>, <a href="README.md">README.md</a>, <a href="ABSTRACT.md">ABSTRACT.md</a>, <a href="GAP-LEDGER.md">GAP-LEDGER.md</a>.</li>
+<li><a href="categories/11-bridges/bridges.md">11 — Bridges</a> and <a href="categories/09-further-research/further-research.md">09 — Further research</a>.</li>
+</ul>
+
+<h3>8.3 The status sentence, restated precisely</h3>
+<div class="lede">
+<p><strong>What is proved.</strong> The certified evaluator's rational cell, certificate
+soundness, transport, eta split, transcendental enclosures, ζ(2) replay, S3–S5,
+Euler–Maclaurin S1–S2 (for <code>K ≥ 1</code>), a closed rectangle enclosure of
+<code>ζ(s)</code> for every <code>Re s &gt; 1</code> with no atom hypothesis, and a
+target-width certificate checker are Lean theorems. The two walls are open; the conversion, DH
+sharpness, finite-prefix indeterminacy and the five-bridge refutation are proved as map
+statements.</p>
+<p><strong>What is not proved.</strong> RH, twin primes, Chowla for <code>k ≥ 2</code>, Sarnak,
+Elliott, Weil positivity, OP-19, <code>(M)</code>, F.4, <code>Λ=0</code>, the Jensen/Li tower,
+and uniform slow passage. One finite-window theorem now uses a certified enclosure
+(<code>zeta_half_plus_five_ne_zero</code>), but no theorem about either wall does; the
+critical-line segment, a wall-facing use, the symbolic single-<code>Expr</code> emission and
+the symbolic width are open.</p>
+<p><strong>The one-sentence status.</strong> The map is complete, the third objective's analytic
+layer is now machine-checked, and the walls are still walls.</p>
+</div>
+
+<div class="footer">
+<a href="index.html">The Final Letter</a> ·
+<a href="README.md">README</a> ·
+<a href="STATUS.md">STATUS.md</a> ·
+<a href="research-journal.md">Research journal</a> ·
+<a href="topics/index.html">Topic index</a> ·
+<a href="categories/11-bridges/bridges.md">Bridges</a> ·
+<a href="categories/09-further-research/further-research.md">Further research</a>
+</div>
+
+</body>
+</html>

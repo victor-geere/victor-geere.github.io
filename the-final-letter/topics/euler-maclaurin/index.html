@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Euler–Maclaurin layer — Objective III annex</title>
+<style>
+  :root { --ink:#1a202c; --muted:#555; --rule:#d8d8d8; --bg:#fcfcfb; --accent:#1a5fb4; --panel:#f3f5f7; }
+  body { font-family: Georgia, serif; max-width: 980px; margin: 2.4rem auto; padding: 0 1.3rem;
+         line-height: 1.65; color: var(--ink); background: var(--bg); }
+  h1 { font-size: 2rem; margin-bottom: .2rem; }
+  h2 { margin-top: 2.3rem; border-bottom: 1px solid var(--rule); padding-bottom: .25rem; }
+  h3 { margin-top: 1.6rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: #f1f3f5; padding: .08rem .25rem; border-radius: 3px; font-size: .93em; }
+  pre { background: var(--panel); padding: .8rem 1rem; border-radius: 6px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+  th, td { border: 1px solid var(--rule); padding: .42rem .55rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  .status { background: #eef6ee; border: 1px solid #cfe3cf; padding: .8rem 1rem; border-radius: 8px; }
+  .note { background: #fbfbf7; border-left: 4px solid #c9b458; padding: .7rem 1rem; }
+  .muted { color: var(--muted); font-size: .93rem; }
+  .eq { text-align: center; margin: 1rem 0; font-size: 1.02rem; }
+  .footer { margin-top: 2.5rem; border-top: 1px solid var(--rule); padding-top: .9rem; font-size: .92rem; }
+</style>
+</head>
+<body>
+
+<h1>Euler–Maclaurin layer</h1>
+<p class="muted">Focused annex to Objective III of <a href="../../index.html">The Final Letter</a>.</p>
+
+<p class="status"><strong>Status:</strong> structural pass. This dossier documents and mirrors
+the Euler–Maclaurin development that turns the two former source claims S1–S2 into Lean
+theorems for <code>K ≥ 1</code>. The authoritative full dossier remains
+<a href="../partial-sum-plus-tail/index.html"><code>topics/partial-sum-plus-tail</code></a>.</p>
+
+<h2>Provenance</h2>
+<p>The canonical Lean file is
+<a href="../partial-sum-plus-tail/lean/EulerMaclaurin.lean"><code>partial-sum-plus-tail/lean/EulerMaclaurin.lean</code></a>,
+built in that directory and recorded in its <code>BUILD.log</code>
+(<code>[check] OK EulerMaclaurin.lean (41s)</code>). The written proof it follows is
+<a href="../partial-sum-plus-tail/notes/euler-maclaurin-proof.md"><code>notes/euler-maclaurin-proof.md</code></a>.
+The source bundle is <code>~/workspace/rh/research/twin-prime-parity/012/</code>. The canonical
+file, not the mirror here, is the place to edit.</p>
+
+<h2>What this layer is</h2>
+<p>For <code>a &gt; 0</code>, <code>s = σ + it</code> with <code>σ &gt; 1</code>,
+<code>M ≥ 1</code>, <code>b = a + M</code>, rising factorial
+<code>(s)<sub>n</sub> = s(s+1)…(s+n−1)</code> and Bernoulli numbers <code>B<sub>2j</sub></code>,
+the non-periodic Hurwitz zeta satisfies</p>
+<p class="eq"><code>ζ(s,a) = Σ<sub>k&lt;M</sub>(a+k)<sup>−s</sup>
++ ∫<sub>M</sub><sup>∞</sup>(a+x)<sup>−s</sup>dx + b<sup>−s</sup>/2
++ Σ<sub>j=1</sub><sup>K</sup> B<sub>2j</sub>/(2j)! · (s)<sub>2j−1</sub> · b<sup>−s−2j+1</sup>
++ R<sub>K</sub>(s),</code></p>
+<p>with the explicit tail bound</p>
+<p class="eq"><code>|R<sub>K</sub>(s)| ≤ |(s)<sub>2K+1</sub>| ·
+2ζ(2K+1)/(2π)<sup>2K+1</sup> · b<sup>−σ−2K</sup>/(σ+2K).</code></p>
+<p>The Lean development proves the finite Euler–Maclaurin identity, the Fourier inversion and
+Bernoulli supremum bound that control the periodic Bernoulli functions, the differentiability and
+iterated derivatives of the Hurwitz term, the integral form of the tail bound, and the two displayed
+statements for <code>K ≥ 1</code>.</p>
+
+<h2 id="theorem-ledger">Theorem ledger</h2>
+<p>Every row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> with no
+<code>sorry</code>, no <code>axiom</code> and no <code>admit</code>. <code>Topic.lean</code> is a
+byte-for-byte mirror of the canonical file; the mirror is enforced by a Python test.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean name</th></tr></thead>
+<tbody>
+<tr><td>T36</td><td>Theorem</td><td>Finite Euler–Maclaurin identity for a smooth <code>f</code> on an integer interval <code>[M,N]</code>, all <code>K</code>.</td><td><code>PartialTail.finite_eulerMaclaurin</code></td></tr>
+<tr><td>T37</td><td>Theorem</td><td>The same finite identity for the Hurwitz term <code>(a+x)<sup>−s</sup></code>.</td><td><code>PartialTail.finite_eulerMaclaurin_hurwitz</code></td></tr>
+<tr><td>T38</td><td>Theorem</td><td>Fourier inversion for the periodic Bernoulli functions, <code>n ≥ 2</code>.</td><td><code>PartialTail.hasSum_periodicBernoulli_fourier</code></td></tr>
+<tr><td>T39</td><td>Theorem</td><td>Odd Bernoulli supremum bound <code>‖B̃<sub>2K+1</sub>‖<sub>∞</sub> ≤ 2(2K+1)! ζ(2K+1)/(2π)<sup>2K+1</sup></code>, <code>K ≥ 1</code>.</td><td><code>PartialTail.iSup_norm_periodicBernoulli_odd_le_zeta</code></td></tr>
+<tr><td>T40</td><td>Theorem</td><td>The non-periodic Hurwitz zeta is differentiable away from <code>s = 0, 1</code>.</td><td><code>PartialTail.differentiableAt_hurwitzZetaNP</code></td></tr>
+<tr><td>T41</td><td>Theorem</td><td>Iterated derivative formula <code>d<sup>n</sup>(a+x)<sup>−s</sup> = (−1)<sup>n</sup>(s)<sub>n</sub>(a+x)<sup>−s−n</sup></code>, and integrability of every derivative.</td><td><code>PartialTail.iteratedDeriv_hurwitzTerm_eqOn</code>, <code>integrableOn_iteratedDeriv_hurwitzTerm</code></td></tr>
+<tr><td>T42</td><td>Theorem</td><td>Integral form of the S2 tail bound.</td><td><code>PartialTail.norm_integral_periodicBernoulli_mul_odd_le</code></td></tr>
+<tr><td>T43</td><td>Theorem</td><td>S1 decomposition of <code>ζ(s,a)</code> and the explicit S2 tail bound, together, for <code>K ≥ 1</code>.</td><td><code>PartialTail.hurwitzZetaNP_eq_eulerMaclaurin</code>, <code>hurwitzZetaNP_eulerMaclaurin_with_bound</code></td></tr>
+</tbody>
+</table>
+<p>The two rows that were source claims in the old ledger are now T43: S1 is
+<code>hurwitzZetaNP_eq_eulerMaclaurin</code>, S2 is the second conjunct of
+<code>hurwitzZetaNP_eulerMaclaurin_with_bound</code>. No source claim is adopted as a theorem here;
+the archived written proof is retained as commentary.</p>
+
+<h2>Computation ledger</h2>
+<p>The Python layer is an independent exact check over <code>Q</code>; it does not import the Lean
+proof. Every row has a test in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.</p>
+<table>
+<thead><tr><th>#</th><th>Kind</th><th>Statement</th><th>Test</th></tr></thead>
+<tbody>
+<tr><td>E1</td><td>Computation</td><td>Bernoulli numbers <code>B<sub>0</sub>, B<sub>1</sub>, B<sub>2</sub>, B<sub>4</sub>, B<sub>6</sub>, B<sub>8</sub>, B<sub>10</sub></code> are exact; odd <code>B<sub>n</sub> &gt; 1</code> vanish.</td><td><code>test_bernoulli_numbers_are_exact</code>, <code>test_bernoulli_edge_cases</code></td></tr>
+<tr><td>E2</td><td>Computation</td><td>The finite Euler–Maclaurin identity holds exactly for polynomial <code>f</code>, over <code>K = 0,1,2,3,4</code> and several intervals.</td><td><code>test_finite_euler_maclaurin_identity</code></td></tr>
+<tr><td>E3</td><td>Computation</td><td>The S2 tail radius is positive and decreases with <code>K</code> on a documented test range.</td><td><code>test_tail_radius_positive_and_decreasing</code></td></tr>
+<tr><td>E4</td><td>Computation</td><td><code>lean/Topic.lean</code> is byte-for-byte the canonical <code>EulerMaclaurin.lean</code>.</td><td><code>test_lean_mirror_matches_canonical_file</code></td></tr>
+</tbody>
+</table>
+<p>The tail-radius test is a numerical illustration of the shape of the bound, at the stated
+precision, not a certified enclosure. The exact identity tests use <code>sympy</code> rationals and
+require exact zero.</p>
+
+<h2>Python layer</h2>
+<pre><code>cd the-final-letter/topics/euler-maclaurin
+python3 -m pytest -q tests</code></pre>
+<pre><code>import sys; sys.path.insert(0, "python")
+from programme import em_identity_polynomial, tail_radius
+em_identity_polynomial([0, 0, 0, 0, 1], 2, 9, 4)  # 0
+tail_radius(2.0, 3.0, 1.0, 10, 4)                  # mpf(...)</code></pre>
+<p><code>python/programme.py</code> uses <code>sympy</code> for exact rational work and
+<code>mpmath</code> for the tail illustration. It is importable without side effects.
+<code>K ≥ 1</code> is enforced for <code>tail_radius</code> because that is the hypothesis of the
+Lean S1/S2 theorem; <code>K = 0</code> is allowed for the finite identity, which Lean proves for all
+<code>K</code>.</p>
+
+<h2>Lean layer</h2>
+<pre><code>cd the-final-letter/topics/euler-maclaurin
+./lean/check.sh</code></pre>
+<p><code>lean/Topic.lean</code> is the mirrored module. It imports Mathlib only, keeps the
+<code>PartialTail</code> namespace, and contains no <code>sorry</code>, <code>axiom</code> or
+<code>admit</code>. <code>lean/check.sh</code> calls <code>../../tools/check-lean.sh</code> against
+the shared Mathlib installation.</p>
+
+<h3>What is not formalised</h3>
+<ul>
+<li>The lowering of the general S1/S2 theorem into the evaluator's certificate <code>Replay</code>
+for arbitrary <code>s</code>, <code>a</code> and Dirichlet character (R13). This is engineering,
+not new analysis. The target interface, the W1–W5 decomposition and the acceptance criteria are
+specified in <a href="notes/replay-wiring.md"><code>notes/replay-wiring.md</code></a>.</li>
+<li>A certified enclosure <em>width</em>. <code>inflate</code> is sound for every non-negative
+radius, so the recorded narrow widths are measurements, not theorems (R15).</li>
+<li>Use of a certified enclosure as a hypothesis in a theorem about a wall (R14). Nothing in this
+folder changes the wall map.</li>
+<li>The <code>s = 1</code> pole and <code>L'/L</code> derivatives, which belong to the larger
+evaluator dossier rather than to the Euler–Maclaurin identity itself.</li>
+</ul>
+
+<h2>Relation to the walls</h2>
+<p>This layer is the analytic core of the third objective, not a bridge. It makes the evaluator's
+decomposition unconditional. It does <strong>not</strong> prove RH or the twin-prime conjecture, and
+no theorem about either wall consumes the enclosure. The bridge requirements remain global positivity
+on the Riemann side and a positive-density multiplicative coupling on the parity side; see
+<a href="../../status.html">status.html</a> §§5–6 and
+<a href="../../categories/11-bridges/bridges.md">11 — Bridges</a>.</p>
+
+<div class="footer">
+<a href="../partial-sum-plus-tail/index.html">Objective III dossier</a> ·
+<a href="../../categories/05-proofs/proofs.md#c-the-certified-evaluation-layer">Proof ledger C</a> ·
+<a href="../../categories/09-further-research/further-research.md">Further research R13–R15</a> ·
+<a href="../../status.html">Status</a> ·
+<a href="../index.html">Topic index</a> ·
+<a href="../PROGRAMME-STANDARD.md">Programme standard</a>
+</div>
+
+</body>
+</html>

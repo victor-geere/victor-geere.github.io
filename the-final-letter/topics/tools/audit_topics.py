@@ -15,7 +15,10 @@ REQUIRED = [
 
 def main() -> int:
     bad = []
-    for topic in sorted(p for p in ROOT.iterdir() if p.is_dir() and p.name not in {"tools"}):
+    for topic in sorted(
+        p for p in ROOT.iterdir()
+        if p.is_dir() and p.name not in {"tools"} and not p.name.startswith(".")
+    ):
         missing = [f for f in REQUIRED if not (topic / f).exists()]
         dirty = []
         for lean in sorted((topic / "lean").glob("*.lean")):
@@ -29,7 +32,11 @@ def main() -> int:
         if missing or dirty:
             bad.append((topic.name, missing, dirty))
     if not bad:
-        print(f"OK: {len([p for p in ROOT.iterdir() if p.is_dir() and p.name != 'tools'])} topic folders pass the structural audit")
+        folders = [
+            p for p in ROOT.iterdir()
+            if p.is_dir() and p.name != "tools" and not p.name.startswith(".")
+        ]
+        print(f"OK: {len(folders)} topic folders pass the structural audit")
         return 0
     for name, missing, dirty in bad:
         print(f"{name}: missing={missing} forbidden={dirty}")

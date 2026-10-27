@@ -137,7 +137,7 @@ Source: [`summary-rh/04/03`](../../summary-rh/04-programme/03-corrections-x1-x6.
 
 ## C. The certified evaluation layer
 
-Objective III is the programme's positive computation layer. It is not a proof of either wall; it is the machine-checked instrument a finite-scale claim can use instead of floating point. The full 35-row theorem ledger and the 14-row computation ledger are in [`topics/partial-sum-plus-tail`](../../topics/partial-sum-plus-tail/README.md#theorem-ledger).
+Objective III is the programme's positive computation layer. It is not a proof of either wall; it is the machine-checked instrument a finite-scale claim can use instead of floating point. The full 51-row theorem ledger and the 14-row computation ledger are in [`topics/partial-sum-plus-tail`](../../topics/partial-sum-plus-tail/README.md#theorem-ledger).
 
 | Group | What is proved | Lean theorems | Evidence |
 |---|---|---|---|
@@ -148,17 +148,20 @@ Objective III is the programme's positive computation layer. It is not a proof o
 | C5 | The concrete ζ(2) replay is accepted, and every atom is discharged, so its final box encloses the replay value with no atom hypothesis. | `PartialTail.Replay.cert_mem`, `Replay.cert_mem_closed` | T25, T32, `Replay.lean`, `ReplayAtoms.lean` |
 | C6 | `π`, `exp`, `log`, `sin` and `cos` are enclosed on the required rational intervals, with concrete kernel-checked instances. | `piIv_memR`, `expIvGeneral_memR`, `logIv_memR`, `cosBox_memR`, `sinBox_memR`, `cosReduce_memR`, `sinReduce_memR`; `log_two_check`, `exp_one_check`, `sin_one_check`, `cos_one_check`, `piIv_check` | T26–T31, `Transcend.lean` |
 | C7 | S3–S5: the integer zeta bound, the eta identity, and the `L`-function as a finite Hurwitz sum. | `riemannZeta_nat_re_le`, `eta_eq_one_sub_two_cpow_mul_zeta`, `LFunction_eq_hurwitz_sum` | T33–T35, `SourceClaims.lean` |
+| C8 | Euler–Maclaurin: the finite identity for smooth functions and for the Hurwitz term; Fourier inversion and the Bernoulli supremum bound; differentiability and iterated derivatives of the non-periodic zeta; the integral form of the tail bound; the S1 decomposition and the explicit S2 tail bound, for `K ≥ 1`. | `finite_eulerMaclaurin`, `finite_eulerMaclaurin_hurwitz`, `hasSum_periodicBernoulli_fourier`, `iSup_norm_periodicBernoulli_odd_le_zeta`, `differentiableAt_hurwitzZetaNP`, `iteratedDeriv_hurwitzTerm_eqOn`, `integrableOn_iteratedDeriv_hurwitzTerm`, `norm_integral_periodicBernoulli_mul_odd_le`, `hurwitzZetaNP_eq_eulerMaclaurin`, `hurwitzZetaNP_eulerMaclaurin_with_bound` | T36–T43, `EulerMaclaurin.lean` |
+| C8a | **P1, rectangle form:** the S1/S2 theorem is consumed by a closed rational enclosure of `ζ(s)` for every `s` with `Re s > 1`, arbitrary `M ≥ 1`, `K ≥ 1`, with no atom hypothesis; checked at ζ(2). Domain bridge, power/integral/derivative/Bernoulli/tail radii, and assembly. | `zeta_eq_hurwitzZetaNP_one`, `norm_cpow_neg_le_radius`, `norm_cpow_neg_sub_le`, `norm_integral_le_radius`, `norm_iteratedDeriv_le`, `norm_bernoulli_le`, `riemannZeta_nat_re_le_two`, `norm_tail_le`, `zeta_mem_box`, `zeta_two_mem_box` | T44–T49, `ReplayGeneral.lean` |
+| C8b | **P2:** a target-width certificate format. `Cx.width`; `Expr.wfWidth` checks well-formedness and a width target; `wfWidth_sound` proves that acceptance yields a box no wider than the target; the ζ(2) replay is accepted at `10⁻⁴`. The R14 template `ne_zero_of_mem_of_not_mem_zero` is also recorded. | `Cx.width`, `Expr.wfWidth`, `Expr.wfWidth_sound`, `Replay.cert_wfWidth`, `cert_mem_width`, `ne_zero_of_mem_of_not_mem_zero` | T50–T51, `Width.lean`, `WidthCheck.lean`, `EnclosureHypothesis.lean` |
 
-The remaining analytic inputs that are **not** Lean theorems are S1–S2; both have a written proof in [`notes/euler-maclaurin-proof.md`](../../topics/partial-sum-plus-tail/notes/euler-maclaurin-proof.md):
+The two analytic inputs are now Lean theorems (C8) for `K ≥ 1`:
 
 | # | Claim | Status |
 |---|---|---|
-| S1 | Euler–Maclaurin decomposition of `ζ(s,a)` into partial sum, Bernoulli corrections and tail. | Written proof; not Lean-formalised |
-| S2 | Explicit tail bound `\|R_K(s)\| ≤ \|(s)_{2K+1}\| · 2ζ(2K+1)/(2π)^{2K+1} · b^{−σ−2K}/(σ+2K)`. | Written proof; not Lean-formalised |
+| S1 | Euler–Maclaurin decomposition of `ζ(s,a)` into partial sum, Bernoulli corrections and tail. | Lean-proved for `K ≥ 1`: `hurwitzZetaNP_eq_eulerMaclaurin` |
+| S2 | Explicit tail bound `\|R_K(s)\| ≤ \|(s)_{2K+1}\| · 2ζ(2K+1)/(2π)^{2K+1} · b^{−σ−2K}/(σ+2K)`. | Lean-proved for `K ≥ 1`: `hurwitzZetaNP_eulerMaclaurin_with_bound` |
 
-S3–S5 are now Lean theorems (C7): `riemannZeta_nat_re_le`, `eta_eq_one_sub_two_cpow_mul_zeta`, and `LFunction_eq_hurwitz_sum`.
+S3–S5 are Lean theorems (C7): `riemannZeta_nat_re_le`, `eta_eq_one_sub_two_cpow_mul_zeta`, and `LFunction_eq_hurwitz_sum`. The written proof that the Lean layer follows is [`notes/euler-maclaurin-proof.md`](../../topics/partial-sum-plus-tail/notes/euler-maclaurin-proof.md).
 
-**Status of the layer.** The rational cell, the certificate checker, the truncation transport, the eta split and the transcendental enclosures are Lean-proved with no `sorry`, `axiom` or `admit`. The Euler–Maclaurin identity and the explicit tail bound have a written proof but remain unformalised in Lean, so the final Lean enclosure of `ζ(s)` is conditional on S1–S2. The elementary claims S3–S5 are now Lean theorems (C7). No theorem about either wall uses a certified enclosure as a hypothesis yet; R13–R14 in [Further research](../09-further-research/further-research.md) state what that would take.
+**Status of the layer.** The rational cell, the certificate checker, the truncation transport, the eta split, the transcendental enclosures, the Euler–Maclaurin layer, a closed rectangle enclosure for `Re s > 1`, and a target-width certificate format are Lean-proved with no `sorry`, `axiom` or `admit`. The Euler–Maclaurin decomposition and the explicit tail bound are theorems for `K ≥ 1`, and C9 is their first consumption by a closed enclosure. What remains is engineering plus one analytic extension: the eta reduction to `0 < Re s ≤ 1`, a symbolic single-`Expr` emission, a symbolic width theorem, and using a certified critical-strip enclosure as a hypothesis. No theorem about either wall uses a certified enclosure as a hypothesis yet; R13–R15 in [Further research](../09-further-research/further-research.md) state what that would take.
 
 Source: [`topics/partial-sum-plus-tail`](../../topics/partial-sum-plus-tail/README.md), `~/workspace/rh/research/twin-prime-parity/012/`.
 
@@ -182,6 +185,6 @@ See [Lean formalisation](lean.md) for the theorem inventory and build instructio
 
 ## E. What is not proved
 
-RH, the twin-prime conjecture, Chowla for `k ≥ 2`, Sarnak, Elliott, `(M)`, OP-19, F.4, `Λ=0`, the Jensen/Li tower, and uniform slow passage. The evaluator's Euler–Maclaurin identity and explicit tail bound have a written proof but are not Lean-formalised. The proof ledger is not a proof of the walls; it is a proof of the map.
+RH, the twin-prime conjecture, Chowla for `k ≥ 2`, Sarnak, Elliott, `(M)`, OP-19, F.4, `Λ=0`, the Jensen/Li tower, and uniform slow passage. The evaluator's Euler–Maclaurin identity and explicit tail bound are Lean theorems for `K ≥ 1`, a closed rectangle enclosure for `Re s > 1` and a target-width certificate format are also proved, but the evaluator is still not consumed by a wall theorem and no symbolic width theorem is proved. The proof ledger is not a proof of the walls; it is a proof of the map.
 
 [Back to README](README.md) · [Back to index](../../index.html)
