@@ -2551,3 +2551,24 @@ reusable across heights.  At height 14 the imaginary-exponent split dominates
 the cost, and a naive transplant of the height-5 parameters produces a box that
 silently *passes* the side conditions while being far too wide to exclude
 anything.
+
+### 2026-10-27 — Phase I.259: the Lean box does not match the mirror
+
+Added `lean/EMBox14.lean`: point boxes, `inv_s14_sub_one` (the pole factor is
+exactly `(-2-56i)/785` at a point box, so no interval division is needed), the
+`csPow` fold with its soundness theorem, and the `native_decide` atom checks.
+Evaluation is cheap — 26 s for the whole file.
+
+The corner test fails.  Let `B` be the folded enclosure of `zetaEMGen 1 20`:
+`|corner(B)|` exceeds 1, whereas `python/emit_em.py` predicts 0.10570 for the
+same parameters.  Probing the atoms individually shows they are not grossly
+wrong (`csPow 20` ≤ 3, `cpowBox 21 S14` ≤ 1, `cpowBox 21 S2box` ≤ 50 against
+predicted magnitudes 0.22, 0.22, 4.58), so the disagreement is in *width*, i.e.
+in the `CpowBox` internals rather than in `logIvRat`.
+
+This is the useful kind of failure: the certificate is not wrong, it is too
+loose, and the gap is localised to the `expIvGeneral`/`expRem`/`Iv.mul` layer.
+Guessing parameters from a Python re-implementation was the mistake — the
+mirror is close enough to choose `kI` but not close enough to predict the box
+width.  The next probe should bisect `maxAbsIv (cpowBox 14 16 64 20 2 S14).re`
+against the mirror's interval in a single compile.

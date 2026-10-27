@@ -42,6 +42,7 @@ Mathlib: `~/lean/mathlib4`, Lean `4.35.0-rc2`.
 | `lean/BlockCert.lean` | T289: `blockFold_1e6` at `B = M = 1000`. |
 | `lean/EtaEM.lean` | T290–T292: forward differences and the iterated Euler transformation. |
 | `lean/EMCritical.lean` | T293–T305: the Euler–Maclaurin remainder on the critical line (`0 < Re s`, every `K`). |
+| `lean/EMBox14.lean` | `ptBox`, `inv_s14_sub_one`, `csPow`/`csPow_mem`, `Bzeta`; corner test **open** (see below). |
 | `python/emit_em.py` | Reference emitter for the `zetaEMGen 1 N` box at `1/2+14i`; calibrates the `CpowBox` parameters. |
 | `lean/Cert.lean`, `lean/Seg.lean` | P3 certificates for `1/2+5i`. |
 | `python/emit_blocks.py` | Python rational mirror of the `CpowBox` layer (reference emitter). |
@@ -196,6 +197,24 @@ with `2·Re ζ(4)/(2π)^4 = |B_4|/4! = 1/720` rational and
 
 `K = 1` needs `N >= 40` (42 atoms, remainder `9·10⁻³`) because
 `(1/12)||(s)_2||` is much larger; `K = 2` at `N = 20` costs 24 atoms instead.
+
+## Blocker: the Lean box is wider than the mirror
+
+`EMBox14.lean` evaluates the box with `native_decide` (26 s, all atom side
+conditions pass), but the corner norm is **> 1**, while the exact-rational
+mirror `python/emit_em.py` predicts `0.10570` for the same atoms and the same
+`(14,16,64,20)` parameters — a factor-ten disagreement.
+
+Localisation so far: `csPow 20`, `cpowBox 21 S14`, `cpowBox 21 S2box` have
+corner norms ≤ 3, 1, 50 against predicted magnitudes 0.22, 0.22, 4.58 — so no
+atom is grossly *wrong*, the excess is per-atom **width**.  Next things to
+check, in order: `expRem`'s Lean definition vs the mirror's `(n+1)/(n!·n)`;
+`expIvGeneral`'s split; `Iv.mul`'s `min4`/`max4`; `expITaylor`'s sign
+convention.  A single `example : maxAbsIv (cpowBox 14 16 64 20 2 S14).re ≤ q`
+bisected against the mirror's interval will pin it down in one compile.
+
+Until then step 3 cannot be closed: a corner of `>1` is consistent with
+`ζ(s0) ≠ 0` but not with `|ζ(s0)| ≤ 1/8`.
 
 ## Next steps, in order
 
