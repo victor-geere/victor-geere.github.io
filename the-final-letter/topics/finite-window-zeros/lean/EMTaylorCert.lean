@@ -458,4 +458,37 @@ theorem norm_Psi3_le_ball_eleven {z : ℂ} (hz : ‖z - s14‖ ≤ (11 : ℝ)) :
   nlinarith [hb1, hb2, hb3, hb4, hb5]
 
 
+theorem norm_iteratedDeriv_Psi3_le (j : ℕ) {z : ℂ} (hz : ‖z - s14‖ ≤ (1 / 5 : ℝ)) :
+    ‖iteratedDeriv j Psi3 z‖ ≤ (j.factorial : ℝ) * 8 / (10 : ℝ) ^ j := by
+  have hR : (0 : ℝ) < 10 := by norm_num
+  have hDiff : DiffContOnCl ℂ Psi3 (Metric.ball z 10) := by
+    apply DifferentiableOn.diffContOnCl
+    rw [closure_ball z (by norm_num : (10 : ℝ) ≠ 0)]
+    intro w hw
+    have hw10 : ‖w - z‖ ≤ 10 := by simpa [dist_eq_norm] using hw
+    have hw11 : ‖w - s14‖ < 11 := by
+      have h2 : ‖w - s14‖ ≤ ‖w - z‖ + ‖z - s14‖ := by
+        calc ‖w - s14‖ = ‖(w - z) + (z - s14)‖ := by ring_nf
+          _ ≤ ‖w - z‖ + ‖z - s14‖ := norm_add_le _ _
+      linarith
+    have hne : w ≠ 1 := by
+      intro h1
+      have heq : ‖w - s14‖ = ‖(1 : ℂ) - s14‖ := by rw [h1]
+      have hge : (14 : ℝ) ≤ ‖(1 : ℂ) - s14‖ := by
+        rw [norm_sub_rev]
+        exact fourteen_le_norm_s14_sub_one
+      linarith
+    exact ((contDiffAt_Psi3 (1 : WithTop ℕ∞) hne).differentiableAt (by simp)).differentiableWithinAt
+  have h := Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le
+    (f := Psi3) (c := z) (R := 10) (C := 8) j hR hDiff (fun w hw => by
+      have h1 : ‖w - z‖ = 10 := by simpa [Metric.mem_sphere, dist_eq_norm] using hw
+      apply norm_Psi3_le_ball_eleven
+      have h2 : ‖w - s14‖ ≤ ‖w - z‖ + ‖z - s14‖ := by
+        calc ‖w - s14‖ = ‖(w - z) + (z - s14)‖ := by ring_nf
+          _ ≤ ‖w - z‖ + ‖z - s14‖ := norm_add_le _ _
+      rw [h1] at h2
+      linarith)
+  simpa using h
+
+
 end FiniteWindowZeros

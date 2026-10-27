@@ -929,3 +929,43 @@ commit.  `check.sh` never listed it, so the build stayed green.)
 check `git log`/`git status` and the file mtimes before editing `EMTaylorCert.lean`
 or `check.sh`; `git add -A` will otherwise sweep up another session's in-progress
 files.
+
+### 2026-10-27 — I.314: `Ψ₃` Cauchy bound + `h2` reduced to one remainder estimate
+
+Process housekeeping first: several **stray background jobs from a second
+session on this checkout** were still editing `EMTaylorH2.lean` and launching
+`check.sh EMTaylorH2.lean` in a loop.  They were killed (`pkill -9 -f
+EMTaylorH2` / `check-lean.sh`, repeated until `pgrep` was empty).  As I.313
+warned, `git log`/`git status` must be checked before `git add -A` here.
+
+Two verified increments (both compile):
+
+* **`norm_iteratedDeriv_Psi3_le`** (`EMTaylorCert.lean`):
+  `‖Ψ₃^{(j)}(z)‖ ≤ j!·8/10^j` for `‖z − s14‖ ≤ 1/5`, by
+  `Complex.norm_iteratedDeriv_le_of_forall_mem_sphere_norm_le` on the radius-`10`
+  sphere, with the modulus bound `norm_Psi3_le_ball_eleven` (T-`norm_Psi3_le_…`,
+  `‖Ψ₃‖ ≤ 8` on the radius-11 ball).  Together with `norm_base_seven_le`
+  (`≤ 13189`) this gives the two pieces of `sup|ζ^{(7)}|`; the `R₃` piece is the
+  already-proved Cauchy bound.  (Note `DifferentiableOn.diffContOnCl` after
+  `apply` needs `rw [closure_ball z …]` and `.differentiableWithinAt`.)
+* **`EMTaylorH2.lean`** (16th file in `check.sh`, 19 s): the Taylor polynomial
+  `taylorPoly`, coefficient bounds `|c_k| ≤ cBound k` (`2 ≤ k ≤ 6`, from
+  T443–T456), the polynomial part `norm_taylorPoly_sub_le`
+  (`‖taylorPoly (z−s14) − ζ′(s14)‖ ≤ 0.15363` on the `1/5`-ball), and
+
+  ```lean
+  h2_of_taylor_remainder
+    (hrem : ∀ z ∈ closedBall s14 (1/5), ‖ζ′(z) − taylorPoly (z−s14)‖ ≤ 14/1000) :
+    ∀ z ∈ closedBall s14 (1/5), ‖ζ′(z) − ζ′(s14)‖ ≤ 47/250
+  ```
+
+  So **`h2` is now reduced to the single remainder estimate `14/1000`**
+  (budget: `0.15363 + 0.0133 = 0.167 ≤ 47/250`; the `0.0133` is exactly
+  `taylor_mean_remainder_bound` with `n = 5`, `sup|ζ^{(7)}| ≤ 25000`, `r = 1/5`).
+
+Remaining: the sup bound `sup|ζ^{(7)}| ≤ 25000` (base `13189` ✔, `21`-part
+`≤ 8·Σ C(7,i)(61/20)^i·(7−i)!·(1/10)^{7−i}` — small, `R₃` Cauchy), then route (A)
+of I.313 (`taylor_mean_remainder_bound` on `F(t) = ζ′(s14+tw)`, requiring the
+chain rule `iteratedDeriv (f(s14+t·w)) = f^{(k)}(s14+t·w)·w^k` and
+`ContDiffOn ℝ 6 F (Icc 0 1)`), then `h2_of_taylor_remainder`, then
+`zeta_zero_14_of_bounds h1_deriv h2`.

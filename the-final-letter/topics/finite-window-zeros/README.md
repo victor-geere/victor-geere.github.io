@@ -533,6 +533,14 @@ in [`tests/test_programme.py`](tests/test_programme.py). Nothing here asserts RH
 | T454 | Theorem | **`|c₄| ≤ 0.025`** (true `0.02086`). | `norm_c_four` (`EMTaylorCert.lean`) |
 | T455 | Theorem | **`|c₅| ≤ 0.007`** (true `0.003991`). | `norm_c_five` (`EMTaylorCert.lean`) |
 | T456 | Theorem | **`|c₆| ≤ 0.006`** (true `0.0006669`). | `norm_c_six` (`EMTaylorCert.lean`) |
+| T457 | Theorem | ****`Ψ₃` derivatives via Cauchy:**** `‖Ψ₃^{(j)}(z)‖ ≤ j!·8/10^j` for `‖z − s14‖ ≤ 1/5` (Cauchy on the radius-10 ball, using T‑`norm_Psi3_le_ball_eleven`). | `norm_iteratedDeriv_Psi3_le` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T458 | Theorem | **Taylor coefficient convention:** `taylorCoef 1 = ζ′(s14)`. | `taylorCoef_one` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T459 | Theorem | **`cBound k ≥ 0`** for `2 ≤ k ≤ 6`. | `cBound_nonneg` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T460 | Theorem | **Taylor polynomial difference:** `taylorPoly` evaluated at `z − s14` splits as `ζ′(s14) + Σ_{k=2..6} …`. | `taylorPoly_sub_eq` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T461 | Theorem | ****Taylor coefficients bounded:**** `|c_k| ≤ cBound k` for `2 ≤ k ≤ 6` (from T–`norm_c_two` … `norm_c_six`). | `norm_taylorCoef_le` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T462 | Theorem | ****Polynomial part of `h2`:**** `‖taylorPoly (z−s14) − ζ′(s14)‖ ≤ 0.15363` on the `1/5`-ball. | `norm_taylorPoly_sub_le` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T463 | Theorem | ****`h2` from a Taylor remainder:**** a uniform bound `14/1000` on `‖ζ′ − taylorPoly‖` gives `‖ζ′(z) − ζ′(s14)‖ ≤ 47/250`. | `norm_deriv_sub_le_of_taylor_remainder` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
+| T464 | Theorem | ****`h2` reduced to one remainder estimate:**** `(∀ z, ‖ζ′(z) − taylorPoly (z−s14)‖ ≤ 14/1000) → h2`. | `h2_of_taylor_remainder` (`EMTaylorCert.lean` / `EMTaylorH2.lean`) |
 | C1 | Computation | Regrouping agrees exactly at `s = 2, 3, 3/2, 2+i/3` to `< 10^{-30}`. | `test_finite_regrouping_is_exact` |
 | C2 | Computation | The pair estimate holds on a grid (`σ = 1/2, 1, 2`; `m = 0, 1, 10, 100`) to `< 10^{-25}`. | `test_pair_estimate_holds` |
 | C3 | Computation | The tail bound is positive and decreases with `M`. | `test_tail_bound_positive_and_decreasing` |
