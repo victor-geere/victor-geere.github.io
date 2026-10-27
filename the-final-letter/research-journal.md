@@ -3036,3 +3036,36 @@ one-atom enclosure rather than four.
 Both compiled first try — the `cpow_add` statement already carries the
 `x ≠ 0` hypothesis, so `by norm_num` discharges it inline and no `if_neg`
 dance is needed (unlike `cpow_def`, which is piecewise).
+
+### 2026-10-25 — research note: polar, per-half, and grouped decompositions
+
+Question raised against `status.html` §3: can one look down the `t` axis,
+separate terms by polar coordinates or by right/left half, or group every
+`n`-th term, and capture Weil positivity with a partial sum plus tail per
+group?
+
+The short form (a fuller route assessment — the five mechanisms, the uniform no-go
+and the finite first target — is in `topics/prime-spectrum-tensor/WEIL-POSITIVITY.md`
+§2–§4):
+
+- A decomposition of `ζ(s) = Σ n^{-s}` into groups, with a rigorous
+  Euler–Maclaurin partial sum and tail per group, is admissible as a
+  computational decomposition.
+- It does not by itself capture `W(f,f) ≥ 0`. Weil positivity is a quadratic
+  form on test functions; groupwise scalar positivity does not imply it, and
+  the cross terms and tail can carry either sign.
+- Polar bins are `t`-dependent and use only the additive phase `t log n`.
+  They therefore apply to the Davenport–Heilbronn twist and fail the litmus.
+- A right/left split is mirrored by the functional equation and does not
+  remove the cancellation.
+- Residue-class grouping is arithmetic and reduces to Hurwitz/Dirichlet
+  `L`-values, but it is still local; DH is a combination of two `L`-functions
+  mod 5, so it does not pass the litmus by itself.
+- A successful version needs a sum-of-squares/positive-operator
+  factorization, orthogonal blocks, operator-norm tails, and an Euler-product
+  input that DH lacks. A finite Gram matrix can refute a candidate; it cannot
+  prove the infinite-dimensional positivity.
+
+No theorem is claimed. This is a research direction, recorded so it is not
+mistaken for a bridge.
+
