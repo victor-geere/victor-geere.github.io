@@ -104,3 +104,59 @@ def test_edge_cases_reject_degenerate_phase():
         log_prime_power(1, 1)
     with pytest.raises(ValueError):
         zeta_coefficient(1, 1)
+
+
+# ---------------------------------------------------------------------------
+# Finite CCM compression and the Weil-positivity bridge obstruction
+# ---------------------------------------------------------------------------
+
+import mpmath as mp  # noqa: E402
+
+from programme import (  # noqa: E402
+    ccm_compression_diagonal,
+    ccm_compression_matrix,
+    ccm_frequencies,
+    prime_power_weight_sum,
+    uniform_matching_spectrum,
+)
+
+
+def test_ccm_compression_is_hermitian_with_negative_corner():
+    mp.mp.dps = 40
+    Q = ccm_compression_matrix(5, 5)
+    err = max(abs(Q[i, j] - mp.conj(Q[j, i])) for i in range(11) for j in range(11))
+    assert err < mp.mpf("1e-30")
+    # The diagonal is exactly mu_k + S/L, and the k = -N corner is negative.
+    exact = ccm_compression_diagonal(5, 5, -5)
+    assert abs(Q[0, 0] - mp.mpc(str(sp.N(exact, 40)))) < mp.mpf("1e-30")
+    assert mp.re(Q[0, 0]) < 0
+    # The delta/prime part alone is positive semidefinite.
+    L = 2 * mp.log(5)
+    mu = ccm_frequencies(L, 5)
+    delta = mp.matrix(Q)
+    for i in range(11):
+        delta[i, i] -= mu[i]
+    ev_delta = mp.eig(delta, left=False, right=False)
+    assert min(mp.re(x) for x in ev_delta) > -mp.mpf("1e-25")
+
+
+def test_ccm_compression_is_not_positive_and_corner_scales():
+    mp.mp.dps = 40
+    ev5 = min(mp.re(x) for x in mp.eig(ccm_compression_matrix(5, 5), left=False, right=False))
+    ev10 = min(mp.re(x) for x in mp.eig(ccm_compression_matrix(5, 10), left=False, right=False))
+    assert ev5 < -6
+    # The free diagonal contributes -2 pi N / L; the negative corner deepens
+    # linearly with the band limit.  A positive CCM matrix cannot do this.
+    assert ev10 < ev5 - 5
+
+
+def test_uniform_matching_spectrum_is_equally_spaced():
+    mp.mp.dps = 40
+    L = 2 * mp.log(5)
+    theta = mp.mpf(str(sp.N(prime_power_weight_sum(5), 40)))
+    E0 = uniform_matching_spectrum(L, theta, 0, antiperiodic=True)
+    E1 = uniform_matching_spectrum(L, theta, 1, antiperiodic=True)
+    assert abs(mp.exp(mp.mpc(0, 1) * (E0 * L - theta)) + 1) < mp.mpf("1e-30")
+    assert abs((E1 - E0) - 2 * mp.pi / L) < mp.mpf("1e-25")
+    P0 = uniform_matching_spectrum(L, theta, 0, antiperiodic=False)
+    assert abs(mp.exp(mp.mpc(0, 1) * (P0 * L - theta)) - 1) < mp.mpf("1e-30")

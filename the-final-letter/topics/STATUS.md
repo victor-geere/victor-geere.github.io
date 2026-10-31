@@ -1,6 +1,6 @@
 # Reconstruction status
 
-48 topics · 952 ledger theorems · 393 tested computations · 457 pytest tests · 48/48 Lean builds OK.
+51 topics · 1090 ledger theorems · 480 tested computations · 561 pytest tests · 51/51 Lean builds OK.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
@@ -31,6 +31,7 @@
 | [iota-helix-function](iota-helix-function/README.md) | 7 | 8 | 8 | 8 | OK |
 | [isabelle-afp](isabelle-afp/README.md) | 7 | 7 | 8 | 7 | OK |
 | [nested-spheres-continuous-cone](nested-spheres-continuous-cone/README.md) | 7 | 6 | 15 | 6 | OK |
+| [padic-greedy-sine](padic-greedy-sine/README.md) | 6 | 5 | 0 | 6 | OK |
 | [padic-stochastic-zeta](padic-stochastic-zeta/README.md) | 7 | 7 | 0 | 7 | OK |
 | [finite-explicit-formula](finite-explicit-formula/README.md) | 27 | 6 | 14 | 2 | OK |
 | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | 52 | 14 | 2 | 14 | OK |
@@ -38,7 +39,7 @@
 | [finite-window-zeros](finite-window-zeros/README.md) | 494 | 11 | 0 | 18 | OK |
 | [periodic-orbits](periodic-orbits/README.md) | 7 | 7 | 8 | 7 | OK |
 | [phase-interference](phase-interference/README.md) | 7 | 7 | 8 | 7 | OK |
-| [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 11 | 7 | 9 | 7 | OK |
+| [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 12 | 22 | 9 | 22 | OK |
 | [proof-99-global-harmonic-framework](proof-99-global-harmonic-framework/README.md) | 7 | 6 | 12 | 7 | OK |
 | [qefe](qefe/README.md) | 7 | 8 | 9 | 8 | OK |
 | [qefe-research-notes](qefe-research-notes/README.md) | 7 | 6 | 7 | 6 | OK |
@@ -46,12 +47,14 @@
 | [research-programme-iii](research-programme-iii/README.md) | 7 | 7 | 14 | 8 | OK |
 | [rh-mtc-padic](rh-mtc-padic/README.md) | 7 | 7 | 9 | 7 | OK |
 | [riemann-helix](riemann-helix/README.md) | 7 | 8 | 7 | 8 | OK |
-| [self-adjoint-ccm](self-adjoint-ccm/README.md) | 7 | 8 | 9 | 8 | OK |
+| [self-adjoint-ccm](self-adjoint-ccm/README.md) | 11 | 11 | 9 | 11 | OK |
+| [sin-x-over-x](sin-x-over-x/README.md) | 26 | 17 | 4 | 20 | OK |
 | [sinc-sine-kernel-moments](sinc-sine-kernel-moments/README.md) | 7 | 8 | 7 | 8 | OK |
 | [theorems-paper-series](theorems-paper-series/README.md) | 7 | 7 | 11 | 8 | OK |
 | [topological-zeta](topological-zeta/README.md) | 7 | 7 | 8 | 7 | OK |
 | [transfer-operator-proof](transfer-operator-proof/README.md) | 7 | 8 | 12 | 8 | OK |
 | [yakaboylu-notes](yakaboylu-notes/README.md) | 7 | 8 | 13 | 8 | OK |
+| [intersection-form-zeta](intersection-form-zeta/README.md) | 100 | 49 | 19 | 60 | OK |
 
 Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted.
 

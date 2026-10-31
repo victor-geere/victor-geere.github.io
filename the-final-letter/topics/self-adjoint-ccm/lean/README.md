@@ -9,12 +9,12 @@ the-final-letter/topics/self-adjoint-ccm/lean/check.sh
 The wrapper calls the shared checker at `../../tools/check-lean.sh`, which uses the local Mathlib installation at `~/lean/mathlib4` (Lean `v4.35.0-rc2`). The committed `BUILD.log` records the last successful run:
 
 ```
-[check] OK   Topic.lean (7s)
+[check] OK   Topic.lean (23s)
 ```
 
 ## What is formalised
 
-`Topic.lean` defines the generalised Riemann helix, the source's torsion formula, the point-interaction matching coefficient, the CCM half-integer frequencies, and proves seven elementary facts:
+`Topic.lean` defines the generalised Riemann helix, the source's torsion formula, the point-interaction matching coefficient, the CCM half-integer frequencies, the finite compression and its prime/delta form, and proves eleven elementary facts:
 
 | Name | Statement |
 |---|---|
@@ -25,6 +25,10 @@ The wrapper calls the shared checker at `../../tools/check-lean.sh`, which uses 
 | `CCM.matching_unitary` | `‖exp (i c)‖ = 1`: the point-interaction matching coefficient is unitary. |
 | `CCM.frequency_symmetry` | `μ_{−k−1} = −μ_k` for `μ_k = (2π/L)(k + ½)`. |
 | `CCM.prime_power_cutoff_iff` | For `p > 1` and `λ > 0`, `p^m ≤ λ^2 ↔ m log p ≤ 2 log λ`. |
+| `CCM.ccmMatrix_isHermitian` | The finite compression `Q` is Hermitian. |
+| `CCM.ccmMatrix_diag` | `Q_{kk} = μ_k + S/L`; the diagonal is the free frequency plus the total coupling over the period. |
+| `CCM.deltaForm_nonneg` | The prime/delta part is a sum of non-negative squared norms, hence PSD for non-negative couplings. |
+| `CCM.matchingProduct_unitary` | The product of the matching phases has unit modulus. |
 
 No `sorry`, no `axiom`, no `admit`. The file imports `Mathlib`, uses the namespace `CCM`, and contains no `rfl`-only declarations.
 
@@ -37,6 +41,8 @@ The following are recorded as source claims or open items in the programme READM
 3. **The torsion distribution.** The convergence of the torsion to `Σ c(p^m) p^{−m/2} δ(t − m log p)` plus a smooth background is not formalised; it is a distributional limit requiring a bump-width construction.
 4. **The CCM identification.** That the band-limited projection of `D_λ` is the CCM Weil matrix `Q`, the trace formula (4), and the reduction of CCM Conjecture 1 to WKB asymptotics plus a finite-dimensional trace formula are all source claims.
 5. **Spectrum identification and GRH.** The claim that the spectrum of `D_∞` is `{±γ_n}`, and the generalisation to all automorphic `L`-functions, are conditional on the source's open Gaps 1–3 and on GRH (the phase `φ` is built from zeros assumed to lie on the critical line).
+6. **The constant-matching no-go.** The algebraic core does not formalise the spectral theorem for `D_λ`; [`../WEIL-BRIDGE.md`](../WEIL-BRIDGE.md) gives the elementary proof that constant matching produces a lattice. The Lean file only records the matching unitarity and the finite compression algebra.
+7. **The compression obstruction.** T8–T10 establish Hermiticity, the diagonal formula and PSD of the delta part. They do not formalise the asymptotic negative-corner statement, which uses real inequalities and the limit `N → ∞`; the numerical certificate is C9–C10.
 
 The source itself is explicit that these are open problems; nothing in this folder upgrades them.
 

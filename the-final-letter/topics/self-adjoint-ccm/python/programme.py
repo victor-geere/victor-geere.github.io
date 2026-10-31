@@ -21,6 +21,7 @@ stated at the point of use.
 
 from __future__ import annotations
 
+import mpmath as mp
 import sympy as sp
 
 PI = sp.pi
@@ -155,3 +156,107 @@ def von_mangoldt(n: int) -> sp.Expr:
         return sp.Integer(0)
     p = next(iter(factors))
     return sp.log(p)
+
+
+# ---------------------------------------------------------------------------
+# Finite CCM compression and the bridge obstruction
+# ---------------------------------------------------------------------------
+# The source's finite matrix is Q_{k l} = <e_k, D_lambda e_l>, with
+# e_k(x) = exp(i mu_k x), mu_k = (2 pi / L)(k + 1/2), L = 2 log lambda.
+# With the free convention D_free = -i d/dx this gives
+#
+#   Q_{k l} = mu_k delta_{k l}
+#             + (1/L) sum_j alpha_j exp(i (mu_l - mu_k) x_j),
+#   alpha_j = c(p^m) p^{-m/2}, x_j = m log p mod L.
+#
+# The scalar `sign` below keeps the opposite convention (D_free = i d/dx)
+# visible; it flips the free diagonal and swaps the two corners.  The
+# properties tested here do not depend on that convention.
+
+
+def prime_power_terms(lam: float) -> list[tuple[int, int, sp.Expr, sp.Expr]]:
+    """Return ``(p, m, alpha, x)`` for every prime power ``p^m <= lam^2``.
+
+    ``alpha = log(p) / sqrt(p^m)`` is the source's real coupling and
+    ``x = m log p`` is its position before reduction modulo ``L``.
+    Both are exact sympy expressions; the caller decides where it needs
+    a numerical reduction.
+    """
+    if float(lam) <= 1:
+        raise ValueError("lambda must exceed 1")
+    limit = int(float(lam) ** 2)
+    terms: list[tuple[int, int, sp.Expr, sp.Expr]] = []
+    for p in sp.primerange(2, limit + 1):
+        p = int(p)
+        m = 1
+        while p**m <= limit:
+            alpha = sp.log(p) / sp.sqrt(p**m)
+            x = m * sp.log(p)
+            terms.append((p, m, alpha, x))
+            m += 1
+    return terms
+
+
+def prime_power_weight_sum(lam: float) -> sp.Expr:
+    """The total coupling ``S = sum alpha_j``, exactly in sympy."""
+    return sp.Add(*[term[2] for term in prime_power_terms(lam)])
+
+
+def ccm_frequencies(L: float, N: int) -> list:
+    """The band-limit frequencies ``mu_k = (2 pi / L)(k + 1/2)``, ``|k| <= N``."""
+    if N < 0:
+        raise ValueError("N must be non-negative")
+    L = mp.mpf(L)
+    return [2 * mp.pi / L * (k + mp.mpf("0.5")) for k in range(-N, N + 1)]
+
+
+def ccm_compression_matrix(lam: float, N: int, sign: int = 1, dps: int = 40):
+    """The explicit Hermitian compression ``Q_{k l}`` of the CCM operator.
+
+    Returns an ``mpmath`` matrix of dimension ``2N + 1``.  The entries are
+    evaluated at ``dps`` decimal digits; the matrix is Hermitian by the
+    conjugate-symmetry of ``exp(i(mu_l - mu_k)x_j)``.
+    """
+    if sign not in (-1, 1):
+        raise ValueError("sign must be +1 or -1")
+    if N < 0:
+        raise ValueError("N must be non-negative")
+    if float(lam) <= 1:
+        raise ValueError("lambda must exceed 1")
+    with mp.workdps(dps):
+        L = 2 * mp.log(lam)
+        mu = ccm_frequencies(L, N)
+        dim = 2 * N + 1
+        Q = mp.matrix(dim, dim)
+        for i in range(dim):
+            for j in range(dim):
+                Q[i, j] = sign * mu[i] if i == j else mp.mpc(0)
+        for p, m, alpha_exact, _ in prime_power_terms(lam):
+            alpha = mp.log(p) / mp.sqrt(p**m)
+            x = mp.fmod(m * mp.log(p), L)
+            for i in range(dim):
+                for j in range(dim):
+                    Q[i, j] += alpha * mp.exp(mp.mpc(0, 1) * (mu[j] - mu[i]) * x) / L
+    return Q
+
+
+def ccm_compression_diagonal(lam: float, N: int, k: int, sign: int = 1) -> sp.Expr:
+    """The exact diagonal formula ``Q_{k k} = sign*mu_k + S/L``."""
+    if k < -N or k > N:
+        raise ValueError("k must lie in [-N, N]")
+    L = 2 * sp.log(lam)
+    mu = 2 * sp.pi / L * (sp.Integer(k) + sp.Rational(1, 2))
+    return sign * mu + prime_power_weight_sum(lam) / L
+
+
+def uniform_matching_spectrum(L: float, theta: float, n: int, antiperiodic: bool = True):
+    """Spectrum of the constant-matching first-order operator on a circle.
+
+    ``theta = sum alpha_j`` is the total matching phase.  With periodic
+    boundary conditions the condition is ``E L = theta + 2 pi n``; with
+    antiperiodic conditions (the source's half-integer modes) it is
+    ``E L = theta + (2n + 1) pi``.
+    """
+    L = mp.mpf(L)
+    phase = theta + (2 * n + 1) * mp.pi if antiperiodic else theta + 2 * mp.pi * n
+    return phase / L

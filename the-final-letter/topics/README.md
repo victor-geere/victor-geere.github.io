@@ -29,7 +29,7 @@ The table also carries the three programme objectives: item 1 (Riemann wall), it
 | 19 | Periodic orbits | unharvested | [periodic-orbits](periodic-orbits/README.md) | [`archive/maths/rh/research/periodic-orbits/1_1.tex`](../archive/maths/rh/research/periodic-orbits/1_1.tex) |
 | 20 | Research Programme III | proposal | [research-programme-iii](research-programme-iii/README.md) | [`archive/maths/rh/research/programme 3/01-research-programme.tex`](../archive/maths/rh/research/programme%203/01-research-programme.tex) |
 | 21 | RH-MTC / p-adic MTC | archived claim duplicate | [rh-mtc-padic](rh-mtc-padic/README.md) | [`archive/maths/rh/research/rh-mtc/padic-mtc.html`](../archive/maths/rh/research/rh-mtc/padic-mtc.html) |
-| 22 | Self-adjoint / CCM operator | open statement unharvested | [self-adjoint-ccm](self-adjoint-ccm/README.md) | [`archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html`](../archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html) |
+| 22 | Self-adjoint / CCM operator | bridge blocked as written; finite core + no-go | [self-adjoint-ccm](self-adjoint-ccm/README.md) | [`archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html`](../archive/maths/rh/research/self-adjoint-operator/rh-ccm-generalised-helix-path.html) |
 | 23 | Topological zeta | archived claim unharvested | [topological-zeta](topological-zeta/README.md) | [`archive/maths/rh/research/topological-zeta/index.html`](../archive/maths/rh/research/topological-zeta/index.html) |
 | 24 | GDST twin series | unharvested | [gdst-twin-series](gdst-twin-series/README.md) | [`archive/maths/gdst-twin-series/gdst-twin-series.html`](../archive/maths/gdst-twin-series/gdst-twin-series.html) |
 | 25 | GHD correlation kernel | archived claim | [ghd-correlation-kernel](ghd-correlation-kernel/README.md) | [`archive/maths/ghd-correlation-kernel/overview.html`](../archive/maths/ghd-correlation-kernel/overview.html) |
@@ -56,6 +56,9 @@ The table also carries the three programme objectives: item 1 (Riemann wall), it
 | 46 | Euler–Maclaurin layer (annex to Objective III) | structural pass — mirror of the canonical Lean file | [euler-maclaurin](euler-maclaurin/README.md) | [`topics/partial-sum-plus-tail/lean/EulerMaclaurin.lean`](partial-sum-plus-tail/lean/EulerMaclaurin.lean) |
 | 47 | Finite-window zeros (P3) | done — `ζ(1/2+5i) ≠ 0`, a zero-free segment, and a simple zero on the critical line at `1/2+14i`; P4 open | [finite-window-zeros](finite-window-zeros/README.md) | P3/R14 of [`status.html`](../status.html) §7 |
 | 48 | Finite explicit formula (P4) | partial — fixed tent function, autocorrelation and finite prime side certified | [finite-explicit-formula](finite-explicit-formula/README.md) | P4 of [`status.html`](../status.html) §7 |
+| 49 | sin(x)/x with the greedy harmonic sine | derived topic — finite core, Euler-product obstruction; global limit inherited as source claim | [sin-x-over-x](sin-x-over-x/README.md) | sibling topic [`harmonic-sine`](harmonic-sine/README.md) |
+| 50 | p-adic greedy sine | exploratory — corrected step sequence; no relation to `ζ_p` | [padic-greedy-sine](padic-greedy-sine/README.md) | proposal from [`sin-x-over-x`](sin-x-over-x/README.md) |
+| 51 | Intersection form for ζ (function-field template and arithmetic obstruction) | exploratory — finite Hodge-index core Lean-proved; Frobenius replaced by a Hecke shadow and a scaling correspondence; polarization open | [intersection-form-zeta](intersection-form-zeta/README.md) | Standard literature (Weil 1948; Deligne 1974; Arakelov 1974; Faltings–Hriljac 1985); bridge survey |
 
 ## How to use these folders
 

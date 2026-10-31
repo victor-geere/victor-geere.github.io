@@ -3069,3 +3069,190 @@ and the finite first target — is in `topics/prime-spectrum-tensor/WEIL-POSITIV
 No theorem is claimed. This is a research direction, recorded so it is not
 mistaken for a bridge.
 
+
+### 2026-10-25 — handoff: helix bookkeeping and Weil positivity
+
+Wrote [`handoff-helix-positivity.md`](handoff-helix-positivity.md). It records
+the helix properties H1–H7 (monotone phase, monotone step, unbounded winding,
+decreasing radius, constant pitch, one-turn residual, summation-by-parts
+bound), the reasons the helix is not positivity (projection sign, winding,
+quadratic form, conditional convergence, DH litmus), and the bridge criteria
+B1–B7 (sum of squares, orthogonal blocks, positive operator, positive measure,
+Euler-product input, operator-norm tail, all test functions). It also lists
+concrete experiments E1–E5 and the handoff checklist. No bridge is claimed.
+
+### 2026-10-27 — self-adjoint-ccm: the CCM bridge as written is blocked
+
+Developed the `self-adjoint-ccm` dossier toward the Weil-positivity bridge in
+[`topics/self-adjoint-ccm/WEIL-BRIDGE.md`](topics/self-adjoint-ccm/WEIL-BRIDGE.md).
+The bridge chain is L0 Weil's criterion, L1 a self-adjoint operator with spectrum
+`{γ_n}`, L2 its spectral measure, L3 the identification with `W`, L4 positivity.
+The dossier's T1–T7 only support L1's bookkeeping; L3 is the actual bridge.
+
+Two finite obstructions:
+
+- **Lattice spectrum.** With the blueprint's constant matching condition, `D_λ` has
+  spectrum `(Θ + 2πn)/L` (periodic) or `(Θ + (2n+1)π)/L` (antiperiodic), independent
+  of the prime positions. A rigid shift of a lattice cannot be the zero set.
+- **Negative corner.** The formal compression has diagonal `ε μ_k + S/L`; the corner
+  `Q_{−N,−N}` diverges linearly and is negative for all sufficiently large `N`. The
+  compression is not PSD and cannot be the positive CCM Weil matrix. The delta part
+  alone is PSD (T10), so the free diagonal is the obstruction.
+
+Four new Lean theorems (T8–T11: Hermitian compression, diagonal formula, PSD delta
+form, unitary matching product) and three computations (C9–C11: Hermiticity/negative
+corner, eigenvalue scaling, equally spaced matching spectrum) are in the dossier.
+Python 11 passed; Lean 28s; structural audit 48/48. The survey
+[`bridge-to-weil-positivity.md`](bridge-to-weil-positivity.md) now records that B4 is
+the right shape but blocked as written; the next finite step is a Weil Gram matrix on
+a smooth test basis, not a spectrum comparison of `D_{λ,N}`. No theorem is claimed
+and RH is not touched.
+
+### 2026-10-27 — finite Weil Gram matrix on a Gaussian basis
+
+Attacked the recommended finite step from the CCM bridge note: a smooth-basis
+Weil Gram matrix. New note
+[`topics/prime-spectrum-tensor/WEIL-GRAM.md`](topics/prime-spectrum-tensor/WEIL-GRAM.md).
+
+The basis is `φ_a(u) = exp(-(u-a)^2/(2σ^2))`. The reflected convolution is again a
+Gaussian, so every Gram entry reduces to a pole term, a one-dimensional
+archimedean integral, and a finite prime sum. The bilinear form is the
+symmetrisation `G_ab = (W(h_ab)+W(h_ba))/2` with `h_ab = φ_a * φ̌_b`; this is the
+polarisation of `Q(f)=W(f*f̌)` and is symmetric.
+
+The 4×4 basis `σ=0.05`, centres `-0.3,-0.1,0.1,0.3` gives
+`G[0,0]=0.0431359583948`, smallest eigenvalue `2.2710e-2`, and an active prime
+term `-0.0364816` at separation `c=0.6`. The numerical Cholesky factor is
+positive; a rational shadow `L L^T` (denominator `10^6`) is PSD exactly by T10 and
+matches `G` to `4.0e-13`. The shadow is now Lean-certified as T12
+(`L4Shadow_posSemidef`). Wider bases show the predicted margin collapse:
+`1.87e-5` at `σ=0.15` and `1.46e-8` at `σ=0.2`.
+
+This is a numerical rung, not a certificate: `Ω` is quadrature, not an interval
+enclosure, and the prime sum is truncated. C8 is added to the PST ledger; tests
+8 passed. The next layer is the `Ω` enclosure, after which the rational shadow can
+be fed to T8/T10. No RH claim.
+
+### 2026-10-27 — first Omega interval layer
+
+Added a rigorous pointwise enclosure of `Ω(t)=Re ψ(1/4+it/2)-log π` in
+`topics/prime-spectrum-tensor/python/programme.py` (C9,
+`test_omega_interval_encloses_digamma`). It uses the digamma integral
+representation, outward-rounded `mpmath.iv` intervals, a midpoint rule with an
+interval derivative bound, a series for `u/(e^{2πu}-1)` near zero with a
+conservative remainder, and an exponential tail bound.
+
+Containment and widths on representative points: `t=0` width `3.04e-2`, `t=0.5`
+`2.86e-3`, `t=1` `3.76e-3`, `t=10` `7.08e-5`. The true digamma values lie inside.
+C10 adds a crude Gaussian prime-tail bound below `1e-100` for `σ=0.05`,
+`|c|≤0.6`. C11 adds a deterministic rational-node Simpson rule (n=4000, T=200)
+that matches the adaptive density quadrature at c=0 and c=0.6 to <1e-8. A naive
+lifting of the pointwise Ω layer to a t-interval was also tested: it gives
+infinite widths on panels crossing the derivative singularities, so a t-jet or
+Taylor model is required for the density quadrature. C12 adds a numerical
+fourth-derivative diagnostic: the integrand's `|f⁗|` is below `1e4` at
+representative points, setting a Simpson error target of about `3.6e-5` at
+`n=40000`. No RH claim.
+
+
+### 2026-10-27 — interval t-jet layer
+
+Added `python/jet.py`, a univariate interval Taylor-jet algebra (`+`, `-`, `*`,
+reciprocal, `log`, `exp`, `cos`, `sin`) in derivative representation. Added
+`omega_t_jet(t, order)`, which composes the jet algebra with the C9 `u`-integral
+to enclose `Ω` and its first `order` `t`-derivatives on a point or `t`-interval.
+
+C13 checks the elementary jet derivatives; C14 checks that the `Ω` jet contains
+the value and first four derivatives at `t=0.5`. This is the infrastructure for
+the Taylor-model density quadrature; the series/tail remainders still need a
+formal audit before a certificate. PST tests 14 passed.
+
+
+### 2026-10-27 — certified Taylor density panels
+
+Added `gaussian_density_panel_taylor` on top of the `Ω` t-jet. It returns an
+interval value plus a Taylor-remainder bound `σ² M4 H^5/1920`, with `M4` the
+interval fourth derivative on the panel. C15 verifies containment on four panels:
+[0.4,0.6], [10,10.2], [0,0.2] and [0.2,0.4] at σ=0.05, c=0.6. Wide panels
+crossing t=0 still lose the A/B correlation and must be scheduled narrowly.
+PST tests 15 passed. The remaining work is the full panel schedule and total
+remainder assembly into the Gram entries.
+
+
+### 2026-10-27 — assembled certified density intervals
+
+Added `gaussian_density_certified` and `gaussian_density_certified_multi`. C16
+assembles ten Taylor panels over [−1,1] and C17 does the same for c=0 and c=0.6
+while sharing the Ω jets. The full 4×4 interval-certificate script is
+`python/certify_gram.py` (H=0.08, T=100, h=0.05, U=3); it adds pole and prime
+intervals, forms the symmetric Gram matrix and checks diagonal dominance. The
+full run was launched in the background; no certificate is claimed until it
+completes.
+
+
+### 2026-10-28 — full interval Gram run: first near-miss
+
+Assembled the certified density panels into the full 4×4 Gram script
+`python/certify_gram.py` and checked leading principal minors (not merely
+diagonal dominance). The H=0.1, T=100 run produced positive first, second and
+third minors and a fourth minor interval [-1.53e-6, 6.17e-6] straddling zero;
+NOT CERTIFIED. A finer H=0.08 run was launched. Fixed an interval-endpoint bug
+(`.a` on an `ivmpf` is a zero-width interval, not an mpf) that had inflated the
+error bounds.
+
+
+### 2026-10-28 — certified 4×4 interval Gram matrix
+
+The full H=0.08, T=100 run (2500 certified Taylor panels) produced the interval
+4×4 Gram matrix. The center/error certificate (C18) with a conservative 1e-4
+margin gives t=0.0209751863 and positive rational leading minors of center−tI:
+0.0221277, 2.1412e-4, 1.5982e-6, 1.1271e-8. Hence every symmetric matrix in the
+widened interval box is positive definite. This is a finite computational
+certificate, not a Lean theorem and not cone positivity. The 1e-4 margin covers
+the provisional jet series/tail remainders; the Taylor panel remainder is
+explicit. The finite Gram-matrix objective is achieved at this margin.
+
+
+### 2026-10-28 — margin audit and PSD-check comparison
+
+Replaced the blanket 1e-5 jet-series allowance with explicit Bernoulli bounds:
+|s−p| <= 10u^4 and |s′−p′| <= 40u^3 on [0,0.01], transported through J and J_u
+and added componentwise to the Ω jet. Added a conservative 1e-6 allowance for
+the u-tail; the 1e-4 Gram-entry margin dominates both.
+
+Compared direct interval leading minors with the center/error certificate on the
+H=0.08 matrix at the 1e-4 margin. The direct fourth interval minor is
+[−1.58e-6, 6.23e-6] (inconclusive); the center/error check has t=0.0209751863
+and positive shifted rational minors (last 1.1271e-8), so it certifies. C19
+records the comparison. PST tests 19 passed.
+
+
+### 2026-10-28 — exact LDL vs leading minors
+
+Added `exact_ldl_pivots` for rational symmetric matrices and C20: on the H=0.08
+center−tI matrix, all LDL pivots are positive and equal the Sylvester ratios of
+the leading principal minors. This confirms the center/error finite PSD check
+against the exact rational minor test. Direct interval minors remain
+inconclusive at the fourth minor (C19); the center/error plus exact LDL/minor
+check is the sharper certificate.
+
+
+### 2026-10-28 — end-to-end audited certificate: CERTIFIED
+
+Reran the full interval computation with the audited jet: H=0.1, T=100, U=4,
+2000 panels, explicit Bernoulli series remainder, 1e-6 derivative-tail allowance
+and 1e-4 entry margin. Center/error certificate: t=0.0210956719; leading minors
+0.0220072, 2.08799e-4, 1.49584e-6, 9.97517e-9; all positive; CERTIFIED (C21).
+This closes the end-to-end rerun. The derivative-tail allowance is conservative
+and dominated by the entry margin; a term-by-term tail proof would remove it.
+
+
+### 2026-10-28 — term-by-term tail proof and final U=6 certificate
+
+Wrote `TAIL-PROOF.md`: exact root locations for the denominator, a Cauchy bound
+on a radius-1/5 disk, s(u)<=2e^{-2πu}, and the explicit integral of u³e^{-2πu}.
+This proves the u-tail beyond U=6 is below 1e-5 in every Ω jet component of
+order 0..4 for |t|<=100. Reran H=0.1,T=100,U=6 with the proven 1e-5 allowance
+and 1e-4 margin: t=0.0211003138; shifted minors 0.0220026, 2.08595e-4,
+1.49194e-6, 9.92643e-9; CERTIFIED (C22). This supersedes C21 for the tail audit.
+PST tests 22 passed.

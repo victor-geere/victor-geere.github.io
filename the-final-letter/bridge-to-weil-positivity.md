@@ -6,13 +6,28 @@ The question: *among the topic dossiers, which one can bridge Weil positivity, o
 the potential if further developed?*
 
 **Short answer.** None is a bridge today. The helix is not one (the handoff says so and
-§6 below explains why it cannot be). The best **potential** is
+§6 below explains why it cannot be). The best **shape** is
 [`self-adjoint-ccm`](topics/self-adjoint-ccm/README.md) — bridge B4, a self-adjoint
 operator with point interactions at the prime logarithms — landing in
 [`prime-spectrum-tensor`](topics/prime-spectrum-tensor/README.md), which owns the form
 `W`. The advertised Lee–Yang route is now **closed** by the geometric programme's own
 off-critical polygon zeros; the Euler-product transfer routes are structurally right but
 their load-bearing local identity is refuted in the dossiers themselves.
+
+**Update — the CCM bridge as written is blocked.** The development note
+[`topics/self-adjoint-ccm/WEIL-BRIDGE.md`](topics/self-adjoint-ccm/WEIL-BRIDGE.md)
+carries B4 through its first finite step. With the blueprint's constant matching
+condition, `D_λ` has the lattice spectrum `(Θ + 2πn)/L` (or the antiperiodic shift),
+independent of the prime positions; and the formal compression has diagonal
+`ε μ_k + S/L`, whose corner is negative for all sufficiently large band limits. The
+M0 target below is therefore a refutation, not a positive certificate. The finite
+route that remains is R1 in that note: a Weil Gram matrix on a smooth test basis. A
+first numerical instance is now in
+[`topics/prime-spectrum-tensor/WEIL-GRAM.md`](topics/prime-spectrum-tensor/WEIL-GRAM.md):
+a 4×4 Gaussian basis with an active prime term is numerically positive definite
+(smallest eigenvalue `2.27·10^{−2}`), but its `Ω` integral is not yet enclosed. The
+paragraphs below record the assessment that led to B4; read them together with the
+update.
 
 ---
 
@@ -54,7 +69,7 @@ a construction that manufactures positivity and uses the primes?*
 |---|---|---|---|---|
 | [`iota-helix-function`](topics/iota-helix-function/README.md) | phase bookkeeping | helix coordinates, phase increment, radius monotonicity, finite eta positivity (T1–T7) | any quadratic form, any arithmetic input | **not a bridge** (additive) |
 | [`prime-spectrum-tensor`](topics/prime-spectrum-tensor/README.md) | the form `W` itself | `W`'s definition and Theorem C (source claim); finite Gram PSD by Cholesky (T8/T10); DH-shaped negative witness (T9) | the infinite positivity — which *is* RH | **the host**, not the engine |
-| [`self-adjoint-ccm`](topics/self-adjoint-ccm/README.md) | B4: self-adjoint point-interaction operator at `m log p` | matching unitarity (T5), frequency symmetry (T6), prime-power cutoff dictionary (T7), torsion/cylinder geometry (T1–T4) | rigorous operator and self-adjointness (Gap 2), WKB (3a), trace formula (3b), spectrum identification (Gap 4) | **best potential** |
+| [`self-adjoint-ccm`](topics/self-adjoint-ccm/README.md) | B4: self-adjoint point-interaction operator at `m log p` | matching unitarity (T5, T11), frequency symmetry (T6), prime-power cutoff dictionary (T7), Hermitian compression (T8), diagonal (T9), PSD delta part (T10) | rigorous operator and self-adjointness (Gap 2), WKB (3a), trace formula (3b), spectrum identification (Gap 4); **the written constant-matching operator has a lattice spectrum** | **best shape, blocked as written** (see [`WEIL-BRIDGE.md`](topics/self-adjoint-ccm/WEIL-BRIDGE.md)) |
 | [`adelic-transfer-operator`](topics/adelic-transfer-operator/README.md), [`rh-mtc-padic`](topics/rh-mtc-padic/README.md) | B5: per-prime transfer operator, Euler factors | finite MTC data, positive local weights, Verlinde non-negativity, geometric-series bookkeeping | the local RT identity is **false** (a zero column; the dossier's own computation), and no operator exists | right shape, broken foundation |
 | [`harmonic-categorical-hilbert-polya`](topics/harmonic-categorical-hilbert-polya/README.md) | B3/B4: Hermitian truncations `H_k`, determinant | finite Hermitian/spectral algebra | determinant identity, uniform convergence, Hurwitz passage; and the transfer operator is built from the greedy sine, which is additive | second-tier |
 | [`geometric-dynamical-phase-transitions`](topics/geometric-dynamical-phase-transitions/README.md) | B3: Lee–Yang / ferromagnetic confinement | finite Ising Lee–Yang circle theorem (T55); transfer-matrix no-gos (B15/B18/B20) | F.4 itself — and the polygon zeros are **not** confined (below) | **closed** for F.4 |
@@ -107,6 +122,13 @@ truncation `D_{λ,N}` needs.
    source's expectation).
 4. **Gap 4 — spectrum identification**, conditional on 3.
 
+**Update on the first two items.** The development note shows that item 1 cannot be
+supplied by the displayed construction: with constant matching, any such operator has
+a lattice spectrum. The compression's corner is also negative, so the finite
+truncation cannot be the positive Weil matrix. A repaired operator needs an energy-dependent scattering matrix
+(a different quantisation), or the bridge must move to the CCM scaling operator
+directly. Item 2 (WKB) and item 3 (trace formula) presuppose the repaired operator.
+
 **A circularity to avoid.** The source's phase `φ` is defined by `φ(γ_n) = 2πn`, i.e. from
 the zeros, and assumes GRH. The positivity route must use `D_λ` directly and **not** the
 helix `φ`; otherwise the argument assumes what it proves. This is the precise sense in
@@ -123,7 +145,8 @@ identity that converts spectrum to `W`.
 
 | step | content | nature |
 |---|---|---|
-| M0 | the finite truncation `D_{λ,N}` as an explicit Hermitian matrix; interval spectrum; compare with the first zeros | finite, falsifiable, formalisable with the existing `IBox` layer |
+| M0 | the finite truncation `D_{λ,N}` as an explicit Hermitian matrix; interval spectrum; compare with the first zeros | **failed as stated**: the matrix is Hermitian but not positive, and its corner diverges with `N`; see [`WEIL-BRIDGE.md`](topics/self-adjoint-ccm/WEIL-BRIDGE.md) §2–§3 |
+| M0′ | a finite Weil Gram matrix on a smooth test basis; rational PSD or a negative witness | finite, falsifiable; uses `prime-spectrum-tensor` T8/T10 |
 | M1 | self-adjointness of the limit (quadratic form / resolvent / KLMN) | the analytic crux |
 | M2 | trace formula with explicit error (Krein) | analysis |
 | M3 | identify the limit measure and land `W ≥ 0` | synthesis |
@@ -154,7 +177,10 @@ Perron–Frobenius eigenfunction — a larger leap than M1, with a cleaner payof
   for this object; the summary itself says the most one can expect is clustering. The
   finite Ising Lee–Yang theorem (T55) remains a true model, but it is not the polygon.
   B15/B18/B20 additionally no-go the register, upper-triangular and nonnegative
-  transfer-matrix classes.
+  transfer-matrix classes. The intersection-form alternative is developed in
+  [`topics/intersection-form-zeta`](topics/intersection-form-zeta/README.md): the
+  arithmetic positivity exists (Faltings–Hriljac), but there is no Frobenius
+  correspondence, so that route is a correspondence wall rather than a positivity wall.
 - **Helix.** Additive; identical for DH (handoff §3.5). It can supply block bookkeeping and
   scalar tails, not positivity.
 - **Transfer-operator-proof.** The pairing is an indefinite Krein form (T7), and the
@@ -168,14 +194,17 @@ Perron–Frobenius eigenfunction — a larger leap than M1, with a cleaner payof
 
 ## 7. One-paragraph conclusion
 
-The handoff is right that the helix is bookkeeping. The bridge with the right mechanism is
-the CCM point-interaction operator — the only dossier where positivity is manufactured by
-self-adjointness and the arithmetic enters through the prime-power deltas — and it must
-land in the Weil current of `prime-spectrum-tensor`, with `finite-explicit-formula`
-supplying the identity. Its first concrete step, a finite Hermitian truncation whose
-spectrum approaches the zeros, is small enough to try now and decisive either way. The
-Lee–Yang alternative is closed by the programme's own off-critical polygon zeros, and the
-Euler-product transfer alternative needs its local identity rebuilt from scratch.
+The handoff is right that the helix is bookkeeping. The CCM point-interaction operator
+has the right *shape* — positivity would be manufactured by self-adjointness and the
+arithmetic enters through the prime-power deltas — and it must land in the Weil current
+of `prime-spectrum-tensor`, with `finite-explicit-formula` supplying the identity. But the
+first concrete step has now been tried and fails as stated: the written constant-matching
+operator has a lattice spectrum, and its finite compression has a negative corner that
+grows with the band limit. The next finite step is therefore a Weil Gram matrix on a
+smooth test basis, not a spectrum comparison of `D_{λ,N}`; the operator route needs an
+energy-dependent quantisation. The Lee–Yang alternative is closed by the programme's own
+off-critical polygon zeros, and the Euler-product transfer alternative needs its local
+identity rebuilt from scratch.
 
 **Note on provenance.** The handoff cites a "working status page §3.4 (kept outside this
 folder)"; no such section exists in the repository's `status.html`. The assessment it

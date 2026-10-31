@@ -142,3 +142,382 @@ def test_finite_gram_form_is_nonnegative_and_matches_modes():
     assert gram_form(weights, freqs, [], []) == 0
     with pytest.raises(ValueError):
         atomic_kernel([sp.Integer(1)], [sp.Integer(1), sp.Integer(2)], sp.Integer(0))
+
+
+# ---------------------------------------------------------------------------
+# Finite Weil Gram matrix on a Gaussian basis (numerical, not certified)
+# ---------------------------------------------------------------------------
+
+from programme import (  # noqa: E402
+    gaussian_convolution,
+    gram_eigenvalues,
+    weil_gaussian_W,
+    weil_gaussian_density,
+    weil_gaussian_gram,
+    weil_gaussian_prime,
+)
+
+
+def test_gaussian_weil_gram_is_positive_and_prime_active():
+    """A 4x4 smooth-basis Gram matrix is numerically positive definite.
+
+    This is a finite probe, not a certificate: ``Omega`` is evaluated by
+    quadrature, not enclosed.  The prime side is genuinely active at
+    separation 0.6, where ``-2 Pi(h)`` is about ``-0.0365``.
+    """
+    mp.mp.dps = 30
+    for fn in (weil_gaussian_density, weil_gaussian_prime, weil_gaussian_W):
+        fn.cache_clear()
+
+    # Closed-form reflected convolution: the amplitude is sqrt(pi) sigma.
+    value = gaussian_convolution("0.2", "-0.1", "0.05", "0.3")
+    target = mp.sqrt(mp.pi) * mp.mpf("0.05")
+    assert abs(value - target) < mp.mpf("1e-30")
+
+    centers = [-0.3, -0.1, 0.1, 0.3]
+    G = weil_gaussian_gram(centers, 0.05)
+    # Symmetry and the known diagonal W(sigma) at sigma = 0.05.
+    assert max(abs(G[i, j] - G[j, i]) for i in range(4) for j in range(4)) < mp.mpf("1e-13")
+    assert abs(G[0, 0] - mp.mpf("0.043135958394838")) < mp.mpf("1e-10")
+
+    # The prime term is not a rounding artefact at c = 0.6.
+    assert weil_gaussian_prime(0.6, 0.05) < mp.mpf("-0.03")
+
+    # Numerical Cholesky mirrors T10: positive pivots and reconstruction.
+    ev = gram_eigenvalues(G)
+    assert ev[0] > mp.mpf("0.02")
+    L = mp.cholesky(G)
+    assert all(L[i, i] > 0 for i in range(4))
+    err = max(abs((L * L.T)[i, j] - G[i, j]) for i in range(4) for j in range(4))
+    assert err < mp.mpf("1e-24")
+
+    # Rational shadow: a nearby M = L_rat L_rat^T is PSD exactly (T10).
+    Lr = sp.Matrix(4, 4, lambda i, j: sp.Rational(
+        mp.nstr(L[i, j], 20)).limit_denominator(10**6))
+    shadow = Lr * Lr.T
+    shadow_err = max(
+        abs(float(shadow[i, j]) - float(G[i, j]))
+        for i in range(4) for j in range(4)
+    )
+    assert shadow_err < 1e-10
+    assert all(Lr[i, i] > 0 for i in range(4))
+    assert all(sp.simplify(shadow[i, i]) > 0 for i in range(4))
+
+
+# ---------------------------------------------------------------------------
+# Rigorous interval enclosure of Omega (first layer)
+# ---------------------------------------------------------------------------
+
+from programme import omega_interval  # noqa: E402
+
+
+def test_omega_interval_encloses_digamma():
+    """The interval layer contains Re psi(1/4+it/2) - log pi.
+
+    The layer is rigorous by construction (outward-rounded mpmath.iv,
+    midpoint/derivative bounds, series remainder, exponential tail).  This
+    test checks containment and width on representative t; it does not yet
+    integrate the density term.
+    """
+    mp.mp.dps = 30
+    for t in (0, mp.mpf("0.5"), 1, 10):
+        iv = omega_interval(t)
+        true = (mp.digamma(mp.mpf(1) / 4 + mp.mpc(0, 1) * mp.mpf(t) / 2).real
+                - mp.log(mp.pi))
+        assert iv.a <= true <= iv.b
+        assert iv.b - iv.a < mp.mpf("0.05")
+
+
+# ---------------------------------------------------------------------------
+# Prime-tail bound for the Gaussian window
+# ---------------------------------------------------------------------------
+
+from programme import gaussian_prime_tail_bound  # noqa: E402
+
+
+def test_gaussian_prime_tail_bound_is_negligible():
+    """The crude Gaussian prime-tail bound is far below the matrix margin."""
+    mp.mp.dps = 30
+    for c in (0, mp.mpf("0.6"), mp.mpf("-0.6")):
+        bound = gaussian_prime_tail_bound(c, mp.mpf("0.05"))
+        assert bound < mp.mpf("1e-100")
+    # The numerical difference between two truncations is below the bound.
+    tail = abs(weil_gaussian_prime(0.6, 0.05, 40000)
+               - weil_gaussian_prime(0.6, 0.05, 20000))
+    assert tail < gaussian_prime_tail_bound(0.6, 0.05)
+
+
+# ---------------------------------------------------------------------------
+# Deterministic density quadrature prototype
+# ---------------------------------------------------------------------------
+
+from programme import weil_gaussian_density_simpson  # noqa: E402
+
+
+def test_gaussian_density_simpson_matches_quadrature():
+    """The rational-node Simpson rule reproduces the adaptive quadrature.
+
+    This is the rule intended for a future derivative-bound certificate; the
+    test checks the numerical rule, not a rigorous error bound.
+    """
+    mp.mp.dps = 30
+    for c in (0, mp.mpf("0.6")):
+        approx = weil_gaussian_density_simpson(c, 0.05, n=4000, T=200)
+        reference = weil_gaussian_density(c, 0.05)
+        assert abs(approx - reference) < mp.mpf("1e-8")
+
+
+# ---------------------------------------------------------------------------
+# Numerical fourth-derivative diagnostic
+# ---------------------------------------------------------------------------
+
+from programme import gaussian_density_fourth_derivative  # noqa: E402
+
+
+def test_gaussian_density_fourth_derivative_is_bounded():
+    """The numerical fourth derivative is O(10^3), setting the Simpson target."""
+    mp.mp.dps = 30
+    values = [gaussian_density_fourth_derivative(0.6, 0.05, t)
+              for t in (0, 1, 10)]
+    assert all(v < mp.mpf("1e4") for v in values)
+    assert values[0] > 100
+
+
+# ---------------------------------------------------------------------------
+# Interval t-jet layer
+# ---------------------------------------------------------------------------
+
+from jet import Jet  # noqa: E402
+from programme import omega_t_jet  # noqa: E402
+
+
+def test_interval_jet_derivatives_match_elementary_functions():
+    """The derivative representation is checked against analytic values."""
+    mp.mp.dps = 30
+    t = Jet.variable(mp.mpf("0.3"), 5)
+    e = t.exp()
+    for n in range(6):
+        assert abs(mp.mpf(e[n].a) - mp.e**mp.mpf("0.3")) < mp.mpf("1e-13")
+    l = (t + 1).log()
+    assert abs(mp.mpf(l[1].a) - 1 / mp.mpf("1.3")) < mp.mpf("1e-13")
+    c, s = t.cos_sin()
+    assert abs(mp.mpf(c[1].a) + mp.sin(mp.mpf("0.3"))) < mp.mpf("1e-13")
+    assert abs(mp.mpf(s[1].a) - mp.cos(mp.mpf("0.3"))) < mp.mpf("1e-13")
+
+
+def test_omega_t_jet_contains_numeric_derivatives():
+    """The jet encloses Omega and its first four t-derivatives at t=0.5."""
+    mp.mp.dps = 30
+    jet = omega_t_jet(mp.mpf("0.5"), order=4, h=0.01, U=5)
+    f = lambda u: mp.digamma(mp.mpf(1) / 4 + mp.mpc(0, 1) * u / 2).real - mp.log(mp.pi)
+    for n in range(5):
+        true = mp.diff(f, mp.mpf("0.5"), n)
+        assert jet[n].a <= true <= jet[n].b
+
+
+# ---------------------------------------------------------------------------
+# Certified Taylor density panels
+# ---------------------------------------------------------------------------
+
+from programme import gaussian_density_panel_taylor, omega_density  # noqa: E402
+
+
+def test_gaussian_density_panel_taylor_encloses_true_integral():
+    """The Taylor panel interval plus remainder contains the true integral."""
+    mp.mp.dps = 30
+    sigma = mp.mpf("0.05")
+    c = mp.mpf("0.6")
+    for a, b in [(mp.mpf("0.4"), mp.mpf("0.6")),
+                 (mp.mpf(10), mp.mpf("10.2")),
+                 (mp.mpf(0), mp.mpf("0.2")),
+                 (mp.mpf("0.2"), mp.mpf("0.4"))]:
+        value, error = gaussian_density_panel_taylor(a, b, c, sigma)
+        f = lambda t: (mp.exp(-(sigma * t) ** 2) * mp.cos(c * t)
+                       * omega_density(t))
+        true = sigma**2 * mp.quad(f, [a, (a + b) / 2, b], maxdegree=8)
+        assert value.a - error <= true <= value.b + error
+
+
+# ---------------------------------------------------------------------------
+# Assembled certified density interval
+# ---------------------------------------------------------------------------
+
+from programme import gaussian_density_certified  # noqa: E402
+
+
+def test_gaussian_density_certified_short_range():
+    """Ten certified panels enclose the density integral on [-1,1]."""
+    mp.mp.dps = 30
+    sigma = mp.mpf("0.05")
+    c = mp.mpf("0.6")
+    interval, error, panels = gaussian_density_certified(
+        c, sigma, H=mp.mpf("0.2"), T=mp.mpf(1), order=4)
+    assert panels == 10
+    f = lambda t: (mp.exp(-(sigma * t) ** 2) * mp.cos(c * t)
+                   * omega_density(t))
+    true = sigma**2 * mp.quad(f, [-1, -0.5, 0, 0.5, 1], maxdegree=8)
+    assert interval.a - error <= true <= interval.b + error
+
+
+# ---------------------------------------------------------------------------
+# Multi-c certified density intervals
+# ---------------------------------------------------------------------------
+
+from programme import gaussian_density_certified_multi  # noqa: E402
+
+
+def test_gaussian_density_certified_multi_short_range():
+    """Two c-values share the Ω jets and both enclosures contain the truth."""
+    mp.mp.dps = 30
+    sigma = mp.mpf("0.05")
+    results, panels = gaussian_density_certified_multi(
+        [0, mp.mpf("0.6")], sigma, H=mp.mpf("0.2"), T=1)
+    assert panels == 10
+    for (interval, error), c in zip(results, [0, mp.mpf("0.6")]):
+        f = lambda t: (mp.exp(-(sigma * t) ** 2) * mp.cos(c * t)
+                       * omega_density(t))
+        true = sigma**2 * mp.quad(f, [-1, -0.5, 0, 0.5, 1], maxdegree=8)
+        assert interval.a - error <= true <= interval.b + error
+
+
+# ---------------------------------------------------------------------------
+# Exact PSD certificate for the recorded H=0.08 interval Gram matrix
+# ---------------------------------------------------------------------------
+
+from certify_gram import interval_psd_certificate  # noqa: E402
+
+
+def test_h008_interval_gram_center_error_certificate():
+    """Center-plus-operator-norm certificate for the H=0.08 matrix.
+
+    The intervals are the output of the full H=0.08, T=100 certified density
+    run recorded in the note.  The check is exact rational linear algebra on
+    the center, with a 1e-9 slack for endpoint conversion.
+    """
+    mp.mp.dps = 30
+    iv = mp.iv.mpf
+    margin = mp.mpf("1e-4")
+    D = iv([mp.mpf("0.03756591458571154063") - margin,
+            mp.mpf("0.04863992698909350848") + margin])
+    A = iv([mp.mpf("-0.021730257299852711456") - margin,
+            mp.mpf("-0.011467176737519733584") + margin])
+    B = iv([mp.mpf("0.0030489355840971131377") - margin,
+            mp.mpf("0.012599132634140924533") + margin])
+    C = iv([mp.mpf("-0.0070228382921267611463") - margin,
+            mp.mpf("0.0020409790047855869144") + margin])
+    G = [[D, A, B, C], [A, D, A, B], [B, A, D, A], [C, B, A, D]]
+    ok, t, minors = interval_psd_certificate(G)
+    assert ok
+    assert all(float(d) > 0 for d in minors)
+
+
+# ---------------------------------------------------------------------------
+# Comparison: direct interval minors vs center/error certificate
+# ---------------------------------------------------------------------------
+
+from certify_gram import interval_leading_minors  # noqa: E402
+
+
+def test_interval_minors_vs_center_error_certificate():
+    """Direct interval minors are too wide; the center/error check succeeds."""
+    mp.mp.dps = 30
+    margin = mp.mpf("1e-4")
+    iv = mp.iv.mpf
+    D = iv([mp.mpf("0.03756591458571154063") - margin,
+            mp.mpf("0.04863992698909350848") + margin])
+    A = iv([mp.mpf("-0.021730257299852711456") - margin,
+            mp.mpf("-0.011467176737519733584") + margin])
+    B = iv([mp.mpf("0.0030489355840971131377") - margin,
+            mp.mpf("0.012599132634140924533") + margin])
+    C = iv([mp.mpf("-0.0070228382921267611463") - margin,
+            mp.mpf("0.0020409790047855869144") + margin])
+    G = [[D, A, B, C], [A, D, A, B], [B, A, D, A], [C, B, A, D]]
+
+    minors = interval_leading_minors(G)
+    assert minors[3].a <= 0 <= minors[3].b  # direct interval minor is inconclusive
+    ok, t, shifted = interval_psd_certificate(G)
+    assert ok
+    assert all(float(d) > 0 for d in shifted)
+
+
+# ---------------------------------------------------------------------------
+# Exact rational LDL pivots vs leading minors
+# ---------------------------------------------------------------------------
+
+from certify_gram import exact_ldl_pivots  # noqa: E402
+import sympy as sp  # noqa: E402
+
+
+def test_exact_ldl_pivots_match_leading_minors():
+    """The rational LDL pivots agree with the Sylvester minor ratios."""
+    mp.mp.dps = 30
+    margin = mp.mpf("1e-4")
+    iv = mp.iv.mpf
+    D = iv([mp.mpf("0.03756591458571154063") - margin,
+            mp.mpf("0.04863992698909350848") + margin])
+    A = iv([mp.mpf("-0.021730257299852711456") - margin,
+            mp.mpf("-0.011467176737519733584") + margin])
+    B = iv([mp.mpf("0.0030489355840971131377") - margin,
+            mp.mpf("0.012599132634140924533") + margin])
+    C = iv([mp.mpf("-0.0070228382921267611463") - margin,
+            mp.mpf("0.0020409790047855869144") + margin])
+    G = [[D, A, B, C], [A, D, A, B], [B, A, D, A], [C, B, A, D]]
+    ok, t, shifted = interval_psd_certificate(G)
+    assert ok
+    centers = [[sp.Rational(str((float(G[i][j].a) + float(G[i][j].b)) / 2))
+                for j in range(4)] for i in range(4)]
+    M = sp.Matrix(centers) - sp.Rational(str(t)) * sp.eye(4)
+    pivots = exact_ldl_pivots(M)
+    assert all(p > 0 for p in pivots)
+    minors = [sp.Matrix(M[:k, :k]).det() for k in range(1, 5)]
+    prev = sp.Integer(1)
+    for piv, minor in zip(pivots, minors):
+        assert sp.simplify(piv - minor / prev) == 0
+        prev = minor
+
+
+# ---------------------------------------------------------------------------
+# End-to-end audited certificate (H=0.1, U=4)
+# ---------------------------------------------------------------------------
+
+def test_audited_h01_interval_gram_certificate():
+    """End-to-end run with the audited jet and 1e-4 margin is CERTIFIED."""
+    mp.mp.dps = 30
+    margin = mp.mpf("1e-4")
+    iv = mp.iv.mpf
+    D = iv([mp.mpf("0.037436204008367855722"),
+            mp.mpf("0.048769575661494667107")])
+    A = iv([mp.mpf("-0.021860546170889675471"),
+            mp.mpf("-0.011336943457770025379")])
+    B = iv([mp.mpf("0.0029186277325139128348"),
+            mp.mpf("0.012729392454937669965")])
+    C = iv([mp.mpf("-0.0071532808308344877218"),
+            mp.mpf("0.0021713797139223398394")])
+    G = [[D, A, B, C], [A, D, A, B], [B, A, D, A], [C, B, A, D]]
+    ok, t, minors = interval_psd_certificate(G)
+    assert ok
+    assert all(float(d) > 0 for d in minors)
+    assert abs(float(t) - 0.021095671900894935) < 1e-12
+
+
+# ---------------------------------------------------------------------------
+# Term-by-term-tail-backed certificate (U=6)
+# ---------------------------------------------------------------------------
+
+def test_tailproof_u6_interval_gram_certificate():
+    """U=6 audited run with the proven 1e-5 tail allowance is CERTIFIED."""
+    mp.mp.dps = 30
+    iv = mp.iv.mpf
+    D = iv([mp.mpf("0.03743460879663488422"),
+            mp.mpf("0.048771170873178358585")])
+    A = iv([mp.mpf("-0.021861561710435951228"),
+            mp.mpf("-0.011335927918316883456")])
+    B = iv([mp.mpf("0.0029176121066580768849"),
+            mp.mpf("0.012730408080807234517")])
+    C = iv([mp.mpf("-0.0071542965221716454255"),
+            mp.mpf("0.0021723954053322830707")])
+    G = [[D, A, B, C], [A, D, A, B], [B, A, D, A], [C, B, A, D]]
+    ok, t, minors = interval_psd_certificate(G)
+    assert ok
+    assert all(float(d) > 0 for d in minors)
+    assert abs(float(t) - 0.021100313817465383) < 1e-12

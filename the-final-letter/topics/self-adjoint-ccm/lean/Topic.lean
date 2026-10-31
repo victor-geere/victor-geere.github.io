@@ -107,4 +107,94 @@ theorem prime_power_cutoff_iff {p lam : ℝ} (hp : 1 < p) (hlam : 0 < lam)
   rw [← Real.log_le_log_iff hpm hl2, Real.log_pow, Real.log_pow]
   norm_num
 
+
+/-! ## The finite compression and the Weil-positivity bridge
+
+The source calls the band-limited compression of `D_λ` the CCM Weil matrix.
+The next definitions make that compression explicit in the basis
+`e_k(x) = exp(i μ_k x)`.  The free diagonal is written with a plus sign,
+matching the dossier's convention; the opposite sign only swaps the two
+corners and does not affect the Hermiticity.
+
+The delta part is a finite sum of rank-one Hermitian matrices with real
+weights.  It is positive semidefinite whenever the couplings are
+non-negative.  The free diagonal is not, and its corner diverges linearly
+with the band limit: this is the finite obstruction recorded in
+`WEIL-BRIDGE.md`. -/
+
+/-- The rank-one Hermitian matrix `star (v k) * v l`. -/
+def rankOne {κ : Type*} (v : κ → ℂ) : Matrix κ κ ℂ :=
+  fun k l => star (v k) * v l
+
+/-- A rank-one matrix of the form `star v k * v l` is Hermitian. -/
+theorem rankOne_isHermitian {κ : Type*} (v : κ → ℂ) :
+    (rankOne v).IsHermitian := by
+  rw [Matrix.IsHermitian.ext_iff]
+  intro k l
+  simp [rankOne, mul_comm]
+
+/-- The band-limited compression of `D_λ`: a free diagonal plus the
+finite-rank prime/delta part.  `α j` is the real coupling at `x j` and
+`L` is the period. -/
+def ccmMatrix {ι κ : Type*} [Fintype ι] [DecidableEq κ]
+    (μ : κ → ℝ) (α : ι → ℝ) (x : ι → ℝ) (L : ℝ) : Matrix κ κ ℂ :=
+  Matrix.diagonal (fun k => (μ k : ℂ)) +
+    ∑ j, ((α j / L : ℝ) : ℂ) •
+      rankOne (fun k => Complex.exp (Complex.I * ((μ k : ℂ) * (x j : ℂ))))
+
+/-- The compression is Hermitian.  This is the finite shadow of the
+self-adjointness the source asserts for `D_λ`. -/
+theorem ccmMatrix_isHermitian {ι κ : Type*} [Fintype ι] [DecidableEq κ]
+    (μ : κ → ℝ) (α : ι → ℝ) (x : ι → ℝ) (L : ℝ) :
+    (ccmMatrix μ α x L).IsHermitian := by
+  unfold ccmMatrix
+  refine Matrix.IsHermitian.add ?_ ?_
+  · rw [Matrix.isHermitian_diagonal_iff]
+    intro k
+    rw [← Complex.im_eq_zero_iff_isSelfAdjoint]
+    simp
+  · rw [Matrix.isHermitian_iff_isSelfAdjoint]
+    apply isSelfAdjoint_sum
+    intro j _
+    exact (Matrix.isHermitian_iff_isSelfAdjoint).mp
+      (Matrix.IsHermitian.smul (rankOne_isHermitian _) (by
+        rw [← Complex.im_eq_zero_iff_isSelfAdjoint]
+        simp))
+
+/-- The diagonal of the compression is exactly the free frequency plus
+the total coupling divided by the period.  The prime positions drop out
+of the diagonal. -/
+lemma rankOne_exp_diag {κ : Type*} (μ : κ → ℝ) (r : ℝ) (k : κ) :
+    rankOne (fun k => Complex.exp (Complex.I * ((μ k : ℂ) * (r : ℂ)))) k k = 1 := by
+  simp [rankOne, ← Complex.exp_conj, ← Complex.exp_add]
+
+theorem ccmMatrix_diag {ι κ : Type*} [Fintype ι] [DecidableEq κ]
+    (μ : κ → ℝ) (α : ι → ℝ) (x : ι → ℝ) (L : ℝ) (k : κ) :
+    ccmMatrix μ α x L k k = (μ k : ℂ) + (((∑ j, α j) / L : ℝ) : ℂ) := by
+  unfold ccmMatrix
+  rw [Matrix.add_apply, Matrix.diagonal_apply_eq, Matrix.sum_apply]
+  simp [Matrix.smul_apply, rankOne_exp_diag, Finset.sum_div]
+
+/-- The prime/delta part of the compression is positive semidefinite:
+it is a sum of non-negative multiples of squared norms.  This is the
+only part of the compression that carries the arithmetic. -/
+def deltaForm {ι κ : Type*} [Fintype ι] [Fintype κ]
+    (α : ι → ℝ) (μ : κ → ℝ) (x : ι → ℝ) (z : κ → ℂ) : ℝ :=
+  ∑ j, α j * Complex.normSq
+    (∑ k, z k * Complex.exp (Complex.I * ((μ k : ℂ) * (x j : ℂ))))
+
+theorem deltaForm_nonneg {ι κ : Type*} [Fintype ι] [Fintype κ]
+    (α : ι → ℝ) (μ : κ → ℝ) (x : ι → ℝ) (z : κ → ℂ)
+    (hα : ∀ j, 0 ≤ α j) : 0 ≤ deltaForm α μ x z := by
+  unfold deltaForm
+  exact Finset.sum_nonneg (fun j _ => mul_nonneg (hα j) (Complex.normSq_nonneg _))
+
+/-- The product of the point-interaction matching phases is unitary. -/
+def matchingProduct {ι : Type*} [Fintype ι] (α : ι → ℝ) : ℂ :=
+  ∏ j, Complex.exp (Complex.I * (α j : ℂ))
+
+theorem matchingProduct_unitary {ι : Type*} [Fintype ι] (α : ι → ℝ) :
+    ‖matchingProduct α‖ = 1 := by
+  simp [matchingProduct, Complex.norm_exp]
+
 end CCM

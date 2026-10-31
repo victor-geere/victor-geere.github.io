@@ -216,7 +216,7 @@ def G3 : Matrix (Fin 3) (Fin 3) ℚ := !![3, 2, 1; 2, 2, 1; 1, 1, 1]
 theorem G3_eq : G3 = L3ᴴ * L3 := by
   ext i j
   fin_cases i <;> fin_cases j <;>
-    simp [G3, L3, Matrix.mul_apply, Matrix.conjTranspose_apply, Fin.sum_univ_three] <;> norm_num
+    simp [G3, L3, Matrix.mul_apply, Fin.sum_univ_three] <;> norm_num
 
 /-- **Finite positivity certificate.**  The Gram matrix with a rational Cholesky
 factor is positive semidefinite. -/
@@ -250,5 +250,26 @@ theorem not_posSemidef_of_neg {n : Type*} [Fintype n] [DecidableEq n]
     (h : star v ⬝ᵥ (M *ᵥ v) < 0) : ¬ M.PosSemidef := by
   intro hM
   exact (not_le_of_gt h) (hM.dotProduct_mulVec_nonneg v)
+
+/-! ## A rational shadow certificate for the Gaussian Gram matrix
+
+The numerical Gaussian Gram matrix of `WEIL-GRAM.md` has a rational Cholesky
+shadow: its rounded factor is `L4Shadow`, and `L4Shadowᴴ * L4Shadow` differs from
+the transcendental matrix by less than `4·10^{-13}` numerically.  The theorem
+below certifies the shadow matrix only.  It is the T8/T10 form of the finite
+step; it does not certify the exact Weil matrix.
+-/
+
+/-- Rounded Cholesky factor for the 4×4 Gaussian Gram matrix at `σ=0.05`. -/
+def L4Shadow : Matrix (Fin 4) (Fin 4) ℚ :=
+  !![27 / 130, 0, 0, 0;
+     -136 / 1713, 1914 / 9973, 0, 0;
+     150 / 3883, -392 / 5605, 1577 / 8226, 0;
+     -41 / 3835, 361 / 9657, -386 / 5497, 186 / 971]
+
+/-- The rounded shadow is positive semidefinite by the generic T10 certificate.
+This certifies the shadow, not the exact transcendental Gram matrix. -/
+theorem L4Shadow_posSemidef : (L4Shadowᴴ * L4Shadow).PosSemidef :=
+  posSemidef_of_cholesky L4Shadow
 
 end PrimeSpectrumTensor

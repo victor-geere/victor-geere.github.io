@@ -9,14 +9,14 @@ the-final-letter/topics/prime-spectrum-tensor/lean/check.sh
 The script delegates to the shared checker and uses the local Mathlib
 installation at `~/lean/mathlib4` (Lean `v4.35.0-rc2`). The committed
 [`BUILD.log`](BUILD.log) records the last successful run:
-`[check] OK Topic.lean`.
+`[check] OK   Topic.lean (26s)`.
 
 ## What is proved
 
 [`Topic.lean`](Topic.lean) defines the prime-current weight, a finite
 truncation of `Π`, one term of Riemann's Jacobi density `Φ`, the Fourier
 atom `exp(iγx)`, a finite atomic kernel, the mode sum and the finite Gram
-form. It proves seven statements, all with no `sorry`, `axiom` or
+form. It proves twelve statements, all with no `sorry`, `axiom` or
 `admit`:
 
 | Name | Statement |
@@ -28,10 +28,16 @@ form. It proves seven statements, all with no `sorry`, `axiom` or
 | `atomForm_eq` | The one-frequency Gram form equals `w · Z · conj Z`, where `Z = Σ_j a_j e^{iγu_j}`. |
 | `gramForm_eq` | The finite Gram form equals `Σ_k w_k · Z_k · conj Z_k`. |
 | `gramForm_re_nonneg` | If every atomic weight is non-negative, the real part of the finite Gram form is non-negative. |
+| `G3_posSemidef` | The rational Cholesky certificate `G3 = L3ᴴ L3` is positive semidefinite. |
+| `GDH_not_posSemidef` | The sign-flipped DH-shaped matrix is not positive semidefinite; `(1,-1)` gives form value `-2`. |
+| `posSemidef_of_cholesky` | Any rational `Lᴴ L` is positive semidefinite (T10). |
+| `not_posSemidef_of_neg` | A rational vector with negative form value refutes positive semidefiniteness (T11). |
+| `L4Shadow_posSemidef` | The rounded 4×4 Cholesky shadow is positive semidefinite; this certifies the shadow, not the exact Gaussian Gram matrix. |
 
-The last three are the finite spectral core of `tensor.md` Theorem C(2):
-on a finite set of real frequencies, a positive combination of Fourier
-atoms is of positive type. The first three are the elementary positivity
+The last five include the T8/T10/T11 finite algebra and the rational shadow
+certificate. The first seven are the finite spectral core of `tensor.md`
+Theorem C(2): on a finite set of real frequencies, a positive combination of
+Fourier atoms is of positive type. The first three are the elementary positivity
 facts behind Definition 3.1 and the positivity of `Φ`.
 
 ## What is not formalised

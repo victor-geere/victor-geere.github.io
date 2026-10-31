@@ -257,6 +257,28 @@ Second, the sign pattern is not what naive positivity would suggest: the density
 negative for `σ ≥ 0.07` and the prime term is *negative*, so positivity is carried by
 the pole term against both. The Weil form is not a sum of positive pieces.
 
+### 6.1 A finite smooth-basis Gram matrix (numerical)
+
+The single Gaussian has now been extended to a 4-point Gaussian basis in
+[`WEIL-GRAM.md`](WEIL-GRAM.md). For `σ = 0.05`, centres `−0.3, −0.1, 0.1, 0.3`,
+the numerical Gram matrix is
+
+```
+0.04313596  −0.01648926   0.00802313  −0.00222044
+−0.01648926  0.04313596  −0.01648926   0.00802313
+0.00802313  −0.01648926   0.04313596  −0.01648926
+−0.00222044  0.00802313  −0.01648926   0.04313596
+```
+
+with eigenvalues `0.02270974, 0.02696128, 0.04485248, 0.07802034`. The prime
+side is active at separation `c = 0.6`, where `−2Π(h) = −0.03648163…`; this is
+not the prime-free small-`σ` regime. The numerical Cholesky factor has positive
+pivots and reconstructs the matrix to `6.2·10^{−33}` (C8).
+
+This is a **numerical rung**, not a certificate: `Ω` is quadrature, not an
+interval enclosure, and the prime sum is truncated. The T8/T10 finite algebra is
+ready to certify a rational shadow once the entrywise intervals exist.
+
 **What the Lean certificate needs.**
 
 1. **`Ω` enclosure** (new layer): `Re ψ(1/4 + it/2)` for `t` in a compact range. Use
@@ -341,12 +363,15 @@ within a few digits of the quadrature floor and are indicative only.
   `W_δ` is not shift-invariant (§1.1), so the proposition is a constraint on uniform
   *claims*, not a theorem about the specific cone. Fixing the class is a prerequisite
   for any formal uniformity statement.
-- The numerical probe is exploratory. To become a ledger computation it needs a test
-  in `tests/test_programme.py` and a `C8` row.
+- The Gaussian scan is exploratory. The finite Gram matrix is now C8 in
+  `tests/test_programme.py`, but C8 is a numerical PSD probe and **not** a
+  certified enclosure; the distinction is kept in
+  [`WEIL-GRAM.md`](WEIL-GRAM.md).
 - The recommended target is a finite theorem about one test function. It is a rung,
   not a bridge: it does not fail for DH, because it does not claim the cone.
 
 **One-sentence conclusion.** The five mechanisms are not five routes to positivity but
 five ways of organising the same RH-strength input; the only thing that can be proved
 outright is positivity on a support window, and the first such certificate is a
-prime-free Gaussian with an archimedean budget of about `0.043`.
+Gaussian with an archimedean budget of about `0.043`; the finite Gram matrix in
+[`WEIL-GRAM.md`](WEIL-GRAM.md) is a numerical rung toward it, not the certificate.

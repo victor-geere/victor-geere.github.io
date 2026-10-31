@@ -99,6 +99,11 @@ Writing `s = σ + it` and `φ_n = t log n`,
 \Im\eta(\sigma+it)=-\sum_{n\ge1}(-1)^{n-1}n^{-\sigma}\sin(t\log n).
 \]
 
+> **Scope note.** The `sin` and `cos` in this split are the ordinary trigonometric functions of
+> `t log n`. They are **not** the greedy harmonic sine/cosine of the harmonic-sine programme, and
+> the sum is over all integers with alternating signs, **not** over primes. The Euler product over
+> primes is a different object; its logarithm expands over prime powers with weights `1/k`.
+
 The finite partial sums are formalised in `lean/Topic.lean`:
 `etaPartial_re` and `etaPartial_im` prove the split exactly. At the first
 zero the series does not vanish termwise — the cancellation is in the tail —
