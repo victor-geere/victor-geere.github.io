@@ -15,12 +15,12 @@ import audit  # noqa: E402
 def test_audit_matrix_is_valid():
     audit.validate()
     ids = [row["id"] for row in audit.AUDIT_ROWS]
-    assert len(ids) == len(set(ids)) == 22
+    assert len(ids) == len(set(ids)) == 25
 
 
 def test_audit_classes_are_known_and_counted():
     assert set(audit.summary()) == {"E1", "E2", "E3", "X", "F", "O"}
-    assert audit.summary() == {"E1": 6, "E2": 7, "E3": 5, "X": 1, "F": 1, "O": 2}
+    assert audit.summary() == {"E1": 7, "E2": 8, "E3": 5, "X": 2, "F": 1, "O": 2}
     for row in audit.AUDIT_ROWS:
         assert row["classification"] in audit.CLASSES
 

@@ -3,8 +3,8 @@
 **Status:** **method proposal with a checked exact core**. The finite annular,
 sectorial and general-measure identities, including the infinite annular
 representation of any summable nonnegative series, are Lean-proved; the
-computation layer is exact. Applications to \(\zeta\), Euler products, the
-pole-term part of the explicit formula, and the continuation of the annular
+computation layer is exact. Applications to \(\zeta\), Euler products, Bost–Connes periodic-orbit data,
+the pole-term part of the explicit formula, and the continuation of the annular
 Mellin integral two strips beyond the critical strip (to \(-3 < \Re s\), with
 the \(s=-1\) pole explicit and cancelled) are Lean-proved; the zero sum and
 Weil positivity remain **open** and are recorded as such. No finite truncation
@@ -93,20 +93,69 @@ annulus between two consecutive radii. This is a direct answer to “what is the
 depth of \(n^{-\sigma}\)”: for \(\sigma>1\),
 
 \[
-R_n^2=\sum_{k\ge n}k^{-\sigma},
+R_n^2=\sum_{k\ge n}(k+1)^{-\sigma},
 \qquad
-n^{-\sigma}=R_n^2-R_{n+1}^2,
+(n+1)^{-\sigma}=R_n^2-R_{n+1}^2,
 \]
 
 and the whole sum is \(R_0^2=\zeta(\sigma)\). Equivalently, the squared radius
 is the Hurwitz zeta
 \[
-R_n^2=\zeta(\sigma,n)=\sum_{k=0}^{\infty}(n+k)^{-\sigma},
+R_n^2=\zeta(\sigma,n+1)=\sum_{k=0}^{\infty}(n+1+k)^{-\sigma},
 \]
-so the depth index \(n\) is literally the Hurwitz-zeta parameter; for
-\(\sigma=2\), \(R_n^2=\psi_1(n)\), the trigamma function. For example,
+so the depth index \(n\) is literally the Hurwitz-zeta parameter \(n+1\); for
+\(\sigma=2\), \(R_n^2=\psi_1(n+1)\), the trigamma function. For example,
 \(\zeta(2)=R_0^2=\pi^2/6\), so the disk has radius \(\pi/\sqrt6\) and the
-annulus at \(n\) has normalized area \(n^{-2}\). No truncation is involved.
+annulus at \(n\) has normalized area \((n+1)^{-2}\). No truncation is involved.
+
+**Integral representation and the continuous coil.** The Hurwitz-zeta
+parameter admits the exact Mellin/Laplace representation
+
+\[
+\zeta(s,x)
+=
+\sum_{k=0}^{\infty}(k+x)^{-s}
+=
+\frac{1}{\Gamma(s)}
+\int_0^{\infty}
+\frac{t^{s-1}e^{-xt}}{1-e^{-t}}\,dt
+\qquad(\Re s>1,\ x>0).
+\]
+
+Thus for \(x=n+1\),
+
+\[
+R_n^2=\zeta(\sigma,n+1),
+\]
+
+and the discrete depth index can be replaced by a continuous parameter
+\(x\).  The discrete tail coil of §2.3 then becomes the continuous spiral
+
+\[
+Z(x):=\zeta(s,x),
+\qquad
+r(x):=|Z(x)|,
+\qquad
+\theta(x):=\arg Z(x),
+\]
+
+so that \(Z(x)=r(x)e^{i\theta(x)}\), the integer samples satisfy
+\(Z(n+1)=Z_n\), and \(Z(x)\to0\) as \(x\to\infty\) for \(\Re s>1\).
+The annuli \(A_n\) interpolate to a continuous annular field with squared
+radius \(R^2(x)=\zeta(\sigma,x)\); the discrete coil is the integer
+sampling of this continuous spiralling coil.
+
+This integral is the Hurwitz-zeta form of the Mellin/Laplace representation in
+§5.5.  It is formalised in [`lean/ContinuousCoil.lean`](lean/ContinuousCoil.lean):
+`mellin_shiftedZetaKernel_eq` proves
+\[
+\operatorname{mellin}(\text{shiftedZetaKernel }x)(s)
+=
+\Gamma(s)\,\text{shiftedTail}(x,s)
+\qquad(x>0,\ \Re s>1),
+\]
+and `continuousCoil_eq_integral` records the continuous coil as the normalized
+integral.  Analytic continuation beyond \(\Re s>1\) is not claimed.
 
 For \(0<\sigma\le1\), \(R_0=\infty\): the disk is infinite. This is precisely
 the divergence of the series, not a failure of the method. Analytic
@@ -299,9 +348,9 @@ The unit circle has total angle \(2\pi\). Sectors of angle
 The annular representation of §2 gives
 
 \[
-R_n^2=\sum_{k=n}^{\infty}\frac{1}{k^2},
+R_n^2=\sum_{k=n}^{\infty}\frac{1}{(k+1)^2},
 \qquad
-\frac{1}{n^2}=R_n^2-R_{n+1}^2.
+\frac{1}{(n+1)^2}=R_n^2-R_{n+1}^2.
 \]
 
 The total normalized area is \(R_0^2=\zeta(2)=\pi^2/6\). The representation is
@@ -476,6 +525,158 @@ formalised in Lean: the upper and lower half-strips are handled by the
 identity theorem, and the real axis by continuity. The final statement is
 `mellin_regularizedKernel_eq_of_re_pos_of_lt_one`.
 
+### 5.7 The continuous integral version: the closed form and where it stops
+
+The sentence in §7.4 — “for general \(n^{-\sigma}\) no such closed form is
+known” — is a statement about the **discrete** sum. Its continuous analogue
+does have an elementary closed form, and isolating it shows exactly where
+discreteness enters.
+
+**The integral.** For \(\sigma>1\),
+
+\[
+\zeta_{\mathrm c}(\sigma)
+:=\int_1^\infty x^{-\sigma}\,dx
+=\frac{1}{\sigma-1}.
+\]
+
+The continuous coil is the tail
+
+\[
+Z_{\mathrm c}(x)
+:=\int_x^\infty t^{-\sigma}\,dt
+=\frac{x^{1-\sigma}}{\sigma-1},
+\qquad x>0,
+\]
+
+so \(Z_{\mathrm c}(1)=\zeta_{\mathrm c}(\sigma)\),
+\(Z_{\mathrm c}(x)\to0\) as \(x\to\infty\), and
+
+\[
+-Z_{\mathrm c}'(x)=x^{-\sigma}.
+\]
+
+This is the exact continuous analogue of
+\(a_n=R_n^2-R_{n+1}^2\): the term is the negative derivative of the tail, and
+the total is the tail evaluated at the lower endpoint. *(Text-proof: the
+fundamental theorem of calculus and the elementary power integral.)*
+
+**Why the angular partition degenerates.** For real \(s=\sigma\),
+\(Z_{\mathrm c}\) is real and positive, so it can serve as its own squared
+radius:
+
+\[
+R^2(x):=Z_{\mathrm c}(x)=\frac{x^{1-\sigma}}{\sigma-1}.
+\]
+
+The annular density is then
+\(-dR^2/dx=x^{-\sigma}\), and the total area is
+\(R^2(1)=1/(\sigma-1)\). The phase is identically zero: every sector is the
+same sector, and the “angular” partition collapses to the radial one. There is
+nothing to partition — which is precisely why the continuous case is trivial.
+The scaling is a pure power law, with logarithmic rates \(1-\sigma\) for the
+radius and \(-\sigma\) for the term; the rate is set by \(\sigma\), as it must
+be.
+
+For complex \(s=\sigma+it\) the coil is instead the logarithmic spiral
+
+\[
+Z_{\mathrm c}(x)
+=\frac{x^{1-\sigma}}{\sigma-1}\,e^{-it\log x},
+\]
+
+which is exactly self-similar. With \(\lambda=e^{2\pi/|t|}\),
+
+\[
+Z_{\mathrm c}(\lambda x)
+=e^{-2\pi(\sigma-1)/|t|}\,Z_{\mathrm c}(x).
+\]
+
+One full turn multiplies \(x\) by \(e^{2\pi/|t|}\) and the radius by
+\(\rho=e^{-2\pi(\sigma-1)/|t|}\); the areas of successive turns form a
+geometric sequence of ratio \(\rho^2\). The continuous coil is therefore the
+exact self-similar case of §2.4, while the discrete coil is only a sampling of
+it.
+
+**Where the closed form stops.** The discrete series is not the integral.
+Euler–Maclaurin in the Hurwitz parameter gives, for fixed \(\sigma\) as
+\(x\to\infty\),
+
+\[
+\zeta(\sigma,x)
+=\frac{x^{1-\sigma}}{\sigma-1}
++\frac{x^{-\sigma}}{2}
++\sum_{k\ge1}\frac{B_{2k}}{(2k)!}
+(\sigma)_{2k-1}\,x^{-\sigma-2k+1},
+\]
+
+where \((\sigma)_m=\sigma(\sigma+1)\cdots(\sigma+m-1)\). At \(x=1\),
+
+\[
+\zeta(\sigma)
+=\frac{1}{\sigma-1}
++\frac12
++\sum_{k\ge1}\frac{B_{2k}}{(2k)!}(\sigma)_{2k-1}.
+\]
+
+The odd Bernoulli numbers vanish, \(B_{2k+1}=0\) for \(k\ge1\), so only the
+\(1/2\) boundary term and the even Bernoulli tail survive. That tail does not
+terminate, and for fixed \(\sigma\) its terms grow without bound: it is an
+asymptotic, not a convergent, series. The “adjustment” that turns the integral
+into the sum is exactly this non-terminating even-Bernoulli series. Nothing in
+the angular construction removes it, because the angular construction is exact
+for both objects; the difference is the sampling of the power law at the
+integers.
+
+This is the precise sense in which the cases differ. The continuous integral
+is elementary for every \(\sigma\); the discrete sum is elementary at the even
+integers \(\sigma=2m\) (Bernoulli/Fourier, equivalently the functional equation
+at the trivial zeros), but not for general real \(\sigma\) — no closed form is
+known at \(\sigma=3\), for instance. Representing \(\zeta(\sigma)\) as an area
+does not change which function of \(\sigma\) it is.
+
+**Parity does not remove the tail.** Splitting the discrete series by parity
+gives
+
+\[
+\sum_{n\ \mathrm{odd}}n^{-\sigma}=(1-2^{-\sigma})\zeta(\sigma),
+\qquad
+\sum_{n\ \mathrm{even}}n^{-\sigma}=2^{-\sigma}\zeta(\sigma),
+\]
+
+so \(\zeta(\sigma)\) survives on both sides, and parity is only a rescaling.
+The continuous parity split does close, but only after shifting the argument:
+the odd unit intervals give
+
+\[
+\sum_{k\ge0}\int_{2k+1}^{2k+2}x^{-\sigma}\,dx
+=\frac{\eta(\sigma-1)}{\sigma-1},
+\]
+
+and the even intervals give
+\(1-\eta(\sigma-1)/(\sigma-1)\), where \(\eta\) is the alternating zeta. At
+\(\sigma=2\) these are \(\log 2\) and \(1-\log 2\). Thus parity produces a
+shift \(\sigma\mapsto\sigma-1\) in the continuous case, not an elimination of
+the value. Sampling the power law at the left endpoint \(x=n\), at the
+geometric mean \(\sqrt{n(n+1)}\) (shifting one factor of
+\(x^{-\sigma}=x^{-\sigma/2}x^{-\sigma/2}\)), or at the right endpoint
+\(x=n+1\) (shifting both) moves only the \(1/2\) boundary term between the two
+sides; it does not remove the even-Bernoulli tail.
+
+**Numerical check (mpmath, 25 digits).** The integral identity is exact to
+\(10^{-17}\) at \(\sigma=1.5,2,2.5,3,4.2\). The self-similarity ratio at
+\((2.3,1.7)\) agrees to \(10^{-30}\). The Euler–Maclaurin partial sums bracket
+\(\zeta(\sigma)\) and then diverge:
+
+| \(\sigma\) | \(1/(\sigma-1)\) | \(\zeta(\sigma)\) | EM \(m=1\) | \(m=2\) | \(m=3\) |
+|---|---|---|---|---|---|
+| 2 | 1 | 1.64493406685 | 1.66666666667 | 1.63333333333 | 1.65714285714 |
+| 3 | 0.5 | 1.20205690316 | 1.25 | 1.16666666667 | 1.25 |
+| 4.5 | 0.285714285714 | 1.05470751076 | 1.16071428571 | 0.937276785714 | 1.27642299107 |
+
+These are numerical checks, not a formalisation. They confirm the text-proof
+identities above and the divergence of the even-Bernoulli tail.
+
 ## 6. Exactitude first, estimation second
 
 The methodological rule is:
@@ -503,19 +704,19 @@ series or transform is classified **before** an evaluator is assigned:
 
 | Class | Count | Meaning |
 |---|---:|---|
-| **E1** exact closed evaluation | 6 | exact transform and closed value |
-| **E2** exact representation | 7 | exact transform, closed value separate |
+| **E1** exact closed evaluation | 7 | exact transform and closed value |
+| **E2** exact representation | 8 | exact transform, closed value separate |
 | **E3** exact finite part | 5 | regularized value of a divergent raw series |
-| **X** exact obstruction | 1 | exact divergence/obstruction diagnosis |
+| **X** exact obstruction | 2 | exact divergence/obstruction diagnosis |
 | **F** finite evaluator only | 1 | certified partial-sum-plus-tail fallback |
 | **O** open | 2 | explicit-formula zero sum and general Bernoulli/full-plane |
 
-The 22 audited objects include geometric, halving, annular, `p`-series,
-complex, Dirichlet, Mellin, Euler-product, vector-area, pole-contour and
-continuation cases.
+The 25 audited objects include geometric, halving, annular, `p`-series,
+complex, Dirichlet, Mellin, Euler-product, vector-area, pole-contour,
+continuation and Bost–Connes cases.
 No object with an exact transform is assigned a finite truncation as its
 representation of infinity. The Lean fixes for the audit rows A4, A6, A16 and
-A18 are T64–T67.
+A18 are T64–T67; the Bost–Connes fixes A23–A25 are T68–T72.
 
 ## 7. Scope, obstructions and the zeta wall
 
@@ -568,6 +769,14 @@ identity is an exact **representation**, not a numerical value. For
 \(n^{-2}\) the closed form is \(\pi^2/6\); for general \(n^{-\sigma}\) no such
 closed form is known. The method does not manufacture closed forms.
 
+The continuous integral analogue is elementary (§5.7):
+\(\int_1^\infty x^{-\sigma}dx=1/(\sigma-1)\). The gap between the integral and
+the discrete sum is the Euler–Maclaurin sampling defect. Its odd Bernoulli
+terms vanish, but its even tail does not terminate, so the defect is an
+asymptotic series rather than a closed-form correction. The absence of a
+closed form is therefore a property of the discrete sum, not of the angular
+representation.
+
 ### 7.5 The \(w=e^{-s}\) compactification is not required
 
 If one additionally maps depth to radius by \(w=e^{-s}\), then
@@ -590,6 +799,52 @@ be conflated.
 
 These are research targets. The method is a reusable framework for stating
 them, not a proof of RH.
+
+### 7.7 Bost–Connes periodic-orbit data
+
+The Bost–Connes periodic orbits have lengths \(n\log p\). For a single prime
+\(p\), the angular series is geometric:
+
+\[
+\sum_{n\ge0}\left(p^{-s}\right)^n=\frac1{1-p^{-s}}
+\qquad(\Re s>0).
+\]
+
+This is `bostConnes_single_prime_angular` / `bostConnes_single_prime_tsum`.
+For all primes the product of these single-prime sums is the zeta Euler
+product (`bostConnes_all_primes_product` / `bostConnes_all_primes_tprod`) in
+\(\Re s>1\).
+
+The obstruction is exact: for distinct primes \(p,q\), the logs
+\(\log p\) and \(\log q\) have no common positive period
+(`log_primes_not_commensurable`). Hence the full prime data have no finite
+monodromy; the Euler product is the exact replacement in the convergence
+domain, and continuation beyond it belongs to O7/O8.
+
+### 7.8 Finite Gram positivity
+
+The finite algebraic shadow of the positivity problem is formalised in
+[`lean/Gram.lean`](lean/Gram.lean). For a finite family of real vectors `v i`
+in an inner-product space, define
+
+\[
+G_{ij}=\langle v_i,v_j\rangle,\qquad
+Q(c)=\sum_{i,j}c_iG_{ij}c_j.
+\]
+
+Then
+
+\[
+Q(c)=\left\|\sum_i c_i v_i\right\|^2\ge0,
+\]
+
+so every finite Gram matrix is positive semidefinite. This is the exact
+finite PSD certificate. It applies to annular/sector indicator vectors, whose
+Gram entries are the overlaps of the sectors.
+
+This is **not** the analytic Weil positivity statement. It is the finite
+algebra that any such test-vector model must satisfy; the analytic Gram matrix
+and its positivity over the actual zeta zeros remain open (O4).
 
 ## 8. Reusable transforms
 
@@ -680,12 +935,25 @@ Every row marked **Theorem** is proved in the Lean files under
 | T65 | Theorem | **Exact divergence of reciprocal weights:** `∑ 1/(n+1)` is not summable. | `AngularPartition.not_summable_inv_nat_succ` |
 | T66 | Theorem | **Infinite complex geometric series:** for `‖z‖ < 1`, `∑' n, z^n = (1−z)⁻¹`. | `AngularPartition.geometric_hasSum_complex`, `AngularPartition.geometric_tsum_complex` |
 | T67 | Theorem | **Layer-cake representation:** for `a_n ≥ 0`, `ENNReal.ofReal (a n) = ∫⁻ t in Ioi 0, 1_{t < a n}`. | `AngularPartition.layer_cake` |
+| T68 | Theorem | **Single-prime Bost–Connes angular sum:** `HasSum (fun n => (p^(-s))^n) (1−p^(-s))⁻¹` for `Re s > 0`. | `AngularPartition.bostConnes_single_prime_angular` |
+| T69 | Theorem | **Single-prime Bost–Connes `tsum`:** the same closed form in `tsum` form. | `AngularPartition.bostConnes_single_prime_tsum` |
+| T70 | Theorem | **All-prime Bost–Connes product:** the Euler product `HasProd` converges to `ζ(s)` for `Re s > 1`. | `AngularPartition.bostConnes_all_primes_product` |
+| T71 | Theorem | **All-prime product in `tprod` form.** | `AngularPartition.bostConnes_all_primes_tprod` |
+| T72 | Theorem | **Prime-log incommensurability:** `m log p ≠ n log q` for distinct primes and positive `m,n`. | `AngularPartition.log_primes_not_commensurable` |
+| T73 | Theorem | **Gram quadratic form is a squared norm:** `∑ᵢⱼ cᵢ cⱼ ⟪vᵢ,vⱼ⟫ = ‖∑ᵢ cᵢ • vᵢ‖²`. | `AngularPartition.gramQuad_eq_norm_sq` |
+| T74 | Theorem | **Finite Gram positivity:** every finite Gram quadratic form is nonnegative. | `AngularPartition.gramQuad_nonneg` |
+| T75 | Theorem | **Gram matrix PSD:** every finite Gram matrix is positive semidefinite. | `AngularPartition.gramMatrix_posSemidef` |
+| T76 | Theorem | **Gram matrix quadratic form:** the matrix form is nonnegative. | `AngularPartition.gramMatrix_quadForm_nonneg` |
+| T77 | Theorem | **Shifted zeta kernel series:** for `x,t > 0`, the geometric series `Σ n, exp(−(x+n)t)` sums to `e^(−xt)/(1−e^(−t))`. | `AngularPartition.hasSum_shiftedZetaKernel` |
+| T78 | Theorem | **Shifted Mellin series:** for `x > 0`, `Re s > 1`, the shifted Mellin series converges to `mellin (shiftedZetaKernel x) s`. | `AngularPartition.hasSum_mellin_shiftedZetaKernel` |
+| T79 | Theorem | **Hurwitz-zeta integral representation:** `mellin (shiftedZetaKernel x) s = Γ(s) · shiftedTail(x,s)` for `x > 0`, `Re s > 1`. | `AngularPartition.mellin_shiftedZetaKernel_eq` |
+| T80 | Theorem | **Continuous coil as a normalized integral:** `continuousCoil(s,x) = Γ(s)⁻¹ · mellin (shiftedZetaKernel x) s`. | `AngularPartition.continuousCoil_eq_integral` |
 | O1 | Closed | Vector-valued area field is proved for absolutely summable `c` by T44–T50. | T50 |
 | O2 | Partial | The pole-term contour connection is Lean-proved by T51–T52; the zero sum and Weil positivity remain open. | T51 |
 | O3 | Closed | Product-to-sum annular representation for Euler products is proved by T38–T43. | T43 |
-| O4 | Open | The zero sum `Σ_ρ h(ρ)` and Weil positivity in the explicit formula. | — |
-| O5 | Open | Exact angular sums for Bost–Connes periodic-orbit data. | — |
-| O6 | Closed | Exactness audit completed: 22 objects classified, with `EXACTNESS-AUDIT.md`, `python/audit.py` and `AUDIT-LOG.md` as the durable record. | A1–A22 |
+| O4 | Open | The zero sum `Σ_ρ h(ρ)` and Weil positivity in the explicit formula. The finite Gram shadow is T73–T76; the analytic Gram/positivity theorem remains open. | T73–T76 (finite shadow) |
+| O5 | Closed | Exact angular sums for Bost–Connes data: single-prime geometric sum, all-prime Euler product, and the prime-log commensurability obstruction (T68–T72). | T68–T72 |
+| O6 | Closed | Exactness audit completed: 25 objects classified, with `EXACTNESS-AUDIT.md`, `python/audit.py` and `AUDIT-LOG.md` as the durable record. | A1–A25 |
 | O7 | Closed | Continuation beyond the critical strip is Lean-proved through the doubled strip `−1 < re s` (T53–T55), the completed functional equation as an integral identity (T56–T57), and the second subtraction to `−3 < re s` with the explicit, cancelled `s = −1` pole (T58–T63). | T53–T63 |
 | O8 | Open | General `k`-th Bernoulli subtraction and the full-plane finite part beyond the tripled strip. | — |
 
@@ -758,13 +1026,11 @@ python3 -m pytest tests -q
 
 ## 12. Open questions
 
-1. **O4 — Explicit-formula zero sum.** The pole-term contour connection is
-   formalised, but the sum over the actual zeros, \(\sum_\rho h(\rho)\), and
-   the Weil-positivity statement remain open.
-2. **O5 — Bost–Connes.** Periodic orbits have lengths \(\log p\); for one prime the
-   angular method is exact, for all primes the logs are not commensurable.
-   What is the correct finite-monodromy or regularized replacement?
-3. **O8 — General Bernoulli subtraction / full-plane finite part.** The
+1. **O4 — Explicit-formula zero sum.** The pole-term contour connection and
+   the finite Gram positivity shadow (T73–T76) are formalised, but the sum over
+   the actual zeros, \(\sum_\rho h(\rho)\), and the analytic Weil-positivity
+   statement remain open.
+2. **O8 — General Bernoulli subtraction / full-plane finite part.** The
    doubled and tripled strips are complete (O7). The general \(k\)-th
    Bernoulli subtraction and the full-plane Hadamard finite part remain open.
 

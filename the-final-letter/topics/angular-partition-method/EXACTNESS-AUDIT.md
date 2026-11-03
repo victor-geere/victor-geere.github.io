@@ -62,20 +62,28 @@ For each infinite object, ask in this order:
 | A20 | Completed annular part and functional equation | `-1 < Re(s)`; completed part, with the critical-strip FE | completed finite part; entire comparison target | yes | **E3** | `completedMellinPart_eq_completedRiemannZeta₀`, `completedMellinPart_one_sub` (T56–T57) | exact completed finite part plus the FE as an integral identity |
 | A21 | Second Bernoulli subtraction on `-3 < Re(s)` | `-3 < Re(s)` away from `{-2,-1,0,1}` | conditionally/regularized; second-order kernel bound | yes | **E3** | `hasMellin_linCutoff`, `norm_regularizedKernel₂_le`, `mellinConvergent_regularizedKernel₂`, `differentiableAt_mellin_regularizedKernel₂`, `mellin_regularizedKernel₂_eq_of_neg_three_lt_re`, `mellin_regularizedKernel₂_sub`, `regularizedMellin₂_residue_neg_one` (T58–T63) | exact twice-subtracted finite part; pole at `-1` explicitly cancelled |
 | A22 | General `k`-th Bernoulli subtraction and full-plane finite part | all `k`; full complex plane | not yet proved | open | **O** | not formalised; open item O8 | not assigned |
+| A23 | Single-prime Bost–Connes angular series | prime `p`; `Re(s) > 0` | absolute geometric series with ratio `p^(-s)` | yes | **E1** | `bostConnes_single_prime_angular`, `bostConnes_single_prime_tsum` (T68–T69) | closed form `1/(1 - p^(-s))` |
+| A24 | All-prime Bost–Connes angular product | `Re(s) > 1` | absolute Euler product | yes | **E2** | `bostConnes_all_primes_product`, `bostConnes_all_primes_tprod` (T70–T71) | exact Euler product; zeta evaluation separate |
+| A25 | Commensurability of prime logs | distinct primes `p,q`; positive `m,n` | not a series; exact arithmetic obstruction | no | **X** | `log_primes_not_commensurable` (T72) | no common positive period; finite monodromy obstructed |
+
+| A23 | Single-prime Bost–Connes angular series | prime `p`; `Re(s) > 0` | absolute geometric series with ratio `p^(-s)` | yes | **E1** | `bostConnes_single_prime_angular`, `bostConnes_single_prime_tsum` (T68–T69) | closed form `1/(1 - p^(-s))` |
+| A24 | All-prime Bost–Connes angular product | `Re(s) > 1` | absolute Euler product | yes | **E2** | `bostConnes_all_primes_product`, `bostConnes_all_primes_tprod` (T70–T71) | exact Euler product; zeta evaluation separate |
+| A25 | Commensurability of prime logs | distinct primes `p,q`; positive `m,n` | not a series; exact arithmetic obstruction | no | **X** | `log_primes_not_commensurable` (T72) | no common positive period; finite monodromy obstructed |
+
 
 
 ## 4. Summary
 
 | Class | Count | Objects |
 |---|---|---|
-| **E1** exact closed evaluation | 6 | A1, A2, A3, A4, A14, A16 |
-| **E2** exact representation | 7 | A5, A7, A8, A9, A11, A13, A18 |
+| **E1** exact closed evaluation | 7 | A1, A2, A3, A4, A14, A16, A23 |
+| **E2** exact representation | 8 | A5, A7, A8, A9, A11, A13, A18, A24 |
 | **E3** exact finite part | 5 | A10, A12, A19, A20, A21 |
-| **X** exact obstruction | 1 | A6 |
+| **X** exact obstruction | 2 | A6, A25 |
 | **F** finite evaluator only | 1 | A17 |
 | **O** open | 2 | A15, A22 |
 
-**Total: 22 audited objects.**
+**Total: 25 audited objects.**
 
 ## 5. Conclusions
 
@@ -90,6 +98,8 @@ For each infinite object, ask in this order:
   is not used as a proof of any exact identity.
 - The explicit-formula zero sum `sum_rho h(rho)` / Weil positivity (A15)
   remains open; its pole-term contour part is separately exact (A14).
+- The Bost–Connes data have exact single-prime and all-prime angular sums
+  (A23–A24); the prime-log commensurability obstruction is A25.
 - The general `k`-th Bernoulli subtraction and the full-plane finite part
   (A22 / O8) remain open; the doubled and tripled strips are exact
   finite-part statements A19–A21.

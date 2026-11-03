@@ -16,6 +16,10 @@ its cancellation at `s = −1`. `EulerProduct.lean` contains the Euler
 product-to-sum identity and the annular/coil representation of the Euler
 log-series. `VectorArea.lean` contains the vector-valued area field.
 `ExplicitFormula.lean` contains the pole-term contour connection.
+`BostConnes.lean` contains the single-prime and all-prime Bost–Connes angular
+sums and the prime-log commensurability obstruction. `Gram.lean` contains the
+finite Gram positivity certificate. `ContinuousCoil.lean` contains the shifted
+Hurwitz-zeta integral representation and the continuous coil.
 
 `Topic.lean` formalises the exact algebraic, finite-measure, finite-annular and
 infinite-annular part of the method for summable nonnegative sequences, plus
@@ -66,6 +70,18 @@ integral or any part of the Riemann hypothesis; the zeta Mellin layer is in
 | `AngularPartition.poleKernel` | The two-pole kernel `(z(z−1))⁻¹`. |
 | `AngularPartition.explicitFormula_poleContour` | Pole-term contour identity. |
 | `AngularPartition.explicitFormula_poleContour_residue_form` | Residue-form contour identity. |
+| `AngularPartition.bostConnes_single_prime_angular` / `_tsum` | Single-prime Bost–Connes angular sum. |
+| `AngularPartition.bostConnes_all_primes_product` / `_tprod` | All-prime Euler product. |
+| `AngularPartition.log_primes_not_commensurable` | Prime logs have no common positive period. |
+| `AngularPartition.gramQuad_eq_norm_sq` | Gram quadratic form as a squared norm. |
+| `AngularPartition.gramQuad_nonneg` | Finite Gram positivity. |
+| `AngularPartition.gramMatrix_posSemidef` | Finite Gram matrix PSD. |
+| `AngularPartition.gramMatrix_quadForm_nonneg` | Matrix quadratic form nonnegative. |
+| `AngularPartition.shiftedZetaKernel` / `shiftedTail` / `continuousCoil` | Shifted kernel, continuous tail and continuous coil. |
+| `AngularPartition.hasSum_shiftedZetaKernel` | Geometric series for the shifted kernel. |
+| `AngularPartition.hasSum_mellin_shiftedZetaKernel` | Shifted Mellin series. |
+| `AngularPartition.mellin_shiftedZetaKernel_eq` | Hurwitz-zeta integral representation. |
+| `AngularPartition.continuousCoil_eq_integral` | Continuous coil as a normalized integral. |
 
 ### Mellin layer (`Mellin.lean`)
 
@@ -136,6 +152,18 @@ integral or any part of the Riemann hypothesis; the zeta Mellin layer is in
 | `AngularPartition.poleKernel` | The two-pole kernel `(z(z−1))⁻¹`. |
 | `AngularPartition.explicitFormula_poleContour` | Pole-term contour identity. |
 | `AngularPartition.explicitFormula_poleContour_residue_form` | Residue-form contour identity. |
+| `AngularPartition.bostConnes_single_prime_angular` / `_tsum` | Single-prime Bost–Connes angular sum. |
+| `AngularPartition.bostConnes_all_primes_product` / `_tprod` | All-prime Euler product. |
+| `AngularPartition.log_primes_not_commensurable` | Prime logs have no common positive period. |
+| `AngularPartition.gramQuad_eq_norm_sq` | Gram quadratic form as a squared norm. |
+| `AngularPartition.gramQuad_nonneg` | Finite Gram positivity. |
+| `AngularPartition.gramMatrix_posSemidef` | Finite Gram matrix PSD. |
+| `AngularPartition.gramMatrix_quadForm_nonneg` | Matrix quadratic form nonnegative. |
+| `AngularPartition.shiftedZetaKernel` / `shiftedTail` / `continuousCoil` | Shifted kernel, continuous tail and continuous coil. |
+| `AngularPartition.hasSum_shiftedZetaKernel` | Geometric series for the shifted kernel. |
+| `AngularPartition.hasSum_mellin_shiftedZetaKernel` | Shifted Mellin series. |
+| `AngularPartition.mellin_shiftedZetaKernel_eq` | Hurwitz-zeta integral representation. |
+| `AngularPartition.continuousCoil_eq_integral` | Continuous coil as a normalized integral. |
 | `AngularPartition.locallyIntegrableOn_regularizedKernel` | Local integrability on `(0,∞)`. |
 | `AngularPartition.norm_zetaKernel_le_two_exp_neg` | `‖1/(e^t−1)‖ ≤ 2e^(−t)` for `t ≥ 1`. |
 | `AngularPartition.regularizedKernel_isBigO_exp` | `h = O(e^(−t))` at infinity. |

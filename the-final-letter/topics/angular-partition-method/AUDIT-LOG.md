@@ -77,3 +77,49 @@ E1 = 6, E2 = 7, E3 = 5, X = 1, F = 1, O = 2.
 
 The theorem ledger now runs to T67. The Lean build and pytest suite were
 re-run after the change.
+
+## 2026-11-03 — O5 Bost–Connes closure
+
+Added `lean/BostConnes.lean` and extended the audit:
+
+- **A23** single-prime Bost–Connes angular series — **E1**;
+- **A24** all-prime Bost–Connes Euler product — **E2**;
+- **A25** prime-log commensurability obstruction — **X**.
+
+New theorems T68–T72:
+
+- `bostConnes_single_prime_angular`, `bostConnes_single_prime_tsum`;
+- `bostConnes_all_primes_product`, `bostConnes_all_primes_tprod`;
+- `log_primes_not_commensurable`.
+
+O5 is marked **closed** for the exact convergence-domain angular sums and the
+commensurability obstruction. The audit summary is now **25 objects**:
+E1 = 7, E2 = 8, E3 = 5, X = 2, F = 1, O = 2. O8 remains open.
+
+## 2026-11-03 — finite Gram positivity formalised
+
+Added `lean/Gram.lean` with T73–T76:
+
+- `gramQuad_eq_norm_sq` — the Gram quadratic form is a squared norm;
+- `gramQuad_nonneg` — finite Gram positivity;
+- `gramMatrix_posSemidef` — every finite Gram matrix is PSD;
+- `gramMatrix_quadForm_nonneg` — matrix quadratic form nonnegativity.
+
+This is the finite algebraic shadow suggested by the Gram matrix in
+`absolute-polarized-hodge-index-realization`. It applies to annular/sector
+indicator vectors but does **not** prove the analytic Weil positivity
+statement. O4 therefore remains open; its row now points to the finite shadow
+T73–T76 while retaining the analytic gap.
+
+## 2026-11-03 — continuous Hurwitz-zeta coil formalised
+
+Added `lean/ContinuousCoil.lean` with T77–T80:
+
+- `hasSum_shiftedZetaKernel` — the shifted geometric kernel;
+- `hasSum_mellin_shiftedZetaKernel` — the shifted Mellin series;
+- `mellin_shiftedZetaKernel_eq` — the Hurwitz-zeta integral representation;
+- `continuousCoil_eq_integral` — the continuous coil as a normalized integral.
+
+This formalises the section-2 integral representation and the replacement of
+the discrete annular coil by a continuous spiral for `x > 0`, `Re s > 1`.
+Analytic continuation beyond `Re s > 1` remains outside the statement.
