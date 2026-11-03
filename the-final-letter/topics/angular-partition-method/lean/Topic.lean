@@ -266,4 +266,60 @@ theorem unitCoil_tendsto_zero (c : ℕ → ℂ) :
   have h := ctail_tendsto_zero c
   simpa [unitCoil] using h.div_const (ctail c 0)
 
+
+/-- **Normalized halving-sector total.** The half-turn series
+`1/2 + 1/4 + ...` has exact total `1`. This is the normalized form of
+`sector_angle_hasSum`. -/
+theorem half_turn_sector_hasSum :
+    HasSum (fun n : ℕ => ((1 : ℝ) / 2) ^ (n + 1)) 1 := by
+  have h := (hasSum_geometric_two).mul_left ((1 : ℝ) / 2)
+  simpa [pow_succ, mul_comm, mul_left_comm, mul_assoc] using h
+
+/-- The normalized halving-sector total in `tsum` form. -/
+theorem half_turn_sector_tsum :
+    (∑' n : ℕ, ((1 : ℝ) / 2) ^ (n + 1)) = 1 :=
+  half_turn_sector_hasSum.tsum_eq
+
+/-- **Exact divergence of the reciprocal weights.** The shifted harmonic
+series `∑ 1/(n+1)` is not summable. This supplies the exact divergence
+diagnosis used in the exactness audit (A6). -/
+theorem not_summable_inv_nat_succ :
+    ¬ Summable (fun n : ℕ => (1 : ℝ) / (n + 1)) := by
+  intro h
+  have h' : Summable (fun n : ℕ => (1 : ℝ) / (n : ℝ)) := by
+    refine (summable_nat_add_iff 1).1 ?_
+    simpa [Nat.cast_add, Nat.cast_one, add_comm] using h
+  exact Real.not_summable_one_div_natCast h'
+
+/-- **Infinite geometric series in the complex plane.** For `‖z‖ < 1`,
+`∑ z^n = 1/(1-z)`. This supplies the infinite rational-series row (A16) of
+the exactness audit. -/
+theorem geometric_hasSum_complex {z : ℂ} (hz : ‖z‖ < 1) :
+    HasSum (fun n : ℕ => z ^ n) (1 - z)⁻¹ :=
+  hasSum_geometric_of_norm_lt_one hz
+
+/-- The complex geometric series in `tsum` form. -/
+theorem geometric_tsum_complex {z : ℂ} (hz : ‖z‖ < 1) :
+    (∑' n : ℕ, z ^ n) = (1 - z)⁻¹ :=
+  (geometric_hasSum_complex hz).tsum_eq
+
+
+
+
+
+
+open Set MeasureTheory
+
+/-- **Layer-cake identity for a nonnegative sequence.**
+`ENNReal.ofReal (a n)` is the measure of `{t > 0 : t < a n}`. This is the
+exact layer-cake representation used in the exactness audit (A18). -/
+theorem layer_cake (a : ℕ → ℝ) (_ha : ∀ n, 0 ≤ a n) (n : ℕ) :
+    ENNReal.ofReal (a n) =
+      ∫⁻ t in Ioi (0 : ℝ), ((Set.Iio (a n)).indicator (fun _ => (1 : ENNReal))) t := by
+  rw [setLIntegral_indicator measurableSet_Iio, setLIntegral_one]
+  rw [show (Set.Iio (a n) ∩ Ioi (0 : ℝ)) = Set.Ioo (0 : ℝ) (a n) by
+    ext t
+    exact and_comm]
+  rw [Real.volume_Ioo, sub_zero]
+
 end AngularPartition

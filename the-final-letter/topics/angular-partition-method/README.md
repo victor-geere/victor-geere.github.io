@@ -3,9 +3,12 @@
 **Status:** **method proposal with a checked exact core**. The finite annular,
 sectorial and general-measure identities, including the infinite annular
 representation of any summable nonnegative series, are Lean-proved; the
-computation layer is exact. Applications to \(\zeta\), Euler products and the
-explicit formula are **open** and are recorded as such. No finite truncation is
-used in the core.
+computation layer is exact. Applications to \(\zeta\), Euler products, the
+pole-term part of the explicit formula, and the continuation of the annular
+Mellin integral two strips beyond the critical strip (to \(-3 < \Re s\), with
+the \(s=-1\) pole explicit and cancelled) are Lean-proved; the zero sum and
+Weil positivity remain **open** and are recorded as such. No finite truncation
+is used in the core.
 
 **Source:** proposal from Victor Geere, 3 November 2026, following the
 infinite-level obstruction in
@@ -120,6 +123,13 @@ multiplicative bookkeeping weights, and
 \(\prod_{n=0}^{N}R_n/R_{n+1}=R_0/R_{N+1}\) telescopes exactly. Sums and
 products are two coordinate choices on the same radial data.
 
+For Euler products this is formalised in [`lean/EulerProduct.lean`](lean/EulerProduct.lean):
+the finite product-to-sum identity is `finite_eulerProduct_exp_log`; the prime
+log-series is summable (`eulerLogSeries_summable`); its exponential is `ζ(s)`
+for `\Re s>1` (`riemannZeta_eulerProduct_exp_log`); and after enumerating the
+primes by `Nat.nth`, the log-series has the phase-carrying coil representation
+`eulerLogSeries_coil`.
+
 ### 2.2 Complex terms and angular bookkeeping
 
 For an absolutely summable complex series \(c_n=|c_n|e^{i\theta_n}\), apply the
@@ -131,10 +141,18 @@ and
 \sum_{n\ge0}c_n=\int_{D}e^{i\theta(z)}\,d\mu(z).
 \]
 
-The scalar sum is a vector-valued area integral. For a conditionally convergent
-series, the angular placement is a **summation method**; rearrangements can
-change the value, so absolute convergence (or a proved rearrangement-invariance
-statement) is required before identifying it with the ordinary sum.
+The scalar sum is a vector-valued area integral. This is formalised in
+[`lean/VectorArea.lean`](lean/VectorArea.lean): `vectorArea c` is a
+`VectorMeasure ℕ ℂ`; its value on a measurable set is `∑' n in A, c n`, it is
+countably additive, and its phase decomposition is
+`vectorArea c A = ∑' n in A, phaseWeight c n`, where
+`phaseWeight c n = ‖c n‖ exp(arg(c n) i)`. The total vector area is
+`∑' n, c n`, bounded by the total area `∑' n, ‖c n‖`.
+
+For a conditionally convergent series, the angular placement is a
+**summation method**; rearrangements can change the value, so absolute
+convergence (or a proved rearrangement-invariance statement) is required
+before identifying it with the ordinary sum.
 
 ### 2.3 The phase-carrying tail coil
 
@@ -194,7 +212,7 @@ the radius is \(0\) and the angle is immaterial.
 2. **Annular phase field.** Use the moduli \(|c_n|\) as annular areas and the
    arguments \(\arg c_n\) as angular sectors. The sum is the vector area
    integral \(\int e^{i\theta}\,d\mu\). This is exact for absolutely summable
-   series; its infinite formalisation is open.
+   series and is Lean-proved in `VectorArea.lean`.
 3. **Tuple model.** Carry \((r_n,\theta_n)\) or \((R_n,\Theta_n)\) as an exact
    pair, with addition/multiplication rules for phase and radius. This is the
    most flexible bookkeeping model; it is equivalent to the complex tail when
@@ -388,6 +406,22 @@ explicit-formula contour: the pole subtraction matches the contour residues,
 and the completed finite part supplies the functional equation that pairs the
 zeros. This is a structural connection, not a new proof of Weil positivity.
 
+The pole-term part of this contour connection is formalised in
+[`lean/ExplicitFormula.lean`](lean/ExplicitFormula.lean). For a test function
+`h` holomorphic on a disk containing `0` and `1`,
+
+```lean
+theorem explicitFormula_poleContour :
+  (∮ z in C(c, R), poleKernel z * h z) =
+    (2 * π * I) * (h 1 - h 0)
+```
+
+with `poleKernel z = (z * (z - 1))⁻¹`. The companion
+`explicitFormula_poleContour_residue_form` writes the same integral as
+`2πi h(1) + 2πi (−h(0))`. This is the exact Cauchy-residue mechanism behind the
+two pole terms. The sum over the actual zeros and the Weil-positivity statement
+remain open.
+
 **Convergence of the subtracted kernel.** Define
 
 \[
@@ -460,6 +494,28 @@ complementary instruments:
 The two are not in contradiction. The angular method can discover an exact
 identity; the partial-sum-plus-tail layer can certify a numerical value when no
 exact identity is known. A good programme uses both.
+
+### 6.1 The exactness audit (O6)
+
+The audit is recorded in [`EXACTNESS-AUDIT.md`](EXACTNESS-AUDIT.md), with a
+machine-readable matrix in [`python/audit.py`](python/audit.py). Each infinite
+series or transform is classified **before** an evaluator is assigned:
+
+| Class | Count | Meaning |
+|---|---:|---|
+| **E1** exact closed evaluation | 6 | exact transform and closed value |
+| **E2** exact representation | 7 | exact transform, closed value separate |
+| **E3** exact finite part | 5 | regularized value of a divergent raw series |
+| **X** exact obstruction | 1 | exact divergence/obstruction diagnosis |
+| **F** finite evaluator only | 1 | certified partial-sum-plus-tail fallback |
+| **O** open | 2 | explicit-formula zero sum and general Bernoulli/full-plane |
+
+The 22 audited objects include geometric, halving, annular, `p`-series,
+complex, Dirichlet, Mellin, Euler-product, vector-area, pole-contour and
+continuation cases.
+No object with an exact transform is assigned a finite truncation as its
+representation of infinity. The Lean fixes for the audit rows A4, A6, A16 and
+A18 are T64–T67.
 
 ## 7. Scope, obstructions and the zeta wall
 
@@ -547,13 +603,13 @@ annular representation and the finite versions of the first three rows.
 | self-similar fixed point | \(S=a+rS\) | \(S=a/(1-r)\) | exact when the copy is exact |
 | layer-cake | \(a_n\ge0\) | \(a_n=\int_0^\infty 1_{t<a_n}dt\) | exact (Tonelli) |
 | Mellin/Laplace | \(n^{-s}\) | \(\Gamma(s)\zeta(s)=\int t^{s-1}/(e^t-1)dt\) | exact in \(\Re s>1\), meromorphic beyond |
-| product-to-sum | \(\prod(1+a_n)\) | \(\exp(\sum\log(1+a_n))\) | exact in the convergence domain |
-| phase/angular | \(c_n=\lvert c_n\rvert e^{i\theta_n}\) | vector area integral \(\int e^{i\theta}d\mu\) | exact for absolutely summable \(c_n\) |
+| product-to-sum | \(\prod(1+a_n)\) | \(\exp(\sum\log(1+a_n))\) | exact; Euler-product case Lean-proved |
+| phase/angular | \(c_n=\lvert c_n\rvert e^{i\theta_n}\) | vector area integral \(\int e^{i\theta}d\mu\) | exact for absolutely summable \(c_n\); Lean-proved |
 
 ## 9. Theorem ledger
 
-Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean)
-with no `sorry`, `axiom` or `admit`.
+Every row marked **Theorem** is proved in the Lean files under
+[`lean/`](lean/) with no `sorry`, `axiom` or `admit`.
 
 | # | Kind | Statement | Lean name |
 |---|---|---|---|
@@ -594,16 +650,50 @@ with no `sorry`, `axiom` or `admit`.
 | T35 | Theorem | **Upper half-strip identity:** `mellin regularizedKernel = regularizedMellin` for `0 < re s` and `0 < im s`. | `AngularPartition.mellin_regularizedKernel_eqOn_upper` |
 | T36 | Theorem | **Lower half-strip identity:** `mellin regularizedKernel = regularizedMellin` for `0 < re s` and `im s < 0`. | `AngularPartition.mellin_regularizedKernel_eqOn_lower` |
 | T37 | Theorem | **Critical-strip identity:** `mellin regularizedKernel s = regularizedMellin s` for `0 < re s < 1`. | `AngularPartition.mellin_regularizedKernel_eq_of_re_pos_of_lt_one` |
-| O1 | Closed | The integral identity `mellin h = M_reg` is proved in the critical strip by T37. | T37 |
-| O2 | Open | Connect the formalised Mellin/critical-strip layer to the explicit-formula contour as a Lean theorem (the pole-term correspondence is currently text-proof). | — |
-| O3 | Open | Product-to-sum annular representation for Euler products. | — |
-| O4 | Open | Exact angular sums for Bost–Connes periodic-orbit data. | — |
-| O5 | Open | Exactness audit for each infinite series in the programme. | — |
+| T38 | Theorem | **Finite Euler product-to-sum:** `∏ p∈P, (1−p^(−s))⁻¹ = exp(∑ p∈P, −log(1−p^(−s)))` when the factors are nonzero. | `AngularPartition.finite_eulerProduct_exp_log` |
+| T39 | Theorem | **Summability of the Euler log-series:** `−log(1−p^(−s))` is summable over primes for `1 < re s`. | `AngularPartition.eulerLogSeries_summable` |
+| T40 | Theorem | **Euler product-to-sum for `ζ`:** `exp(∑' p, −log(1−p^(−s))) = ζ(s)` for `1 < re s`. | `AngularPartition.riemannZeta_eulerProduct_exp_log` |
+| T41 | Theorem | **Combined product-to-sum statement:** summability of the log-series together with the zeta identity. | `AngularPartition.riemannZeta_eulerProduct_product_to_sum` |
+| T42 | Theorem | **Prime-enumerated log-series:** summability after enumerating primes by `Nat.nth`. | `AngularPartition.eulerLogSeries_summable_nth` |
+| T43 | Theorem | **Annular/coil representation of the Euler log-series:** the tail-coil decomposition, radius/phase representation and convergence to zero. | `AngularPartition.eulerLogSeries_coil` |
+| T44 | Theorem | **Phase weight reconstructs the term:** `phaseWeight c n = c n`. | `AngularPartition.phaseWeight_eq` |
+| T45 | Theorem | **Vector-area evaluation:** `vectorArea c A = ∑' n : A, c n` for summable `c` and measurable `A`. | `AngularPartition.vectorArea_apply` |
+| T46 | Theorem | **Countable additivity:** the vector area is a vector measure on disjoint measurable unions. | `AngularPartition.vectorArea_iUnion` |
+| T47 | Theorem | **Total vector area:** `vectorArea c univ = ∑' n, c n`. | `AngularPartition.vectorArea_univ` |
+| T48 | Theorem | **Coil identification:** the total vector area is the initial point `ctail c 0` of the phase coil. | `AngularPartition.vectorArea_univ_eq_ctail` |
+| T49 | Theorem | **Total-area bound:** `‖vectorArea c univ‖ ≤ ∑' n, ‖c n‖`. | `AngularPartition.norm_vectorArea_univ_le` |
+| T50 | Theorem | **Phase decomposition of the area field:** `vectorArea c A = ∑' n : A, phaseWeight c n`. | `AngularPartition.vectorArea_eq_phase_sum` |
+| T51 | Theorem | **Pole-term contour connection:** `∮ h(z)/(z(z−1)) dz = 2πi(h(1)−h(0))` for `h` holomorphic on a disk containing `0,1`. | `AngularPartition.explicitFormula_poleContour` |
+| T52 | Theorem | **Residue-form contour connection:** the same contour integral as `2πi h(1) + 2πi(−h(0))`. | `AngularPartition.explicitFormula_poleContour_residue_form` |
+| T53 | Theorem | **Sharp first-order bound:** the once-subtracted kernel satisfies `0 ≤ h(t) ≤ t/12` for `t > 0`, with `1/12 = B₂/2` the next Laurent coefficient. | `AngularPartition.regularizedReal_nonneg`, `AngularPartition.regularizedReal_le_div_twelve` |
+| T54 | Theorem | **Convergence and holomorphy on the doubled strip:** the annular Mellin integral converges and is holomorphic for `−1 < re s`. | `AngularPartition.mellinConvergent_regularizedKernel_of_neg_one_lt`, `AngularPartition.differentiableAt_mellin_regularizedKernel_of_neg_one_lt` |
+| T55 | Theorem | **Extended integral identity:** `mellin regularizedKernel s = regularizedMellin s` on `−1 < re s`, `s ∉ {0, 1}`. | `AngularPartition.mellin_regularizedKernel_eq_of_neg_one_lt_re` |
+| T56 | Theorem | **Completed annular part:** the completed finite part built from the annular integral and pole terms equals the entire function `Λ₀` on the doubled strip. | `AngularPartition.completedMellinPart_eq_completedRiemannZeta₀` |
+| T57 | Theorem | **Functional equation as an integral identity:** the completed annular integral is symmetric under `s ↦ 1 − s` on the critical strip. | `AngularPartition.completedMellinPart_one_sub` |
+| T58 | Theorem | **Second subtraction pole term:** the Mellin transform of the linear cutoff `−t/12` below `1` is `−1/(12(s+1))` for `−1 < re s`. | `AngularPartition.hasMellin_linCutoff` |
+| T59 | Theorem | **Sharp second-order bound:** the twice-subtracted kernel satisfies `‖h₂(t)‖ ≤ t³/720` for `0 < t < 1`, with `1/720 = −B₄/4!`. | `AngularPartition.regularizedReal_sub_div_twelve_ge`, `AngularPartition.norm_regularizedKernel₂_le` |
+| T60 | Theorem | **Convergence and holomorphy on the tripled strip:** the twice-subtracted annular integral converges and is holomorphic for `−3 < re s`. | `AngularPartition.mellinConvergent_regularizedKernel₂`, `AngularPartition.differentiableAt_mellin_regularizedKernel₂` |
+| T61 | Theorem | **Tripled-strip identity:** `mellin regularizedKernel₂ s = regularizedMellin₂ s` on `−3 < re s` away from `−2, −1, 0, 1`. | `AngularPartition.mellin_regularizedKernel₂_eq_of_neg_three_lt_re` |
+| T62 | Theorem | **Overlap identity:** on `−1 < re s` the two kernels' integrals differ exactly by the new pole term `−1/(12(s+1))`. | `AngularPartition.mellin_regularizedKernel₂_sub` |
+| T63 | Theorem | **Pole cancellation at `s = −1`:** `(s+1)·regularizedMellin₂ s → 0` as `s → −1`; the subtracted term cancels the pole of `Γ(s)ζ(s)` (residue `1/12`). | `AngularPartition.regularizedMellin₂_residue_neg_one` |
+| T64 | Theorem | **Normalized halving-sector total:** `∑' n, (1/2)^(n+1) = 1`. | `AngularPartition.half_turn_sector_hasSum`, `AngularPartition.half_turn_sector_tsum` |
+| T65 | Theorem | **Exact divergence of reciprocal weights:** `∑ 1/(n+1)` is not summable. | `AngularPartition.not_summable_inv_nat_succ` |
+| T66 | Theorem | **Infinite complex geometric series:** for `‖z‖ < 1`, `∑' n, z^n = (1−z)⁻¹`. | `AngularPartition.geometric_hasSum_complex`, `AngularPartition.geometric_tsum_complex` |
+| T67 | Theorem | **Layer-cake representation:** for `a_n ≥ 0`, `ENNReal.ofReal (a n) = ∫⁻ t in Ioi 0, 1_{t < a n}`. | `AngularPartition.layer_cake` |
+| O1 | Closed | Vector-valued area field is proved for absolutely summable `c` by T44–T50. | T50 |
+| O2 | Partial | The pole-term contour connection is Lean-proved by T51–T52; the zero sum and Weil positivity remain open. | T51 |
+| O3 | Closed | Product-to-sum annular representation for Euler products is proved by T38–T43. | T43 |
+| O4 | Open | The zero sum `Σ_ρ h(ρ)` and Weil positivity in the explicit formula. | — |
+| O5 | Open | Exact angular sums for Bost–Connes periodic-orbit data. | — |
+| O6 | Closed | Exactness audit completed: 22 objects classified, with `EXACTNESS-AUDIT.md`, `python/audit.py` and `AUDIT-LOG.md` as the durable record. | A1–A22 |
+| O7 | Closed | Continuation beyond the critical strip is Lean-proved through the doubled strip `−1 < re s` (T53–T55), the completed functional equation as an integral identity (T56–T57), and the second subtraction to `−3 < re s` with the explicit, cancelled `s = −1` pole (T58–T63). | T53–T63 |
+| O8 | Open | General `k`-th Bernoulli subtraction and the full-plane finite part beyond the tripled strip. | — |
 
 ## 10. Computation ledger
 
 Every row is checked by [`tests/test_programme.py`](tests/test_programme.py)
-with exact rational arithmetic; no floating point and no truncation.
+with exact rational arithmetic; no floating point and no truncation. The audit
+matrix is checked separately by [`tests/test_audit.py`](tests/test_audit.py).
 
 | # | Statement | Test |
 |---|---|---|
@@ -631,14 +721,33 @@ contains the Mellin/Laplace zeta representation, the Gamma-factor bridge, the
 completed functional equation and the vertical-strip growth bound.
 [`lean/CriticalStrip.lean`](lean/CriticalStrip.lean) contains the finite-part
 regularization, its differentiability in `0 < re s < 1`, the pole residues, and
-the completed finite-part functional equation. The file uses Mathlib’s measure theory,
-infinite-sum and geometric-series lemmas; it does not assume RH, analysis of
+the completed finite-part functional equation. [`lean/RegularizedIntegral.lean`](lean/RegularizedIntegral.lean)
+contains the comparison bounds, the cutoff splitting and the critical-strip
+identity. [`lean/Continuation.lean`](lean/Continuation.lean) extends the same
+method beyond the strip: the sharp bounds `0 ≤ h(t) ≤ t/12` and
+`‖h₂(t)‖ ≤ t³/720`, convergence and holomorphy of the annular Mellin integral
+on `−1 < re s` and `−3 < re s`, the extended identities on both strips, the
+completed functional equation as an integral identity
+(`completedMellinPart = Λ₀`, symmetric under `s ↦ 1 − s`), and the explicit
+`−1/(12(s+1))` pole term of the second subtraction with its cancellation at
+`s = −1`. [`lean/EulerProduct.lean`](lean/EulerProduct.lean) contains the
+finite Euler product-to-sum identity, the zeta log-series, the product-to-sum
+theorem and the annular/coil representation of the Euler log-series.
+[`lean/VectorArea.lean`](lean/VectorArea.lean) contains the vector-valued area
+field, and [`lean/ExplicitFormula.lean`](lean/ExplicitFormula.lean) contains the
+pole-term contour connection. The Lean files use Mathlib’s measure theory,
+infinite-sum and geometric-series lemmas; they do not assume RH, analysis of
 \(\zeta\), or any unproved arithmetic statement.
 
 [`lean/README.md`](lean/README.md) records what is and is not formalised. The
-short version: the infinite annular representation and the finite
-annular/sectorial/measure algebra are formalised; the phase-valued version, the
-Mellin transform and the zeta application are not.
+short version: the infinite annular representation, the finite
+annular/sectorial/measure algebra, the phase-carrying coil and vector area, the
+Mellin/Laplace layer, the critical-strip finite-part identity, the continuation
+of the annular Mellin identity to `−1 < re s` and (with the second subtraction)
+to `−3 < re s` including the completed functional equation as an integral
+identity, the Euler product-to-sum/coil, and the pole-term contour connection
+are formalised; the general Bernoulli subtraction scheme, the full-plane
+finite part, and the explicit-formula zero sum / Weil positivity are not.
 
 Run:
 
@@ -649,26 +758,21 @@ python3 -m pytest tests -q
 
 ## 12. Open questions
 
-1. **Critical strip.** The finite part \(M_{\mathrm{reg}}\) and its
-   differentiability in the strip are formalised. Prove convergence of the
-   subtracted-kernel Mellin integral and identify it with
-   \(M_{\mathrm{reg}}\), giving the integral form of the analytic
-   continuation.
-2. **Mellin continuation.** The representation, Gamma-factor bridge, completed
-   functional equation and vertical-strip growth bound are formalised. Connect
-   them explicitly to the critical-strip and explicit-formula layers.
-3. **Products.** Develop the product-to-sum annular representation for Euler
-   products and for the completed zeta.
-4. **Bost–Connes.** Periodic orbits have lengths \(\log p\); for one prime the
+1. **O4 — Explicit-formula zero sum.** The pole-term contour connection is
+   formalised, but the sum over the actual zeros, \(\sum_\rho h(\rho)\), and
+   the Weil-positivity statement remain open.
+2. **O5 — Bost–Connes.** Periodic orbits have lengths \(\log p\); for one prime the
    angular method is exact, for all primes the logs are not commensurable.
    What is the correct finite-monodromy or regularized replacement?
-5. **Exactness audit.** For each infinite series in the programme, decide
-   whether an exact transform exists before assigning a finite evaluator. This
-   is a methodological, not a numerical, question.
+3. **O8 — General Bernoulli subtraction / full-plane finite part.** The
+   doubled and tripled strips are complete (O7). The general \(k\)-th
+   Bernoulli subtraction and the full-plane Hadamard finite part remain open.
 
 ## 13. Links
 
 - [Programme standard](../PROGRAMME-STANDARD.md)
+- [Exactness audit (O6)](EXACTNESS-AUDIT.md)
+- [Audit and change log](AUDIT-LOG.md)
 - [Topics index](../README.md)
 - [Depth-axis companion: partial sum plus tail](../partial-sum-plus-tail/README.md)
 - [Absolute polarized Hodge-index dossier](../absolute-polarized-hodge-index-realization/README.md)
