@@ -12,10 +12,10 @@ towards a proof of the Riemann hypothesis. The RH-relevant input is the
 the explicit formula requires the **argument principle** for `Z'/Z`. The
 dossier has been building that chain bottom-up.
 
-**Goal state at handoff:** id `goal-36cd1d34-f53b-48cb-be54-45c06ac6c348`,
-revision **18**, phase **paused**, 215 rounds started, cap 10000. To continue
+**Goal state at handoff:** id `goal-45736c37-0c9c-4a8b-a876-06d00c1f9837`,
+revision **11**, phase **active**, 183 rounds started, cap 10000. To continue
 the goal in a new session, resume it with `update_goal` (action `resume`,
-revision 18) after the human asks to continue. Every status must say exactly
+revision 11) after the human asks to continue. Every status must say exactly
 **"No RH proof yet."** until an RH proof exists.
 
 ## 2. Build and verification
@@ -23,10 +23,10 @@ revision 18) after the human asks to continue. Every status must say exactly
 ```bash
 cd the-final-letter/topics/absolute-polarized-hodge-index-realization
 
-# Lean (all seven files; uses topics/tools/check-lean.sh)
+# Lean (all nine files; uses topics/tools/check-lean.sh)
 ./lean/check.sh
 
-# Python (158 test cases)
+# Python (190 test cases)
 python3 -m pytest -q tests
 ```
 
@@ -34,9 +34,9 @@ Environment: Lean 4 with Mathlib at `~/lean/mathlib4`; the shared checker is
 `the-final-letter/topics/tools/check-lean.sh`. Python uses numpy, mpmath,
 sympy; `mp.iv` for interval arithmetic and `mp.quad` to infinity.
 
-Runtime: the Lean check takes about 5–6 minutes (files are checked
-sequentially); the Python suite about 4.5–5 minutes (the interval-certificate
-tests dominate).
+Runtime: the Lean check takes about 1–2 minutes (files are checked
+sequentially); the Python suite about 9 minutes (the mpmath quadrature tests
+dominate).
 
 Hard rules: no `sorry`, `axiom`, or `admit`; no truncation of numbers or
 series where a bound is available; label **Lean-checked**, **numerical**, and
@@ -48,8 +48,8 @@ series where a bound is available; label **Lean-checked**, **numerical**, and
 |---|---|
 | `README.md` | dossier index and current-state summary |
 | `HANDOFF.md` | this document |
-| `notes/37`–`notes/60` | research notes; `54-final-assessment.md` the consolidated assessment, `55-cone-positivity-import.md` the finite cone positivity, `56`–`58` the explicit-formula chain and contour shift, `59` the programme-status synthesis, `60` the critical-line route |
-| `research-journal.md` | round-by-round journal (through round 356) |
+| `notes/37`–`notes/69` | research notes; `54-final-assessment.md` the consolidated assessment, `55-cone-positivity-import.md` the finite cone positivity, `56`–`58` the explicit-formula chain and contour shift, `59` the programme-status synthesis, `60` the critical-line route, `61` the Angular Bochner framework, `62` the synthesis, `64` the Fourier-inversion bridge, `65` the assembly roadmap, `66` the Weil positivity frontier, `67` the programme status (formalisation complete, RH open), `68` the zero-data roadmap, `69` the zeta-cone visualisation assessment |
+| `research-journal.md` | round-by-round journal (through round 550) |
 | `lean/Rescue.lean` | finite KMS forms, compatibility, Hodge sign, tensor forms |
 | `lean/Shadow.lean` | finite Hodge-index model, box/LDLᵀ cone positivity certificates, Gram positivity |
 | `lean/Archimedean.lean` | archimedean symbol, contour identity, conjugation |
@@ -61,9 +61,9 @@ series where a bound is available; label **Lean-checked**, **numerical**, and
 | `lean/ExplicitFormula.lean` | prime side: vertical modulus, von Mangoldt termwise integration |
 | `python/rescue_probe.py` | interval/omega machinery, Gram intervals, certificates |
 | `python/gram6_certificate.json` | saved 6×6 interval certificate data |
-| `tests/test_rescue.py` | 101 test functions / 185 cases |
+| `tests/test_rescue.py` | 114 test functions / 198 cases (plus the other test files in `tests/`) |
 
-## 4. Current Lean state (549 declarations)
+## 4. Current Lean state (679 declarations)
 
 ### Argument-principle chain in `Symbol.lean` (the active frontier)
 
@@ -249,7 +249,39 @@ scalars, controlled division, affine reparametrisation, zero-free sums,
 constant shifts, all complex polynomials (`polynomial_hasLogGrowthOne`),
 genus-0 and genus-1 finite canonical products.
 
-## 5. Exact next steps (updated after the rounds 250–356)
+## 4b. Snapshot after round 546
+
+- **Lean**: 10 files (`Rescue`, `Shadow`, `Archimedean`, `Symbol`, `Limit`,
+  `Weil`, `Hadamard`, `Rectangle`, `ExplicitFormula`, `ZetaStrip`), all checking,
+  **677 declarations**, no `sorry`/`axiom`/`admit`.
+- **Numerical**: 197 tests.
+- **Notes**: 69.
+- **Build note**: `lean/check.sh` sets `LEAN_EXTRA_PATH` to
+  `../finite-window-zeros/lean` so `ZetaStrip.lean` can import the exact
+  Euler–Maclaurin development (`EMCritical`). This is the only cross-topic
+  dependency.
+
+**The zero-data package** (note 68) is now Lean-checked through the analytic
+inputs:
+
+1. zeros isolated / finite on balls / countable;
+2. the divisor match at non-zeros and (multiplicity version) at zeros;
+3. summability under the correct `r log r` growth;
+4. the enumeration of the zero set (conditional on nonemptiness);
+5. the two-sided bounds for the finite *and infinite* canonical product;
+6. the `P'/P` bounds;
+7. the zero-free growth theorem (`r log r` ⇒ affine);
+8. the growth bound and functional equation for `ξ₀`;
+9. the Gamma, archimedean and `ζ`-strip growth bounds;
+10. the mean-value property and maximum-modulus step of the assembly.
+
+**What remains**: the classical value-distribution assembly
+(`log M_{ξ₀/P}(R) = O(R log R)` from Jensen/Poisson and the counting function,
+then `ξ₀/P = e^{affine}` via the subquadratic theorem), the infinitude of the
+zeros and the multiplicity enumeration; and, independent of all of this, the
+**converse of Weil positivity**.
+
+## 5. Exact next steps (updated after round 495)
 
 **Done (Lean-checked):**
 
@@ -301,15 +333,37 @@ genus-0 and genus-1 finite canonical products.
    decomposition, and Cauchy for the analytic remainder; numerically confirmed
    to `10⁻²⁵`.
 
-1. **Critical-line route to the classical Weil explicit formula**: the Fourier
-   and prime-measure ingredients are Lean-checked (item 8); what remains is
-   **Fourier inversion**, the archimedean integral against a general test
-   function, and the assembled formula with constants fixed from Weil 1972 /
-   Iwaniec–Kowalski Thm 5.12 (see `notes/60-critical-line-route.md`).
-2. **Weil's criterion / infinite-level cone positivity** — the genuinely open,
-   RH-relevant statement. The finite cone rungs (2×2, 4×4) are Lean-checked;
-   the 6×6 interval certificate is numerical only (margin `~4·10⁻¹⁰`).
-3. Optional: strengthen the numerical certificate for the finite cone.
+1. ~~Fourier inversion~~ — **done**: `fourier_inversion` (unconditional for
+   `C²` functions with vanishing endpoints), and the whole Paley–Wiener
+   assembled chain (three Fubini swaps, the closed exponential-kernel prime
+   sum, the right-vertical decomposition, the `u`-superposition, and the
+   assembled contour-shift identity `contour_shift_paleyWiener`). See
+   `notes/65-explicit-formula-assembly-roadmap.md`.
+2. **The zero data for the unconditional Hadamard factorisation** (note 68):
+   the analytic inputs are now Lean-checked up to the **strip growth of `ζ`**
+   (the last gap, note 68 §"a fourth gap"): zero-free growth theorem
+   (`subquadratic_eq_affine_of_re_le_rpow`), the lower bounds on `|P|`
+   (per-factor, finite and infinite), the `P'/P` bounds, the real-axis growth
+   of `Z'/Z`, the Gamma growth bounds, and the archimedean factor's growth on
+   `re s ≥ 1/2`. What remains is the `ζ` strip growth (convexity via
+   three-lines, or partial summation) and then the assembly. Formerly:
+   zeros isolated ✔, finite on compact balls ✔, countable ✔, summability ✔
+   (from the corrected `r log r` growth), divisor match at non-zeros ✔,
+   divisor match at zeros with multiplicities ✔ (finite-split/multiplicity
+   theorems, rounds 493–494), log-growth automatic ✔ (round 495). What remains
+   is **constructing the multiplicity enumeration** (a surjection
+   `ℕ → {zeros}` with the right fibres) to discharge the hypotheses of
+   `factorization_of_xi₀` / `logDeriv_completedZeta_eq_tsum_of_zeros`.
+3. **Weil's criterion / infinite-level cone positivity** — the genuinely open,
+   RH-relevant statement (notes 61, 66). The finite cone rungs (2×2, 4×4) are
+   Lean-checked; the 6×6 interval certificate is numerical only
+   (margin `~4·10⁻¹⁰`). The direction **RH ⟹ Weil positivity** is Lean-checked
+   for the autocorrelation cone (`weil_zero_sum_nonneg_real_of_critical_line`).
+4. **The `T → ∞` limit** of the assembled contour identity: numerically the
+   horizontal term *grows* (`test_horizontal_term_grows`), so the holomorphic
+   shift has no limit; the classical formula needs the Weil zero-sum form,
+   which the Hadamard partial fraction
+   (`logDeriv_completedZeta_eq_tsum_of_zeros`) now provides conditionally.
 
 ## 6. Mathlib gaps and workarounds
 

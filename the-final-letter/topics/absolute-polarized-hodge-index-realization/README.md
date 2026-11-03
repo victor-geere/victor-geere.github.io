@@ -154,7 +154,19 @@ Fourier identity `integral_logDeriv_mul_I_eq_neg_arch_prime_fourier_closed`
 (numerically confirmed to `1.2·10⁻⁷`), and the
 external *Angular Bochner framework* note (with its explicitly limitative
 boundary) in
-[`notes/61-angular-bochner-framework.md`](notes/61-angular-bochner-framework.md). Its
+[`notes/61-angular-bochner-framework.md`](notes/61-angular-bochner-framework.md); the
+Fourier-inversion bridge in
+[`notes/64-fourier-inversion-bridge.md`](notes/64-fourier-inversion-bridge.md), the
+explicit-formula assembly roadmap in
+[`notes/65-explicit-formula-assembly-roadmap.md`](notes/65-explicit-formula-assembly-roadmap.md), the
+Weil positivity frontier in
+[`notes/66-weil-positivity-frontier.md`](notes/66-weil-positivity-frontier.md), and the
+programme status (formalisation objectives complete, RH open) in
+[`notes/67-programme-status-formalisation-complete.md`](notes/67-programme-status-formalisation-complete.md), the
+zero-data roadmap in
+[`notes/68-zero-data-roadmap.md`](notes/68-zero-data-roadmap.md), and the
+assessment of the external zeta-cone visualisation in
+[`notes/69-zeta-cone-concepts-assessment.md`](notes/69-zeta-cone-concepts-assessment.md). Its
 Lean ingredients now include the Fourier-transform symmetries
 `fourierG_even`/`fourierG_conj` and the regularity/boundedness
 `continuous_fourierG`/`norm_fourierG_le`, the Fourier form of the
@@ -240,7 +252,7 @@ bounded near a simple zero. Numerically the residue limits
 `(s−ρ)Z'/Z → 1`, `(s−p)Z'/Z → −1` are confirmed with linear convergence and
 Richardson extrapolation.
 **No RH proof yet.**
-**Current state (round 422).** The dossier now has **549 Lean
+**Current state (round 469).** The dossier now has **679 Lean
 declarations** across 9 files (no `sorry`/`axiom`/`admit`) and **184 Python
 tests**. The explicit-formula chain is Lean-checked through the test-function
 zero side, the prime side (including its closed Fourier form), the
@@ -639,7 +651,7 @@ The two algebraic candidates below fail for proved reasons:
 - [`tests/test_local_polarization.py`](tests/test_local_polarization.py) —
   local positivity tests.
 - [`tests/test_rescue.py`](tests/test_rescue.py) — the rescue and continuation
-  tests (100 test functions, 184 cases).
+  tests (107 test functions, 191 cases).
 
 ## Lean
 

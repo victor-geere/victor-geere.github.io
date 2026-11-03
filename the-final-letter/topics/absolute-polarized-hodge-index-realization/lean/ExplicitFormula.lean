@@ -1,6 +1,7 @@
 import Rectangle
 import Archimedean
 import Mathlib.Analysis.Fourier.Inversion
+import Mathlib.Analysis.Calculus.LogDerivUniformlyOn
 
 /-!
 # Toward the explicit formula: the prime side
@@ -4391,5 +4392,1126 @@ theorem natCast_cpow_vertical_eq_exp {n : ℕ} (hn : 2 ≤ n) (c y : ℝ) :
   push_cast
   ring
 
+
+
+
+/-- **The elementary exponential integral**: for `λ ≠ 0`,
+`∫_{y₁}^{y₂} e^{−λy} dy = (e^{−λy₁} − e^{−λy₂})/λ`. -/
+theorem integral_exp_neg_mul (lam : ℂ) (hlam : lam ≠ 0) (y₁ y₂ : ℝ) :
+    (∫ y : ℝ in y₁..y₂, Complex.exp (-(lam * (y : ℂ))))
+      = (Complex.exp (-(lam * (y₁ : ℂ))) - Complex.exp (-(lam * (y₂ : ℂ)))) / lam := by
+  have hderiv : ∀ y : ℝ, HasDerivAt (fun y : ℝ => Complex.exp (-(lam * (y : ℂ))) / (-lam))
+      (Complex.exp (-(lam * (y : ℂ)))) y := by
+    intro y
+    have hlin : HasDerivAt (fun y : ℝ => -(lam * (y : ℂ))) (-lam) y := by
+      simpa [neg_mul] using (Complex.ofRealCLM.hasDerivAt (x := y)).const_mul (-lam)
+    have hexp := (Complex.hasDerivAt_exp _).comp y hlin
+    have h3 := hexp.div_const (-lam)
+    convert h3 using 1
+    · funext z
+      rfl
+    · field_simp [hlam]
+  have hmain := intervalIntegral.integral_eq_sub_of_hasDerivAt (a := y₁) (b := y₂)
+    (f := fun y : ℝ => Complex.exp (-(lam * (y : ℂ))) / (-lam))
+    (f' := fun y : ℝ => Complex.exp (-(lam * (y : ℂ))))
+    (fun y _ => hderiv y)
+    ((Complex.continuous_exp.comp (by continuity)).intervalIntegrable _ _)
+  rw [hmain]
+  ring
+
+
+/-- **Closed exponential-kernel von Mangoldt term integral**: for `n ≥ 2`,
+`∫_{y₁}^{y₂} term_n(c+iy)e^{−uy}dy = Λ(n)n^{-c}·(e^{−λy₁}−e^{−λy₂})/λ`,
+where `λ = u + i log n`. -/
+theorem integral_lseriesTerm_exp {n : ℕ} (hn : 2 ≤ n) (c u y₁ y₂ : ℝ) :
+    (∫ y : ℝ in y₁..y₂,
+        LSeries.term (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (c + y * I) n
+          * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ)))
+      = (ArithmeticFunction.vonMangoldt n : ℂ) * ((n : ℝ) : ℂ) ^ (-(c : ℂ))
+          * ((Complex.exp (-(((u : ℂ) + Complex.I * (Real.log n : ℂ)) * ((y₁ : ℝ) : ℂ)))
+              - Complex.exp (-(((u : ℂ) + Complex.I * (Real.log n : ℂ)) * ((y₂ : ℝ) : ℂ))))
+            / ((u : ℂ) + Complex.I * (Real.log n : ℂ))) := by
+  have hn0 : n ≠ 0 := by omega
+  have hnpos : (0 : ℝ) < n := by exact_mod_cast (show 0 < n by omega)
+  have hnne : (n : ℝ) ≠ 1 := by
+    have : (1 : ℝ) < n := by exact_mod_cast (show 1 < n by omega)
+    linarith
+  have hlog : Real.log (n : ℝ) ≠ 0 := Real.log_ne_zero_of_pos_of_ne_one hnpos hnne
+  have hlam : (u : ℂ) + Complex.I * (Real.log n : ℂ) ≠ 0 := by
+    intro h
+    have h0 : ((u : ℂ) + Complex.I * (Real.log n : ℂ)).im = 0 := by rw [h]; simp
+    have h1 : ((u : ℂ) + Complex.I * (Real.log n : ℂ)).im = Real.log n := by
+      simp only [Complex.add_im, Complex.mul_im, Complex.I_re, Complex.I_im, Complex.ofReal_im,
+        zero_mul, zero_add, one_mul, Complex.ofReal_re]
+    rw [h1] at h0
+    exact hlog h0
+  have hterm : ∀ y : ℝ,
+      LSeries.term (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (c + (y : ℂ) * I) n
+        = (ArithmeticFunction.vonMangoldt n : ℂ) * ((n : ℝ) : ℂ) ^ (-(c + (y : ℂ) * I) : ℂ) := by
+    intro y
+    rw [LSeries.term_def, if_neg hn0, div_eq_mul_inv, ← Complex.cpow_neg,
+      ← Complex.ofReal_natCast n]
+  have hpoint : ∀ y : ℝ,
+      ((n : ℝ) : ℂ) ^ (-(c + (y : ℂ) * I) : ℂ)
+        * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ))
+      = ((n : ℝ) : ℂ) ^ (-(c : ℂ))
+        * Complex.exp (-(((u : ℂ) + Complex.I * (Real.log n : ℂ)) * (y : ℂ))) := by
+    intro y
+    rw [natCast_cpow_vertical_eq_exp hn c y, mul_assoc]
+    congr 1
+    rw [← Complex.exp_add]
+    congr 1
+    push_cast
+    ring
+  have hcongr : (∫ y : ℝ in y₁..y₂,
+        LSeries.term (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (c + y * I) n
+          * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ)))
+      = ∫ y : ℝ in y₁..y₂, (ArithmeticFunction.vonMangoldt n : ℂ)
+          * (((n : ℝ) : ℂ) ^ (-(c : ℂ))
+            * Complex.exp (-(((u : ℂ) + Complex.I * (Real.log n : ℂ)) * (y : ℂ)))) := by
+    apply intervalIntegral.integral_congr
+    intro y hy
+    beta_reduce
+    rw [hterm y, mul_assoc, hpoint y]
+  rw [hcongr]
+  rw [intervalIntegral.integral_const_mul]
+  rw [intervalIntegral.integral_const_mul]
+  rw [integral_exp_neg_mul ((u : ℂ) + Complex.I * (Real.log n : ℂ)) hlam y₁ y₂]
+  ring
+
+
+/-- **Closed exponential-kernel prime sum**: for `c > 1`,
+`∫_{y₁}^{y₂} L_Λ(c+iy)e^{−uy}dy = Σ_n (if n ≤ 1 then 0 else Λ(n)n^{-c}(e^{−λy₁}−e^{−λy₂})/λ)`
+with `λ = u + i log n`. -/
+theorem integral_lseries_vonMangoldt_exp_closed (c u y₁ y₂ : ℝ) (hc : 1 < c) :
+    (∫ y : ℝ in y₁..y₂,
+        LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (c + y * I)
+          * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ)))
+      = ∑' n : ℕ, if n ≤ 1 then 0 else
+          (ArithmeticFunction.vonMangoldt n : ℂ) * ((n : ℝ) : ℂ) ^ (-(c : ℂ))
+            * ((Complex.exp (-(((u : ℂ) + Complex.I * (Real.log n : ℂ)) * ((y₁ : ℝ) : ℂ)))
+                - Complex.exp (-(((u : ℂ) + Complex.I * (Real.log n : ℂ)) * ((y₂ : ℝ) : ℂ))))
+              / ((u : ℂ) + Complex.I * (Real.log n : ℂ))) := by
+  rw [integral_lseries_vonMangoldt_exp c u y₁ y₂ hc]
+  apply tsum_congr
+  intro n
+  by_cases hn : n ≤ 1
+  · rw [if_pos hn]
+    have hzero : ∀ y : ℝ,
+        LSeries.term (fun n => (ArithmeticFunction.vonMangoldt n : ℂ))
+          (c + (y : ℂ) * I) n = 0 := by
+      intro y
+      interval_cases n
+      · rw [LSeries.term_def]
+        simp
+      · rw [LSeries.term_def]
+        simp
+    rw [show (∫ y : ℝ in y₁..y₂,
+          LSeries.term (fun n => (ArithmeticFunction.vonMangoldt n : ℂ))
+            (c + y * I) n * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ)))
+        = ∫ y : ℝ in y₁..y₂, (0 : ℂ) from by
+      apply intervalIntegral.integral_congr
+      intro y hy
+      beta_reduce
+      rw [hzero y]
+      ring]
+    simp
+  · rw [if_neg hn]
+    have hn2 : 2 ≤ n := by omega
+    exact integral_lseriesTerm_exp hn2 c u y₁ y₂
+
+
+/-- **Right-vertical decomposition for the Paley–Wiener test function**
+(`I`-multiplied form): `∫ (Z'/Z)h·I = −∫ arch·h·I − ∫ L_Λ·h·I`. -/
+theorem integral_logDeriv_paleyWiener_eq_neg_I (g : ℝ → ℂ) (hg : Continuous g) (T : ℝ) :
+    (∫ y : ℝ in (-T)..T, logDeriv completedZeta ((2 : ℝ) + y * I)
+        * paleyWiener g ((2 : ℝ) + y * I) * I)
+      = - (∫ y : ℝ in (-T)..T,
+            ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+              * paleyWiener g ((2 : ℝ) + y * I) * I)
+        - (∫ y : ℝ in (-T)..T,
+            LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+              * paleyWiener g ((2 : ℝ) + y * I) * I) := by
+  have hcont : Continuous (fun y : ℝ => paleyWiener g ((2 : ℝ) + y * I)) :=
+    (differentiable_paleyWiener g hg).continuous.comp (by continuity)
+  have hLcont : ContinuousOn (fun y : ℝ =>
+      LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+        * paleyWiener g ((2 : ℝ) + y * I) * I) (Set.uIcc (-T) T) :=
+    ((continuousOn_lseries_vonMangoldt 2 (-T) T (by norm_num)).mul hcont.continuousOn).mul_const I
+  exact integral_logDeriv_mul_I_eq_neg_arch_prime'
+    (h := paleyWiener g) (c := 2) (-T) T (by norm_num) hcont.continuousOn hLcont
+
+
+/-- **Finite-`T` Fubini swap for the prime side against the Paley–Wiener test
+function.** -/
+theorem integral_lseries_paleyWiener_swap (g : ℝ → ℂ) (hg : Continuous g) (T : ℝ) :
+    (∫ y : ℝ in (-T)..T, LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+        * paleyWiener g ((2 : ℝ) + y * I))
+      = ∫ u : ℝ in (-1)..1,
+          g u * Complex.exp (Complex.I * ((3 / 2 : ℝ) : ℂ) * (u : ℂ))
+            * (∫ y : ℝ in (-T)..T,
+                LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+                  * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ))) := by
+  have hLline : Continuous (fun y : ℝ =>
+      LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)) := by
+    rw [continuous_iff_continuousAt]
+    intro y
+    have hmem : Set.Icc (y - 1) (y + 1) ∈ 𝓝 y := by
+      have h1 : Set.Ioo (y - 1) (y + 1) ∈ 𝓝 y :=
+        IsOpen.mem_nhds isOpen_Ioo ⟨by linarith, by linarith⟩
+      exact Filter.mem_of_superset h1 (fun z hz => ⟨le_of_lt hz.1, le_of_lt hz.2⟩)
+    exact (continuousOn_lseries_vonMangoldt 2 (y - 1) (y + 1) (by norm_num)).continuousAt
+      (Filter.mem_of_superset hmem (by intro z hz; exact Set.Icc_subset_uIcc hz))
+  have hFcont : Continuous (Function.uncurry
+      (fun (y : ℝ) (u : ℝ) => LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+        * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))))) := by
+    apply Continuous.mul
+    · exact hLline.comp continuous_fst
+    · exact (hg.comp continuous_snd).mul
+        (Complex.continuous_exp.comp (by continuity))
+  have hint : IntegrableOn (Function.uncurry
+      (fun (y : ℝ) (u : ℝ) => LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+        * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ)))))
+      (Set.uIoc (-T) T ×ˢ Set.uIoc (-1) 1) := by
+    have hK : IntegrableOn (Function.uncurry
+        (fun (y : ℝ) (u : ℝ) => LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+          * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ)))))
+        (Set.uIcc (-T) T ×ˢ Set.uIcc (-1) 1) :=
+      hFcont.continuousOn.integrableOn_compact (isCompact_uIcc.prod isCompact_uIcc)
+    exact hK.mono_set (by
+      intro p hp
+      exact ⟨Set.uIoc_subset_uIcc hp.1, Set.uIoc_subset_uIcc hp.2⟩)
+  have hswap := intervalIntegral_intervalIntegral_swap (F := fun (y : ℝ) (u : ℝ) =>
+      LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+        * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))))
+    (a := -T) (b := T) (c := -1) (d := 1) hint
+  have hstep1 : (∫ y : ℝ in (-T)..T,
+        LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+        * ∫ u : ℝ in (-1)..1,
+            g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ)))
+      = ∫ y : ℝ in (-T)..T, ∫ u : ℝ in (-1)..1,
+          LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+            * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))) := by
+    apply intervalIntegral.integral_congr
+    intro y hy
+    beta_reduce
+    rw [intervalIntegral.integral_const_mul]
+  unfold paleyWiener
+  rw [hstep1, hswap]
+  apply intervalIntegral.integral_congr
+  intro u hu
+  beta_reduce
+  rw [show (∫ y : ℝ in (-T)..T,
+        LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+          * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))))
+      = ∫ y : ℝ in (-T)..T,
+          (g u * Complex.exp (Complex.I * ((3 / 2 : ℝ) : ℂ) * (u : ℂ)))
+            * (LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+              * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ))) from by
+    apply intervalIntegral.integral_congr
+    intro y hy
+    beta_reduce
+    rw [paleyWiener_kernel_split u y]
+    ring]
+  rw [intervalIntegral.integral_const_mul]
+
+
+/-- **Assembled right-vertical identity with the prime side reduced by the
+Fubini swap.** -/
+theorem integral_logDeriv_paleyWiener_prime_assembled (g : ℝ → ℂ) (hg : Continuous g) (T : ℝ) :
+    (∫ y : ℝ in (-T)..T, logDeriv completedZeta ((2 : ℝ) + y * I)
+        * paleyWiener g ((2 : ℝ) + y * I) * I)
+      = - (∫ y : ℝ in (-T)..T,
+            ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+              * paleyWiener g ((2 : ℝ) + y * I) * I)
+        - (∫ u : ℝ in (-1)..1,
+            g u * Complex.exp (Complex.I * ((3 / 2 : ℝ) : ℂ) * (u : ℂ))
+              * (∫ y : ℝ in (-T)..T,
+                  LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+                    * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ)))) * I := by
+  have hint : (∫ y : ℝ in (-T)..T,
+        LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+          * paleyWiener g ((2 : ℝ) + y * I) * I)
+      = (∫ y : ℝ in (-T)..T,
+          LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+            * paleyWiener g ((2 : ℝ) + y * I)) * I := by
+    rw [intervalIntegral.integral_mul_const]
+  rw [integral_logDeriv_paleyWiener_eq_neg_I g hg T, hint,
+    integral_lseries_paleyWiener_swap g hg T]
+
+
+/-- **Finite-`T` Fubini swap for the archimedean side against the Paley–Wiener
+test function.** -/
+theorem integral_arch_paleyWiener_swap (g : ℝ → ℂ) (hg : Continuous g) (T : ℝ) :
+    (∫ y : ℝ in (-T)..T,
+        ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+          * paleyWiener g ((2 : ℝ) + y * I))
+      = ∫ u : ℝ in (-1)..1,
+          g u * Complex.exp (Complex.I * ((3 / 2 : ℝ) : ℂ) * (u : ℂ))
+            * (∫ y : ℝ in (-T)..T,
+                ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+                  * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ))) := by
+  have harchline : Continuous (fun y : ℝ =>
+      ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))) := by
+    rw [continuous_iff_continuousAt]
+    intro y
+    have hcomp : ContinuousAt (fun y : ℝ => Complex.digamma ((2 + y * I) / 2)) y := by
+      apply ContinuousAt.comp (x := y)
+      · apply AbsoluteHodgeArchimedean.continuousAt_digamma_of_re_pos
+        have hre : ((2 + (y : ℂ) * I) / 2).re = 1 := by simp [Complex.div_re]
+        linarith [hre]
+      · exact (((continuous_const.add
+          (Complex.continuous_ofReal.mul continuous_const)).div_const 2)).continuousAt
+    exact continuousAt_const.sub (hcomp.const_mul (1 / 2))
+  have hFcont : Continuous (Function.uncurry
+      (fun (y : ℝ) (u : ℝ) =>
+        ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+          * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))))) := by
+    apply Continuous.mul
+    · exact harchline.comp continuous_fst
+    · exact (hg.comp continuous_snd).mul
+        (Complex.continuous_exp.comp (by continuity))
+  have hint : IntegrableOn (Function.uncurry
+      (fun (y : ℝ) (u : ℝ) =>
+        ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+          * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ)))))
+      (Set.uIoc (-T) T ×ˢ Set.uIoc (-1) 1) := by
+    have hK : IntegrableOn (Function.uncurry
+        (fun (y : ℝ) (u : ℝ) =>
+          ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+            * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ)))))
+        (Set.uIcc (-T) T ×ˢ Set.uIcc (-1) 1) :=
+      hFcont.continuousOn.integrableOn_compact (isCompact_uIcc.prod isCompact_uIcc)
+    exact hK.mono_set (by
+      intro p hp
+      exact ⟨Set.uIoc_subset_uIcc hp.1, Set.uIoc_subset_uIcc hp.2⟩)
+  have hswap := intervalIntegral_intervalIntegral_swap (F := fun (y : ℝ) (u : ℝ) =>
+      ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+        * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))))
+    (a := -T) (b := T) (c := -1) (d := 1) hint
+  have hstep1 : (∫ y : ℝ in (-T)..T,
+        ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+        * ∫ u : ℝ in (-1)..1,
+            g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ)))
+      = ∫ y : ℝ in (-T)..T, ∫ u : ℝ in (-1)..1,
+          ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+            * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))) := by
+    apply intervalIntegral.integral_congr
+    intro y hy
+    beta_reduce
+    rw [intervalIntegral.integral_const_mul]
+  unfold paleyWiener
+  rw [hstep1, hswap]
+  apply intervalIntegral.integral_congr
+  intro u hu
+  beta_reduce
+  rw [show (∫ y : ℝ in (-T)..T,
+        ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+          * (g u * Complex.exp (Complex.I * (((2 : ℝ) + y * I) - 1 / 2) * (u : ℂ))))
+      = ∫ y : ℝ in (-T)..T,
+          (g u * Complex.exp (Complex.I * ((3 / 2 : ℝ) : ℂ) * (u : ℂ)))
+            * (((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+              * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ))) from by
+    apply intervalIntegral.integral_congr
+    intro y hy
+    beta_reduce
+    rw [paleyWiener_kernel_split u y]
+    ring]
+  rw [intervalIntegral.integral_const_mul]
+
+
+/-- **The fully assembled `u`-superposition right side**: the right-vertical
+integral is a sum of the archimedean and prime `u`-superpositions. -/
+theorem integral_logDeriv_paleyWiener_u_superposition (g : ℝ → ℂ) (hg : Continuous g) (T : ℝ) :
+    (∫ y : ℝ in (-T)..T, logDeriv completedZeta ((2 : ℝ) + y * I)
+        * paleyWiener g ((2 : ℝ) + y * I) * I)
+      = - (∫ u : ℝ in (-1)..1,
+            g u * Complex.exp (Complex.I * ((3 / 2 : ℝ) : ℂ) * (u : ℂ))
+              * (∫ y : ℝ in (-T)..T,
+                  ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+                    * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ)))) * I
+        - (∫ u : ℝ in (-1)..1,
+            g u * Complex.exp (Complex.I * ((3 / 2 : ℝ) : ℂ) * (u : ℂ))
+              * (∫ y : ℝ in (-T)..T,
+                  LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+                    * Complex.exp (-(((u : ℝ) * (y : ℝ)) : ℝ)))) * I := by
+  have harch_i : (∫ y : ℝ in (-T)..T,
+        ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+          * paleyWiener g ((2 : ℝ) + y * I) * I)
+      = (∫ y : ℝ in (-T)..T,
+          ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+            * paleyWiener g ((2 : ℝ) + y * I)) * I := by
+    rw [intervalIntegral.integral_mul_const]
+  rw [integral_logDeriv_paleyWiener_prime_assembled g hg T, harch_i,
+    integral_arch_paleyWiener_swap g hg T]
+  ring
+
+
+/-- **Reality of the Paley–Wiener zero sum** for a conjugation-symmetric zero
+set: `Σ_{ρ∈S} h(ρ)` is real. -/
+theorem sum_paleyWiener_conj_real (g : ℝ → ℂ) (hg : Continuous g)
+    (hge : ∀ u : ℝ, g (-u) = g u)
+    (hgr : ∀ u : ℝ, (starRingEnd ℂ) (g u) = g u) (S : Finset ℂ)
+    (hS : ∀ ρ ∈ S, (starRingEnd ℂ) ρ ∈ S) :
+    (starRingEnd ℂ) (∑ ρ ∈ S, paleyWiener g ρ) = ∑ ρ ∈ S, paleyWiener g ρ := by
+  rw [map_sum]
+  have hconj : ∀ ρ : ℂ,
+      (starRingEnd ℂ) (paleyWiener g ρ) = paleyWiener g ((starRingEnd ℂ) ρ) := by
+    intro ρ
+    rw [paleyWiener_conj g hg hgr ρ, paleyWiener_one_sub g hge ((starRingEnd ℂ) ρ)]
+  simp_rw [hconj]
+  exact Finset.sum_bij (fun ρ _ => (starRingEnd ℂ) ρ) hS
+    (fun _ _ _ _ h => (starRingEnd ℂ).injective h)
+    (fun b hb => ⟨(starRingEnd ℂ) b, hS b hb, by simp⟩)
+    (fun _ _ => rfl)
+
+
+/-- **Zeros pair under the reflection `s ↦ conj(1−s)`.** -/
+theorem completedZeta_zero_conj_one_sub {s : ℂ} (hs0 : s ≠ 0) (hs1 : s ≠ 1)
+    (hΓ : s.Gammaℝ ≠ 0) (hΓ' : (1 - s).Gammaℝ ≠ 0)
+    (hz : completedZeta s = 0) :
+    completedZeta ((starRingEnd ℂ) (1 - s)) = 0 :=
+  AbsoluteHodgeSymbol.completedZeta_zero_conj
+    (AbsoluteHodgeSymbol.completedZeta_zero_symm hs0 hs1 hΓ hΓ' hz)
+
+
+/-- **The Hadamard partial fraction for `Z'/Z`**, conditionally on the
+factorisation `Z(z) = e^{A+Bz}·∏_i F_i(z)`: then
+`Z'/Z(x) = B + Σ_i F_i'(x)/F_i(x)`. This is the bridge from a Hadamard
+product to the zero/partial-fraction side of the explicit formula. -/
+theorem logDeriv_completedZeta_eq_tsum_of_factorisation (F : ℕ → ℂ → ℂ) (A B : ℂ)
+    (U : Set ℂ) (hU : IsOpen U) {x : ℂ} (hx : x ∈ U)
+    (hfact : ∀ z : ℂ, completedZeta z = Complex.exp (A + B * z) * ∏' i, F i z)
+    (hprod_ne : (∏' i, F i x) ≠ 0)
+    (hFne : ∀ i, F i x ≠ 0)
+    (hd : ∀ i, DifferentiableOn ℂ (F i) U)
+    (hderiv_prod : DifferentiableAt ℂ (fun z : ℂ => ∏' i, F i z) x)
+    (hm : Summable fun i => logDeriv (F i) x)
+    (htend : MultipliableLocallyUniformlyOn F U) :
+    logDeriv completedZeta x = B + ∑' i, logDeriv (F i) x := by
+  have hexp : logDeriv (fun z : ℂ => Complex.exp (A + B * z)) x = B := by
+    rw [logDeriv_apply]
+    have hlin : HasDerivAt (fun z : ℂ => A + B * z) B x := by
+      simpa [mul_comm] using ((hasDerivAt_id x).const_mul B).const_add A
+    have hderiv : deriv (fun z : ℂ => Complex.exp (A + B * z)) x
+        = Complex.exp (A + B * x) * B :=
+      ((Complex.hasDerivAt_exp _).comp x hlin).deriv
+    rw [hderiv]
+    field_simp
+  have hne_exp : Complex.exp (A + B * x) ≠ 0 := Complex.exp_ne_zero _
+  have hfe : completedZeta = fun z : ℂ => Complex.exp (A + B * z) * ∏' i, F i z :=
+    funext hfact
+  have hstep : logDeriv completedZeta x
+      = logDeriv (fun z : ℂ => Complex.exp (A + B * z)) x
+        + logDeriv (fun z : ℂ => ∏' i, F i z) x := by
+    rw [hfe]
+    show logDeriv ((fun z : ℂ => Complex.exp (A + B * z)) * (fun z : ℂ => ∏' i, F i z)) x = _
+    rw [logDeriv_mul x hne_exp hprod_ne (by fun_prop) hderiv_prod]
+  rw [hstep, hexp, logDeriv_tprod_eq_tsum hU hx hFne hd hm htend hprod_ne]
+
+
+/-- **Reality of a zero sum under the abstract reflection `ρ ↦ conj(1−ρ)`**:
+if `h` satisfies `h(1−w) = h w` and `conj h(w) = h(conj w)`, and `S` is closed
+under `ρ ↦ conj(1−ρ)`, then `Σ_{ρ∈S} h(ρ)` is real. -/
+theorem finset_sum_conj_real_of_reflection (h : ℂ → ℂ) (S : Finset ℂ)
+    (hsym1 : ∀ w : ℂ, h (1 - w) = h w)
+    (hsymc : ∀ s : ℂ, (starRingEnd ℂ) (h s) = h ((starRingEnd ℂ) s))
+    (hS : ∀ ρ ∈ S, (starRingEnd ℂ) (1 - ρ) ∈ S) :
+    (starRingEnd ℂ) (∑ ρ ∈ S, h ρ) = ∑ ρ ∈ S, h ρ := by
+  rw [map_sum]
+  refine Finset.sum_bij (fun ρ _ => (starRingEnd ℂ) (1 - ρ)) hS ?_ ?_ ?_
+  · intro a _ b _ hab
+    have h2 := congrArg (fun z : ℂ => (starRingEnd ℂ) (1 - z)) hab
+    simpa using h2
+  · intro b hb
+    exact ⟨(starRingEnd ℂ) (1 - b), hS b hb, by simp⟩
+  · intro ρ _
+    have harg : (starRingEnd ℂ) (1 - ρ) = 1 - (starRingEnd ℂ) ρ := by simp
+    rw [hsymc, harg]
+    exact (hsym1 ((starRingEnd ℂ) ρ)).symm
+
+
+/-- **Reality of a zero sum over a conjugation-closed set**: if `conj h(w) = h(conj w)`
+and `S` is closed under conjugation, then `Σ_{ρ∈S} h(ρ)` is real. -/
+theorem finset_sum_conj_real_of_conj_closed (h : ℂ → ℂ) (S : Finset ℂ)
+    (hsymc : ∀ s : ℂ, (starRingEnd ℂ) (h s) = h ((starRingEnd ℂ) s))
+    (hS : ∀ ρ ∈ S, (starRingEnd ℂ) ρ ∈ S) :
+    (starRingEnd ℂ) (∑ ρ ∈ S, h ρ) = ∑ ρ ∈ S, h ρ := by
+  rw [map_sum]
+  refine Finset.sum_bij (fun ρ _ => (starRingEnd ℂ) ρ) hS ?_ ?_ ?_
+  · intro a _ b _ hab
+    exact (starRingEnd ℂ).injective hab
+  · intro b hb
+    exact ⟨(starRingEnd ℂ) b, hS b hb, by simp⟩
+  · intro ρ _
+    exact hsymc ρ
+
+
+/-- **The zero sum is a sum of real parts** over a conjugation-closed set: the
+imaginary parts anti-symmetrize and cancel. -/
+theorem finset_sum_eq_sum_re_of_conj_closed (h : ℂ → ℂ) (S : Finset ℂ)
+    (hsymc : ∀ s : ℂ, (starRingEnd ℂ) (h s) = h ((starRingEnd ℂ) s))
+    (hS : ∀ ρ ∈ S, (starRingEnd ℂ) ρ ∈ S) :
+    ∑ ρ ∈ S, h ρ = ∑ ρ ∈ S, (((h ρ).re : ℝ) : ℂ) := by
+  have him_zero : ∑ ρ ∈ S, (h ρ).im = 0 := by
+    have hf : ∀ ρ ∈ S, (h ((starRingEnd ℂ) ρ)).im = -((h ρ).im) := by
+      intro ρ hρ
+      rw [← hsymc ρ]
+      simp
+    have hreindex : ∑ ρ ∈ S, (h ((starRingEnd ℂ) ρ)).im = ∑ ρ ∈ S, (h ρ).im := by
+      refine Finset.sum_bij (fun ρ _ => (starRingEnd ℂ) ρ) hS ?_ ?_ ?_
+      · intro a _ b _ hab
+        exact (starRingEnd ℂ).injective hab
+      · intro b hb
+        exact ⟨(starRingEnd ℂ) b, hS b hb, by simp⟩
+      · intro ρ _
+        rfl
+    have hanti : ∑ ρ ∈ S, (h ρ).im = -∑ ρ ∈ S, (h ρ).im := by
+      have h1 : ∑ ρ ∈ S, (h ρ).im = ∑ ρ ∈ S, -((h ρ).im) := by
+        rw [← hreindex]
+        exact Finset.sum_congr rfl (fun ρ hρ => hf ρ hρ)
+      nth_rw 1 [h1]
+      rw [Finset.sum_neg_distrib]
+    linarith
+  calc ∑ ρ ∈ S, h ρ
+      = ∑ ρ ∈ S, (((h ρ).re : ℂ) + ((h ρ).im : ℂ) * Complex.I) := by
+        apply Finset.sum_congr rfl
+        intro ρ hρ
+        exact (Complex.re_add_im (h ρ)).symm
+    _ = (∑ ρ ∈ S, ((h ρ).re : ℂ)) + (∑ ρ ∈ S, ((h ρ).im : ℂ)) * Complex.I := by
+        rw [Finset.sum_add_distrib, Finset.sum_mul]
+    _ = ∑ ρ ∈ S, ((h ρ).re : ℂ) := by
+        have hcast : (∑ ρ ∈ S, ((h ρ).im : ℂ)) = 0 := by
+          rw [← Complex.ofReal_sum, him_zero, Complex.ofReal_zero]
+        rw [hcast]
+        ring
+
+
+/-- **The critical line is the fixed locus of the reflection `ρ ↦ conj(1−ρ)`**:
+`conj(1−ρ) = ρ ↔ re ρ = 1/2`. -/
+theorem conj_one_sub_eq_self_iff_re_eq_half (ρ : ℂ) :
+    (starRingEnd ℂ) (1 - ρ) = ρ ↔ ρ.re = 1 / 2 := by
+  constructor
+  · intro h
+    have hre := congrArg Complex.re h
+    simp only [Complex.conj_re, Complex.sub_re, Complex.one_re] at hre
+    linarith
+  · intro h
+    apply Complex.ext
+    · simp only [Complex.conj_re, Complex.sub_re, Complex.one_re]
+      linarith
+    · simp only [Complex.conj_im, Complex.sub_im, Complex.one_im, zero_sub, neg_neg]
+
+
+/-- **`re ρ = 1/2` is the same as the reflection fixing `ρ`**, uniformly over any
+predicate: so "all zeros lie on the critical line" is the same statement as
+"the reflection `ρ ↦ conj(1−ρ)` fixes every zero". -/
+theorem forall_re_eq_half_iff_forall_conj_one_sub_eq_self (P : ℂ → Prop) :
+    (∀ ρ : ℂ, P ρ → ρ.re = 1 / 2)
+      ↔ (∀ ρ : ℂ, P ρ → (starRingEnd ℂ) (1 - ρ) = ρ) := by
+  constructor
+  · intro h ρ hρ
+    exact (conj_one_sub_eq_self_iff_re_eq_half ρ).mpr (h ρ hρ)
+  · intro h ρ hρ
+    exact (conj_one_sub_eq_self_iff_re_eq_half ρ).mp (h ρ hρ)
+
+/-- **RH as a fixed-point statement**: every (nontrivial) zero of `Z` lies on
+the critical line iff the reflection `ρ ↦ conj(1−ρ)` fixes every such zero. -/
+theorem completedZeta_re_eq_half_iff_conj_one_sub_eq_self :
+    (∀ ρ : ℂ, completedZeta ρ = 0 → ρ ≠ 0 → ρ ≠ 1 →
+        ρ.Gammaℝ ≠ 0 → (1 - ρ).Gammaℝ ≠ 0 → ρ.re = 1 / 2)
+      ↔ (∀ ρ : ℂ, completedZeta ρ = 0 → ρ ≠ 0 → ρ ≠ 1 →
+        ρ.Gammaℝ ≠ 0 → (1 - ρ).Gammaℝ ≠ 0 → (starRingEnd ℂ) (1 - ρ) = ρ) := by
+  simpa only [and_imp] using forall_re_eq_half_iff_forall_conj_one_sub_eq_self
+    (fun ρ : ℂ => completedZeta ρ = 0 ∧ ρ ≠ 0 ∧ ρ ≠ 1 ∧ ρ.Gammaℝ ≠ 0 ∧
+      (1 - ρ).Gammaℝ ≠ 0)
+
+
+/-- **Positivity transfers from terms to the sum**: if every term has nonnegative
+real part, so does the sum. -/
+theorem sum_re_nonneg_of_each_nonneg (h : ℂ → ℂ) (S : Finset ℂ)
+    (hpos : ∀ ρ ∈ S, 0 ≤ (h ρ).re) :
+    0 ≤ (∑ ρ ∈ S, h ρ).re := by
+  rw [Complex.re_sum]
+  exact Finset.sum_nonneg hpos
+
+/-- **Termwise positivity of a real-valued zero sum** implies the sum is a
+nonnegative real number. -/
+theorem sum_nonneg_of_each_nonneg_real (h : ℂ → ℂ) (S : Finset ℂ)
+    (hpos : ∀ ρ ∈ S, 0 ≤ (h ρ).re) (him : ∀ ρ ∈ S, (h ρ).im = 0) :
+    ∃ x : ℝ, 0 ≤ x ∧ (∑ ρ ∈ S, h ρ) = (x : ℂ) := by
+  have hre := sum_re_nonneg_of_each_nonneg h S hpos
+  have himsum : (∑ ρ ∈ S, h ρ).im = 0 := by
+    rw [Complex.im_sum]
+    exact Finset.sum_eq_zero him
+  refine ⟨(∑ ρ ∈ S, h ρ).re, hre, ?_⟩
+  have hz : (∑ ρ ∈ S, h ρ) = (((∑ ρ ∈ S, h ρ).re : ℝ) : ℂ) := by
+    rw [← Complex.re_add_im (∑ ρ ∈ S, h ρ), himsum]
+    simp
+  exact hz
+
+
+/-- **The Paley–Wiener function on the critical line as a real exponential
+integral**: `h(1/2+it) = ∫_{−1}^{1} g(u)e^{−tu}du`. -/
+theorem paleyWiener_critical_line_eq_integral (g : ℝ → ℂ) (t : ℝ) :
+    paleyWiener g (1 / 2 + (t : ℂ) * I)
+      = ∫ u : ℝ in (-1)..1, g u * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)) := by
+  unfold paleyWiener
+  apply intervalIntegral.integral_congr
+  intro u hu
+  congr 2
+  have hI2 : (Complex.I : ℂ) ^ 2 = -1 := by rw [pow_two, Complex.I_mul_I]
+  push_cast
+  ring_nf
+  rw [hI2]
+  ring
+
+
+
+/-- **The critical-line Paley–Wiener value for a real test function**:
+`h(1/2+it) = ∫_{−1}^{1} g(u)e^{−tu}du` as a real number (coerced). -/
+theorem paleyWiener_critical_line_ofReal (g : ℝ → ℝ) (hg : Continuous g) (t : ℝ) :
+    paleyWiener (fun u : ℝ => (g u : ℂ)) (1 / 2 + (t : ℂ) * I)
+      = ((∫ u : ℝ in (-1)..1, g u * Real.exp (-(t * u)) : ℝ) : ℂ) := by
+  rw [paleyWiener_critical_line_eq_integral]
+  have hcongr : (∫ u : ℝ in (-1)..1,
+        (fun u : ℝ => (g u : ℂ)) u * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))
+      = ∫ u : ℝ in (-1)..1, ((g u * Real.exp (-(t * u)) : ℝ) : ℂ) := by
+    apply intervalIntegral.integral_congr
+    intro u hu
+    beta_reduce
+    have harg : -(↑t * ↑u : ℂ) = ↑(-(t * u) : ℝ) := by push_cast; ring
+    rw [harg, ← Complex.ofReal_exp]
+    push_cast
+    ring
+  rw [hcongr, intervalIntegral.integral_ofReal]
+
+
+/-- **Termwise positivity on the positive cone**: for a continuous nonnegative
+real `g`, the critical-line Paley–Wiener value is a nonnegative real number. -/
+theorem paleyWiener_critical_line_ofReal_nonneg (g : ℝ → ℝ) (hg : Continuous g)
+    (hg0 : ∀ u : ℝ, 0 ≤ g u) (t : ℝ) :
+    ∃ x : ℝ, 0 ≤ x ∧ paleyWiener (fun u : ℝ => (g u : ℂ)) (1 / 2 + (t : ℂ) * I) = (x : ℂ) := by
+  refine ⟨∫ u : ℝ in (-1)..1, g u * Real.exp (-(t * u)), ?_, ?_⟩
+  · apply intervalIntegral.integral_nonneg_of_forall (by norm_num : (-1 : ℝ) ≤ 1)
+    intro u
+    exact mul_nonneg (hg0 u) (Real.exp_pos _).le
+  · rw [paleyWiener_critical_line_ofReal g hg t]
+
+
+/-- **Translation shift of the exponential kernel**:
+`∫_u f(u+v)e^{−tu}du = e^{tv}·∫_s f(s)e^{−ts}ds`. -/
+theorem integral_shift_exp (f : ℝ → ℂ) (v t : ℝ) :
+    (∫ u : ℝ, f (u + v) * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))
+      = Complex.exp (((t * v : ℝ) : ℂ))
+        * (∫ s : ℝ, f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ))) := by
+  have hpoint : ∀ u : ℝ, f (u + v) * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))
+      = Complex.exp (((t * v : ℝ) : ℂ))
+        * (f (u + v) * Complex.exp (-(((t : ℝ) * ((u + v : ℝ)) : ℂ)))) := by
+    intro u
+    have hexp : -(((t : ℝ) * (u : ℝ)) : ℂ)
+        = ((t * v : ℝ) : ℂ) + (-(((t : ℝ) * ((u + v : ℝ)) : ℂ))) := by
+      push_cast
+      ring
+    rw [hexp, Complex.exp_add]
+    ring
+  simp_rw [hpoint]
+  rw [MeasureTheory.integral_const_mul]
+  congr 1
+  exact integral_add_right_eq_self
+    (fun s : ℝ => f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ))) v
+
+
+/-- **Conjugacy of the exponential integral**: the `w`-integral of `conj (f w)`
+against the (real) exponential kernel is the conjugate of
+`A = ∫ s, f s * exp (-(t * s))`. -/
+theorem conj_integral_exp (f : ℝ → ℂ) (t : ℝ) :
+    (∫ w : ℝ, (starRingEnd ℂ) (f w) * Complex.exp (-(((t : ℝ) * (w : ℝ)) : ℂ)))
+      = (starRingEnd ℂ) (∫ s : ℝ, f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ))) := by
+  rw [← integral_conj]
+  apply integral_congr_ae
+  filter_upwards with w
+  rw [map_mul, ← Complex.exp_conj]
+  congr 1
+  simp
+
+
+/-- **Translation shift for the inner `u`-integral**: substituting `u = w + v`
+turns the `u`-integral into the `w`-integral, at the cost of the factor
+`exp (t * v)`. -/
+theorem inner_shift (f : ℝ → ℂ) (t v : ℝ) :
+    (∫ u : ℝ, (starRingEnd ℂ) (f (u - v))
+        * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))
+      = Complex.exp (-(((t : ℝ) * (v : ℝ)) : ℂ))
+        * (∫ w : ℝ, (starRingEnd ℂ) (f w)
+            * Complex.exp (-(((t : ℝ) * (w : ℝ)) : ℂ))) := by
+  have hexp : ∀ u : ℝ,
+      -(((t : ℝ) * (u : ℝ)) : ℂ)
+        = -(((t : ℝ) * (v : ℝ)) : ℂ)
+          + -(((t : ℝ) * ((u : ℝ) - (v : ℝ)) : ℝ) : ℂ) := by
+    intro u
+    push_cast
+    ring
+  have hpoint : ∀ u : ℝ,
+      (starRingEnd ℂ) (f (u - v)) * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))
+        = Complex.exp (-(((t : ℝ) * (v : ℝ)) : ℂ))
+          * ((starRingEnd ℂ) (f (u - v))
+              * Complex.exp (-(((t : ℝ) * ((u : ℝ) - (v : ℝ)) : ℝ) : ℂ))) := by
+    intro u
+    rw [hexp u, Complex.exp_add]
+    ring
+  simp_rw [hpoint]
+  rw [integral_const_mul]
+  congr 1
+  have hshift := integral_add_right_eq_self (μ := volume)
+    (fun w : ℝ => (starRingEnd ℂ) (f w)
+      * Complex.exp (-(((t : ℝ) * (w : ℝ)) : ℂ))) (-v)
+  simpa only [sub_eq_add_neg, Complex.ofReal_mul] using hshift
+
+
+/-- **The autocorrelation exponential identity**: for `f : ℝ → ℂ` and `t : ℝ`,
+
+  `∫ u, (∫ v, f v * conj (f (u - v))) * e^{-t u} = A * conj A`,
+
+where `A = ∫ s, f s * e^{-t s}`.  The proof follows the convolution/Fubini
+skeleton: pull the `u`-dependent exponential inside the inner integral, swap the
+order of integration, evaluate the inner `u`-integral by the translation shift
+`u ↦ u - v`, pull the outer constant out, and rewrite the `w`-integral as the
+conjugate of `A`. -/
+theorem autocorrelation_exponential_eq_norm_sq (f : ℝ → ℂ) (t : ℝ)
+    (hF : Integrable (Function.uncurry (fun (u v : ℝ) =>
+        f v * (starRingEnd ℂ) (f (u - v))
+          * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))) (volume.prod volume)) :
+    (∫ u : ℝ, (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+        * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))
+      = (∫ s : ℝ, f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ)))
+        * (starRingEnd ℂ) (∫ s : ℝ, f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ))) := by
+  -- Step 1: pull the `u`-exponential inside the inner integral.
+  have h1 : ∀ u : ℝ,
+      (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+          * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))
+        = ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))
+            * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)) := by
+    intro u
+    rw [← integral_mul_const]
+  simp_rw [h1]
+  -- Step 2: Fubini.
+  rw [integral_integral_swap hF]
+  -- Step 3: evaluate the inner `u`-integral.
+  have hinner : ∀ v : ℝ,
+      (∫ u : ℝ, f v * (starRingEnd ℂ) (f (u - v))
+          * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))
+        = f v * Complex.exp (-(((t : ℝ) * (v : ℝ)) : ℂ))
+          * (∫ w : ℝ, (starRingEnd ℂ) (f w)
+              * Complex.exp (-(((t : ℝ) * (w : ℝ)) : ℂ))) := by
+    intro v
+    have hsplit : ∀ u : ℝ,
+        f v * (starRingEnd ℂ) (f (u - v)) * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))
+          = f v * ((starRingEnd ℂ) (f (u - v))
+              * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))) := by
+      intro u
+      ring
+    simp_rw [hsplit]
+    rw [integral_const_mul, inner_shift f t v]
+    ring
+  simp_rw [hinner]
+  -- Step 4: pull the outer constant out.
+  rw [integral_mul_const]
+  -- Step 5: identify the remaining integral with `conj A`.
+  rw [conj_integral_exp f t]
+
+
+/-- The autocorrelation kernel is integrable on `ℝ × ℝ` for continuous compactly
+supported `f` and any real `t`: the integrand is supported in the compact box
+`(tsupport f + tsupport f) × tsupport f`. -/
+theorem integrable_autocorrelation_kernel (f : ℝ → ℂ) (hf : Continuous f)
+    (hfc : HasCompactSupport f) (t : ℝ) :
+    Integrable (Function.uncurry (fun (u v : ℝ) =>
+        f v * (starRingEnd ℂ) (f (u - v))
+          * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))) (volume.prod volume) := by
+  let F : ℝ → ℝ → ℂ := fun u v =>
+    f v * (starRingEnd ℂ) (f (u - v)) * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))
+  let G : ℝ × ℝ → ℂ := Function.uncurry F
+  have hcont : Continuous G := by
+    show Continuous (fun p : ℝ × ℝ =>
+      f p.2 * (starRingEnd ℂ) (f (p.1 - p.2))
+        * Complex.exp (-(((t : ℝ) * (p.1 : ℝ)) : ℂ)))
+    continuity
+  let K : Set ℝ := tsupport f
+  have hKc : IsCompact K := hfc.isCompact
+  let K2 : Set ℝ := (fun q : ℝ × ℝ => q.1 + q.2) '' (K ×ˢ K)
+  have hK2c : IsCompact K2 :=
+    (hKc.prod hKc).image (by continuity)
+  let box : Set (ℝ × ℝ) := K2 ×ˢ K
+  have hbox : IsCompact box := hK2c.prod hKc
+  have hzero : ∀ p ∉ box, G p = 0 := by
+    intro p hp
+    by_contra hne
+    have h1 : f p.2 ≠ 0 := by
+      intro h
+      exact hne (by simp [G, F, Function.uncurry, h])
+    have h2 : f (p.1 - p.2) ≠ 0 := by
+      intro h
+      exact hne (by simp [G, F, Function.uncurry, h])
+    have hK1 : p.2 ∈ K := subset_tsupport f (by simpa [Function.support] using h1)
+    have hK2 : p.1 - p.2 ∈ K := subset_tsupport f (by simpa [Function.support] using h2)
+    have hmem2 : p.1 ∈ K2 :=
+      ⟨(p.1 - p.2, p.2), ⟨hK2, hK1⟩, by dsimp; ring⟩
+    exact hp (by
+      show p ∈ box
+      exact ⟨hmem2, hK1⟩)
+  exact hcont.integrable_of_hasCompactSupport (HasCompactSupport.intro hbox hzero)
+
+
+/-- **Autocorrelation exponential identity for continuous compactly supported
+test functions**: the integrability hypothesis is discharged by
+`integrable_autocorrelation_kernel`. -/
+theorem autocorrelation_exponential_eq_norm_sq_of_compactSupport (f : ℝ → ℂ)
+    (hf : Continuous f) (hfc : HasCompactSupport f) (t : ℝ) :
+    (∫ u : ℝ, (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)))
+      = (∫ s : ℝ, f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ)))
+        * (starRingEnd ℂ) (∫ s : ℝ, f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ))) :=
+  autocorrelation_exponential_eq_norm_sq f t (integrable_autocorrelation_kernel f hf hfc t)
+
+
+/-- **Positivity of the autocorrelation exponential transform**: for continuous
+compactly supported `f`, the transform is the nonnegative real number
+`‖A‖²`, where `A = ∫ s, f s * exp (-(t * s))`. -/
+theorem autocorrelation_transform_nonneg (f : ℝ → ℂ) (hf : Continuous f)
+    (hfc : HasCompactSupport f) (t : ℝ) :
+    ∃ x : ℝ, 0 ≤ x ∧ (∫ u : ℝ, (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+        * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))) = (x : ℂ) := by
+  refine ⟨Complex.normSq (∫ s : ℝ, f s * Complex.exp (-(((t : ℝ) * (s : ℝ)) : ℂ))),
+    Complex.normSq_nonneg _, ?_⟩
+  rw [autocorrelation_exponential_eq_norm_sq_of_compactSupport f hf hfc t]
+  exact Complex.mul_conj _
+
+
+/-- A function that vanishes everywhere except possibly at one point has zero
+integral. -/
+private lemma integral_eq_zero_of_eq_zero_off_singleton (F : ℝ → ℂ) (v₀ : ℝ)
+    (h : ∀ v : ℝ, v ≠ v₀ → F v = 0) : (∫ v : ℝ, F v) = 0 := by
+  have hae : F =ᵐ[volume] (0 : ℝ → ℂ) := by
+    show ∀ᵐ v ∂volume, F v = (0 : ℝ → ℂ) v
+    rw [MeasureTheory.ae_iff]
+    simp only [Pi.zero_apply]
+    apply measure_mono_null (t := {v₀})
+    · intro v hv
+      simp only [Set.mem_singleton_iff]
+      by_contra hne
+      exact hv (h v hne)
+    · exact measure_singleton v₀
+  rw [MeasureTheory.integral_congr_ae hae]
+  exact MeasureTheory.integral_zero ℝ ℂ
+
+/-- The autocorrelation kernel of a continuous function supported in
+`[-1/2, 1/2]` is supported, for `u ≤ -1`, at `v = -1/2`. -/
+private lemma autocorrelation_kernel_zero_of_le_neg_one (f : ℝ → ℂ)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1 / 2)) (1 / 2))
+    {u : ℝ} (hu : u ≤ -1) :
+    ∀ v : ℝ, v ≠ -(1 / 2) →
+      f v * (starRingEnd ℂ) (f (u - v)) = 0 := by
+  intro v hv
+  by_contra hne
+  have h1 : v ∈ Set.Icc (-(1 / 2)) (1 / 2) := by
+    apply hfsupp v
+    intro h
+    exact hne (by simp [h])
+  have h2 : u - v ∈ Set.Icc (-(1 / 2)) (1 / 2) := by
+    apply hfsupp (u - v)
+    intro h
+    exact hne (by simp [h])
+  have hle : u - v ≤ -(1 / 2) := by linarith [h1.1]
+  have heq : u - v = -(1 / 2) := le_antisymm hle h2.1
+  have hvle : v ≤ -(1 / 2) := by linarith
+  exact hv (le_antisymm hvle h1.1)
+
+/-- The autocorrelation kernel of a continuous function supported in
+`[-1/2, 1/2]` is supported, for `u ≥ 1`, at `v = 1/2`. -/
+private lemma autocorrelation_kernel_zero_of_ge_one (f : ℝ → ℂ)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1 / 2)) (1 / 2))
+    {u : ℝ} (hu : 1 ≤ u) :
+    ∀ v : ℝ, v ≠ 1 / 2 →
+      f v * (starRingEnd ℂ) (f (u - v)) = 0 := by
+  intro v hv
+  by_contra hne
+  have h1 : v ∈ Set.Icc (-(1 / 2)) (1 / 2) := by
+    apply hfsupp v
+    intro h
+    exact hne (by simp [h])
+  have h2 : u - v ∈ Set.Icc (-(1 / 2)) (1 / 2) := by
+    apply hfsupp (u - v)
+    intro h
+    exact hne (by simp [h])
+  have hge : (1 / 2) ≤ u - v := by linarith [h1.2]
+  have heq : u - v = 1 / 2 := le_antisymm h2.2 hge
+  have hvge : (1 / 2) ≤ v := by linarith
+  exact hv (le_antisymm h1.2 hvge)
+
+/-- **Support of the autocorrelation**: for continuous `f` supported in
+`[-1/2, 1/2]`, the autocorrelation `u ↦ ∫ v, f v * conj (f (u - v))` vanishes
+off the open interval `(-1, 1)`. -/
+theorem autocorrelation_eq_zero_off_Ioo (f : ℝ → ℂ)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1 / 2)) (1 / 2))
+    {u : ℝ} (hu : u ∉ Set.Ioo (-1) 1) :
+    (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) = 0 := by
+  have hcases : u ≤ -1 ∨ 1 ≤ u := by
+    have hu' : ¬(-1 < u ∧ u < 1) := by simpa [Set.mem_Ioo] using hu
+    rcases not_and_or.mp hu' with h | h
+    · exact Or.inl (by linarith)
+    · exact Or.inr (by linarith)
+  rcases hcases with h | h
+  · exact integral_eq_zero_of_eq_zero_off_singleton _ (-(1 / 2))
+      (autocorrelation_kernel_zero_of_le_neg_one f hfsupp h)
+  · exact integral_eq_zero_of_eq_zero_off_singleton _ (1 / 2)
+      (autocorrelation_kernel_zero_of_ge_one f hfsupp h)
+
+/-- **Paley–Wiener transform of the autocorrelation is the full-line
+exponential transform**: the Paley–Wiener function of the autocorrelation
+`g u = ∫ v, f v * conj (f (u - v))`, evaluated at `1/2 + i t`, equals the
+integral of `g u e^{-t u}` over the whole real line. -/
+theorem paleyWiener_autocorrelation_eq_transform (f : ℝ → ℂ) (hf : Continuous f)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1 / 2)) (1 / 2)) (t : ℝ) :
+    paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+        (1 / 2 + (t : ℂ) * I)
+      = ∫ u : ℝ, (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+          * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ)) := by
+  -- `hf` is unused by the support argument (only `hfsupp` is needed); it is
+  -- kept in the statement for downstream use.
+  rw [paleyWiener_critical_line_eq_integral]
+  rw [intervalIntegral.integral_of_le (by norm_num : (-1 : ℝ) ≤ 1)]
+  let F : ℝ → ℂ := fun u : ℝ =>
+    (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+      * Complex.exp (-(((t : ℝ) * (u : ℝ)) : ℂ))
+  have hsuppF : ∀ u : ℝ, u ∉ Set.Ioo (-1) 1 → F u = 0 := by
+    intro u hu
+    have hg : (∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) = 0 :=
+      autocorrelation_eq_zero_off_Ioo f hfsupp hu
+    simp [F, hg]
+  have h1 : (∫ u in Set.Ioc (-1) 1, F u) =
+      ∫ u : ℝ, (Set.Ioc (-1) 1).indicator F u :=
+    (MeasureTheory.integral_indicator measurableSet_Ioc).symm
+  have h2 : (∫ u : ℝ, F u) =
+      ∫ u : ℝ, (Set.Ioc (-1) 1).indicator F u := by
+    apply MeasureTheory.integral_congr_ae
+    filter_upwards with u
+    by_cases hu : u ∈ Set.Ioc (-1) 1
+    · rw [Set.indicator_of_mem hu]
+    · rw [Set.indicator_of_notMem hu]
+      exact hsuppF u (fun hmem => hu (Set.Ioo_subset_Ioc_self hmem))
+  exact h1.trans h2.symm
+
+/-- **Nonnegativity of the Paley–Wiener transform of the autocorrelation**:
+for `f` continuous and supported in `[-1/2, 1/2]`, the Paley–Wiener function of
+the autocorrelation `u ↦ ∫ v, f v * conj (f (u - v))`, evaluated at
+`1/2 + i t`, has nonnegative real part. -/
+theorem paleyWiener_autocorrelation_nonneg (f : ℝ → ℂ) (hf : Continuous f)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1/2)) (1/2)) (t : ℝ) :
+    0 ≤ (paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+        (1 / 2 + (t : ℂ) * I)).re := by
+  have hc : HasCompactSupport f :=
+    HasCompactSupport.intro isCompact_Icc
+      (fun x hx => by
+        by_contra h
+        exact hx (hfsupp x h))
+  rw [paleyWiener_autocorrelation_eq_transform f hf hfsupp t]
+  obtain ⟨x, hx0, hx⟩ := autocorrelation_transform_nonneg f hf hc t
+  rw [hx]
+  simpa using hx0
+
+
+
+
+/-- **Imaginary part zero of the autocorrelation `paleyWiener` value on the
+critical line.** -/
+theorem paleyWiener_autocorrelation_critical_line_im_zero (f : ℝ → ℂ) (hf : Continuous f)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1 / 2)) (1 / 2)) (t : ℝ) :
+    (paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v)))
+      (1 / 2 + (t : ℂ) * I)).im = 0 := by
+  rw [paleyWiener_autocorrelation_eq_transform f hf hfsupp t]
+  obtain ⟨x, -, hx⟩ := autocorrelation_transform_nonneg f hf
+    (HasCompactSupport.intro isCompact_Icc (fun y hy => by
+      by_contra h
+      exact hy (hfsupp y h))) t
+  rw [hx]
+  simp
+
+/-- Zeros on the critical line are of the form `1/2 + i·im`. -/
+theorem eq_half_add_im_mul_I_of_re_eq_half {ρ : ℂ} (hρ : ρ.re = 1 / 2) :
+    ρ = 1 / 2 + ((ρ.im : ℝ) : ℂ) * I := by
+  apply Complex.ext
+  · simp only [Complex.add_re, Complex.mul_re, Complex.ofReal_re, Complex.ofReal_im,
+      Complex.I_re, Complex.I_im, mul_zero, zero_mul, sub_zero, add_zero]
+    simpa using hρ
+  · simp only [Complex.add_im, Complex.mul_im, Complex.ofReal_re, Complex.ofReal_im,
+      Complex.I_re, Complex.I_im, mul_one, zero_mul, add_zero]
+    norm_num
+
+/-- **Weil positivity from the critical-line hypothesis (real-part form)**. -/
+theorem sum_paleyWiener_autocorrelation_nonneg_of_critical_line (f : ℝ → ℂ) (hf : Continuous f)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1 / 2)) (1 / 2))
+    (S : Finset ℂ) (hS : ∀ ρ ∈ S, ρ.re = 1 / 2) :
+    0 ≤ (∑ ρ ∈ S, paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) ρ).re := by
+  have hnonneg : ∀ ρ ∈ S,
+      0 ≤ (paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) ρ).re := by
+    intro ρ hρ
+    rw [eq_half_add_im_mul_I_of_re_eq_half (hS ρ hρ)]
+    exact paleyWiener_autocorrelation_nonneg f hf hfsupp ρ.im
+  exact sum_re_nonneg_of_each_nonneg _ S hnonneg
+
+/-- **Weil positivity from the critical-line hypothesis (real-number form)**:
+the zero sum is a nonnegative real number. -/
+theorem weil_zero_sum_nonneg_real_of_critical_line (f : ℝ → ℂ) (hf : Continuous f)
+    (hfsupp : ∀ x : ℝ, f x ≠ 0 → x ∈ Set.Icc (-(1 / 2)) (1 / 2))
+    (S : Finset ℂ) (hS : ∀ ρ ∈ S, ρ.re = 1 / 2) :
+    ∃ x : ℝ, 0 ≤ x ∧
+      (∑ ρ ∈ S, paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) ρ) = (x : ℂ) := by
+  have hnonneg : ∀ ρ ∈ S,
+      0 ≤ (paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) ρ).re := by
+    intro ρ hρ
+    rw [eq_half_add_im_mul_I_of_re_eq_half (hS ρ hρ)]
+    exact paleyWiener_autocorrelation_nonneg f hf hfsupp ρ.im
+  have him : ∀ ρ ∈ S,
+      (paleyWiener (fun u : ℝ => ∫ v : ℝ, f v * (starRingEnd ℂ) (f (u - v))) ρ).im = 0 := by
+    intro ρ hρ
+    rw [eq_half_add_im_mul_I_of_re_eq_half (hS ρ hρ)]
+    exact paleyWiener_autocorrelation_critical_line_im_zero f hf hfsupp ρ.im
+  exact sum_nonneg_of_each_nonneg_real _ S hnonneg him
+
+
+/-- **The zero sum is a sum of real parts under the reflection `ρ ↦ conj(1−ρ)`**:
+for `h` with `h(1−w) = h w` and `conj h(w) = h(conj w)` and `S` reflection-closed,
+`Σ_{ρ∈S} h(ρ) = Σ_{ρ∈S} (Re h(ρ) : ℂ)`. -/
+theorem finset_sum_eq_sum_re_of_reflection (h : ℂ → ℂ) (S : Finset ℂ)
+    (hsym1 : ∀ w : ℂ, h (1 - w) = h w)
+    (hsymc : ∀ s : ℂ, (starRingEnd ℂ) (h s) = h ((starRingEnd ℂ) s))
+    (hS : ∀ ρ ∈ S, (starRingEnd ℂ) (1 - ρ) ∈ S) :
+    ∑ ρ ∈ S, h ρ = ∑ ρ ∈ S, (((h ρ).re : ℝ) : ℂ) := by
+  have him_zero : ∑ ρ ∈ S, (h ρ).im = 0 := by
+    have hf : ∀ ρ ∈ S, (h ((starRingEnd ℂ) (1 - ρ))).im = -((h ρ).im) := by
+      intro ρ hρ
+      have harg : (starRingEnd ℂ) (1 - ρ) = 1 - (starRingEnd ℂ) ρ := by simp
+      rw [harg, hsym1 ((starRingEnd ℂ) ρ), ← hsymc ρ]
+      simp
+    have hreindex : ∑ ρ ∈ S, (h ((starRingEnd ℂ) (1 - ρ))).im = ∑ ρ ∈ S, (h ρ).im := by
+      refine Finset.sum_bij (fun ρ _ => (starRingEnd ℂ) (1 - ρ)) hS ?_ ?_ ?_
+      · intro a _ b _ hab
+        have h2 := congrArg (fun z : ℂ => (starRingEnd ℂ) (1 - z)) hab
+        simpa using h2
+      · intro b hb
+        exact ⟨(starRingEnd ℂ) (1 - b), hS b hb, by simp⟩
+      · intro ρ _
+        rfl
+    have hanti : ∑ ρ ∈ S, (h ρ).im = -∑ ρ ∈ S, (h ρ).im := by
+      have h1 : ∑ ρ ∈ S, (h ρ).im = ∑ ρ ∈ S, -((h ρ).im) := by
+        rw [← hreindex]
+        exact Finset.sum_congr rfl (fun ρ hρ => hf ρ hρ)
+      nth_rw 1 [h1]
+      rw [Finset.sum_neg_distrib]
+    linarith
+  calc ∑ ρ ∈ S, h ρ
+      = ∑ ρ ∈ S, (((h ρ).re : ℂ) + ((h ρ).im : ℂ) * Complex.I) := by
+        apply Finset.sum_congr rfl
+        intro ρ hρ
+        exact (Complex.re_add_im (h ρ)).symm
+    _ = (∑ ρ ∈ S, ((h ρ).re : ℂ)) + (∑ ρ ∈ S, ((h ρ).im : ℂ)) * Complex.I := by
+        rw [Finset.sum_add_distrib, Finset.sum_mul]
+    _ = ∑ ρ ∈ S, ((h ρ).re : ℂ) := by
+        have hcast : (∑ ρ ∈ S, ((h ρ).im : ℂ)) = 0 := by
+          rw [← Complex.ofReal_sum, him_zero, Complex.ofReal_zero]
+        rw [hcast]
+        ring
+
+
+
+/-- **The archimedean term is minus the log-derivative of the Gamma factor**:
+`logDeriv Γ_ℝ(s) = −arch(s)`, where `Γ_ℝ(s) = π^{−s/2}Γ(s/2)` and
+`arch(s) = (1/2)log π − (1/2)ψ(s/2)`. -/
+theorem logDeriv_GammaReal_eq_neg_arch (s : ℂ) (hs : ∀ m : ℕ, s ≠ -(2 * (m : ℂ))) :
+    logDeriv (fun z : ℂ => z.Gammaℝ) s
+      = -((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma (s / 2)) := by
+  have hpi0 : (Real.pi : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+  have hne_pi : (Real.pi : ℂ) ^ (-s / 2) ≠ 0 := by
+    intro h
+    exact hpi0 ((Complex.cpow_eq_zero_iff _ _).mp h).1
+  have hs2 : ∀ m : ℕ, s / 2 ≠ -(m : ℂ) := by
+    intro m hm
+    apply hs m
+    have h2 : s = 2 * (s / 2) := by ring
+    rw [h2, hm]
+    ring
+  have hne_gamma : Complex.Gamma (s / 2) ≠ 0 := Complex.Gamma_ne_zero hs2
+  have hd_gamma_at : DifferentiableAt ℂ Complex.Gamma (s / 2) :=
+    Complex.differentiableAt_Gamma (s / 2) hs2
+  have hd_lin : DifferentiableAt ℂ (fun z : ℂ => z / 2) s := by fun_prop
+  have hd_gamma : DifferentiableAt ℂ (fun z : ℂ => Complex.Gamma (z / 2)) s :=
+    hd_gamma_at.comp s hd_lin
+  have hlin : HasDerivAt (fun z : ℂ => -z / 2) (-(1 / 2)) s := by
+    have h1 : HasDerivAt (fun z : ℂ => z) 1 s := hasDerivAt_id s
+    have h2 : HasDerivAt (fun z : ℂ => -(z) / 2) (-(1) / 2) s := h1.neg.div_const 2
+    have h2' : HasDerivAt (fun z : ℂ => -z / 2) (-(1) / 2) s := by
+      convert h2 using 1
+    convert h2' using 1
+    ring
+  have hd_pi : DifferentiableAt ℂ (fun z : ℂ => (Real.pi : ℂ) ^ (-z / 2)) s :=
+    (HasDerivAt.const_cpow hlin (Or.inl hpi0)).differentiableAt
+  have hunfold : (fun z : ℂ => z.Gammaℝ)
+      = fun z : ℂ => (Real.pi : ℂ) ^ (-z / 2) * Complex.Gamma (z / 2) := rfl
+  rw [hunfold]
+  have hprod : (fun z : ℂ => (Real.pi : ℂ) ^ (-z / 2) * Complex.Gamma (z / 2))
+      = (fun z : ℂ => (Real.pi : ℂ) ^ (-z / 2))
+        * (fun z : ℂ => Complex.Gamma (z / 2)) := rfl
+  rw [hprod, logDeriv_mul s hne_pi hne_gamma hd_pi hd_gamma]
+  have hlog_pi : logDeriv (fun z : ℂ => (Real.pi : ℂ) ^ (-z / 2)) s
+      = -(1 / 2) * log (Real.pi : ℂ) := by
+    rw [logDeriv_apply]
+    have hderiv : deriv (fun z : ℂ => (Real.pi : ℂ) ^ (-z / 2)) s
+        = (Real.pi : ℂ) ^ (-s / 2) * log (Real.pi : ℂ) * (-(1 / 2)) :=
+      (HasDerivAt.const_cpow hlin (Or.inl hpi0)).deriv
+    rw [hderiv]
+    field_simp
+  have hlog_gamma : logDeriv (fun z : ℂ => Complex.Gamma (z / 2)) s
+      = (1 / 2) * digamma (s / 2) := by
+    have hcomp : (fun z : ℂ => Complex.Gamma (z / 2))
+        = Complex.Gamma ∘ (fun z : ℂ => z / 2) := rfl
+    rw [hcomp]
+    rw [logDeriv_comp (f := Complex.Gamma) (g := fun z : ℂ => z / 2) (x := s)
+      hd_gamma_at hd_lin, Complex.digamma_def]
+    have hd : deriv (fun z : ℂ => z / 2) s = (1 / 2 : ℂ) := by
+      simpa using (hasDerivAt_id s).div_const 2 |>.deriv
+    rw [hd]
+    ring
+  rw [hlog_pi, hlog_gamma]
+  ring
+
+
+/-- **For even test functions the two pole terms coincide**: `h(0) = h(1)`. -/
+theorem paleyWiener_zero_eq_one_of_even (g : ℝ → ℂ) (hge : ∀ u : ℝ, g (-u) = g u) :
+    paleyWiener g 0 = paleyWiener g 1 := by
+  unfold paleyWiener
+  rw [show (∫ u : ℝ in (-1)..1, g u * Complex.exp (Complex.I * ((0 : ℂ) - 1 / 2) * (u : ℂ)))
+      = ∫ u : ℝ in (-1)..1, g u * Complex.exp (-(Complex.I * (1 / 2) * (u : ℂ))) from by
+    apply intervalIntegral.integral_congr
+    intro u hu
+    congr 2
+    push_cast
+    ring]
+  rw [show (∫ u : ℝ in (-1)..1, g u * Complex.exp (Complex.I * ((1 : ℂ) - 1 / 2) * (u : ℂ)))
+      = ∫ u : ℝ in (-1)..1, g u * Complex.exp (Complex.I * (1 / 2) * (u : ℂ)) from by
+    apply intervalIntegral.integral_congr
+    intro u hu
+    congr 2
+    push_cast
+    ring]
+  rw [show (∫ u : ℝ in (-1)..1, g u * Complex.exp (Complex.I * (1 / 2) * (u : ℂ)))
+      = ∫ u : ℝ in (-1)..1, g (-u) * Complex.exp (-(Complex.I * (1 / 2) * (u : ℂ))) from by
+    have h := (intervalIntegral.integral_comp_neg
+      (f := fun u : ℝ => g u * Complex.exp (Complex.I * (1 / 2) * (u : ℂ)))
+      (a := (-1 : ℝ)) (b := 1)).symm
+    simpa using h]
+  apply intervalIntegral.integral_congr
+  intro u hu
+  beta_reduce
+  rw [hge u]
 
 end AbsoluteHodgeExplicitFormula

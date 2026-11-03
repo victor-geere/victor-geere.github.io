@@ -45,11 +45,20 @@ to an **archimedean integral**, a **prime sum** `Σ_n Λ(n)n^{-1/2}ĝ(log n)`
    uses the fact that `h` is a Fourier transform and pairs the horizontal
    terms against the **sum over zeros** via the explicit formula on the
    critical line. The finite-`T` identity is Lean-checked; the limit needs
-   the Weil form of the zero sum.
+   the Weil form of the zero sum. **Now quantified numerically**
+   (`test_horizontal_term_grows`): for `g(u) = (1−u²)²` the horizontal term
+   `|Im(Top)|` takes the values `≈ 8.24, 227.1, 5968.0` at `T = 5, 10, 15`,
+   growing by a factor `> 10` per five units — so the holomorphic contour
+   shift genuinely has **no** `T → ∞` limit, even with vanishing endpoints.
 2. **The prime side.** The finite-`T` Fubini swap is now Lean-checked
    (`integral_logDeriv_paleyWiener_swap`), expressing the right-vertical
-   integral as `∫_u g(u)e^{3iu/2}·∫_y (Z'/Z)(2+iy)e^{−yu}dy`; the remaining
-   task is evaluating the inner `y`-integral against the closed prime measure. The formal computation
+   integral as `∫_u g(u)e^{3iu/2}·∫_y (Z'/Z)(2+iy)e^{−yu}dy`; the inner `y`-integral is now
+   evaluated in closed form term by term (`integral_lseriesTerm_exp`) and
+   summed (`integral_lseries_vonMangoldt_exp_closed`), with
+   `λ = u + i log n`; the assembled right-vertical identity is
+   `integral_logDeriv_paleyWiener_prime_assembled`, and the fully assembled
+   `u`-superposition form is
+   `integral_logDeriv_paleyWiener_u_superposition`. The formal computation
    `∫_ℝ n^{-2−iy}h(2+iy)dy` with `h(s) = ∫g(u)e^{i(s−1/2)u}du` suggests
    `2π n^{-1/2}g(log n)` after the `y`-integration, but the exchange of
    integrals is only distributional (the Gaussian factor `e^{−yu}` grows for

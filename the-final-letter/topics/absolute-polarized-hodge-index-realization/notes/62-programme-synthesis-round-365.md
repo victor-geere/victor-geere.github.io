@@ -2,8 +2,8 @@
 
 **Status: No RH proof yet.** This note is a consolidated, honest summary of the
 absolute-polarized Hodge-index programme as formalised and verified up to
-journal round 432: 549 Lean declarations in 9 files, 185 Python tests, and
-notes 1–61.
+journal round 550: 679 Lean declarations in 10 files, 198 Python tests, and
+the notes through note 65.
 
 ## 1. What is Lean-checked
 
@@ -68,7 +68,15 @@ conjugation-paired zero sums real.
   the prime measure in Fourier form (termwise, closed coefficient, closed
   term, full closed sum), `u = 0` consistency and its equality with
   `primeSide`; the Fourier-kernel and closed `Z'/Z` identities (and their
-  `u = 0` cases).
+  `u = 0` cases); the **Paley–Wiener assembled chain**: the Fubini swaps for
+  `Z'/Z`, `L_Λ` and `arch` (`integral_logDeriv_paleyWiener_swap`,
+  `integral_lseries_paleyWiener_swap`, `integral_arch_paleyWiener_swap`), the
+  closed exponential-kernel term and prime sum
+  (`integral_lseriesTerm_exp`, `integral_lseries_vonMangoldt_exp_closed`), the
+  right-vertical decomposition
+  (`integral_logDeriv_paleyWiener_eq_neg_I`,
+  `integral_logDeriv_paleyWiener_prime_assembled`) and the fully assembled
+  `u`-superposition `integral_logDeriv_paleyWiener_u_superposition`.
 - **Archimedean critical line**: `digamma_add_conj_critical`,
   `archimedeanTerm_critical_line_real`, `integral_archimedean_term_real`,
   `conj_integral_archimedean_fourier`.
@@ -78,7 +86,7 @@ conjugation-paired zero sums real.
 `digamma_conj`, analyticity/differentiability/continuity of `Γ` and `ψ` on
 `Re > 0`, and the critical-line digamma sum and realness.
 
-## 2. Numerical layer (185 tests)
+## 2. Numerical layer (198 tests)
 
 - The test-function formula for `h = s`, `s²`, and the rational
   `1/((s−5)²+1)` (agreement `10⁻⁷`–`10⁻⁸`).
@@ -88,6 +96,11 @@ conjugation-paired zero sums real.
 - The closed Fourier prime sum at `u = 0.7` and `u = 1.5` (agreement
   `1.2·10⁻⁷`, `4.1·10⁻⁸`) and the assembled closed Fourier identity at
   `u = 0.7` (`1.2·10⁻⁷`); the closed transform `2 sin x/x` (`10⁻²⁰`).
+- The assembled right-vertical identity
+  (`test_assembled_right_vertical_identity`, `T = 3`, agreement `10⁻¹⁰`), and
+  the **growth of the horizontal term** (`test_horizontal_term_grows`:
+  `8.24, 227.1, 5968.0` at `T = 5, 10, 15`), witnessing that the holomorphic
+  contour shift has no `T → ∞` limit.
 - The archimedean-integral reality for a Gaussian test function.
 - The winding, inverse-square and inverse-cube integrals; the derivative
   and second-derivative Cauchy formulas (`∮ h/(z−a)² = 2πi h′(a)`,

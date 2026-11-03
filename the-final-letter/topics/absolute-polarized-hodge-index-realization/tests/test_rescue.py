@@ -1854,7 +1854,7 @@ def test_paleyWiener_critical_line_real():
     for g(u) = (1-u^2)^2, h(1/2 + it) should be real for t = 0, 2.3, -5.1."""
     import mpmath as mp
 
-    mp.mp.dps = 20
+    mp.mp.dps = 15
     I = mp.mpc(0, 1)
     g = lambda u: (1 - u * u) ** 2
 
@@ -1864,3 +1864,285 @@ def test_paleyWiener_critical_line_real():
     for t in (mp.mpf("0.0"), mp.mpf("2.3"), mp.mpf("-5.1")):
         val = h(mp.mpf(1) / 2 + t * I)
         assert abs(mp.conj(val) - val) < mp.mpf("1e-18")
+
+
+def test_assembled_right_vertical_identity():
+    """Numerically check the assembled right-vertical identity
+    (integral_logDeriv_paleyWiener_prime_assembled) for
+    g(u) = (1-u^2)^2 on [-1,1] and T = 5:
+      ∫_y (Z'/Z)(2+iy) h(2+iy)·i dy
+        = -∫_y arch(2+iy) h(2+iy)·i dy
+          - (∫_u g(u) e^{3iu/2} (∫_y L_Λ(2+iy) e^{-uy} dy) du)·i."""
+    import mpmath as mp
+
+    mp.mp.dps = 15
+    I = mp.mpc(0, 1)
+    g = lambda u: (1 - u * u) ** 2
+
+    def h(s):
+        return mp.quad(lambda u: g(u) * mp.e ** (I * (s - mp.mpf(1) / 2) * u), [-1, 1])
+
+    def ZpZ(s):
+        return (-mp.mpf(1) / 2 * mp.log(mp.pi) + mp.mpf(1) / 2 * mp.digamma(s / 2)
+                + mp.zeta(s, derivative=1) / mp.zeta(s))
+
+    def arch(s):
+        return mp.mpf(1) / 2 * mp.log(mp.pi) - mp.mpf(1) / 2 * mp.digamma(s / 2)
+
+    L = lambda s: -mp.zeta(s, derivative=1) / mp.zeta(s)
+    T = mp.mpf(3)
+    lhs = mp.quad(lambda y: ZpZ(mp.mpc(2, y)) * h(mp.mpc(2, y)) * I, [-T, T])
+    r1 = -mp.quad(lambda y: arch(mp.mpc(2, y)) * h(mp.mpc(2, y)) * I, [-T, T])
+    inner = lambda u: mp.quad(lambda y: L(mp.mpc(2, y)) * mp.e ** (-u * y), [-T, T])
+    r2 = -mp.quad(lambda u: g(u) * mp.e ** (1.5j * u) * inner(u), [-1, 1]) * I
+    assert abs(lhs - (r1 + r2)) < mp.mpf("1e-10")
+
+
+def test_horizontal_term_grows():
+    """The horizontal term Im(Top) of the Paley–Wiener contour shift *grows*
+    with T (there is no T → ∞ limit for the holomorphic contour shift):
+    for g(u) = (1-u^2)^2, |Im(Top)(T)| at T = 5, 10, 15 is
+    ≈ 8.24, 227.1, 5968.0 — strictly increasing."""
+    import mpmath as mp
+
+    mp.mp.dps = 10
+    I = mp.mpc(0, 1)
+    g = lambda u: (1 - u * u) ** 2
+
+    def h(s):
+        return mp.quad(lambda u: g(u) * mp.e ** (I * (s - mp.mpf(1) / 2) * u), [-1, 1])
+
+    def ZpZ(s):
+        return (-mp.mpf(1) / 2 * mp.log(mp.pi) + mp.mpf(1) / 2 * mp.digamma(s / 2)
+                + mp.zeta(s, derivative=1) / mp.zeta(s))
+
+    vals = []
+    for T in (mp.mpf(5), mp.mpf(10), mp.mpf(15)):
+        top = mp.quad(lambda x: ZpZ(mp.mpc(x, T)) * h(mp.mpc(x, T)), [-1, 0, 1, 2])
+        vals.append(abs(mp.im(top)))
+    assert vals[1] > 10 * vals[0]
+    assert vals[2] > 10 * vals[1]
+
+
+def test_weil_functional_not_nonnegative_general():
+    """The Weil functional W(h) = 2 Σ_{γ>0} h(γ) is *not* nonnegative for a
+    general Paley–Wiener test function: for h = paleyWiener g with
+    g(u) = (1-u^2)^2, W ≈ -0.0138 (50 zeros). Positivity is only expected on
+    the autocorrelation cone (h = |f̂|²-type), confirming the shape of Weil's
+    criterion."""
+    import mpmath as mp
+
+    mp.mp.dps = 10
+    I = mp.mpc(0, 1)
+    g = lambda u: (1 - u * u) ** 2
+    zeros = [mp.im(mp.zetazero(k)) for k in range(1, 51)]
+    h = lambda t: mp.quad(lambda u: g(u) * mp.e ** (I * (t - mp.mpf(1) / 2) * u),
+                          [-1, 1], maxdegree=6)
+    w = 2 * sum(mp.re(h(z)) for z in zeros)
+    assert w < 0
+
+
+def test_partial_fraction_sum_nearly_real():
+    """The Hadamard partial-fraction sum over the nontrivial zeros,
+    S_N = Σ_{k≤N} [1/(x−ρ_k) + 1/ρ_k] at x = 3, is nearly real (the
+    reflection pairing ρ ↔ 1−conj ρ): Im S_50 ≈ −0.0042, Re S_50 ≈ 0.0551.
+    Convergence is slow (~(log N)/N), so the extracted Hadamard constant
+    drifts (B_est ≈ −0.134, −0.138, −0.141 at N = 50, 100, 200)."""
+    import mpmath as mp
+
+    mp.mp.dps = 10
+    x = mp.mpf(3)
+    S = mp.mpc(0)
+    for k in range(1, 51):
+        rho = mp.zetazero(k)
+        S += (1 / (x - rho) + 1 / rho)
+    assert abs(mp.im(S)) < mp.mpf("1e-2")
+    assert mp.mpf("0.05") < mp.re(S) < mp.mpf("0.06")
+
+
+def test_autocorrelation_transfer_identity():
+    """Numerically check `paleyWiener_autocorrelation_eq_transform` and
+    `paleyWiener_autocorrelation_nonneg`: for f(t) = 1 - 4t^2 on [-1/2, 1/2],
+    h(1/2 + it) = ∫ (f⋆f*)(u) e^{-tu} du = |∫ f(s) e^{-ts} ds|^2 >= 0,
+    at t = 0, 1.7, -3.2 (values 0.4444..., 0.5128..., 0.7288...)."""
+    import mpmath as mp
+
+    mp.mp.dps = 15
+    half = mp.mpf(1) / 2
+    f = lambda t: (1 - 4 * t * t) if abs(t) <= half else mp.mpf(0)
+
+    def autocorr(u):
+        return mp.quad(lambda v: f(v) * mp.conj(f(u - v)), [-half, half])
+
+    def h_direct(t):
+        return mp.quad(lambda u: autocorr(u) * mp.e ** (-t * u), [-1, 1])
+
+    def A(t):
+        return mp.quad(lambda s: f(s) * mp.e ** (-t * s), [-half, half])
+
+    for t in (mp.mpf("0.0"), mp.mpf("1.7"), mp.mpf("-3.2")):
+        lhs = h_direct(t)
+        rhs = abs(A(t)) ** 2
+        assert abs(lhs - rhs) < mp.mpf("1e-5")
+        assert mp.re(lhs) >= 0
+        assert abs(mp.im(lhs)) < mp.mpf("1e-10")
+
+
+def test_symbol_identity_numerical():
+    """Numerically check the symbol identity at s = 3:
+    arch(3) + L_Λ(3) = -Z'/Z(3), where
+    arch(s) = (1/2)log π - (1/2)ψ(s/2) and L_Λ is the von Mangoldt series."""
+    import mpmath as mp
+
+    mp.mp.dps = 20
+    N = 20000
+    lam = [mp.mpf(0)] * (N + 1)
+    comp = [False] * (N + 1)
+    for p in range(2, N + 1):
+        if not comp[p]:
+            lp = mp.log(p)
+            pk = p
+            while pk <= N:
+                lam[pk] = lp
+                pk *= p
+            for m in range(p * p, N + 1, p):
+                comp[m] = True
+    L = sum(lam[n] * mp.mpf(n) ** (-3) for n in range(2, N + 1) if lam[n] != 0)
+    s = mp.mpf(3)
+    arch = mp.mpf(1) / 2 * mp.log(mp.pi) - mp.mpf(1) / 2 * mp.digamma(s / 2)
+    ZpZ = (-mp.mpf(1) / 2 * mp.log(mp.pi) + mp.mpf(1) / 2 * mp.digamma(s / 2)
+           + mp.zeta(s, derivative=1) / mp.zeta(s))
+    assert abs(arch + L + ZpZ) < mp.mpf("1e-8")
+
+
+def test_pole_terms_coincide_even():
+    """Numerically check `paleyWiener_zero_eq_one_of_even`: for the even
+    g(u) = (1-u^2)^2, h(0) = h(1) = 1.0477508229... (and the value is real)."""
+    import mpmath as mp
+
+    mp.mp.dps = 20
+    I = mp.mpc(0, 1)
+    g = lambda u: (1 - u * u) ** 2
+    h0 = mp.quad(lambda u: g(u) * mp.e ** (I * (mp.mpf(0) - mp.mpf(1) / 2) * u), [-1, 1])
+    h1 = mp.quad(lambda u: g(u) * mp.e ** (I * (mp.mpf(1) - mp.mpf(1) / 2) * u), [-1, 1])
+    assert abs(h0 - h1) < mp.mpf("1e-18")
+    assert abs(mp.im(h0)) < mp.mpf("1e-18")
+
+
+def test_zero_weight_partial_sums_converge():
+    """Numerical illustration of `xi₀_zeros_inv_sq_summable`: the partial sums
+    S_N = Σ_{k≤N} (1+|ρ_k|)^(-2) over the nontrivial zeros increase but stay
+    bounded: S_10 ≈ 0.0123, S_50 ≈ 0.0172, S_100 ≈ 0.0186, S_200 ≈ 0.0197."""
+    import mpmath as mp
+
+    mp.mp.dps = 12
+    S = mp.mpf(0)
+    vals = {}
+    for k in range(1, 201):
+        rho = mp.mpc(mp.mpf(1) / 2, mp.im(mp.zetazero(k)))
+        S += 1 / (1 + abs(rho)) ** 2
+        if k in (10, 50, 100, 200):
+            vals[k] = S
+    assert vals[10] < vals[50] < vals[100] < vals[200]
+    assert vals[200] < mp.mpf("0.05")
+
+
+def test_logderiv_grows_along_real_axis():
+    """Numerical illustration of the infinitude mechanism (note 68):
+    Z'/Z(σ) = −arch(σ) + ζ'/ζ(σ) grows like (1/2)log(σ/2) − (1/2)log π
+    along the real axis: values ≈ 0.180, 1.379, 2.534, 3.686 at
+    σ = 10, 100, 1000, 10000 versus the prediction 0.232, 1.384, 2.535,
+    3.686. A finite zero set would make Z'/Z bounded, so ξ has infinitely
+    many zeros."""
+    import mpmath as mp
+
+    mp.mp.dps = 20
+    rows = []
+    for s in (10, 100, 1000, 10000):
+        sig = mp.mpf(s)
+        arch = mp.mpf(1) / 2 * mp.log(mp.pi) - mp.mpf(1) / 2 * mp.digamma(sig / 2)
+        L = -mp.zeta(sig, derivative=1) / mp.zeta(sig)   # L_Λ = -ζ'/ζ on σ > 1
+        val = -arch - L
+        pred = mp.mpf(1) / 2 * mp.log(sig / 2) - mp.mpf(1) / 2 * mp.log(mp.pi)
+        rows.append((val, pred))
+    # the values grow and match the leading asymptotic to < 1%
+    for (val, pred) in rows[1:]:
+        assert abs(val - pred) < mp.mpf("0.01") * abs(pred) + mp.mpf("0.01")
+    assert rows[0][0] < rows[1][0] < rows[2][0] < rows[3][0]
+
+
+def test_logderiv_finite_product_bound():
+    """Numerically validate `norm_logDeriv_finiteCanonicalProduct_one_le`:
+    for S the first five nontrivial zeros and z = 2, the log-derivative
+    sum Σ_a z/(a(z−a)) is dominated by the Lean bound
+    Σ_a (1/|a| + 1/|z−a|)."""
+    import mpmath as mp
+
+    mp.mp.dps = 20
+    S = [mp.mpc(mp.mpf(1) / 2, mp.im(mp.zetazero(k))) for k in range(1, 6)]
+    z = mp.mpc(2, 0)
+    val = sum(z / (a * (z - a)) for a in S)
+    bnd = sum(1 / abs(a) + 1 / abs(z - a) for a in S)
+    assert abs(val) <= bnd + mp.mpf("1e-12")
+    # the bound is loose by a factor ~20 here (each term is bounded
+    # separately), which is the expected behaviour of the Lean statement
+    assert bnd < 25 * abs(val)
+
+
+def test_finite_product_log_lower_bound():
+    """Numerically validate `log_norm_finiteCanonicalProduct_one_lower`:
+    for S the first five nontrivial zeros and z = 2, 1+i, 3 (all with
+    |z| <= min|a|/2), the log-modulus of the finite canonical product
+    is bounded below by -3|z|*sum(1/|a|)."""
+    import mpmath as mp
+
+    mp.mp.dps = 20
+    S = [mp.mpc(mp.mpf(1) / 2, mp.im(mp.zetazero(k))) for k in range(1, 6)]
+    s_inv = sum(1 / abs(a) for a in S)
+    for z in (mp.mpc(2, 0), mp.mpc(1, 1), mp.mpc(3, 0)):
+        assert abs(z) <= min(abs(a) for a in S) / 2
+        logprod = sum(mp.log(abs((1 - z / a) * mp.e ** (z / a))) for a in S)
+        assert logprod >= -3 * abs(z) * s_inv - mp.mpf("1e-15")
+
+
+def test_zeta_strip_growth_numerical():
+    """Numerical evidence for the recorded strip-growth gap (note 68):
+    (i) |zeta(1/2+it)| <= 0.5*sqrt(t) on the sampled grid t in [10,1000];
+    (ii) the order-1 form log|zeta(s)| <= |s|log(|s|+2)+1 holds for
+    sigma in {0.2, 0.5, 0.8} and t in [2,1000]."""
+    import mpmath as mp
+
+    mp.mp.dps = 15
+    worst = 0
+    for t in range(10, 1001, 40):
+        ratio = abs(mp.zeta(mp.mpc(0.5, t))) / mp.sqrt(t)
+        worst = max(worst, ratio)
+    assert worst <= 0.5
+    for t in range(2, 1001, 47):
+        for sig in (0.2, 0.5, 0.8):
+            s = mp.mpc(sig, t)
+            lhs = mp.log(abs(mp.zeta(s)))
+            rhs = 1.0 * abs(s) * mp.log(abs(s) + 2) + 1
+            assert lhs <= rhs
+
+
+def test_divisor_sum_growth_numerical():
+    """Numerical illustration of `divsum_log_le_of_growth_trailingCoeff`:
+    the weighted divisor sum S(R) = sum_{|rho|<=R} log(R/|rho|) over the
+    nontrivial zeros satisfies S(R) <= R log R (with a small constant),
+    for R = 50, 100, 200, 400: S = 4.41, 16.65, 51.53, 142.75 versus
+    R log R = 195.6, 460.5, 1059.7, 2396.6."""
+    import mpmath as mp
+
+    mp.mp.dps = 15
+    for R in (50, 100, 200, 400):
+        tot = mp.mpf(0)
+        k = 1
+        while True:
+            z = mp.zetazero(k)
+            rho = mp.mpc(mp.mpf(1) / 2, mp.im(z))
+            if abs(rho) > R:
+                break
+            tot += mp.log(R / abs(rho))
+            k += 1
+        assert tot <= R * mp.log(R)

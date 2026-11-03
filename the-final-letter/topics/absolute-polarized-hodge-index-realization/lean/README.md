@@ -6,7 +6,7 @@
 the-final-letter/topics/absolute-polarized-hodge-index-realization/lean/check.sh
 ```
 
-The eight files are `Rescue`, `Shadow`, `Archimedean`, `Symbol`, `Limit`, `Weil`,
+The nine files are `Rescue`, `Shadow`, `Archimedean`, `Symbol`, `Limit`, `Weil`,
 `Hadamard` and `Rectangle`.
 
 The script delegates to [`../../tools/check-lean.sh`](../../tools/check-lean.sh)
@@ -324,6 +324,7 @@ Vert\). |
 | `const_mul_cexp_neg_of_primitive` | `f * exp(-G)` is constant on a ball when `G' = f'/f`. |
 | `exists_cexp_of_primitive` | zero-free differentiable logarithm on a ball, given a primitive: `f = exp (G + c₀)`. |
 | `exists_differentiable_cexp_ball` | **unconditional zero-free differentiable logarithm**: a holomorphic zero-free function on a ball is `exp g`. |
+| `xi₀_zeros_inv_sq_summable_of_log_growth` | **square-summability of the zeros**: `log‖ξ₀ z‖ ≤ A‖z‖log(‖z‖+2) + B` with `A, B ≥ 0` implies `∑_w (‖w‖+1)⁻² < ∞` over the zeros `w` of `ξ₀` (dyadic shell decomposition against `xi₀_zero_count_bound_of_log_le`). |
 
 Part of the zero-side Hadamard project (note 50); the infinite product and
 the factorisation theorem are later milestones.
@@ -592,3 +593,84 @@ the factorisation theorem are later milestones.
 | **`integral_lseries_vonMangoldt_exp`** | termwise prime side against `e^{−uy}`: `∫ L_Λ(c+iy)e^{−uy}dy = Σ_n ∫ term_n(c+iy)e^{−uy}dy`. |
 
 | **`natCast_cpow_vertical_eq_exp`** | `n^{-(c+iy)} = n^{-c}·e^{−iy log n}`. |
+
+| **`integral_exp_neg_mul`** | `∫_{y₁}^{y₂} e^{−λy}dy = (e^{−λy₁}−e^{−λy₂})/λ`. |
+
+| **`integral_lseriesTerm_exp`** | closed exponential-kernel term: `∫ term_n(c+iy)e^{−uy}dy = Λ(n)n^{-c}(e^{−λy₁}−e^{−λy₂})/λ`. |
+
+| **`integral_lseries_vonMangoldt_exp_closed`** | closed exponential-kernel prime sum: `∫ L_Λ(c+iy)e^{−uy}dy = Σ_n` closed terms. |
+
+| **`integral_logDeriv_paleyWiener_eq_neg_I`** | right-vertical decomposition for the Paley–Wiener test function: `∫(Z'/Z)h·i = −∫arch·h·i − ∫L_Λ·h·i`. |
+
+| **`integral_lseries_paleyWiener_swap`** | prime-side Fubini swap: `∫ L_Λh = ∫_u g e^{3iu/2}·∫_y L_Λe^{−yu}`. |
+
+| **`integral_logDeriv_paleyWiener_prime_assembled`** | assembled right-vertical identity: archimedean integral plus the Fubini-swapped prime side. |
+
+| **`integral_arch_paleyWiener_swap`** | archimedean Fubini swap: `∫ arch·h = ∫_u g e^{3iu/2}·∫_y arch·e^{−yu}`. |
+
+| **`integral_logDeriv_paleyWiener_u_superposition`** | the fully assembled `u`-superposition right side (archimedean + prime). |
+
+| **`sum_paleyWiener_conj_real`** | reality of the Paley–Wiener zero sum for a conjugation-symmetric zero set. |
+
+| **`completedZeta_zero_conj_one_sub`** | zeros pair under `s ↦ conj(1−s)`: `Z(s)=0 ⟹ Z(conj(1−s))=0`. |
+
+| **`logDeriv_completedZeta_eq_tsum_of_factorisation`** | conditional Hadamard partial fraction: `Z = e^{A+Bz}∏F_i ⟹ Z'/Z = B + Σ F_i'/F_i`. |
+
+| **`finset_sum_conj_real_of_reflection`** | reality of `Σ h(ρ)` under the abstract reflection `ρ ↦ conj(1−ρ)`. |
+
+| **`finset_sum_conj_real_of_conj_closed`** | reality of `Σ h(ρ)` over a conjugation-closed zero set. |
+
+| **`finset_sum_eq_sum_re_of_conj_closed`** | `Σ h(ρ) = Σ Re h(ρ)` over a conjugation-closed set. |
+
+| **`conj_one_sub_eq_self_iff_re_eq_half`**, **`completedZeta_re_eq_half_iff_conj_one_sub_eq_self`** | the critical line as the fixed locus of `ρ ↦ conj(1−ρ)`; RH as "the reflection fixes every nontrivial zero". |
+
+| **`sum_re_nonneg_of_each_nonneg`**, **`sum_nonneg_of_each_nonneg_real`** | termwise nonnegativity transfers to the zero sum (the trivial direction RH ⟹ positivity). |
+
+| **`paleyWiener_critical_line_eq_integral`** | `h(1/2+it) = ∫_{−1}^{1} g(u)e^{−tu}du`. |
+
+| **`paleyWiener_critical_line_ofReal`**, **`paleyWiener_critical_line_ofReal_nonneg`** | critical-line value as a real integral; termwise positivity on the nonnegative cone. |
+| **`conj_integral_exp`**, **`inner_shift`**, **`autocorrelation_exponential_eq_norm_sq`** | the convolution autocorrelation identity `∫(f⋆f*)e^{−tu} = |A|²`, with its two supporting lemmas. |
+| **`integrable_autocorrelation_kernel`**, **`autocorrelation_exponential_eq_norm_sq_of_compactSupport`**, **`autocorrelation_transform_nonneg`** | compact-support integrability and the **nonnegative real** autocorrelation transform. |
+| **`autocorrelation_eq_zero_off_Ioo`**, **`paleyWiener_autocorrelation_eq_transform`**, **`paleyWiener_autocorrelation_nonneg`** | the transfer to `paleyWiener` on `[−1,1]` and the **nonnegativity of the critical-line value** for test functions supported in `[−1/2,1/2]`. |
+| **`sum_paleyWiener_autocorrelation_nonneg_of_critical_line`**, **`weil_zero_sum_nonneg_real_of_critical_line`** | **RH ⟹ Weil positivity** for the autocorrelation cone: critical-line zeros ⟹ nonnegative real zero sum. |
+| **`finset_sum_eq_sum_re_of_reflection`** | `Σ h(ρ) = Σ Re h(ρ)` under the reflection `ρ ↦ conj(1−ρ)`. |
+| **`logDeriv_GammaReal_eq_neg_arch`** | the archimedean term is the Gamma-factor log-derivative: `logDeriv Γ_ℝ(s) = −arch(s)`. |
+| **`paleyWiener_zero_eq_one_of_even`** | for even test functions the pole terms coincide: `h(0) = h(1)`. |
+| **`xi₀`**, **`differentiable_xi₀`**, **`xi₀_eq_weighted`**, **`xi₀_eq_zero_iff`**, **`factorization_of_xi₀`** (Hadamard) | the entire completed zeta `s(s−1)Λ₀(s)+1` (with exactly the nontrivial zeros) and its conditional Hadamard factorisation over enumerated zeros. |
+| **`logDeriv_completedRiemannZeta_eq_tsum_of_zeros`**, **`logDeriv_completedZeta_eq_tsum_of_zeros`** (Hadamard) | the **Hadamard partial fraction** for `Λ` and for the dossier's `Z`: `Z'/Z(x) = b − 1/x − 1/(x−1) + Σ E_p′(x/aₙ)/E_p(x/aₙ)`, conditional on the zero data. |
+| **`xi₀_zero_isolated`**, **`xi₀_zeros_finite_in_closedBall`**, **`xi₀_zeros_countable`** (Hadamard) | the zeros of `ξ₀` are isolated, finite in every closed ball, and countable. |
+| **`meromorphicOrderAt_xi₀_eq_zero_of_ne_zero`**, **`meromorphicOrderAt_tprod_weierstrassFactor_eq_zero(_of_summable)`**, **`..._of_lt`** (Hadamard) | order-zero at non-zeros: the divisor match only needs checking at the zeros. |
+| **`ncard_xi₀_zeros_le_divisor_sum`**, **`xi₀_zero_count_bound`** (Hadamard) | `N(r) ≤ divisor sum`, and `N(r) ≤ (2Ar+B)/log 2` under log-growth — the counting input for summability. |
+| **`xi₀_zeros_inv_sq_summable`**, **`summable_inv_sq_of_injective_enumeration`** (Hadamard) | summability of `1/(1+‖z‖)²` over the zeros, and its transfer to any injective enumeration. |
+| **`xi₀_zero_count_bound_of_log_le`** (Hadamard) | general counting bound: `log‖ξ₀‖ ≤ L` on the sphere `2r` ⟹ `N(r) ≤ L/log 2` (gives `N(r) = O(r log r)` for the true growth). |
+| **`xi₀_zeros_inv_sq_summable_of_log_growth`** (Hadamard) | zero summability under the correct `r log r` growth. |
+| **`meromorphicOrderAt_eq_one_of_local_factor`** (Hadamard) | local factorisation by a vanishing Weierstrass factor ⟹ order one. |
+| **`tprod_eq_prod_mul_tprod_compl`** (Hadamard) | finite-set split of an infinite product (full = finite product × complement). |
+| **`meromorphicOrderAt_tprod_weierstrassFactor_at_zero_of_finset`** (Hadamard) | order 1 at a zero with only a finite set of nearby zeros removed (the finite-split divisor match). |
+| **`meromorphicOrderAt_tprod_weierstrassFactor_at_zero_of_finset_multiplicity`** (Hadamard) | the **multiplicity** version: the canonical product's order at a zero equals the number of coincident zeros in the enumeration. |
+| **`hasLogGrowthOne_quotient_of_factorization`** (Hadamard) | the log-growth hypothesis is automatic once the factorisation holds. |
+| **`exists_enumeration_zeros`** (Hadamard) | a nonzero enumeration of the zero set (conditional on nonemptiness). |
+| **`tendsto_digamma_nat_re_atTop`** (Hadamard) | `Re ψ(n+1) = H_n − γ → ∞` — the analytic input for the infinitude of the zeros. |
+| **`hasLogGrowthOne_weierstrassFactor_one_div`** (Hadamard) | order-1 log-growth of the scaled elementary factor `E_1(z/a)`. |
+| **`hasLogGrowthOne_mul_of_logGrowth`**, **`hasLogGrowthOne_finset_prod_of_logGrowth`** (Hadamard) | products of order-1-log-growth functions without any zero-free hypothesis (an alternative form of the pre-existing `HasLogGrowthOneNonneg` layer). |
+| **`logDeriv_cexp_comp`** (Hadamard) | `logDeriv (e^g) = g'` — the zero-free-function step identity. |
+| **`hasLogGrowthOne_mul_sub_one`** (Hadamard) | order-1 log-growth of the polynomial prefactor `z(z−1)`. |
+| **`norm_logDeriv_weierstrassFactor_one_div_le`** (Hadamard) | `‖logDeriv (E_1(·/a))‖(z) ≤ 1/‖a‖ + 1/‖z−a‖` — the `P'/P` bound away from the zeros. |
+| **`norm_logDeriv_finiteCanonicalProduct_one_le`** (Hadamard) | the same bound summed over a finite canonical product. |
+| **`norm_logDeriv_finiteCanonicalProduct_one_le_of_dist`** (Hadamard) | the same bound in the uniform form `∑(1/‖a‖ + 1/δ)` when `z` is `δ`-away from every zero. |
+| **`tendsto_logDeriv_completedZeta_re_atTop`** (Hadamard) | `Re (Z'/Z)(2m+2) → +∞` — the real-axis growth driving the infinitude of the zeros. |
+| **`eq_const_of_bddAbove_re`** (Hadamard) | bounded `Re g` ⇒ `g` constant (the order-0 zero-free case). |
+| **`subquadratic_eq_affine_of_re_le_rpow`** (Hadamard) | `Re g = O(r^p)` with `1 < p < 2` ⇒ `g` affine (covers `r log r` growth). |
+| **`log_norm_weierstrassFactor_one_div_lower`** (Hadamard) | `log‖E_1(z/a)‖ ≥ −3‖z‖/‖a‖` for `‖z‖ ≤ ‖a‖/2` — the per-factor lower bound. |
+| **`log_norm_finiteCanonicalProduct_one_lower`** (Hadamard) | the same bound summed over a finite canonical product. |
+| **`log_norm_tprod_weierstrassFactor_one_lower`** (Hadamard) | the **infinite-product** lower bound `−3‖z‖∑'1/‖a n‖ ≤ log‖∏'E_1(z/a n)‖`. |
+| **`norm_Gamma_le_Gamma_re`**, **`exists_bound_log_norm_Gamma_right_of_one_le_re`**, **`..._of_half_le_re`**, **`..._corrected`**, **`not_exists_bound_log_norm_Gamma_right`** (Hadamard) | Gamma growth: the integral norm bound, the true half-plane growth bounds, and the machine-checked refutation of the unrestricted form (the pole at `0`). |
+| **`gammaR_growth_exists_bound_log_norm_half_le`** (Hadamard) | the archimedean factor's growth `log‖Γℝ(s)‖ ≤ A‖s‖log(‖s‖+2)+B` on `re s ≥ 1/2`. |
+| **`norm_riemannZeta_le_two`** (Hadamard) | `‖ζ(s)‖ ≤ 2` for `re s ≥ 2` — the right-boundary datum for the strip-growth route. |
+| **`norm_le_of_forall_mem_sphere_le`** (Hadamard) | maximum modulus on a sphere (assembly step 1). |
+| **`circleAverage_log_norm_of_forall_ne_zero`** (Hadamard) | mean value property for a zero-free entire function (assembly, Jensen/Poisson input). |
+| **`divsum_log_le_of_growth_trailingCoeff`**, **`divsum_log_le_of_growth`** (Hadamard) | the weighted divisor-sum (counting-function) bound `Σ divisor·log(R/‖u‖) = O(R log R)` from Jensen. |
+| **`norm_riemannZeta_le_three_of_three_halves`**, **`exists_norm_riemannZeta_le_of_three_halves`** (Hadamard) | the uniform bound `‖ζ(s)‖ ≤ 3` on `re s ≥ 3/2` (left-boundary datum via the functional equation). |
+| **`norm_riemannZeta_le_one_add_inv_sub_one`**, **`exists_bound_log_norm_zeta_right_corrected`**, **`not_exists_bound_log_norm_zeta_strip`** (Hadamard) | the elementary bound `‖ζ(s)‖ ≤ 1 + 1/(re s − 1)` for `re s > 1`, the pole-aware log bound, and the machine-checked refutation of the unrestricted strip bound (the pole at `s = 1`). |
+
+| **`integral_shift_exp`** | `∫_u f(u+v)e^{−tu}du = e^{tv}·∫_s f(s)e^{−ts}ds`. |

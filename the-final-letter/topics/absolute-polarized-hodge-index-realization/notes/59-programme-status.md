@@ -5,7 +5,7 @@ absolute-polarized Hodge-index programme after rounds 250–328. It separates
 what is **Lean-checked**, what is **numerical**, what is **text-proof**, and
 what remains **open**.
 
-## 1. The verified chain (Lean-checked, 549 declarations, 9 files)
+## 1. The verified chain (Lean-checked, 679 declarations, 10 files)
 
 ### Contour argument principle
 
@@ -82,7 +82,7 @@ what remains **open**.
 `gaussianTest` (and `contour_shift_gaussian`) for
 `h(s) = exp(−(s−1/2)²/1000)` — a finite-`T` instance.
 
-## 2. Numerical layer (185 tests)
+## 2. Numerical layer (198 tests)
 
 Symbol and log-derivative symmetries, pole residues, circle/rectangle argument
 principle counts, winding integrals, the completed-zeta count

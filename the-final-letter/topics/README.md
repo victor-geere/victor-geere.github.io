@@ -59,6 +59,7 @@ The table also carries the three programme objectives: item 1 (Riemann wall), it
 | 49 | sin(x)/x with the greedy harmonic sine | derived topic — finite core, Euler-product obstruction; global limit inherited as source claim | [sin-x-over-x](sin-x-over-x/README.md) | sibling topic [`harmonic-sine`](harmonic-sine/README.md) |
 | 50 | p-adic greedy sine | exploratory — corrected step sequence; no relation to `ζ_p` | [padic-greedy-sine](padic-greedy-sine/README.md) | proposal from [`sin-x-over-x`](sin-x-over-x/README.md) |
 | 51 | Intersection form for ζ (function-field template and arithmetic obstruction) | exploratory — finite Hodge-index core Lean-proved; Frobenius replaced by a Hecke shadow and a scaling correspondence; polarization open | [intersection-form-zeta](intersection-form-zeta/README.md) | Standard literature (Weil 1948; Deligne 1974; Arakelov 1974; Faltings–Hriljac 1985); bridge survey |
+| 52 | Angular partition method (exact annular/sectorial summation) | proposal — exact annular and measure-theoretic core Lean-proved, including the infinite annular representation, the phase-carrying tail coil, the Mellin/Laplace layer and the critical-strip finite-part regularization; the subtracted-kernel convergence is open | [angular-partition-method](angular-partition-method/README.md) | Proposal from Victor Geere, 3 November 2026, following the infinite-level obstruction in [`absolute-polarized-hodge-index-realization`](absolute-polarized-hodge-index-realization/README.md) |
 
 ## How to use these folders
 

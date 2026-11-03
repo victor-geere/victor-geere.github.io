@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Angular partition method — exact radial and sectorial representations</title>
+<style>
+body{font-family:Georgia,serif;max-width:1000px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.18;margin-bottom:.3rem}
+h2{margin-top:2.5rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.8rem;font-size:1.1rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.9em;overflow-wrap:anywhere}
+pre{background:#f3f5f7;border:1px solid #dde3ea;padding:.9rem 1rem;border-radius:8px;overflow-x:auto}
+pre code{background:none;padding:0}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid #d8d8d8;padding:.42rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.note{background:#f3f5f7;border:1px solid #dde3ea;padding:.9rem 1.1rem;border-radius:8px}
+</style></head><body>
+<div class="note"><strong>Status.</strong> Method proposal with a checked exact core. The finite annular, sectorial and general-measure identities, including the infinite annular representation, the phase-carrying tail coil and the Mellin/Laplace zeta representation with its functional equation, growth bound and critical-strip finite-part regularization, are Lean-proved; the computation layer is exact. Applications to <code>ζ</code>, Euler products and the explicit formula are <strong>open</strong>. No finite truncation is used in the core. <strong>No RH proof yet.</strong></div>
+
+<h1 id="apm">The angular partition method — exact radial and sectorial representations of infinite series</h1>
+<p><strong>Source:</strong> proposal from Victor Geere, 3 November 2026, following the infinite-level obstruction in the <a href="../absolute-polarized-hodge-index-realization/README.md">absolute polarized Hodge-index dossier</a>. The proposal is to stop treating an infinite series only as a depth axis (partial sum plus tail) and to represent it as an angular/radial partition of a compact domain.</p>
+
+<h2 id="axes">1. The depth axis and the angular axis</h2>
+<p>The standard treatment of a series is a truncation:</p>
+<pre><code>S = Σ_{n=0..∞} a_n = (Σ_{n&lt;N} a_n) + (Σ_{n≥N} a_n).</code></pre>
+<p>The <a href="../partial-sum-plus-tail/README.md">partial-sum-plus-tail</a> topic is the programme’s certified instrument for this axis. It is powerful, but it makes the infinite object a limit of finite objects and makes the tail an external residual.</p>
+<p>The angular/radial method uses a different coordinate. Picture the unit tube <code>S¹ × [0,∞)</code>. Cutting it <strong>lengthwise</strong> gives layers <code>0,1,2,…</code>: the depth axis. Cutting it <strong>crosswise</strong> gives the unit circle: the angular axis, where the sectors tile the whole circle at once. The radial version cuts a disk into annuli; the angular version cuts the circle into sectors; combining them gives annular sectors.</p>
+<p>The point is not that the depth axis is wrong. The point is that it is not the only axis, and some series become exact on the angular/radial axis when no useful closed tail exists on the depth axis.</p>
+
+<h2 id="annular">2. The general annular representation</h2>
+<p>Let <code>a_n ≥ 0</code> and suppose <code>Σ a_n &lt; ∞</code>. Define the <strong>squared tail radii</strong></p>
+<pre><code>R_n² := Σ_{k≥n} a_k.</code></pre>
+<p>Then <code>R_n² − R_{n+1}² = a_n</code>, and the annuli</p>
+<pre><code>A_n := { z ∈ ℂ : R_{n+1} &lt; |z| ≤ R_n }</code></pre>
+<p>are pairwise disjoint and tile the disk of radius <code>R_0</code>. With area normalized by <code>μ(A) = area(A)/π</code>,</p>
+<pre><code>μ(A_n) = R_n² − R_{n+1}² = a_n,
+μ(∪ A_n) = R_0² = Σ a_n.</code></pre>
+<p>So <strong>every summable nonnegative series is the total measure of an annular partition of a disk</strong>. No geometric ratio is assumed. The geometric series is only the special case in which the radii themselves form a geometric progression.</p>
+
+<h3 id="radius-depth">2.1 The radius is the depth</h3>
+<p>The sequence <code>n ↦ R_n</code> is the exact bookkeeping index: it records how much mass remains beyond depth <code>n</code>. The term <code>a_n</code> is the area of the annulus between two consecutive radii. For <code>σ &gt; 1</code>,</p>
+<pre><code>R_n² = Σ_{k≥n} k^(−σ),   n^(−σ) = R_n² − R_{n+1}²,   R_0² = ζ(σ).</code></pre>
+<p>Equivalently, <code>R_n² = ζ(σ,n) = Σ_{k≥0} (n+k)^(−σ)</code>, the Hurwitz zeta at parameter <code>n</code>; for <code>σ = 2</code> this is the trigamma function <code>ψ₁(n)</code>. For example, <code>ζ(2) = R_0² = π²/6</code>, so the disk has radius <code>π/√6</code> and the annulus at <code>n</code> has normalized area <code>n^(−2)</code>. No truncation is involved. For <code>0 &lt; σ ≤ 1</code>, <code>R_0 = ∞</code>: the disk is infinite. That is precisely the divergence of the series, not a failure of the method.</p>
+<p><strong>Product bookkeeping.</strong> The same radii can index a product: <code>∏_{n=0..N}(1+a_n) = exp(Σ log(1+a_n))</code> turns a finite product into a sum of logarithms, which can itself be given an annular representation. The ratios <code>R_n/R_{n+1}</code> are the natural multiplicative bookkeeping weights, and <code>∏ R_n/R_{n+1} = R_0/R_{N+1}</code> telescopes exactly. Sums and products are two coordinate choices on the same radial data.</p>
+
+<h3 id="phase">2.2 Complex terms and angular bookkeeping</h3>
+<p>For an absolutely summable complex series <code>c_n = |c_n| e^(iθ_n)</code>, apply the annular construction to <code>|c_n|</code> and place a sector of area <code>|c_n|</code> at angle <code>θ_n</code> in the annulus <code>A_n</code>. The result is a phase field on the disk, and <code>Σ c_n = ∫_D e^(iθ(z)) dμ(z)</code>. For a conditionally convergent series, the angular placement is a <strong>summation method</strong>; absolute convergence or a proved rearrangement-invariance statement is required.</p>
+
+<h3 id="coil">2.3 The phase-carrying tail coil</h3>
+<p>For an absolutely summable complex series <code>c_n</code>, define the complex tail <code>Z_n = Σ_{k≥n} c_k</code>. Then <code>c_n = Z_n − Z_{n+1}</code>, the finite sum is the chord <code>Σ_{k&lt;N} c_k = Z_0 − Z_N</code>, and <code>Z_n → 0</code>. The <strong>coil</strong> is the sequence <code>n ↦ Z_n</code> in the complex plane, with radius <code>r_n = |Z_n|</code> and phase <code>θ_n = arg Z_n</code>. The cumulative tail sum is the radius, the angle carries the phase, and the whole sum is the starting point <code>Z_0</code>. This is a tail coil, not a partial-sum truncation.</p>
+<p>The <strong>unit coil</strong> is <code>w_n = Z_n/Z_0</code> (when <code>Z_0 ≠ 0</code>), so <code>w_0 = 1</code> and <code>w_n → 0</code>: a normalized coil inside the unit disk. For <code>ζ(s)</code> in <code>Re s &gt; 1</code>, take <code>Z_n = Σ_{k≥n} k^(−s)</code> and <code>Z_0 = ζ(s)</code>; the coil is exact, although evaluating <code>Z_0</code> is still the original problem.</p>
+<p>This is formalised as <code>phase_carrying_coil</code> (decomposition, polar form and limit), <code>ctail_telescope</code> (the chord identity), and <code>unitCoil_zero</code>/<code>unitCoil_tendsto_zero</code> (the normalized coil). Other phase carriers considered: the partial-sum coil (a conical helix, but depth-based), the annular phase field (vector area integral; infinite formalisation open), and the exact tuple model <code>(r_n,θ_n)</code>.</p>
+
+<h3 id="self-similar">2.4 The self-similar special case</h3>
+<p>If the unresolved part is an exact similarity copy of the whole, <code>S = a_0 + rS</code>, then <code>S = a_0/(1−r)</code>. This is the closed-form case. It is a special case of the annular representation, not a requirement of it.</p>
+
+<h2 id="normalization">3. The halving-circle normalization</h2>
+<p>The halving sectors have angles</p>
+<pre><code>π + π/2 + π/4 + ... = 2π.</code></pre>
+<p>In normalized turns the same partition is <code>1/2 + 1/4 + 1/8 + ... = 1</code>. Both statements describe the same tiling; the radian total is <code>2π</code>. The Lean theorem <code>sector_angle_hasSum</code> records the radian form; the computation layer records both exact forms.</p>
+
+<h2 id="method">4. The method in six steps</h2>
+<ol>
+<li><strong>Choose the carrier.</strong> A circle, disk, annulus, sphere, or a contour compactified to one of these. Finite measure; measurable partition.</li>
+<li><strong>Choose the axis.</strong> Radial annuli encode modulus/depth; angular sectors encode phase; annular sectors encode both.</li>
+<li><strong>Identify the weights.</strong> Prove <code>a_n = μ(X_n)</code> exactly. In the general radial case this is <code>a_n = R_n² − R_{n+1}²</code>.</li>
+<li><strong>Use exactness.</strong> If the partition is self-similar, solve the fixed point. If the tail radii have a closed form, use it. If neither, keep the exact measure representation and state what is missing.</li>
+<li><strong>Check summability and order.</strong> Absolute convergence for complex terms; otherwise the angular construction is a summability method.</li>
+<li><strong>Only then estimate.</strong> If no exact transform is available, use certified partial-sum-plus-tail evaluation as a fallback. A finite estimate is an instrument, not a wall.</li>
+</ol>
+
+<h2 id="examples">5. Worked exact examples</h2>
+<h3>5.1 Geometric series as a self-similar cake</h3>
+<p>Take a disk of area <code>A</code>, cut off a sector of area <code>a_0</code>, and let the rest be a copy scaled by <code>r</code>. Then <code>A = a_0 + rA</code>, so <code>A = a_0/(1−r)</code>. For <code>a_0 = 1</code>, <code>r = 1/2</code>, this is <code>1 + 1/2 + 1/4 + ... = 2</code>.</p>
+<h3>5.2 The halving circle</h3>
+<p>The unit circle has total angle <code>2π</code>; sectors of angle <code>π, π/2, π/4, …</code> tile it, with finite sums <code>Σ_{k&lt;n} π/2^k = 2π(1 − 2^(−n))</code>.</p>
+<h3>5.3 Arbitrary weights: <code>n^(−2)</code></h3>
+<p>The annular representation gives <code>R_n² = Σ_{k≥n} k^(−2)</code> and <code>n^(−2) = R_n² − R_{n+1}²</code>. The total normalized area is <code>R_0² = ζ(2) = π²/6</code>. The representation is exact for every <code>n</code>; the closed form at <code>n = 0</code> is the Basel value. This is the prototype of “the radius of decay is the depth of the term”.</p>
+<h3>5.4 Rational functions</h3>
+<p>For <code>|z| &lt; 1</code>, <code>1/(1−z) = Σ z^n</code>. This is the boundary-value form of the geometric cake.</p>
+<h3>5.5 The Mellin/Laplace radial representation (formalised)</h3>
+<p>For <code>Re s &gt; 0</code>, <code>n^(−s) = (1/Γ(s)) ∫_0^∞ t^(s−1) e^(−nt) dt</code>. Summing over <code>n</code> and using <code>Σ e^(−nt) = 1/(e^t − 1)</code> gives</p>
+<pre><code>Γ(s) ζ(s) = ∫_0^∞ t^(s−1)/(e^t − 1) dt</code></pre>
+<p>for <code>Re s &gt; 1</code>. This is another exact radial representation: the discrete index is traded for continuous depth, and the geometric sum in <code>t</code> is closed. It is formalised in <code>lean/Mellin.lean</code>: <code>hasSum_zetaKernel</code>, <code>hasSum_mellin_zetaKernel</code>, <code>mellin_zetaKernel_eq_Gamma_mul_zeta</code>, the Gamma-factor bridge <code>completedRiemannZeta_eq_GammaR_mul_zeta</code>, the completed functional equation <code>completedRiemannZeta_functional_equation</code>, and the vertical-strip growth bound <code>mellin_zetaKernel_norm_le</code>.</p>
+
+<h3 id="critical">5.6 Critical-strip regularization and explicit-formula poles</h3>
+<p>The raw Mellin integral converges for <code>Re s &gt; 1</code>. The finite part</p>
+<pre><code>M_reg(s) = Γ(s)ζ(s) − 1/(s−1) + 1/(2s)</code></pre>
+<p>subtracts exactly the two pole terms. On the convergence domain it is the raw annular total minus the poles: <code>M_reg(s) = mellin(1/(e^t−1))(s) − 1/(s−1) + 1/(2s)</code>. This is <code>regularizedMellin_eq_mellin_sub_poles</code>. The finite part is differentiable in the critical strip <code>0 &lt; Re s &lt; 1</code> (<code>regularizedMellin_differentiableAt</code>), so it is the analytic continuation of the annular total into the strip. The completed version <code>Λ₀(s) = Λ(s) + 1/s + 1/(1−s)</code> is entire and satisfies <code>Λ₀(1−s) = Λ₀(s)</code>.</p>
+<p><strong>Explicit-formula connection.</strong> The two subtracted residues are exactly the two pole terms of the explicit formula. The residue at <code>s = 1</code> is <code>1</code> (<code>regularizedMellin_residue_one</code>) and the residue at <code>s = 0</code> is <code>−1/2</code> (<code>regularizedMellin_residue_zero</code>). In the test-function formula <code>∮ (Z'/Z)h = 2πi(Σ h(ρ) − h(0) − h(1))</code>, the terms <code>−h(0) − h(1)</code> are the same pole contributions. The critical-strip finite part is therefore the analytic-continuation side of the explicit-formula contour; the completed finite part supplies the functional equation that pairs the zeros. This is a structural connection, not a new proof of Weil positivity.</p>
+<p><strong>Convergence of the subtracted kernel.</strong> With <code>h(t) = 1/(e^t−1) − 1/t + 1/2</code> on <code>(0,1)</code> and <code>h(t) = 1/(e^t−1)</code> for <code>t ≥ 1</code>, the comparison bounds are <code>|t^(s−1)h(t)| ≤ (3/2) t^(σ−1)</code> on <code>(0,1)</code> and <code>|t^(s−1)h(t)| ≤ 2 t^(σ−2)</code> on <code>(1,∞)</code>. The first is integrable because <code>σ &gt; 0</code>, the second because <code>σ &lt; 1</code>. Hence the integral converges throughout the critical strip. The bounds and their assembly are Lean-checked: <code>norm_regularizedKernel_le</code>, <code>norm_zetaKernel_le_two_div</code>, <code>integrableOn_regularizedKernel_Ioo</code>, <code>integrableOn_regularizedKernel_Ioi</code>, and <code>mellinConvergent_regularizedKernel</code>; convergence on the whole half-plane is <code>mellinConvergent_regularizedKernel_of_pos</code>, and holomorphy on <code>0 &lt; Re s</code> is <code>differentiableAt_mellin_regularizedKernel</code>.</p>
+<p><strong>Identification.</strong> For <code>Re s &gt; 1</code>, split at <code>1</code>; the kernels agree on <code>(1,∞)</code>, and the difference on <code>(0,1)</code> is <code>−1/(s−1) + 1/(2s)</code>. Hence <code>mellin h = Γ(s)ζ(s) − 1/(s−1) + 1/(2s) = M_reg(s)</code>. Both sides are analytic in <code>0 &lt; Re s &lt; 1</code>, so the identity extends to the strip. This is now Lean-proved: <code>mellin_regularizedKernel_eqOn_upper</code> and <code>mellin_regularizedKernel_eqOn_lower</code> handle the two half-strips, and <code>mellin_regularizedKernel_eq_of_re_pos_of_lt_one</code> extends across the real axis by continuity.</p>
+
+<h2 id="exactitude">6. Exactitude first, estimation second</h2>
+<p><strong>Look for an exact transform before accepting a finite estimate as the representation of infinity.</strong> A finite estimate is not a failure; it is a fallback. The two instruments are complementary:</p>
+<table>
+<tr><th>Axis</th><th>Object</th><th>Strength</th><th>Limit</th></tr>
+<tr><td>depth</td><td><code>S_N + R_N</code></td><td>certified evaluator; arbitrary series with a tail bound</td><td>needs a closed tail or bound; the tail can be wide</td></tr>
+<tr><td>angular/radial</td><td><code>μ(X) = Σ μ(X_n)</code></td><td>exact measure identity; no tail</td><td>needs a measurable partition; closed forms only in special cases</td></tr>
+</table>
+<p>The angular method can discover an exact identity; the partial-sum-plus-tail layer can certify a numerical value when no exact identity is known. A good programme uses both.</p>
+
+<h2 id="scope">7. Scope and obstructions</h2>
+<h3>7.1 Absolute convergence and ordering</h3>
+<p>For a conditionally convergent series, rearranging terms can change the sum. An angular/radial construction groups terms in a chosen geometric order, so it defines a <strong>summability method</strong>. It agrees with the ordinary sum when the series is absolutely convergent or when the partition is proved rearrangement-invariant. For <code>ζ(s)</code> in the critical strip the Dirichlet series is not absolutely convergent, so this is essential.</p>
+<h3>7.2 Divergence is a radius, not a hidden tail</h3>
+<p>For <code>a_n = n^(−σ)</code>, the squared tail radius is finite exactly when <code>σ &gt; 1</code>. At <code>σ ≤ 1</code>, <code>R_0 = ∞</code>: the disk is infinite. The method locates the abscissa of convergence in the radius itself. It does not remove the need for analytic continuation in the critical strip.</p>
+<h3>7.3 Phase bookkeeping</h3>
+<p>For <code>n^(−s) = n^(−σ) e^(−it log n)</code>, the modulus is radially representable, but the phase is not constant on an annulus. One must place angular sectors at the phases, separate real and imaginary signed parts, or use the Mellin/Laplace representation where the phase is carried by <code>t^(s−1)</code>. This is the real bookkeeping problem for <code>ζ</code>, not polynomial versus geometric decay.</p>
+<h3>7.4 A representation is not automatically an evaluation</h3>
+<p>The identity gives <code>Σ a_n = R_0²</code>. If <code>R_0²</code> has a closed form, the series is evaluated. If not, the identity is an exact representation, not a numerical value. For <code>n^(−2)</code> the closed form is <code>π²/6</code>; for general <code>n^(−σ)</code> no such closed form is known. The method does not manufacture closed forms.</p>
+<h3>7.5 The <code>w = e^(−s)</code> compactification is not required</h3>
+<p>If one maps depth to radius by <code>w = e^(−s)</code>, then <code>n^(−s) = w^(log n)</code>, and <code>w = 0</code> is an essential singularity/natural boundary. That is a real obstruction to a finite-monodromy compactification. The annular representation of §2 does not use this map: it uses the tail radii directly. The two constructions should not be conflated.</p>
+<h3>7.6 What would be needed for the critical strip</h3>
+<ul>
+<li>a <strong>regularized annular representation</strong> whose total area is the analytic continuation, not the divergent sum;</li>
+<li>a <strong>phase-carrying measure</strong> (vector-valued area) with a convergence theorem;</li>
+<li>a <strong>Mellin/Laplace transform</strong> with the correct functional equation and growth bounds;</li>
+<li>for Euler products, <code>∏(1+a_n) = exp(Σ log(1+a_n))</code> followed by an annular representation of the log-series.</li>
+</ul>
+
+<h2 id="transforms">8. Reusable transforms</h2>
+<table>
+<tr><th>Transform</th><th>Input</th><th>Output</th><th>Exact?</th></tr>
+<tr><td>annular/area</td><td>nonnegative weights <code>a_n</code></td><td>disk partition with <code>μ(A_n)=a_n</code></td><td>exact for summable weights</td></tr>
+<tr><td>radius-index</td><td>weights <code>a_n</code></td><td><code>R_n² = Σ_{k≥n}a_k</code></td><td>exact; <code>a_n = R_n² − R_{n+1}²</code></td></tr>
+<tr><td>self-similar fixed point</td><td><code>S = a + rS</code></td><td><code>S = a/(1−r)</code></td><td>exact when the copy is exact</td></tr>
+<tr><td>layer-cake</td><td><code>a_n ≥ 0</code></td><td><code>a_n = ∫_0^∞ 1_{t&lt;a_n} dt</code></td><td>exact (Tonelli)</td></tr>
+<tr><td>Mellin/Laplace</td><td><code>n^(−s)</code></td><td><code>Γ(s)ζ(s) = ∫ t^(s−1)/(e^t−1) dt</code></td><td>exact in <code>Re s &gt; 1</code>, meromorphic beyond</td></tr>
+<tr><td>product-to-sum</td><td><code>∏(1+a_n)</code></td><td><code>exp(Σ log(1+a_n))</code></td><td>exact in the convergence domain</td></tr>
+<tr><td>phase/angular</td><td><code>c_n = |c_n|e^(iθ_n)</code></td><td>vector area integral</td><td>exact for absolutely summable <code>c_n</code></td></tr>
+</table>
+
+<h2 id="ledger">9. Theorem ledger</h2>
+<table>
+<tr><th>#</th><th>Kind</th><th>Statement</th><th>Lean name</th></tr>
+<tr><td>T1</td><td>Theorem</td><td>Finite geometric sector sum.</td><td><code>AngularPartition.geom_sector_sum</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>Halving sector angles sum to <code>2π</code>.</td><td><code>AngularPartition.sector_angle_hasSum</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>The same in <code>tsum</code> form.</td><td><code>AngularPartition.sector_angle_tsum</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>Self-similar fixed point <code>S=a+rS</code>.</td><td><code>AngularPartition.self_similar_total</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>Reciprocal weights are not constant-ratio.</td><td><code>AngularPartition.inv_nat_not_geometric</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>Finite head plus complementary sectors equals the whole.</td><td><code>AngularPartition.finite_partition_total</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>General finite measure partition.</td><td><code>AngularPartition.measure_partition_finset</code></td></tr>
+<tr><td>T8</td><td>Theorem</td><td>Finite annular telescoping for arbitrary radii.</td><td><code>AngularPartition.annular_telescope</code></td></tr>
+<tr><td>T9</td><td>Theorem</td><td>Any finite squared-radius differences sum to the disk area.</td><td><code>AngularPartition.annular_weight_sum</code></td></tr>
+<tr><td>T10</td><td>Theorem</td><td><strong>Infinite annular representation:</strong> for summable nonnegative <code>a</code>, <code>a n = R_n² − R_(n+1)²</code> and <code>R_0² = Σ' n, a n</code>.</td><td><code>AngularPartition.annular_representation</code></td></tr>
+<tr><td>T11</td><td>Theorem</td><td><strong>Phase-carrying tail coil:</strong> for summable complex <code>c</code>, <code>c n = Z_n − Z_(n+1)</code>, <code>Z_n = r_n e^(iθ_n)</code>, and <code>Z_n → 0</code>.</td><td><code>AngularPartition.phase_carrying_coil</code></td></tr>
+<tr><td>T12</td><td>Theorem</td><td><strong>Coil chord identity:</strong> <code>Σ_{k&lt;n} c k = Z_0 − Z_n</code>.</td><td><code>AngularPartition.ctail_telescope</code></td></tr>
+<tr><td>T13</td><td>Theorem</td><td><strong>Unit coil:</strong> <code>w_n = Z_n/Z_0</code> starts at <code>1</code> and tends to <code>0</code>.</td><td><code>AngularPartition.unitCoil_zero</code>, <code>AngularPartition.unitCoil_tendsto_zero</code></td></tr>
+<tr><td>T14</td><td>Theorem</td><td><strong>Mellin/Laplace representation:</strong> <code>mellin (1/(e^t−1)) s = Γ(s)ζ(s)</code> for <code>Re s &gt; 1</code>.</td><td><code>AngularPartition.mellin_zetaKernel_eq_Gamma_mul_zeta</code></td></tr>
+<tr><td>T15</td><td>Theorem</td><td><strong>Gamma-factor bridge:</strong> <code>Λ(s) = Γ_ℝ(s)ζ(s)</code> for <code>Re s &gt; 1</code>.</td><td><code>AngularPartition.completedRiemannZeta_eq_GammaR_mul_zeta</code></td></tr>
+<tr><td>T16</td><td>Theorem</td><td><strong>Functional equation:</strong> <code>Λ(1−s) = Λ(s)</code>.</td><td><code>AngularPartition.completedRiemannZeta_functional_equation</code></td></tr>
+<tr><td>T17</td><td>Theorem</td><td><strong>Vertical-strip growth:</strong> <code>‖Γ(s)ζ(s)‖ ≤ ‖Γ(s)‖ Σ 1/(n+1)^(Re s)</code> for <code>Re s &gt; 1</code>.</td><td><code>AngularPartition.mellin_zetaKernel_norm_le</code></td></tr>
+<tr><td>T18</td><td>Theorem</td><td><strong>Finite-part regularization:</strong> <code>M_reg(s) = mellin(1/(e^t−1))(s) − 1/(s−1) + 1/(2s)</code> for <code>Re s &gt; 1</code>.</td><td><code>AngularPartition.regularizedMellin_eq_mellin_sub_poles</code></td></tr>
+<tr><td>T19</td><td>Theorem</td><td><strong>Critical-strip differentiability:</strong> <code>M_reg</code> is differentiable for <code>0 &lt; Re s &lt; 1</code>.</td><td><code>AngularPartition.regularizedMellin_differentiableAt</code></td></tr>
+<tr><td>T20</td><td>Theorem</td><td><strong>Completed finite part:</strong> <code>Λ(s) = Λ₀(s) − 1/s − 1/(1−s)</code>.</td><td><code>AngularPartition.completedRiemannZeta_finite_part</code></td></tr>
+<tr><td>T21</td><td>Theorem</td><td><strong>Completed FE:</strong> <code>Λ₀(1−s) = Λ₀(s)</code>.</td><td><code>AngularPartition.completedRiemannZeta₀_functional_equation</code></td></tr>
+<tr><td>T22</td><td>Theorem</td><td><strong>Pole residue at 1:</strong> <code>(s−1)Γ(s)ζ(s) → 1</code>.</td><td><code>AngularPartition.regularizedMellin_residue_one</code></td></tr>
+<tr><td>T23</td><td>Theorem</td><td><strong>Pole residue at 0:</strong> <code>sΓ(s)ζ(s) → −1/2</code>.</td><td><code>AngularPartition.regularizedMellin_residue_zero</code></td></tr>
+<tr><td>T24</td><td>Theorem</td><td><strong>Regularized-kernel bound near zero:</strong> <code>‖h(t)‖ ≤ 3/2</code> for <code>0 &lt; t &lt; 1</code>.</td><td><code>AngularPartition.norm_regularizedKernel_le</code></td></tr>
+<tr><td>T25</td><td>Theorem</td><td><strong>Zeta-kernel bound at infinity:</strong> <code>‖1/(e^t−1)‖ ≤ 2/t</code> for <code>t ≥ 1</code>.</td><td><code>AngularPartition.norm_zetaKernel_le_two_div</code></td></tr>
+<tr><td>T26</td><td>Theorem</td><td><strong>Mellin convergence in the strip:</strong> <code>MellinConvergent regularizedKernel s</code> for <code>0 &lt; Re s &lt; 1</code>.</td><td><code>AngularPartition.mellinConvergent_regularizedKernel</code></td></tr>
+<tr><td>T27</td><td>Theorem</td><td><strong>Holomorphy:</strong> <code>DifferentiableAt ℂ (mellin regularizedKernel) s</code> for <code>0 &lt; Re s</code>.</td><td><code>AngularPartition.differentiableAt_mellin_regularizedKernel</code></td></tr>
+<tr><td>T28</td><td>Theorem</td><td><strong>Finite-part holomorphy:</strong> <code>DifferentiableAt ℂ regularizedMellin s</code> for <code>0 &lt; Re s</code>, <code>s ≠ 1</code>.</td><td><code>AngularPartition.regularizedMellin_differentiableAt_of_ne</code></td></tr>
+<tr><td>T29</td><td>Theorem</td><td><strong>Right half-plane convergence:</strong> <code>MellinConvergent regularizedKernel s</code> for <code>0 &lt; Re s</code>.</td><td><code>AngularPartition.mellinConvergent_regularizedKernel_of_pos</code></td></tr>
+<tr><td>T30</td><td>Theorem</td><td><strong>Mellin linearity:</strong> <code>mellin (f+g) = mellin f + mellin g</code> when both pieces converge.</td><td><code>AngularPartition.mellin_add</code></td></tr>
+<tr><td>T31</td><td>Theorem</td><td><strong>Zeta-kernel convergence:</strong> <code>MellinConvergent zetaKernel s</code> for <code>1 &lt; Re s</code>.</td><td><code>AngularPartition.mellinConvergent_zetaKernel</code></td></tr>
+<tr><td>T32</td><td>Theorem</td><td><strong>Cutoff convergence:</strong> <code>MellinConvergent cutoff s</code> for <code>1 &lt; Re s</code>.</td><td><code>AngularPartition.mellinConvergent_cutoff</code></td></tr>
+<tr><td>T33</td><td>Theorem</td><td><strong>Cutoff integral:</strong> <code>mellin cutoff s = −1/(s−1) + 1/(2s)</code> for <code>1 &lt; Re s</code>.</td><td><code>AngularPartition.mellin_cutoff_eq</code></td></tr>
+<tr><td>T34</td><td>Theorem</td><td><strong>Integral identity on <code>Re s &gt; 1</code>:</strong> <code>mellin regularizedKernel s = regularizedMellin s</code>.</td><td><code>AngularPartition.mellin_regularizedKernel_eq_of_one_lt_re</code></td></tr>
+<tr><td>T35</td><td>Theorem</td><td><strong>Upper half-strip identity:</strong> the identity for <code>0 &lt; Re s</code> and <code>0 &lt; Im s</code>.</td><td><code>AngularPartition.mellin_regularizedKernel_eqOn_upper</code></td></tr>
+<tr><td>T36</td><td>Theorem</td><td><strong>Lower half-strip identity:</strong> the identity for <code>0 &lt; Re s</code> and <code>Im s &lt; 0</code>.</td><td><code>AngularPartition.mellin_regularizedKernel_eqOn_lower</code></td></tr>
+<tr><td>T37</td><td>Theorem</td><td><strong>Critical-strip identity:</strong> <code>mellin regularizedKernel s = regularizedMellin s</code> for <code>0 &lt; Re s &lt; 1</code>.</td><td><code>AngularPartition.mellin_regularizedKernel_eq_of_re_pos_of_lt_one</code></td></tr>
+<tr><td>O1</td><td>Open</td><td>Vector-valued area field (the tail coil is formalised; this stronger form is open).</td><td>—</td></tr>
+<tr><td>O2</td><td>Closed</td><td>The integral splitting and analytic-continuation step identifying <code>mellin h</code> with <code>M_reg</code> are Lean-proved in T37.</td><td>T37</td></tr>
+<tr><td>O3</td><td>Open</td><td>Product-to-sum annular representation for Euler products.</td><td>—</td></tr>
+<tr><td>O4</td><td>Open</td><td>Exact angular sums for Bost–Connes periodic-orbit data.</td><td>—</td></tr>
+<tr><td>O5</td><td>Open</td><td>Exactness audit for each infinite series in the programme.</td><td>—</td></tr>
+</table>
+
+<h2 id="compute">10. Computation layer</h2>
+<p>Every row is checked with exact rational arithmetic; no floating point and no truncation.</p>
+<table>
+<tr><th>#</th><th>Statement</th><th>Test</th></tr>
+<tr><td>C1</td><td>The finite halving-sector sum equals <code>2 − 2/2^n</code>.</td><td><code>test_sector_angle_sum</code></td></tr>
+<tr><td>C2</td><td>The normalized half-turn sum equals <code>1 − 2^(−n)</code>.</td><td><code>test_normalized_half_turn_sum</code></td></tr>
+<tr><td>C3</td><td>The self-similar fixed point is exact.</td><td><code>test_self_similar_total</code></td></tr>
+<tr><td>C4</td><td>The finite geometric partial sum identity.</td><td><code>test_geometric_partial_sum</code></td></tr>
+<tr><td>C5</td><td>Reciprocal weights are not constant-ratio.</td><td><code>test_reciprocal_weights_not_geometric</code></td></tr>
+<tr><td>C6</td><td>A ratio <code>r = 1</code> is rejected.</td><td><code>test_invalid_ratio_rejected</code></td></tr>
+<tr><td>C7</td><td>A rational self-similar cake returns an exact rational value.</td><td><code>test_rational_cake_value</code></td></tr>
+<tr><td>C8</td><td>Squared tail radii encode arbitrary rational weights.</td><td><code>test_squared_radii_encode_weights</code></td></tr>
+<tr><td>C9</td><td>Annular telescoping holds for arbitrary rational radii.</td><td><code>test_annular_telescope</code></td></tr>
+<tr><td>C10</td><td>The finite annular partition sum is the disk area.</td><td><code>test_annular_weights_sum</code></td></tr>
+<tr><td>C11</td><td>The complex tail telescope is exact.</td><td><code>test_complex_tail_telescope</code></td></tr>
+<tr><td>C12</td><td>The unit coil starts at <code>(1,0)</code> and ends at <code>(0,0)</code>.</td><td><code>test_unit_coil</code></td></tr>
+<tr><td>C13</td><td>The squared radius of a complex tail is exact; zero total is rejected.</td><td><code>test_phase_carrying_tuple</code></td></tr>
+</table>
+
+<h2 id="open">11. Open questions</h2>
+<p><strong>Resolved since the first version.</strong> The infinite annular representation, the phase-carrying tail coil, the Mellin/Laplace zeta representation, the Gamma-factor bridge, the completed functional equation, the vertical-strip growth bound, the critical-strip finite part and its differentiability, the two pole residues, the regularized-kernel comparison bounds, the Mellin convergence of the subtracted kernel in the critical strip, and the critical-strip identity <code>mellin h = M_reg</code> are now formalised or proved in text.</p>
+<p><strong>Remaining open questions.</strong></p>
+<ol>
+
+<li><strong>Vector area field.</strong> Define a vector-valued area measure whose integral is the complex sum, and prove the absolutely convergent case. The phase-carrying tail coil is formalised; this stronger area-field version is open.</li>
+<li><strong>Products.</strong> Develop the product-to-sum annular representation for Euler products and the completed zeta.</li>
+<li><strong>Bost–Connes.</strong> Periodic orbits have lengths <code>log p</code>; for one prime the angular method is exact, for all primes the logs are not commensurable. What is the correct finite-monodromy or regularized replacement?</li>
+<li><strong>Exactness audit.</strong> For each infinite series in the programme, decide whether an exact transform exists before assigning a finite evaluator.</li>
+<li><strong>Continuation beyond the strip.</strong> The finite-part regularization is currently set up for <code>0 &lt; Re s &lt; 1</code>; extend the same annular/Mellin method to the full meromorphic continuation and connect it to the completed functional equation as an integral identity.</li>
+</ol>
+
+<h2 id="links">12. Links</h2>
+<ul>
+<li><a href="../PROGRAMME-STANDARD.md">Programme standard</a></li>
+<li><a href="../README.md">Topics index</a></li>
+<li><a href="../partial-sum-plus-tail/README.md">Depth-axis companion: partial sum plus tail</a></li>
+<li><a href="../absolute-polarized-hodge-index-realization/README.md">Absolute polarized Hodge-index dossier</a></li>
+<li><a href="../absolute-polarized-hodge-index-realization/PROGRAMME-MEMO.md">Programme memo</a></li>
+<li><a href="../periodic-orbits/README.md">Periodic orbits</a></li>
+<li><a href="../../scraps.html">Scraps index</a></li>
+</ul>
+<p><strong>No RH proof yet.</strong></p>
+</body></html>

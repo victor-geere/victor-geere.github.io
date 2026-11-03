@@ -1,6 +1,6 @@
 # Reconstruction status
 
-51 topics · 1090 ledger theorems · 480 tested computations · 561 pytest tests · 51/51 Lean builds OK.
+52 topics · 1127 ledger theorems · 493 tested computations · 575 pytest tests · 52/52 Lean builds OK.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
@@ -55,6 +55,7 @@
 | [transfer-operator-proof](transfer-operator-proof/README.md) | 7 | 8 | 12 | 8 | OK |
 | [yakaboylu-notes](yakaboylu-notes/README.md) | 7 | 8 | 13 | 8 | OK |
 | [intersection-form-zeta](intersection-form-zeta/README.md) | 100 | 49 | 19 | 60 | OK |
+| [angular-partition-method](angular-partition-method/README.md) | 37 | 13 | 0 | 14 | OK |
 
 Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted.
 
