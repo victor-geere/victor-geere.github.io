@@ -74,4 +74,95 @@ theorem log_primes_not_commensurable {p q : ℕ} (hp : p.Prime) (hq : q.Prime)
     exact dvd_pow_self p (Nat.pos_iff_ne_zero.mp hm)
   exact hpq (Nat.prime_eq_prime_of_dvd_pow hp hq hdvd)
 
+/-- The continued single-prime angular sum `1/(1-p^(-s))`. -/
+noncomputable def bostConnesSinglePrime (p : ℕ) (s : ℂ) : ℂ :=
+  (1 - bostConnesRatio p s)⁻¹
+
+/-- The log of a positive integer as a complex number. -/
+lemma log_natCast_of_pos {p : ℕ} (_hp : 0 < p) :
+    Complex.log (p : ℂ) = (Real.log p : ℂ) := by
+  simp
+
+/-- The single-prime ratio is the exponential of the periodic-orbit phase. -/
+lemma bostConnesRatio_eq_exp {p : ℕ} (hp : p.Prime) (s : ℂ) :
+    bostConnesRatio p s = Complex.exp (-(s * (Real.log p : ℂ))) := by
+  unfold bostConnesRatio
+  rw [Complex.cpow_def_of_ne_zero (by exact_mod_cast hp.ne_zero),
+    log_natCast_of_pos hp.pos]
+  ring_nf
+
+/-- The continued single-prime sum is meromorphic on the whole plane. -/
+theorem meromorphicOn_bostConnesSinglePrime {p : ℕ} (hp : p.Prime) :
+    MeromorphicOn (bostConnesSinglePrime p) Set.univ := by
+  unfold bostConnesSinglePrime
+  apply MeromorphicOn.inv
+  apply MeromorphicOn.sub
+  · exact MeromorphicOn.const 1
+  · have h : Differentiable ℂ (fun s : ℂ => bostConnesRatio p s) := by
+      rw [show (fun s : ℂ => bostConnesRatio p s)
+          = fun s => Complex.exp (-(s * (Real.log p : ℂ))) from by
+        funext s; exact bostConnesRatio_eq_exp hp s]
+      fun_prop
+    exact (h.differentiableOn.analyticOnNhd isOpen_univ).meromorphicOn
+
+/-- Away from the poles the continued sum is complex differentiable. -/
+theorem differentiableAt_bostConnesSinglePrime {p : ℕ} (hp : p.Prime) {s : ℂ}
+    (hs : bostConnesRatio p s ≠ 1) :
+    DifferentiableAt ℂ (bostConnesSinglePrime p) s := by
+  unfold bostConnesSinglePrime
+  have hnum : DifferentiableAt ℂ (fun s : ℂ => 1 - bostConnesRatio p s) s := by
+    apply DifferentiableAt.sub
+    · exact differentiableAt_const 1
+    · change DifferentiableAt ℂ (fun s : ℂ => bostConnesRatio p s) s
+      rw [show (fun s : ℂ => bostConnesRatio p s)
+          = fun s => Complex.exp (-(s * (Real.log p : ℂ))) from by
+        funext x; exact bostConnesRatio_eq_exp hp x]
+      fun_prop
+  exact hnum.inv (sub_ne_zero.mpr (Ne.symm hs))
+
+/-- **Poles of the continued single-prime sum.** For a prime `p`, the geometric
+ratio equals `1` exactly when `s log p ∈ 2πiℤ`, i.e. at the periods
+`s = 2πik/log p`. -/
+theorem bostConnesSinglePrime_pole_iff {p : ℕ} (hp : p.Prime) {s : ℂ} :
+    bostConnesRatio p s = 1 ↔
+      ∃ k : ℤ, s * (Real.log p : ℂ) = (k : ℂ) * (2 * (Real.pi : ℂ) * Complex.I) := by
+  rw [bostConnesRatio_eq_exp hp, Complex.exp_eq_one_iff]
+  constructor
+  · rintro ⟨n, hn⟩
+    refine ⟨-n, ?_⟩
+    have h : s * (Real.log p : ℂ) = -(n : ℂ) * (2 * (Real.pi : ℂ) * Complex.I) := by
+      linear_combination -hn
+    rw [h]
+    push_cast
+    ring
+  · rintro ⟨k, hk⟩
+    refine ⟨-k, ?_⟩
+    rw [hk]
+    push_cast
+    ring
+
+/-- **Single-prime continuation.** The closed form `1/(1-p^(-s))` agrees with
+the convergent angular series on `Re s > 0`, is meromorphic on `ℂ`, and is
+holomorphic away from the periods `s = 2πik/log p`. -/
+theorem bostConnes_single_prime_continuation {p : ℕ} (hp : p.Prime) :
+    (∀ s : ℂ, 0 < s.re →
+      HasSum (fun n : ℕ => (bostConnesRatio p s) ^ n) (bostConnesSinglePrime p s)) ∧
+    MeromorphicOn (bostConnesSinglePrime p) Set.univ ∧
+    (∀ s : ℂ, bostConnesRatio p s ≠ 1 →
+      DifferentiableAt ℂ (bostConnesSinglePrime p) s) := by
+  refine ⟨?_, meromorphicOn_bostConnesSinglePrime hp, ?_⟩
+  · intro s hs
+    simpa [bostConnesSinglePrime] using bostConnes_single_prime_angular hp hs
+  · intro s hs
+    exact differentiableAt_bostConnesSinglePrime hp hs
+
+/-- **All-prime continuation.** The Euler product agrees with `ζ` on `Re s > 1`,
+and `ζ` is the meromorphic continuation to the whole plane, holomorphic away
+from its single pole at `s = 1`. -/
+theorem bostConnes_all_primes_continuation :
+    (∀ s : ℂ, 1 < s.re →
+      (∏' p : Nat.Primes, (1 - (p : ℂ) ^ (-s))⁻¹) = riemannZeta s) ∧
+    (∀ s : ℂ, s ≠ 1 → DifferentiableAt ℂ riemannZeta s) :=
+  ⟨fun _ hs => bostConnes_all_primes_tprod hs, fun _ hs => differentiableAt_riemannZeta hs⟩
+
 end AngularPartition

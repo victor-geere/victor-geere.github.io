@@ -9,7 +9,12 @@ the-final-letter/topics/prime-spectrum-tensor/lean/check.sh
 The script delegates to the shared checker and uses the local Mathlib
 installation at `~/lean/mathlib4` (Lean `v4.35.0-rc2`). The committed
 [`BUILD.log`](BUILD.log) records the last successful run:
-`[check] OK   Topic.lean (26s)`.
+
+```
+[check] OK   Topic.lean (26s)
+[check] OK   Transfer.lean (126s)
+[check] OK   GaussianGram.lean (120s)
+```
 
 ## What is proved
 
@@ -35,7 +40,38 @@ form. It proves twelve statements, all with no `sorry`, `axiom` or
 | `L4Shadow_posSemidef` | The rounded 4×4 Cholesky shadow is positive semidefinite; this certifies the shadow, not the exact Gaussian Gram matrix. |
 
 The last five include the T8/T10/T11 finite algebra and the rational shadow
-certificate. The first seven are the finite spectral core of `tensor.md`
+certificate.
+
+## [`Transfer.lean`](Transfer.lean) — W1 of O4
+
+The first closed work item of
+[`../../../angular-partition-method/HANDOFF-O4.md`](../../../angular-partition-method/HANDOFF-O4.md).
+All scalars are rational literals; there is no analysis in the file.
+
+| Name | Statement |
+|---|---|
+| `posDef_of_entry_bound` | Entrywise transfer with the **correct norm**: if `C − t·I` is positive definite, `G` is symmetric, `|G i j − C i j| ≤ ε`, and `ε · dim < t`, then `G.PosDef`. This is the correction to the centre/error step of `WEIL-GRAM.md` §3.3–3.6, where an entrywise margin was used as if it were a Loewner margin. |
+| `gramCentre4_factor` | `gramCentre4 − (227/10000)·I = L4 · D4 · L4ᵀ`, checked entry by entry over the rationals. |
+| `gramCentre4_sub_posDef` | `(gramCentre4 − (227/10000)·I).PosDef`, by exact rational `L D Lᵀ` arithmetic. |
+| `gaussianGram4_posDef_of_entry_bound` | The corollary at dimension four: an entrywise enclosure with `ε · 4 < 0.0227` implies `G.PosDef`. |
+
+`gramCentre4` is the numerical Gaussian Gram matrix of `WEIL-GRAM.md`
+(σ = 0.05, centres −0.3, −0.1, 0.1, 0.3) rounded to eight decimals. The theorem
+certifies this **rational centre**, not the transcendental matrix.
+
+## [`GaussianGram.lean`](GaussianGram.lean) — W4 assembly
+
+Defines the exact objects (`omega`, `poleTerm`, `densityTerm`, `primeTerm`,
+`gaussianGram4`) and proves only the structural part:
+
+| Name | Statement |
+|---|---|
+| `gaussianGram4_symm` | The symmetrised Gram matrix is symmetric. |
+| `gaussianGram4_posDef_of_enclosure` | **If** every entry is within `ε` of `gramCentre4` with `4ε < 0.0227`, **then** `(gaussianGram4 σ).PosDef`. |
+
+The hypothesis of the last theorem is exactly the output required from W2
+(the `Ω` enclosure) and W3 (the quadrature); it is **not** proved. The precise
+route and the remaining blockers are in [`../OMEGA-ROUTE.md`](../OMEGA-ROUTE.md). The first seven are the finite spectral core of `tensor.md`
 Theorem C(2): on a finite set of real frequencies, a positive combination of
 Fourier atoms is of positive type. The first three are the elementary positivity
 facts behind Definition 3.1 and the positivity of `Φ`.
@@ -61,7 +97,10 @@ Not formalised here:
 - Theorem C (the identity with Weil's current and the equivalence of its
   positivity with RH);
 - Bochner's theorem on the cone, and any statement about zeros of `ζ`;
-- the Riemann hypothesis, which is never asserted or assumed.
+- the Riemann hypothesis, which is never asserted or assumed;
+- the exact Gaussian Gram certificate of O4 (`gaussianGram4_posDef`): its
+  remaining content is an interval enclosure of `Ω`, recorded as open in
+  [`../OMEGA-ROUTE.md`](../OMEGA-ROUTE.md).
 
 The numerical content of Theorem B is checked separately in
 [`../tests/test_programme.py`](../tests/test_programme.py), not in Lean.

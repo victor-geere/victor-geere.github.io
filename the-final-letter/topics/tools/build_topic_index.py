@@ -16,6 +16,7 @@ REQUIRED = [
 RATINGS = {
     "absolute-polarized-hodge-index-realization": (4, 4, 5, 2),
     "adelic-transfer-operator": (4, 3, 4, 2),
+    "angular-partition-method": (4, 3, 4, 3),
     "dyadic-sheaf-cohomology": (4, 2, 3, 1),
     "eml-universal-operator": (3, 3, 3, 4),
     "euler-maclaurin": (3, 4, 3, 5),
@@ -68,7 +69,231 @@ RATINGS = {
     "yakaboylu-notes": (2, 2, 2, 3),
 }
 
+# Why the highest-priority programmes are worth doing. One paragraph per slug:
+# significance, current value, and the next step that would justify more work.
+# Editorial prose grounded in each dossier's README; source claims stay claims.
+TOP_TEN = {
+    "quaternion-cosine": (
+        "The appeal of this programme is that it replaces an analytic assertion with a finite "
+        "geometric measurement. Two cosine phases, cos 2πx and cos 2πp/x, are lifted into "
+        "orthogonal quaternion components, so that the divisor detector "
+        "D(x,p) = cos(2πp/x) + cos(2πx) − 2, the phase φ(x) = cos(2πx)i + cos(2πp/x)j, and the "
+        "alignment energy E(x) = (1 − cos 2πx)² + (1 − cos 2πp/x)² are elementary and already "
+        "formalised: the Lean core proves T1–T7 with no sorry, and the Python layer checks the "
+        "detector and energy at exact points. The value is not that this is evidence for RH — it "
+        "is not — but that the lift makes “off the critical line” a computable displacement from "
+        "the target i + j, and the warping factor w(σ) = 2σ − 1 a quantity that vanishes exactly "
+        "on the line. Three precisely stated questions motivate further work: derive the warping "
+        "from ξ(s) = ξ(1 − s) rather than asserting it, with a defensible definition of effective "
+        "frequency; establish the off-line lower bound inf E > c > 0 for some universal c; and "
+        "attack the crux, inf E = 0 ⇔ ξ(σ + it) = 0. The first two are affordable and either "
+        "would turn a picture into a quantitative statement; the third is the programme."
+    ),
+    "finite-window-zeros": (
+        "This is the set's most complete end-to-end, kernel-checked zero certificate, and that is "
+        "why it ranks second. The finite algebra, the pair estimate, the eta–zeta identity for "
+        "0 < Re s, the tail bound and the verified complex-power atom are all Lean-proved; "
+        "Cert.lean assembles a hundred-pair certificate and proves that ζ(1/2 + 5i) ≠ 0 with no "
+        "atom hypothesis; Seg.lean extends this to the thin segment "
+        "{1/2 + it : t ∈ [5, 5.000003]}; and a second zero at 1/2 + 14i is certified on "
+        "the line and simple by combining a Krawczyk contraction, uniqueness of the zero in the "
+        "ball, and the conjugation plus functional-equation reflection that fixes that unique "
+        "zero. The value is a working instrument for zero verification that does not presuppose "
+        "RH: every certificate is finite, rational and replayable. Further research is unusually "
+        "well specified. The remaining numerical premise is a rational enclosure box for the "
+        "grouped eta series, reusing Width.lean from partial-sum-plus-tail; with that in place, "
+        "subdividing t ∈ [0,10] into rational intervals gives a genuine zero-free segment rather "
+        "than a point, which is exactly the input the truncated explicit formula (P4) needs. Its "
+        "To Do score is only 2 and its tractability moderate: the distance left is engineering, "
+        "not a wall."
+    ),
+    "harmonic-sine-transform": (
+        "Novelty and potential both sit at the top of the scale (5 and 5) for the attempt to "
+        "build a Hilbert–Pólya spectral theory out of the greedy harmonic reconstruction of the "
+        "sine: "
+        "the harmonic angles π/(n+2) serve both as greedy step sizes and as right-child lengths "
+        "of a binary tree of cylinder intervals, Haar wavelets are laid on that tree, and the "
+        "resulting coefficient map is the Harmonic Sine Transform, carrying a transfer operator "
+        "L and the claimed determinant identity det(I − L) = ζ(s)/ζ(2s)·exp(P(s)). The "
+        "reconstruction's "
+        "value is double. It proves the parts that are genuinely finite — normalisation, zero "
+        "mean and orthogonality of the repaired Haar system (T6/T7), with exact computation "
+        "behind them — and it audits the rest into seven named open statements, which is what "
+        "makes an eight-paper narrative tractable at all. O1 should be attacked first: "
+        "completeness of the Haar system in L²[0, π] gates the whole “isometric isomorphism” "
+        "claim, and it is a real analysis problem, not a conjecture. O3 is the next best buy, "
+        "because the source's logarithmic digit-count law is already contradicted by exact "
+        "computation — four selections below N = 200 at θ = 99/100, against a predicted 5.3 — so "
+        "the correct law is an open combinatorial question with a cheap falsification test. O5, "
+        "trace-classness of that operator for Re s > 1/2, is the spectral summit. Nothing here "
+        "proves, or "
+        "is evidence for, RH or GRH."
+    ),
+    "gdst-twin-series": (
+        "Where the foundational GDST paper defines the greedy digits, this programme builds the "
+        "selected and rejected twin series E(θ,s) and Ω(θ,s) from them and asks what their "
+        "vertical behaviour says about the critical strip. Its formal core is deliberately modest "
+        "and general — the key identity T4 holds for every binary word, not only the greedy one — "
+        "and that is precisely why it is reusable: it separates what any digit expansion gives "
+        "from what only the residual recursion can. The value now lies in exact finite prefixes "
+        "computed with sympy, a clean ledger of nine open problems, and an explicit refusal to "
+        "claim RH, twin primes, Chowla, Sarnak or Elliott; the source's own RH equivalence "
+        "remains an archived claim. Further research is motivated by knowing which of the nine is "
+        "cheap. The balance-angle question (O4) is the obvious first target: the source's "
+        "existence proof leans on an intermediate-value property for a limit of step functions, "
+        "and it concedes that regulated functions need not be Darboux, so either an explicit "
+        "construction of the balance angle or a counterexample settles it. The mean-square "
+        "asymptotics of O3 and the von Mangoldt explicit formula of O7 then connect the twins to "
+        "prime data, which is how the programme would stop being formal and start being "
+        "arithmetic."
+    ),
+    "ghd-correlation-kernel": (
+        "Much of this programme's worth is corrective, and the correction is substantial: the "
+        "archive's closed-form kernel is a formula for a step model that ignores the residual, "
+        "not for the true greedy kernel. The two disagree on the first off-diagonal entry — "
+        "π/72 for the step model against −7π/72 for the true kernel — and the reconstruction "
+        "also shows the archived selection monotonicity to be false, since the second digit is 1 "
+        "at θ = π/4 but 0 at the larger target π/2. Two archived claims are therefore false as "
+        "printed, and any downstream spectral computation that used the step-model entries has "
+        "been using wrong numbers. That makes the folder an errata resource of real current "
+        "value: the true Gram matrix is positive semidefinite by construction, the step-model "
+        "diagonal survives within its own model, and the archive's own negative-result note "
+        "already kills the determinant-vanishing mechanism. Further research should not try to "
+        "patch GRH. It should describe the true kernel: give an exact account of the digit "
+        "supports, whose interval partition grows with N, restate the archived threshold "
+        "identity as an attained infimum rather than the threshold of a step function, and issue "
+        "the erratum. These are finite, checkable tasks with immediate downstream payoff, which "
+        "is why the programme carries a positive priority despite a negative result at its "
+        "centre."
+    ),
+    "hst-programme": (
+        "This folder exists because the HST corpus was published twice, and its highest-value "
+        "contribution is reconciliation rather than mathematics. The archived landing page calls "
+        "Programmes I–V “fully rigorous”, while its own Fredholm-proof card says the proof "
+        "contains gaps, and Programme IIX is labelled speculative with an explicitly open "
+        "monotonicity inequality; separately, the landing page and the research guide disagree "
+        "about the digit rule, the floor recursion giving a second digit of 2 at x = 9/10 and so "
+        "not the binary rule that the Haar tree actually needs. Recording that conflict, and "
+        "reconstructing the binary core the tree depends on, is worth more than a second parallel "
+        "programme would have been. Further research is cheap and decisive: settle which label "
+        "applies to Programme V and write the correction back into the source; fix the digit "
+        "convention, since every downstream Haar and isometry claim is only well posed once it is "
+        "fixed; and formalise the threshold functions that the monotonicity story needs. "
+        "Doing so also makes the sibling topic's completeness question (O1) well posed, which is "
+        "where the real spectral work then continues. A duplicate hub is not a mathematical "
+        "advance, but an unreconciled one is a standing source of false claims."
+    ),
+    "angular-partition-method": (
+        "The angular partition method attacks an assumption nobody else in the table questions: "
+        "that an infinite series must be handled along a depth axis, as partial sum plus tail. It "
+        "represents the sum instead as an angular/radial partition of a compact disk — "
+        "with the radius carrying the depth — so that divergence for σ ≤ 1 appears as an "
+        "infinite radius rather than a hidden residual, and a phase-carrying tail coil handles "
+        "the factor exp(−it log n) exactly rather than perturbatively. The method's value is its "
+        "exactness discipline: the annular, sectorial and general-measure identities, including "
+        "the infinite annular representation of any summable non-negative series, are Lean-proved, "
+        "as are applications to the pole-term part of the explicit formula, to Euler products, to "
+        "Bost–Connes periodic-orbit data, and the continuation of the annular Mellin integral to "
+        "−3 < Re s with the s = −1 pole explicit and cancelled. There is no finite truncation in "
+        "the core, so there is no truncation error budget to hide in. Further research has a clear "
+        "frontier. Section 7 is an unusually honest map of the zeta wall — rearrangement changes "
+        "conditionally convergent sums, the radius is finite only for σ > 1, and the phase is not "
+        "constant on an annulus — and §7.6 states what the critical strip would require. The two "
+        "open items are the explicit-formula zero sum over the zeros with Weil positivity (O4), and "
+        "completing the general Bernoulli subtraction (O8), where what remains is the arithmetic "
+        "agreement between the Taylor coefficients and the residues of Γζ at negative integers. "
+        "The first is the programme; the second is a finite identity away."
+    ),
+    "greedy-harmonic-zeta": (
+        "This is one of the table's clearest documented failures, and it earns its priority by "
+        "having been documented rather than repaired. The archive claims an equivalence between a "
+        "greedy condition on the partial sums of the eta function and RH; the reconstruction "
+        "shows the condition to be sign-inconsistent — the correct inequality carries an "
+        "alternating sign factor — and that the first non-trivial zero satisfies neither reading, "
+        "failing at N = 4 raw and at N = 2 sign-corrected, by exact high-precision computation. "
+        "The analytic “proof” then assumes what it wants, using the absence of zeros for "
+        "σ > 1/2 inside a step towards RH, and the v3 critical-exponent paper assumes its "
+        "conclusion too. The value is "
+        "the exact finite layer that makes those verdicts checkable: nine passing tests, the "
+        "even-N eta–zeta truncation, and a ledger that separates theorem, computation and source "
+        "claim. Further research starts with a decision the source owes its readers: is the last "
+        "term signed or unsigned? A repaired finite statement proved, or refuted, equivalent to "
+        "RH is a genuine reduction; failing that, an explicit refutation of the equivalence is "
+        "itself a publishable negative result. Formalising the complex identity "
+        "η(s) = (1 − 2^(1−s))ζ(s) — T3 is only the real, even-N truncation — would pay twice, "
+        "since finite-window-zeros needs that same identity to close its enclosure certificate."
+    ),
+    "phase-interference": (
+        "The source calls itself “COMPLETE & RIGOROUS” in 132 lines, most of whose fifteen "
+        "sections are empty; what the reconstruction salvages is the one genuinely useful thing "
+        "in it — a retraction. The note withdraws the false global indicator that sets every "
+        "digit to 1 exactly when θ ≥ α_n, and the invalid closed-form kernel, replaces them with "
+        "the true recursive selection rule, and adds the phase-weighted operator "
+        "M(n,m) = K(n,m)(n+2)^(−it)(m+2)^(−it). The finite phase algebra that survives "
+        "is small but exact and Lean-proved: unit modulus of every critical-line phase, trivial "
+        "phase at zero height, conjugation as time reversal, and complex symmetry of the weighted "
+        "entry, with exact two-term cancellation at t = π/log(3/2) and the general bound ≤ 2. "
+        "Further research should be consolidation, not expansion. The interference claim is only "
+        "two-term here, where the source speaks of destructive interference across the whole "
+        "matrix; turning that into a matrix-level statement about the spectrum of K composed "
+        "with the phase weights is a concrete research question, and it belongs with the GHD "
+        "kernel work rather than in a separate programme. Formalising the kernel in Lean — "
+        "piecewise indicator, interval integration, Gram positivity — would also give the GHD "
+        "topic a checked core it currently lacks."
+    ),
+    "qefe-research-notes": (
+        "These are working notes, not a proof, and their value is diagnostic. The dossier exists "
+        "because the QEFE was drafted over eight rounds of which the first and the eighth "
+        "disagree: round 1 derives Ψ(s) ~ Ψ(s − 1), observes that a finite Dirichlet polynomial "
+        "cannot satisfy an s ↔ 1 − s equation, and concludes that the functional equation cannot "
+        "hold for all s, while round 8 asserts it without addressing that objection. The v8 draft "
+        "also stalls exactly where it matters — the Mellin split in §5.1 “merely reproduces the "
+        "original first part” and then defers to a manipulation never supplied — and its "
+        "normalisation changes silently from Γ(s)π^(−s)D^(2s) to Γ((s+a)/2)π^(−(s+a)/2)D^s, with "
+        "the parity a asserted rather than derived. Reconstructing the finite Egyptian and "
+        "fractional arithmetic, and measuring the mismatch (C4) and the fact that the examples "
+        "are only checked at s = 1/2 where the prefactor is exactly 1 (C5), turns a vague "
+        "suspicion into a precise finding: the central gap is the normalisation, not a missing "
+        "epsilon. Further research is therefore well specified. Reconcile the two normalisations "
+        "and derive a from the T-matrix; then state a precise normalised SU(2)_k → ζ(2s) limit "
+        "theorem and prove it, or show that the Galois signs obstruct it. Either outcome is "
+        "decisive, and the primary reconstruction in qefe/ is where the general work belongs."
+    ),
+}
+
 SCORE_WORDS = {5: "Very high", 4: "High", 3: "Moderate", 2: "Limited", 1: "Low"}
+
+# Programmes listed in the top section on importance rather than on marginal
+# headroom. The derived priority must not be positive for these, or they belong
+# in the ranked ten instead; the note below is printed above their paragraph.
+EXCEPTIONS = {
+    "geometric-dynamical-phase-transitions": (
+        "This is the programme's Riemann-wall objective and its most complete construction. A "
+        "mean-zero integer filter at the quadratic link M = N² makes the partial sums trace a "
+        "coherent polygonal path; its small endpoints — the path closures — generate two finite "
+        "tempered measures, and the source's Corollary 12.3 converts the critical line into the "
+        "equality of their supports. The value is not that this proves RH, which it does not, "
+        "but that it turns the wall into a statement about two explicit finite objects, does so "
+        "on a finite core proved rather than asserted — T1–T108 in Lean, "
+        "fifty-five Python tests — and then maps the wall's edge unusually honestly. The "
+        "Davenport–Heilbronn transfer is the sharpest part: the same construction reports a "
+        "false Riemann hypothesis for a function with no Euler product, so no theorem from this "
+        "additive toolbox alone can prove RH, a limitative result that says what a proof must "
+        "use. Around it stand twenty-eight bridges: the last-chord product, the unique "
+        "self-dual abscissa σ = 1/2, decisive no-gos (register-only ferromagnetism dies on the "
+        "coupling 1 − N < 0; no nonnegative matrix class yields the required −2), and Krawczyk "
+        "certificates placing polygon zeros at Re ≈ 0.57802 and 0.80014, so no single vertical "
+        "line holds them. Further research should press O2, the support equality, now reduced "
+        "to the last-chord dichotomy, and O4, reduced to |ζ′(ρ)| ≤ N^ε with ε > 13/194 already "
+        "unconditional. The Euler–Maclaurin remainder is the analytic engine still unformalised."
+    ),
+}
+
+EXCEPTION_NOTE = (
+    "Listed outside the ranking, because its derived priority is 0: current and potential value "
+    "both sit at the ceiling, so To Do is 0 and the formula finds no marginal headroom. It is "
+    "here on importance — it is the programme's Riemann-wall objective — not on available slack."
+)
 
 
 def title_for(topic: Path) -> str:
@@ -128,6 +353,80 @@ table = "\n".join(
     + "</tr>"
     for idx, (name, title, status, link, novelty, current, potential, tractability) in enumerate(rows)
 )
+
+def priority_of(name: str) -> float:
+    novelty, current, potential, tractability = RATINGS[name]
+    return novelty * (potential - current) * (tractability - 2.5) * 2
+
+
+ranked = sorted(
+    ((priority_of(name), name) for name in RATINGS),
+    key=lambda pair: (-pair[0], pair[1]),
+)
+top = [pair for pair in ranked if pair[0] > 0][:10]
+if len(top) != len(TOP_TEN):
+    raise SystemExit(f"top-ten section has {len(TOP_TEN)} paragraphs for {len(top)} ranked programmes")
+missing = [name for _, name in top if name not in TOP_TEN]
+if missing:
+    raise SystemExit(f"missing top-ten paragraph for: {', '.join(missing)}")
+unused = sorted(set(TOP_TEN) - {name for _, name in top})
+if unused:
+    raise SystemExit(f"top-ten paragraphs for unranked programmes: {', '.join(unused)}")
+
+by_name = {name: (title, link) for name, title, _status, link, *ratings in rows}
+
+
+def top_item(pri: float, name: str) -> str:
+    title, link = by_name[name]
+    novelty, current, potential, tractability = RATINGS[name]
+    meta = f"novelty {novelty} · to do {potential - current} · tractability {tractability}"
+    return (
+        f'<li><p class="entryhead"><a href="{link}">{html.escape(title)}</a> '
+        f'<span class="pbadge">Priority {fmt_num(pri)}</span> '
+        f'<span class="meta">{meta}</span></p>\n'
+        f'<p>{html.escape(TOP_TEN[name], quote=False)}</p></li>'
+    )
+
+
+top_items = "\n".join(top_item(pri, name) for pri, name in top)
+
+
+def exception_item(name: str, text: str) -> str:
+    pri = priority_of(name)
+    if pri > 0:
+        raise SystemExit(f"{name} has priority {fmt_num(pri)}; it belongs in the ranked ten")
+    title, link = by_name[name]
+    novelty, current, potential, tractability = RATINGS[name]
+    meta = f"novelty {novelty} · to do {potential - current} · tractability {tractability}"
+    return (
+        f'<li class="exception"><p class="entryhead"><a href="{link}">{html.escape(title)}</a> '
+        f'<span class="pbadge pbadge-zero">Priority {fmt_num(pri)} · listed by objective</span> '
+        f'<span class="meta">{meta}</span></p>\n'
+        f'<p class="note">{html.escape(EXCEPTION_NOTE, quote=False)}</p>\n'
+        f'<p>{html.escape(text, quote=False)}</p></li>'
+    )
+
+
+for _name in EXCEPTIONS:
+    if _name not in RATINGS:
+        raise SystemExit(f"exception paragraph for unknown programme: {_name}")
+    if _name in {name for _, name in top}:
+        raise SystemExit(f"{_name} is already in the ranked ten")
+exception_items = "\n".join(exception_item(name, text) for name, text in EXCEPTIONS.items())
+
+tail_note = (
+    " One further entry follows outside the ranking, with its zero priority explained."
+    if EXCEPTIONS else ""
+)
+
+topten_section = f'''<h2>Top programmes by priority</h2>
+<p class="sub">Independent of the table's sort order: {len(top)} of the {len(rows)} programmes carry a strictly positive priority, and these are they, in descending order.{tail_note}</p>
+<p>Each paragraph is an editorial summary grounded in the dossier's own README — what the programme is for, what it has actually proved or computed, and the specific next step that would justify spending more time on it. The ratings and this prose are judgements about reconstructed programmes, not mathematical claims, and a source claim named below remains a source claim.</p>
+<ol class="toptens">
+{top_items}
+{exception_items}
+</ol>
+'''
 
 SORT_SCRIPT = """<script>
 (function () {
@@ -213,6 +512,15 @@ td.numcell{{text-align:right;font-variant-numeric:tabular-nums;white-space:nowra
 .s3{{background:#fff3d6;color:#715412}}.s2{{background:#fbe9e7;color:#843a32}}
 .s1{{background:#eef0f2;color:#555}}
 td.scorecell{{text-align:center;white-space:nowrap}}
+.toptens{{margin:.6rem 0 0 1.15rem;padding:0}}
+.toptens li{{margin:0 0 1.45rem}}
+.toptens .entryhead{{margin:0 0 .3rem;font-weight:600}}
+.toptens p{{margin:.3rem 0}}
+.pbadge{{display:inline-block;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:.7rem;font-weight:700;border-radius:999px;padding:.05rem .45rem;background:#e8f3ea;color:#2c6b3f;vertical-align:.06rem}}
+.toptens .meta{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:.74rem;color:#6b7280;font-weight:400}}
+.toptens li.exception{{border-left:3px solid #d8dfe7;padding-left:.9rem}}
+.pbadge-zero{{background:#eef0f2;color:#555}}
+.toptens .note{{font-size:.88rem;color:#555;font-style:italic}}
 </style></head><body>
 <h1>Research topics</h1>
 <p class="sub">Reconstructed programmes: README, index, sympy tests, Lean core</p>
@@ -231,6 +539,7 @@ td.scorecell{{text-align:center;white-space:nowrap}}
 <div class="tablewrap"><table><thead><tr><th data-type="text">Folder</th><th data-type="text">Programme</th><th data-type="text">Status</th><th data-type="num">Novelty</th><th data-type="num">Current Value</th><th data-type="num">Potential Value</th><th data-type="num">To Do</th><th data-type="num">Tractability</th><th data-type="num">Priority</th></tr></thead><tbody>
 {table}
 </tbody></table></div>
+{topten_section}
 <p><a href="STATUS.md">Reconstruction status ledger</a> · <a href="PROGRAMME-STANDARD.md">Programme standard</a> · <a href="../scraps.html">Scraps inventory</a> · <a href="../index.html">The Final Letter</a> · <a href="README.md">README index</a></p>
 {SORT_SCRIPT}
 </body></html>

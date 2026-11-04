@@ -129,4 +129,134 @@ theorem continuousCoil_eq_integral {x : ℝ} (hx : 0 < x) {s : ℂ}
     Complex.Gamma_ne_zero_of_re_pos (lt_trans zero_lt_one hs)
   field_simp [hG]
 
+/-- The power-law continuous coil `Z_c(x) = x^(1-σ)/(σ-1)`, the tail integral
+of `t ↦ t^(-σ)` from `x` to `∞`. -/
+noncomputable def continuousIntegralCoil (σ x : ℝ) : ℝ :=
+  x ^ (1 - σ) / (σ - 1)
+
+/-- **Continuous integral closed form.** For `σ > 1`,
+`∫_1^∞ x^(-σ) dx = 1/(σ-1)`. -/
+theorem integral_Ioi_rpow_neg_eq_inv_sub_one {σ : ℝ} (hσ : 1 < σ) :
+    ∫ x : ℝ in Ioi (1 : ℝ), x ^ (-σ) = (σ - 1)⁻¹ := by
+  have ha : -σ < -1 := by linarith
+  rw [integral_Ioi_rpow_of_lt ha zero_lt_one, one_rpow]
+  have h1 : -σ + 1 ≠ 0 := by linarith
+  have h2 : σ - 1 ≠ 0 := by linarith
+  field_simp
+  ring
+
+/-- The continuous integral coil is the tail integral: for `σ > 1` and `x > 0`,
+`∫_x^∞ t^(-σ) dt = x^(1-σ)/(σ-1)`. -/
+theorem integral_Ioi_rpow_neg_eq_continuousIntegralCoil {σ x : ℝ} (hσ : 1 < σ)
+    (hx : 0 < x) :
+    ∫ t : ℝ in Ioi x, t ^ (-σ) = continuousIntegralCoil σ x := by
+  have ha : -σ < -1 := by linarith
+  rw [integral_Ioi_rpow_of_lt ha hx, continuousIntegralCoil]
+  have hexp : -σ + 1 = 1 - σ := by ring
+  rw [hexp]
+  have h1 : 1 - σ ≠ 0 := by linarith
+  have h2 : σ - 1 ≠ 0 := by linarith
+  field_simp
+  ring
+
+/-- **Continuous coil derivative.** For `σ > 1` and `x > 0`,
+`d/dx [x^(1-σ)/(σ-1)] = -x^(-σ)`: the term is the negative derivative of the
+tail. -/
+theorem hasDerivAt_continuousIntegralCoil {σ : ℝ} (hσ : 1 < σ) {x : ℝ}
+    (hx : 0 < x) :
+    HasDerivAt (continuousIntegralCoil σ) (-(x ^ (-σ))) x := by
+  have h : HasDerivAt (fun y : ℝ => y ^ (1 - σ))
+      ((1 - σ) * x ^ ((1 - σ) - 1)) x :=
+    hasDerivAt_rpow_const (Or.inl hx.ne')
+  have hdiv : HasDerivAt (fun y : ℝ => y ^ (1 - σ) / (σ - 1))
+      (((1 - σ) * x ^ ((1 - σ) - 1)) / (σ - 1)) x :=
+    h.div_const (σ - 1)
+  have hfun : continuousIntegralCoil σ
+      = fun y : ℝ => y ^ (1 - σ) / (σ - 1) := rfl
+  rw [hfun]
+  convert hdiv using 1
+  have hexp : (1 - σ) - 1 = -σ := by ring
+  rw [hexp]
+  have h2 : σ - 1 ≠ 0 := by linarith
+  field_simp
+  ring
+
+/-- The complex power-law coil `Z_c(x) = x^(1-s)/(s-1)`, the analytic
+continuation of `continuousIntegralCoil` to complex `s`. -/
+noncomputable def continuousComplexCoil (s : ℂ) (x : ℝ) : ℂ :=
+  (x : ℂ) ^ (1 - s) / (s - 1)
+
+/-- The per-turn factor of the complex coil: for `s = σ + it` with `t ≠ 0`,
+`(e^(2π/|t|))^(1-s) = e^(-2π(σ-1)/|t|)`. The imaginary part of the exponent is
+an integer multiple of `2π`, so it contributes `1`. -/
+theorem cpow_selfSimilar_factor {s : ℂ} (ht : s.im ≠ 0) :
+    ((Real.exp (2 * Real.pi / |s.im|) : ℝ) : ℂ) ^ (1 - s) =
+      (Real.exp (-(2 * Real.pi * (s.re - 1) / |s.im|)) : ℂ) := by
+  set a : ℝ := 2 * Real.pi / |s.im| with ha
+  have ht_abs : 0 < |s.im| := abs_pos.mpr ht
+  have ha_pos : 0 < a := by
+    rw [ha]
+    positivity
+  have hexpne : ((Real.exp a : ℝ) : ℂ) ≠ 0 := by
+    exact_mod_cast (Real.exp_pos a).ne'
+  rw [Complex.cpow_def_of_ne_zero hexpne]
+  have hlog : Complex.log ((Real.exp a : ℝ) : ℂ) = (a : ℂ) := by
+    have h := Complex.log_mul_ofReal (Real.exp a) (Real.exp_pos a) (1 : ℂ) one_ne_zero
+    simpa [Real.log_exp] using h
+  rw [hlog]
+  have harg : (a : ℂ) * (1 - s) =
+      ((a * (1 - s.re) : ℝ) : ℂ) + ((-(a * s.im)) : ℝ) * Complex.I := by
+    apply Complex.ext
+    · simp [Complex.mul_re, Complex.sub_re]
+    · simp [Complex.mul_im, Complex.sub_im]
+  rw [harg, Complex.exp_add, ← Complex.ofReal_exp]
+  have hphase : Complex.exp ((↑(-(a * s.im)) : ℂ) * Complex.I) = 1 := by
+    have hratio : s.im / |s.im| = 1 ∨ s.im / |s.im| = -1 := by
+      rcases lt_or_gt_of_ne ht with hneg | hpos
+      · right
+        rw [abs_of_neg hneg]
+        field_simp
+      · left
+        rw [abs_of_pos hpos]
+        field_simp
+    have hkey : -(a * s.im) = (-(2 * Real.pi)) * (s.im / |s.im|) := by
+      rw [ha]
+      field_simp
+    rw [hkey]
+    rcases hratio with h | h
+    · rw [h, mul_one, Complex.exp_mul_I]
+      simp
+    · rw [h]
+      rw [show (-(2 * Real.pi)) * (-1) = 2 * Real.pi by ring, Complex.exp_mul_I]
+      simp
+  rw [hphase, mul_one]
+  congr 1
+  rw [ha]
+  congr 1
+  field_simp
+  ring
+
+/-- **T82 — complex coil self-similarity.** For `s = σ + it` with `σ > 1` and
+`t ≠ 0`, the complex coil `Z_c(x) = x^(1-s)/(s-1)` satisfies
+`Z_c(e^(2π/|t|) x) = e^(-2π(σ-1)/|t|) Z_c(x)` for `x > 0`: one turn of phase
+contracts the radius by the same factor `ρ = e^(-2π(σ-1)/|t|)`. -/
+theorem continuousComplexCoil_selfSimilar {s : ℂ} (hs : 1 < s.re)
+    (ht : s.im ≠ 0) {x : ℝ} (hx : 0 < x) :
+    continuousComplexCoil s (Real.exp (2 * Real.pi / |s.im|) * x)
+      = (Real.exp (-(2 * Real.pi * (s.re - 1) / |s.im|)) : ℂ) *
+        continuousComplexCoil s x := by
+  have hexppos : 0 < Real.exp (2 * Real.pi / |s.im|) := Real.exp_pos _
+  have hs1 : s - 1 ≠ 0 := by
+    intro h
+    have hre : s.re - 1 = 0 := by
+      simpa using congrArg Complex.re h
+    linarith
+  unfold continuousComplexCoil
+  have hcast : ((Real.exp (2 * Real.pi / |s.im|) * x : ℝ) : ℂ)
+      = ((Real.exp (2 * Real.pi / |s.im|) : ℝ) : ℂ) * (x : ℂ) := by
+    push_cast
+    ring
+  rw [hcast, Complex.mul_cpow_ofReal_nonneg hexppos.le (le_of_lt hx) (1 - s),
+    cpow_selfSimilar_factor ht, mul_div_assoc]
+
 end AngularPartition

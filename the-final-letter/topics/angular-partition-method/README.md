@@ -558,8 +558,10 @@ so \(Z_{\mathrm c}(1)=\zeta_{\mathrm c}(\sigma)\),
 
 This is the exact continuous analogue of
 \(a_n=R_n^2-R_{n+1}^2\): the term is the negative derivative of the tail, and
-the total is the tail evaluated at the lower endpoint. *(Text-proof: the
-fundamental theorem of calculus and the elementary power integral.)*
+the total is the tail evaluated at the lower endpoint. *(Lean-checked: T81 —
+`integral_Ioi_rpow_neg_eq_inv_sub_one`,
+`integral_Ioi_rpow_neg_eq_continuousIntegralCoil`,
+`hasDerivAt_continuousIntegralCoil`.)*
 
 **Why the angular partition degenerates.** For real \(s=\sigma\),
 \(Z_{\mathrm c}\) is real and positive, so it can serve as its own squared
@@ -591,6 +593,9 @@ which is exactly self-similar. With \(\lambda=e^{2\pi/|t|}\),
 Z_{\mathrm c}(\lambda x)
 =e^{-2\pi(\sigma-1)/|t|}\,Z_{\mathrm c}(x).
 \]
+
+This is Lean-checked as T82 (`continuousComplexCoil_selfSimilar`), with the
+per-turn scalar factor isolated as `cpow_selfSimilar_factor`.
 
 One full turn multiplies \(x\) by \(e^{2\pi/|t|}\) and the radius by
 \(\rho=e^{-2\pi(\sigma-1)/|t|}\); the areas of successive turns form a
@@ -674,8 +679,9 @@ sides; it does not remove the even-Bernoulli tail.
 | 3 | 0.5 | 1.20205690316 | 1.25 | 1.16666666667 | 1.25 |
 | 4.5 | 0.285714285714 | 1.05470751076 | 1.16071428571 | 0.937276785714 | 1.27642299107 |
 
-These are numerical checks, not a formalisation. They confirm the text-proof
-identities above and the divergence of the even-Bernoulli tail.
+These are numerical checks, not a formalisation. They confirm the closed-form
+identities above (the integral, coil and self-similarity statements are
+Lean-checked, T81–T82) and the divergence of the even-Bernoulli tail.
 
 ## 6. Exactitude first, estimation second
 
@@ -780,11 +786,52 @@ representation.
 ### 7.5 The \(w=e^{-s}\) compactification is not required
 
 If one additionally maps depth to radius by \(w=e^{-s}\), then
-\(n^{-s}=w^{\log n}\), and \(w=0\) is an essential singularity/natural
-boundary for the Dirichlet series. That is a real obstruction to a
-finite-monodromy compactification. The annular representation of §2 does not
-use this map: it uses the tail radii directly. The two constructions should not
-be conflated.
+\(n^{-s}=w^{\log n}\). This map is a covering \(\mathbb C\to\mathbb C^\times\),
+not a coordinate change on the \(s\)-plane: it quotients by the period
+\(2\pi i\). Two different statements are often conflated here.
+
+**(i) Intrinsic monodromy.** As a function of \(s\), \(\zeta\) is single-valued
+and meromorphic on \(\mathbb C\), with its only pole at \(s=1\); \(\eta\) is
+entire; the harmonic series continues as the digamma function with poles at the
+non-positive integers. Their monodromy in the \(s\)-plane is **trivial**. The
+exception in the table below is Lerch zeta, which is multi-valued in its
+parameter. So non-trivial monodromy is not the generic case for \(\zeta\)-type
+objects.
+
+**(ii) Monodromy of the \(w\)-quotient.** Because \(\zeta\) is **not**
+\(2\pi i\)-periodic, it does not descend to a single-valued function on
+\(\mathbb C^\times\). Going once around \(w=0\) sends \(s\mapsto s+2\pi i\) and
+changes the value, so the descended function has infinite cyclic monodromy.
+No finite cover makes it single-valued; its natural home is again the universal
+(maximal abelian) cover, the \(s\)-plane. This is the real obstruction to a
+finite-monodromy compactification — and it is a property of the quotient, not
+of \(\zeta\)'s analytic continuation.
+
+The point \(w=0\) is an isolated **essential** singularity of
+\(w\mapsto\zeta(-\log w)\), not a natural boundary. The Dirichlet series
+\(\sum_n w^{\log n}\) has radius of convergence \(e^{-1}\) (the image of
+\(\Re s=1\)); each branch of the continued function is meromorphic on the cut
+plane, with a pole at \(w=e^{-1}\). The series does not see the continuation past
+\(|w|=e^{-1}\); that is a limitation of the representation, not a boundary of
+the function.
+
+| Object | Continuation in \(s\) | Monodromy in \(s\) | \(w=e^{-s}\) quotient |
+|---|---|---|---|
+| \(\zeta\) | meromorphic on \(\mathbb C\), pole at \(1\); \(\infty\) essential | trivial | infinite cyclic, \(s\mapsto s+2\pi i\) |
+| \(\eta\) | entire | trivial | infinite cyclic |
+| harmonic | digamma, poles at \(-\mathbb N_0\) | trivial | infinite cyclic |
+| general Dirichlet | often meromorphic | usually trivial | infinite cyclic unless \(2\pi i\)-periodic |
+| Lerch | multi-valued in the parameter | non-trivial | non-trivial; maximal abelian cover |
+
+Caveat on the source table: \(\zeta\) is **not** meromorphic on the Riemann
+sphere. A meromorphic function on \(\mathbb C\mathrm P^1\) is rational, whereas
+\(\zeta\) has infinitely many zeros and an essential singularity at \(\infty\).
+"Meromorphic on the sphere" should be read as "meromorphic on \(\mathbb C\),
+with the finite pole at \(1\)".
+
+The annular representation of §2 avoids the issue entirely: it uses the tail
+radii directly and never quotients by \(2\pi i\). The two constructions should
+not be conflated.
 
 ### 7.6 What would be needed for the critical strip
 
@@ -819,7 +866,41 @@ The obstruction is exact: for distinct primes \(p,q\), the logs
 \(\log p\) and \(\log q\) have no common positive period
 (`log_primes_not_commensurable`). Hence the full prime data have no finite
 monodromy; the Euler product is the exact replacement in the convergence
-domain, and continuation beyond it belongs to O7/O8.
+domain.
+
+**Continuation beyond the convergence domain.** The continuation does not need
+the general Bernoulli subtraction of O8; it is proved directly.
+
+For a single prime the continued sum is
+\[
+F_p(s):=\frac1{1-p^{-s}}.
+\]
+It is meromorphic on the whole plane (`meromorphicOn_bostConnesSinglePrime`),
+holomorphic away from the zeros of \(1-p^{-s}\)
+(`differentiableAt_bostConnesSinglePrime`), and agrees with the convergent
+angular series on \(\Re s>0\) (`bostConnes_single_prime_continuation`). Its
+poles are exactly the periods
+\[
+p^{-s}=1
+\iff
+\exists k\in\mathbb Z,\quad s\log p=2\pi i k
+\iff
+s=\frac{2\pi i k}{\log p}
+\qquad(k\in\mathbb Z),
+\]
+which is `bostConnesSinglePrime_pole_iff` (stated in the multiplied form
+\(s\log p=2\pi ik\)). The pole spacing \(2\pi/\log p\) is the period of the
+single-prime orbit, as expected.
+
+For all primes, the Euler product agrees with \(\zeta\) on \(\Re s>1\), and
+\(\zeta\) is the meromorphic continuation to the whole plane, holomorphic away
+from its only pole at \(s=1\) (`bostConnes_all_primes_continuation`). This is
+the Bost–Connes continuation: the periodic-orbit product continues to the
+completed/global zeta function, not to a new object.
+
+These three statements are T83–T85. They are independent of the general
+\(k\)-th Bernoulli subtraction of O8; that construction is a separate
+analytic-estimate problem and is not required for the continuation values.
 
 ### 7.8 Finite Gram positivity
 
@@ -845,6 +926,65 @@ Gram entries are the overlaps of the sectors.
 This is **not** the analytic Weil positivity statement. It is the finite
 algebra that any such test-vector model must satisfy; the analytic Gram matrix
 and its positivity over the actual zeta zeros remain open (O4).
+
+### 7.9 The finite zero side and the O4 certificate route
+
+The finite zero side is Lean-proved in the local library rather than
+re-proved here. In
+[`absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean`](../absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean),
+`test_function_explicit_formula` gives
+
+\[
+\oint_{\partial R}\frac{Z'}{Z}(z)\,h(z)\,dz
+=2\pi i\Bigl(\sum_{\rho\in S}h(\rho)-h(0)-h(1)\Bigr)
+\]
+
+for a finite zero set \(S\) in a rectangle, simple and exhaustive there. The
+terms \(-h(0)-h(1)\) are the same pole residues as T51–T52.
+
+The truncation error is
+[`TailBound.lean`](../absolute-polarized-hodge-index-realization/lean/TailBound.lean),
+`zero_sum_tail_bound`: for two rectangles with zero sets \(S,S'\) (nested when
+read as a tail) and \(\|(Z'/Z)h\|\le M\) on both boundaries,
+
+\[
+\Bigl|\sum_{\rho\in S'}h(\rho)-\sum_{\rho\in S}h(\rho)\Bigr|
+\le\frac{M}{2\pi}\bigl(\mathrm{perimeter}'+\mathrm{perimeter}\bigr).
+\]
+
+The finite Gram route (M0′) is in
+[`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md). Its first work
+item (**W1**) is now Lean-checked:
+
+- `posDef_of_entry_bound` in
+  [`prime-spectrum-tensor/lean/Transfer.lean`](../prime-spectrum-tensor/lean/Transfer.lean)
+  states the entrywise-to-Loewner transfer with the correct norm: an entrywise
+  margin \(\varepsilon\) bounds the spectral perturbation by \(n\varepsilon\),
+  not by \(\varepsilon\).  This is the audit item of
+  [`HANDOFF-O4.md`](HANDOFF-O4.md) §4, and it is now a theorem rather than a
+  convention.
+- `gramCentre4_sub_posDef` in the same file proves, by exact rational
+  \(LDL^{\top}\) arithmetic, that the rounded numerical Gram matrix minus
+  \(\tfrac{227}{10000}I\) is positive definite.
+- `gaussianGram4_posDef_of_enclosure` in
+  [`prime-spectrum-tensor/lean/GaussianGram.lean`](../prime-spectrum-tensor/lean/GaussianGram.lean)
+  is the assembly: the exact matrix `gaussianGram4` is positive definite as soon
+  as every entry is within \(\varepsilon<0.005675\) of that centre.
+
+The rational shadow `L4Shadowᴴ * L4Shadow` still certifies only the rounded
+shadow, not the exact transcendental Gram matrix. The one remaining input is a
+rigorous enclosure of the archimedean density
+\(\Omega(t)=\Re\psi(\tfrac14+\tfrac{it}{2})-\log\pi\) together with the
+quadrature of the density term and the prime tail. The route is no longer the
+Binet formula of `WEIL-GRAM.md` §3.1 but the **Euler-limit series** for
+\(\psi\), whose truncation error is \(t^2/(8N^2)\); the two remaining
+blockers (differentiating Mathlib's Euler limit, and a verified interval
+quadrature of a 100-term rational integrand) are recorded in
+[`prime-spectrum-tensor/OMEGA-ROUTE.md`](../prime-spectrum-tensor/OMEGA-ROUTE.md).
+
+The full scoping, Lean work breakdown and acceptance criteria for the remaining
+finite Gram certificate are in [`HANDOFF-O4.md`](HANDOFF-O4.md). O4 stays
+**Partial** until the entrywise enclosure is Lean-proved.
 
 ## 8. Reusable transforms
 
@@ -948,14 +1088,31 @@ Every row marked **Theorem** is proved in the Lean files under
 | T78 | Theorem | **Shifted Mellin series:** for `x > 0`, `Re s > 1`, the shifted Mellin series converges to `mellin (shiftedZetaKernel x) s`. | `AngularPartition.hasSum_mellin_shiftedZetaKernel` |
 | T79 | Theorem | **Hurwitz-zeta integral representation:** `mellin (shiftedZetaKernel x) s = Γ(s) · shiftedTail(x,s)` for `x > 0`, `Re s > 1`. | `AngularPartition.mellin_shiftedZetaKernel_eq` |
 | T80 | Theorem | **Continuous coil as a normalized integral:** `continuousCoil(s,x) = Γ(s)⁻¹ · mellin (shiftedZetaKernel x) s`. | `AngularPartition.continuousCoil_eq_integral` |
+| T81 | Theorem | **Continuous integral closed form:** for `σ > 1`, `∫_1^∞ x^(−σ) dx = 1/(σ−1)`; the power-law coil `Z_c(x) = x^(1−σ)/(σ−1)` is the tail integral and `−Z_c′(x) = x^(−σ)`. | `AngularPartition.integral_Ioi_rpow_neg_eq_inv_sub_one`, `AngularPartition.integral_Ioi_rpow_neg_eq_continuousIntegralCoil`, `AngularPartition.hasDerivAt_continuousIntegralCoil` |
+| T82 | Theorem | **Complex coil self-similarity:** for `s = σ + it` with `σ > 1` and `t ≠ 0`, the complex coil `Z_c(x) = x^(1−s)/(s−1)` satisfies `Z_c(e^(2π/|t|) x) = e^(−2π(σ−1)/|t|) Z_c(x)` for `x > 0`. | `AngularPartition.continuousComplexCoil_selfSimilar`, `AngularPartition.cpow_selfSimilar_factor` |
+| T83 | Theorem | **Single-prime continuation:** `1/(1−p^(−s))` is meromorphic on `ℂ`, holomorphic where `p^(−s) ≠ 1`, and agrees with the angular series on `Re s > 0`. | `AngularPartition.meromorphicOn_bostConnesSinglePrime`, `AngularPartition.differentiableAt_bostConnesSinglePrime`, `AngularPartition.bostConnes_single_prime_continuation` |
+| T84 | Theorem | **Bost–Connes pole set:** `p^(−s) = 1 ↔ ∃ k : ℤ, s log p = 2πik`, i.e. the poles are `s = 2πik/log p`. | `AngularPartition.bostConnesSinglePrime_pole_iff` |
+| T85 | Theorem | **All-prime continuation:** the Euler product equals `ζ` on `Re s > 1`, and `ζ` is differentiable at every `s ≠ 1`; the periodic-orbit product continues to `ζ`, with its only pole at `s = 1`. | `AngularPartition.bostConnes_all_primes_continuation` |
+| T86 | Theorem | **Kernel analyticity at zero (O8 foundation):** `1/(e^z−1) − 1/z` has a removable singularity at `0`; its extension is analytic at `0` (hence `C^∞` and Taylor-expandable to every order). | `AngularPartition.analyticAt_generalKernelC_zero`, `AngularPartition.norm_generalKernelC_le`, `AngularPartition.norm_exp_sub_one_ge` |
+| T87 | Theorem | **Taylor remainder:** for every `n` there is a power series at `0` whose `n`-th partial sum approximates the analytic kernel with remainder `O(‖z‖^n)`. | `AngularPartition.exists_taylorRemainder` |
+| T88 | Theorem | **Coefficient form:** `p.partialSum n z = Σ_{k<n} p.coeff k · z^k`. | `AngularPartition.partialSum_eq_sum_coeff` |
+| T89 | Theorem | **Subtracted-kernel bound:** the `n`-th subtracted real kernel is `O(t^n)` at `0`, the hypothesis of `mellinConvergent_of_isBigO_rpow_exp`. | `AngularPartition.subtractedKernel_isBigO_zero` |
+| T90 | Theorem | **Cutoff transform:** for `Re s > 1`, the Mellin transform of the polynomial cutoff `1/t + P_n(t)` on `(0,1]` is `1/(s−1) + Σ_{k<n} p.coeff k/(s+k)`; finite sums of Mellin transforms are handled by `hasMellin_finset_sum`. | `AngularPartition.hasMellin_cutoffN`, `AngularPartition.hasMellin_finset_sum` |
+| T91 | Theorem | **Finite-part identity (convergence domain):** for `Re s > 1` and every `n`, `mellin K_n(s) = Γ(s)ζ(s) − 1/(s−1) − Σ_{k<n} p.coeff k/(s+k)`. | `AngularPartition.mellin_subtractedKernel_eq`, `AngularPartition.zetaKernelR_eq_zetaKernel` |
+| T92 | Theorem | **Convergence on `Re s > −n`:** the subtracted kernel is locally integrable on `(0,∞)`, decays like `e^(−t)`, and its Mellin transform converges for `−n < Re s` (via `mellinConvergent_of_isBigO_rpow_exp`). | `AngularPartition.locallyIntegrableOn_subtractedKernel`, `AngularPartition.subtractedKernel_isBigO_atTop`, `AngularPartition.mellinConvergent_subtractedKernel` |
+| T93 | Theorem | **Holomorphy on `Re s > −n`:** `mellin K_n` is complex differentiable for `−n < Re s`. | `AngularPartition.mellin_differentiableAt_subtractedKernel` |
+| T94 | Theorem | **Formal Bernoulli core:** `(e^X−1)/X` is the reciprocal of the Bernoulli power series, and `(B(X)−1)/X` has coefficients `bernoulli (k+1)/(k+1)!`. | `AngularPartition.X_mul_expm1DivX`, `AngularPartition.bernoulliPowerSeries_mul_expm1DivX`, `AngularPartition.gSeries_coeff` |
+| T95 | Theorem | **Kernel and formal identities:** `z(e^z−1)g(z) = z−(e^z−1)` and its formal counterpart `X(e^X−1)(B−1)/X = X−(e^X−1)`. | `AngularPartition.kernel_mul_identity`, `AngularPartition.X_mul_exp_sub_one_mul_gSeries` |
+| T96 | Theorem | **Cauchy product of summable scalar series:** if `a,b` are absolutely summable with sums `A,B`, the range convolution has sum `A·B` (the `HasSum` form of Mathlib's Cauchy product theorem). | `AngularPartition.hasSum_mul_range` |
+| T97 | Theorem | **Product of scalar power series:** if `f,g` have scalar power series `a,b` at `0`, then `f·g` has the Cauchy-product series. This supplies the `HasFPowerSeriesAt.mul` that Mathlib lacks. | `AngularPartition.hasFPowerSeriesAt_mul_ofScalars` |
 | O1 | Closed | Vector-valued area field is proved for absolutely summable `c` by T44–T50. | T50 |
 | O2 | Partial | The pole-term contour connection is Lean-proved by T51–T52; the zero sum and Weil positivity remain open. | T51 |
 | O3 | Closed | Product-to-sum annular representation for Euler products is proved by T38–T43. | T43 |
-| O4 | Open | The zero sum `Σ_ρ h(ρ)` and Weil positivity in the explicit formula. The finite Gram shadow is T73–T76; the analytic Gram/positivity theorem remains open. | T73–T76 (finite shadow) |
-| O5 | Closed | Exact angular sums for Bost–Connes data: single-prime geometric sum, all-prime Euler product, and the prime-log commensurability obstruction (T68–T72). | T68–T72 |
+| O4 | Partial | The finite zero sum and the pole terms are Lean-proved in the local library: `test_function_explicit_formula` gives `∮(Z'/Z)h = 2πi(Σ_{ρ∈S}h(ρ) − h(0) − h(1))` for a finite zero set `S` in a rectangle, and `zero_sum_tail_bound` bounds the zero sum in a larger rectangle by `(M/2π)(perimeter' + perimeter)` when `‖(Z'/Z)h‖ ≤ M` on both boundaries. The analytic Gram/positivity theorem remains open. | T73–T76; local library `absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean`, `TailBound.lean`; [handoff](HANDOFF-O4.md). **W1 (2026-11-04):** `posDef_of_entry_bound` (correct `n·ε` transfer) and the exact rational `LDLᵀ` certificate `(gramCentre4 − (227/10000)I).PosDef` are Lean-checked in `prime-spectrum-tensor/lean/Transfer.lean`; `gaussianGram4_posDef_of_enclosure` in `GaussianGram.lean` reduces O4 to one entrywise enclosure. The remaining analytic gap and its route (Euler-limit series for Ω) are in [`OMEGA-ROUTE.md`](../prime-spectrum-tensor/OMEGA-ROUTE.md). |
+| O5 | Closed | Exact angular sums for Bost–Connes data: single-prime geometric sum, all-prime Euler product, prime-log commensurability obstruction (T68–T72), and meromorphic continuation beyond the convergence domain: single-prime poles (T83–T84) and all-prime continuation to `ζ` (T85). | T68–T72, T83–T85 |
 | O6 | Closed | Exactness audit completed: 25 objects classified, with `EXACTNESS-AUDIT.md`, `python/audit.py` and `AUDIT-LOG.md` as the durable record. | A1–A25 |
 | O7 | Closed | Continuation beyond the critical strip is Lean-proved through the doubled strip `−1 < re s` (T53–T55), the completed functional equation as an integral identity (T56–T57), and the second subtraction to `−3 < re s` with the explicit, cancelled `s = −1` pole (T58–T63). | T53–T63 |
-| O8 | Open | General `k`-th Bernoulli subtraction and the full-plane finite part beyond the tripled strip. | — |
+| O8 | Partial | General `k`-th Bernoulli subtraction and the full-plane finite part beyond the tripled strip. Lean-proved: kernel analyticity (T86); Taylor remainder (T87); coefficient form (T88); subtracted-kernel bound (T89); cutoff transform (T90); finite-part identity on `Re s > 1` (T91); local integrability, Mellin convergence and holomorphy on `Re s > −n` (T92–T93); the formal Bernoulli reciprocal identity (T94), the matching kernel/formal identities (T95), the Cauchy-product brick (T96), and the product theorem for scalar power series (T97). Remaining: apply T97 to `(e^z−1)` and the kernel, identify the product series with `1−(e^X−1)/X`, and compare coefficients with `(B−1)/X`; then extend the identity from `Re s > 1` to `Re s > −n`. The Bost–Connes continuation (T83–T85) is independent. | T86–T97 |
 
 ## 10. Computation ledger
 
@@ -1032,7 +1189,19 @@ python3 -m pytest tests -q
    statement remain open.
 2. **O8 — General Bernoulli subtraction / full-plane finite part.** The
    doubled and tripled strips are complete (O7). The general \(k\)-th
-   Bernoulli subtraction and the full-plane Hadamard finite part remain open.
+   Bernoulli subtraction and the full-plane Hadamard finite part are **in
+   progress**. Lean-proved: the analytic extension of \(g(t)=1/(e^t-1)-1/t\)
+   at \(0\) (T86); the power-series remainder \(O(\|z\|^n)\) for every \(n\)
+   (T87); the coefficient form of the partial sums (T88); the real
+   \(n\)-th subtracted kernel \(O(t^n)\) at \(0\) (T89); the cutoff transform
+   (T90); the finite-part identity on the convergence domain \(\Re s>1\)
+   (T91); and local integrability, Mellin convergence and holomorphy on
+   \(\Re s>-n\) (T92–T93). The Bost–Connes continuation is *not* blocked by
+   this: it is proved independently by T83–T85.
+   Remaining: extend the identity itself from \(\Re s>1\) to \(\Re s>-n\).
+   This requires the agreement between the Taylor coefficients
+   \(p.\mathrm{coeff}\ k\) and the residues of \(\Gamma\zeta\) at \(-k\),
+   i.e. the Bernoulli/zeta value relation.
 
 ## 13. Links
 

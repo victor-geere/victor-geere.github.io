@@ -442,6 +442,14 @@ the factorisation theorem are later milestones.
 
 | **`test_function_explicit_formula`** | **test-function explicit formula (zero side)**: `∮ (Z'/Z)·h = 2πi(∑_ρ h(ρ) − h(0) − h(1))`. |
 
+## Tail bounds (`TailBound.lean`)
+
+| Name | Statement |
+|---|---|
+| **`norm_rectIntegral_le`** | if `‖f‖ ≤ M` on the boundary of `[x₁,x₂]×[y₁,y₂]`, then `‖∮ f‖ ≤ M·(2(x₂−x₁)+2(y₂−y₁))`. |
+| **`zero_sum_tail_bound`** | for nested rectangles with zero sets `S ⊆ S'` and `‖(Z'/Z)h‖ ≤ M` on both boundaries, `‖∑_{S'}h − ∑_S h‖ ≤ (M/2π)(perimeter' + perimeter)`. |
+
+
 | `test_function_explicit_formula_linear` | the test-function formula for `h(s) = s`: `∮ (Z'/Z)·s = 2πi(∑ ρ − 1)`. |
 
 | **`logDeriv_mul_I_eq_neg_arch_add_prime`** | **pointwise prime side with a test function**: `Z'/Z·h·i = −(arch·h·i + L_Λ·h·i)` on `Re s > 1`. |

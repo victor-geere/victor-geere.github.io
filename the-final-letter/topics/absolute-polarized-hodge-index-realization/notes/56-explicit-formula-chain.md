@@ -121,6 +121,7 @@ reflection (`|bottom + top| < 4·10⁻³²`, `|top + conj top| < 10⁻³¹`).
   `−15921.712…i`), and the global remainder is numerically bounded near a
   simple zero. Numerically the residue limits converge
   linearly to `1` (simple zero) and `−1` (poles).
+- **Tail bound** `zero_sum_tail_bound` (`lean/TailBound.lean`, Lean-checked): for nested rectangles and a boundary bound `M` on `(Z'/Z)h`, the zero sum in the larger rectangle differs from the smaller by at most `(M/2π)(perimeter' + perimeter)`. The finite zero-sum identity itself is `test_function_explicit_formula`. This does not close the infinite zero sum; it controls the truncation error.
 - The **branch/winding closed form** of the horizontal contribution.
 - **Weil's criterion and the infinite-level cone positivity.** The concrete
   contour identities above are not the Weil positivity statement; the

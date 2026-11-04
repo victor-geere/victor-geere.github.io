@@ -7,6 +7,19 @@ and not a proof of RH. The panel, Bernoulli-series and tail remainders are
 explicit. The finite algebra that would
 certify a rounded version is already in the Lean core as T8/T10.
 
+**Lean status (new).** The W1 part of
+[`../angular-partition-method/HANDOFF-O4.md`](../angular-partition-method/HANDOFF-O4.md)
+is now Lean-checked: the entrywise-to-Loewner transfer with the correct
+dimension factor (`n·ε`, not `ε`) and the exact rational certificate
+`(gramCentre4 − (227/10000)·I).PosDef` are in
+[`lean/Transfer.lean`](lean/Transfer.lean); the exact matrix `gaussianGram4`
+and the conditional assembly are in
+[`lean/GaussianGram.lean`](lean/GaussianGram.lean).  The numerical certificate
+below is still the *specification*, not a proof: the entrywise enclosure of the
+exact matrix is the one remaining obligation, and its route (Euler-limit series
+for `Ω`, not Binet) plus the two remaining blockers are recorded in
+[`OMEGA-ROUTE.md`](OMEGA-ROUTE.md).
+
 **Parent dossier:** [`README.md`](README.md) · **Route note:**
 [`WEIL-POSITIVITY.md`](WEIL-POSITIVITY.md) ·
 **Finite shadow wiring:** [`../intersection-form-zeta/notes/04-certified-shadow.md`](../intersection-form-zeta/notes/04-certified-shadow.md) ·
@@ -344,6 +357,13 @@ The missing bridge is an **entrywise enclosure** of `G`. If rational intervals
 2. prove `G₀ − E` positive definite by a rational Cholesky factor (T8/T10);
 3. prove `E` is positive semidefinite (or bound `‖E‖₂` by a Schur test) to
    conclude `G ⪰ 0`.
+
+Steps 1–3 are now Lean-checked in the corrected form: `posDef_of_entry_bound`
+in [`lean/Transfer.lean`](lean/Transfer.lean) shows that an entrywise margin
+`ε` must be compared against `n·ε`, not `ε`, and the rational certificate is
+`gramCentre4_sub_posDef` in the same file.  The remaining gap is exactly the
+entrywise enclosure, i.e. W2/W3 of the handoff; see
+[`OMEGA-ROUTE.md`](OMEGA-ROUTE.md).
 
 The current computation supplies step 0 numerically but not rigorously. The
 numerical Cholesky factor is a **debugging mirror** of T10, not the certificate.

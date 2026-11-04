@@ -17,9 +17,22 @@ product-to-sum identity and the annular/coil representation of the Euler
 log-series. `VectorArea.lean` contains the vector-valued area field.
 `ExplicitFormula.lean` contains the pole-term contour connection.
 `BostConnes.lean` contains the single-prime and all-prime Bost–Connes angular
-sums and the prime-log commensurability obstruction. `Gram.lean` contains the
-finite Gram positivity certificate. `ContinuousCoil.lean` contains the shifted
-Hurwitz-zeta integral representation and the continuous coil.
+sums, the prime-log commensurability obstruction, and the continuation beyond
+the convergence domain: the single-prime meromorphic continuation with poles at
+`s log p = 2πik` (T83–T84) and the all-prime continuation to `ζ` (T85).
+`Gram.lean` contains the finite Gram positivity certificate. `ContinuousCoil.lean` contains the shifted
+Hurwitz-zeta integral representation, the continuous coil, the closed-form
+power-law coil `Z_c(x)=x^(1−σ)/(σ−1)` with `∫_1^∞ x^(−σ)dx=1/(σ−1)` (T81), and
+the complex self-similarity `Z_c(e^(2π/|t|)x)=e^(−2π(σ−1)/|t|)Z_c(x)` (T82).
+`GeneralSubtraction.lean` develops O8: the kernel `1/(e^z−1)−1/z` has a
+removable singularity at `0` and is analytic there (T86); its power-series
+remainder is `O(‖z‖^n)` (T87); the partial sums are the polynomials
+`Σ p.coeff k · z^k` (T88); the real subtracted kernel is `O(t^n)` at `0`
+(T89); the cutoff transform is computed (T90); and the finite-part identity
+`mellin K_n = Γζ − 1/(s−1) − Σ c_k/(s+k)` is proved on `Re s > 1` (T91), with
+convergence and holomorphy on `Re s > −n` (T92–T93). `BernoulliZeta.lean`
+contains the formal Bernoulli reciprocal identity `B(X)·(e^X−1)/X = 1` and the
+coefficient form `(B−1)/X` (T94), the algebraic half of the residue relation.
 
 `Topic.lean` formalises the exact algebraic, finite-measure, finite-annular and
 infinite-annular part of the method for summable nonnegative sequences, plus
@@ -73,6 +86,10 @@ integral or any part of the Riemann hypothesis; the zeta Mellin layer is in
 | `AngularPartition.bostConnes_single_prime_angular` / `_tsum` | Single-prime Bost–Connes angular sum. |
 | `AngularPartition.bostConnes_all_primes_product` / `_tprod` | All-prime Euler product. |
 | `AngularPartition.log_primes_not_commensurable` | Prime logs have no common positive period. |
+| `AngularPartition.bostConnesSinglePrime` | Continued single-prime sum `1/(1−p^(−s))`. |
+| `AngularPartition.bostConnes_single_prime_continuation` | **T83:** meromorphic continuation of the single-prime sum, agreeing with the series on `Re s > 0`. |
+| `AngularPartition.bostConnesSinglePrime_pole_iff` | **T84:** `p^(−s) = 1 ↔ ∃ k, s log p = 2πik`. |
+| `AngularPartition.bostConnes_all_primes_continuation` | **T85:** all-prime product continues to `ζ`, holomorphic away from `s = 1`. |
 | `AngularPartition.gramQuad_eq_norm_sq` | Gram quadratic form as a squared norm. |
 | `AngularPartition.gramQuad_nonneg` | Finite Gram positivity. |
 | `AngularPartition.gramMatrix_posSemidef` | Finite Gram matrix PSD. |
@@ -82,6 +99,36 @@ integral or any part of the Riemann hypothesis; the zeta Mellin layer is in
 | `AngularPartition.hasSum_mellin_shiftedZetaKernel` | Shifted Mellin series. |
 | `AngularPartition.mellin_shiftedZetaKernel_eq` | Hurwitz-zeta integral representation. |
 | `AngularPartition.continuousCoil_eq_integral` | Continuous coil as a normalized integral. |
+| `AngularPartition.continuousIntegralCoil` | Power-law continuous coil `x^(1−σ)/(σ−1)`. |
+| `AngularPartition.integral_Ioi_rpow_neg_eq_inv_sub_one` | **Continuous integral closed form:** `∫_1^∞ x^(−σ) dx = 1/(σ−1)` for `σ > 1`. |
+| `AngularPartition.integral_Ioi_rpow_neg_eq_continuousIntegralCoil` | The coil is the tail integral: `∫_x^∞ t^(−σ) dt = x^(1−σ)/(σ−1)`. |
+| `AngularPartition.hasDerivAt_continuousIntegralCoil` | `−Z_c′(x) = x^(−σ)`. |
+| `AngularPartition.continuousComplexCoil` | Complex power-law coil `x^(1−s)/(s−1)`. |
+| `AngularPartition.cpow_selfSimilar_factor` | `(e^(2π/|t|))^(1−s) = e^(−2π(σ−1)/|t|)`. |
+| `AngularPartition.continuousComplexCoil_selfSimilar` | **T82:** `Z_c(e^(2π/|t|)x) = e^(−2π(σ−1)/|t|) Z_c(x)`. |
+| `AngularPartition.generalKernelC` | The kernel `1/(e^z−1)−1/z`. |
+| `AngularPartition.norm_exp_sub_one_ge` | `‖z‖/2 ≤ ‖e^z−1‖` for `‖z‖ ≤ 1/2`. |
+| `AngularPartition.norm_generalKernelC_le` | `‖1/(e^z−1)−1/z‖ ≤ 2` on `0 < ‖z‖ ≤ 1/2`. |
+| `AngularPartition.analyticAt_generalKernelC_zero` | **T86:** removable singularity at `0`; analytic extension at `0`. |
+| `AngularPartition.exists_taylorRemainder` | **T87:** power-series remainder `O(‖z‖^n)` for every `n`. |
+| `AngularPartition.partialSum_eq_sum_coeff` | **T88:** `p.partialSum n z = Σ_{k<n} p.coeff k · z^k`. |
+| `AngularPartition.subtractedKernel_isBigO_zero` | **T89:** the `n`-th subtracted real kernel is `O(t^n)` at `0`. |
+| `AngularPartition.hasMellin_cutoffN` | **T90:** cutoff transform `1/(s−1) + Σ c_k/(s+k)` for `Re s > 1`. |
+| `AngularPartition.hasMellin_finset_sum` | Finite sums of Mellin transforms. |
+| `AngularPartition.mellin_subtractedKernel_eq` | **T91:** finite-part identity on `Re s > 1`. |
+| `AngularPartition.mellinConvergent_subtractedKernel` | **T92:** convergence on `Re s > −n`. |
+| `AngularPartition.mellin_differentiableAt_subtractedKernel` | **T93:** holomorphy on `Re s > −n`. |
+| `AngularPartition.X_mul_expm1DivX` | **T94:** `X · (e^X−1)/X = e^X−1`. |
+| `AngularPartition.bernoulliPowerSeries_mul_expm1DivX` | **T94:** `B(X) · (e^X−1)/X = 1`. |
+| `AngularPartition.gSeries_coeff` | **T94:** `(B−1)/X` has coefficients `bernoulli (k+1)/(k+1)!`. |
+| `AngularPartition.kernel_mul_identity` | **T95:** `z(e^z−1)g(z) = z−(e^z−1)`. |
+| `AngularPartition.X_mul_exp_sub_one_mul_gSeries` | **T95:** formal counterpart `X(e^X−1)gSeries = X−(e^X−1)`. |
+| `AngularPartition.hasSum_mul_range` | **T96:** Cauchy product of absolutely summable scalar series. |
+| `AngularPartition.hasFPowerSeriesAt_mul_ofScalars` | **T97:** product of scalar power series (the missing `HasFPowerSeriesAt.mul`). |
+| `AngularPartition.hasFPowerSeriesAt_mul_ofScalars` | **T97:** product of scalar power series (the missing `HasFPowerSeriesAt.mul`). |
+| `AngularPartition.hasSum_mul_range` | **T96:** Cauchy product of absolutely summable scalar series. |
+| `AngularPartition.kernel_mul_identity` | **T95:** `z(e^z−1)g(z) = z−(e^z−1)`. |
+| `AngularPartition.X_mul_exp_sub_one_mul_gSeries` | **T95:** formal counterpart `X(e^X−1)gSeries = X−(e^X−1)`. |
 
 ### Mellin layer (`Mellin.lean`)
 
@@ -155,6 +202,10 @@ integral or any part of the Riemann hypothesis; the zeta Mellin layer is in
 | `AngularPartition.bostConnes_single_prime_angular` / `_tsum` | Single-prime Bost–Connes angular sum. |
 | `AngularPartition.bostConnes_all_primes_product` / `_tprod` | All-prime Euler product. |
 | `AngularPartition.log_primes_not_commensurable` | Prime logs have no common positive period. |
+| `AngularPartition.bostConnesSinglePrime` | Continued single-prime sum `1/(1−p^(−s))`. |
+| `AngularPartition.bostConnes_single_prime_continuation` | **T83:** meromorphic continuation of the single-prime sum, agreeing with the series on `Re s > 0`. |
+| `AngularPartition.bostConnesSinglePrime_pole_iff` | **T84:** `p^(−s) = 1 ↔ ∃ k, s log p = 2πik`. |
+| `AngularPartition.bostConnes_all_primes_continuation` | **T85:** all-prime product continues to `ζ`, holomorphic away from `s = 1`. |
 | `AngularPartition.gramQuad_eq_norm_sq` | Gram quadratic form as a squared norm. |
 | `AngularPartition.gramQuad_nonneg` | Finite Gram positivity. |
 | `AngularPartition.gramMatrix_posSemidef` | Finite Gram matrix PSD. |
@@ -164,6 +215,28 @@ integral or any part of the Riemann hypothesis; the zeta Mellin layer is in
 | `AngularPartition.hasSum_mellin_shiftedZetaKernel` | Shifted Mellin series. |
 | `AngularPartition.mellin_shiftedZetaKernel_eq` | Hurwitz-zeta integral representation. |
 | `AngularPartition.continuousCoil_eq_integral` | Continuous coil as a normalized integral. |
+| `AngularPartition.continuousIntegralCoil` | Power-law continuous coil `x^(1−σ)/(σ−1)`. |
+| `AngularPartition.integral_Ioi_rpow_neg_eq_inv_sub_one` | **Continuous integral closed form:** `∫_1^∞ x^(−σ) dx = 1/(σ−1)` for `σ > 1`. |
+| `AngularPartition.integral_Ioi_rpow_neg_eq_continuousIntegralCoil` | The coil is the tail integral: `∫_x^∞ t^(−σ) dt = x^(1−σ)/(σ−1)`. |
+| `AngularPartition.hasDerivAt_continuousIntegralCoil` | `−Z_c′(x) = x^(−σ)`. |
+| `AngularPartition.continuousComplexCoil` | Complex power-law coil `x^(1−s)/(s−1)`. |
+| `AngularPartition.cpow_selfSimilar_factor` | `(e^(2π/|t|))^(1−s) = e^(−2π(σ−1)/|t|)`. |
+| `AngularPartition.continuousComplexCoil_selfSimilar` | **T82:** `Z_c(e^(2π/|t|)x) = e^(−2π(σ−1)/|t|) Z_c(x)`. |
+| `AngularPartition.generalKernelC` | The kernel `1/(e^z−1)−1/z`. |
+| `AngularPartition.norm_exp_sub_one_ge` | `‖z‖/2 ≤ ‖e^z−1‖` for `‖z‖ ≤ 1/2`. |
+| `AngularPartition.norm_generalKernelC_le` | `‖1/(e^z−1)−1/z‖ ≤ 2` on `0 < ‖z‖ ≤ 1/2`. |
+| `AngularPartition.analyticAt_generalKernelC_zero` | **T86:** removable singularity at `0`; analytic extension at `0`. |
+| `AngularPartition.exists_taylorRemainder` | **T87:** power-series remainder `O(‖z‖^n)` for every `n`. |
+| `AngularPartition.partialSum_eq_sum_coeff` | **T88:** `p.partialSum n z = Σ_{k<n} p.coeff k · z^k`. |
+| `AngularPartition.subtractedKernel_isBigO_zero` | **T89:** the `n`-th subtracted real kernel is `O(t^n)` at `0`. |
+| `AngularPartition.hasMellin_cutoffN` | **T90:** cutoff transform `1/(s−1) + Σ c_k/(s+k)` for `Re s > 1`. |
+| `AngularPartition.hasMellin_finset_sum` | Finite sums of Mellin transforms. |
+| `AngularPartition.mellin_subtractedKernel_eq` | **T91:** finite-part identity on `Re s > 1`. |
+| `AngularPartition.mellinConvergent_subtractedKernel` | **T92:** convergence on `Re s > −n`. |
+| `AngularPartition.mellin_differentiableAt_subtractedKernel` | **T93:** holomorphy on `Re s > −n`. |
+| `AngularPartition.X_mul_expm1DivX` | **T94:** `X · (e^X−1)/X = e^X−1`. |
+| `AngularPartition.bernoulliPowerSeries_mul_expm1DivX` | **T94:** `B(X) · (e^X−1)/X = 1`. |
+| `AngularPartition.gSeries_coeff` | **T94:** `(B−1)/X` has coefficients `bernoulli (k+1)/(k+1)!`. |
 | `AngularPartition.locallyIntegrableOn_regularizedKernel` | Local integrability on `(0,∞)`. |
 | `AngularPartition.norm_zetaKernel_le_two_exp_neg` | `‖1/(e^t−1)‖ ≤ 2e^(−t)` for `t ≥ 1`. |
 | `AngularPartition.regularizedKernel_isBigO_exp` | `h = O(e^(−t))` at infinity. |
