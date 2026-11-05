@@ -2,7 +2,9 @@
 
 Every named `theorem` and `lemma` declaration under `the-final-letter/topics/**/*.lean`, with a link to the declaration line and a LaTeX rendering of its statement.
 
-**Coverage:** 53 topic folders · 157 Lean files · **2,619 named proofs** (2,290 theorems, 329 lemmas) · 19 anonymous `example` proofs.
+**Coverage:** 53 topic folders · 162 Lean files · **2,636 named proofs** (2,306 theorems, 330 lemmas) · 19 anonymous `example` proofs.
+
+The 36 generated `DensityC*_*.lean` certificate chunks are excluded from the declaration index; see [Generated certificates](#generated-certificates).
 
 **Visualisations:** [concept graph](lean-graph.html) · [proof–conjecture graph](lean-conjecture-graph.html).
 
@@ -25,7 +27,7 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 
 | Topic | Lean files | Theorems | Lemmas | Proofs |
 |---|---:|---:|---:|---:|
-| [`absolute-polarized-hodge-index-realization`](#absolute-polarized-hodge-index-realization) | 11 | 622 | 7 | 629 |
+| [`absolute-polarized-hodge-index-realization`](#absolute-polarized-hodge-index-realization) | 12 | 622 | 7 | 629 |
 | [`adelic-transfer-operator`](#adelic-transfer-operator) | 1 | 7 | 0 | 7 |
 | [`angular-partition-method`](#angular-partition-method) | 13 | 181 | 6 | 187 |
 | [`dyadic-sheaf-cohomology`](#dyadic-sheaf-cohomology) | 1 | 8 | 0 | 8 |
@@ -63,7 +65,7 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [`partial-sum-plus-tail`](#partial-sum-plus-tail) | 13 | 129 | 78 | 207 |
 | [`periodic-orbits`](#periodic-orbits) | 1 | 7 | 0 | 7 |
 | [`phase-interference`](#phase-interference) | 1 | 7 | 0 | 7 |
-| [`prime-spectrum-tensor`](#prime-spectrum-tensor) | 26 | 135 | 0 | 135 |
+| [`prime-spectrum-tensor`](#prime-spectrum-tensor) | 30 | 151 | 1 | 152 |
 | [`proof-99-global-harmonic-framework`](#proof-99-global-harmonic-framework) | 1 | 7 | 0 | 7 |
 | [`qefe`](#qefe) | 1 | 7 | 0 | 7 |
 | [`qefe-research-notes`](#qefe-research-notes) | 1 | 7 | 0 | 7 |
@@ -78,11 +80,11 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [`topological-zeta`](#topological-zeta) | 1 | 7 | 0 | 7 |
 | [`transfer-operator-proof`](#transfer-operator-proof) | 1 | 7 | 0 | 7 |
 | [`yakaboylu-notes`](#yakaboylu-notes) | 1 | 7 | 0 | 7 |
-| **Total** | **157** | **2,290** | **329** | **2,619** |
+| **Total** | **162** | **2,306** | **330** | **2,636** |
 
 ## absolute-polarized-hodge-index-realization
 
-11 Lean files · 629 named proofs.
+12 Lean files · 629 named proofs.
 
 ### [`absolute-polarized-hodge-index-realization/lean/Archimedean.lean`](absolute-polarized-hodge-index-realization/lean/Archimedean.lean) — 11 proofs
 
@@ -745,6 +747,10 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 |---:|---|---|---|
 | [29](absolute-polarized-hodge-index-realization/lean/TailBound.lean#L29) | theorem | `norm_rectIntegral_le` | $\forall\,f : \mathbb{C}\to\ \mathbb{C},\ \forall\,x_{1}\,x_{2}\,y_{1}\,y_{2}\,M : \mathbb{R},\ \forall\,hx : x_{1}\le\ x_{2},\ \forall\,hy : y_{1}\le\ y_{2},\ \forall\,h : \forall\ z\ \in\ \mathrm{rectBoundarySet}\ x_{1}\ x_{2}\ y_{1}\ y_{2},\ \Vert{}f\ z\Vert\le\ M,\ \Vert{}\mathrm{rectIntegral}\ f\ x_{1}\ x_{2}\ y_{1}\ y_{2}\Vert\le\ M\cdot(2\cdot(x_{2}-x_{1})+2\cdot(y_{2}-y_{1}))$ |
 | [98](absolute-polarized-hodge-index-realization/lean/TailBound.lean#L98) | theorem | `zero_sum_tail_bound` | $\forall\,h : \mathbb{C}\to\ \mathbb{C},\ \forall\,S\,S' : \mathrm{Finset}\ \mathbb{C},\ \forall\,x_{1}\,x_{2}\,y_{1}\,y_{2}\,x_{1}'\,x_{2}'\,y_{1}'\,y_{2}'\,M : \mathbb{R},\ \forall\,hEF : \mathrm{rectIntegral}(\lambda\ z\Rightarrow\ \mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z)\ x_{1}\ x_{2}\ y_{1}\ y_{2}=((\sum\ \rho\ \in\ S,\ h\ \rho)-h\ 0-h\ 1)\cdot(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ I),\ \forall\,hEF' : \mathrm{rectIntegral}(\lambda\ z\Rightarrow\ \mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z)\ x_{1}'\ x_{2}'\ y_{1}'\ y_{2}'=((\sum\ \rho\ \in\ \mathrm{S'},\ h\ \rho)-h\ 0-h\ 1)\cdot(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ I),\ \forall\,hx_{1} : x_{1}'\le\ x_{2}',\ \forall\,hy_{1} : y_{1}'\le\ y_{2}',\ \forall\,hx_{2} : x_{1}\le\ x_{2},\ \forall\,hy_{2} : y_{1}\le\ y_{2},\ \forall\,hbound : \forall\ z\ \in\ \mathrm{rectBoundarySet}\ x_{1}\ x_{2}\ y_{1}\ y_{2},\ \Vert{}\mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z\Vert\le\ M,\ \forall\,hbound' : \forall\ z\ \in\ \mathrm{rectBoundarySet}\ x_{1}'\ x_{2}'\ y_{1}'\ y_{2}',\ \Vert{}\mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z\Vert\le\ M,\ \Vert(\sum\ \rho\ \in\ \mathrm{S'},\ h\ \rho)-(\sum\ \rho\ \in\ S,\ h\ \rho)\Vert\le\ M/(2\cdot\ \mathrm{Real.pi})\cdot((2\cdot(x_{2}'-x_{1}')+2\cdot(y_{2}'-y_{1}'))+(2\cdot(x_{2}-x_{1})+2\cdot(y_{2}-y_{1})))$ |
+
+### [`absolute-polarized-hodge-index-realization/lean/Topic.lean`](absolute-polarized-hodge-index-realization/lean/Topic.lean) — 0 proofs
+
+_No named `theorem` or `lemma` declarations._
 
 ### [`absolute-polarized-hodge-index-realization/lean/Weil.lean`](absolute-polarized-hodge-index-realization/lean/Weil.lean) — 2 proofs
 
@@ -3177,7 +3183,7 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 
 ## prime-spectrum-tensor
 
-26 Lean files · 135 named proofs.
+30 Lean files · 152 named proofs.
 
 ### [`prime-spectrum-tensor/lean/Assembly.lean`](prime-spectrum-tensor/lean/Assembly.lean) — 4 proofs
 
@@ -3188,7 +3194,7 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 | [59](prime-spectrum-tensor/lean/Assembly.lean#L59) | theorem | `gaussianGram4_posDef_of_density_enclosure` | $\forall\,hd_{0} : (107/10000:\mathbb{R})\le\ \mathrm{densityTerm}\ 0(1/20)\ \land\ \mathrm{densityTerm}\ 0(1/20)\le\ 127/10000,\ \forall\,hd_{1} : (-491/10000:\mathbb{R})\le\ \mathrm{densityTerm}(1/5)(1/20)\ \land\ \mathrm{densityTerm}(1/5)(1/20)\le-471/10000,\ \forall\,hd_{2} : (-251/10000:\mathbb{R})\le\ \mathrm{densityTerm}(2/5)(1/20)\ \land\ \mathrm{densityTerm}(2/5)(1/20)\le-231/10000,\ \forall\,hd_{3} : (-179/10000:\mathbb{R})\le\ \mathrm{densityTerm}(3/5)(1/20)\ \land\ \mathrm{densityTerm}(3/5)(1/20)\le-159/10000,\ (\mathrm{gaussianGram4}(1/20)).\mathrm{PosDef}$ |
 | [106](prime-spectrum-tensor/lean/Assembly.lean#L106) | theorem | `gaussianGram4_posDef_of_density_enclosure_loose` | $\forall\,hd_{0} : (82/10000:\mathbb{R})\le\ \mathrm{densityTerm}\ 0(1/20)\ \land\ \mathrm{densityTerm}\ 0(1/20)\le\ 152/10000,\ \forall\,hd_{1} : (-5158/100000:\mathbb{R})\le\ \mathrm{densityTerm}(1/5)(1/20)\ \land\ \mathrm{densityTerm}(1/5)(1/20)\le-4458/100000,\ \forall\,hd_{2} : (-2754/100000:\mathbb{R})\le\ \mathrm{densityTerm}(2/5)(1/20)\ \land\ \mathrm{densityTerm}(2/5)(1/20)\le-2054/100000,\ \forall\,hd_{3} : (-2034/100000:\mathbb{R})\le\ \mathrm{densityTerm}(3/5)(1/20)\ \land\ \mathrm{densityTerm}(3/5)(1/20)\le-1334/100000,\ (\mathrm{gaussianGram4}(1/20)).\mathrm{PosDef}$ |
 
-### [`prime-spectrum-tensor/lean/CosBound.lean`](prime-spectrum-tensor/lean/CosBound.lean) — 5 proofs
+### [`prime-spectrum-tensor/lean/CosBound.lean`](prime-spectrum-tensor/lean/CosBound.lean) — 8 proofs
 
 | Line | Kind | Proof | Statement (LaTeX) |
 |---:|---|---|---|
@@ -3197,6 +3203,9 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 | [34](prime-spectrum-tensor/lean/CosBound.lean#L34) | theorem | `cos_bound_small` | $\forall\,x : \mathbb{R},\ \forall\,hx : \vert{}x\vert\le\ 1,\ \forall\,n : \mathbb{N},\ \forall\,hn : 0<n,\ \vert{}\mathrm{Real.cos}\ x-(\sum\ m\ \in\ \mathrm{Finset.range}\ n,((x:\mathbb{C})\cdot\ \mathrm{Complex}.I)^{m}/(m.\mathrm{factorial}:\mathbb{C})).\mathrm{re}\vert\le\ \vert{}x\vert^{n}\cdot((n.\mathrm{succ}:\mathbb{R})\cdot((n.\mathrm{factorial}:\mathbb{R})\cdot\ n)^{-1})$ |
 | [56](prime-spectrum-tensor/lean/CosBound.lean#L56) | theorem | `sq_mem_Icc` | $\forall\,lo\,hi\,c : \mathbb{R},\ \forall\,h : c\ \in\ \mathrm{Set.Icc}\ \mathrm{lo}\ \mathrm{hi},\ c^{2}\ \in\ \mathrm{Set.Icc}(\text{if}\ 0\le\ \mathrm{lo}\ \text{then}\ \mathrm{lo}^{2}\ \text{else}\ \text{if}\ \mathrm{hi}\le\ 0\ \text{then}\ \mathrm{hi}^{2}\ \text{else}\ 0)(\mathrm{max}(\mathrm{lo}^{2})(\mathrm{hi}^{2}))$ |
 | [75](prime-spectrum-tensor/lean/CosBound.lean#L75) | theorem | `cos_double_mem` | $\forall\,lo\,hi\,y : \mathbb{R},\ \forall\,h : \mathrm{Real.cos}\ y\ \in\ \mathrm{Set.Icc}\ \mathrm{lo}\ \mathrm{hi},\ \mathrm{Real.cos}(2\cdot\ y)\ \in\ \mathrm{Set.Icc}(2\cdot(\text{if}\ 0\le\ \mathrm{lo}\ \text{then}\ \mathrm{lo}^{2}\ \text{else}\ \text{if}\ \mathrm{hi}\le\ 0\ \text{then}\ \mathrm{hi}^{2}\ \text{else}\ 0)-1)(2\cdot\ \mathrm{max}(\mathrm{lo}^{2})(\mathrm{hi}^{2})-1)$ |
+| [86](prime-spectrum-tensor/lean/CosBound.lean#L86) | theorem | `cos_double_mem_pos` | $\forall\,lo\,hi\,y\,nlo\,nhi : \mathbb{R},\ \forall\,h : \mathrm{Real.cos}\ y\ \in\ \mathrm{Set.Icc}\ \mathrm{lo}\ \mathrm{hi},\ \forall\,h_{0} : 0\le\ \mathrm{lo},\ \forall\,hmax : \mathrm{max}(\mathrm{lo}^{2})(\mathrm{hi}^{2})=\mathrm{hi}^{2},\ \forall\,h_{1} : \mathrm{nlo}\le\ 2\cdot\ \mathrm{lo}^{2}-1,\ \forall\,h_{2} : 2\cdot\ \mathrm{hi}^{2}-1\le\ \mathrm{nhi},\ \mathrm{Real.cos}(2\cdot\ y)\ \in\ \mathrm{Set.Icc}\ \mathrm{nlo}\ \mathrm{nhi}$ |
+| [95](prime-spectrum-tensor/lean/CosBound.lean#L95) | theorem | `cos_double_mem_neg` | $\forall\,lo\,hi\,y\,nlo\,nhi : \mathbb{R},\ \forall\,h : \mathrm{Real.cos}\ y\ \in\ \mathrm{Set.Icc}\ \mathrm{lo}\ \mathrm{hi},\ \forall\,h_{0} : \mathrm{hi}<0,\ \forall\,hmax : \mathrm{max}(\mathrm{lo}^{2})(\mathrm{hi}^{2})=\mathrm{lo}^{2},\ \forall\,h_{1} : \mathrm{nlo}\le\ 2\cdot\ \mathrm{hi}^{2}-1,\ \forall\,h_{2} : 2\cdot\ \mathrm{lo}^{2}-1\le\ \mathrm{nhi},\ \mathrm{Real.cos}(2\cdot\ y)\ \in\ \mathrm{Set.Icc}\ \mathrm{nlo}\ \mathrm{nhi}$ |
+| [107](prime-spectrum-tensor/lean/CosBound.lean#L107) | theorem | `cos_double_mem_mixed` | $\forall\,lo\,hi\,y\,nlo\,nhi : \mathbb{R},\ \forall\,h : \mathrm{Real.cos}\ y\ \in\ \mathrm{Set.Icc}\ \mathrm{lo}\ \mathrm{hi},\ \forall\,h_{0} : \neg\ 0\le\ \mathrm{lo},\ \forall\,h_{1} : \neg\ \mathrm{hi}\le\ 0,\ \forall\,h_{2} : \mathrm{nlo}\le-1,\ \forall\,h_{3} : 2\cdot(\mathrm{max}(\mathrm{lo}^{2})(\mathrm{hi}^{2}))-1\le\ \mathrm{nhi},\ \mathrm{Real.cos}(2\cdot\ y)\ \in\ \mathrm{Set.Icc}\ \mathrm{nlo}\ \mathrm{nhi}$ |
 
 ### [`prime-spectrum-tensor/lean/DensityAssembly.lean`](prime-spectrum-tensor/lean/DensityAssembly.lean) — 2 proofs
 
@@ -3204,6 +3213,16 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 |---:|---|---|---|
 | [20](prime-spectrum-tensor/lean/DensityAssembly.lean#L20) | theorem | `continuous_densityWeight_mul_Omega` | $\forall\,c : \mathbb{R},\ \mathrm{Continuous}(\lambda\ x\Rightarrow\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)$ |
 | [25](prime-spectrum-tensor/lean/DensityAssembly.lean#L25) | theorem | `density_approx_error` | $\forall\,c : \mathbb{R},\ \forall\,P : \mathbb{N},\ \forall\,a : \mathbb{N}\to\ \mathbb{R},\ \forall\,qmid\,E : \mathbb{N}\to\ \mathbb{R},\ \forall\,h_{0} : a\ 0=0,\ \forall\,hT : a\ P=60,\ \forall\,hpanel : \forall\ p<P,\ \vert(\int\ x\ \text{in}\ a\ p..a(p+1),\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-\mathrm{qmid}\ p\cdot((a(p+1)-a\ p)\cdot\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c((a\ p+a(p+1))/2))\vert\le\ E\ p,\ \vert{}\mathrm{IntersectionForm.density}(1/20)\ c-\sum\ p\ \in\ \mathrm{Finset.range}\ P,\ \mathrm{qmid}\ p\cdot((a(p+1)-a\ p)\cdot\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c((a\ p+a(p+1))/2))\vert\le(\sum\ p\ \in\ \mathrm{Finset.range}\ P,\ E\ p)+1/10000$ |
+
+### [`prime-spectrum-tensor/lean/DensityCertificates.lean`](prime-spectrum-tensor/lean/DensityCertificates.lean) — 5 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [26](prime-spectrum-tensor/lean/DensityCertificates.lean#L26) | theorem | `densityTerm_mem_c0` | $:\mathrm{densityTerm}\ 0(1/20)\ \in\ \mathrm{Set.Icc}(82/10000:\mathbb{R})(152/10000)$ |
+| [36](prime-spectrum-tensor/lean/DensityCertificates.lean#L36) | theorem | `densityTerm_mem_c1` | $:\mathrm{densityTerm}(1/5)(1/20)\ \in\ \mathrm{Set.Icc}(-5158/100000:\mathbb{R})(-4458/100000)$ |
+| [46](prime-spectrum-tensor/lean/DensityCertificates.lean#L46) | theorem | `densityTerm_mem_c2` | $:\mathrm{densityTerm}(2/5)(1/20)\ \in\ \mathrm{Set.Icc}(-2754/100000:\mathbb{R})(-2054/100000)$ |
+| [56](prime-spectrum-tensor/lean/DensityCertificates.lean#L56) | theorem | `densityTerm_mem_c3` | $:\mathrm{densityTerm}(3/5)(1/20)\ \in\ \mathrm{Set.Icc}(-2034/100000:\mathbb{R})(-1334/100000)$ |
+| [67](prime-spectrum-tensor/lean/DensityCertificates.lean#L67) | theorem | `gaussianGram4_posDef` | $:(\mathrm{gaussianGram4}(1/20)).\mathrm{PosDef}$ |
 
 ### [`prime-spectrum-tensor/lean/DensityDemo.lean`](prime-spectrum-tensor/lean/DensityDemo.lean) — 3 proofs
 
@@ -3274,6 +3293,13 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 | [35](prime-spectrum-tensor/lean/LipSmall.lean#L35) | theorem | `tsum_inv_shift_add_sq_le` | $\forall\,a : \mathbb{R},\ \sum'\ j:\mathbb{N},((((j:\mathbb{R})+1/4)^{2}+a^{2}))^{-1}\le\ 18$ |
 | [74](prime-spectrum-tensor/lean/LipSmall.lean#L74) | theorem | `deriv_Omega_abs_le_ten` | $\forall\,t : \mathbb{R},\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ 10$ |
 
+### [`prime-spectrum-tensor/lean/LipSmall2.lean`](prime-spectrum-tensor/lean/LipSmall2.lean) — 2 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [28](prime-spectrum-tensor/lean/LipSmall2.lean#L28) | theorem | `tsum_shifted_inv_le_six` | $\forall\,a : \mathbb{R},\ \forall\,ha : 1/2\le\ a,\ \sum'\ j:\mathbb{N},(((j:\mathbb{R})+1/4)^{2}+a^{2})^{-1}\le\ 6/a$ |
+| [73](prime-spectrum-tensor/lean/LipSmall2.lean#L73) | theorem | `deriv_Omega_abs_le_six` | $\forall\,t : \mathbb{R},\ \forall\,ht : 1\le\ t,\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ 6/t$ |
+
 ### [`prime-spectrum-tensor/lean/MidpointRule.lean`](prime-spectrum-tensor/lean/MidpointRule.lean) — 1 proof
 
 | Line | Kind | Proof | Statement (LaTeX) |
@@ -3311,6 +3337,14 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 |---:|---|---|---|
 | [21](prime-spectrum-tensor/lean/OmegaPanel.lean#L21) | theorem | `omega_panel_enclosure` | $\forall\,a\,b\,lipx\,qmlo\,qmhi : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,hlip : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ \mathrm{lipx},\ \forall\,hderiv : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \mathrm{DifferentiableAt}\ \mathbb{R}\ \mathrm{IntersectionForm.Omega}\ t,\ \forall\,hm : \mathrm{qmlo}\le\ \mathrm{IntersectionForm.Omega}((a+b)/2),\ \forall\,hm_{2} : \mathrm{IntersectionForm.Omega}((a+b)/2)\le\ \mathrm{qmhi},\ \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \mathrm{qmlo}-\mathrm{lipx}\cdot(b-a)/2\le\ \mathrm{IntersectionForm.Omega}\ t\ \land\ \mathrm{IntersectionForm.Omega}\ t\le\ \mathrm{qmhi}+\mathrm{lipx}\cdot(b-a)/2$ |
 
+### [`prime-spectrum-tensor/lean/OmegaScaled.lean`](prime-spectrum-tensor/lean/OmegaScaled.lean) — 3 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [32](prime-spectrum-tensor/lean/OmegaScaled.lean#L32) | theorem | `log4_mem` | $:(\mathrm{log4Lo}:\mathbb{R})\le\ \mathrm{Real.log}\ 4\ \land\ \mathrm{Real.log}\ 4\le(\mathrm{log4Hi}:\mathbb{R})$ |
+| [36](prime-spectrum-tensor/lean/OmegaScaled.lean#L36) | lemma | `panel_log_re_mem_scaled` | $\forall\,t : \mathbb{Q},\ \forall\,N\,M\,j : \mathbb{N},\ \forall\,hj : (4:\mathbb{Q})^{j}\le\ \mathrm{panelQ}\ t\ N,\ (1/2)\cdot((\mathrm{logPointLo}\ M(\mathrm{panelQ}\ t\ N/4^{j}):\mathbb{R})+(j:\mathbb{R})\cdot(\mathrm{log4Lo}:\mathbb{R}))\le(\mathrm{Complex.log}(\mathrm{panelPoint}\ t\ N)).\mathrm{re}\ \land(\mathrm{Complex.log}(\mathrm{panelPoint}\ t\ N)).\mathrm{re}\le(1/2)\cdot((\mathrm{logPointHi}\ M(\mathrm{panelQ}\ t\ N/4^{j}):\mathbb{R})+(j:\mathbb{R})\cdot(\mathrm{log4Hi}:\mathbb{R}))$ |
+| [99](prime-spectrum-tensor/lean/OmegaScaled.lean#L99) | theorem | `omega_mem_scaled` | $\forall\,t : \mathbb{Q},\ \forall\,N\,M\,j : \mathbb{N},\ \forall\,hN : 1\le\ N,\ \forall\,ht : t\ne\ 0,\ \forall\,hj : (4:\mathbb{Q})^{j}\le\ \mathrm{panelQ}\ t\ N,\ (\mathrm{omegaLoS}\ t\ N\ M\ j:\mathbb{R})\le\ \mathrm{Omega}(t:\mathbb{R})\ \land\ \mathrm{Omega}(t:\mathbb{R})\le(\mathrm{omegaHiS}\ t\ N\ M\ j:\mathbb{R})$ |
+
 ### [`prime-spectrum-tensor/lean/PanelAssembly.lean`](prime-spectrum-tensor/lean/PanelAssembly.lean) — 1 proof
 
 | Line | Kind | Proof | Statement (LaTeX) |
@@ -3323,6 +3357,15 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 |---:|---|---|---|
 | [26](prime-spectrum-tensor/lean/PanelCertificate.lean#L26) | theorem | `weight_midpoint_rule` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 3/5,\ \forall\,a\,b : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,ha_{0} : 0\le\ a,\ \forall\,hb_{60} : b\le\ 60,\ \vert(\int\ x\ \text{in}\ a..b,\ \mathrm{weight}\ c\ x)-(b-a)\cdot\ \mathrm{weight}\ c((a+b)/2)\vert\le(1/400)\cdot(b-a)^{3}/4$ |
 | [50](prime-spectrum-tensor/lean/PanelCertificate.lean#L50) | theorem | `panel_certificate` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 3/5,\ \forall\,a\,b\,qmlo\,qmhi\,lipx : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,ha_{0} : 0\le\ a,\ \forall\,hb_{60} : b\le\ 60,\ \forall\,hlip : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ \mathrm{lipx},\ \forall\,hm_{1} : \mathrm{qmlo}\le\ \mathrm{IntersectionForm.Omega}((a+b)/2),\ \forall\,hm_{2} : \mathrm{IntersectionForm.Omega}((a+b)/2)\le\ \mathrm{qmhi},\ \vert(\int\ x\ \text{in}\ a..b,\ \mathrm{weight}\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-((\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot\ \mathrm{weight}\ c((a+b)/2))\vert\le\ \vert(\mathrm{qmlo}+\mathrm{qmhi})/2\vert\cdot((1/400)\cdot(b-a)^{3}/4)+\mathrm{max}((\mathrm{qmlo}+\mathrm{qmhi})/2-(\mathrm{qmlo}-\mathrm{lipx}\cdot(b-a)/2))((\mathrm{qmhi}+\mathrm{lipx}\cdot(b-a)/2)-(\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot(1/400))$ |
+
+### [`prime-spectrum-tensor/lean/PanelDecay.lean`](prime-spectrum-tensor/lean/PanelDecay.lean) — 4 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [33](prime-spectrum-tensor/lean/PanelDecay.lean#L33) | theorem | `panel_certificate_decay` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 3/5,\ \forall\,a\,b\,qmlo\,qmhi\,lipx : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,ha_{0} : 0\le\ a,\ \forall\,hb_{60} : b\le\ 60,\ \forall\,hlip : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ \mathrm{lipx},\ \forall\,hm_{1} : \mathrm{qmlo}\le\ \mathrm{IntersectionForm.Omega}((a+b)/2),\ \forall\,hm_{2} : \mathrm{IntersectionForm.Omega}((a+b)/2)\le\ \mathrm{qmhi},\ \vert(\int\ x\ \text{in}\ a..b,\ \mathrm{weight}\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-((\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot\ \mathrm{weight}\ c((a+b)/2))\vert\le\ \vert(\mathrm{qmlo}+\mathrm{qmhi})/2\vert\cdot((1/400)\cdot(b-a)^{3}/4)+\mathrm{max}((\mathrm{qmlo}+\mathrm{qmhi})/2-(\mathrm{qmlo}-\mathrm{lipx}\cdot(b-a)/2))((\mathrm{qmhi}+\mathrm{lipx}\cdot(b-a)/2)-(\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot((1/400)/(1+a^{2}/400)))$ |
+| [75](prime-spectrum-tensor/lean/PanelDecay.lean#L75) | theorem | `bound` | $\forall\,w\,\Omega : \mathbb{R}\to\ \mathbb{R},\ \forall\,hcont : \mathrm{Continuous}(\lambda\ x\Rightarrow\ w\ x\cdot\ \Omega\ x),\ \forall\,a\,c : \mathbb{R},\ \forall\,ch : \mathrm{PanelChain}\ w\ \Omega\ a\ c,\ \vert(\int\ x\ \text{in}\ a..c,\ w\ x\cdot\ \Omega\ x)-(\mathrm{total}\ \mathrm{ch}).1\vert\le(\mathrm{total}\ \mathrm{ch}).2$ |
+| [101](prime-spectrum-tensor/lean/PanelDecay.lean#L101) | theorem | `panel_glue` | $\forall\,c : \mathbb{R},\ \forall\,a\,b\,qmlo\,qmhi\,E_{1}\,w_{0}\,eps : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,hpc : \vert(\int\ x\ \text{in}\ a..b,\ \mathrm{weight}\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-((\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot\ \mathrm{weight}\ c((a+b)/2))\vert\le\ \mathrm{E1},\ \forall\,hw : \vert{}\mathrm{weight}\ c((a+b)/2)-\mathrm{w0}\vert\le\ \mathrm{eps},\ \vert(\int\ x\ \text{in}\ a..b,\ \mathrm{weight}\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-((\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot\ \mathrm{w0})\vert\le\ \mathrm{E1}+\vert(\mathrm{qmlo}+\mathrm{qmhi})/2\vert\cdot(b-a)\cdot\ \mathrm{eps}$ |
+| [130](prime-spectrum-tensor/lean/PanelDecay.lean#L130) | theorem | `panel_step` | $\forall\,w\,\Omega : \mathbb{R}\to\ \mathbb{R},\ \forall\,a\,b\,c\,T\,S\,R\,E : \mathbb{R},\ \forall\,hcont : \mathrm{Continuous}(\lambda\ x\Rightarrow\ w\ x\cdot\ \Omega\ x),\ \forall\,hprev : \vert(\int\ x\ \text{in}\ a..b,\ w\ x\cdot\ \Omega\ x)-T\vert\le\ S,\ \forall\,hstep : \vert(\int\ x\ \text{in}\ b..c,\ w\ x\cdot\ \Omega\ x)-R\vert\le\ E,\ \vert(\int\ x\ \text{in}\ a..c,\ w\ x\cdot\ \Omega\ x)-(T+R)\vert\le\ S+E$ |
 
 ### [`prime-spectrum-tensor/lean/PanelSum.lean`](prime-spectrum-tensor/lean/PanelSum.lean) — 2 proofs
 
@@ -3370,7 +3413,7 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 | [254](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L254) | theorem | `sqrt_two_mem` | $:(14142/10000:\mathbb{R})\le\ \mathrm{Real.sqrt}\ 2\ \land\ \mathrm{Real.sqrt}\ 2\le\ 14143/10000$ |
 | [259](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L259) | theorem | `sqrt_pi_mem` | $:(17724/10000:\mathbb{R})\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}\ \land\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}\le\ 17725/10000$ |
 | [265](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L265) | theorem | `primeSummand_two` | $\forall\,c : \mathbb{R},\ \mathrm{primeSummand}\ c\ 2=\mathrm{Real.log}\ 2/\mathrm{Real.sqrt}\ 2\cdot(\mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot\ \mathrm{Real.exp}(-100\cdot(\mathrm{Real.log}\ 2-c)^{2}))$ |
-| [272](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L272) | theorem | `sum_range_tail_le` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \forall\,N : \mathbb{N},\ \sum\ n\ \in\ \mathrm{Finset.range}\ N,\ \mathrm{primeSummand}\ c(n+3)\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot((3:\mathbb{R})^{11})^{-1}\cdot(1/2)$ |
+| [272](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L272) | theorem | `prime_sum_range_tail_le` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \forall\,N : \mathbb{N},\ \sum\ n\ \in\ \mathrm{Finset.range}\ N,\ \mathrm{primeSummand}\ c(n+3)\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot((3:\mathbb{R})^{11})^{-1}\cdot(1/2)$ |
 | [293](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L293) | theorem | `prime_sum_split` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ (\sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c\ n)=\mathrm{primeSummand}\ c\ 2+\sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c(n+3)$ |
 | [315](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L315) | theorem | `sqrt_pi_div_twenty_le` | $:\mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\le\ 8863/100000$ |
 | [320](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L320) | theorem | `sum_tail_le_rat` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c(n+3)\le\ 251/1000000000$ |
@@ -3719,8 +3762,52 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 
 ## Lean files with no named proofs
 
+- [`absolute-polarized-hodge-index-realization/lean/Topic.lean`](absolute-polarized-hodge-index-realization/lean/Topic.lean)
 - [`finite-window-zeros/lean/Check.lean`](finite-window-zeros/lean/Check.lean)
 - [`finite-window-zeros/lean/SegProbe.lean`](finite-window-zeros/lean/SegProbe.lean)
 - [`finite-window-zeros/lean/SegProbe2.lean`](finite-window-zeros/lean/SegProbe2.lean)
 - [`finite-window-zeros/lean/SegProbe3.lean`](finite-window-zeros/lean/SegProbe3.lean)
 - [`finite-window-zeros/lean/TempTest.lean`](finite-window-zeros/lean/TempTest.lean) (1 anonymous example)
+
+## Generated certificates
+
+These files are emitted by [`prime-spectrum-tensor/lean/gen/panels.py`](prime-spectrum-tensor/lean/gen/panels.py) and are not expanded into the declaration index.  Their entry point is [`prime-spectrum-tensor/lean/DensityCertificates.lean`](prime-spectrum-tensor/lean/DensityCertificates.lean), which proves `gaussianGram4_posDef`.
+
+| File |
+|---|
+| [`prime-spectrum-tensor/lean/DensityC0_0.lean`](prime-spectrum-tensor/lean/DensityC0_0.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_1.lean`](prime-spectrum-tensor/lean/DensityC0_1.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_2.lean`](prime-spectrum-tensor/lean/DensityC0_2.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_3.lean`](prime-spectrum-tensor/lean/DensityC0_3.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_4.lean`](prime-spectrum-tensor/lean/DensityC0_4.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_5.lean`](prime-spectrum-tensor/lean/DensityC0_5.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_6.lean`](prime-spectrum-tensor/lean/DensityC0_6.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_7.lean`](prime-spectrum-tensor/lean/DensityC0_7.lean) |
+| [`prime-spectrum-tensor/lean/DensityC0_8.lean`](prime-spectrum-tensor/lean/DensityC0_8.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_0.lean`](prime-spectrum-tensor/lean/DensityC1_0.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_1.lean`](prime-spectrum-tensor/lean/DensityC1_1.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_2.lean`](prime-spectrum-tensor/lean/DensityC1_2.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_3.lean`](prime-spectrum-tensor/lean/DensityC1_3.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_4.lean`](prime-spectrum-tensor/lean/DensityC1_4.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_5.lean`](prime-spectrum-tensor/lean/DensityC1_5.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_6.lean`](prime-spectrum-tensor/lean/DensityC1_6.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_7.lean`](prime-spectrum-tensor/lean/DensityC1_7.lean) |
+| [`prime-spectrum-tensor/lean/DensityC1_8.lean`](prime-spectrum-tensor/lean/DensityC1_8.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_0.lean`](prime-spectrum-tensor/lean/DensityC2_0.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_1.lean`](prime-spectrum-tensor/lean/DensityC2_1.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_2.lean`](prime-spectrum-tensor/lean/DensityC2_2.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_3.lean`](prime-spectrum-tensor/lean/DensityC2_3.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_4.lean`](prime-spectrum-tensor/lean/DensityC2_4.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_5.lean`](prime-spectrum-tensor/lean/DensityC2_5.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_6.lean`](prime-spectrum-tensor/lean/DensityC2_6.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_7.lean`](prime-spectrum-tensor/lean/DensityC2_7.lean) |
+| [`prime-spectrum-tensor/lean/DensityC2_8.lean`](prime-spectrum-tensor/lean/DensityC2_8.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_0.lean`](prime-spectrum-tensor/lean/DensityC3_0.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_1.lean`](prime-spectrum-tensor/lean/DensityC3_1.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_2.lean`](prime-spectrum-tensor/lean/DensityC3_2.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_3.lean`](prime-spectrum-tensor/lean/DensityC3_3.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_4.lean`](prime-spectrum-tensor/lean/DensityC3_4.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_5.lean`](prime-spectrum-tensor/lean/DensityC3_5.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_6.lean`](prime-spectrum-tensor/lean/DensityC3_6.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_7.lean`](prime-spectrum-tensor/lean/DensityC3_7.lean) |
+| [`prime-spectrum-tensor/lean/DensityC3_8.lean`](prime-spectrum-tensor/lean/DensityC3_8.lean) |

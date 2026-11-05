@@ -6,21 +6,16 @@
 the-final-letter/topics/absolute-polarized-hodge-index-realization/lean/check.sh
 ```
 
-The nine files are `Rescue`, `Shadow`, `Archimedean`, `Symbol`, `Limit`, `Weil`,
-`Hadamard` and `Rectangle`.
+The twelve files are `Rescue`, `Shadow`, `Archimedean`, `Symbol`, `Limit`,
+`Weil`, `Hadamard`, `Rectangle`, `ExplicitFormula`, `TailBound`, `ZetaStrip`
+and the umbrella [`Topic.lean`](Topic.lean), which imports the other eleven so
+that the whole core can be built (and cited) through one file.
 
 The script delegates to [`../../tools/check-lean.sh`](../../tools/check-lean.sh)
-and uses the local Mathlib at `~/lean/mathlib4` (Lean 4.34.0). Last run:
-
-```
-[check] OK   Rescue.lean (11s)
-[check] OK   Shadow.lean (12s)
-[check] OK   Archimedean.lean (11s)
-[check] OK   Symbol.lean (7s)
-[check] OK   Limit.lean (4s)
-[check] OK   Weil.lean (4s)
-[check] OK   Hadamard.lean (8s)
-```
+and uses the local Mathlib at `~/lean/mathlib4` (Lean `v4.35.0-rc2`).  The
+committed [`BUILD.log`](BUILD.log) records the last full run; the order is
+`Rescue → … → ZetaStrip → Topic` so that every import is built before the
+umbrella module.
 
 ## What is proved
 

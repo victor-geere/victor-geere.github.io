@@ -22,6 +22,11 @@ EXAMPLE_RE = re.compile(
     r"(?:@\[[^\]]*\]\s*)*example\b"
 )
 
+# Machine-generated density certificates: thousands of auxiliary lemmas per
+# file.  They are listed under "Generated certificates" instead of being
+# expanded into the declaration index.
+GENERATED_RE = re.compile(r"^[^/]+/lean/DensityC\d+_\d+\.lean$")
+
 
 def strip_comments(text: str) -> str:
     """Blank out Lean comments and string literals, preserving line numbers."""
@@ -412,10 +417,12 @@ def scan(path: Path) -> tuple[list[tuple[int, str, str, str]], list[int]]:
     return decls, examples
 
 
-files = sorted(
+all_files = sorted(
     path for path in ROOT.rglob("*.lean")
     if "target" not in path.parts and ".lake" not in path.parts
 )
+generated = [p for p in all_files if GENERATED_RE.match(p.relative_to(ROOT).as_posix())]
+files = [p for p in all_files if not GENERATED_RE.match(p.relative_to(ROOT).as_posix())]
 
 by_topic: dict[str, list[dict]] = {}
 no_proofs: list[tuple[str, int]] = []
@@ -469,6 +476,13 @@ add(
     f"**{len(all_decls):,} named proofs** ({n_theorems:,} theorems, "
     f"{n_lemmas:,} lemmas) · {len(examples_all)} anonymous `example` proofs."
 )
+if generated:
+    add("")
+    add(
+        f"The {len(generated)} generated `DensityC*_*.lean` certificate chunks "
+        "are excluded from the declaration index; see "
+        "[Generated certificates](#generated-certificates)."
+    )
 add("")
 add("**Visualisations:** [concept graph](lean-graph.html) · [proof–conjecture graph](lean-conjecture-graph.html).")
 add("")
@@ -583,6 +597,28 @@ if no_proofs:
     for rel, n_examples in no_proofs:
         suffix = f" ({n_examples} anonymous example{'s' if n_examples != 1 else ''})" if n_examples else ""
         add(f"- [`{rel}`]({rel}){suffix}")
+else:
+    add("_None._")
+add("")
+
+add("## Generated certificates")
+add("")
+if generated:
+    add(
+        "These files are emitted by "
+        "[`prime-spectrum-tensor/lean/gen/panels.py`]"
+        "(prime-spectrum-tensor/lean/gen/panels.py) and are not expanded into "
+        "the declaration index.  Their entry point is "
+        "[`prime-spectrum-tensor/lean/DensityCertificates.lean`]"
+        "(prime-spectrum-tensor/lean/DensityCertificates.lean), which proves "
+        "`gaussianGram4_posDef`."
+    )
+    add("")
+    add("| File |")
+    add("|---|")
+    for path in generated:
+        rel = path.relative_to(ROOT).as_posix()
+        add(f"| [`{rel}`]({rel}) |")
 else:
     add("_None._")
 add("")

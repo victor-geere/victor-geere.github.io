@@ -1,9 +1,10 @@
 # Reconstruction status
 
-52 topics · 1172 ledger theorems · 493 tested computations · 581 pytest tests · 52/52 Lean builds OK.
+53 topics · 1191 ledger theorems · 504 tested computations · 795 pytest tests · 53/53 Lean builds OK.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
+| [absolute-polarized-hodge-index-realization](absolute-polarized-hodge-index-realization/README.md) | 19 | 11 | 3 | 214 | OK |
 | [adelic-transfer-operator](adelic-transfer-operator/README.md) | 7 | 8 | 9 | 8 | OK |
 | [dyadic-sheaf-cohomology](dyadic-sheaf-cohomology/README.md) | 8 | 9 | 7 | 9 | OK |
 | [eml-universal-operator](eml-universal-operator/README.md) | 7 | 8 | 9 | 8 | OK |
@@ -58,5 +59,7 @@
 | [angular-partition-method](angular-partition-method/README.md) | 82 | 13 | 0 | 20 | OK |
 
 Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted.
+
+**Generated certificate (2026-11-05).** `prime-spectrum-tensor` additionally contains 30,023 machine-checked declarations in the 36 generated files `lean/DensityC{0..3}_{0..8}.lean`, plus five in [`lean/DensityCertificates.lean`](prime-spectrum-tensor/lean/DensityCertificates.lean) ending in `gaussianGram4_posDef`. These are not ledger rows and are listed separately (not expanded) in [`index-lean.md`](index-lean.md#generated-certificates); they are built by [`prime-spectrum-tensor/lean/gen/build_chunks.sh`](prime-spectrum-tensor/lean/gen/build_chunks.sh), and [`prime-spectrum-tensor/lean/check.sh`](prime-spectrum-tensor/lean/check.sh) `--quick` skips them.
 
 [Back to topic index](README.md) · [Programme standard](PROGRAMME-STANDARD.md) · [Scraps](../scraps.html)

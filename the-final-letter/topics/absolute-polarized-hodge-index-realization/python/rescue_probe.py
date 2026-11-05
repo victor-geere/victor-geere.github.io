@@ -654,16 +654,33 @@ def psi_prime_abs_bound(t: float) -> float:
     return first + integral
 
 
-def _sibling_omega_interval(t, **kwargs):
-    """The sibling dossier's certified enclosure of Ω(t)."""
+def _sibling_programme():
+    """Load the sibling dossier's ``programme`` module under a private name.
+
+    Loading by path (rather than ``import programme``) keeps the two dossiers'
+    standard ``python/programme.py`` modules from colliding on ``sys.modules``.
+    """
+    import importlib.util
     import sys
     from pathlib import Path
+
+    name = "_prime_spectrum_tensor_programme"
+    if name in sys.modules:
+        return sys.modules[name]
     here = Path(__file__).resolve()
     sib = here.parents[2] / "prime-spectrum-tensor" / "python"
     if str(sib) not in sys.path:
         sys.path.insert(0, str(sib))
-    import programme
-    return programme.omega_interval(t, **kwargs)
+    spec = importlib.util.spec_from_file_location(name, sib / "programme.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _sibling_omega_interval(t, **kwargs):
+    """The sibling dossier's certified enclosure of Ω(t)."""
+    return _sibling_programme().omega_interval(t, **kwargs)
 
 
 def omega_panel_interval(a: float, b: float, **kwargs) -> dict:

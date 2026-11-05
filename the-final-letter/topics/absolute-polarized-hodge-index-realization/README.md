@@ -269,6 +269,30 @@ The open frontier is the **assembled critical-line explicit formula** and
 **uniform Weil positivity**. **No RH proof yet.**
 
 
+## Provenance and source
+
+This dossier reconstructs a programme recorded in the topic's source corpus:
+the *absolute polarized Hodge-index realization* scrap (see the
+[topic index](../README.md) and [`scraps.html`](../../scraps.html)), together
+with the programme's working notes ([`notes/`](notes/), 69 notes) and the two
+handoff documents [`HANDOFF.md`](HANDOFF.md) and
+[`PROGRAMME-MEMO.md`](PROGRAMME-MEMO.md).
+
+It is measured against the sibling dossiers
+[`intersection-form-zeta`](../intersection-form-zeta/README.md) (the CCM
+pairing and the explicit formula) and
+[`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md) (the finite
+Gaussian Weil–Gram certificate), and against the open realization problem
+recorded in
+[`../intersection-form-zeta/notes/07-riemann-roch-square.md`](../intersection-form-zeta/notes/07-riemann-roch-square.md)
+§4.2 and
+[`../intersection-form-zeta/notes/08-three-attacks-and-the-wall.md`](../intersection-form-zeta/notes/08-three-attacks-and-the-wall.md).
+
+**Status discipline.** This is a *reconstruction*: the archived claim (that an
+absolute Hodge index would give RH) is recorded as a source claim, not as a
+theorem.  The [theorem ledger](#theorem-ledger) separates what is proved,
+computed, claimed and open.  **No RH proof yet.**
+
 ## The target
 
 Construct a proper polarized arithmetic/adelic surface — or the strongest
@@ -462,8 +486,77 @@ The two algebraic candidates below fail for proved reasons:
    complex space, not a variety of finite type over a number field. Yuan–Zhang
    does not apply.
 
+## Theorem ledger
+
+The standard four-kind ledger.  Every **Theorem** row is a declaration of the
+formal core (all reachable from [`lean/Topic.lean`](lean/Topic.lean)); every
+**Computation** row is exercised by the pytest suite (the canonical fast cases
+in [`tests/test_programme.py`](tests/test_programme.py), the detailed coverage
+in the per-module tests).
+
+### Theorems (Lean)
+
+| # | Statement | Declaration (file) |
+|---|---|---|
+| T1 | The Hodge defect is a sum of squares: `(A·D)² − 6D² = 2((a−b)² + (b−c)² + (c−a)²)`. | `hodge_defect_identity` (`Shadow.lean`) |
+| T2 | The rank-three local Hodge index `6D² ≤ (A·D)²` on `E_p × E_p`. | `hodge_index_explicit` (`Shadow.lean`) |
+| T3 | Every finite Gram matrix of an inner product is positive semidefinite. | `gram_quadFormR_nonneg` (`Shadow.lean`) |
+| T4 | Entrywise box + row-sum bounds imply positive definiteness, any finite dimension. | `posDef_of_box_rat` (`Shadow.lean`) |
+| T5 | The rational Gaussian Gram shadow `G4 = L4 L4ᵀ` is positive semidefinite. | `G4_psd` (`Shadow.lean`) |
+| T6 | `G4` is within `2·10⁻⁵` of the published rationalised Gram `W4`. | `G4_close` (`Shadow.lean`) |
+| T7 | The finite KMS form `(1/2) Σᵢⱼ (pᵢ−pⱼ) log(pᵢ/pⱼ) (aᵢⱼ)²` is non-negative. | `kmsForm_nonneg` (`Rescue.lean`) |
+| T8 | Compatible non-negativity on every level gives a non-negative value on the union. | `compatible_nonneg` (`Rescue.lean`) |
+| T9 | With `s = −W`, the geometric inequality `s ≤ 0` is Weil positivity `0 ≤ W`. | `hodge_sign_iff` (`Rescue.lean`) |
+| T10 | `Re A_arch(ξ) = −Ω(ξ + i/2)/2` for the archimedean symbol. | `arch_contour_identity` (`Archimedean.lean`) |
+| T11 | The symbol identity `A_arch + Q = −Z'/Z` in its continued form on `s ≠ 1`. | `symbol_identity_continued` (`Symbol.lean`) |
+| T12 | The completed zeta has the zero quadruple `s, 1−s, s̄, 1−s̄`. | `completedZeta_zero_quadruple` (`Symbol.lean`) |
+| T13 | RH is equivalent to the absence of zeros with `Re s < 1/2` in the strip. | `riemannHypothesis_iff_no_zeros_left_half` (`Symbol.lean`) |
+| T14 | The rectangle argument principle: `∮ f'/f = 2πi(#zeros − #poles)` for `f = P_Z P_P⁻¹ h`. | `rectIntegral_logDeriv_div_prod` (`Rectangle.lean`) |
+| T15 | The zeta instance, the zero side of the explicit formula: `∮ Z'/Z = 2πi(#S − 2)`. | `rectIntegral_logDeriv_completedZeta_eq_card` (`Rectangle.lean`) |
+| T16 | The zero-sum tail is bounded by `(M/2π)(perimeter' + perimeter)`. | `zero_sum_tail_bound` (`TailBound.lean`) |
+| T17 | The infinite Weierstrass canonical product converges (and is multipliable). | `multipliable_weierstrassFactor` (`Hadamard.lean`) |
+| T18 | The scaling-site limit form is non-negative when every level form is. | `limitForm_nonneg` (`Limit.lean`) |
+| T19 | The pole term is non-negative and the prime term non-positive for `h ≥ 0`. | `pole_term_nonneg`, `prime_term_nonpos` (`Weil.lean`) |
+
+### Computations (pytest)
+
+| # | Statement | Test |
+|---|---|---|
+| C1 | The rank-three Hodge index and the defect identity hold on the integer grid. | `test_programme.py::test_local_hodge_index`; `test_local_polarization.py` |
+| C2 | The finite Hodge–Riemann half-weight form `C_{1/2}` is positive on random states. | `test_finite_hodge_riemann.py`; `test_programme.py` |
+| C3 | The `S₃` crossed-product Hodge index holds for tracial and non-tracial states. | `test_finite_crossed_product.py`; `test_programme.py` |
+| C4 | The transverse KMS form is negative semidefinite on the kernel. | `test_kms_transverse.py`; `test_programme.py` |
+| C5 | The Krein realization has `S² = 1`, `SᵀQS = Q`, signatures `(1,2)` and `(3,0)`. | `test_krein_hodge.py`; `test_programme.py` |
+| C6 | The fast CCM probe matches the mpmath probe to `7.5·10⁻⁹`. | `test_ccm_fast.py`; `test_programme.py` |
+| C7 | `Re A_arch(ξ) = −Ω(ξ + i/2)/2` numerically. | `test_arch_compare.py`; `test_programme.py` |
+| C8 | The 4×4 Gaussian Gram eigenvalues are `(0.0227, 0.0270, 0.0449, 0.0780)`; the recorded `N` is indefinite. | `test_programme.py::test_gaussian_gram_4x4` |
+| C9 | The recorded 6×6 interval certificate passes the box check (exact rational minors). | `test_rescue.py::test_gram6_certificate_recorded`; `test_programme.py` |
+| C10 | The truncation gaps behave as recorded (even `K` definite, odd `K` degenerate; prime-driven collapse). | `test_truncation_gap.py`, `test_prime_arch_split.py`, `test_uv_localization.py`; `test_programme.py` |
+| C11 | The completed-zeta symmetries, pole residues and symbol identities hold at 30 dps. | `test_rescue.py`, `test_arch_symbol.py` |
+
+### Source claims (archived, not adopted)
+
+| # | Claim | Status |
+|---|---|---|
+| S1 | An absolute polarized Hodge-index surface over the Scaling Site with the CCM pairing would give `Z(f)·Z(f) ≤ 0` and hence RH. | archived claim; the global object is **not constructed** |
+| S2 | The recorded normalization of the global functional is the `−Ω` convention. | recorded; **falsified** on exact compact-support tests — the cosh `+Ω` form is the supported one (notes 38–41) |
+| S3 | The naive prime-symbol cutoff at `Re s = 1/2` converges to `−ζ'/ζ`. | archived; **refuted**: the prime half is a measure and the Abel sums oscillate (notes 24–27) |
+
+### Open and conjectured
+
+| # | Statement | Status |
+|---|---|---|
+| G1 | Global cone positivity (Weil's criterion): `W(f ⋆ f^#) ≥ 0` on the cone. | **open**, RH-equivalent |
+| G2 | The distributional explicit formula and the fibre-to-trace assembly `Σ_p (local pairings) = s(f,f)`. | **open** |
+| G3 | Bost–Connes level compatibility and the scaling-site Riemann–Roch / Hodge index. | **open** |
+| G4 | Order-1 log-growth of the Hadamard quotient `f/P` (the affine refinement). | **open** |
+| G5 | A uniform positive spectral gap as the truncation `K → ∞`. | **open / conjecture** (finite gaps decay) |
+
 ## Layout
 
+- [`python/programme.py`](python/programme.py) — the curated computation API
+  (the ledger's entry points; imports without side effects).
+- [`python/__init__.py`](python/__init__.py) — package marker; no work at import.
 - [`notes/01-fibered-construction.md`](notes/01-fibered-construction.md) —
   the fibered construction, the local theorem, and the two algebraic
   obstructions.
@@ -653,30 +746,58 @@ The two algebraic candidates below fail for proved reasons:
 - [`tests/test_rescue.py`](tests/test_rescue.py) — the rescue and continuation
   tests (107 test functions, 191 cases).
 
+## Python layer
+
+The computation layer is [`python/`](python/) (28 focused modules; the curated,
+documented API is [`python/programme.py`](python/programme.py)).  It uses
+`sympy` for exact work and `mpmath` for high-precision checks, and imports
+without side effects.
+
+```bash
+# canonical fast subset (the ledger's Computation rows), ~20 s
+python3 -m pytest topics/absolute-polarized-hodge-index-realization/tests/test_programme.py -q
+# full computation suite, ~10 min
+python3 -m pytest topics/absolute-polarized-hodge-index-realization/tests -q
+```
+
+[`tests/test_programme.py`](tests/test_programme.py) covers every **Computation**
+row of the ledger plus the error paths (bad grid, too-small basis, unknown
+window); the per-module tests carry the detailed coverage.  The heavy probes
+(the 4×4 Gaussian eigenvalue computation, the recorded 6×6 interval
+certificate, the truncation-gap tables) are exposed by `programme.py` and can
+be re-run on demand.
+
 ## Lean
 
-The formal core spans seven files in `lean/`, checked with `lean/check.sh`
-against Mathlib (Lean 4.34.0), no `sorry`, `axiom` or `admit`:
+The formal core spans twelve files in `lean/`, checked with `lean/check.sh`
+against Mathlib (Lean `v4.35.0-rc2`), with no `sorry`, `axiom` or `admit`.
+The umbrella module [`lean/Topic.lean`](lean/Topic.lean) imports the whole
+core:
 
 ```bash
 the-final-letter/topics/absolute-polarized-hodge-index-realization/lean/check.sh
-# [check] OK   Rescue.lean      [check] OK   Shadow.lean
-# [check] OK   Archimedean.lean [check] OK   Symbol.lean
-# [check] OK   Limit.lean       [check] OK   Weil.lean
-# [check] OK   Hadamard.lean
+# [check] OK   Rescue.lean        [check] OK   Shadow.lean
+# [check] OK   Archimedean.lean   [check] OK   Symbol.lean
+# [check] OK   Limit.lean         [check] OK   Weil.lean
+# [check] OK   Hadamard.lean      [check] OK   Rectangle.lean
+# [check] OK   ExplicitFormula.lean  [check] OK   TailBound.lean
+# [check] OK   ZetaStrip.lean     [check] OK   Topic.lean
 ```
 
 `Rescue.lean` holds the finite KMS positivity, compatibility, the sign
 convention `s = -W` and the finite quadratic-form criterion. `Shadow.lean`
-holds the finite Hodge-index model and the finite cone-positivity
-certificates. `Archimedean.lean` and `Symbol.lean` hold the archimedean
-symbol, the digamma/zeta identities, the completed-zeta symmetries, both pole
-terms and the argument-principle chain. `Limit.lean` holds the scaling-site
-limit form; `Weil.lean` the pole/prime signs; `Hadamard.lean` the canonical
-products, Jensen theory, the order-1 class and the factorisation.
+holds the rank-three Hodge index, the box/`LDLᵀ` positivity theorems and the
+finite cone-positivity certificates. `Archimedean.lean` and `Symbol.lean` hold
+the archimedean symbol, the digamma/zeta identities, the completed-zeta
+symmetries, both pole terms and the argument-principle chain. `Rectangle.lean`,
+`ExplicitFormula.lean` and `TailBound.lean` hold the rectangle contour, the
+zeta zero count and the tail bound. `Limit.lean` holds the scaling-site limit
+form; `ZetaStrip.lean` the Euler–Maclaurin strip layer; `Weil.lean` the
+pole/prime signs; `Hadamard.lean` the canonical products, Jensen theory, the
+order-1 class and the factorisation.
 
-It does **not** yet cover the distributional explicit formula, the infinite
-cone positivity, or the analytic eigenvalue; see
+It does **not** cover the distributional explicit formula, the infinite cone
+positivity, or the analytic eigenvalue; see
 [`lean/README.md`](lean/README.md) and [`HANDOFF.md`](HANDOFF.md).
 
 ## Next (round 272)
@@ -700,4 +821,4 @@ Lean-checked (`completedZeta_residue_one`, `completedZeta_residue_zero`), and
 the trivial-zero convention is documented. The current frontier is the contour
 identity, not the normalization.
 
-[Back to the topic index](../README.md) · [Intersection form dossier](../intersection-form-zeta/README.md) · [Handoff](HANDOFF.md)
+[Back to the topic index](../README.md) · [Scraps inventory](../../scraps.html) · [Intersection form dossier](../intersection-form-zeta/README.md) · [Handoff](HANDOFF.md) · [Lean core](lean/README.md)

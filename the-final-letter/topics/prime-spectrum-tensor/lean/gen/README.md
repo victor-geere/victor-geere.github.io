@@ -22,7 +22,8 @@ python3 emit_all.py --size 150      # emit the 36 chunk files
 
 `build_chunks.sh` is resumable: it skips any chunk whose `.olean` is newer than
 its `.lean` and newer than its predecessor's `.olean`, so an interrupted build
-can simply be restarted.
+can simply be restarted.  To check only the hand-written Lean core, use
+`../check.sh --quick`, which skips the 36 generated chunks.
 
 The chunks of one `c` share the namespace `PrimeSpectrumTensor.D<i>` and each
 imports its predecessor, so the cumulative enclosure `cum{p}` continues across

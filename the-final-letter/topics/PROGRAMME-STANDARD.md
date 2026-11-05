@@ -74,6 +74,7 @@ python3 -m pytest the-final-letter/topics/<topic>/tests -q
 
 # Lean
 the-final-letter/topics/<topic>/lean/check.sh
+the-final-letter/topics/<topic>/lean/check.sh --quick   # skip generated chunks
 ```
 
 A topic passes the **structural audit** when every required file is present and the Lean core contains no `sorry`/`axiom`/`admit`. The index reports this as **structural pass**. It does not certify that the ledger rows, test names and Lean statements agree; that is a separate review, and it is not implied by the status.

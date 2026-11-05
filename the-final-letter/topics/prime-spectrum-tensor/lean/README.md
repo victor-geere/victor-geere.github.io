@@ -3,8 +3,15 @@
 ## Build
 
 ```bash
-the-final-letter/topics/prime-spectrum-tensor/lean/check.sh
+the-final-letter/topics/prime-spectrum-tensor/lean/check.sh          # everything (~4 h)
+the-final-letter/topics/prime-spectrum-tensor/lean/check.sh --quick  # hand-written core (~3.5 min)
 ```
+
+`--quick` skips the 36 generated `DensityC*_*.lean` chunks (and
+`DensityCertificates.lean` if their `.olean`s are absent); it is a no-op when
+explicit files are given, and it is also accepted by the shared
+`topics/tools/check-lean.sh`, so `check-all-lean.sh --quick` and
+`verify-all.sh --quick` work.
 
 The density certificates are **chunked** (36 files, 150 panels each, since one
 file with all 1305 panels needs ~25 GB of memory).  Rebuild them, resumably,
@@ -105,7 +112,7 @@ certificate.
 ## [`Transfer.lean`](Transfer.lean) — W1 of O4
 
 The first closed work item of
-[`../../../angular-partition-method/HANDOFF-O4.md`](../../../angular-partition-method/HANDOFF-O4.md).
+[`../../angular-partition-method/HANDOFF-O4.md`](../../angular-partition-method/HANDOFF-O4.md).
 All scalars are rational literals; there is no analysis in the file.
 
 | Name | Statement |
