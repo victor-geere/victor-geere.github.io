@@ -120,7 +120,7 @@ These are recorded with the source's status. None is a theorem of this folder.
 4. **Joint non-vanishing.** The surviving open statement of `tensor.md` Corollary 6.2 — that `K(α,·)` and `S(α,·)` never vanish jointly for `α ≠ 0` — is exactly RH and is not formalised.
 5. **Higher tensors.** Pair correlation and `n`-point analogues (`tensor.html` §7) are a programme, not results; no formal core is attempted here.
 6. **Numerical scope.** C5 uses the first `2×10⁴` prime powers and 13 Jacobi terms; the truncated tails are below the stated tolerances, but this is a reproduction of the source's witness, not a proof of Theorem B.
-7. **Finite Gram matrix.** [`WEIL-GRAM.md`](WEIL-GRAM.md) records a numerical PSD Gaussian Gram matrix, including a prime-active row, and a rational shadow certified by T12. The `Ω` interval layer (C9) now encloses `Ω` pointwise; the missing step is interval quadrature of the density term and the prime-tail bound, after which T8/T10 can certify the actual matrix.
+7. **Finite Gram matrix.** [`WEIL-GRAM.md`](WEIL-GRAM.md) records a numerical PSD Gaussian Gram matrix, including a prime-active row, and a rational shadow certified by T12. The `Ω` interval layer (C9) encloses `Ω` pointwise; the interval quadrature of the density term is now generated ([`lean/DensityC0_0.lean`](lean/DensityC0_0.lean) … [`lean/DensityC3_8.lean`](lean/DensityC3_8.lean)) and the prime-tail bound is proved ([`lean/PrimeEnclosure.lean`](lean/PrimeEnclosure.lean)). Together with the pole enclosure they certify the exact matrix: `gaussianGram4_posDef` in [`lean/DensityCertificates.lean`](lean/DensityCertificates.lean).
 
 ## Python layer
 

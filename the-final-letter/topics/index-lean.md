@@ -2,7 +2,7 @@
 
 Every named `theorem` and `lemma` declaration under `the-final-letter/topics/**/*.lean`, with a link to the declaration line and a LaTeX rendering of its statement.
 
-**Coverage:** 52 topic folders · 120 Lean files · **2,310 named proofs** (1,987 theorems, 323 lemmas) · 19 anonymous `example` proofs.
+**Coverage:** 53 topic folders · 157 Lean files · **2,619 named proofs** (2,290 theorems, 329 lemmas) · 19 anonymous `example` proofs.
 
 **Visualisations:** [concept graph](lean-graph.html) · [proof–conjecture graph](lean-conjecture-graph.html).
 
@@ -25,8 +25,9 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 
 | Topic | Lean files | Theorems | Lemmas | Proofs |
 |---|---:|---:|---:|---:|
-| [`absolute-polarized-hodge-index-realization`](#absolute-polarized-hodge-index-realization) | 12 | 622 | 7 | 629 |
+| [`absolute-polarized-hodge-index-realization`](#absolute-polarized-hodge-index-realization) | 11 | 622 | 7 | 629 |
 | [`adelic-transfer-operator`](#adelic-transfer-operator) | 1 | 7 | 0 | 7 |
+| [`angular-partition-method`](#angular-partition-method) | 13 | 181 | 6 | 187 |
 | [`dyadic-sheaf-cohomology`](#dyadic-sheaf-cohomology) | 1 | 8 | 0 | 8 |
 | [`eml-universal-operator`](#eml-universal-operator) | 1 | 7 | 0 | 7 |
 | [`euler-maclaurin`](#euler-maclaurin) | 1 | 9 | 71 | 80 |
@@ -62,7 +63,7 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [`partial-sum-plus-tail`](#partial-sum-plus-tail) | 13 | 129 | 78 | 207 |
 | [`periodic-orbits`](#periodic-orbits) | 1 | 7 | 0 | 7 |
 | [`phase-interference`](#phase-interference) | 1 | 7 | 0 | 7 |
-| [`prime-spectrum-tensor`](#prime-spectrum-tensor) | 1 | 13 | 0 | 13 |
+| [`prime-spectrum-tensor`](#prime-spectrum-tensor) | 26 | 135 | 0 | 135 |
 | [`proof-99-global-harmonic-framework`](#proof-99-global-harmonic-framework) | 1 | 7 | 0 | 7 |
 | [`qefe`](#qefe) | 1 | 7 | 0 | 7 |
 | [`qefe-research-notes`](#qefe-research-notes) | 1 | 7 | 0 | 7 |
@@ -77,11 +78,11 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [`topological-zeta`](#topological-zeta) | 1 | 7 | 0 | 7 |
 | [`transfer-operator-proof`](#transfer-operator-proof) | 1 | 7 | 0 | 7 |
 | [`yakaboylu-notes`](#yakaboylu-notes) | 1 | 7 | 0 | 7 |
-| **Total** | **120** | **1,987** | **323** | **2,310** |
+| **Total** | **157** | **2,290** | **329** | **2,619** |
 
 ## absolute-polarized-hodge-index-realization
 
-12 Lean files · 629 named proofs.
+11 Lean files · 629 named proofs.
 
 ### [`absolute-polarized-hodge-index-realization/lean/Archimedean.lean`](absolute-polarized-hodge-index-realization/lean/Archimedean.lean) — 11 proofs
 
@@ -296,7 +297,7 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [5430](absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean#L5430) | theorem | `logDeriv_GammaReal_eq_neg_arch` | $\forall\,s : \mathbb{C},\ \forall\,hs : \forall\ m:\mathbb{N},\ s\ne-(2\cdot(m:\mathbb{C})),\ \mathrm{logDeriv}(\lambda\ z:\mathbb{C}\Rightarrow\ z.\mathrm{Gamma}\mathbb{R})\ s=-((1/2)\cdot\ \mathrm{log}(\mathrm{Real.pi}:\mathbb{C})-(1/2)\cdot\ \mathrm{digamma}(s/2))$ |
 | [5489](absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean#L5489) | theorem | `paleyWiener_zero_eq_one_of_even` | $\forall\,g : \mathbb{R}\to\ \mathbb{C},\ \forall\,hge : \forall\ u:\mathbb{R},\ g(-u)=g\ u,\ \mathrm{paleyWiener}\ g\ 0=\mathrm{paleyWiener}\ g\ 1$ |
 
-### [`absolute-polarized-hodge-index-realization/lean/Hadamard.lean`](absolute-polarized-hodge-index-realization/lean/Hadamard.lean) — 181 proofs
+### [`absolute-polarized-hodge-index-realization/lean/Hadamard.lean`](absolute-polarized-hodge-index-realization/lean/Hadamard.lean) — 185 proofs
 
 | Line | Kind | Proof | Statement (LaTeX) |
 |---:|---|---|---|
@@ -481,6 +482,10 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [5377](absolute-polarized-hodge-index-realization/lean/Hadamard.lean#L5377) | theorem | `upper_log_norm_weierstrassFactor_one_div` | $\forall\,a\,z : \mathbb{C},\ \forall\,ha : a\ne\ 0,\ \forall\,hz : \Vert{}z\Vert\le\ \Vert{}a\Vert/2,\ \mathrm{Real.log}\ \Vert{}\mathrm{weierstrassFactor}\ 1(z/a)\Vert\le\ 2\cdot\ \Vert{}z\Vert/\Vert{}a\Vert$ |
 | [5427](absolute-polarized-hodge-index-realization/lean/Hadamard.lean#L5427) | theorem | `upper_log_norm_finiteCanonicalProduct_one` | $\forall\,S : \mathrm{Finset}\ \mathbb{C},\ \forall\,h_{0} : \forall\ a\ \in\ S,\ a\ne\ 0,\ \forall\,z : \mathbb{C},\ \forall\,hz : \forall\ a\ \in\ S,\ \Vert{}z\Vert\le\ \Vert{}a\Vert/2,\ \mathrm{Real.log}\ \Vert{}\mathrm{finiteCanonicalProduct}\ 1\ S\ z\Vert\le\ 2\cdot\ \Vert{}z\Vert\cdot\ \sum\ a\ \in\ S,(1/\Vert{}a\Vert)$ |
 | [5462](absolute-polarized-hodge-index-realization/lean/Hadamard.lean#L5462) | theorem | `upper_log_norm_tprod_weierstrassFactor_one` | $\forall\,a : \mathbb{N}\to\ \mathbb{C},\ \forall\,z : \mathbb{C},\ \forall\,ha_{0} : \forall\ n,\ a\ n\ne\ 0,\ \forall\,hsep : \forall\ n,\ \Vert{}z\Vert\le\ \Vert{}a\ n\Vert/2,\ \forall\,hsum : \mathrm{Summable}(\lambda\ n\Rightarrow\ 1/\Vert{}a\ n\Vert),\ \forall\,hconv : \mathrm{Multipliable}(\lambda\ n\Rightarrow\ \mathrm{weierstrassFactor}\ 1(z/a\ n)),\ \mathrm{Real.log}\ \Vert\prod'\ n,\ \mathrm{weierstrassFactor}\ 1(z/a\ n)\Vert\le\ 2\cdot\ \Vert{}z\Vert\cdot(\sum'\ n,\ 1/\Vert{}a\ n\Vert)$ |
+| [5555](absolute-polarized-hodge-index-realization/lean/Hadamard.lean#L5555) | theorem | `norm_le_of_forall_mem_sphere_le` | $\forall\,f : \mathbb{C}\to\ \mathbb{C},\ \forall\,hf : \mathrm{Differentiable}\ \mathbb{C}\ f,\ \forall\,R\,M : \mathbb{R},\ \forall\,hR : 0<R,\ \forall\,h : \forall\ w:\mathbb{C},\ \Vert{}w\Vert=R\to\ \Vert{}f\ w\Vert\le\ M,\ \forall\ z:\mathbb{C},\ \Vert{}z\Vert\le\ R\to\ \Vert{}f\ z\Vert\le\ M$ |
+| [5573](absolute-polarized-hodge-index-realization/lean/Hadamard.lean#L5573) | theorem | `circleAverage_log_norm_of_forall_ne_zero` | $\forall\,h : \mathbb{C}\to\ \mathbb{C},\ \forall\,hh : \mathrm{Differentiable}\ \mathbb{C}\ h,\ \forall\,hne : \forall\ z,\ h\ z\ne\ 0,\ \forall\,c : \mathbb{C},\ \forall\,R : \mathbb{R},\ \mathrm{Real.circleAverage}(\lambda\ z\Rightarrow\ \mathrm{Real.log}\ \Vert{}h\ z\Vert)\ c\ R=\mathrm{Real.log}\ \Vert{}h\ c\Vert$ |
+| [5605](absolute-polarized-hodge-index-realization/lean/Hadamard.lean#L5605) | theorem | `divsum_log_le_of_growth` | $\forall\,f : \mathbb{C}\to\ \mathbb{C},\ \forall\,A\,B : \mathbb{R},\ \forall\,R : \mathbb{R},\ \forall\,hR : 0<R,\ \forall\,hA : 0\le\ A,\ \forall\,hf : \mathrm{Differentiable}\ \mathbb{C}\ f,\ \forall\,h_{0} : f\ 0\ne\ 0,\ \forall\,h : \forall\ z,\ \mathrm{Real.log}\ \Vert{}f\ z\Vert\le\ A\cdot\ \Vert{}z\Vert\cdot\ \mathrm{Real.log}(\Vert{}z\Vert+2)+B,\ (\sum{}^{f}\ u,(\mathrm{MeromorphicOn.divisor}\ f(\mathrm{Metric.closedBall}\ 0\ R)).\mathrm{toFun}\ u\cdot\ \mathrm{Real.log}(R/\Vert{}u\Vert))\le\ A\cdot\ R\cdot\ \mathrm{Real.log}(R+2)+B+\vert{}\mathrm{Real.log}\ \Vert{}f\ 0\Vert\vert$ |
+| [5643](absolute-polarized-hodge-index-realization/lean/Hadamard.lean#L5643) | theorem | `divsum_log_le_of_growth_trailingCoeff` | $\forall\,f : \mathbb{C}\to\ \mathbb{C},\ \forall\,A\,B : \mathbb{R},\ \forall\,R : \mathbb{R},\ \forall\,hR : 0<R,\ \forall\,hA : 0\le\ A,\ \forall\,hf : \mathrm{Differentiable}\ \mathbb{C}\ f,\ \forall\,h_{0} : f\ 0\ne\ 0,\ \forall\,h : \forall\ z,\ \mathrm{Real.log}\ \Vert{}f\ z\Vert\le\ A\cdot\ \Vert{}z\Vert\cdot\ \mathrm{Real.log}(\Vert{}z\Vert+2)+B,\ (\sum{}^{f}\ u,(\mathrm{MeromorphicOn.divisor}\ f(\mathrm{Metric.closedBall}\ 0\ R)).\mathrm{toFun}\ u\cdot\ \mathrm{Real.log}(R/\Vert{}u\Vert))\le\ A\cdot\ R\cdot\ \mathrm{Real.log}(R+2)+B+\vert{}\mathrm{Real.log}\ \Vert{}\mathrm{meromorphicTrailingCoeffAt}\ f\ 0\Vert\vert$ |
 
 ### [`absolute-polarized-hodge-index-realization/lean/Limit.lean`](absolute-polarized-hodge-index-realization/lean/Limit.lean) — 5 proofs
 
@@ -595,22 +600,6 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [204](absolute-polarized-hodge-index-realization/lean/Rescue.lean#L204) | theorem | `kmsFormTensor_eq_of_sum_one` | $\forall\,\iota\,\kappa : \mathrm{Type}\cdot,\ \forall\,[\mathrm{Fintype}\ \iota],\ \forall\,[\mathrm{Fintype}\ \kappa],\ \forall\,p : \iota\to\ \mathbb{R},\ \forall\,\omega : \kappa\to\ \mathbb{R},\ \forall\,a : \iota\to\ \iota\to\ \mathbb{R},\ \forall\,h\omega : \sum\ \alpha,\ \omega\ \alpha=1,\ \mathrm{kmsFormTensor}\ p\ \omega\ a=\mathrm{kmsForm}\ p\ a$ |
 | [217](absolute-polarized-hodge-index-realization/lean/Rescue.lean#L217) | theorem | `kmsFormTensorDelta_eq` | $\forall\,\iota\,\kappa : \mathrm{Type}\cdot,\ \forall\,[\mathrm{Fintype}\ \iota],\ \forall\,[\mathrm{Fintype}\ \kappa],\ \forall\,[\mathrm{DecidableEq}\ \kappa],\ \forall\,p : \iota\to\ \mathbb{R},\ \forall\,\omega : \kappa\to\ \mathbb{R},\ \forall\,h\omega : \forall\ \alpha,\ 0<\omega\ \alpha,\ \forall\,a : \iota\to\ \iota\to\ \mathbb{R},\ \mathrm{kmsFormTensorDelta}\ p\ \omega\ a=\mathrm{kmsFormTensor}\ p\ \omega\ a$ |
 | [240](absolute-polarized-hodge-index-realization/lean/Rescue.lean#L240) | theorem | `kmsFormTensorDelta_eq_kmsForm` | $\forall\,\iota\,\kappa : \mathrm{Type}\cdot,\ \forall\,[\mathrm{Fintype}\ \iota],\ \forall\,[\mathrm{Fintype}\ \kappa],\ \forall\,[\mathrm{DecidableEq}\ \kappa],\ \forall\,p : \iota\to\ \mathbb{R},\ \forall\,\omega : \kappa\to\ \mathbb{R},\ \forall\,h\omega : \forall\ \alpha,\ 0<\omega\ \alpha,\ \forall\,a : \iota\to\ \iota\to\ \mathbb{R},\ \forall\,hsum : \sum\ \alpha,\ \omega\ \alpha=1,\ \mathrm{kmsFormTensorDelta}\ p\ \omega\ a=\mathrm{kmsForm}\ p\ a$ |
-
-### [`absolute-polarized-hodge-index-realization/lean/ScratchUp1.lean`](absolute-polarized-hodge-index-realization/lean/ScratchUp1.lean) — 3 proofs
-
-| Line | Kind | Proof | Statement (LaTeX) |
-|---:|---|---|---|
-| [9](absolute-polarized-hodge-index-realization/lean/ScratchUp1.lean#L9) | theorem | `log_norm_weierstrassFactor_one_div_upper` | $\forall\,a\,z : \mathbb{C},\ \forall\,ha : a\ne\ 0,\ \forall\,hz : \Vert{}z\Vert\le\ \Vert{}a\Vert/2,\ \mathrm{Real.log}\ \Vert{}\mathrm{weierstrassFactor}\ 1(z/a)\Vert\le\ 2\cdot\ \Vert{}z\Vert/\Vert{}a\Vert$ |
-| [59](absolute-polarized-hodge-index-realization/lean/ScratchUp1.lean#L59) | theorem | `log_norm_finiteCanonicalProduct_one_upper` | $\forall\,S : \mathrm{Finset}\ \mathbb{C},\ \forall\,h_{0} : \forall\ a\ \in\ S,\ a\ne\ 0,\ \forall\,z : \mathbb{C},\ \forall\,hz : \forall\ a\ \in\ S,\ \Vert{}z\Vert\le\ \Vert{}a\Vert/2,\ \mathrm{Real.log}\ \Vert{}\mathrm{finiteCanonicalProduct}\ 1\ S\ z\Vert\le\ 2\cdot\ \Vert{}z\Vert\cdot\ \sum\ a\ \in\ S,(1/\Vert{}a\Vert)$ |
-| [97](absolute-polarized-hodge-index-realization/lean/ScratchUp1.lean#L97) | theorem | `log_norm_tprod_weierstrassFactor_one_upper` | $\forall\,a : \mathbb{N}\to\ \mathbb{C},\ \forall\,z : \mathbb{C},\ \forall\,ha_{0} : \forall\ n,\ a\ n\ne\ 0,\ \forall\,hsep : \forall\ n,\ \Vert{}z\Vert\le\ \Vert{}a\ n\Vert/2,\ \forall\,hsum : \mathrm{Summable}(\lambda\ n\Rightarrow\ 1/\Vert{}a\ n\Vert),\ \forall\,hconv : \mathrm{Multipliable}(\lambda\ n\Rightarrow\ \mathrm{weierstrassFactor}\ 1(z/a\ n)),\ \mathrm{Real.log}\ \Vert\prod'\ n,\ \mathrm{weierstrassFactor}\ 1(z/a\ n)\Vert\le\ 2\cdot\ \Vert{}z\Vert\cdot(\sum'\ n,\ 1/\Vert{}a\ n\Vert)$ |
-
-### [`absolute-polarized-hodge-index-realization/lean/ScratchUp2.lean`](absolute-polarized-hodge-index-realization/lean/ScratchUp2.lean) — 3 proofs
-
-| Line | Kind | Proof | Statement (LaTeX) |
-|---:|---|---|---|
-| [13](absolute-polarized-hodge-index-realization/lean/ScratchUp2.lean#L13) | theorem | `log_norm_weierstrassFactor_one_div_upper` | $\forall\,a\,z : \mathbb{C},\ \forall\,ha : a\ne\ 0,\ \mathrm{Real.log}\ \Vert{}\mathrm{weierstrassFactor}\ 1(z/a)\Vert\le\ 2\cdot\ \Vert{}z\Vert/\Vert{}a\Vert$ |
-| [51](absolute-polarized-hodge-index-realization/lean/ScratchUp2.lean#L51) | theorem | `log_norm_finset_prod_weierstrassFactor_one_upper` | $\forall\,a : \mathbb{N}\to\ \mathbb{C},\ \forall\,S : \mathrm{Finset}\ \mathbb{N},\ \forall\,z : \mathbb{C},\ \forall\,h_{0} : \forall\ n\ \in\ S,\ a\ n\ne\ 0,\ \forall\,hz : \forall\ n\ \in\ S,\ \Vert{}z\Vert\le\ \Vert{}a\ n\Vert/2,\ \mathrm{Real.log}\ \Vert\prod\ n\ \in\ S,\ \mathrm{weierstrassFactor}\ 1(z/a\ n)\Vert\le\ 2\cdot\ \Vert{}z\Vert\cdot\ \sum\ n\ \in\ S,(1/\Vert{}a\ n\Vert)$ |
-| [85](absolute-polarized-hodge-index-realization/lean/ScratchUp2.lean#L85) | theorem | `log_norm_tprod_weierstrassFactor_one_upper` | $\forall\,a : \mathbb{N}\to\ \mathbb{C},\ \forall\,z : \mathbb{C},\ \forall\,ha_{0} : \forall\ n,\ a\ n\ne\ 0,\ \forall\,hsep : \forall\ n,\ \Vert{}z\Vert\le\ \Vert{}a\ n\Vert/2,\ \forall\,hsum : \mathrm{Summable}(\lambda\ n\Rightarrow\ 1/\Vert{}a\ n\Vert),\ \forall\,hconv : \mathrm{Multipliable}(\lambda\ n\Rightarrow\ \mathrm{weierstrassFactor}\ 1(z/a\ n)),\ \mathrm{Real.log}\ \Vert\prod'\ n,\ \mathrm{weierstrassFactor}\ 1(z/a\ n)\Vert\le\ 2\cdot\ \Vert{}z\Vert\cdot(\sum'\ n,\ 1/\Vert{}a\ n\Vert)$ |
 
 ### [`absolute-polarized-hodge-index-realization/lean/Shadow.lean`](absolute-polarized-hodge-index-realization/lean/Shadow.lean) — 48 proofs
 
@@ -750,6 +739,13 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [1978](absolute-polarized-hodge-index-realization/lean/Symbol.lean#L1978) | theorem | `circleIntegral_logDeriv_prod_eq` | $\forall\,c : \mathbb{C},\ \forall\,R : \mathbb{R},\ \forall\,S : \mathrm{Finset}\ \mathbb{C},\ \forall\,hR : 0<R,\ \forall\,hS : \forall\ w\ \in\ S,\ w\ \in\ \mathrm{Metric.ball}\ c\ R,\ \oint\ z\ \text{in}\ C(c,\ R),\ \mathrm{logDeriv}(\lambda\ y:\mathbb{C}\Rightarrow\ \prod\ w\ \in\ S,(y-w))\ z=(S.\mathrm{card}:\mathbb{C})\cdot(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ \mathrm{Complex}.I)$ |
 | [2006](absolute-polarized-hodge-index-realization/lean/Symbol.lean#L2006) | theorem | `circleIntegral_logDeriv_div_prod` | $\forall\,h : \mathbb{C}\to\ \mathbb{C},\ \forall\,c : \mathbb{C},\ \forall\,R : \mathbb{R},\ \forall\,Z\,P : \mathrm{Finset}\ \mathbb{C},\ \forall\,hR : 0<R,\ \forall\,hZ : \forall\ w\ \in\ Z,\ w\ \in\ \mathrm{Metric.ball}\ c\ R,\ \forall\,hP : \forall\ w\ \in\ P,\ w\ \in\ \mathrm{Metric.ball}\ c\ R,\ \forall\,hh : \mathrm{DifferentiableOn}\ \mathbb{C}\ h(\mathrm{Metric.ball}\ c(R+1)),\ \forall\,hne : \forall\ z\ \in\ \mathrm{Metric.ball}\ c(R+1),\ h\ z\ne\ 0,\ \oint\ z\ \text{in}\ C(c,\ R),\ \mathrm{logDeriv}(\lambda\ y:\mathbb{C}\Rightarrow(\prod\ w\ \in\ Z,(y-w))\cdot(\prod\ w\ \in\ P,(y-w))^{-1}\cdot\ h\ y)\ z=((Z.\mathrm{card}:\mathbb{C})-(P.\mathrm{card}:\mathbb{C}))\cdot(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ \mathrm{Complex}.I)$ |
 
+### [`absolute-polarized-hodge-index-realization/lean/TailBound.lean`](absolute-polarized-hodge-index-realization/lean/TailBound.lean) — 2 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [29](absolute-polarized-hodge-index-realization/lean/TailBound.lean#L29) | theorem | `norm_rectIntegral_le` | $\forall\,f : \mathbb{C}\to\ \mathbb{C},\ \forall\,x_{1}\,x_{2}\,y_{1}\,y_{2}\,M : \mathbb{R},\ \forall\,hx : x_{1}\le\ x_{2},\ \forall\,hy : y_{1}\le\ y_{2},\ \forall\,h : \forall\ z\ \in\ \mathrm{rectBoundarySet}\ x_{1}\ x_{2}\ y_{1}\ y_{2},\ \Vert{}f\ z\Vert\le\ M,\ \Vert{}\mathrm{rectIntegral}\ f\ x_{1}\ x_{2}\ y_{1}\ y_{2}\Vert\le\ M\cdot(2\cdot(x_{2}-x_{1})+2\cdot(y_{2}-y_{1}))$ |
+| [98](absolute-polarized-hodge-index-realization/lean/TailBound.lean#L98) | theorem | `zero_sum_tail_bound` | $\forall\,h : \mathbb{C}\to\ \mathbb{C},\ \forall\,S\,S' : \mathrm{Finset}\ \mathbb{C},\ \forall\,x_{1}\,x_{2}\,y_{1}\,y_{2}\,x_{1}'\,x_{2}'\,y_{1}'\,y_{2}'\,M : \mathbb{R},\ \forall\,hEF : \mathrm{rectIntegral}(\lambda\ z\Rightarrow\ \mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z)\ x_{1}\ x_{2}\ y_{1}\ y_{2}=((\sum\ \rho\ \in\ S,\ h\ \rho)-h\ 0-h\ 1)\cdot(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ I),\ \forall\,hEF' : \mathrm{rectIntegral}(\lambda\ z\Rightarrow\ \mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z)\ x_{1}'\ x_{2}'\ y_{1}'\ y_{2}'=((\sum\ \rho\ \in\ \mathrm{S'},\ h\ \rho)-h\ 0-h\ 1)\cdot(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ I),\ \forall\,hx_{1} : x_{1}'\le\ x_{2}',\ \forall\,hy_{1} : y_{1}'\le\ y_{2}',\ \forall\,hx_{2} : x_{1}\le\ x_{2},\ \forall\,hy_{2} : y_{1}\le\ y_{2},\ \forall\,hbound : \forall\ z\ \in\ \mathrm{rectBoundarySet}\ x_{1}\ x_{2}\ y_{1}\ y_{2},\ \Vert{}\mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z\Vert\le\ M,\ \forall\,hbound' : \forall\ z\ \in\ \mathrm{rectBoundarySet}\ x_{1}'\ x_{2}'\ y_{1}'\ y_{2}',\ \Vert{}\mathrm{logDeriv}\ \mathrm{completedZeta}\ z\cdot\ h\ z\Vert\le\ M,\ \Vert(\sum\ \rho\ \in\ \mathrm{S'},\ h\ \rho)-(\sum\ \rho\ \in\ S,\ h\ \rho)\Vert\le\ M/(2\cdot\ \mathrm{Real.pi})\cdot((2\cdot(x_{2}'-x_{1}')+2\cdot(y_{2}'-y_{1}'))+(2\cdot(x_{2}-x_{1})+2\cdot(y_{2}-y_{1})))$ |
+
 ### [`absolute-polarized-hodge-index-realization/lean/Weil.lean`](absolute-polarized-hodge-index-realization/lean/Weil.lean) — 2 proofs
 
 | Line | Kind | Proof | Statement (LaTeX) |
@@ -787,6 +783,262 @@ python3 the-final-letter/topics/tools/build_lean_index.py
 | [98](adelic-transfer-operator/lean/Topic.lean#L98) | theorem | `rtWeight_geom` | $\forall\,p\,N : \mathbb{N},\ \forall\,hp : p\ne\ 1,\ (\sum\ k\ \in\ \mathrm{Finset.range}\ N,\ \mathrm{rtWeight}\ p\ k)=(\mathrm{rtWeight}\ p\ N-1)/(\mathrm{rtWeight}\ p\ 1-1)$ |
 | [113](adelic-transfer-operator/lean/Topic.lean#L113) | theorem | `localDet_gt_one` | $\forall\,x : \mathbb{R},\ \forall\,h_{0} : 0<x,\ \forall\,h_{1} : x<1,\ 1<\mathrm{localDet}\ x$ |
 | [122](adelic-transfer-operator/lean/Topic.lean#L122) | theorem | `localDet_eq_tsum` | $\forall\,x : \mathbb{R},\ \forall\,h : \Vert{}x\Vert<1,\ \mathrm{localDet}\ x=\sum'\ n:\mathbb{N},\ x^{n}$ |
+
+## angular-partition-method
+
+13 Lean files · 187 named proofs.
+
+### [`angular-partition-method/lean/BernoulliZeta.lean`](angular-partition-method/lean/BernoulliZeta.lean) — 7 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [33](angular-partition-method/lean/BernoulliZeta.lean#L33) | theorem | `X_mul_expm1DivX` | $:(\mathrm{PowerSeries}.X:\mathrm{PowerSeries}\ \mathbb{C})\cdot\ \mathrm{expm1DivX}=\mathrm{PowerSeries.exp}\ \mathbb{C}-1$ |
+| [45](angular-partition-method/lean/BernoulliZeta.lean#L45) | theorem | `bernoulliPowerSeries_mul_expm1DivX` | $:\mathrm{bernoulliPowerSeries}\ \mathbb{C}\cdot\ \mathrm{expm1DivX}=1$ |
+| [59](angular-partition-method/lean/BernoulliZeta.lean#L59) | theorem | `X_mul_gSeries` | $:(\mathrm{PowerSeries}.X:\mathrm{PowerSeries}\ \mathbb{C})\cdot\ \mathrm{gSeries}=\mathrm{bernoulliPowerSeries}\ \mathbb{C}-1$ |
+| [71](angular-partition-method/lean/BernoulliZeta.lean#L71) | theorem | `gSeries_coeff` | $\forall\,k : \mathbb{N},\ \mathrm{gSeries.coeff}\ k=(\mathrm{bernoulli}(k+1):\mathbb{C})/(\mathrm{Nat.factorial}(k+1):\mathbb{C})$ |
+| [78](angular-partition-method/lean/BernoulliZeta.lean#L78) | theorem | `X_mul_exp_sub_one_mul_gSeries` | $:(\mathrm{PowerSeries}.X:\mathrm{PowerSeries}\ \mathbb{C})\cdot(\mathrm{PowerSeries.exp}\ \mathbb{C}-1)\cdot\ \mathrm{gSeries}=\mathrm{PowerSeries}.X-(\mathrm{PowerSeries.exp}\ \mathbb{C}-1)$ |
+| [98](angular-partition-method/lean/BernoulliZeta.lean#L98) | theorem | `hasSum_mul_range` | $\forall\,a\,b : \mathbb{N}\to\ \mathbb{C},\ \forall\,A\,B : \mathbb{C},\ \forall\,ha : \mathrm{HasSum}\ a\ A,\ \forall\,hb : \mathrm{HasSum}\ b\ B,\ \forall\,ha' : \mathrm{Summable}\ \lambda\ n\Rightarrow\ \Vert{}a\ n\Vert,\ \forall\,hb' : \mathrm{Summable}\ \lambda\ n\Rightarrow\ \Vert{}b\ n\Vert,\ \mathrm{HasSum}(\lambda\ n\Rightarrow\ \sum\ k\ \in\ \mathrm{Finset.range}(n+1),\ a\ k\cdot\ b(n-k))(A\cdot\ B)$ |
+| [113](angular-partition-method/lean/BernoulliZeta.lean#L113) | theorem | `hasFPowerSeriesAt_mul_ofScalars` | $\forall\,f\,g : \mathbb{C}\to\ \mathbb{C},\ \forall\,a\,b : \mathbb{N}\to\ \mathbb{C},\ \forall\,ha : \mathrm{HasFPowerSeriesAt}\ f(\mathrm{FormalMultilinearSeries.ofScalars}\ \mathbb{C}\ a)\ 0,\ \forall\,hb : \mathrm{HasFPowerSeriesAt}\ g(\mathrm{FormalMultilinearSeries.ofScalars}\ \mathbb{C}\ b)\ 0,\ \mathrm{HasFPowerSeriesAt}(\lambda\ z\Rightarrow\ f\ z\cdot\ g\ z)(\mathrm{FormalMultilinearSeries.ofScalars}\ \mathbb{C}(\lambda\ n\Rightarrow\ \sum\ k\ \in\ \mathrm{Finset.range}(n+1),\ a\ k\cdot\ b(n-k)))\ 0$ |
+
+### [`angular-partition-method/lean/BostConnes.lean`](angular-partition-method/lean/BostConnes.lean) — 12 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [31](angular-partition-method/lean/BostConnes.lean#L31) | theorem | `bostConnes_single_prime_angular` | $\forall\,p : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ \forall\,s : \mathbb{C},\ \forall\,hs : 0<s.\mathrm{re},\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow(\mathrm{bostConnesRatio}\ p\ s)^{n})(1-\mathrm{bostConnesRatio}\ p\ s)^{-1}$ |
+| [42](angular-partition-method/lean/BostConnes.lean#L42) | theorem | `bostConnes_single_prime_tsum` | $\forall\,p : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ \forall\,s : \mathbb{C},\ \forall\,hs : 0<s.\mathrm{re},\ (\sum'\ n:\mathbb{N},(\mathrm{bostConnesRatio}\ p\ s)^{n})=(1-\mathrm{bostConnesRatio}\ p\ s)^{-1}$ |
+| [50](angular-partition-method/lean/BostConnes.lean#L50) | theorem | `bostConnes_all_primes_product` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{HasProd}(\lambda\ p:\mathrm{Nat.Primes}\Rightarrow(1-(p:\mathbb{C})^{-s})^{-1})(\mathrm{riemannZeta}\ s)$ |
+| [55](angular-partition-method/lean/BostConnes.lean#L55) | theorem | `bostConnes_all_primes_tprod` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ (\prod'\ p:\mathrm{Nat.Primes},(1-(p:\mathbb{C})^{-s})^{-1})=\mathrm{riemannZeta}\ s$ |
+| [63](angular-partition-method/lean/BostConnes.lean#L63) | theorem | `log_primes_not_commensurable` | $\forall\,p\,q : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ \forall\,hq : q.\mathrm{Prime},\ \forall\,hpq : p\ne\ q,\ \forall\,m\,n : \mathbb{N},\ \forall\,hm : 0<m,\ \forall\,\_hn : 0<n,\ (m:\mathbb{R})\cdot\ \mathrm{Real.log}\ p\ne(n:\mathbb{R})\cdot\ \mathrm{Real.log}\ q$ |
+| [82](angular-partition-method/lean/BostConnes.lean#L82) | lemma | `log_natCast_of_pos` | $\forall\,p : \mathbb{N},\ \forall\,\_hp : 0<p,\ \mathrm{Complex.log}(p:\mathbb{C})=(\mathrm{Real.log}\ p:\mathbb{C})$ |
+| [87](angular-partition-method/lean/BostConnes.lean#L87) | lemma | `bostConnesRatio_eq_exp` | $\forall\,p : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ \forall\,s : \mathbb{C},\ \mathrm{bostConnesRatio}\ p\ s=\mathrm{Complex.exp}(-(s\cdot(\mathrm{Real.log}\ p:\mathbb{C})))$ |
+| [95](angular-partition-method/lean/BostConnes.lean#L95) | theorem | `meromorphicOn_bostConnesSinglePrime` | $\forall\,p : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ \mathrm{MeromorphicOn}(\mathrm{bostConnesSinglePrime}\ p)\ \mathrm{Set.univ}$ |
+| [109](angular-partition-method/lean/BostConnes.lean#L109) | theorem | `differentiableAt_bostConnesSinglePrime` | $\forall\,p : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ \forall\,s : \mathbb{C},\ \forall\,hs : \mathrm{bostConnesRatio}\ p\ s\ne\ 1,\ \mathrm{DifferentiableAt}\ \mathbb{C}(\mathrm{bostConnesSinglePrime}\ p)\ s$ |
+| [126](angular-partition-method/lean/BostConnes.lean#L126) | theorem | `bostConnesSinglePrime_pole_iff` | $\forall\,p : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ \forall\,s : \mathbb{C},\ \mathrm{bostConnesRatio}\ p\ s=1\leftrightarrow\ \exists\ k:\mathbb{Z},\ s\cdot(\mathrm{Real.log}\ p:\mathbb{C})=(k:\mathbb{C})\cdot(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ \mathrm{Complex}.I)$ |
+| [147](angular-partition-method/lean/BostConnes.lean#L147) | theorem | `bostConnes_single_prime_continuation` | $\forall\,p : \mathbb{N},\ \forall\,hp : p.\mathrm{Prime},\ (\forall\ s:\mathbb{C},\ 0<s.\mathrm{re}\to\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow(\mathrm{bostConnesRatio}\ p\ s)^{n})(\mathrm{bostConnesSinglePrime}\ p\ s))\ \land\ \mathrm{MeromorphicOn}(\mathrm{bostConnesSinglePrime}\ p)\ \mathrm{Set.univ}\ \land(\forall\ s:\mathbb{C},\ \mathrm{bostConnesRatio}\ p\ s\ne\ 1\to\ \mathrm{DifferentiableAt}\ \mathbb{C}(\mathrm{bostConnesSinglePrime}\ p)\ s)$ |
+| [162](angular-partition-method/lean/BostConnes.lean#L162) | theorem | `bostConnes_all_primes_continuation` | $:(\forall\ s:\mathbb{C},\ 1<s.\mathrm{re}\to(\prod'\ p:\mathrm{Nat.Primes},(1-(p:\mathbb{C})^{-s})^{-1})=\mathrm{riemannZeta}\ s)\ \land(\forall\ s:\mathbb{C},\ s\ne\ 1\to\ \mathrm{DifferentiableAt}\ \mathbb{C}\ \mathrm{riemannZeta}\ s)$ |
+
+### [`angular-partition-method/lean/Continuation.lean`](angular-partition-method/lean/Continuation.lean) — 54 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [55](angular-partition-method/lean/Continuation.lean#L55) | theorem | `nonneg_of_cascade` | $\forall\,g\,g' : \mathbb{R}\to\ \mathbb{R},\ \forall\,hg : \forall\ t,\ \mathrm{HasDerivAt}\ g(\mathrm{g'}\ t)\ t,\ \forall\,hg_{0} : g\ 0=0,\ \forall\,hg' : \forall\ t,\ 0\le\ t\to\ 0\le\ \mathrm{g'}\ t,\ \forall\,t : \mathbb{R},\ \forall\,ht : 0\le\ t,\ 0\le\ g\ t$ |
+| [71](angular-partition-method/lean/Continuation.lean#L71) | theorem | `hasDerivAt_G0` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 2\cdot\ t+(t-2)\cdot(\mathrm{Real.exp}\ t-1))(1+(t-1)\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [86](angular-partition-method/lean/Continuation.lean#L86) | theorem | `hasDerivAt_G1` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 1+(t-1)\cdot\ \mathrm{Real.exp}\ t)(t\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [97](angular-partition-method/lean/Continuation.lean#L97) | theorem | `phi_nonneg` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0\le\ t,\ 0\le\ 2\cdot\ t+(t-2)\cdot(\mathrm{Real.exp}\ t-1)$ |
+| [105](angular-partition-method/lean/Continuation.lean#L105) | theorem | `hasDerivAt_psi0` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow(t^{2}-6\cdot\ t+12)\cdot(\mathrm{Real.exp}\ t-1)-12\cdot\ t)((2\cdot\ t-6)\cdot(\mathrm{Real.exp}\ t-1)+(t^{2}-6\cdot\ t+12)\cdot\ \mathrm{Real.exp}\ t-12)\ t$ |
+| [124](angular-partition-method/lean/Continuation.lean#L124) | theorem | `hasDerivAt_psi1` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow(2\cdot\ t-6)\cdot(\mathrm{Real.exp}\ t-1)+(t^{2}-6\cdot\ t+12)\cdot\ \mathrm{Real.exp}\ t-12)((t^{2}-2\cdot\ t+2)\cdot\ \mathrm{Real.exp}\ t-2)\ t$ |
+| [151](angular-partition-method/lean/Continuation.lean#L151) | theorem | `hasDerivAt_psi2` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow(t^{2}-2\cdot\ t+2)\cdot\ \mathrm{Real.exp}\ t-2)(t^{2}\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [171](angular-partition-method/lean/Continuation.lean#L171) | theorem | `psi_nonneg` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0\le\ t,\ 0\le(t^{2}-6\cdot\ t+12)\cdot(\mathrm{Real.exp}\ t-1)-12\cdot\ t$ |
+| [182](angular-partition-method/lean/Continuation.lean#L182) | theorem | `regularizedReal_eq_div` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \mathrm{regularizedReal}\ t=(2\cdot\ t+(t-2)\cdot(\mathrm{Real.exp}\ t-1))/(2\cdot\ t\cdot(\mathrm{Real.exp}\ t-1))$ |
+| [193](angular-partition-method/lean/Continuation.lean#L193) | theorem | `regularizedReal_nonneg` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ 0\le\ \mathrm{regularizedReal}\ t$ |
+| [201](angular-partition-method/lean/Continuation.lean#L201) | theorem | `regularizedReal_le_div_twelve` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \mathrm{regularizedReal}\ t\le\ t/12$ |
+| [214](angular-partition-method/lean/Continuation.lean#L214) | theorem | `norm_regularizedKernel_le_div_twelve` | $\forall\,t : \mathbb{R},\ \forall\,ht_{0} : 0<t,\ \forall\,ht_{1} : t<1,\ \Vert{}\mathrm{regularizedKernel}\ t\Vert\le\ t/12$ |
+| [226](angular-partition-method/lean/Continuation.lean#L226) | theorem | `regularizedKernel_isBigO_rpow_one` | $:\mathrm{regularizedKernel}=O[\mathrm{nhdsWithin}(0:\mathbb{R})(\mathrm{Ioi}\ 0)](\lambda\ t:\mathbb{R}\Rightarrow\ t^{1:\mathbb{R}})$ |
+| [239](angular-partition-method/lean/Continuation.lean#L239) | theorem | `mellinConvergent_regularizedKernel_of_neg_one_lt` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \mathrm{MellinConvergent}\ \mathrm{regularizedKernel}\ s$ |
+| [247](angular-partition-method/lean/Continuation.lean#L247) | theorem | `differentiableAt_mellin_regularizedKernel_of_neg_one_lt` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \mathrm{DifferentiableAt}\ \mathbb{C}(\mathrm{mellin}\ \mathrm{regularizedKernel})\ s$ |
+| [263](angular-partition-method/lean/Continuation.lean#L263) | theorem | `regularizedMellin_differentiableAt_of_neg_one_lt` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \forall\,hs_{0} : s\ne\ 0,\ \forall\,hs_{1} : s\ne\ 1,\ \mathrm{DifferentiableAt}\ \mathbb{C}\ \mathrm{regularizedMellin}\ s$ |
+| [294](angular-partition-method/lean/Continuation.lean#L294) | theorem | `mellin_regularizedKernel_eqOn_upper_ext` | $:\mathrm{EqOn}(\mathrm{mellin}\ \mathrm{regularizedKernel})\ \mathrm{regularizedMellin}\ \{s:\mathbb{C}\ \vert-1<s.\mathrm{re}\ \land\ 0<s.\mathrm{im}\}$ |
+| [333](angular-partition-method/lean/Continuation.lean#L333) | theorem | `mellin_regularizedKernel_eqOn_lower_ext` | $:\mathrm{EqOn}(\mathrm{mellin}\ \mathrm{regularizedKernel})\ \mathrm{regularizedMellin}\ \{s:\mathbb{C}\ \vert-1<s.\mathrm{re}\ \land\ s.\mathrm{im}<0\}$ |
+| [368](angular-partition-method/lean/Continuation.lean#L368) | theorem | `mellin_regularizedKernel_eq_of_neg_one_lt_of_im_ne` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \forall\,him : s.\mathrm{im}\ne\ 0,\ \mathrm{mellin}\ \mathrm{regularizedKernel}\ s=\mathrm{regularizedMellin}\ s$ |
+| [381](angular-partition-method/lean/Continuation.lean#L381) | theorem | `mellin_regularizedKernel_eq_of_neg_one_lt_of_im_eq` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \forall\,hs_{0} : s\ne\ 0,\ \forall\,hs_{1} : s\ne\ 1,\ \forall\,him : s.\mathrm{im}=0,\ \mathrm{mellin}\ \mathrm{regularizedKernel}\ s=\mathrm{regularizedMellin}\ s$ |
+| [420](angular-partition-method/lean/Continuation.lean#L420) | theorem | `mellin_regularizedKernel_eq_of_neg_one_lt_re` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \forall\,hs_{0} : s\ne\ 0,\ \forall\,hs_{1} : s\ne\ 1,\ \mathrm{mellin}\ \mathrm{regularizedKernel}\ s=\mathrm{regularizedMellin}\ s$ |
+| [441](angular-partition-method/lean/Continuation.lean#L441) | theorem | `completedMellinPart_eq_completedRiemannZeta₀` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \forall\,hs_{0} : s\ne\ 0,\ \forall\,hs_{1} : s\ne\ 1,\ \mathrm{completedMellinPart}\ s=\mathrm{completedRiemannZeta}_{0}\ s$ |
+| [482](angular-partition-method/lean/Continuation.lean#L482) | theorem | `completedMellinPart_one_sub` | $\forall\,s : \mathbb{C},\ \forall\,hs_{0} : 0<s.\mathrm{re},\ \forall\,hs_{1} : s.\mathrm{re}<1,\ \mathrm{completedMellinPart}(1-s)=\mathrm{completedMellinPart}\ s$ |
+| [520](angular-partition-method/lean/Continuation.lean#L520) | theorem | `hasMellin_linCutoff` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \mathrm{HasMellin}\ \mathrm{linCutoff}\ s(-(1:\mathbb{C})/12\cdot(1/(s+1)))$ |
+| [558](angular-partition-method/lean/Continuation.lean#L558) | theorem | `regularizedKernel₂_eq_regularizedKernel_add` | $\forall\,t : \mathbb{R},\ \mathrm{regularizedKernel}_{2}\ t=\mathrm{regularizedKernel}\ t+\mathrm{linCutoff}\ t$ |
+| [565](angular-partition-method/lean/Continuation.lean#L565) | theorem | `hasDerivAt_polyP` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 2\cdot\ t^{4}-120\cdot\ t^{2}+720\cdot\ t-1440)(8\cdot\ t^{3}-240\cdot\ t+720)\ t$ |
+| [581](angular-partition-method/lean/Continuation.lean#L581) | theorem | `hasDerivAt_polyP1` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 8\cdot\ t^{3}-240\cdot\ t+720)(24\cdot\ t^{2}-240)\ t$ |
+| [593](angular-partition-method/lean/Continuation.lean#L593) | theorem | `hasDerivAt_polyP2` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 24\cdot\ t^{2}-240)(48\cdot\ t)\ t$ |
+| [602](angular-partition-method/lean/Continuation.lean#L602) | theorem | `hasDerivAt_polyR2` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 2\cdot\ t^{4}+16\cdot\ t^{3}-120\cdot\ t^{2}+240\cdot\ t)(8\cdot\ t^{3}+48\cdot\ t^{2}-240\cdot\ t+240)\ t$ |
+| [622](angular-partition-method/lean/Continuation.lean#L622) | theorem | `hasDerivAt_polyR3` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 2\cdot\ t^{4}+24\cdot\ t^{3}-48\cdot\ t^{2})(8\cdot\ t^{3}+72\cdot\ t^{2}-96\cdot\ t)\ t$ |
+| [639](angular-partition-method/lean/Continuation.lean#L639) | theorem | `hasDerivAt_polyR4` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 2\cdot\ t^{4}+32\cdot\ t^{3}+24\cdot\ t^{2}-48\cdot\ t)(8\cdot\ t^{3}+96\cdot\ t^{2}+48\cdot\ t-48)\ t$ |
+| [659](angular-partition-method/lean/Continuation.lean#L659) | theorem | `hasDerivAt_F0` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 1440\cdot\ t+(2\cdot\ t^{4}-120\cdot\ t^{2}+720\cdot\ t-1440)\cdot(\mathrm{Real.exp}\ t-1))(1440+(8\cdot\ t^{3}-240\cdot\ t+720)\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}-120\cdot\ t^{2}+720\cdot\ t-1440)\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [677](angular-partition-method/lean/Continuation.lean#L677) | theorem | `hasDerivAt_F1` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 1440+(8\cdot\ t^{3}-240\cdot\ t+720)\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}-120\cdot\ t^{2}+720\cdot\ t-1440)\cdot\ \mathrm{Real.exp}\ t)((24\cdot\ t^{2}-240)\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}+16\cdot\ t^{3}-120\cdot\ t^{2}+240\cdot\ t)\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [696](angular-partition-method/lean/Continuation.lean#L696) | theorem | `hasDerivAt_F2` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow(24\cdot\ t^{2}-240)\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}+16\cdot\ t^{3}-120\cdot\ t^{2}+240\cdot\ t)\cdot\ \mathrm{Real.exp}\ t)((48\cdot\ t)\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}+24\cdot\ t^{3}-48\cdot\ t^{2})\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [712](angular-partition-method/lean/Continuation.lean#L712) | theorem | `hasDerivAt_F3` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow(48\cdot\ t)\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}+24\cdot\ t^{3}-48\cdot\ t^{2})\cdot\ \mathrm{Real.exp}\ t)(48\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}+32\cdot\ t^{3}+24\cdot\ t^{2}-48\cdot\ t)\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [731](angular-partition-method/lean/Continuation.lean#L731) | theorem | `hasDerivAt_F4` | $\forall\,t : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ 48\cdot(\mathrm{Real.exp}\ t-1)+(2\cdot\ t^{4}+32\cdot\ t^{3}+24\cdot\ t^{2}-48\cdot\ t)\cdot\ \mathrm{Real.exp}\ t)((2\cdot\ t^{4}+40\cdot\ t^{3}+120\cdot\ t^{2})\cdot\ \mathrm{Real.exp}\ t)\ t$ |
+| [749](angular-partition-method/lean/Continuation.lean#L749) | theorem | `fcascade_nonneg` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0\le\ t,\ 0\le\ 1440\cdot\ t+(2\cdot\ t^{4}-120\cdot\ t^{2}+720\cdot\ t-1440)\cdot(\mathrm{Real.exp}\ t-1)$ |
+| [766](angular-partition-method/lean/Continuation.lean#L766) | theorem | `regularizedReal_sub_div_twelve_ge` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ t/12-t^{3}/720\le\ \mathrm{regularizedReal}\ t$ |
+| [782](angular-partition-method/lean/Continuation.lean#L782) | theorem | `norm_regularizedKernel₂_le` | $\forall\,t : \mathbb{R},\ \forall\,ht_{0} : 0<t,\ \forall\,ht_{1} : t<1,\ \Vert{}\mathrm{regularizedKernel}_{2}\ t\Vert\le\ t^{3}/720$ |
+| [794](angular-partition-method/lean/Continuation.lean#L794) | theorem | `regularizedKernel₂_isBigO_rpow_three` | $:\mathrm{regularizedKernel}_{2}=O[\mathrm{nhdsWithin}(0:\mathbb{R})(\mathrm{Ioi}\ 0)](\lambda\ t:\mathbb{R}\Rightarrow\ t^{3:\mathbb{R}})$ |
+| [809](angular-partition-method/lean/Continuation.lean#L809) | lemma | `measurable_regularizedKernel₂` | $:\mathrm{Measurable}\ \mathrm{regularizedKernel}_{2}$ |
+| [825](angular-partition-method/lean/Continuation.lean#L825) | theorem | `locallyIntegrableOn_regularizedKernel₂` | $:\mathrm{LocallyIntegrableOn}\ \mathrm{regularizedKernel}_{2}(\mathrm{Ioi}\ 0)$ |
+| [862](angular-partition-method/lean/Continuation.lean#L862) | theorem | `regularizedKernel₂_isBigO_exp` | $:\mathrm{regularizedKernel}_{2}=O[\mathrm{atTop}](\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{Real.exp}(-1\cdot\ t))$ |
+| [874](angular-partition-method/lean/Continuation.lean#L874) | theorem | `mellinConvergent_regularizedKernel₂` | $\forall\,s : \mathbb{C},\ \forall\,hs : -3<s.\mathrm{re},\ \mathrm{MellinConvergent}\ \mathrm{regularizedKernel}_{2}\ s$ |
+| [882](angular-partition-method/lean/Continuation.lean#L882) | theorem | `differentiableAt_mellin_regularizedKernel₂` | $\forall\,s : \mathbb{C},\ \forall\,hs : -3<s.\mathrm{re},\ \mathrm{DifferentiableAt}\ \mathbb{C}(\mathrm{mellin}\ \mathrm{regularizedKernel}_{2})\ s$ |
+| [900](angular-partition-method/lean/Continuation.lean#L900) | theorem | `mellin_regularizedKernel₂_eq_of_one_lt_re` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}\ \mathrm{regularizedKernel}_{2}\ s=\mathrm{regularizedMellin}_{2}\ s$ |
+| [916](angular-partition-method/lean/Continuation.lean#L916) | theorem | `mellin_regularizedKernel₂_sub` | $\forall\,s : \mathbb{C},\ \forall\,hs : -1<s.\mathrm{re},\ \mathrm{mellin}\ \mathrm{regularizedKernel}_{2}\ s=\mathrm{mellin}\ \mathrm{regularizedKernel}\ s-1/(12\cdot(s+1))$ |
+| [931](angular-partition-method/lean/Continuation.lean#L931) | theorem | `regularizedMellin₂_differentiableAt` | $\forall\,s : \mathbb{C},\ \forall\,hs : -3<s.\mathrm{re},\ \forall\,hm_{2} : s\ne-2,\ \forall\,hm_{1} : s\ne-1,\ \forall\,hs_{0} : s\ne\ 0,\ \forall\,hs_{1} : s\ne\ 1,\ \mathrm{DifferentiableAt}\ \mathbb{C}\ \mathrm{regularizedMellin}_{2}\ s$ |
+| [979](angular-partition-method/lean/Continuation.lean#L979) | theorem | `mellin_regularizedKernel₂_eqOn_upper` | $:\mathrm{EqOn}(\mathrm{mellin}\ \mathrm{regularizedKernel}_{2})\ \mathrm{regularizedMellin}_{2}\ \{s:\mathbb{C}\ \vert-3<s.\mathrm{re}\ \land\ 0<s.\mathrm{im}\}$ |
+| [1020](angular-partition-method/lean/Continuation.lean#L1020) | theorem | `mellin_regularizedKernel₂_eqOn_lower` | $:\mathrm{EqOn}(\mathrm{mellin}\ \mathrm{regularizedKernel}_{2})\ \mathrm{regularizedMellin}_{2}\ \{s:\mathbb{C}\ \vert-3<s.\mathrm{re}\ \land\ s.\mathrm{im}<0\}$ |
+| [1061](angular-partition-method/lean/Continuation.lean#L1061) | theorem | `mellin_regularizedKernel₂_eq_of_neg_three_lt_of_im_ne` | $\forall\,s : \mathbb{C},\ \forall\,hs : -3<s.\mathrm{re},\ \forall\,him : s.\mathrm{im}\ne\ 0,\ \mathrm{mellin}\ \mathrm{regularizedKernel}_{2}\ s=\mathrm{regularizedMellin}_{2}\ s$ |
+| [1070](angular-partition-method/lean/Continuation.lean#L1070) | theorem | `mellin_regularizedKernel₂_eq_of_neg_three_lt_of_im_eq` | $\forall\,s : \mathbb{C},\ \forall\,hs : -3<s.\mathrm{re},\ \forall\,hm_{2} : s\ne-2,\ \forall\,hm_{1} : s\ne-1,\ \forall\,hs_{0} : s\ne\ 0,\ \forall\,hs_{1} : s\ne\ 1,\ \forall\,him : s.\mathrm{im}=0,\ \mathrm{mellin}\ \mathrm{regularizedKernel}_{2}\ s=\mathrm{regularizedMellin}_{2}\ s$ |
+| [1111](angular-partition-method/lean/Continuation.lean#L1111) | theorem | `mellin_regularizedKernel₂_eq_of_neg_three_lt_re` | $\forall\,s : \mathbb{C},\ \forall\,hs : -3<s.\mathrm{re},\ \forall\,hm_{2} : s\ne-2,\ \forall\,hm_{1} : s\ne-1,\ \forall\,hs_{0} : s\ne\ 0,\ \forall\,hs_{1} : s\ne\ 1,\ \mathrm{mellin}\ \mathrm{regularizedKernel}_{2}\ s=\mathrm{regularizedMellin}_{2}\ s$ |
+| [1121](angular-partition-method/lean/Continuation.lean#L1121) | theorem | `regularizedMellin₂_residue_neg_one` | $:\mathrm{Filter.Tendsto}(\lambda\ s:\mathbb{C}\Rightarrow(s+1)\cdot\ \mathrm{regularizedMellin}_{2}\ s)(\mathrm{nhdsWithin}(-1:\mathbb{C})(\{-1\}:\mathrm{Set}\ \mathbb{C})^{c})(\mathrm{nhds}\ 0)$ |
+
+### [`angular-partition-method/lean/ContinuousCoil.lean`](angular-partition-method/lean/ContinuousCoil.lean) — 9 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [43](angular-partition-method/lean/ContinuousCoil.lean#L43) | theorem | `hasSum_shiftedZetaKernel` | $\forall\,x\,t : \mathbb{R},\ \forall\,\_hx : 0<x,\ \forall\,ht : 0<t,\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow(1:\mathbb{C})\cdot(\mathrm{Real.exp}(-(x+n)\cdot\ t):\mathbb{C}))(\mathrm{shiftedZetaKernel}\ x\ t)$ |
+| [78](angular-partition-method/lean/ContinuousCoil.lean#L78) | theorem | `hasSum_mellin_shiftedZetaKernel` | $\forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow\ \mathrm{Gamma}\ s\cdot\ 1/(((x+n:\mathbb{R}):\mathbb{C})^{s}))(\mathrm{mellin}(\mathrm{shiftedZetaKernel}\ x)\ s)$ |
+| [105](angular-partition-method/lean/ContinuousCoil.lean#L105) | theorem | `mellin_shiftedZetaKernel_eq` | $\forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}(\mathrm{shiftedZetaKernel}\ x)\ s=\mathrm{Gamma}\ s\cdot\ \mathrm{shiftedTail}\ x\ s$ |
+| [123](angular-partition-method/lean/ContinuousCoil.lean#L123) | theorem | `continuousCoil_eq_integral` | $\forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{continuousCoil}\ s\ x=(\mathrm{Gamma}\ s)^{-1}\cdot\ \mathrm{mellin}(\mathrm{shiftedZetaKernel}\ x)\ s$ |
+| [139](angular-partition-method/lean/ContinuousCoil.lean#L139) | theorem | `integral_Ioi_rpow_neg_eq_inv_sub_one` | $\forall\,\sigma : \mathbb{R},\ \forall\,h\sigma : 1<\sigma,\ \int\ x:\mathbb{R}\ \text{in}\ \mathrm{Ioi}(1:\mathbb{R}),\ x^{-\sigma}=(\sigma-1)^{-1}$ |
+| [150](angular-partition-method/lean/ContinuousCoil.lean#L150) | theorem | `integral_Ioi_rpow_neg_eq_continuousIntegralCoil` | $\forall\,\sigma\,x : \mathbb{R},\ \forall\,h\sigma : 1<\sigma,\ \forall\,hx : 0<x,\ \int\ t:\mathbb{R}\ \text{in}\ \mathrm{Ioi}\ x,\ t^{-\sigma}=\mathrm{continuousIntegralCoil}\ \sigma\ x$ |
+| [165](angular-partition-method/lean/ContinuousCoil.lean#L165) | theorem | `hasDerivAt_continuousIntegralCoil` | $\forall\,\sigma : \mathbb{R},\ \forall\,h\sigma : 1<\sigma,\ \forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \mathrm{HasDerivAt}(\mathrm{continuousIntegralCoil}\ \sigma)(-(x^{-\sigma}))\ x$ |
+| [192](angular-partition-method/lean/ContinuousCoil.lean#L192) | theorem | `cpow_selfSimilar_factor` | $\forall\,s : \mathbb{C},\ \forall\,ht : s.\mathrm{im}\ne\ 0,\ ((\mathrm{Real.exp}(2\cdot\ \mathrm{Real.pi}/\vert{}s.\mathrm{im}\vert):\mathbb{R}):\mathbb{C})^{1-s}=(\mathrm{Real.exp}(-(2\cdot\ \mathrm{Real.pi}\cdot(s.\mathrm{re}-1)/\vert{}s.\mathrm{im}\vert)):\mathbb{C})$ |
+| [243](angular-partition-method/lean/ContinuousCoil.lean#L243) | theorem | `continuousComplexCoil_selfSimilar` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \forall\,ht : s.\mathrm{im}\ne\ 0,\ \forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \mathrm{continuousComplexCoil}\ s(\mathrm{Real.exp}(2\cdot\ \mathrm{Real.pi}/\vert{}s.\mathrm{im}\vert)\cdot\ x)=(\mathrm{Real.exp}(-(2\cdot\ \mathrm{Real.pi}\cdot(s.\mathrm{re}-1)/\vert{}s.\mathrm{im}\vert)):\mathbb{C})\cdot\ \mathrm{continuousComplexCoil}\ s\ x$ |
+
+### [`angular-partition-method/lean/CriticalStrip.lean`](angular-partition-method/lean/CriticalStrip.lean) — 7 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [30](angular-partition-method/lean/CriticalStrip.lean#L30) | theorem | `regularizedMellin_eq_mellin_sub_poles` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{regularizedMellin}\ s=\mathrm{mellin}\ \mathrm{zetaKernel}\ s-1/(s-1)+1/(2\cdot\ s)$ |
+| [38](angular-partition-method/lean/CriticalStrip.lean#L38) | theorem | `regularizedMellin_differentiableAt_of_ne` | $\forall\,s : \mathbb{C},\ \forall\,hs_{0} : 0<s.\mathrm{re},\ \forall\,hs_{1} : s\ne\ 1,\ \mathrm{DifferentiableAt}\ \mathbb{C}\ \mathrm{regularizedMellin}\ s$ |
+| [69](angular-partition-method/lean/CriticalStrip.lean#L69) | theorem | `regularizedMellin_differentiableAt` | $\forall\,s : \mathbb{C},\ \forall\,hs_{0} : 0<s.\mathrm{re},\ \forall\,hs_{1} : s.\mathrm{re}<1,\ \mathrm{DifferentiableAt}\ \mathbb{C}\ \mathrm{regularizedMellin}\ s$ |
+| [79](angular-partition-method/lean/CriticalStrip.lean#L79) | theorem | `completedRiemannZeta_finite_part` | $\forall\,s : \mathbb{C},\ \mathrm{completedRiemannZeta}\ s=\mathrm{completedRiemannZeta}_{0}\ s-1/s-1/(1-s)$ |
+| [84](angular-partition-method/lean/CriticalStrip.lean#L84) | theorem | `completedRiemannZeta₀_functional_equation` | $\forall\,s : \mathbb{C},\ \mathrm{completedRiemannZeta}_{0}(1-s)=\mathrm{completedRiemannZeta}_{0}\ s$ |
+| [94](angular-partition-method/lean/CriticalStrip.lean#L94) | theorem | `regularizedMellin_residue_one` | $:\mathrm{Filter.Tendsto}(\lambda\ s:\mathbb{C}\Rightarrow(s-1)\cdot(\mathrm{Gamma}\ s\cdot\ \mathrm{riemannZeta}\ s))(\mathrm{nhdsWithin}\ 1(\{1\}:\mathrm{Set}\ \mathbb{C})^{c})(\mathrm{nhds}\ 1)$ |
+| [109](angular-partition-method/lean/CriticalStrip.lean#L109) | theorem | `regularizedMellin_residue_zero` | $:\mathrm{Filter.Tendsto}(\lambda\ s:\mathbb{C}\Rightarrow\ s\cdot(\mathrm{Gamma}\ s\cdot\ \mathrm{riemannZeta}\ s))(\mathrm{nhdsWithin}\ 0(\{0\}:\mathrm{Set}\ \mathbb{C})^{c})(\mathrm{nhds}(-(2^{-1})))$ |
+
+### [`angular-partition-method/lean/EulerProduct.lean`](angular-partition-method/lean/EulerProduct.lean) — 7 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [29](angular-partition-method/lean/EulerProduct.lean#L29) | theorem | `nthPrime_injective` | $:\mathrm{Function.Injective}\ \mathrm{nthPrime}$ |
+| [38](angular-partition-method/lean/EulerProduct.lean#L38) | theorem | `finite_eulerProduct_exp_log` | $\forall\,P : \mathrm{Finset}\ \mathbb{N},\ \forall\,s : \mathbb{C},\ \forall\,h : \forall\ p\ \in\ P,\ 1-(p:\mathbb{C})^{-s}\ne\ 0,\ (\prod\ p\ \in\ P,(1-(p:\mathbb{C})^{-s})^{-1})=\mathrm{Complex.exp}(\sum\ p\ \in\ P,-\mathrm{Complex.log}(1-(p:\mathbb{C})^{-s}))$ |
+| [50](angular-partition-method/lean/EulerProduct.lean#L50) | theorem | `eulerLogSeries_summable` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{Summable}(\lambda\ p:\mathrm{Nat.Primes}\Rightarrow-\mathrm{Complex.log}(1-(p:\mathbb{C})^{-s}))$ |
+| [62](angular-partition-method/lean/EulerProduct.lean#L62) | theorem | `riemannZeta_eulerProduct_exp_log` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{Complex.exp}(\sum'\ p:\mathrm{Nat.Primes},-\mathrm{Complex.log}(1-(p:\mathbb{C})^{-s}))=\mathrm{riemannZeta}\ s$ |
+| [72](angular-partition-method/lean/EulerProduct.lean#L72) | theorem | `riemannZeta_eulerProduct_product_to_sum` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{Summable}(\lambda\ p:\mathrm{Nat.Primes}\Rightarrow-\mathrm{Complex.log}(1-(p:\mathbb{C})^{-s}))\ \land\ \mathrm{Complex.exp}(\sum'\ p:\mathrm{Nat.Primes},-\mathrm{Complex.log}(1-(p:\mathbb{C})^{-s}))=\mathrm{riemannZeta}\ s$ |
+| [78](angular-partition-method/lean/EulerProduct.lean#L78) | theorem | `eulerLogSeries_summable_nth` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{Summable}(\lambda\ n:\mathbb{N}\Rightarrow-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n)))$ |
+| [88](angular-partition-method/lean/EulerProduct.lean#L88) | theorem | `eulerLogSeries_coil` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ (\forall\ n,-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n))=\mathrm{ctail}(\lambda\ n:\mathbb{N}\Rightarrow-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n)))\ n-\mathrm{ctail}(\lambda\ n:\mathbb{N}\Rightarrow-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n)))(n+1))\ \land(\forall\ n,\ \mathrm{ctail}(\lambda\ n:\mathbb{N}\Rightarrow-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n)))\ n=(\mathrm{coilRadius}(\lambda\ n:\mathbb{N}\Rightarrow-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n)))\ n:\mathbb{C})\cdot\ \mathrm{Complex.exp}(\mathrm{coilAngle}(\lambda\ n:\mathbb{N}\Rightarrow-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n)))\ n\cdot\ \mathrm{Complex}.I))\ \land\ \mathrm{Filter.Tendsto}(\lambda\ n\Rightarrow\ \mathrm{ctail}(\lambda\ n:\mathbb{N}\Rightarrow-\mathrm{Complex.log}(1-\mathrm{riemannZetaSummandHom}(\mathrm{Complex.ne}_{\mathrm{zero}_{\mathrm{of}_{\mathrm{one}_{\mathrm{lt}_{\mathrm{re}}}}}}\ \mathrm{hs})(\mathrm{nthPrime}\ n)))\ n)\ \mathrm{Filter.atTop}(\mathrm{nhds}\ 0)$ |
+
+### [`angular-partition-method/lean/ExplicitFormula.lean`](angular-partition-method/lean/ExplicitFormula.lean) — 2 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [28](angular-partition-method/lean/ExplicitFormula.lean#L28) | theorem | `explicitFormula_poleContour` | $\forall\,h : \mathbb{C}\to\ \mathbb{C},\ \forall\,c : \mathbb{C},\ \forall\,R : \mathbb{R},\ \forall\,h_{0} : (0:\mathbb{C})\ \in\ \mathrm{ball}\ c\ R,\ \forall\,h_{1} : (1:\mathbb{C})\ \in\ \mathrm{ball}\ c\ R,\ \forall\,hd : \mathrm{DiffContOnCl}\ \mathbb{C}\ h(\mathrm{ball}\ c\ R),\ (\oint\ z\ \text{in}\ C(c,\ R),\ \mathrm{poleKernel}\ z\cdot\ h\ z)=(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ I)\cdot(h\ 1-h\ 0)$ |
+| [81](angular-partition-method/lean/ExplicitFormula.lean#L81) | theorem | `explicitFormula_poleContour_residue_form` | $\forall\,h : \mathbb{C}\to\ \mathbb{C},\ \forall\,c : \mathbb{C},\ \forall\,R : \mathbb{R},\ \forall\,h_{0} : (0:\mathbb{C})\ \in\ \mathrm{ball}\ c\ R,\ \forall\,h_{1} : (1:\mathbb{C})\ \in\ \mathrm{ball}\ c\ R,\ \forall\,hd : \mathrm{DiffContOnCl}\ \mathbb{C}\ h(\mathrm{ball}\ c\ R),\ (\oint\ z\ \text{in}\ C(c,\ R),\ \mathrm{poleKernel}\ z\cdot\ h\ z)=(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ I)\cdot\ h\ 1+(2\cdot(\mathrm{Real.pi}:\mathbb{C})\cdot\ I)\cdot(-h\ 0)$ |
+
+### [`angular-partition-method/lean/GeneralSubtraction.lean`](angular-partition-method/lean/GeneralSubtraction.lean) — 18 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [37](angular-partition-method/lean/GeneralSubtraction.lean#L37) | theorem | `norm_exp_sub_one_ge` | $\forall\,z : \mathbb{C},\ \forall\,hz : \Vert{}z\Vert\le\ 1/2,\ \Vert{}z\Vert/2\le\ \Vert{}\mathrm{Complex.exp}\ z-1\Vert$ |
+| [51](angular-partition-method/lean/GeneralSubtraction.lean#L51) | theorem | `norm_generalKernelC_le` | $\forall\,z : \mathbb{C},\ \forall\,hz_{0} : z\ne\ 0,\ \forall\,hz : \Vert{}z\Vert\le\ 1/2,\ \Vert{}\mathrm{generalKernelC}\ z\Vert\le\ 2$ |
+| [79](angular-partition-method/lean/GeneralSubtraction.lean#L79) | theorem | `analyticAt_generalKernelC_zero` | $:\mathrm{AnalyticAt}\ \mathbb{C}(\mathrm{Function.update}\ \mathrm{generalKernelC}\ 0(\mathrm{limUnder}(\mathcal{N}[\ne]\ 0)\ \mathrm{generalKernelC}))\ 0$ |
+| [118](angular-partition-method/lean/GeneralSubtraction.lean#L118) | theorem | `analyticAt_generalKernelExt_zero` | $:\mathrm{AnalyticAt}\ \mathbb{C}\ \mathrm{generalKernelExt}\ 0$ |
+| [124](angular-partition-method/lean/GeneralSubtraction.lean#L124) | theorem | `exists_taylorRemainder` | $\forall\,n : \mathbb{N},\ \exists\ p:\mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \mathrm{HasFPowerSeriesAt}\ \mathrm{generalKernelExt}\ p\ 0\ \land(\lambda\ z:\mathbb{C}\Rightarrow\ \mathrm{generalKernelExt}\ z-p.\mathrm{partialSum}\ n\ z)=O[\mathcal{N}\ 0]\ \lambda\ z\Rightarrow\ \Vert{}z\Vert^{n}$ |
+| [134](angular-partition-method/lean/GeneralSubtraction.lean#L134) | theorem | `partialSum_eq_sum_coeff` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \forall\,z : \mathbb{C},\ p.\mathrm{partialSum}\ n\ z=\sum\ k\ \in\ \mathrm{Finset.range}\ n,\ p.\mathrm{coeff}\ k\cdot\ z^{k}$ |
+| [160](angular-partition-method/lean/GeneralSubtraction.lean#L160) | theorem | `subtractedKernel_isBigO_zero` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \forall\,hp : \mathrm{HasFPowerSeriesAt}\ \mathrm{generalKernelExt}\ p\ 0,\ (\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{subtractedKernel}\ p\ n\ t)=O[\mathcal{N}[>]\ 0]\ \lambda\ t:\mathbb{R}\Rightarrow\ t^{n}$ |
+| [196](angular-partition-method/lean/GeneralSubtraction.lean#L196) | theorem | `hasMellin_finset_sum` | $\forall\,\iota : \mathrm{Type}\cdot,\ \forall\,s : \mathrm{Finset}\ \iota,\ \forall\,f : \iota\to\ \mathbb{R}\to\ \mathbb{C},\ \forall\,v : \iota\to\ \mathbb{C},\ \forall\,z : \mathbb{C},\ \forall\,h : \forall\ i\ \in\ s,\ \mathrm{HasMellin}(f\ i)\ z(v\ i),\ \mathrm{HasMellin}(\lambda\ t\Rightarrow\ \sum\ i\ \in\ s,\ f\ i\ t)\ z(\sum\ i\ \in\ s,\ v\ i)$ |
+| [220](angular-partition-method/lean/GeneralSubtraction.lean#L220) | theorem | `hasMellin_cutoffN` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{HasMellin}(\mathrm{cutoffN}\ p\ n)\ s(1/(s-1)+\sum\ k\ \in\ \mathrm{Finset.range}\ n,\ p.\mathrm{coeff}\ k\cdot(1/(s+(k:\mathbb{C}))))$ |
+| [269](angular-partition-method/lean/GeneralSubtraction.lean#L269) | lemma | `zetaKernelR_eq_zetaKernel` | $:\mathrm{zetaKernelR}=\mathrm{zetaKernel}$ |
+| [276](angular-partition-method/lean/GeneralSubtraction.lean#L276) | theorem | `mellin_subtractedKernel_eq` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}(\mathrm{subtractedKernel}\ p\ n)\ s=\mathrm{Complex.Gamma}\ s\cdot\ \mathrm{riemannZeta}\ s-(1/(s-1)+\sum\ k\ \in\ \mathrm{Finset.range}\ n,\ p.\mathrm{coeff}\ k\cdot(1/(s+(k:\mathbb{C}))))$ |
+| [292](angular-partition-method/lean/GeneralSubtraction.lean#L292) | theorem | `continuousOn_zetaKernelR` | $:\mathrm{ContinuousOn}\ \mathrm{zetaKernelR}(\mathrm{Ioi}\ 0)$ |
+| [303](angular-partition-method/lean/GeneralSubtraction.lean#L303) | theorem | `continuousOn_cutoffFormula` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \mathrm{ContinuousOn}(\lambda\ t:\mathbb{R}\Rightarrow(t:\mathbb{C})^{-1:\mathbb{C}}+\sum\ k\ \in\ \mathrm{Finset.range}\ n,\ p.\mathrm{coeff}\ k\cdot(t:\mathbb{C})^{k:\mathbb{C}})(\mathrm{Ioi}\ 0)$ |
+| [315](angular-partition-method/lean/GeneralSubtraction.lean#L315) | theorem | `locallyIntegrableOn_subtractedKernel` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \mathrm{LocallyIntegrableOn}(\mathrm{subtractedKernel}\ p\ n)(\mathrm{Ioi}\ 0)$ |
+| [362](angular-partition-method/lean/GeneralSubtraction.lean#L362) | theorem | `subtractedKernel_isBigO_atTop` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ (\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{subtractedKernel}\ p\ n\ t)=O[\mathrm{atTop}]\ \lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{Real.exp}(-t)$ |
+| [377](angular-partition-method/lean/GeneralSubtraction.lean#L377) | theorem | `mellinConvergent_subtractedKernel` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \forall\,hp : \mathrm{HasFPowerSeriesAt}\ \mathrm{generalKernelExt}\ p\ 0,\ \forall\,s : \mathbb{C},\ \forall\,hs : -(n:\mathbb{R})<s.\mathrm{re},\ \mathrm{MellinConvergent}(\mathrm{subtractedKernel}\ p\ n)\ s$ |
+| [386](angular-partition-method/lean/GeneralSubtraction.lean#L386) | theorem | `mellin_differentiableAt_subtractedKernel` | $\forall\,p : \mathrm{FormalMultilinearSeries}\ \mathbb{C}\ \mathbb{C}\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \forall\,hp : \mathrm{HasFPowerSeriesAt}\ \mathrm{generalKernelExt}\ p\ 0,\ \forall\,s : \mathbb{C},\ \forall\,hs : -(n:\mathbb{R})<s.\mathrm{re},\ \mathrm{DifferentiableAt}\ \mathbb{C}(\mathrm{mellin}(\mathrm{subtractedKernel}\ p\ n))\ s$ |
+| [398](angular-partition-method/lean/GeneralSubtraction.lean#L398) | theorem | `kernel_mul_identity` | $\forall\,z : \mathbb{C},\ \forall\,hz : z\ne\ 0,\ \forall\,he : \mathrm{Complex.exp}\ z\ne\ 1,\ z\cdot(\mathrm{Complex.exp}\ z-1)\cdot\ \mathrm{generalKernelExt}\ z=z-(\mathrm{Complex.exp}\ z-1)$ |
+
+### [`angular-partition-method/lean/Gram.lean`](angular-partition-method/lean/Gram.lean) — 4 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [44](angular-partition-method/lean/Gram.lean#L44) | theorem | `gramQuad_eq_norm_sq` | $\forall\,v : \iota\to\ E,\ \forall\,c : \iota\to\ \mathbb{R},\ \mathrm{gramQuad}\ v\ c=\Vert\sum\ i,\ c\ i\ \bullet\ v\ i\Vert^{2}$ |
+| [59](angular-partition-method/lean/Gram.lean#L59) | theorem | `gramQuad_nonneg` | $\forall\,v : \iota\to\ E,\ \forall\,c : \iota\to\ \mathbb{R},\ 0\le\ \mathrm{gramQuad}\ v\ c$ |
+| [65](angular-partition-method/lean/Gram.lean#L65) | theorem | `gramMatrix_posSemidef` | $\forall\,v : \iota\to\ E,\ (\mathrm{gramMatrix}\ v).\mathrm{PosSemidef}$ |
+| [73](angular-partition-method/lean/Gram.lean#L73) | theorem | `gramMatrix_quadForm_nonneg` | $\forall\,v : \iota\to\ E,\ \forall\,c : \iota\to\ \mathbb{R},\ 0\le\ \sum\ i,\ \sum\ j,\ c\ i\cdot\ \mathrm{gramMatrix}\ v\ i\ j\cdot\ c\ j$ |
+
+### [`angular-partition-method/lean/Mellin.lean`](angular-partition-method/lean/Mellin.lean) — 7 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [23](angular-partition-method/lean/Mellin.lean#L23) | theorem | `hasSum_zetaKernel_real` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow\ \mathrm{rexp}(-(((n+1:\mathbb{N}):\mathbb{R}))\cdot\ t))(1/(\mathrm{rexp}\ t-1))$ |
+| [47](angular-partition-method/lean/Mellin.lean#L47) | theorem | `hasSum_zetaKernel` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow(1:\mathbb{C})\cdot\ \mathrm{rexp}(-(((n+1:\mathbb{N}):\mathbb{R}))\cdot\ t))(\mathrm{zetaKernel}\ t)$ |
+| [57](angular-partition-method/lean/Mellin.lean#L57) | theorem | `hasSum_mellin_zetaKernel` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow\ \mathrm{Gamma}\ s\cdot\ 1/(((n+1:\mathbb{N}):\mathbb{C})^{s}))(\mathrm{mellin}\ \mathrm{zetaKernel}\ s)$ |
+| [81](angular-partition-method/lean/Mellin.lean#L81) | theorem | `mellin_zetaKernel_eq_Gamma_mul_zeta` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}\ \mathrm{zetaKernel}\ s=\mathrm{Gamma}\ s\cdot\ \mathrm{riemannZeta}\ s$ |
+| [93](angular-partition-method/lean/Mellin.lean#L93) | theorem | `completedRiemannZeta_eq_GammaR_mul_zeta` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{completedRiemannZeta}\ s=\mathrm{Gamma}\mathbb{R}\ s\cdot\ \mathrm{riemannZeta}\ s$ |
+| [106](angular-partition-method/lean/Mellin.lean#L106) | theorem | `completedRiemannZeta_functional_equation` | $\forall\,s : \mathbb{C},\ \mathrm{completedRiemannZeta}(1-s)=\mathrm{completedRiemannZeta}\ s$ |
+| [118](angular-partition-method/lean/Mellin.lean#L118) | theorem | `mellin_zetaKernel_norm_le` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \Vert{}\mathrm{mellin}\ \mathrm{zetaKernel}\ s\Vert\le\ \Vert{}\mathrm{Gamma}\ s\Vert\cdot(\sum'\ n:\mathbb{N},(1:\mathbb{R})/((((n+1:\mathbb{N}):\mathbb{R})^{s.\mathrm{re}})))$ |
+
+### [`angular-partition-method/lean/RegularizedIntegral.lean`](angular-partition-method/lean/RegularizedIntegral.lean) — 29 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [23](angular-partition-method/lean/RegularizedIntegral.lean#L23) | theorem | `abs_regularized_real_le` | $\forall\,t : \mathbb{R},\ \forall\,ht_{0} : 0<t,\ \forall\,ht_{1} : t<1,\ \vert1/(\mathrm{rexp}\ t-1)-1/t\vert\le\ 1$ |
+| [46](angular-partition-method/lean/RegularizedIntegral.lean#L46) | theorem | `norm_regularizedKernel_le` | $\forall\,t : \mathbb{R},\ \forall\,ht_{0} : 0<t,\ \forall\,ht_{1} : t<1,\ \Vert{}\mathrm{regularizedKernel}\ t\Vert\le(3/2:\mathbb{R})$ |
+| [68](angular-partition-method/lean/RegularizedIntegral.lean#L68) | theorem | `norm_zetaKernel_le_two_div` | $\forall\,t : \mathbb{R},\ \forall\,ht : 1\le\ t,\ \Vert{}\mathrm{zetaKernel}\ t\Vert\le\ 2/t$ |
+| [94](angular-partition-method/lean/RegularizedIntegral.lean#L94) | theorem | `measurable_regularizedKernel` | $:\mathrm{Measurable}\ \mathrm{regularizedKernel}$ |
+| [109](angular-partition-method/lean/RegularizedIntegral.lean#L109) | theorem | `integrableOn_regularizedKernel_Ioo` | $\forall\,s : \mathbb{C},\ \forall\,hs_{0} : 0<s.\mathrm{re},\ \mathrm{IntegrableOn}(\lambda\ t:\mathbb{R}\Rightarrow(t:\mathbb{C})^{s-1}\ \bullet\ \mathrm{regularizedKernel}\ t)(\mathrm{Ioo}\ 0\ 1)$ |
+| [153](angular-partition-method/lean/RegularizedIntegral.lean#L153) | theorem | `integrableOn_regularizedKernel_Ioi` | $\forall\,s : \mathbb{C},\ \forall\,hs_{1} : s.\mathrm{re}<1,\ \mathrm{IntegrableOn}(\lambda\ t:\mathbb{R}\Rightarrow(t:\mathbb{C})^{s-1}\ \bullet\ \mathrm{regularizedKernel}\ t)(\mathrm{Ioi}\ 1)$ |
+| [205](angular-partition-method/lean/RegularizedIntegral.lean#L205) | theorem | `mellinConvergent_regularizedKernel` | $\forall\,s : \mathbb{C},\ \forall\,hs_{0} : 0<s.\mathrm{re},\ \forall\,hs_{1} : s.\mathrm{re}<1,\ \mathrm{MellinConvergent}\ \mathrm{regularizedKernel}\ s$ |
+| [241](angular-partition-method/lean/RegularizedIntegral.lean#L241) | theorem | `locallyIntegrableOn_regularizedKernel` | $:\mathrm{LocallyIntegrableOn}\ \mathrm{regularizedKernel}(\mathrm{Ioi}\ 0)$ |
+| [276](angular-partition-method/lean/RegularizedIntegral.lean#L276) | theorem | `norm_zetaKernel_le_two_exp_neg` | $\forall\,t : \mathbb{R},\ \forall\,ht : 1\le\ t,\ \Vert{}\mathrm{zetaKernel}\ t\Vert\le\ 2\cdot\ \mathrm{Real.exp}(-t)$ |
+| [298](angular-partition-method/lean/RegularizedIntegral.lean#L298) | theorem | `regularizedKernel_isBigO_exp` | $:\mathrm{regularizedKernel}=O[\mathrm{atTop}](\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{Real.exp}(-1\cdot\ t))$ |
+| [309](angular-partition-method/lean/RegularizedIntegral.lean#L309) | theorem | `regularizedKernel_isBigO_one` | $:\mathrm{regularizedKernel}=O[\mathrm{nhdsWithin}(0:\mathbb{R})(\mathrm{Ioi}\ 0)](\lambda\ t:\mathbb{R}\Rightarrow\ t^{-(0:\mathbb{R})})$ |
+| [320](angular-partition-method/lean/RegularizedIntegral.lean#L320) | theorem | `differentiableAt_mellin_regularizedKernel` | $\forall\,s : \mathbb{C},\ \forall\,hs : 0<s.\mathrm{re},\ \mathrm{DifferentiableAt}\ \mathbb{C}(\mathrm{mellin}\ \mathrm{regularizedKernel})\ s$ |
+| [332](angular-partition-method/lean/RegularizedIntegral.lean#L332) | theorem | `mellinConvergent_regularizedKernel_of_pos` | $\forall\,s : \mathbb{C},\ \forall\,hs : 0<s.\mathrm{re},\ \mathrm{MellinConvergent}\ \mathrm{regularizedKernel}\ s$ |
+| [347](angular-partition-method/lean/RegularizedIntegral.lean#L347) | theorem | `regularizedKernel_eq_zetaKernel_add_cutoff` | $\forall\,t : \mathbb{R},\ \mathrm{regularizedKernel}\ t=\mathrm{zetaKernel}\ t+\mathrm{cutoff}\ t$ |
+| [355](angular-partition-method/lean/RegularizedIntegral.lean#L355) | theorem | `mellin_add` | $\forall\,f\,g : \mathbb{R}\to\ \mathbb{C},\ \forall\,s : \mathbb{C},\ \forall\,hf : \mathrm{MellinConvergent}\ f\ s,\ \forall\,hg : \mathrm{MellinConvergent}\ g\ s,\ \mathrm{mellin}(f+g)\ s=\mathrm{mellin}\ f\ s+\mathrm{mellin}\ g\ s$ |
+| [368](angular-partition-method/lean/RegularizedIntegral.lean#L368) | lemma | `measurable_zetaKernel` | $:\mathrm{Measurable}\ \mathrm{zetaKernel}$ |
+| [373](angular-partition-method/lean/RegularizedIntegral.lean#L373) | theorem | `locallyIntegrableOn_zetaKernel` | $:\mathrm{LocallyIntegrableOn}\ \mathrm{zetaKernel}(\mathrm{Ioi}\ 0)$ |
+| [410](angular-partition-method/lean/RegularizedIntegral.lean#L410) | theorem | `mellinConvergent_zetaKernel` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{MellinConvergent}\ \mathrm{zetaKernel}\ s$ |
+| [437](angular-partition-method/lean/RegularizedIntegral.lean#L437) | lemma | `measurable_cutoff` | $:\mathrm{Measurable}\ \mathrm{cutoff}$ |
+| [446](angular-partition-method/lean/RegularizedIntegral.lean#L446) | theorem | `locallyIntegrableOn_cutoff` | $:\mathrm{LocallyIntegrableOn}\ \mathrm{cutoff}(\mathrm{Ioi}\ 0)$ |
+| [481](angular-partition-method/lean/RegularizedIntegral.lean#L481) | theorem | `mellinConvergent_cutoff` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{MellinConvergent}\ \mathrm{cutoff}\ s$ |
+| [522](angular-partition-method/lean/RegularizedIntegral.lean#L522) | theorem | `mellin_cutoff_eq_setIntegral` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}\ \mathrm{cutoff}\ s=\int\ t\ \text{in}\ \mathrm{Ioc}(0:\mathbb{R})\ 1,(t:\mathbb{C})^{s-1}\ \bullet\ \mathrm{cutoff}\ t$ |
+| [546](angular-partition-method/lean/RegularizedIntegral.lean#L546) | theorem | `integral_cpow_zero_one` | $\forall\,r : \mathbb{C},\ \forall\,hr : -1<r.\mathrm{re},\ (\int\ t\ \text{in}(0:\mathbb{R})..1,(t:\mathbb{C})^{r})=1/(r+1)$ |
+| [561](angular-partition-method/lean/RegularizedIntegral.lean#L561) | theorem | `mellin_cutoff_eq` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}\ \mathrm{cutoff}\ s=-1/(s-1)+1/(2\cdot\ s)$ |
+| [619](angular-partition-method/lean/RegularizedIntegral.lean#L619) | theorem | `mellin_regularizedKernel_eq_of_one_lt_re` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}\ \mathrm{regularizedKernel}\ s=\mathrm{regularizedMellin}\ s$ |
+| [635](angular-partition-method/lean/RegularizedIntegral.lean#L635) | theorem | `mellin_regularizedKernel_eqOn_upper` | $:\mathrm{EqOn}(\mathrm{mellin}\ \mathrm{regularizedKernel})\ \mathrm{regularizedMellin}\ \{s:\mathbb{C}\ \vert\ 0<s.\mathrm{re}\ \land\ 0<s.\mathrm{im}\}$ |
+| [669](angular-partition-method/lean/RegularizedIntegral.lean#L669) | theorem | `mellin_regularizedKernel_eqOn_lower` | $:\mathrm{EqOn}(\mathrm{mellin}\ \mathrm{regularizedKernel})\ \mathrm{regularizedMellin}\ \{s:\mathbb{C}\ \vert\ 0<s.\mathrm{re}\ \land\ s.\mathrm{im}<0\}$ |
+| [704](angular-partition-method/lean/RegularizedIntegral.lean#L704) | theorem | `mellin_regularizedKernel_eq_of_re_pos_of_im_ne` | $\forall\,s : \mathbb{C},\ \forall\,hs_{0} : 0<s.\mathrm{re},\ \forall\,him : s.\mathrm{im}\ne\ 0,\ \mathrm{mellin}\ \mathrm{regularizedKernel}\ s=\mathrm{regularizedMellin}\ s$ |
+| [715](angular-partition-method/lean/RegularizedIntegral.lean#L715) | theorem | `mellin_regularizedKernel_eq_of_re_pos_of_lt_one` | $\forall\,s : \mathbb{C},\ \forall\,hs_{0} : 0<s.\mathrm{re},\ \forall\,hs_{1} : s.\mathrm{re}<1,\ \mathrm{mellin}\ \mathrm{regularizedKernel}\ s=\mathrm{regularizedMellin}\ s$ |
+
+### [`angular-partition-method/lean/Topic.lean`](angular-partition-method/lean/Topic.lean) — 24 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [31](angular-partition-method/lean/Topic.lean#L31) | theorem | `geom_sector_sum` | $\forall\,a\,r : \mathbb{Q},\ \forall\,n : \mathbb{N},\ \forall\,hr : r\ne\ 1,\ (\sum\ k\ \in\ \mathrm{Finset.range}\ n,\ a\cdot\ r^{k})=a\cdot(1-r^{n})/(1-r)$ |
+| [47](angular-partition-method/lean/Topic.lean#L47) | theorem | `self_similar_total` | $\forall\,S\,a\,r : \mathbb{R},\ \forall\,hr : r\ne\ 1,\ \forall\,h : S=a+r\cdot\ S,\ S=a/(1-r)$ |
+| [59](angular-partition-method/lean/Topic.lean#L59) | theorem | `sector_angle_hasSum` | $:\mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow\ \mathrm{Real.pi}\cdot((1:\mathbb{R})/2)^{n})(2\cdot\ \mathrm{Real.pi})$ |
+| [66](angular-partition-method/lean/Topic.lean#L66) | theorem | `sector_angle_tsum` | $:(\sum'\ n:\mathbb{N},\ \mathrm{Real.pi}\cdot((1:\mathbb{R})/2)^{n})=2\cdot\ \mathrm{Real.pi}$ |
+| [74](angular-partition-method/lean/Topic.lean#L74) | theorem | `inv_nat_not_geometric` | $:\neg\ \exists\ r:\mathbb{Q},\ \forall\ n:\mathbb{N},(1:\mathbb{Q})/(n+2)=r\cdot(1/(n+1))$ |
+| [85](angular-partition-method/lean/Topic.lean#L85) | theorem | `finite_partition_total` | $\forall\,\iota : \mathrm{Type}\cdot,\ \forall\,[\mathrm{Fintype}\ \iota],\ \forall\,p : \iota\to\ \mathrm{Prop},\ \forall\,[\mathrm{DecidablePred}\ p],\ \forall\,a : \iota\to\ \mathbb{R},\ (\sum\ i,\ a\ i)=(\sum\ i\ \in\ \mathrm{Finset.univ.filter}\ p,\ a\ i)+(\sum\ i\ \in\ \mathrm{Finset.univ.filter}(\lambda\ i\Rightarrow\neg\ p\ i),\ a\ i)$ |
+| [103](angular-partition-method/lean/Topic.lean#L103) | theorem | `measure_partition_finset` | $\forall\,\alpha : \mathrm{Type}\cdot,\ \forall\,[\mathrm{MeasurableSpace}\ \alpha],\ \forall\,\mu : \mathrm{Measure}\ \alpha,\ \forall\,\iota : \mathrm{Type}\cdot,\ \forall\,s : \mathrm{Finset}\ \iota,\ \forall\,X : \iota\to\ \mathrm{Set}\ \alpha,\ \forall\,hdisj : \mathrm{Set.PairwiseDisjoint}(\uparrow{}s)\ X,\ \forall\,hmeas : \forall\ i\ \in\ s,\ \mathrm{MeasurableSet}(X\ i),\ \mu(⋃\ i\ \in\ s,\ X\ i)=\sum\ i\ \in\ s,\ \mu(X\ i)$ |
+| [113](angular-partition-method/lean/Topic.lean#L113) | theorem | `annular_telescope` | $\forall\,r : \mathbb{N}\to\ \mathbb{R},\ \forall\,n : \mathbb{N},\ (\sum\ k\ \in\ \mathrm{Finset.range}\ n,(r\ k^{2}-r(k+1)^{2}))=r\ 0^{2}-r\ n^{2}$ |
+| [126](angular-partition-method/lean/Topic.lean#L126) | theorem | `annular_weight_sum` | $\forall\,a\,r : \mathbb{N}\to\ \mathbb{R},\ \forall\,n : \mathbb{N},\ \forall\,h : \forall\ k,\ k<n\to\ a\ k=r\ k^{2}-r(k+1)^{2},\ (\sum\ k\ \in\ \mathrm{Finset.range}\ n,\ a\ k)=r\ 0^{2}-r\ n^{2}$ |
+| [151](angular-partition-method/lean/Topic.lean#L151) | theorem | `tail_eq_add` | $\forall\,a : \mathbb{N}\to\ \mathbb{R},\ \forall\,hsum : \mathrm{Summable}\ a,\ \forall\,n : \mathbb{N},\ \mathrm{tail}\ a\ n=a\ n+\mathrm{tail}\ a(n+1)$ |
+| [161](angular-partition-method/lean/Topic.lean#L161) | theorem | `tail_nonneg` | $\forall\,a : \mathbb{N}\to\ \mathbb{R},\ \forall\,ha : \forall\ n,\ 0\le\ a\ n,\ \forall\,n : \mathbb{N},\ 0\le\ \mathrm{tail}\ a\ n$ |
+| [171](angular-partition-method/lean/Topic.lean#L171) | theorem | `annular_representation` | $\forall\,a : \mathbb{N}\to\ \mathbb{R},\ \forall\,ha : \forall\ n,\ 0\le\ a\ n,\ \forall\,hsum : \mathrm{Summable}\ a,\ (\forall\ n,\ a\ n=\mathrm{tailRadius}\ a\ n^{2}-\mathrm{tailRadius}\ a(n+1)^{2})\ \land\ \mathrm{tailRadius}\ a\ 0^{2}=\sum'\ n,\ a\ n$ |
+| [206](angular-partition-method/lean/Topic.lean#L206) | theorem | `ctail_eq_add` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ \forall\,n : \mathbb{N},\ \mathrm{ctail}\ c\ n=c\ n+\mathrm{ctail}\ c(n+1)$ |
+| [216](angular-partition-method/lean/Topic.lean#L216) | theorem | `ctail_tendsto_zero` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \mathrm{Filter.Tendsto}(\lambda\ n\Rightarrow\ \mathrm{ctail}\ c\ n)\ \mathrm{Filter.atTop}(\mathrm{nhds}\ 0)$ |
+| [222](angular-partition-method/lean/Topic.lean#L222) | theorem | `ctail_telescope` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ \forall\,n : \mathbb{N},\ (\sum\ k\ \in\ \mathrm{Finset.range}\ n,\ c\ k)=\mathrm{ctail}\ c\ 0-\mathrm{ctail}\ c\ n$ |
+| [241](angular-partition-method/lean/Topic.lean#L241) | theorem | `phase_carrying_coil` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ (\forall\ n,\ c\ n=\mathrm{ctail}\ c\ n-\mathrm{ctail}\ c(n+1))\ \land(\forall\ n,\ \mathrm{ctail}\ c\ n=(\mathrm{coilRadius}\ c\ n:\mathbb{C})\cdot\ \mathrm{Complex.exp}(\mathrm{coilAngle}\ c\ n\cdot\ \mathrm{Complex}.I))\ \land\ \mathrm{Filter.Tendsto}(\lambda\ n\Rightarrow\ \mathrm{ctail}\ c\ n)\ \mathrm{Filter.atTop}(\mathrm{nhds}\ 0)$ |
+| [259](angular-partition-method/lean/Topic.lean#L259) | theorem | `unitCoil_zero` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,h_{0} : \mathrm{ctail}\ c\ 0\ne\ 0,\ \mathrm{unitCoil}\ c\ 0=1$ |
+| [264](angular-partition-method/lean/Topic.lean#L264) | theorem | `unitCoil_tendsto_zero` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \mathrm{Filter.Tendsto}(\lambda\ n\Rightarrow\ \mathrm{unitCoil}\ c\ n)\ \mathrm{Filter.atTop}(\mathrm{nhds}\ 0)$ |
+| [273](angular-partition-method/lean/Topic.lean#L273) | theorem | `half_turn_sector_hasSum` | $:\mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow((1:\mathbb{R})/2)^{n+1})\ 1$ |
+| [279](angular-partition-method/lean/Topic.lean#L279) | theorem | `half_turn_sector_tsum` | $:(\sum'\ n:\mathbb{N},((1:\mathbb{R})/2)^{n+1})=1$ |
+| [286](angular-partition-method/lean/Topic.lean#L286) | theorem | `not_summable_inv_nat_succ` | $:\neg\ \mathrm{Summable}(\lambda\ n:\mathbb{N}\Rightarrow(1:\mathbb{R})/(n+1))$ |
+| [297](angular-partition-method/lean/Topic.lean#L297) | theorem | `geometric_hasSum_complex` | $\forall\,z : \mathbb{C},\ \forall\,hz : \Vert{}z\Vert<1,\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow\ z^{n})(1-z)^{-1}$ |
+| [302](angular-partition-method/lean/Topic.lean#L302) | theorem | `geometric_tsum_complex` | $\forall\,z : \mathbb{C},\ \forall\,hz : \Vert{}z\Vert<1,\ (\sum'\ n:\mathbb{N},\ z^{n})=(1-z)^{-1}$ |
+| [316](angular-partition-method/lean/Topic.lean#L316) | theorem | `layer_cake` | $\forall\,a : \mathbb{N}\to\ \mathbb{R},\ \forall\,\_ha : \forall\ n,\ 0\le\ a\ n,\ \forall\,n : \mathbb{N},\ \mathrm{ENNReal.ofReal}(a\ n)=\int^{-1}\ t\ \text{in}\ \mathrm{Ioi}(0:\mathbb{R}),((\mathrm{Set.Iio}(a\ n)).\mathrm{indicator}(\lambda_{=}>(1:\mathrm{ENNReal})))\ t$ |
+
+### [`angular-partition-method/lean/VectorArea.lean`](angular-partition-method/lean/VectorArea.lean) — 7 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [34](angular-partition-method/lean/VectorArea.lean#L34) | theorem | `phaseWeight_eq` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,n : \mathbb{N},\ \mathrm{phaseWeight}\ c\ n=c\ n$ |
+| [39](angular-partition-method/lean/VectorArea.lean#L39) | theorem | `vectorArea_apply` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ \forall\,A : \mathrm{Set}\ \mathbb{N},\ \forall\,hA : \mathrm{MeasurableSet}\ A,\ \mathrm{vectorArea}\ c\ A=\sum'\ n:A,\ c\ n$ |
+| [50](angular-partition-method/lean/VectorArea.lean#L50) | theorem | `vectorArea_iUnion` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,A : \mathbb{N}\to\ \mathrm{Set}\ \mathbb{N},\ \forall\,hA : \forall\ i,\ \mathrm{MeasurableSet}(A\ i),\ \forall\,hdisj : \mathrm{Pairwise}(\mathrm{Disjoint}\ \mathrm{on}\ A),\ \mathrm{HasSum}(\lambda\ i\Rightarrow\ \mathrm{vectorArea}\ c(A\ i))(\mathrm{vectorArea}\ c(⋃\ i,\ A\ i))$ |
+| [56](angular-partition-method/lean/VectorArea.lean#L56) | theorem | `vectorArea_univ` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ \mathrm{vectorArea}\ c\ \mathrm{Set.univ}=\sum'\ n,\ c\ n$ |
+| [62](angular-partition-method/lean/VectorArea.lean#L62) | theorem | `vectorArea_univ_eq_ctail` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ \mathrm{vectorArea}\ c\ \mathrm{Set.univ}=\mathrm{ctail}\ c\ 0$ |
+| [69](angular-partition-method/lean/VectorArea.lean#L69) | theorem | `norm_vectorArea_univ_le` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ \Vert{}\mathrm{vectorArea}\ c\ \mathrm{Set.univ}\Vert\le\ \sum'\ n,\ \Vert{}c\ n\Vert$ |
+| [75](angular-partition-method/lean/VectorArea.lean#L75) | theorem | `vectorArea_eq_phase_sum` | $\forall\,c : \mathbb{N}\to\ \mathbb{C},\ \forall\,hsum : \mathrm{Summable}\ c,\ \forall\,A : \mathrm{Set}\ \mathbb{N},\ \forall\,hA : \mathrm{MeasurableSet}\ A,\ \mathrm{vectorArea}\ c\ A=\sum'\ n:A,\ \mathrm{phaseWeight}\ c\ n$ |
 
 ## dyadic-sheaf-cohomology
 
@@ -2925,7 +3177,223 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 
 ## prime-spectrum-tensor
 
-1 Lean file · 13 named proofs.
+26 Lean files · 135 named proofs.
+
+### [`prime-spectrum-tensor/lean/Assembly.lean`](prime-spectrum-tensor/lean/Assembly.lean) — 4 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [38](prime-spectrum-tensor/lean/Assembly.lean#L38) | theorem | `densityTerm_neg` | $\forall\,c\,\sigma : \mathbb{R},\ \mathrm{densityTerm}(-c)\ \sigma=\mathrm{densityTerm}\ c\ \sigma$ |
+| [45](prime-spectrum-tensor/lean/Assembly.lean#L45) | theorem | `gaussianGram4_apply` | $\forall\,\sigma : \mathbb{R},\ \forall\,i\,j : \mathrm{Fin}\ 4,\ \mathrm{gaussianGram4}\ \sigma\ i\ j=\mathrm{poleTerm}(\mathrm{centre4}\ i-\mathrm{centre4}\ j)\ \sigma+\mathrm{densityTerm}(\mathrm{centre4}\ i-\mathrm{centre4}\ j)\ \sigma+(\mathrm{primeTerm}(\mathrm{centre4}\ i-\mathrm{centre4}\ j)\ \sigma+\mathrm{primeTerm}(\mathrm{centre4}\ j-\mathrm{centre4}\ i)\ \sigma)/2$ |
+| [59](prime-spectrum-tensor/lean/Assembly.lean#L59) | theorem | `gaussianGram4_posDef_of_density_enclosure` | $\forall\,hd_{0} : (107/10000:\mathbb{R})\le\ \mathrm{densityTerm}\ 0(1/20)\ \land\ \mathrm{densityTerm}\ 0(1/20)\le\ 127/10000,\ \forall\,hd_{1} : (-491/10000:\mathbb{R})\le\ \mathrm{densityTerm}(1/5)(1/20)\ \land\ \mathrm{densityTerm}(1/5)(1/20)\le-471/10000,\ \forall\,hd_{2} : (-251/10000:\mathbb{R})\le\ \mathrm{densityTerm}(2/5)(1/20)\ \land\ \mathrm{densityTerm}(2/5)(1/20)\le-231/10000,\ \forall\,hd_{3} : (-179/10000:\mathbb{R})\le\ \mathrm{densityTerm}(3/5)(1/20)\ \land\ \mathrm{densityTerm}(3/5)(1/20)\le-159/10000,\ (\mathrm{gaussianGram4}(1/20)).\mathrm{PosDef}$ |
+| [106](prime-spectrum-tensor/lean/Assembly.lean#L106) | theorem | `gaussianGram4_posDef_of_density_enclosure_loose` | $\forall\,hd_{0} : (82/10000:\mathbb{R})\le\ \mathrm{densityTerm}\ 0(1/20)\ \land\ \mathrm{densityTerm}\ 0(1/20)\le\ 152/10000,\ \forall\,hd_{1} : (-5158/100000:\mathbb{R})\le\ \mathrm{densityTerm}(1/5)(1/20)\ \land\ \mathrm{densityTerm}(1/5)(1/20)\le-4458/100000,\ \forall\,hd_{2} : (-2754/100000:\mathbb{R})\le\ \mathrm{densityTerm}(2/5)(1/20)\ \land\ \mathrm{densityTerm}(2/5)(1/20)\le-2054/100000,\ \forall\,hd_{3} : (-2034/100000:\mathbb{R})\le\ \mathrm{densityTerm}(3/5)(1/20)\ \land\ \mathrm{densityTerm}(3/5)(1/20)\le-1334/100000,\ (\mathrm{gaussianGram4}(1/20)).\mathrm{PosDef}$ |
+
+### [`prime-spectrum-tensor/lean/CosBound.lean`](prime-spectrum-tensor/lean/CosBound.lean) — 5 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [20](prime-spectrum-tensor/lean/CosBound.lean#L20) | theorem | `re_cos_ofReal` | $\forall\,x : \mathbb{R},\ (\mathrm{Complex.cos}((x:\mathbb{R}):\mathbb{C})).\mathrm{re}=\mathrm{Real.cos}\ x$ |
+| [23](prime-spectrum-tensor/lean/CosBound.lean#L23) | theorem | `re_exp_mul_I` | $\forall\,x : \mathbb{R},\ (\mathrm{Complex.exp}((x:\mathbb{C})\cdot\ \mathrm{Complex}.I)).\mathrm{re}=\mathrm{Real.cos}\ x$ |
+| [34](prime-spectrum-tensor/lean/CosBound.lean#L34) | theorem | `cos_bound_small` | $\forall\,x : \mathbb{R},\ \forall\,hx : \vert{}x\vert\le\ 1,\ \forall\,n : \mathbb{N},\ \forall\,hn : 0<n,\ \vert{}\mathrm{Real.cos}\ x-(\sum\ m\ \in\ \mathrm{Finset.range}\ n,((x:\mathbb{C})\cdot\ \mathrm{Complex}.I)^{m}/(m.\mathrm{factorial}:\mathbb{C})).\mathrm{re}\vert\le\ \vert{}x\vert^{n}\cdot((n.\mathrm{succ}:\mathbb{R})\cdot((n.\mathrm{factorial}:\mathbb{R})\cdot\ n)^{-1})$ |
+| [56](prime-spectrum-tensor/lean/CosBound.lean#L56) | theorem | `sq_mem_Icc` | $\forall\,lo\,hi\,c : \mathbb{R},\ \forall\,h : c\ \in\ \mathrm{Set.Icc}\ \mathrm{lo}\ \mathrm{hi},\ c^{2}\ \in\ \mathrm{Set.Icc}(\text{if}\ 0\le\ \mathrm{lo}\ \text{then}\ \mathrm{lo}^{2}\ \text{else}\ \text{if}\ \mathrm{hi}\le\ 0\ \text{then}\ \mathrm{hi}^{2}\ \text{else}\ 0)(\mathrm{max}(\mathrm{lo}^{2})(\mathrm{hi}^{2}))$ |
+| [75](prime-spectrum-tensor/lean/CosBound.lean#L75) | theorem | `cos_double_mem` | $\forall\,lo\,hi\,y : \mathbb{R},\ \forall\,h : \mathrm{Real.cos}\ y\ \in\ \mathrm{Set.Icc}\ \mathrm{lo}\ \mathrm{hi},\ \mathrm{Real.cos}(2\cdot\ y)\ \in\ \mathrm{Set.Icc}(2\cdot(\text{if}\ 0\le\ \mathrm{lo}\ \text{then}\ \mathrm{lo}^{2}\ \text{else}\ \text{if}\ \mathrm{hi}\le\ 0\ \text{then}\ \mathrm{hi}^{2}\ \text{else}\ 0)-1)(2\cdot\ \mathrm{max}(\mathrm{lo}^{2})(\mathrm{hi}^{2})-1)$ |
+
+### [`prime-spectrum-tensor/lean/DensityAssembly.lean`](prime-spectrum-tensor/lean/DensityAssembly.lean) — 2 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [20](prime-spectrum-tensor/lean/DensityAssembly.lean#L20) | theorem | `continuous_densityWeight_mul_Omega` | $\forall\,c : \mathbb{R},\ \mathrm{Continuous}(\lambda\ x\Rightarrow\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)$ |
+| [25](prime-spectrum-tensor/lean/DensityAssembly.lean#L25) | theorem | `density_approx_error` | $\forall\,c : \mathbb{R},\ \forall\,P : \mathbb{N},\ \forall\,a : \mathbb{N}\to\ \mathbb{R},\ \forall\,qmid\,E : \mathbb{N}\to\ \mathbb{R},\ \forall\,h_{0} : a\ 0=0,\ \forall\,hT : a\ P=60,\ \forall\,hpanel : \forall\ p<P,\ \vert(\int\ x\ \text{in}\ a\ p..a(p+1),\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-\mathrm{qmid}\ p\cdot((a(p+1)-a\ p)\cdot\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c((a\ p+a(p+1))/2))\vert\le\ E\ p,\ \vert{}\mathrm{IntersectionForm.density}(1/20)\ c-\sum\ p\ \in\ \mathrm{Finset.range}\ P,\ \mathrm{qmid}\ p\cdot((a(p+1)-a\ p)\cdot\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c((a\ p+a(p+1))/2))\vert\le(\sum\ p\ \in\ \mathrm{Finset.range}\ P,\ E\ p)+1/10000$ |
+
+### [`prime-spectrum-tensor/lean/DensityDemo.lean`](prime-spectrum-tensor/lean/DensityDemo.lean) — 3 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [27](prime-spectrum-tensor/lean/DensityDemo.lean#L27) | theorem | `weight_eq_densityWeight` | $\forall\,c\,t : \mathbb{R},\ \mathrm{weight}\ c\ t=\mathrm{IntersectionForm.densityWeight}(1/20)\ c\ t$ |
+| [33](prime-spectrum-tensor/lean/DensityDemo.lean#L33) | theorem | `omega_mem_thirty` | $:((\mathrm{IntersectionForm.omegaLo}\ 30\ 1\ 1000:\mathbb{Q}):\mathbb{R})\le\ \mathrm{IntersectionForm.Omega}\ 30\ \land\ \mathrm{IntersectionForm.Omega}\ 30\le((\mathrm{IntersectionForm.omegaHi}\ 30\ 1\ 1000:\mathbb{Q}):\mathbb{R})$ |
+| [41](prime-spectrum-tensor/lean/DensityDemo.lean#L41) | theorem | `density_one_panel` | $\forall\,qmid\,E : \mathbb{R},\ \forall\,hpanel : \vert(\int\ x\ \text{in}(0:\mathbb{R})..60,\ \mathrm{IntersectionForm.densityWeight}(1/20)\ 0\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-\mathrm{qmid}\cdot(60\cdot\ \mathrm{IntersectionForm.densityWeight}(1/20)\ 0\ 30)\vert\le\ E,\ \vert{}\mathrm{IntersectionForm.density}(1/20)\ 0-\mathrm{qmid}\cdot(60\cdot\ \mathrm{IntersectionForm.densityWeight}(1/20)\ 0\ 30)\vert\le\ E+1/10000$ |
+
+### [`prime-spectrum-tensor/lean/DensityEnclosure.lean`](prime-spectrum-tensor/lean/DensityEnclosure.lean) — 3 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [26](prime-spectrum-tensor/lean/DensityEnclosure.lean#L26) | theorem | `omega_eq_Omega` | $\forall\,t : \mathbb{R},\ \mathrm{omega}\ t=\mathrm{IntersectionForm.Omega}\ t$ |
+| [35](prime-spectrum-tensor/lean/DensityEnclosure.lean#L35) | theorem | `density_integrand_neg` | $\forall\,c\,\sigma\,t : \mathbb{R},\ \mathrm{Real.exp}(-(\sigma\cdot(-t))^{2})\cdot\ \mathrm{Real.cos}(c\cdot(-t))\cdot\ \mathrm{IntersectionForm.Omega}(-t)=\mathrm{Real.exp}(-(\sigma\cdot\ t)^{2})\cdot\ \mathrm{Real.cos}(c\cdot\ t)\cdot\ \mathrm{IntersectionForm.Omega}\ t$ |
+| [44](prime-spectrum-tensor/lean/DensityEnclosure.lean#L44) | theorem | `densityTerm_eq_two_mul_density` | $\forall\,c\,\sigma : \mathbb{R},\ \mathrm{densityTerm}\ c\ \sigma=2\cdot\ \mathrm{IntersectionForm.density}\ \sigma\ c$ |
+
+### [`prime-spectrum-tensor/lean/DensityPanel.lean`](prime-spectrum-tensor/lean/DensityPanel.lean) — 6 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [36](prime-spectrum-tensor/lean/DensityPanel.lean#L36) | theorem | `deriv_Omega_abs_le_tsum` | $\forall\,t : \mathbb{R},\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le(1/2)\cdot\ \sum'\ j:\mathbb{N},(((j:\mathbb{R})+1/4)^{2}+(t/2)^{2})^{-1}$ |
+| [55](prime-spectrum-tensor/lean/DensityPanel.lean#L55) | theorem | `sum_range_head_le` | $\forall\,a : \mathbb{R},\ \forall\,ha : 0<a,\ \forall\,K : \mathbb{N},\ \sum\ j\ \in\ \mathrm{Finset.range}\ K,(((j:\mathbb{R})+1/4)^{2}+a^{2})^{-1}\le\ K/a^{2}$ |
+| [67](prime-spectrum-tensor/lean/DensityPanel.lean#L67) | theorem | `tail_step` | $\forall\,K : \mathbb{N},\ \forall\,hK : 2\le\ K,\ \forall\,m : \mathbb{N},\ ((((m+K:\mathbb{N}):\mathbb{R}))^{2})^{-1}\le\ 1/((m:\mathbb{R})+K-1)-1/((m:\mathbb{R})+K)$ |
+| [80](prime-spectrum-tensor/lean/DensityPanel.lean#L80) | theorem | `sum_range_tail_le` | $\forall\,K : \mathbb{N},\ \forall\,hK : 2\le\ K,\ \forall\,m : \mathbb{N},\ \sum\ j\ \in\ \mathrm{Finset.range}\ m,((((j+K:\mathbb{N}):\mathbb{R}))^{2})^{-1}\le\ 1/((K:\mathbb{R})-1)$ |
+| [105](prime-spectrum-tensor/lean/DensityPanel.lean#L105) | theorem | `tsum_shifted_inv_le` | $\forall\,a : \mathbb{R},\ \forall\,ha : 2\le\ a,\ \sum'\ j:\mathbb{N},(((j:\mathbb{R})+1/4)^{2}+a^{2})^{-1}\le\ 6/a$ |
+| [151](prime-spectrum-tensor/lean/DensityPanel.lean#L151) | theorem | `deriv_Omega_abs_le` | $\forall\,t : \mathbb{R},\ \forall\,ht : 4\le\ t,\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ 6/t$ |
+
+### [`prime-spectrum-tensor/lean/DensityTail.lean`](prime-spectrum-tensor/lean/DensityTail.lean) — 6 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [18](prime-spectrum-tensor/lean/DensityTail.lean#L18) | theorem | `log_add_two_le` | $\forall\,x : \mathbb{R},\ \forall\,hx : 60\le\ x,\ \mathrm{Real.log}(x+2)+24\le\ x$ |
+| [29](prime-spectrum-tensor/lean/DensityTail.lean#L29) | theorem | `exp_neg_nine_le` | $:\mathrm{Real.exp}(-9)\le\ 1/5000$ |
+| [37](prime-spectrum-tensor/lean/DensityTail.lean#L37) | theorem | `abs_densityWeight_le_exp` | $\forall\,c\,x : \mathbb{R},\ \vert{}\mathrm{IntersectionForm.densityWeight}(1/20)\ c\ x\vert\le(1/400:\mathbb{R})\cdot\ \mathrm{Real.exp}(-(x^{2}/400))$ |
+| [52](prime-spectrum-tensor/lean/DensityTail.lean#L52) | theorem | `abs_densityWeight_mul_Omega_le` | $\forall\,c\,x : \mathbb{R},\ \forall\,hx : 60\le\ x,\ \vert{}\mathrm{IntersectionForm.densityWeight}(1/20)\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x\vert\le(1/400:\mathbb{R})\cdot\ x\cdot\ \mathrm{Real.exp}(-(x^{2}/400))$ |
+| [68](prime-spectrum-tensor/lean/DensityTail.lean#L68) | theorem | `integrableOn_gaussian_moment` | $\forall\,T : \mathbb{R},\ \mathrm{MeasureTheory.IntegrableOn}(\lambda\ x:\mathbb{R}\Rightarrow(1/400:\mathbb{R})\cdot\ x\cdot\ \mathrm{Real.exp}(-(x^{2}/400)))(\mathrm{Set.Ioi}\ T)$ |
+| [77](prime-spectrum-tensor/lean/DensityTail.lean#L77) | theorem | `density_tail_le` | $\forall\,c : \mathbb{R},\ \vert\int\ x\ \text{in}\ \mathrm{Set.Ioi}(60:\mathbb{R}),\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x\vert\le\ 1/10000$ |
+
+### [`prime-spectrum-tensor/lean/DensityWeight.lean`](prime-spectrum-tensor/lean/DensityWeight.lean) — 3 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [15](prime-spectrum-tensor/lean/DensityWeight.lean#L15) | theorem | `abs_densityWeight_le` | $\forall\,c : \mathbb{R},\ \forall\,t : \mathbb{R},\ \vert{}\mathrm{IntersectionForm.densityWeight}(1/20)\ c\ t\vert\le\ 1/400$ |
+| [30](prime-spectrum-tensor/lean/DensityWeight.lean#L30) | theorem | `continuous_densityWeight` | $\forall\,c : \mathbb{R},\ \mathrm{Continuous}(\lambda\ t\Rightarrow\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c\ t)$ |
+| [35](prime-spectrum-tensor/lean/DensityWeight.lean#L35) | theorem | `densityWeight_nonneg` | $\forall\,c : \mathbb{R},\ \forall\,t : \mathbb{R},\ \forall\,ht : \mathrm{Real.cos}(c\cdot\ t)\ge\ 0,\ 0\le\ \mathrm{IntersectionForm.densityWeight}(1/20)\ c\ t$ |
+
+### [`prime-spectrum-tensor/lean/GaussianGram.lean`](prime-spectrum-tensor/lean/GaussianGram.lean) — 3 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [103](prime-spectrum-tensor/lean/GaussianGram.lean#L103) | theorem | `gaussianGramEntry_symm` | $\forall\,a\,b\,\sigma : \mathbb{R},\ \mathrm{gaussianGramEntry}\ a\ b\ \sigma=\mathrm{gaussianGramEntry}\ b\ a\ \sigma$ |
+| [109](prime-spectrum-tensor/lean/GaussianGram.lean#L109) | theorem | `gaussianGram4_symm` | $\forall\,\sigma : \mathbb{R},\ \forall\,i\,j : \mathrm{Fin}\ 4,\ \mathrm{gaussianGram4}\ \sigma\ i\ j=\mathrm{gaussianGram4}\ \sigma\ j\ i$ |
+| [122](prime-spectrum-tensor/lean/GaussianGram.lean#L122) | theorem | `gaussianGram4_posDef_of_enclosure` | $\forall\,\sigma\,\varepsilon : \mathbb{R},\ \forall\,h\varepsilon : \forall\ i\ j,\ \vert{}\mathrm{gaussianGram4}\ \sigma\ i\ j-\mathrm{gramCentre4}\ i\ j\vert\le\ \varepsilon,\ \forall\,h\varepsilon_{0} : 0\le\ \varepsilon,\ \forall\,hdim : \varepsilon\cdot\ 4<\mathrm{gramMargin},\ (\mathrm{gaussianGram4}\ \sigma).\mathrm{PosDef}$ |
+
+### [`prime-spectrum-tensor/lean/GaussianTail.lean`](prime-spectrum-tensor/lean/GaussianTail.lean) — 2 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [18](prime-spectrum-tensor/lean/GaussianTail.lean#L18) | theorem | `tendsto_gauss_neg` | $\forall\,b : \mathbb{R},\ \forall\,hb : 0<b,\ \mathrm{Tendsto}(\lambda\ y:\mathbb{R}\Rightarrow\ \mathrm{Real.exp}(-(b\cdot\ y^{2})))\ \mathrm{atTop}(\mathcal{N}\ 0)$ |
+| [27](prime-spectrum-tensor/lean/GaussianTail.lean#L27) | theorem | `integral_Ioi_gaussian_moment` | $\forall\,T : \mathbb{R},\ \int\ x\ \text{in}\ \mathrm{Set.Ioi}\ T,(1/400:\mathbb{R})\cdot\ x\cdot\ \mathrm{Real.exp}(-(x^{2}/400))=\mathrm{Real.exp}(-(T^{2}/400))/2$ |
+
+### [`prime-spectrum-tensor/lean/LipSmall.lean`](prime-spectrum-tensor/lean/LipSmall.lean) — 3 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [21](prime-spectrum-tensor/lean/LipSmall.lean#L21) | theorem | `sum_telescope_inv` | $:\forall\ m:\mathbb{N},\ \sum\ i\ \in\ \mathrm{Finset.range}\ m,((1:\mathbb{R})/((i:\mathbb{R})+1)-1/((i:\mathbb{R})+2))=1-1/((m:\mathbb{R})+1)$ |
+| [35](prime-spectrum-tensor/lean/LipSmall.lean#L35) | theorem | `tsum_inv_shift_add_sq_le` | $\forall\,a : \mathbb{R},\ \sum'\ j:\mathbb{N},((((j:\mathbb{R})+1/4)^{2}+a^{2}))^{-1}\le\ 18$ |
+| [74](prime-spectrum-tensor/lean/LipSmall.lean#L74) | theorem | `deriv_Omega_abs_le_ten` | $\forall\,t : \mathbb{R},\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ 10$ |
+
+### [`prime-spectrum-tensor/lean/MidpointRule.lean`](prime-spectrum-tensor/lean/MidpointRule.lean) — 1 proof
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [24](prime-spectrum-tensor/lean/MidpointRule.lean#L24) | theorem | `midpoint_rule_bound` | $\forall\,f : \mathbb{R}\to\ \mathbb{R},\ \forall\,a\,b\,B : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,hf : \forall\ x\ \in\ \mathrm{Set.Icc}\ a\ b,\ \mathrm{HasDerivAt}\ f(\mathrm{deriv}\ f\ x)\ x,\ \forall\,hf' : \forall\ x\ \in\ \mathrm{Set.Icc}\ a\ b,\ \mathrm{HasDerivAt}(\mathrm{deriv}\ f)(\mathrm{deriv}(\mathrm{deriv}\ f)\ x)\ x,\ \forall\,hB : \forall\ x\ \in\ \mathrm{Set.Icc}\ a\ b,\ \vert{}\mathrm{deriv}(\mathrm{deriv}\ f)\ x\vert\le\ B,\ \forall\,hcont : \mathrm{Continuous}\ f,\ \vert(\int\ x\ \text{in}\ a..b,\ f\ x)-(b-a)\cdot\ f((a+b)/2)\vert\le\ B\cdot(b-a)^{3}/4$ |
+
+### [`prime-spectrum-tensor/lean/OmegaContinuous.lean`](prime-spectrum-tensor/lean/OmegaContinuous.lean) — 4 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [18](prime-spectrum-tensor/lean/OmegaContinuous.lean#L18) | theorem | `continuous_digamma_line` | $:\mathrm{Continuous}(\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{Complex.digamma}(\mathrm{Rh45.digammaLine}\ t))$ |
+| [27](prime-spectrum-tensor/lean/OmegaContinuous.lean#L27) | theorem | `continuous_Omega` | $:\mathrm{Continuous}\ \mathrm{IntersectionForm.Omega}$ |
+| [40](prime-spectrum-tensor/lean/OmegaContinuous.lean#L40) | theorem | `differentiable_digamma_line` | $:\mathrm{Differentiable}\ \mathbb{R}(\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{Complex.digamma}(\mathrm{Rh45.digammaLine}\ t))$ |
+| [50](prime-spectrum-tensor/lean/OmegaContinuous.lean#L50) | theorem | `differentiable_Omega` | $:\mathrm{Differentiable}\ \mathbb{R}\ \mathrm{IntersectionForm.Omega}$ |
+
+### [`prime-spectrum-tensor/lean/OmegaGlobal.lean`](prime-spectrum-tensor/lean/OmegaGlobal.lean) — 11 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [25](prime-spectrum-tensor/lean/OmegaGlobal.lean#L25) | theorem | `omegaPoint_re` | $\forall\,t : \mathbb{R},\ (\mathrm{omegaPoint}\ t).\mathrm{re}=1/4$ |
+| [27](prime-spectrum-tensor/lean/OmegaGlobal.lean#L27) | theorem | `omegaPoint_im` | $\forall\,t : \mathbb{R},\ (\mathrm{omegaPoint}\ t).\mathrm{im}=t/2$ |
+| [29](prime-spectrum-tensor/lean/OmegaGlobal.lean#L29) | theorem | `omegaPoint_norm_le` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0\le\ t,\ \Vert{}\mathrm{omegaPoint}\ t\Vert\le\ 1/4+t/2$ |
+| [38](prime-spectrum-tensor/lean/OmegaGlobal.lean#L38) | theorem | `quarter_le_norm_omegaPoint` | $\forall\,t : \mathbb{R},\ 1/4\le\ \Vert{}\mathrm{omegaPoint}\ t\Vert$ |
+| [43](prime-spectrum-tensor/lean/OmegaGlobal.lean#L43) | theorem | `Omega_eq_re_digamma` | $\forall\,t : \mathbb{R},\ \mathrm{IntersectionForm.Omega}\ t=(\mathrm{Complex.digamma}(\mathrm{omegaPoint}\ t)).\mathrm{re}-\mathrm{Real.log}\ \mathrm{Real.pi}$ |
+| [49](prime-spectrum-tensor/lean/OmegaGlobal.lean#L49) | theorem | `abs_six_le` | $\forall\,a\,b\,c\,d\,e\,f : \mathbb{R},\ \vert{}a-b-c-d+e-f\vert\le\ \vert{}a\vert+\vert{}b\vert+\vert{}c\vert+\vert{}d\vert+\vert{}e\vert+\vert{}f\vert$ |
+| [69](prime-spectrum-tensor/lean/OmegaGlobal.lean#L69) | theorem | `omegaRem_norm_le` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \Vert{}\mathrm{omegaRem}\ t\Vert\le\ 13$ |
+| [79](prime-spectrum-tensor/lean/OmegaGlobal.lean#L79) | theorem | `Omega_expansion` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \mathrm{IntersectionForm.Omega}\ t=(\mathrm{Complex.log}(\mathrm{omegaPoint}\ t)).\mathrm{re}-\mathrm{Real.log}\ \mathrm{Real.pi}-(1/(2\cdot\ \mathrm{omegaPoint}\ t)).\mathrm{re}-(1/(12\cdot(\mathrm{omegaPoint}\ t)^{2})).\mathrm{re}+(1/(120\cdot(\mathrm{omegaPoint}\ t)^{4})).\mathrm{re}-(\mathrm{omegaRem}\ t).\mathrm{re}$ |
+| [91](prime-spectrum-tensor/lean/OmegaGlobal.lean#L91) | theorem | `log_four_le_two` | $:\mathrm{Real.log}\ 4\le\ 2$ |
+| [100](prime-spectrum-tensor/lean/OmegaGlobal.lean#L100) | theorem | `abs_log_omegaPoint_le` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \vert(\mathrm{Complex.log}(\mathrm{omegaPoint}\ t)).\mathrm{re}\vert\le\ \mathrm{Real.log}(t+2)+2$ |
+| [123](prime-spectrum-tensor/lean/OmegaGlobal.lean#L123) | theorem | `abs_Omega_le` | $\forall\,t : \mathbb{R},\ \forall\,ht : 0<t,\ \vert{}\mathrm{IntersectionForm.Omega}\ t\vert\le\ \mathrm{Real.log}(t+2)+24$ |
+
+### [`prime-spectrum-tensor/lean/OmegaPanel.lean`](prime-spectrum-tensor/lean/OmegaPanel.lean) — 1 proof
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [21](prime-spectrum-tensor/lean/OmegaPanel.lean#L21) | theorem | `omega_panel_enclosure` | $\forall\,a\,b\,lipx\,qmlo\,qmhi : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,hlip : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ \mathrm{lipx},\ \forall\,hderiv : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \mathrm{DifferentiableAt}\ \mathbb{R}\ \mathrm{IntersectionForm.Omega}\ t,\ \forall\,hm : \mathrm{qmlo}\le\ \mathrm{IntersectionForm.Omega}((a+b)/2),\ \forall\,hm_{2} : \mathrm{IntersectionForm.Omega}((a+b)/2)\le\ \mathrm{qmhi},\ \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \mathrm{qmlo}-\mathrm{lipx}\cdot(b-a)/2\le\ \mathrm{IntersectionForm.Omega}\ t\ \land\ \mathrm{IntersectionForm.Omega}\ t\le\ \mathrm{qmhi}+\mathrm{lipx}\cdot(b-a)/2$ |
+
+### [`prime-spectrum-tensor/lean/PanelAssembly.lean`](prime-spectrum-tensor/lean/PanelAssembly.lean) — 1 proof
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [30](prime-spectrum-tensor/lean/PanelAssembly.lean#L30) | theorem | `panel_mem` | $\forall\,w\,\Omega : \mathbb{R}\to\ \mathbb{R},\ \forall\,a\,b\,Bw\,Sw\,qlo\,qhi\,qmid : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,hwcont : \mathrm{Continuous}\ w,\ \forall\,h\Omega{}cont : \mathrm{Continuous}\ \Omega,\ \forall\,hqlo : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \mathrm{qlo}\le\ \Omega\ t,\ \forall\,hqhi : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \Omega\ t\le\ \mathrm{qhi},\ \forall\,hsw : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \vert{}w\ t\vert\le\ \mathrm{Sw},\ \forall\,hsw_{0} : 0\le\ \mathrm{Sw},\ \forall\,hmid : \vert(\int\ x\ \text{in}\ a..b,\ w\ x)-(b-a)\cdot\ w((a+b)/2)\vert\le\ \mathrm{Bw}\cdot(b-a)^{3}/4,\ \vert(\int\ x\ \text{in}\ a..b,\ w\ x\cdot\ \Omega\ x)-\mathrm{qmid}\cdot((b-a)\cdot\ w((a+b)/2))\vert\le\ \vert{}\mathrm{qmid}\vert\cdot(\mathrm{Bw}\cdot(b-a)^{3}/4)+\mathrm{max}(\mathrm{qmid}-\mathrm{qlo})(\mathrm{qhi}-\mathrm{qmid})\cdot((b-a)\cdot\ \mathrm{Sw})$ |
+
+### [`prime-spectrum-tensor/lean/PanelCertificate.lean`](prime-spectrum-tensor/lean/PanelCertificate.lean) — 2 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [26](prime-spectrum-tensor/lean/PanelCertificate.lean#L26) | theorem | `weight_midpoint_rule` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 3/5,\ \forall\,a\,b : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,ha_{0} : 0\le\ a,\ \forall\,hb_{60} : b\le\ 60,\ \vert(\int\ x\ \text{in}\ a..b,\ \mathrm{weight}\ c\ x)-(b-a)\cdot\ \mathrm{weight}\ c((a+b)/2)\vert\le(1/400)\cdot(b-a)^{3}/4$ |
+| [50](prime-spectrum-tensor/lean/PanelCertificate.lean#L50) | theorem | `panel_certificate` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 3/5,\ \forall\,a\,b\,qmlo\,qmhi\,lipx : \mathbb{R},\ \forall\,hab : a\le\ b,\ \forall\,ha_{0} : 0\le\ a,\ \forall\,hb_{60} : b\le\ 60,\ \forall\,hlip : \forall\ t\ \in\ \mathrm{Set.Icc}\ a\ b,\ \vert{}\mathrm{deriv}\ \mathrm{IntersectionForm.Omega}\ t\vert\le\ \mathrm{lipx},\ \forall\,hm_{1} : \mathrm{qmlo}\le\ \mathrm{IntersectionForm.Omega}((a+b)/2),\ \forall\,hm_{2} : \mathrm{IntersectionForm.Omega}((a+b)/2)\le\ \mathrm{qmhi},\ \vert(\int\ x\ \text{in}\ a..b,\ \mathrm{weight}\ c\ x\cdot\ \mathrm{IntersectionForm.Omega}\ x)-((\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot\ \mathrm{weight}\ c((a+b)/2))\vert\le\ \vert(\mathrm{qmlo}+\mathrm{qmhi})/2\vert\cdot((1/400)\cdot(b-a)^{3}/4)+\mathrm{max}((\mathrm{qmlo}+\mathrm{qmhi})/2-(\mathrm{qmlo}-\mathrm{lipx}\cdot(b-a)/2))((\mathrm{qmhi}+\mathrm{lipx}\cdot(b-a)/2)-(\mathrm{qmlo}+\mathrm{qmhi})/2)\cdot((b-a)\cdot(1/400))$ |
+
+### [`prime-spectrum-tensor/lean/PanelSum.lean`](prime-spectrum-tensor/lean/PanelSum.lean) — 2 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [21](prime-spectrum-tensor/lean/PanelSum.lean#L21) | theorem | `panel_sum_error` | $\forall\,w\,\Omega : \mathbb{R}\to\ \mathbb{R},\ \forall\,P : \mathbb{N},\ \forall\,a : \mathbb{N}\to\ \mathbb{R},\ \forall\,qmid\,E : \mathbb{N}\to\ \mathbb{R},\ \forall\,hint : \forall\ p<P,\ \mathrm{IntervalIntegrable}(\lambda\ x\Rightarrow\ w\ x\cdot\ \Omega\ x)\ \mathrm{MeasureTheory.volume}(a\ p)(a(p+1)),\ \forall\,hpanel : \forall\ p<P,\ \vert(\int\ x\ \text{in}\ a\ p..a(p+1),\ w\ x\cdot\ \Omega\ x)-\mathrm{qmid}\ p\cdot((a(p+1)-a\ p)\cdot\ w((a\ p+a(p+1))/2))\vert\le\ E\ p,\ \vert(\int\ x\ \text{in}\ a\ 0..a\ P,\ w\ x\cdot\ \Omega\ x)-\sum\ p\ \in\ \mathrm{Finset.range}\ P,\ \mathrm{qmid}\ p\cdot((a(p+1)-a\ p)\cdot\ w((a\ p+a(p+1))/2))\vert\le\ \sum\ p\ \in\ \mathrm{Finset.range}\ P,\ E\ p$ |
+| [49](prime-spectrum-tensor/lean/PanelSum.lean#L49) | theorem | `integral_Ioi_split` | $\forall\,f : \mathbb{R}\to\ \mathbb{R},\ \forall\,T : \mathbb{R},\ \forall\,hT : 0\le\ T,\ \forall\,hint_{1} : \mathrm{MeasureTheory.IntegrableOn}\ f(\mathrm{Set.Ioc}\ 0\ T),\ \forall\,hint_{2} : \mathrm{MeasureTheory.IntegrableOn}\ f(\mathrm{Set.Ioi}\ T),\ \int\ x\ \text{in}\ \mathrm{Set.Ioi}\ 0,\ f\ x=(\int\ x\ \text{in}(0)..T,\ f\ x)+\int\ x\ \text{in}\ \mathrm{Set.Ioi}\ T,\ f\ x$ |
+
+### [`prime-spectrum-tensor/lean/PoleEnclosure.lean`](prime-spectrum-tensor/lean/PoleEnclosure.lean) — 13 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [39](prime-spectrum-tensor/lean/PoleEnclosure.lean#L39) | theorem | `two_cosh_real` | $\forall\,x : \mathbb{R},\ 2\cdot\ \mathrm{Real.cosh}\ x=\mathrm{Real.exp}\ x+\mathrm{Real.exp}(-x)$ |
+| [46](prime-spectrum-tensor/lean/PoleEnclosure.lean#L46) | theorem | `poleTerm_eq_inv20` | $\forall\,c : \mathbb{R},\ \mathrm{poleTerm}\ c(1/20)=(\mathrm{Real.pi}/100)\cdot\ \mathrm{Real.exp}(1/1600)\cdot\ \mathrm{Real.cosh}(c/2)$ |
+| [57](prime-spectrum-tensor/lean/PoleEnclosure.lean#L57) | theorem | `pi_div_hundred_mem` | $:(31415/1000000:\mathbb{R})\le\ \mathrm{Real.pi}/100\ \land\ \mathrm{Real.pi}/100\le\ 31416/1000000$ |
+| [64](prime-spectrum-tensor/lean/PoleEnclosure.lean#L64) | theorem | `exp_inv1600_mem` | $:(1+1/1600-1/1000000:\mathbb{R})\le\ \mathrm{Real.exp}(1/1600)\ \land\ \mathrm{Real.exp}(1/1600)\le\ 1+1/1600+1/1000000$ |
+| [75](prime-spectrum-tensor/lean/PoleEnclosure.lean#L75) | theorem | `cosh_01_mem` | $:(10050041/10000000:\mathbb{R})\le\ \mathrm{Real.cosh}(1/10)\ \land\ \mathrm{Real.cosh}(1/10)\le\ 10050042/10000000$ |
+| [87](prime-spectrum-tensor/lean/PoleEnclosure.lean#L87) | theorem | `cosh_02_mem` | $:(10200667/10000000:\mathbb{R})\le\ \mathrm{Real.cosh}(1/5)\ \land\ \mathrm{Real.cosh}(1/5)\le\ 10200668/10000000$ |
+| [99](prime-spectrum-tensor/lean/PoleEnclosure.lean#L99) | theorem | `cosh_03_mem` | $:(10453385/10000000:\mathbb{R})\le\ \mathrm{Real.cosh}(3/10)\ \land\ \mathrm{Real.cosh}(3/10)\le\ 10453386/10000000$ |
+| [112](prime-spectrum-tensor/lean/PoleEnclosure.lean#L112) | theorem | `poleTerm_between` | $\forall\,c : \mathbb{R},\ \forall\,clo\,chi : \mathbb{R},\ \forall\,h : \mathrm{clo}\le\ \mathrm{Real.cosh}(c/2)\ \land\ \mathrm{Real.cosh}(c/2)\le\ \mathrm{chi},\ \forall\,hclo : 0\le\ \mathrm{clo},\ (31415/1000000:\mathbb{R})\cdot(1+1/1600-1/1000000)\cdot\ \mathrm{clo}\le\ \mathrm{poleTerm}\ c(1/20)\ \land\ \mathrm{poleTerm}\ c(1/20)\le(31416/1000000:\mathbb{R})\cdot(1+1/1600+1/1000000)\cdot\ \mathrm{chi}$ |
+| [134](prime-spectrum-tensor/lean/PoleEnclosure.lean#L134) | theorem | `poleTerm_neg` | $\forall\,c\,\sigma : \mathbb{R},\ \mathrm{poleTerm}(-c)\ \sigma=\mathrm{poleTerm}\ c\ \sigma$ |
+| [139](prime-spectrum-tensor/lean/PoleEnclosure.lean#L139) | theorem | `poleTerm_mem_c0` | $:(31434/1000000:\mathbb{R})\le\ \mathrm{poleTerm}\ 0(1/20)\ \land\ \mathrm{poleTerm}\ 0(1/20)\le\ 31436/1000000$ |
+| [150](prime-spectrum-tensor/lean/PoleEnclosure.lean#L150) | theorem | `poleTerm_mem_c1` | $:(31591/1000000:\mathbb{R})\le\ \mathrm{poleTerm}(1/5)(1/20)\ \land\ \mathrm{poleTerm}(1/5)(1/20)\le\ 31593/1000000$ |
+| [162](prime-spectrum-tensor/lean/PoleEnclosure.lean#L162) | theorem | `poleTerm_mem_c2` | $:(32065/1000000:\mathbb{R})\le\ \mathrm{poleTerm}(2/5)(1/20)\ \land\ \mathrm{poleTerm}(2/5)(1/20)\le\ 32067/1000000$ |
+| [174](prime-spectrum-tensor/lean/PoleEnclosure.lean#L174) | theorem | `poleTerm_mem_c3` | $:(32859/1000000:\mathbb{R})\le\ \mathrm{poleTerm}(3/5)(1/20)\ \land\ \mathrm{poleTerm}(3/5)(1/20)\le\ 32861/1000000$ |
+
+### [`prime-spectrum-tensor/lean/PrimeEnclosure.lean`](prime-spectrum-tensor/lean/PrimeEnclosure.lean) — 25 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [56](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L56) | theorem | `gaussianBump_inv20` | $\forall\,c\,v : \mathbb{R},\ \mathrm{gaussianBump}\ c(1/20)\ v=\mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot\ \mathrm{Real.exp}(-100\cdot(v-c)^{2})$ |
+| [69](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L69) | theorem | `primeTerm_eq_inv20` | $\forall\,c : \mathbb{R},\ \mathrm{primeTerm}\ c(1/20)=-2\cdot\ \sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c\ n$ |
+| [75](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L75) | theorem | `log_ge_one_of_three_le` | $\forall\,n : \mathbb{N},\ \forall\,hn : 3\le\ n,\ 1\le\ \mathrm{Real.log}\ n$ |
+| [83](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L83) | theorem | `exp_decay_le` | $\forall\,x\,c : \mathbb{R},\ \forall\,hx_{1} : 1\le\ x,\ \forall\,hc : c\le\ 3/5,\ \mathrm{Real.exp}(-100\cdot(x-c)^{2})\le\ \mathrm{Real.exp}(-14\cdot\ x)$ |
+| [96](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L96) | theorem | `exp_neg_log_pow` | $\forall\,n : \mathbb{N},\ \forall\,hn : 0<(n:\mathbb{R}),\ \mathrm{Real.exp}(-14\cdot\ \mathrm{Real.log}\ n)=(((n:\mathbb{R})^{14})^{-1})$ |
+| [106](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L106) | theorem | `primeSummand_le` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \forall\,n : \mathbb{N},\ \forall\,hn : 3\le\ n,\ \mathrm{primeSummand}\ c\ n\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot(((n:\mathbb{R})^{13})^{-1})$ |
+| [160](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L160) | theorem | `tele2_sub` | $\forall\,n : \mathbb{N},\ \mathrm{tele2}\ n-\mathrm{tele2}(n+1)=1/(((n:\mathbb{R})+2)\cdot((n:\mathbb{R})+3))$ |
+| [167](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L167) | theorem | `sum_tele2` | $\forall\,N : \mathbb{N},\ \sum\ n\ \in\ \mathrm{Finset.range}\ N,(\mathrm{tele2}\ n-\mathrm{tele2}(n+1))=\mathrm{tele2}\ 0-\mathrm{tele2}\ N$ |
+| [173](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L173) | theorem | `tele2_nonneg` | $\forall\,n : \mathbb{N},\ 0\le\ \mathrm{tele2}\ n$ |
+| [181](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L181) | theorem | `primeSummand_le_tail` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \forall\,n : \mathbb{N},\ \mathrm{primeSummand}\ c(n+3)\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot((3:\mathbb{R})^{11})^{-1}\cdot(\mathrm{tele2}\ n-\mathrm{tele2}(n+1))$ |
+| [212](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L212) | theorem | `primeSummand_nonneg` | $\forall\,c : \mathbb{R},\ \forall\,n : \mathbb{N},\ 0\le\ \mathrm{primeSummand}\ c\ n$ |
+| [222](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L222) | theorem | `sum_tail_le` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c(n+3)\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot((3:\mathbb{R})^{11})^{-1}\cdot(1/2)$ |
+| [245](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L245) | theorem | `vonMangoldt_two` | $:\mathrm{ArithmeticFunction.vonMangoldt}\ 2=\mathrm{Real.log}\ 2$ |
+| [248](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L248) | theorem | `log_two_mem` | $:(69314718/100000000:\mathbb{R})\le\ \mathrm{Real.log}\ 2\ \land\ \mathrm{Real.log}\ 2\le\ 69314719/100000000$ |
+| [254](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L254) | theorem | `sqrt_two_mem` | $:(14142/10000:\mathbb{R})\le\ \mathrm{Real.sqrt}\ 2\ \land\ \mathrm{Real.sqrt}\ 2\le\ 14143/10000$ |
+| [259](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L259) | theorem | `sqrt_pi_mem` | $:(17724/10000:\mathbb{R})\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}\ \land\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}\le\ 17725/10000$ |
+| [265](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L265) | theorem | `primeSummand_two` | $\forall\,c : \mathbb{R},\ \mathrm{primeSummand}\ c\ 2=\mathrm{Real.log}\ 2/\mathrm{Real.sqrt}\ 2\cdot(\mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot\ \mathrm{Real.exp}(-100\cdot(\mathrm{Real.log}\ 2-c)^{2}))$ |
+| [272](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L272) | theorem | `sum_range_tail_le` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \forall\,N : \mathbb{N},\ \sum\ n\ \in\ \mathrm{Finset.range}\ N,\ \mathrm{primeSummand}\ c(n+3)\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\cdot((3:\mathbb{R})^{11})^{-1}\cdot(1/2)$ |
+| [293](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L293) | theorem | `prime_sum_split` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ (\sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c\ n)=\mathrm{primeSummand}\ c\ 2+\sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c(n+3)$ |
+| [315](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L315) | theorem | `sqrt_pi_div_twenty_le` | $:\mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\le\ 8863/100000$ |
+| [320](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L320) | theorem | `sum_tail_le_rat` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 3/5,\ \sum'\ n:\mathbb{N},\ \mathrm{primeSummand}\ c(n+3)\le\ 251/1000000000$ |
+| [333](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L333) | theorem | `primeTerm_mem_small` | $\forall\,c : \mathbb{R},\ \forall\,hc : c\le\ 2/5,\ (-22/1000000:\mathbb{R})\le\ \mathrm{primeTerm}\ c(1/20)\ \land\ \mathrm{primeTerm}\ c(1/20)\le\ 0$ |
+| [385](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L385) | theorem | `sqrt_pi_div_twenty_le_close` | $:\mathrm{Real.sqrt}\ \mathrm{Real.pi}/20\le\ 88625/1000000$ |
+| [389](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L389) | theorem | `sqrt_pi_div_twenty_ge` | $:(8862/100000:\mathbb{R})\le\ \mathrm{Real.sqrt}\ \mathrm{Real.pi}/20$ |
+| [394](prime-spectrum-tensor/lean/PrimeEnclosure.lean#L394) | theorem | `primeTerm_mem_three_fifths` | $:(-36490/1000000:\mathbb{R})\le\ \mathrm{primeTerm}(3/5)(1/20)\ \land\ \mathrm{primeTerm}(3/5)(1/20)\le-3646/100000$ |
+
+### [`prime-spectrum-tensor/lean/SeriesRoute.lean`](prime-spectrum-tensor/lean/SeriesRoute.lean) — 5 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [45](prime-spectrum-tensor/lean/SeriesRoute.lean#L45) | theorem | `omegaTerm_nonneg` | $\forall\,k : \mathbb{N},\ \forall\,t : \mathbb{R},\ 0\le\ \mathrm{omegaTerm}\ k\ t$ |
+| [54](prime-spectrum-tensor/lean/SeriesRoute.lean#L54) | theorem | `omegaTerm_le` | $\forall\,k : \mathbb{N},\ \forall\,t : \mathbb{R},\ \mathrm{omegaTerm}\ k\ t\le\ t^{2}/(4\cdot((k:\mathbb{R})+1/4)^{3})$ |
+| [66](prime-spectrum-tensor/lean/SeriesRoute.lean#L66) | theorem | `inv_cube_le` | $\forall\,a : \mathbb{R},\ \forall\,ha : 2\le\ a,\ 1/a^{3}\le\ 1/a^{2}-1/(a+1)^{2}$ |
+| [77](prime-spectrum-tensor/lean/SeriesRoute.lean#L77) | theorem | `sum_telescope` | $\forall\,N\,M : \mathbb{N},\ \sum\ k\ \in\ \mathrm{Finset.range}\ M,(1/((k:\mathbb{R})+N+1/4)^{2}-1/((k:\mathbb{R})+N+1+1/4)^{2})=1/((N:\mathbb{R})+1/4)^{2}-1/((M:\mathbb{R})+N+1/4)^{2}$ |
+| [90](prime-spectrum-tensor/lean/SeriesRoute.lean#L90) | theorem | `sum_omegaTerm_tail_le` | $\forall\,t : \mathbb{R},\ \forall\,N : \mathbb{N},\ \forall\,hN : 2\le\ N,\ \sum'\ k:\mathbb{N},\ \mathrm{omegaTerm}(k+N)\ t\le\ t^{2}/4\cdot(1/((N:\mathbb{R})+1/4)^{2})$ |
+
+### [`prime-spectrum-tensor/lean/SumApprox.lean`](prime-spectrum-tensor/lean/SumApprox.lean) — 1 proof
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [18](prime-spectrum-tensor/lean/SumApprox.lean#L18) | theorem | `sum_abs_sub_le` | $\forall\,P : \mathbb{N},\ \forall\,f\,g\,d : \mathbb{N}\to\ \mathbb{R},\ \forall\,h : \forall\ p<P,\ \vert{}f\ p-g\ p\vert\le\ d\ p,\ \vert(\sum\ p\ \in\ \mathrm{Finset.range}\ P,\ f\ p)-(\sum\ p\ \in\ \mathrm{Finset.range}\ P,\ g\ p)\vert\le\ \sum\ p\ \in\ \mathrm{Finset.range}\ P,\ d\ p$ |
 
 ### [`prime-spectrum-tensor/lean/Topic.lean`](prime-spectrum-tensor/lean/Topic.lean) — 13 proofs
 
@@ -2944,6 +3412,37 @@ Anonymous examples: [line 2](finite-window-zeros/lean/TempTest.lean#L2).
 | [242](prime-spectrum-tensor/lean/Topic.lean#L242) | theorem | `posSemidef_of_cholesky` | $\forall\,n : \mathrm{Type}\cdot,\ \forall\,[\mathrm{Fintype}\ n],\ \forall\,[\mathrm{DecidableEq}\ n],\ \forall\,L : \mathrm{Matrix}\ n\ n\ \mathbb{Q},\ (L^{H}\cdot\ L).\mathrm{PosSemidef}$ |
 | [248](prime-spectrum-tensor/lean/Topic.lean#L248) | theorem | `not_posSemidef_of_neg` | $\forall\,n : \mathrm{Type}\cdot,\ \forall\,[\mathrm{Fintype}\ n],\ \forall\,[\mathrm{DecidableEq}\ n],\ \forall\,M : \mathrm{Matrix}\ n\ n\ \mathbb{Q},\ \forall\,v : n\to\ \mathbb{Q},\ \forall\,h : \mathrm{star}\ v\cdot{}_{v}(M\cdot{}_{v}\ v)<0,\ \neg\ M.\mathrm{PosSemidef}$ |
 | [272](prime-spectrum-tensor/lean/Topic.lean#L272) | theorem | `L4Shadow_posSemidef` | $:(\mathrm{L4Shadow}^{H}\cdot\ \mathrm{L4Shadow}).\mathrm{PosSemidef}$ |
+
+### [`prime-spectrum-tensor/lean/Transfer.lean`](prime-spectrum-tensor/lean/Transfer.lean) — 8 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [79](prime-spectrum-tensor/lean/Transfer.lean#L79) | theorem | `posDef_of_entry_bound` | $\forall\,n : \mathrm{Type}\cdot,\ \forall\,[\mathrm{Fintype}\ n],\ \forall\,[\mathrm{DecidableEq}\ n],\ \forall\,C\,G : \mathrm{Matrix}\ n\ n\ \mathbb{R},\ \forall\,t\,\varepsilon : \mathbb{R},\ \forall\,hGsym : \forall\ i\ j,\ G\ i\ j=G\ j\ i,\ \forall\,hC : (C-t\ \bullet(1:\mathrm{Matrix}\ n\ n\ \mathbb{R})).\mathrm{PosDef},\ \forall\,h\varepsilon_{0} : 0\le\ \varepsilon,\ \forall\,h\varepsilon : \forall\ i\ j,\ \vert{}G\ i\ j-C\ i\ j\vert\le\ \varepsilon,\ \forall\,hdim : \varepsilon\cdot(\mathrm{Fintype.card}\ n:\mathbb{R})<t,\ G.\mathrm{PosDef}$ |
+| [202](prime-spectrum-tensor/lean/Transfer.lean#L202) | theorem | `gramCentre4_symm` | $\forall\,i\,j : \mathrm{Fin}\ 4,\ \mathrm{gramCentre4}\ i\ j=\mathrm{gramCentre4}\ j\ i$ |
+| [205](prime-spectrum-tensor/lean/Transfer.lean#L205) | theorem | `D4_eq_diagonal` | $:\mathrm{D4}=\mathrm{diagonal}(![510899/25000000,\ 72866382887/10217980000000,\ 117293281231856199/36433191443500000000,\ 5088006962541167940089/46917312492742479600000000]:\mathrm{Fin}\ 4\to\ \mathbb{R})$ |
+| [212](prime-spectrum-tensor/lean/Transfer.lean#L212) | theorem | `D4_posDef` | $:\mathrm{D4.PosDef}$ |
+| [216](prime-spectrum-tensor/lean/Transfer.lean#L216) | theorem | `gramCentre4_factor` | $:\mathrm{gramCentre4}-\mathrm{gramMargin}\ \bullet(1:\mathrm{Matrix}(\mathrm{Fin}\ 4)(\mathrm{Fin}\ 4)\ \mathbb{R})=\mathrm{L4}\cdot\ \mathrm{D4}\cdot\ \mathrm{L4}^{T}$ |
+| [224](prime-spectrum-tensor/lean/Transfer.lean#L224) | theorem | `L4_transpose_det` | $:(\mathrm{L4}^{T}).\mathrm{det}=1$ |
+| [235](prime-spectrum-tensor/lean/Transfer.lean#L235) | theorem | `gramCentre4_sub_posDef` | $:(\mathrm{gramCentre4}-\mathrm{gramMargin}\ \bullet(1:\mathrm{Matrix}(\mathrm{Fin}\ 4)(\mathrm{Fin}\ 4)\ \mathbb{R})).\mathrm{PosDef}$ |
+| [255](prime-spectrum-tensor/lean/Transfer.lean#L255) | theorem | `gaussianGram4_posDef_of_entry_bound` | $\forall\,G : \mathrm{Matrix}(\mathrm{Fin}\ 4)(\mathrm{Fin}\ 4)\ \mathbb{R},\ \forall\,\varepsilon : \mathbb{R},\ \forall\,hGsym : \forall\ i\ j,\ G\ i\ j=G\ j\ i,\ \forall\,h\varepsilon : \forall\ i\ j,\ \vert{}G\ i\ j-\mathrm{gramCentre4}\ i\ j\vert\le\ \varepsilon,\ \forall\,h\varepsilon_{0} : 0\le\ \varepsilon,\ \forall\,hdim : \varepsilon\cdot\ 4<\mathrm{gramMargin},\ G.\mathrm{PosDef}$ |
+
+### [`prime-spectrum-tensor/lean/WeightBound.lean`](prime-spectrum-tensor/lean/WeightBound.lean) — 5 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [52](prime-spectrum-tensor/lean/WeightBound.lean#L52) | theorem | `hasDerivAt_gauss` | $\forall\,x : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{Real.exp}(-((1/20:\mathbb{R})\cdot\ t)^{2}))(-(x/200)\cdot\ \mathrm{Real.exp}(-((1/20:\mathbb{R})\cdot\ x)^{2}))\ x$ |
+| [65](prime-spectrum-tensor/lean/WeightBound.lean#L65) | theorem | `hasDerivAt_cos` | $\forall\,c\,x : \mathbb{R},\ \mathrm{HasDerivAt}(\lambda\ t:\mathbb{R}\Rightarrow\ \mathrm{Real.cos}(c\cdot\ t))(-(c\cdot\ \mathrm{Real.sin}(c\cdot\ x)))\ x$ |
+| [71](prime-spectrum-tensor/lean/WeightBound.lean#L71) | theorem | `hasDerivAt_weight` | $\forall\,c\,x : \mathbb{R},\ \mathrm{HasDerivAt}(\mathrm{weight}\ c)(\mathrm{weight1}\ c\ x)\ x$ |
+| [79](prime-spectrum-tensor/lean/WeightBound.lean#L79) | theorem | `hasDerivAt_weight2` | $\forall\,c\,x : \mathbb{R},\ \mathrm{HasDerivAt}(\mathrm{weight1}\ c)(\mathrm{weight2}\ c\ x)\ x$ |
+| [112](prime-spectrum-tensor/lean/WeightBound.lean#L112) | theorem | `abs_deriv2_weight_le` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 3/5,\ \forall\,x : \mathbb{R},\ \forall\,hx_{0} : 0\le\ x,\ \forall\,hx_{60} : x\le\ 60,\ \vert{}\mathrm{deriv}(\mathrm{deriv}(\mathrm{weight}\ c))\ x\vert\le\ 1/400$ |
+
+### [`prime-spectrum-tensor/lean/WeightDecay.lean`](prime-spectrum-tensor/lean/WeightDecay.lean) — 3 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [18](prime-spectrum-tensor/lean/WeightDecay.lean#L18) | theorem | `exp_neg_le_inv_one_add` | $\forall\,u : \mathbb{R},\ \forall\,hu : 0\le\ u,\ \mathrm{Real.exp}(-u)\le\ 1/(1+u)$ |
+| [26](prime-spectrum-tensor/lean/WeightDecay.lean#L26) | theorem | `abs_weight_le_exp` | $\forall\,c\,t : \mathbb{R},\ \vert{}\mathrm{weight}\ c\ t\vert\le(1/400:\mathbb{R})\cdot\ \mathrm{Real.exp}(-(t^{2}/400))$ |
+| [39](prime-spectrum-tensor/lean/WeightDecay.lean#L39) | theorem | `abs_weight_le_div` | $\forall\,c : \mathbb{R},\ \forall\,a\,t : \mathbb{R},\ \forall\,ha : 0\le\ a,\ \forall\,hat : a\le\ t,\ \vert{}\mathrm{weight}\ c\ t\vert\le(1/400:\mathbb{R})/(1+a^{2}/400)$ |
 
 ## proof-99-global-harmonic-framework
 

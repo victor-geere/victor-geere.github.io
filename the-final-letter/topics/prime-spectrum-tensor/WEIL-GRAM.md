@@ -16,8 +16,9 @@ dimension factor (`n·ε`, not `ε`) and the exact rational certificate
 and the conditional assembly are in
 [`lean/GaussianGram.lean`](lean/GaussianGram.lean).  The numerical certificate
 below is still the *specification*, not a proof: the entrywise enclosure of the
-exact matrix is the one remaining obligation, and its route (Euler-limit series
-for `Ω`, not Binet) plus the two remaining blockers are recorded in
+exact matrix is the one remaining obligation.  The pole term is now enclosed
+unconditionally (`lean/PoleEnclosure.lean`); the density and prime terms remain,
+and the assembly route — with the exact reusable Lean declarations — is in
 [`OMEGA-ROUTE.md`](OMEGA-ROUTE.md).
 
 **Parent dossier:** [`README.md`](README.md) · **Route note:**

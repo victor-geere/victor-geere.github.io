@@ -924,10 +924,12 @@ finite PSD certificate. It applies to annular/sector indicator vectors, whose
 Gram entries are the overlaps of the sectors.
 
 This is **not** the analytic Weil positivity statement. It is the finite
-algebra that any such test-vector model must satisfy; the analytic Gram matrix
-and its positivity over the actual zeta zeros remain open (O4).
+algebra that any such test-vector model must satisfy. The specific finite
+\(4\times4\) Gaussian Weil–Gram certificate is now Lean-proved (**O4 closed**,
+§7.9); the infinite analytic Gram matrix and its positivity over the actual
+zeta zeros remain open.
 
-### 7.9 The finite zero side and the O4 certificate route
+### 7.9 The finite zero side and the O4 certificate (closed)
 
 The finite zero side is Lean-proved in the local library rather than
 re-proved here. In
@@ -953,38 +955,89 @@ read as a tail) and \(\|(Z'/Z)h\|\le M\) on both boundaries,
 \]
 
 The finite Gram route (M0′) is in
-[`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md). Its first work
-item (**W1**) is now Lean-checked:
+[`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md).  The
+entrywise-to-Loewner transfer `posDef_of_entry_bound` uses the correct norm (an
+entrywise margin \(\varepsilon\) perturbs the spectrum by at most
+\(n\varepsilon\), not by \(\varepsilon\)), and `gramCentre4_sub_posDef`
+proves by exact rational \(LDL^{\top}\) arithmetic that the rounded numerical
+Gram matrix minus \(\tfrac{227}{10000}I\) is positive definite; the assembly
+`gaussianGram4_posDef_of_enclosure` then reduces the exact matrix to an
+entrywise enclosure with \(\varepsilon<0.005675\).
 
-- `posDef_of_entry_bound` in
-  [`prime-spectrum-tensor/lean/Transfer.lean`](../prime-spectrum-tensor/lean/Transfer.lean)
-  states the entrywise-to-Loewner transfer with the correct norm: an entrywise
-  margin \(\varepsilon\) bounds the spectral perturbation by \(n\varepsilon\),
-  not by \(\varepsilon\).  This is the audit item of
-  [`HANDOFF-O4.md`](HANDOFF-O4.md) §4, and it is now a theorem rather than a
-  convention.
-- `gramCentre4_sub_posDef` in the same file proves, by exact rational
-  \(LDL^{\top}\) arithmetic, that the rounded numerical Gram matrix minus
-  \(\tfrac{227}{10000}I\) is positive definite.
-- `gaussianGram4_posDef_of_enclosure` in
-  [`prime-spectrum-tensor/lean/GaussianGram.lean`](../prime-spectrum-tensor/lean/GaussianGram.lean)
-  is the assembly: the exact matrix `gaussianGram4` is positive definite as soon
-  as every entry is within \(\varepsilon<0.005675\) of that centre.
+That entrywise enclosure is now supplied.  The finite certificate is
+**complete** (2026-11-05):
+
+- the pole, prime and density enclosures (`PoleEnclosure.lean`,
+  `PrimeEnclosure.lean`) and the assembly
+  `gaussianGram4_posDef_of_density_enclosure_loose`
+  ([`Assembly.lean`](../prime-spectrum-tensor/lean/Assembly.lean)), which turns
+  the target into four `densityTerm` bands of half-width \(3.5\cdot10^{-3}\);
+- the generated density certificates
+  [`DensityC0_0.lean`](../prime-spectrum-tensor/lean/DensityC0_0.lean) …
+  [`DensityC3_8.lean`](../prime-spectrum-tensor/lean/DensityC3_8.lean)
+  (36 chunk files; 1305 graded panels for each of
+  \(c=0,\tfrac15,\tfrac25,\tfrac35\)), each proving
+  `IntersectionForm.density (1/20) c ∈ Set.Icc LO HI` with explicit rationals,
+  to a per-panel error \(K=\sum_p E_p+10^{-4}\approx1.45\cdot10^{-3}\);
+- [`DensityCertificates.lean`](../prime-spectrum-tensor/lean/DensityCertificates.lean),
+  which converts the four intervals into the assembly's bands and proves
+
+\[
+\texttt{(gaussianGram4 (1/20)).PosDef}
+\]
+
+  with no `sorry`, `axiom` or `admit`, and only Lean's three standard axioms
+  (`#print axioms`: `propext`, `Classical.choice`, `Quot.sound`).
+
+The numerical layer is a certified computation: \(\Omega\) is enclosed at the
+midpoint of each panel by `IntersectionForm.omega_mem_scaled` (a scaled-log
+version of the shared library's enclosure, \(N=4\), \(M=45\)), the node
+values \(w(m)=\tfrac1{400}e^{-m^2/400}\cos(cm)\) by `Real.exp_bound` and the
+local cos Taylor remainder, the panels are glued by the cumulative
+`panel_step`, and the tail \(t>60\) is bounded by `density_tail_le`.
 
 The rational shadow `L4Shadowᴴ * L4Shadow` still certifies only the rounded
-shadow, not the exact transcendental Gram matrix. The one remaining input is a
-rigorous enclosure of the archimedean density
-\(\Omega(t)=\Re\psi(\tfrac14+\tfrac{it}{2})-\log\pi\) together with the
-quadrature of the density term and the prime tail. The route is no longer the
-Binet formula of `WEIL-GRAM.md` §3.1 but the **Euler-limit series** for
-\(\psi\), whose truncation error is \(t^2/(8N^2)\); the two remaining
-blockers (differentiating Mathlib's Euler limit, and a verified interval
-quadrature of a 100-term rational integrand) are recorded in
-[`prime-spectrum-tensor/OMEGA-ROUTE.md`](../prime-spectrum-tensor/OMEGA-ROUTE.md).
+shadow; what changed is that the *exact* transcendental matrix is now also
+certified, by the entrywise enclosure above.  The analytic chain that feeds it
+was already machine-checked in
+[`prime-spectrum-tensor/lean`](../prime-spectrum-tensor/lean/) (no `sorry`,
+only Lean's three standard axioms):
 
-The full scoping, Lean work breakdown and acceptance criteria for the remaining
-finite Gram certificate are in [`HANDOFF-O4.md`](HANDOFF-O4.md). O4 stays
-**Partial** until the entrywise enclosure is Lean-proved.
+- the bridge `densityTerm c σ = 2·density σ c` to the shared library's
+  `omega_mem` pointwise enclosure of `Ω`;
+- two Lipschitz bounds for `Ω` (`|Ω′| ≤ 6/t` for `t ≥ 1`, and `|Ω′| ≤ 10` for all
+  `t`), the global bound `|Ω(t)| ≤ log(t+2) + 24`, and the continuity and
+  differentiability of `Ω`;
+- a **midpoint rule with a second-derivative remainder** (Mathlib has no
+  quadrature rule at all), the weight \(w(t)=\sigma^2e^{-\sigma^2t^2}\cos(ct)\)
+  with `|w″| ≤ 1/400` and the rational decay bound `|w(t)| ≤ (1/400)/(1+a²/400)`;
+- the **per-panel signed bound** `panel_certificate_decay`, its accumulation
+  `panel_step`, the `Ioi` split, the Gaussian moment
+  `∫_T^∞ (1/400)x·e^{−x²/400} = e^{−T²/400}/2`, the tail bound
+  `|∫_{60}^∞ w·Ω| ≤ 10⁻⁴`, and the capstone `density_approx_error`;
+- a **cos Taylor remainder** for `|x| ≤ 1` (Mathlib has none) plus its
+  doubling step, i.e. the transcendental machinery for the node values.
+
+The infinite zero sum \(\sum_\rho h(\rho)\) and the analytic Weil-positivity
+statement are **not** part of O4 and remain open.
+
+### What this is — and is not
+
+The target is a **finite, purely numerical statement about one explicit 4×4
+matrix**: the Weil-Gram matrix of the Gaussian test function at `σ = 0.05` with
+centres `−0.3, −0.1, 0.1, 0.3` is positive definite.  Its numerical truth is not
+in doubt (`λ_min ≈ 0.0227097`), and its proof is a certified computation.
+
+It is **not** a statement about the infinite Weil form, and it is **not** a step
+towards the Riemann Hypothesis: positive definiteness of a finite Gram matrix on
+a four-dimensional test-function space constrains nothing about the zeta zeros.
+The dossier records the finite certificate because it is a fully explicit,
+checkable instance of the machinery of T73–T76 — no more.
+
+The full scoping, Lean work breakdown and acceptance criteria are in
+[`HANDOFF-O4.md`](HANDOFF-O4.md).  The finite certificate is Lean-proved, so
+**O4 is Closed**; the infinite Weil-positivity statement is a separate
+question and remains open.
 
 ## 8. Reusable transforms
 
@@ -1108,7 +1161,7 @@ Every row marked **Theorem** is proved in the Lean files under
 | O1 | Closed | Vector-valued area field is proved for absolutely summable `c` by T44–T50. | T50 |
 | O2 | Partial | The pole-term contour connection is Lean-proved by T51–T52; the zero sum and Weil positivity remain open. | T51 |
 | O3 | Closed | Product-to-sum annular representation for Euler products is proved by T38–T43. | T43 |
-| O4 | Partial | The finite zero sum and the pole terms are Lean-proved in the local library: `test_function_explicit_formula` gives `∮(Z'/Z)h = 2πi(Σ_{ρ∈S}h(ρ) − h(0) − h(1))` for a finite zero set `S` in a rectangle, and `zero_sum_tail_bound` bounds the zero sum in a larger rectangle by `(M/2π)(perimeter' + perimeter)` when `‖(Z'/Z)h‖ ≤ M` on both boundaries. The analytic Gram/positivity theorem remains open. | T73–T76; local library `absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean`, `TailBound.lean`; [handoff](HANDOFF-O4.md). **W1 (2026-11-04):** `posDef_of_entry_bound` (correct `n·ε` transfer) and the exact rational `LDLᵀ` certificate `(gramCentre4 − (227/10000)I).PosDef` are Lean-checked in `prime-spectrum-tensor/lean/Transfer.lean`; `gaussianGram4_posDef_of_enclosure` in `GaussianGram.lean` reduces O4 to one entrywise enclosure. The remaining analytic gap and its route (Euler-limit series for Ω) are in [`OMEGA-ROUTE.md`](../prime-spectrum-tensor/OMEGA-ROUTE.md). |
+| O4 | Closed | The finite zero sum and the pole terms are Lean-proved in the local library: `test_function_explicit_formula` gives `∮(Z'/Z)h = 2πi(Σ_{ρ∈S}h(ρ) − h(0) − h(1))` for a finite zero set `S` in a rectangle, and `zero_sum_tail_bound` bounds the zero sum in a larger rectangle by `(M/2π)(perimeter' + perimeter)` when `‖(Z'/Z)h‖ ≤ M` on both boundaries. The infinite analytic Gram/positivity statement remains open (it is not part of the finite O4 certificate). | T73–T76; local library `absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean`, `TailBound.lean`; [handoff](HANDOFF-O4.md). **W1 (2026-11-04):** `posDef_of_entry_bound` (correct `n·ε` transfer) and the exact rational `LDLᵀ` certificate `(gramCentre4 − (227/10000)I).PosDef` are Lean-checked in `prime-spectrum-tensor/lean/Transfer.lean`. **2026-11-05:** the whole analytic chain of the density term is Lean-checked (no `sorry`, standard axioms only) — the `density = 2·IntersectionForm.density` bridge, `\|Ω′\| ≤ 6/t` and `\|Ω′\| ≤ 10`, `\|Ω\| ≤ log(t+2)+24`, the **midpoint rule with remainder** (Mathlib has none), the weight's derivatives and bounds, the **per-panel signed bound** `panel_certificate`, the panel sum, the Gaussian moment tail, `\|∫_{60}^∞ w·Ω\| ≤ 10⁻⁴`, the capstone `density_approx_error`, and a **cos Taylor remainder with its doubling step**. The pole and prime terms are enclosed, and `gaussianGram4_posDef_of_density_enclosure_loose` reduces O4 to four density intervals of half-width `3.5·10⁻³`. **Closed (2026-11-05):** the numerical generation is complete — 36 generated chunk files `DensityC{0..3}_{0..8}.lean` (1305 graded panels per `c`) and [`DensityCertificates.lean`](../prime-spectrum-tensor/lean/DensityCertificates.lean), whose `gaussianGram4_posDef` proves `(gaussianGram4 (1/20)).PosDef` and depends only on `propext`, `Classical.choice`, `Quot.sound`. The infinite zero sum and Weil positivity remain open and are not part of O4. |
 | O5 | Closed | Exact angular sums for Bost–Connes data: single-prime geometric sum, all-prime Euler product, prime-log commensurability obstruction (T68–T72), and meromorphic continuation beyond the convergence domain: single-prime poles (T83–T84) and all-prime continuation to `ζ` (T85). | T68–T72, T83–T85 |
 | O6 | Closed | Exactness audit completed: 25 objects classified, with `EXACTNESS-AUDIT.md`, `python/audit.py` and `AUDIT-LOG.md` as the durable record. | A1–A25 |
 | O7 | Closed | Continuation beyond the critical strip is Lean-proved through the doubled strip `−1 < re s` (T53–T55), the completed functional equation as an integral identity (T56–T57), and the second subtraction to `−3 < re s` with the explicit, cancelled `s = −1` pole (T58–T63). | T53–T63 |
@@ -1171,8 +1224,10 @@ Mellin/Laplace layer, the critical-strip finite-part identity, the continuation
 of the annular Mellin identity to `−1 < re s` and (with the second subtraction)
 to `−3 < re s` including the completed functional equation as an integral
 identity, the Euler product-to-sum/coil, and the pole-term contour connection
-are formalised; the general Bernoulli subtraction scheme, the full-plane
-finite part, and the explicit-formula zero sum / Weil positivity are not.
+are formalised, together with the finite \(4\times4\) Gaussian Weil–Gram
+certificate; the general Bernoulli subtraction scheme, the full-plane
+finite part, and the infinite explicit-formula zero sum / Weil positivity
+are not.
 
 Run:
 
@@ -1183,8 +1238,10 @@ python3 -m pytest tests -q
 
 ## 12. Open questions
 
-1. **O4 — Explicit-formula zero sum.** The pole-term contour connection and
-   the finite Gram positivity shadow (T73–T76) are formalised, but the sum over
+1. **The infinite zero sum and Weil positivity** (not O4, which is closed).
+   The finite \(4\times4\) Gaussian Weil–Gram certificate is Lean-proved
+   (`gaussianGram4_posDef`), and the pole-term contour connection and the
+   finite Gram positivity shadow (T73–T76) are formalised, but the sum over
    the actual zeros, \(\sum_\rho h(\rho)\), and the analytic Weil-positivity
    statement remain open.
 2. **O8 — General Bernoulli subtraction / full-plane finite part.** The

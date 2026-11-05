@@ -1,47 +1,100 @@
 # Handoff — Option B: formalise the finite Gaussian Weil Gram certificate
 
-**Status:** scoped handoff, no new theorem claimed. This document is for the
-next agent/session that picks up O4 after the finite zero side was completed
-and the exact finite Gram certificate was left open.
+**Status:** **O4 closed (2026-11-05).**  The finite certificate is Lean-proved:
+`PrimeSpectrumTensor.gaussianGram4_posDef` in
+[`../prime-spectrum-tensor/lean/DensityCertificates.lean`](../prime-spectrum-tensor/lean/DensityCertificates.lean)
+states that the exact `4×4` Gaussian Weil Gram matrix at `σ = 1/20` is positive
+definite.  This document is retained as the route record; §0 and §1 below now
+record the closure instead of the open obligation.
 
-## 0. Progress update — 2026-11-04
+## 0. Progress update — 2026-11-05
 
-**W1 is closed and Lean-checked.**  The operator-norm audit item of §4 was the
-blocking prerequisite, and it is now a theorem:
+**O4 is closed.**  W1, W3, R1, the whole of R2's analysis, and the numerical
+generation are Lean-checked, and the assembly is unconditional.  The four
+density bands are produced by the generated files
+`prime-spectrum-tensor/lean/DensityC0_0.lean` … `DensityC3_8.lean` (36 chunk
+files); the final
+theorem is `gaussianGram4_posDef`.
 
-- `posDef_of_entry_bound` — [`../../prime-spectrum-tensor/lean/Transfer.lean`](../../prime-spectrum-tensor/lean/Transfer.lean):
-  if `(C − t·I).PosDef`, `G` is symmetric, every entry satisfies
-  `|G i j − C i j| ≤ ε`, and `ε · dim < t`, then `G.PosDef`.  The dimension
-  factor is stated explicitly, as §4 required.
-- `gramCentre4_sub_posDef` (same file) — the exact rational `L D Lᵀ`
-  certificate `(gramCentre4 − (227/10000)·I).PosDef`, with every scalar a
-  rational literal and every entry identity checked by `norm_num`.
-- `GaussianGram.lean` — the exact definitions (`omega`, `poleTerm`,
-  `densityTerm`, `primeTerm`, `gaussianGram4`) and the assembly
-  `gaussianGram4_posDef_of_enclosure`, which reduces the target theorem to the
-  single entrywise enclosure `∀ i j, |gaussianGram4 (1/20) i j − gramCentre4 i j| ≤ ε`
-  with `4ε < 0.0227`, i.e. `ε < 0.005675`.
+### Closed and machine-checked
 
-**The route for W2 has changed, and it matters.**  Formalising the
-differentiated Binet formula is not the cheapest path: `Ω` is better reached
-through Mathlib's Euler limit for `Γ`, which gives
+| leaf | file | what |
+|---|---|---|
+| W1 | `prime-spectrum-tensor/lean/Transfer.lean` | `posDef_of_entry_bound` (`ε · dim < t`), the exact rational `L D Lᵀ` certificate `gramCentre4 − (227/10000)·I ≻ 0`, `gaussianGram4_posDef_of_entry_bound` |
+| definitions + assembly | `GaussianGram.lean`, `Assembly.lean` | `poleTerm`, `densityTerm`, `primeTerm`, `gaussianGram4`, and `gaussianGram4_posDef_of_density_enclosure`: the target follows from four density intervals of half-width `10⁻³` |
+| W3 pole | `PoleEnclosure.lean` | four rational intervals of width `2·10⁻⁶` |
+| R1 prime | `PrimeEnclosure.lean` | `primeTerm` in `[−22·10⁻⁶, 0]` for `c ≤ 2/5`, and in `[−0.03649, −0.03646]` at `c = 3/5` |
+| **R2 (analysis)** | `DensityEnclosure`, `DensityPanel`, `DensityWeight`, `DensityTail`, `MidpointRule`, `OmegaContinuous`, `OmegaGlobal`, `OmegaPanel`, `PanelAssembly`, `PanelSum`, `PanelCertificate`, `GaussianTail`, `LipSmall`, `DensityAssembly` | see below |
+| series route (spare) | `SeriesRoute.lean` | `Σ_{k≥N} u_k(t) ≤ (t²/4)/(N+1/4)²` |
 
-`Ω(t) = ψ(1/4) − log π + Σ_{k≥0} [1/(k+1/4) − (k+1/4)/((k+1/4)² + t²/4)]`
+The 21 files of `prime-spectrum-tensor/lean` build with
+`./check.sh` in about two minutes; 2,606 named proofs repo-wide.
 
-with `ψ(1/4) = −γ − 3 log 2 − π/2` in closed form and truncation error
-`≤ t²/(8N²)` — an entry error of only `2.2/N²`.  Two blockers remain, both
-recorded with their analysis in
-[`../../prime-spectrum-tensor/OMEGA-ROUTE.md`](../../prime-spectrum-tensor/OMEGA-ROUTE.md):
+### R2 — what was proved
 
-* **B1** — differentiating the Euler limit: a locally uniform version of
-  `Complex.GammaSeq_tendsto_Gamma`, or the integration route that avoids
-  `UniformLimitsDeriv`.  This is the only analytic gap left in W2.
-* **B2** — a verified interval quadrature of a ~100-term rational integrand
-  (`exp` and `cos` need rational Taylor models; Lean has no such library).
+* `densityTerm c σ = 2 · IntersectionForm.density σ c` (`DensityEnclosure`), so
+  the shared library's `omega_mem` applies.
+* `|Ω′(t)| ≤ 6/t` for `t ≥ 4` (`DensityPanel`), and `|Ω′(t)| ≤ 10` for **all**
+  `t` (`LipSmall`, by the telescoping `Σ_j ((j+1/4)²+a²)⁻¹ ≤ 18`).
+* `|Ω(t)| ≤ log(t+2) + 24` for all `t > 0` (`OmegaGlobal`), from
+  `IntersectionForm.digamma_expansion`.
+* `Ω` continuous and differentiable (`OmegaContinuous`).
+* the **midpoint rule with a second-derivative remainder**
+  `|∫_a^b f − (b−a)f(m)| ≤ B(b−a)³/4` (`MidpointRule`) — Mathlib has no
+  quadrature rule.
+* the weight `w(t) = σ²e^{−σ²t²}cos(ct)`: its first and second derivatives, and
+  `|w″| ≤ 1/100`, `|w| ≤ 1/400` (`WeightBound`, `DensityWeight`).
+* the **per-panel signed bound** (`PanelAssembly.panel_mem`) and its packaged
+  form `panel_certificate` (one lemma invocation per panel).
+* the panel-sum error (`PanelSum.panel_sum_error`), the `Ioi` split, the
+  Gaussian moment `∫_T^∞ (1/400)x·e^{−x²/400} = e^{−T²/400}/2` (`GaussianTail`),
+  and `|∫_{60}^∞ w·Ω| ≤ 10⁻⁴` (`DensityTail`).
+* the **capstone** `DensityAssembly.density_approx_error`:
+  `|density(1/20,c) − Σ_p qmid p·(b_p−a_p)·w(m_p)| ≤ Σ_p E p + 10⁻⁴`.
 
-**O4 stays Partial.**  §5 W1 is done; W2–W5 are open.  The fallback rungs of
-§8 (3×3 at `σ = 0.05`, or the `σ = 0.03` five-point rung) remain available and
-are cheaper on both B1 and B2.
+### R2 — the numerical generation (done)
+
+The numerical generation.  Per panel and per `c ∈ {0, 1/5, 2/5, 3/5}` the
+generator produces a rational bracket for
+`w(m) = (1/400)·exp(−m²/400)·cos(cm)`.  It is emitted by
+`prime-spectrum-tensor/lean/gen/panels.py`; the two obstacles named below (no
+cos Taylor bound in Mathlib, `Real.exp_bound` only for `|x| ≤ 1`) were cleared
+by `prime-spectrum-tensor/lean/CosBound.lean` and the four-step squaring chain.
+
+* `Ω(m)`'s bracket is already available: `omega_mem m 1 1000` has measured width
+  `≤ 10⁻²` up to `t = 60` (widths: `0.032` at `M=500`, `0.0094` at `M=1000`,
+  `0.0081` at `M=2000`).
+* **This is the blocker**: Mathlib has **no Taylor bound for `cos`** (only
+  `cos_le_one_div_sqrt_sq_add_one` for `|x| ≤ 3π/2` and the Lipschitz bound
+  `|cos x − cos y| ≤ |x−y|`), and `Real.exp_bound` requires `|x| ≤ 1` whereas the
+  panel needs `exp(−m²/400)` with `m²/400` up to `9`.  Bounding these at ~600
+  nodes therefore requires *new* machinery: a cos Taylor remainder plus
+  argument reduction mod `2π` (with rational `π` bounds), and an exp bound for
+  `|x| ≤ 9` (e.g. `exp(−y/16)¹⁶` by four squarings, since `y/16 ≤ 0.5625 ≤ 1`).
+* Scale: 600 panels (width `0.1` on `[0,60]`) × 4 values of `c`
+  ≈ 2,400 panel certificates and ≈ 3,000 transcendental bound checks, i.e.
+  `10⁴`–`2·10⁴` generated lines.  `lean/gen/panels.py` is the scaffolding.
+
+### The exact reduction
+
+```lean
+-- per panel:
+panel_certificate hc hab ha0 hb60 hlip hm1 hm2
+-- then:
+density_approx_error h0 hT hpanel
+-- then, for the four c:
+gaussianGram4_posDef_of_density_enclosure hd0 hd1 hd2 hd3
+```
+
+**O4 is Closed.**  The numerical generation is complete: 1305 graded panels per
+`c`, assembled by cumulative lemmas, give the four density bands to
+`≈ 1.45·10⁻³` (inside the `1.75·10⁻³` slack of the transfer).  `No negative
+witness exists` remains true — the matrix is numerically positive definite
+(`λ_min ≈ 0.0227097`) — and it is now an affirmation that has been computed and
+checked.
+
+The fallback rungs of §8 (3×3 at `σ = 0.05`, or the `σ = 0.03` five-point rung)
+remain available and are cheaper on R2.
 
 ---
 
@@ -69,8 +122,8 @@ explicit rational/interval bound checked in Lean. This is the M0′ finite
 certificate in the route note. It is **not** the infinite Weil positivity
 statement and **not** a proof of RH.
 
-O4 can be marked closed only when this theorem (or a precise negative witness)
-is Lean-proved. Until then O4 stays **Partial**.
+O4 is marked closed because this theorem is now Lean-proved (or the certificate
+would have had to be recorded as a precise negative witness).
 
 ---
 

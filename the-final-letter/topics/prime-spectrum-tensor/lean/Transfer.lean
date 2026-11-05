@@ -104,7 +104,7 @@ theorem posDef_of_entry_bound {n : Type*} [Fintype n] [DecidableEq n]
       rw [smul_mulVec, one_mulVec]
     rw [hone]
     have hsm : x ⬝ᵥ (t • x) = t * (x ⬝ᵥ x) := by
-      simp only [dotProduct, Pi.smul_apply, smul_eq_mul, Finset.mul_sum, Finset.sum_mul]
+      simp only [dotProduct, Pi.smul_apply, smul_eq_mul, Finset.mul_sum]
       exact Finset.sum_congr rfl fun i _ => by ring
     rw [hsm]
   -- The centre part is non-negative.
@@ -114,8 +114,7 @@ theorem posDef_of_entry_bound {n : Type*} [Fintype n] [DecidableEq n]
   -- The error part is bounded by `ε · (Σ |x i|)^2`.
   have herr : |x ⬝ᵥ ((G - C) *ᵥ x)| ≤ ε * (∑ i, |x i|) ^ 2 := by
     have hexp : x ⬝ᵥ ((G - C) *ᵥ x) = ∑ i, ∑ j, x i * (G i j - C i j) * x j := by
-      simp only [dotProduct, mulVec, Matrix.sub_apply, Finset.mul_sum, Finset.sum_mul,
-        mul_assoc]
+      simp only [dotProduct, mulVec, Matrix.sub_apply, Finset.mul_sum, mul_assoc]
     rw [hexp]
     calc |∑ i, ∑ j, x i * (G i j - C i j) * x j|
         ≤ ∑ i, |∑ j, x i * (G i j - C i j) * x j| := Finset.abs_sum_le_sum_abs _ _
