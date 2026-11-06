@@ -5,7 +5,9 @@
 [`../prime-spectrum-tensor/lean/DensityCertificates.lean`](../prime-spectrum-tensor/lean/DensityCertificates.lean)
 states that the exact `4×4` Gaussian Weil Gram matrix at `σ = 1/20` is positive
 definite.  This document is retained as the route record; §0 and §1 below now
-record the closure instead of the open obligation.
+record the closure instead of the open obligation.  The next rung, M0′ at
+5×5, is also closed (2026-11-05): see
+[`../prime-spectrum-tensor/HANDOFF-M0P-5X5.md`](../prime-spectrum-tensor/HANDOFF-M0P-5X5.md).
 
 ## 0. Progress update — 2026-11-05
 
@@ -316,6 +318,14 @@ python3 python/certify_gram.py   # see WEIL-GRAM.md §3.5 for parameters
 3. **W3** for the pilot interval; compare with C9/C13.
 4. Extend to `T=100` and the full 4×4 matrix.
 5. **W4/W5**, ledger, O4 status.
+
+**After the 4×4.** The next rung, M0′ at `5×5` (centres `−0.4, −0.2, 0, 0.2,
+0.4`), is **closed (2026-11-05)**: `gaussianGram5_posDef` is proved in
+[`../prime-spectrum-tensor/lean/DensityCertificates5.lean`](../prime-spectrum-tensor/lean/DensityCertificates5.lean).
+The route record — measured margin (`λ_min = 0.0214`), the single new
+separation (`c = 4/5`), the `1/200` second-derivative constant, the
+prime-enclosure proof and the exact `L5 D5 L5ᵀ` certificate — is
+[`../prime-spectrum-tensor/HANDOFF-M0P-5X5.md`](../prime-spectrum-tensor/HANDOFF-M0P-5X5.md).
 
 ## 10. Non-goals
 

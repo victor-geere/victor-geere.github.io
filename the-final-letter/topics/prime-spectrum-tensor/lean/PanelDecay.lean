@@ -53,6 +53,32 @@ theorem panel_certificate_decay {c : ℝ} (hc : |c| ≤ 3 / 5) {a b qmlo qmhi li
     exact abs_weight_le_div ha0 ht.1
   · positivity
 
+/-- **The decaying panel certificate at `c = ±4/5`**, with the
+second-derivative constant `1/200`. -/
+theorem panel_certificate_decay_four_fifths {c : ℝ} (hc : |c| ≤ 4 / 5)
+    {a b qmlo qmhi lipx : ℝ}
+    (hab : a ≤ b) (ha0 : 0 ≤ a) (hb60 : b ≤ 60)
+    (hlip : ∀ t ∈ Set.Icc a b, |deriv IntersectionForm.Omega t| ≤ lipx)
+    (hm1 : qmlo ≤ IntersectionForm.Omega ((a + b) / 2))
+    (hm2 : IntersectionForm.Omega ((a + b) / 2) ≤ qmhi) :
+    |(∫ x in a..b, weight c x * IntersectionForm.Omega x) -
+      ((qmlo + qmhi) / 2) * ((b - a) * weight c ((a + b) / 2))| ≤
+      |(qmlo + qmhi) / 2| * ((1 / 200) * (b - a) ^ 3 / 4) +
+        max ((qmlo + qmhi) / 2 - (qmlo - lipx * (b - a) / 2))
+            ((qmhi + lipx * (b - a) / 2) - (qmlo + qmhi) / 2) *
+          ((b - a) * ((1 / 400) / (1 + a ^ 2 / 400))) := by
+  have hpanel := omega_panel_enclosure hab hlip
+    (fun t _ => differentiable_Omega.differentiableAt) hm1 hm2
+  refine panel_mem hab (by unfold weight; fun_prop) continuous_Omega ?_ ?_ ?_ ?_
+    (weight_midpoint_rule_four_fifths hc hab ha0 hb60)
+  · intro t ht
+    exact (hpanel t ht).1
+  · intro t ht
+    exact (hpanel t ht).2
+  · intro t ht
+    exact abs_weight_le_div ha0 ht.1
+  · positivity
+
 /-- A chain of panel certificates with matching endpoints. -/
 inductive PanelChain (w Ω : ℝ → ℝ) : ℝ → ℝ → Type
   /-- The empty chain at `a`. -/

@@ -152,6 +152,7 @@ from programme import (  # noqa: E402
     gaussian_convolution,
     gram_eigenvalues,
     weil_gaussian_W,
+    weil_gaussian_cross,
     weil_gaussian_density,
     weil_gaussian_gram,
     weil_gaussian_prime,
@@ -521,3 +522,92 @@ def test_tailproof_u6_interval_gram_certificate():
     assert ok
     assert all(float(d) > 0 for d in minors)
     assert abs(float(t) - 0.021100313817465383) < 1e-12
+
+
+# ---------------------------------------------------------------------------
+# The 5x5 Gaussian rung (M0')
+# ---------------------------------------------------------------------------
+
+def test_gaussian_weil_gram_5x5_rung_is_positive():
+    """The 5x5 Gaussian Weil Gram matrix at sigma = 1/20 is positive definite.
+
+    Centres ``-0.4, -0.2, 0, 0.2, 0.4``.  The smallest eigenvalue is
+    ``0.021423782...``; the exact Lean certificate is ``gaussianGram5_posDef``
+    (``lean/DensityCertificates5.lean``).  This test is the numerical
+    companion, not a substitute for the rational enclosure.
+    """
+    mp.mp.dps = 30
+    for fn in (weil_gaussian_density, weil_gaussian_prime, weil_gaussian_W):
+        fn.cache_clear()
+
+    centers = [-0.4, -0.2, 0, 0.2, 0.4]
+    G = weil_gaussian_gram(centers, mp.mpf(1) / 20)
+    # Symmetry and the known diagonal W(1/20).
+    assert max(abs(G[i, j] - G[j, i]) for i in range(5) for j in range(5)) < mp.mpf("1e-13")
+    assert abs(G[0, 0] - mp.mpf("0.043135958394838")) < mp.mpf("1e-10")
+
+    # The one new separation, c = 0.8, has an active prime term.
+    assert abs(weil_gaussian_prime(mp.mpf(4) / 5, mp.mpf(1) / 20)
+               - mp.mpf("-0.0277501")) < mp.mpf("1e-6")
+
+    ev = gram_eigenvalues(G)
+    expected = ["0.0214237822041656", "0.0228294041715226", "0.0369975592802852",
+                "0.0499859777786301", "0.0844430685395867"]
+    for got, want in zip(ev, expected):
+        assert abs(got - mp.mpf(want)) < mp.mpf("1e-10")
+    assert ev[0] > mp.mpf("0.021")
+
+
+# ---------------------------------------------------------------------------
+# Margin scaling of the spacing-0.2 ladder (C24)
+# ---------------------------------------------------------------------------
+
+def test_gaussian_margin_scaling_wall():
+    """Record the two ends of the margin-scaling audit.
+
+    ``lambda_min(6) = 0.016707845...`` and ``lambda_min(9) = 0.000896802...``;
+    the factor-10 collapse at ``n = 9`` is what rules out continuing the finite
+    ladder at the current panel width.  Numerical, not certified; see
+    ``MARGIN-SCALING.md``.
+    """
+    mp.mp.dps = 30
+    for fn in (weil_gaussian_density, weil_gaussian_prime, weil_gaussian_W):
+        fn.cache_clear()
+
+    def lmin(n):
+        centers = [mp.mpf(2 * (i - (n - 1) / 2)) / 10 for i in range(n)]
+        return gram_eigenvalues(weil_gaussian_gram(centers, mp.mpf(1) / 20))[0]
+
+    six = lmin(6)
+    nine = lmin(9)
+    assert abs(six - mp.mpf("0.0167078449604")) < mp.mpf("1e-9")
+    assert abs(nine - mp.mpf("0.0008968016576")) < mp.mpf("1e-9")
+    assert nine < six / 10
+
+
+# ---------------------------------------------------------------------------
+# The zero-side bridge (C25)
+# ---------------------------------------------------------------------------
+
+def test_zero_side_sum_matches_gaussian_gram_entry():
+    """The first 40 non-trivial zeros reproduce the Gaussian Gram entries.
+
+    This is the numerical content of ``ZERO-SIDE-BRIDGE.md``: the zero side is
+    symmetrised by the zero set, so it lands on
+    ``weil_gaussian_cross(0, c, 1/20)``, not on ``W(c)`` alone.  Numerical, not
+    certified.
+    """
+    mp.mp.dps = 30
+    for fn in (weil_gaussian_density, weil_gaussian_prime, weil_gaussian_W):
+        fn.cache_clear()
+
+    sigma = mp.mpf(1) / 20
+    gammas = [mp.im(mp.zetazero(n)) for n in range(1, 41)]
+    for k in range(5):
+        c = mp.mpf(k) / 5
+        zero_side = sum(
+            4 * mp.pi * sigma ** 2 * mp.exp(-(sigma ** 2) * g ** 2) * mp.cos(c * g)
+            for g in gammas
+        )
+        gram = weil_gaussian_cross(0, c, sigma)
+        assert abs(zero_side - gram) < mp.mpf("1e-12")

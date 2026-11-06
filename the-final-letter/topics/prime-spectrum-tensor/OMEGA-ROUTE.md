@@ -373,6 +373,44 @@ nothing about the Riemann hypothesis. A positive enclosure is a ledger
 computation; a negative one would refute the finite claim and would have to be
 recorded as such.
 
+## 5.1 The 5×5 rung (M0′, closed 2026-11-05)
+
+The first extension of the `4×4` certificate is the five-centre basis
+`−0.4, −0.2, 0, 0.2, 0.4` at `σ = 1/20`, scoped in
+[`HANDOFF-M0P-5X5.md`](HANDOFF-M0P-5X5.md).  Only one separation is new,
+`c = 4/5`; the values `0, ±1/5, ±2/5, ±3/5` are already certified.
+
+Three additions were needed:
+
+* **density at `c = 4/5`.**  Nine generated chunks
+  [`DensityC4_0.lean`](lean/DensityC4_0.lean) … [`DensityC4_8.lean`](lean/DensityC4_8.lean)
+  (`--cc 4/5 --first-index 4`).  The second-derivative bound for the weight at
+  `|c| = 4/5` is `1/200` rather than `1/400`, so the generator emits the
+  parallel certificate `panel_certificate_decay_four_fifths`
+  (`--wden 200`); the resulting density band is `±1.59·10⁻³`, i.e.
+  `±3.17·10⁻³` on `densityTerm`.
+* **pole at `c = 4/5`.**  `cosh_04_mem`, `poleTerm_mem_c4` in
+  [`PoleEnclosure.lean`](lean/PoleEnclosure.lean).
+* **prime at `c = 4/5`.**  The old domination `exp(−100(x−c)²) ≤ exp(−14x)`
+  fails at `c = 4/5`; the replacement is `exp(−100(x−4/5)²) ≤ exp(−8x)` for
+  `x ≥ log 3` (from `25x² − 42x + 16 ≥ 0` at `x ≥ 1.0962`).  The tail is
+  `≤ (√π/20)·3⁻⁵/2 < 1.83·10⁻⁴` and the `n = 2` term is evaluated by
+  `exp(−y) = (exp(−y/4))⁴`.  All in [`PrimeEnclosure.lean`](lean/PrimeEnclosure.lean),
+  ending in `primeTerm_mem_four_fifths`.
+
+The transfer is `gaussianGram5_posDef_of_entry_bound` in
+[`GaussianGram5.lean`](lean/GaussianGram5.lean): the exact rational identity
+`gramCentre5 − (1/50)·I = L5·D5·L5ᵀ` with five positive pivots, checked by
+`norm_num`.  The assembly is
+[`DensityCertificates5.lean`](lean/DensityCertificates5.lean), which proves
+
+```lean
+theorem gaussianGram5_posDef : (gaussianGram5 (1/20)).PosDef
+```
+
+with entry budget `ε = 0.0036` and `5ε = 0.018 < 0.02`.  This remains a
+finite statement: it is not the infinite Weil cone and not a proof of RH.
+
 ## 6. Correction log
 
 * **2026-11-04 (first revision).** Claimed that the `ψ` Euler-limit derivative

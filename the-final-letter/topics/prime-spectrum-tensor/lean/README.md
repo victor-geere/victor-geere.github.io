@@ -7,18 +7,22 @@ the-final-letter/topics/prime-spectrum-tensor/lean/check.sh          # everythin
 the-final-letter/topics/prime-spectrum-tensor/lean/check.sh --quick  # hand-written core (~3.5 min)
 ```
 
-`--quick` skips the 36 generated `DensityC*_*.lean` chunks (and
-`DensityCertificates.lean` if their `.olean`s are absent); it is a no-op when
+`--quick` skips the 45 generated `DensityC*_*.lean` chunks (and
+`DensityCertificates.lean` / `DensityCertificates5.lean` if their chunk
+`.olean`s are absent); it is a no-op when
 explicit files are given, and it is also accepted by the shared
 `topics/tools/check-lean.sh`, so `check-all-lean.sh --quick` and
 `verify-all.sh --quick` work.
 
-The density certificates are **chunked** (36 files, 150 panels each, since one
+The density certificates are **chunked** (45 files, nine per separation `c`,
+150 panels each, since one
 file with all 1305 panels needs ~25 GB of memory).  Rebuild them, resumably,
 with
 
 ```bash
 cd gen && python3 emit_all.py --size 150 && ./build_chunks.sh 0 1 2 3
+cd gen && python3 emit_all.py --size 150 --cc 4/5 --first-index 4 --wden 200 \
+  && ./build_chunks.sh 4
 ```
 
 The script delegates to the shared checker and uses the local Mathlib
@@ -48,6 +52,9 @@ three standard axioms:
 ```
 gaussianGram4_posDef_of_density_enclosure_loose : [propext, Classical.choice, Quot.sound]
 PrimeSpectrumTensor.gaussianGram4_posDef       : [propext, Classical.choice, Quot.sound]
+gaussianGram5_posDef_of_density_enclosure_loose : [propext, Classical.choice, Quot.sound]
+PrimeSpectrumTensor.gaussianGram5_posDef       : [propext, Classical.choice, Quot.sound]
+PrimeSpectrumTensor.D4.density_mem_c4          : [propext, Classical.choice, Quot.sound]
 PrimeSpectrumTensor.D0.density_mem_c0          : [propext, Classical.choice, Quot.sound]
 PrimeSpectrumTensor.D1.density_mem_c1          : [propext, Classical.choice, Quot.sound]
 PrimeSpectrumTensor.D2.density_mem_c2          : [propext, Classical.choice, Quot.sound]
@@ -55,6 +62,7 @@ PrimeSpectrumTensor.D3.density_mem_c3          : [propext, Classical.choice, Quo
 gaussianGram4_posDef_of_entry_bound               : [propext, Classical.choice, Quot.sound]
 gramCentre4_sub_posDef                            : [propext, Classical.choice, Quot.sound]
 primeTerm_mem_small                               : [propext, Classical.choice, Quot.sound]
+primeTerm_mem_four_fifths                         : [propext, Classical.choice, Quot.sound]
 poleTerm_mem_c1                                   : [propext, Classical.choice, Quot.sound]
 density_approx_error                              : [propext, Classical.choice, Quot.sound]
 panel_certificate                                 : [propext, Classical.choice, Quot.sound]
@@ -73,8 +81,8 @@ The committed [`BUILD.log`](BUILD.log) records the last successful run:
 [check] OK   DensityAssembly.lean (4s)
 [check] OK   DensityC0_0.lean (211s)
 [check] OK   DensityC0_1.lean (226s)
-… (66 files in all; `DensityC{0,1,2,3}_{0..8}.lean` are the
-    36 chunk files, ~5 min each)
+… (75 files in all; `DensityC{0,1,2,3,4}_{0..8}.lean` are the
+    45 chunk files, ~5–10 min each)
 [check] OK   SeriesRoute.lean (5s)
 [check] OK   SumApprox.lean (4s)
 [check] OK   Topic.lean (5s)
@@ -523,7 +531,7 @@ on `[1,60]`.
 | **`panel_step`** | extends `|∫_a^b − T| ≤ S` by `|∫_b^c − R| ≤ E` to `|∫_a^c − (T+R)| ≤ S+E`. |
 | `PanelChain`, `PanelChain.total`, `PanelChain.bound` | the earlier structural-recursion assembly (kept, no longer emitted: its `norm_num` evaluation is superlinear in the number of panels). |
 
-## `DensityC{0,1,2,3}_{0..8}.lean` — the generated certificates
+## `DensityC{0,1,2,3,4}_{0..8}.lean` — the generated certificates
 
 Each file (17–27 MB, `1305` panels) proves
 
@@ -532,7 +540,9 @@ theorem density_mem_c<i> : IntersectionForm.density (1/20) c ∈ Set.Icc LO HI
 ```
 
 with explicit rational `LO, HI` of total width `≈ 2.9·10⁻³`
-(per-panel error `Σ E_p + 10⁻⁴ ≈ 1.45·10⁻³`).  It is emitted by
+(per-panel error `Σ E_p + 10⁻⁴ ≈ 1.45·10⁻³`).  The fifth column,
+`DensityC4_*` (`c = 4/5`), uses the parallel panel certificate with the
+second-derivative constant `1/200`; its width is `≈ 3.2·10⁻³`.  It is emitted by
 [`gen/panels.py`](gen/panels.py); see [`gen/README.md`](gen/README.md) for the
 design.  The partition is 125 panels of width `1/125` on `[0,1]`, then 1180 of
 width `1/20` on `[1,60]`.
@@ -543,6 +553,56 @@ width `1/20` on `[1,60]`.
 |---|---|
 | `densityTerm_mem_c0 … c3` | the four `densityTerm` bands of `Assembly.gaussianGram4_posDef_of_density_enclosure_loose`. |
 | **`gaussianGram4_posDef`** | **`(gaussianGram4 (1/20)).PosDef`** — the exact `4×4` Gaussian Weil Gram matrix is positive definite. |
+
+## [`GaussianGram5.lean`](GaussianGram5.lean) — the 5×5 transfer (M0′)
+
+The five centres `−0.4, −0.2, 0, 0.2, 0.4`, the exact matrix `gaussianGram5`,
+the rational centre `gramCentre5`, the margin `1/50`, and the exact factorisation
+
+```lean
+gramCentre5 − (1/50)·I = L5 · D5 · L5ᵀ
+```
+
+with the five positive pivots `0.023136, 0.011384, 0.010162, 0.010162, 0.004865`.
+The transfer wrapper is `gaussianGram5_posDef_of_entry_bound`; `ε · 5 < 1/50`
+is the dimension-correct norm condition.
+
+## [`DensityCertificates5.lean`](DensityCertificates5.lean) — M0′ closed
+
+| Name | Statement |
+|---|---|
+| `densityTerm_mem_c4` | the `c = 4/5` density band `[−16443, −10097]/10⁶`. |
+| `gaussianGram5_apply` | splits one 5×5 entry into pole + density + symmetrised prime. |
+| `gaussianGram5_posDef_of_density_enclosure_loose` | the five density bands imply `(gaussianGram5 (1/20)).PosDef`, with entry budget `ε = 0.0036` (`5ε = 0.018 < 0.02`). |
+| **`gaussianGram5_posDef`** | **`(gaussianGram5 (1/20)).PosDef`** — the exact `5×5` Gaussian Weil Gram matrix is positive definite. |
+
+## [`FirstRung.lean`](FirstRung.lean) — the single Gaussian
+
+| Name | Statement |
+|---|---|
+| `gaussianW_zero_mem` | `gaussianW 0 (1/20) ∈ [0.0396, 0.0467]`. |
+| **`gaussianW_zero_pos`** | `0 < gaussianW 0 (1/20)`: the first rung of the Weil ladder, with explicit margin. |
+| `gaussianGramEntry_zero_zero` | `gaussianGramEntry 0 0 σ = gaussianW 0 σ`. |
+| `gaussianGram4_zero_zero` | the `(0,0)` entry of the 4×4 matrix is that value. |
+
+This is the single-test-function statement recommended in
+[`../WEIL-POSITIVITY.md`](../WEIL-POSITIVITY.md) §6; it is a finite theorem,
+not cone positivity.
+
+## [`ZeroSidePole.lean`](ZeroSidePole.lean) — the first bridge identity
+
+| Name | Statement |
+|---|---|
+| `zeroSideGaussian` | `H_c(s) = 2πσ² exp(σ²(s−1/2)²) exp(−c(s−1/2))`, the zero-side Gaussian. |
+| `zeroSideGaussian_zero`, `zeroSideGaussian_one` | its two pole values. |
+| **`poleTerm_eq_zeroSideGaussian_pole`** | `poleTerm c σ = H_c(0) + H_c(1)`. |
+| `poleTerm_eq_zeroSideGaussian_pole_re` | the real form used by the Gram entry. |
+
+This is the first formal link from the finite Gram certificate to the
+explicit-formula side.  The archimedean and prime terms, the infinite zero sum
+and the off-line obstruction are not proved here; see
+[`../ZERO-SIDE-BRIDGE.md`](../ZERO-SIDE-BRIDGE.md) and the O2 row of the
+[angular-partition dossier](../../angular-partition-method/README.md) §10.
 
 ## Reusable analytic infrastructure elsewhere in the repository
 
@@ -584,7 +644,9 @@ Not formalised here:
 - the Riemann hypothesis, which is never asserted or assumed;
 - ~~the exact Gaussian Gram certificate of O4 (`gaussianGram4_posDef`)~~: this
   is now proved in [`DensityCertificates.lean`](DensityCertificates.lean)
-  (it certifies the `4×4` matrix, not the infinite Weil cone).
+  (it certifies the `4×4` matrix, not the infinite Weil cone);
+- ~~the 5×5 rung M0′ (`gaussianGram5_posDef`)~~: now proved in
+  [`DensityCertificates5.lean`](DensityCertificates5.lean).
 
 The numerical content of Theorem B is checked separately in
 [`../tests/test_programme.py`](../tests/test_programme.py), not in Lean.

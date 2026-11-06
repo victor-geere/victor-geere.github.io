@@ -517,6 +517,7 @@ in the per-module tests).
 | T17 | The infinite Weierstrass canonical product converges (and is multipliable). | `multipliable_weierstrassFactor` (`Hadamard.lean`) |
 | T18 | The scaling-site limit form is non-negative when every level form is. | `limitForm_nonneg` (`Limit.lean`) |
 | T19 | The pole term is non-negative and the prime term non-positive for `h ≥ 0`. | `pole_term_nonneg`, `prime_term_nonpos` (`Weil.lean`) |
+| T20 | The zero-side Gaussian test function: `H_c(1/2+it) = 2πσ²e^{−σ²t²}e^{−ict}`, `H_c(0)+H_c(1) = 4πσ²e^{σ²/4}cosh(c/2)`, the explicit formula `∮(Z'/Z)H_c = 2πi(Σ_{ρ∈S}H_c(ρ) − H_c(0) − H_c(1))` for a finite zero set `S`, and the rank-one factorization `H_{a−b}(1/2+iγ) = φ_a(γ)conj φ_b(γ)` with the finite zero-side Gram matrix PSD. | `gaussianZeroTest_critical_line`, `gaussianZeroTest_pole_sum`, `gaussian_zero_side_contour`, `gaussianZeroTest_eq_mode_mul`, `zeroSideGramReal_posSemidef` (`GaussianZeroSide.lean`) |
 
 ### Computations (pytest)
 

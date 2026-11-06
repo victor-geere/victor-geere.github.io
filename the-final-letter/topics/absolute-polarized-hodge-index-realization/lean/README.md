@@ -6,10 +6,11 @@
 the-final-letter/topics/absolute-polarized-hodge-index-realization/lean/check.sh
 ```
 
-The twelve files are `Rescue`, `Shadow`, `Archimedean`, `Symbol`, `Limit`,
-`Weil`, `Hadamard`, `Rectangle`, `ExplicitFormula`, `TailBound`, `ZetaStrip`
-and the umbrella [`Topic.lean`](Topic.lean), which imports the other eleven so
-that the whole core can be built (and cited) through one file.
+The thirteen files are `Rescue`, `Shadow`, `Archimedean`, `Symbol`, `Limit`,
+`Weil`, `Hadamard`, `Rectangle`, `ExplicitFormula`, `GaussianZeroSide`,
+`TailBound`, `ZetaStrip` and the umbrella [`Topic.lean`](Topic.lean), which
+imports the other twelve so that the whole core can be built (and cited)
+through one file.
 
 The script delegates to [`../../tools/check-lean.sh`](../../tools/check-lean.sh)
 and uses the local Mathlib at `~/lean/mathlib4` (Lean `v4.35.0-rc2`).  The
@@ -436,6 +437,22 @@ the factorisation theorem are later milestones.
 | **`logDeriv_mul_eq_remainder_plus_residues`** | **boundary decomposition**: `Z'/Z·h = (remainder) + ∑ h(ρ)/(z-ρ) - h(0)/z - h(1)/(z-1)`. |
 
 | **`test_function_explicit_formula`** | **test-function explicit formula (zero side)**: `∮ (Z'/Z)·h = 2πi(∑_ρ h(ρ) − h(0) − h(1))`. |
+
+## The Gaussian zero side (`GaussianZeroSide.lean`)
+
+| Name | Statement |
+|---|---|
+| `gaussianZeroTest` | `H_c(s) = 2πσ² exp(σ²(s−1/2)²) exp(−c(s−1/2))`, the zero-side test function whose critical-line values are `ĝ_c(t)`. |
+| `gaussianZeroTest_critical_line` | `H_c(1/2+it) = 2πσ² exp(−σ²t²) exp(−ict)`. |
+| `gaussianZeroTest_pole_sum` | `H_c(0)+H_c(1) = 4πσ² exp(σ²/4) cosh(c/2)`, the pole term. |
+| **`gaussian_zero_side_contour`** | the explicit formula for `H_c`: `∮(Z'/Z)·H_c = 2πi(Σ_{ρ∈S}H_c(ρ) − H_c(0) − H_c(1))` for a finite zero set `S`. |
+| `gaussianZeroTest_eq_mode_mul` | rank-one factorization on the critical line: `H_{a−b}(1/2+it) = φ_a(t) conj φ_b(t)` with `φ_a(t) = σ√(2π) exp(−σ²t²/2) exp(−iat)`. |
+| **`zeroSideGramReal_posSemidef`** | **the finite zero-side Gram matrix is PSD:** `G_{ij} = Σ_k 2πσ² exp(−σ²γ_k²) cos((a_i−a_j)γ_k)` is positive semidefinite for any finite family of critical-line frequencies. |
+
+This is the first half of the zero-side bridge of `prime-spectrum-tensor`,
+including the rank-one/PSD structure; the prime/archimedean evaluation is not
+formalised here.  See
+[`../../prime-spectrum-tensor/ZERO-SIDE-BRIDGE.md`](../../prime-spectrum-tensor/ZERO-SIDE-BRIDGE.md).
 
 ## Tail bounds (`TailBound.lean`)
 

@@ -6,9 +6,11 @@ representation of any summable nonnegative series, are Lean-proved; the
 computation layer is exact. Applications to \(\zeta\), Euler products, Bost–Connes periodic-orbit data,
 the pole-term part of the explicit formula, and the continuation of the annular
 Mellin integral two strips beyond the critical strip (to \(-3 < \Re s\), with
-the \(s=-1\) pole explicit and cancelled) are Lean-proved; the zero sum and
-Weil positivity remain **open** and are recorded as such. No finite truncation
-is used in the core.
+the \(s=-1\) pole explicit and cancelled) are Lean-proved. The finite Gaussian
+Weil–Gram certificates are Lean-proved (O4, M0′), as are the first Weil rung,
+the zero-side contour identity and the finite rank-one PSD theorem (§7.10); the
+zero sum and Weil positivity remain **open** and are recorded as such. No
+finite truncation is used in the core.
 
 **Source:** proposal from Victor Geere, 3 November 2026, following the
 infinite-level obstruction in
@@ -926,8 +928,9 @@ Gram entries are the overlaps of the sectors.
 This is **not** the analytic Weil positivity statement. It is the finite
 algebra that any such test-vector model must satisfy. The specific finite
 \(4\times4\) Gaussian Weil–Gram certificate is now Lean-proved (**O4 closed**,
-§7.9); the infinite analytic Gram matrix and its positivity over the actual
-zeta zeros remain open.
+§7.9), and the \(5\times5\) rung follows (**M0′ closed**); the infinite analytic
+Gram matrix and its positivity over the actual zeta zeros remain open, with
+the zero-side bridge and its progress recorded in §7.10.
 
 ### 7.9 The finite zero side and the O4 certificate (closed)
 
@@ -1020,6 +1023,121 @@ only Lean's three standard axioms):
 
 The infinite zero sum \(\sum_\rho h(\rho)\) and the analytic Weil-positivity
 statement are **not** part of O4 and remain open.
+
+**The 5×5 rung (M0′, closed 2026-11-05).**  The same machinery extends one
+step, to the five centres \(-0.4,-0.2,0,0.2,0.4\) at \(\sigma=1/20\).  The
+only new separation is \(c=4/5\); the other four are already certified.  The
+new density chunks
+[`DensityC4_0.lean`](../prime-spectrum-tensor/lean/DensityC4_0.lean) …
+[`DensityC4_8.lean`](../prime-spectrum-tensor/lean/DensityC4_8.lean), the pole
+bound `poleTerm_mem_c4`, the prime bound `primeTerm_mem_four_fifths` (using
+\(e^{-100(x-4/5)^2}\le e^{-8x}\) for \(x\ge\log 3\)), and the exact
+rational transfer
+[`GaussianGram5.lean`](../prime-spectrum-tensor/lean/GaussianGram5.lean) feed
+[`DensityCertificates5.lean`](../prime-spectrum-tensor/lean/DensityCertificates5.lean),
+which proves
+
+\[
+\texttt{(gaussianGram5 (1/20)).PosDef}.
+\]
+
+The numerical smallest eigenvalue is \(0.0214238\); the entry budget is
+\(\varepsilon=0.0036\) against \(5\varepsilon<0.02\).  The scoping record is
+[`HANDOFF-M0P-5X5.md`](../prime-spectrum-tensor/HANDOFF-M0P-5X5.md).  This too is
+a finite statement, not the infinite Weil cone.
+
+### 7.10 Towards Weil positivity: the zero-side bridge
+
+The finite certificates of §7.9 are the entrywise side.  The other half of the
+Weil explicit formula is the zero side.  For the Gaussian bump
+\(h_c(v)=\sqrt{\pi}\,\sigma\,e^{-(v-c)^2/(4\sigma^2)}\), the zero-side test
+function is
+
+\[
+H_c(s)=2\pi\sigma^2 e^{\sigma^2(s-1/2)^2}e^{-c(s-1/2)},
+\]
+
+whose critical-line values are the Fourier transform
+\(H_c(1/2+it)=2\pi\sigma^2e^{-\sigma^2t^2}e^{-ict}\), and whose pole values
+sum to the pole term
+\(H_c(0)+H_c(1)=4\pi\sigma^2e^{\sigma^2/4}\cosh(c/2)\).
+
+Two pieces are now Lean-checked
+([`GaussianZeroSide.lean`](../absolute-polarized-hodge-index-realization/lean/GaussianZeroSide.lean)):
+
+* the contour identity
+  \[\oint_{\partial R}\frac{Z'}{Z}(s)\,H_c(s)\,ds
+    =2\pi i\Bigl(\sum_{\rho\in S}H_c(\rho)-H_c(0)-H_c(1)\Bigr)\]
+  for a finite zero set \(S\) in a rectangle;
+* the rank-one factorization
+  \(H_{a-b}(1/2+i\gamma)=\varphi_a(\gamma)\overline{\varphi_b(\gamma)}\)
+  with \(\varphi_a(\gamma)=\sigma\sqrt{2\pi}e^{-\sigma^2\gamma^2/2}e^{-ia\gamma}\).
+  Consequently, for any finite family of critical-line frequencies
+  \(\gamma_k\), the real zero-side Gram matrix
+  \[G_{ij}=\sum_k 2\pi\sigma^2e^{-\sigma^2\gamma_k^2}
+    \cos((a_i-a_j)\gamma_k)\]
+
+  is positive semidefinite (`zeroSideGramReal_posSemidef`).  This is the
+  spectral explanation of the finite certificates: the zero side is a Gram
+  matrix of real cosine/sine modes.
+
+Numerically, the first 40 non-trivial zeros reproduce the five 5×5 Gram entries
+to \(3.5\cdot10^{-18}\) (C25).  The margin-scaling audit shows that the fixed
+spacing-`0.2` ladder stalls at \(n=9\)
+([`MARGIN-SCALING.md`](../prime-spectrum-tensor/MARGIN-SCALING.md)).
+
+The remaining analytic gap is the prime/archimedean evaluation of the same
+contour integral, together with the infinite-zero limit; an off-line zero
+contributes an indefinite term and is the precise obstruction.  The scoping
+note is
+[`ZERO-SIDE-BRIDGE.md`](../prime-spectrum-tensor/ZERO-SIDE-BRIDGE.md).
+
+This is not Weil positivity on the cone and not RH.  The full work breakdown,
+including the prime/archimedean evaluation, the contour shift, the infinite-zero
+limit and the off-line obstruction, is in
+[`HANDOFF-O2.md`](HANDOFF-O2.md).
+
+#### O2 status: the precise reduction
+
+O2 is the infinite zero sum and Weil positivity.  Its unconditional closure is
+**RH-equivalent**: the programme's own assessment
+([`WEIL-POSITIVITY.md`](../prime-spectrum-tensor/WEIL-POSITIVITY.md) §2) shows
+that any uniform lower bound on the Weil form, and hence positivity on the whole
+cone, rules out every off-line zero.  So O2 cannot be marked closed without
+proving the Riemann hypothesis.  What can be formalised is the reduction.
+
+The state of the reduction is:
+
+| Component | Status |
+|---|---|
+| pole-term contour connection (T51–T52) | Lean-checked |
+| zero-side Gaussian `H_c` and the finite-zero-set contour identity | Lean-checked (`GaussianZeroSide.lean`) |
+| rank-one factorization and finite zero-side PSD | Lean-checked (`zeroSideGramReal_posSemidef`); the named statement `ZeroSideWeilPositivity` is proved |
+| pole term `= H_c(0)+H_c(1)` on the Gram side | Lean-checked (`poleTerm_eq_zeroSideGaussian_pole`) |
+| numerical zero-side bridge, first 40 zeros | checked to `3.5·10⁻¹⁸` (C25) |
+| prime/archimedean evaluation of the contour integral | partial: the Gaussian vertical-line integral `integral_exp_gaussian_line`, the critical-line phase integral `integral_critical_line_phase`, its mass corollary `integral_critical_line_zero_phase`, the centre/frequency symmetry `integral_critical_line_phase_swap`, the weighted form `integral_phase_weighted`, the termwise von Mangoldt contribution `integral_vonMangoldt_term_critical_line`, the finite-sum linearity `integral_finset_sum_phase`, the truncated von Mangoldt sum `integral_finset_sum_vonMangoldt`, its integrability lemma `integrable_phase_weighted`, the general vertical phase integral `integral_vertical_phase`, the zero-frequency vertical integral `integral_gaussianZeroTest_vertical` (and its `Re s = c` case `integral_gaussianZeroTest_vertical_self`), the termwise vertical prime term `integral_vonMangoldt_term_vertical`, the finite vertical prime side `integral_finset_sum_vonMangoldt_vertical`, its integrability lemma `integrable_phase_vertical`, the **unconditional** finite vertical prime side `integral_finset_sum_vonMangoldt_vertical_all`, the unconditional truncated prime side `integral_finset_sum_vonMangoldt_all`, the infinite prime-side reduction `hasSum_integral_vonMangoldt`, the right-side prime/archimedean decomposition `integral_logDeriv_gaussianZeroTest_right_side`, its general form `integral_logDeriv_gaussianZeroTest_right_side'`, the rectangle assembly `rectIntegral_gaussian_right_side`, the reflection `gaussianZeroTest_one_sub` (with its norm form `gaussianZeroTest_one_sub_norm` evenness `gaussianZeroTest_one_sub_zero`, pole swap `gaussianZeroTest_one_eq_neg_zero`, `gaussianZeroTest_zero_eq_neg_one`, the vertical-integral limit `tendsto_vertical_integral`, the Gaussian horizontal limit `tendsto_exp_neg_sq_zero`, the horizontal vanishing `tendsto_horizontal_integral_zero`, the rectangle-limit assembly `tendsto_rectIntegral_of_sides`, the weighted vertical limit `tendsto_vertical_integral_logDeriv`, the explicit-formula assembly `explicit_formula_assembly` its Gaussian specialisation `explicit_formula_gaussianZeroTest`, the archimedean/prime capstone `explicit_formula_gaussianZeroTest_arch_prime`, the right-side limit identification `right_limit_eq_arch_prime`, the left-side limit identification `left_limit_eq_arch_prime`, the Gaussian-sum summability `summable_exp_neg_sq`, its linear-bound form `summable_exp_neg_sq_of_abs_ge` (a model; the actual zeros grow sublinearly), the named zero-tail input `ZeroTailSummable`, the inverse-square comparison `summable_of_eventually_le_inv_sq`, the sublinear zero-tail reduction `summable_exp_neg_div_log_sq_of_le`, the log-cube growth limit `tendsto_log_cube_div_sq_zero`, the sublinear domination `eventually_exp_neg_div_log_sq_le_inv_sq`, the unconditional `n/log n` tail summability `summable_exp_neg_div_log_sq`, the zero-tail reduction `zeroTailSummable_of_ge_div_log`, the named vertical-integrability input `VerticalLogDerivIntegrable`, and the named W4 bound `FullBlockWithin`), the pointwise functional-equation reflection `logDeriv_mul_gaussianZeroTest_one_sub`, the integrated left-side reflection `integral_logDeriv_gaussianZeroTest_left_eq_neg_right`, and its symmetric case `integral_logDeriv_gaussianZeroTest_left_eq_neg_right_zero` are Lean-checked; the `Re s > 1` L-series sum and contour shift are open |
+| vertical-line modulus, phase, mass and real value of `H_c` | Lean-checked (`gaussianZeroTest_vertical_norm`, `gaussianZeroTest_norm`, `gaussianZeroTest_vertical_form`, `gaussianZeroTest_real`, `gaussianZeroTest_real_norm`, `gaussianZeroTest_zero_norm`, `gaussianZeroTest_one_norm`, `gaussianZeroTest_pole_norm_mul`, `integral_vertical_norm`, `integral_norm_general`) |
+| vertical/horizontal integrability of `H_c` | Lean-checked (`intervalIntegrable_gaussianZeroTest_vertical`, `_horizontal`) |
+| horizontal-side decay | Lean-checked (`norm_horizontal_integral_le`): `exp(−σ²T²)` |
+| infinite-zero limit and tail | open |
+| off-line obstruction / no-go | partial: the quadruple `offLineQuad`, its `γ ↦ −γ`/`c ↦ −c` symmetries, the **closed forms** `offLineQuad_re`/`offLineQuad_re_exp`, and the **unconditional 2×2 obstruction** `offLineQuad_obstruction_unconditional` (via `exists_offLineQuad_gt`) are Lean-checked; the domination by the other zeros and the `γ = 0` case are open |
+
+Concretely, the remaining formal obligations are:
+
+1. prove that the contour integral of `(Z'/Z)H_c` over a contour enclosing the
+   critical strip equals `−2πi(density(c)+prime(c))` (the sign to be pinned by
+   the `c=0` case), using the integrated prime-side identity already in
+   `ExplicitFormula.lean` and the archimedean identity;
+2. pass from finite zero sets `S` to the full non-trivial zero set, using
+   `zero_sum_tail_bound` and a polynomial growth bound for `Z'/Z` on the
+   rectangle boundary (the Gaussian factor decays like `e^{−σ²T²}`);
+3. quantify the off-line obstruction: for a zero with `β ≠ 1/2`, the
+   symmetrised contribution grows like `e^{|c||β−1/2|}` and eventually dominates
+   the bounded contribution of the on-line zeros, making a sufficiently wide
+   Gaussian Gram matrix indefinite.
+
+Items 1–2 are analysis; item 3 is the arithmetic heart.  Until they are done, O2
+stays **Partial — advanced**, not closed.
 
 ### What this is — and is not
 
@@ -1159,7 +1277,7 @@ Every row marked **Theorem** is proved in the Lean files under
 | T96 | Theorem | **Cauchy product of summable scalar series:** if `a,b` are absolutely summable with sums `A,B`, the range convolution has sum `A·B` (the `HasSum` form of Mathlib's Cauchy product theorem). | `AngularPartition.hasSum_mul_range` |
 | T97 | Theorem | **Product of scalar power series:** if `f,g` have scalar power series `a,b` at `0`, then `f·g` has the Cauchy-product series. This supplies the `HasFPowerSeriesAt.mul` that Mathlib lacks. | `AngularPartition.hasFPowerSeriesAt_mul_ofScalars` |
 | O1 | Closed | Vector-valued area field is proved for absolutely summable `c` by T44–T50. | T50 |
-| O2 | Partial | The pole-term contour connection is Lean-proved by T51–T52; the zero sum and Weil positivity remain open. | T51 |
+| O2 | Partial — advanced | **Weil positivity / the infinite zero sum.** Lean-proved: the zero-side Gaussian test function and finite-zero contour identity (`gaussian_zero_side_contour`); the rank-one factorization, finite zero-side PSD (`zeroSideGramReal_posSemidef`) and its named form `zeroSideWeilPositivity`; the pole-term identity (`poleTerm_eq_zeroSideGaussian_pole`); the **prime side** (Gaussian phase integrals, termwise von Mangoldt term, unconditional truncated prime side, finite vertical prime side); the **archimedean/prime decomposition** of the right vertical side (`integral_logDeriv_gaussianZeroTest_right_side'`); the **left-side reflection**; the **horizontal vanishing**; the **rectangle assembly**; the **infinite explicit formula** (`explicit_formula_assembly`, `explicit_formula_gaussianZeroTest`) and its **archimedean/prime capstone** (`explicit_formula_gaussianZeroTest_arch_prime`); and the **full 2×2 off-line obstruction** (`offLineQuad_obstruction_all`) with the conditional full-block domination (`offLineQuad_fullBlock_not_posSemidef`). Numerical: the first 40 zeros reproduce the five 5×5 Gram entries to `3.5·10⁻¹⁸` (C25). Remaining **named analytic inputs** (no further reductions): `ZeroTailSummable` (zero-counting lower bound `|γ_n| ≥ c·n/log n`), `VerticalLogDerivIntegrable` (integrability of `(Z'/Z)·H_c` on a vertical line), and `FullBlockWithin` (W4 zero-density entrywise bound). Unconditional O2 is RH-equivalent (`WEIL-POSITIVITY.md` §2). | T51–T52; T20; §7.10; [handoff](HANDOFF-O2.md) |
 | O3 | Closed | Product-to-sum annular representation for Euler products is proved by T38–T43. | T43 |
 | O4 | Closed | The finite zero sum and the pole terms are Lean-proved in the local library: `test_function_explicit_formula` gives `∮(Z'/Z)h = 2πi(Σ_{ρ∈S}h(ρ) − h(0) − h(1))` for a finite zero set `S` in a rectangle, and `zero_sum_tail_bound` bounds the zero sum in a larger rectangle by `(M/2π)(perimeter' + perimeter)` when `‖(Z'/Z)h‖ ≤ M` on both boundaries. The infinite analytic Gram/positivity statement remains open (it is not part of the finite O4 certificate). | T73–T76; local library `absolute-polarized-hodge-index-realization/lean/ExplicitFormula.lean`, `TailBound.lean`; [handoff](HANDOFF-O4.md). **W1 (2026-11-04):** `posDef_of_entry_bound` (correct `n·ε` transfer) and the exact rational `LDLᵀ` certificate `(gramCentre4 − (227/10000)I).PosDef` are Lean-checked in `prime-spectrum-tensor/lean/Transfer.lean`. **2026-11-05:** the whole analytic chain of the density term is Lean-checked (no `sorry`, standard axioms only) — the `density = 2·IntersectionForm.density` bridge, `\|Ω′\| ≤ 6/t` and `\|Ω′\| ≤ 10`, `\|Ω\| ≤ log(t+2)+24`, the **midpoint rule with remainder** (Mathlib has none), the weight's derivatives and bounds, the **per-panel signed bound** `panel_certificate`, the panel sum, the Gaussian moment tail, `\|∫_{60}^∞ w·Ω\| ≤ 10⁻⁴`, the capstone `density_approx_error`, and a **cos Taylor remainder with its doubling step**. The pole and prime terms are enclosed, and `gaussianGram4_posDef_of_density_enclosure_loose` reduces O4 to four density intervals of half-width `3.5·10⁻³`. **Closed (2026-11-05):** the numerical generation is complete — 36 generated chunk files `DensityC{0..3}_{0..8}.lean` (1305 graded panels per `c`) and [`DensityCertificates.lean`](../prime-spectrum-tensor/lean/DensityCertificates.lean), whose `gaussianGram4_posDef` proves `(gaussianGram4 (1/20)).PosDef` and depends only on `propext`, `Classical.choice`, `Quot.sound`. The infinite zero sum and Weil positivity remain open and are not part of O4. |
 | O5 | Closed | Exact angular sums for Bost–Connes data: single-prime geometric sum, all-prime Euler product, prime-log commensurability obstruction (T68–T72), and meromorphic continuation beyond the convergence domain: single-prime poles (T83–T84) and all-prime continuation to `ζ` (T85). | T68–T72, T83–T85 |

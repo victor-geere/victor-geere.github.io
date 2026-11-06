@@ -1,6 +1,6 @@
 # Prime-spectrum tensor — research programme
 
-**Status:** reconstructed finite formal core + exact computation layer; the source's defining inequality is an archived claim that the companion resolution refutes, not a theorem of this folder. [`WEIL-GRAM.md`](WEIL-GRAM.md) now records a finite 4×4 Gaussian Gram matrix PSD certificate at a conservative `10^{−4}` interval margin, backed by the term-by-term tail proof in [`TAIL-PROOF.md`](TAIL-PROOF.md) and the final `U=6` run (C22); it is a finite computational certificate, not a Lean theorem and not RH.
+**Status:** reconstructed finite formal core + exact computation layer; the source's defining inequality is an archived claim that the companion resolution refutes, not a theorem of this folder. The exact Gaussian Weil–Gram matrices at `σ = 1/20` are now **Lean-proved positive definite** for the 4×4 basis (T13, O4 closed) and the 5×5 basis (T14, M0′); both are finite certificates, not the infinite Weil cone and not RH. A first rung of the Weil ladder is isolated (T15), the margin-scaling wall is recorded in [`MARGIN-SCALING.md`](MARGIN-SCALING.md) (C24), and the zero-side half of the bridge is Lean-checked in [`../absolute-polarized-hodge-index-realization/lean/GaussianZeroSide.lean`](../absolute-polarized-hodge-index-realization/lean/GaussianZeroSide.lean) (see [`ZERO-SIDE-BRIDGE.md`](ZERO-SIDE-BRIDGE.md)); the equality with `W` is numerical (C25) and open. [`WEIL-GRAM.md`](WEIL-GRAM.md) also records the earlier numerical 4×4 interval certificate at a conservative `10^{−4}` margin, backed by [`TAIL-PROOF.md`](TAIL-PROOF.md) and the final `U=6` run (C22).
 **Source:** [`tensor.html`](../../geometric-dynamical-phase-transitions/tensor.html) and the companion resolution [`tensor.md`](../../geometric-dynamical-phase-transitions/tensor.md).  
 **Inventory:** [Scraps](../../scraps.html) item 4 · [Topic index](../README.md).
 
@@ -73,6 +73,10 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | T10 | Theorem | **Generic finite P5 certificate:** any rational matrix `Lᴴ L` is positive semidefinite. | `PrimeSpectrumTensor.posSemidef_of_cholesky` |
 | T11 | Theorem | **Generic negative witness:** a rational vector with negative form value refutes positive semidefiniteness. | `PrimeSpectrumTensor.not_posSemidef_of_neg` |
 | T12 | Theorem | **Rational-shadow certificate:** the rounded 4×4 Cholesky factor `L4Shadow` gives a PSD matrix. This certifies the shadow, not the exact transcendental matrix; the numerical proximity is C8, not formalised. | `PrimeSpectrumTensor.L4Shadow_posSemidef` |
+| T13 | Theorem | **Finite 4×4 Gaussian Weil–Gram certificate (O4, closed):** the exact matrix at `σ = 1/20`, centres `−0.3, −0.1, 0.1, 0.3`, is positive definite. The entrywise enclosure is closed by the generated density bands `DensityC0…C3`, the pole and prime enclosures, and the exact rational `L D Lᵀ` transfer. | `PrimeSpectrumTensor.gaussianGram4_posDef` |
+| T14 | Theorem | **Finite 5×5 Gaussian Weil–Gram certificate (M0′, closed):** the exact matrix at `σ = 1/20`, centres `−0.4, −0.2, 0, 0.2, 0.4`, is positive definite. The new separation `c = 4/5` is enclosed by `DensityC4` and `primeTerm_mem_four_fifths`; the transfer is `L5 D5 L5ᵀ`. | `PrimeSpectrumTensor.gaussianGram5_posDef` |
+| T15 | Theorem | **First rung of the Weil ladder:** the single Gaussian at `σ = 1/20` has `0.0396 < W(0) < 0.0467`; the lower bound is the numerical margin of `WEIL-POSITIVITY.md` §6. | `PrimeSpectrumTensor.gaussianW_zero_mem`, `gaussianW_zero_pos` |
+| T16 | Theorem | **Zero-side pole identity:** the pole term of the finite Gram entry is exactly `H_c(0)+H_c(1)` for the zero-side Gaussian `H_c(s)=2πσ²e^{σ²(s−1/2)²}e^{−c(s−1/2)}`. This is the first formal link between the Gram side and the explicit-formula side; the archimedean and prime terms are not identified here. | `PrimeSpectrumTensor.poleTerm_eq_zeroSideGaussian_pole`, `poleTerm_eq_zeroSideGaussian_pole_re` |
 | C1 | Computation | `Λ` is exact (`Λ(8)=log 2`, `Λ(9)=log 3`, `Λ(6)=Λ(12)=0`) with the `n<0` edge case rejected. | `test_von_mangoldt_exact_and_edge_cases` |
 | C2 | Computation | Prime weights are non-negative; the finite prime current on the constant test function is positive and vanishes for an empty truncation. | `test_prime_weights_are_nonnegative` |
 | C3 | Computation | The pole weight identity `|f̂₀(i/2)|² = 4 cos²(γ/4) e^{-(γ²-1/4)/2}` is exact (sympy, no tolerance). | `test_pole_weight_identity_is_exact` |
@@ -95,6 +99,9 @@ Every row marked **Theorem** is proved in [`lean/Topic.lean`](lean/Topic.lean) w
 | C20 | Computation | Exact rational LDL pivots of `center − tI` are positive and equal the Sylvester ratios of the leading minors, confirming the finite PSD check against the exact minor test. | `test_exact_ldl_pivots_match_leading_minors` |
 | C21 | Computation | **End-to-end audited rerun** (`H=0.1`, `T=100`, `U=4`, series/tail-audited jet, `10^{−4}` entry margin): `t=0.0210956719`, shifted minors positive; `CERTIFIED`. | `test_audited_h01_interval_gram_certificate` |
 | C22 | Computation | **Term-by-term-tail-backed certificate** (`H=0.1`, `T=100`, `U=6`, proven `10^{−5}` tail allowance): `t=0.0211003138`, shifted minors positive; `CERTIFIED`. This supersedes C21 for the tail audit. | `test_tailproof_u6_interval_gram_certificate` |
+| C23 | Computation | The 5×5 Gaussian Weil–Gram matrix at `σ=1/20`, centres `−0.4,−0.2,0,0.2,0.4`, is symmetric with diagonal `0.043135958…`, smallest eigenvalue `2.1424·10^{−2}`, eigenvalues `[0.021423782, 0.022829404, 0.036997559, 0.049985978, 0.084443069]`, and an active prime term `−0.0277501…` at `c=0.8` (30 digits; numerical companion to T14, not a certificate). | `test_gaussian_weil_gram_5x5_rung_is_positive` |
+| C24 | Computation | **Margin-scaling audit:** the spacing-0.2 ladder at `σ=1/20` has `λ_min(6)=0.016707845`, `λ_min(9)=0.000896802`; the factor-10 collapse at `n=9` and the budget `n·ε < λ_min(n)` rule out continuing at the current panel width. See [`MARGIN-SCALING.md`](MARGIN-SCALING.md). | `test_gaussian_margin_scaling_wall` |
+| C25 | Computation | **Zero-side bridge check:** the first 40 non-trivial zeros reproduce `gaussianGramEntry 0 c (1/20)` for `c = 0, 1/5, 2/5, 3/5, 4/5` to `< 10^{−17}`; the zero sum is symmetrised by the zero set, so it lands on the Gram entry. See [`ZERO-SIDE-BRIDGE.md`](ZERO-SIDE-BRIDGE.md). | `test_zero_side_sum_matches_gaussian_gram_entry` |
 
 ## Source claims (not promoted to theorems)
 
@@ -120,7 +127,19 @@ These are recorded with the source's status. None is a theorem of this folder.
 4. **Joint non-vanishing.** The surviving open statement of `tensor.md` Corollary 6.2 — that `K(α,·)` and `S(α,·)` never vanish jointly for `α ≠ 0` — is exactly RH and is not formalised.
 5. **Higher tensors.** Pair correlation and `n`-point analogues (`tensor.html` §7) are a programme, not results; no formal core is attempted here.
 6. **Numerical scope.** C5 uses the first `2×10⁴` prime powers and 13 Jacobi terms; the truncated tails are below the stated tolerances, but this is a reproduction of the source's witness, not a proof of Theorem B.
-7. **Finite Gram matrix.** [`WEIL-GRAM.md`](WEIL-GRAM.md) records a numerical PSD Gaussian Gram matrix, including a prime-active row, and a rational shadow certified by T12. The `Ω` interval layer (C9) encloses `Ω` pointwise; the interval quadrature of the density term is now generated ([`lean/DensityC0_0.lean`](lean/DensityC0_0.lean) … [`lean/DensityC3_8.lean`](lean/DensityC3_8.lean)) and the prime-tail bound is proved ([`lean/PrimeEnclosure.lean`](lean/PrimeEnclosure.lean)). Together with the pole enclosure they certify the exact matrix: `gaussianGram4_posDef` in [`lean/DensityCertificates.lean`](lean/DensityCertificates.lean).
+7. **Finite Gram matrix.** [`WEIL-GRAM.md`](WEIL-GRAM.md) records the numerical rungs and a rational shadow certified by T12. The `Ω` interval layer (C9) encloses `Ω` pointwise; the interval quadrature of the density term is generated ([`lean/DensityC0_0.lean`](lean/DensityC0_0.lean) … [`lean/DensityC4_8.lean`](lean/DensityC4_8.lean)) and the pole and prime terms are enclosed ([`lean/PoleEnclosure.lean`](lean/PoleEnclosure.lean), [`lean/PrimeEnclosure.lean`](lean/PrimeEnclosure.lean)). Together they certify the exact 4×4 matrix (`gaussianGram4_posDef`, T13) and, with the new `c = 4/5` separation, the exact 5×5 matrix (`gaussianGram5_posDef`, T14). The infinite Gram/positivity statement remains open.
+
+8. **Zero-side bridge.** The explicit-formula contour identity for the Gaussian
+   zero-side test function is Lean-checked
+   (`gaussian_zero_side_contour`, T20 in
+   [`../absolute-polarized-hodge-index-realization/lean/GaussianZeroSide.lean`](../absolute-polarized-hodge-index-realization/lean/GaussianZeroSide.lean)).
+   The equality of the zero sum with `W` is numerical to `< 10⁻¹⁷` (C25) and
+   remains open as a theorem: the prime/archimedean evaluation and the
+   infinite-zero limit are the missing analytic inputs.  See
+   [`ZERO-SIDE-BRIDGE.md`](ZERO-SIDE-BRIDGE.md).
+9. **Margin scaling.** The finite ladder's `λ_min` collapses at `n = 9`; the
+   budget `n·ε < λ_min(n)` and the required panel widths are recorded in
+   [`MARGIN-SCALING.md`](MARGIN-SCALING.md) (C24).
 
 ## Python layer
 
@@ -151,7 +170,7 @@ Current result: **22 passed** (about one minute; C8 matrix/Cholesky, C9 interval
 
 ## Lean layer
 
-[`lean/Topic.lean`](lean/Topic.lean) imports Mathlib and defines the namespace `PrimeSpectrumTensor`. It proves T1–T12. There is no `sorry`, `axiom` or `admit`.
+[`lean/Topic.lean`](lean/Topic.lean) imports Mathlib and defines the namespace `PrimeSpectrumTensor`. It proves T1–T12; [`lean/DensityCertificates.lean`](lean/DensityCertificates.lean) proves T13 and [`lean/DensityCertificates5.lean`](lean/DensityCertificates5.lean) proves T14. There is no `sorry`, `axiom` or `admit`.
 
 ```bash
 cd the-final-letter/topics/prime-spectrum-tensor

@@ -369,9 +369,14 @@ def main():
     ap.add_argument("--end", type=int, default=-1, help="one past the last panel index")
     ap.add_argument("--import", dest="prev", default="", help="previous chunk module")
     ap.add_argument("--final", action="store_true", help="emit the density theorem")
+    ap.add_argument("--wden", type=int, default=400,
+                    help="second-derivative constant denominator: 400, or 200 for c = ±4/5")
     args = ap.parse_args()
 
     c = F(args.c)
+    wden = args.wden
+    pcfun = ("panel_certificate_decay" if wden == 400
+             else "panel_certificate_decay_four_fifths")
     h0 = F(args.h0)
     h1 = F(args.h1)
     n0 = int(round(1 / h0))
@@ -424,7 +429,7 @@ def main():
         lip = F(6) / a if a >= 1 else F(10)
         sw = F(1, 400) / (1 + a * a / 400)
         delta = (qhi - qlo) / 2 + lip * h / 2
-        E1 = ceil_at(abs(qmid) * h ** 3 / 1600 + delta * h * sw, DEC_OUT)
+        E1 = ceil_at(abs(qmid) * h ** 3 / (4 * wden) + delta * h * sw, DEC_OUT)
         R = qmid * h * w0
         E = ceil_at(E1 + abs(qmid) * h * eps, DEC_OUT)
         panels.append((a, b, m, h, qlo, qhi, qmid, j, lip, sw, delta, E1, R, E, w0, eps))
@@ -540,7 +545,7 @@ def main():
         out.append(f"/-- Panel {p}: `[{a},{b}]`, midpoint `{m}`, lip `{lip}`. -/")
         out.append(f"theorem hp{p} : |(∫ x in {rl(a)}..{rl(b)}, weight {wfun} x * "
                    f"IntersectionForm.Omega x) - {rl(R)}| ≤ {rl(E)} := by")
-        out.append(f"  have hpc := panel_certificate_decay (c := {cout}) (by norm_num)")
+        out.append(f"  have hpc := {pcfun} (c := {cout}) (by norm_num)")
         out.append(f"    (a := {rl(a)}) (b := {rl(b)}) (qmlo := {rl(qlo)}) (qmhi := {rl(qhi)}) "
                    f"(lipx := {rl(lip)})")
         out.append(f"    (by norm_num) (by norm_num) (by norm_num)")
@@ -559,7 +564,7 @@ def main():
         qexpr = f"(({rl(qlo)} + {rl(qhi)}) / 2)"
         A = (f"({qexpr} - ({rl(qlo)} - {rl(lip)} * ({rl(b)} - {rl(a)}) / 2))")
         B = (f"(({rl(qhi)} + {rl(lip)} * ({rl(b)} - {rl(a)}) / 2) - {qexpr})")
-        out.append(f"  have hE1 : |{qexpr}| * ((1/400) * ({rl(b)} - {rl(a)}) ^ 3 / 4) + "
+        out.append(f"  have hE1 : |{qexpr}| * ((1/{wden}) * ({rl(b)} - {rl(a)}) ^ 3 / 4) + "
                    f"max {A} {B} * (({rl(b)} - {rl(a)}) * ((1/400) / (1 + {rl(a)} ^ 2 / 400))) "
                    f"≤ {rl(E1)} := by")
         out.append(f"    have habs : |{qexpr}| = {rl(abs(qmid))} := by norm_num")
@@ -567,7 +572,7 @@ def main():
         out.append(f"    have hmax : max {A} {B} ≤ {rl(delta)} := max_le (by norm_num) (by norm_num)")
         out.append(f"    have hmul := mul_le_mul_of_nonneg_right hmax "
                    f"(by norm_num : (0:ℝ) ≤ ({rl(b)} - {rl(a)}) * ((1/400) / (1 + {rl(a)} ^ 2 / 400)))")
-        out.append(f"    have hnum : {rl(abs(qmid))} * ((1/400) * ({rl(b)} - {rl(a)}) ^ 3 / 4) + "
+        out.append(f"    have hnum : {rl(abs(qmid))} * ((1/{wden}) * ({rl(b)} - {rl(a)}) ^ 3 / 4) + "
                    f"{rl(delta)} * (({rl(b)} - {rl(a)}) * ((1/400) / (1 + {rl(a)} ^ 2 / 400))) "
                    f"≤ {rl(E1)} := by norm_num")
         out.append(f"    linarith")

@@ -608,10 +608,13 @@ if generated:
         "These files are emitted by "
         "[`prime-spectrum-tensor/lean/gen/panels.py`]"
         "(prime-spectrum-tensor/lean/gen/panels.py) and are not expanded into "
-        "the declaration index.  Their entry point is "
+        "the declaration index.  Their entry points are "
         "[`prime-spectrum-tensor/lean/DensityCertificates.lean`]"
         "(prime-spectrum-tensor/lean/DensityCertificates.lean), which proves "
-        "`gaussianGram4_posDef`."
+        "`gaussianGram4_posDef`, and "
+        "[`prime-spectrum-tensor/lean/DensityCertificates5.lean`]"
+        "(prime-spectrum-tensor/lean/DensityCertificates5.lean), which proves "
+        "`gaussianGram5_posDef`."
     )
     add("")
     add("| File |")

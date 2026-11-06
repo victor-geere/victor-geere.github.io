@@ -182,4 +182,28 @@ theorem poleTerm_mem_c3 :
   norm_num at h ⊢
   constructor <;> linarith [h.1, h.2]
 
+/-- `cosh(2/5) ∈ [10810723/10⁷, 10810724/10⁷]`. -/
+theorem cosh_04_mem :
+    (10810723 / 10000000 : ℝ) ≤ Real.cosh (2 / 5) ∧
+      Real.cosh (2 / 5) ≤ 10810724 / 10000000 := by
+  have hc := two_cosh_real (2 / 5)
+  have h1 := Real.exp_bound (x := (2 / 5 : ℝ)) (by norm_num) (n := 8) (by norm_num)
+  have h2 := Real.exp_bound (x := (-(2 / 5) : ℝ)) (by norm_num) (n := 8) (by norm_num)
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h1 h2
+  norm_num at h1 h2
+  rw [abs_le] at h1 h2
+  constructor <;> linarith [h1.1, h1.2, h2.1, h2.2, hc]
+
+/-- `poleTerm (4/5) (1/20) ∈ [0.033982, 0.033985]`. -/
+theorem poleTerm_mem_c4 :
+    (33982 / 1000000 : ℝ) ≤ poleTerm (4 / 5) (1 / 20) ∧
+      poleTerm (4 / 5) (1 / 20) ≤ 33985 / 1000000 := by
+  have hcosh : (10810723 / 10000000 : ℝ) ≤ Real.cosh ((4 / 5) / 2) ∧
+      Real.cosh ((4 / 5) / 2) ≤ 10810724 / 10000000 := by
+    rw [show (4 / 5 : ℝ) / 2 = 2 / 5 by norm_num]
+    exact cosh_04_mem
+  have h := poleTerm_between (4 / 5) hcosh (by norm_num)
+  norm_num at h ⊢
+  constructor <;> linarith [h.1, h.2]
+
 end PrimeSpectrumTensor

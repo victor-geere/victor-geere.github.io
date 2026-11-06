@@ -52,14 +52,24 @@ if [ $# -eq 0 ]; then
       KEPT+=("$f")
     done
     FILES=(${KEPT[@]+"${KEPT[@]}"})
-    if [ -f "$HERE/DensityCertificates.lean" ] && ! ls "$HERE"/DensityC*_8.olean >/dev/null 2>&1; then
-      KEPT=()
-      for f in ${FILES[@]+"${FILES[@]}"}; do
-        [ "$(basename "$f")" = "DensityCertificates.lean" ] || KEPT+=("$f")
-      done
-      FILES=(${KEPT[@]+"${KEPT[@]}"})
-      echo "[quick] chunk oleans absent: skipping DensityCertificates.lean" >&2
-    fi
+    KEPT=()
+    for f in ${FILES[@]+"${FILES[@]}"}; do
+      b="$(basename "$f")"
+      case "$b" in
+        DensityCertificates.lean)
+          if ! ls "$HERE"/DensityC[0-3]_8.olean >/dev/null 2>&1; then
+            echo "[quick] DensityC0..3 chunk oleans absent: skipping $b" >&2
+            continue
+          fi ;;
+        DensityCertificates5.lean)
+          if [ ! -f "$HERE/DensityC4_8.olean" ]; then
+            echo "[quick] DensityC4 chunk oleans absent: skipping $b" >&2
+            continue
+          fi ;;
+      esac
+      KEPT+=("$f")
+    done
+    FILES=(${KEPT[@]+"${KEPT[@]}"})
     if [ "$skipped" -gt 0 ]; then
       echo "[quick] skipped $skipped generated chunk files" >&2
     fi

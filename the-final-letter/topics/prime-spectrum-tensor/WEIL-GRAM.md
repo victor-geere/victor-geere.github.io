@@ -137,6 +137,7 @@ and width; the eigenvalue is the smallest one of the numerical Gram matrix.
 |---:|---|---:|---:|---:|
 | 0.03 | `0, ±0.05, ±0.1` | 5 | `1.7570·10^{−2}` | `< 10^{−28}` |
 | 0.05 | `±0.1, ±0.3` | 4 | `2.2710·10^{−2}` | `−3.65·10^{−2}` at `c=0.6` |
+| 0.05 | `0, ±0.2, ±0.4` | 5 | `2.1424·10^{−2}` | `−2.78·10^{−2}` at `c=0.8` |
 | 0.05 | `0, ±0.15` | 3 | `8.9477·10^{−3}` | `−1.68·10^{−8}` at `c=0.3` |
 | 0.08 | `0, ±0.3` | 3 | `1.5584·10^{−2}` | active |
 | 0.10 | `0, ±0.3` | 3 | `4.7470·10^{−3}` | active |
@@ -156,6 +157,25 @@ Two readings.
    `1.46·10^{−8}`, far below the comfortable margins at `σ = 0.03–0.05`. A
    quadrature or prime-tail error of that size would destroy the numerical
    conclusion; the computation must be done at 30 digits and the margin tracked.
+
+### 3.0 The finite-ladder wall
+
+The rows above are not independent: the smallest eigenvalue of the fixed
+spacing-`0.2` basis at `σ = 1/20` decays as the basis grows.  The measured
+values (numerical, 30–40 digits) are
+
+| `n` | 4 | 5 | 6 | 7 | 8 | 9 | 12 | 16 | 20 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `λ_min` | 2.271e−2 | 2.142e−2 | 1.671e−2 | 1.244e−2 | 9.743e−3 | **8.968e−4** | 2.878e−4 | 1.251e−4 | 3.406e−5 |
+
+The interval transfer needs `n·ε < t < λ_min(n)`.  The 5×5 certificate uses
+`ε = 0.0036`, so `5ε = 0.018 < 0.02142`; the 6×6 would need `ε < 0.00278`, and
+by `n = 9` it would need `ε < 10⁻⁴`.  Since the density half-width scales
+roughly linearly with the panel width, the required partition grows from
+`h = 1/20` (5×5) to about `1/28` (6×6) and `1/640` (9×9).  The 5×5 rung is
+therefore the last cheap one, and `n = 6` is the last feasible one without a
+new quadrature rule.  Full table, caveats and reproduction:
+[`MARGIN-SCALING.md`](MARGIN-SCALING.md).
 
 ### 3.1 The `Ω` interval layer (first step)
 
@@ -253,6 +273,16 @@ statement about the infinite Weil cone. The panel Taylor remainder and the
 series remainder are explicit; the `10^{−4}` margin also covers the conservative
 `10^{−6}` jet-tail allowance. A formal derivative-tail bound remains the last
 audit item.
+
+**Superseded by the exact Lean certificate (2026-11-05).**  The matrix in this
+subsection is the numerical *specification*; the exact rational proof is now
+`gaussianGram4_posDef` in
+[`lean/DensityCertificates.lean`](lean/DensityCertificates.lean) (T13, O4
+closed), and the 5×5 extension is `gaussianGram5_posDef` in
+[`lean/DensityCertificates5.lean`](lean/DensityCertificates5.lean) (T14, M0′
+closed).  Those theorems use the entrywise band `ε = 0.0036` and the exact
+`L D Lᵀ` transfer, not the centre/error certificate above; the numerical
+values here remain the reference rungs.
 
 ### 3.4 Margin audit and comparison with direct interval minors
 

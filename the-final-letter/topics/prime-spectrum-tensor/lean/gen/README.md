@@ -16,19 +16,25 @@ file with all 1305 panels peaks at ~25 GB of memory and is killed on a 16 GB
 machine.  `emit_all.py` drives the whole emission:
 
 ```bash
-python3 emit_all.py --size 150      # emit the 36 chunk files
-./build_chunks.sh 0 1 2 3           # compile them, skipping up-to-date chunks
+python3 emit_all.py --size 150      # emit the 36 chunks for c = 0, 1/5, 2/5, 3/5
+python3 emit_all.py --size 150 --cc 4/5 --first-index 4 --wden 200
+./build_chunks.sh 0 1 2 3 4         # compile them, skipping up-to-date chunks
 ```
 
 `build_chunks.sh` is resumable: it skips any chunk whose `.olean` is newer than
 its `.lean` and newer than its predecessor's `.olean`, so an interrupted build
 can simply be restarted.  To check only the hand-written Lean core, use
-`../check.sh --quick`, which skips the 36 generated chunks.
+`../check.sh --quick`, which skips the 45 generated chunks.
 
 The chunks of one `c` share the namespace `PrimeSpectrumTensor.D<i>` and each
 imports its predecessor, so the cumulative enclosure `cum{p}` continues across
 files.  `DensityCertificates.lean` imports only the last chunk of each `c`
-(`DensityC0_8.lean` … `DensityC3_8.lean`).
+(`DensityC0_8.lean` … `DensityC4_8.lean`).
+
+For `c = ±4/5` the generator takes `--wden 200`, which selects the parallel
+panel certificate `panel_certificate_decay_four_fifths` (second-derivative
+bound `1/200`) and the matching midpoint-rule constant.  `--first-index`
+controls the `DensityC<i>_*` names.
 
 To emit a single file (small runs, or a different partition):
 
@@ -38,10 +44,11 @@ python3 panels.py --c 0   --h0 1/125 --h1 1/20 --out SingleC0.lean --name densit
 python3 panels.py --c 1/5 --h0 1/125 --h1 1/20 --out SingleC1.lean --name density_mem_c1 --ns D1
 python3 panels.py --c 2/5 --h0 1/125 --h1 1/20 --out SingleC2.lean --name density_mem_c2 --ns D2
 python3 panels.py --c 3/5 --h0 1/125 --h1 1/20 --out SingleC3.lean --name density_mem_c3 --ns D3
+python3 panels.py --c 4/5 --h0 1/125 --h1 1/20 --wden 200 --out SingleC4.lean --name density_mem_c4 --ns D4
 ```
 
 Each `c` lives in namespace `PrimeSpectrumTensor.D<i>` (the `--ns` option), so
-the four can be imported together.  The defaults are exactly the parameters of
+the five can be imported together.  The defaults are exactly the parameters of
 the committed certificates:
 125 panels of width `1/125` on `[0,1]`, then 1180 panels of width `1/20` on
 `[1,60]` (`P = 1305`).  Requires `mpmath`, used **only** to choose the
@@ -98,17 +105,21 @@ The last step splits `density` at `60` and applies `density_tail_le`.
 
 ## Status
 
-**Closed.**  The four chunked chains `DensityC0_0 … DensityC3_8` compile, and
-[`DensityCertificates.lean`](../DensityCertificates.lean) feeds the four
-resulting `densityTerm` bands to
+**Closed (4×4 and 5×5).**  The four chunked chains `DensityC0_0 … DensityC3_8`
+compile, and [`DensityCertificates.lean`](../DensityCertificates.lean) feeds
+the four resulting `densityTerm` bands to
 `gaussianGram4_posDef_of_density_enclosure_loose`, proving
 
 ```lean
 theorem gaussianGram4_posDef : (gaussianGram4 (1/20)).PosDef
 ```
 
-The numeric budgets are: per-panel error `K = Σ E_p + 10⁻⁴ ≈ 1.45·10⁻³`,
-against the `1.75·10⁻³` slack left by the transfer's `0.005675` entry budget
-(the margin is `≈ 3·10⁻⁴`).  The dominant terms are the `Ω`-variation
+The fifth chain `DensityC4_0 … DensityC4_8` (emitted with `--wden 200`) is fed
+by [`DensityCertificates5.lean`](../DensityCertificates5.lean) to
+`gaussianGram5_posDef`, the 5×5 rung (M0′).
+
+The numeric budgets are: per-panel error `K = Σ E_p + 10⁻⁴ ≈ 1.45·10⁻³`
+(≈ 1.59·10⁻³ for `c = 4/5`), against the `1.75·10⁻³` slack left by the
+transfer's `0.005675` entry budget (the margin is `≈ 3·10⁻⁴`).  The dominant terms are the `Ω`-variation
 `Σ (6/t)·h²/800 ≈ 0.012 h` on `[1,60]` and the midpoint-rule remainder
 `Σ |Ω(m)|·h³/1600 ≈ 10⁻⁴`.

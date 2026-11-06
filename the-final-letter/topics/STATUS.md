@@ -1,10 +1,10 @@
 # Reconstruction status
 
-53 topics · 1191 ledger theorems · 504 tested computations · 795 pytest tests · 53/53 Lean builds OK.
+53 topics · 1196 ledger theorems · 507 tested computations · 798 pytest tests · 53/53 Lean builds OK.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
-| [absolute-polarized-hodge-index-realization](absolute-polarized-hodge-index-realization/README.md) | 19 | 11 | 3 | 214 | OK |
+| [absolute-polarized-hodge-index-realization](absolute-polarized-hodge-index-realization/README.md) | 20 | 11 | 3 | 214 | OK |
 | [adelic-transfer-operator](adelic-transfer-operator/README.md) | 7 | 8 | 9 | 8 | OK |
 | [dyadic-sheaf-cohomology](dyadic-sheaf-cohomology/README.md) | 8 | 9 | 7 | 9 | OK |
 | [eml-universal-operator](eml-universal-operator/README.md) | 7 | 8 | 9 | 8 | OK |
@@ -40,7 +40,7 @@
 | [finite-window-zeros](finite-window-zeros/README.md) | 494 | 11 | 0 | 18 | OK |
 | [periodic-orbits](periodic-orbits/README.md) | 7 | 7 | 8 | 7 | OK |
 | [phase-interference](phase-interference/README.md) | 7 | 7 | 8 | 7 | OK |
-| [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 12 | 22 | 9 | 22 | OK |
+| [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 16 | 25 | 9 | 25 | OK |
 | [proof-99-global-harmonic-framework](proof-99-global-harmonic-framework/README.md) | 7 | 6 | 12 | 7 | OK |
 | [qefe](qefe/README.md) | 7 | 8 | 9 | 8 | OK |
 | [qefe-research-notes](qefe-research-notes/README.md) | 7 | 6 | 7 | 6 | OK |
@@ -60,6 +60,6 @@
 
 Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted.
 
-**Generated certificate (2026-11-05).** `prime-spectrum-tensor` additionally contains 30,023 machine-checked declarations in the 36 generated files `lean/DensityC{0..3}_{0..8}.lean`, plus five in [`lean/DensityCertificates.lean`](prime-spectrum-tensor/lean/DensityCertificates.lean) ending in `gaussianGram4_posDef`. These are not ledger rows and are listed separately (not expanded) in [`index-lean.md`](index-lean.md#generated-certificates); they are built by [`prime-spectrum-tensor/lean/gen/build_chunks.sh`](prime-spectrum-tensor/lean/gen/build_chunks.sh), and [`prime-spectrum-tensor/lean/check.sh`](prime-spectrum-tensor/lean/check.sh) `--quick` skips them.
+**Generated certificates (2026-11-05).** `prime-spectrum-tensor` additionally contains 37,855 machine-checked declarations in the 45 generated density files `lean/DensityC{0..4}_{0..8}.lean`, plus five in [`lean/DensityCertificates.lean`](prime-spectrum-tensor/lean/DensityCertificates.lean) ending in `gaussianGram4_posDef` and four in [`lean/DensityCertificates5.lean`](prime-spectrum-tensor/lean/DensityCertificates5.lean) ending in `gaussianGram5_posDef`. These are not ledger rows and are listed separately (not expanded) in [`index-lean.md`](index-lean.md#generated-certificates); they are built by [`prime-spectrum-tensor/lean/gen/build_chunks.sh`](prime-spectrum-tensor/lean/gen/build_chunks.sh), and [`prime-spectrum-tensor/lean/check.sh`](prime-spectrum-tensor/lean/check.sh) `--quick` skips them.
 
 [Back to topic index](README.md) · [Programme standard](PROGRAMME-STANDARD.md) · [Scraps](../scraps.html)
