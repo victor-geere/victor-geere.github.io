@@ -1,10 +1,16 @@
 # Handoff — O2: Weil positivity
 
-**Status:** **Partial — advanced (2026-11-05).**  This document scopes the
-remaining work on objective **O2** of the
+**Status:** **Partial — advanced (2026-11-05; corrected 2026-11-06).**  This
+document scopes the remaining work on objective **O2** of the
 [angular-partition dossier](README.md): the infinite zero sum and Weil
 positivity.  It records what is Lean-checked, what is numerical, and the exact
 analytic obligations that remain.
+
+**Update (2026-11-06).**  The [missing-bridge](../missing-bridge/README.md)
+investigation is concluded at the non-RH-strength level.  It records that the
+isolated-block `blocks ⇒ RH` implication is vacuous as stated, that the
+full-block route needs a strict maximal-`|δ|` zero, and that the arithmetic
+side is the recommended route.  See §6.
 
 **The honesty constraint.**  Unconditional O2 is **RH-equivalent**.  The
 programme's own assessment
@@ -13,6 +19,14 @@ shows that a uniform lower bound on the Weil form — in particular positivity o
 the whole cone — rules out every off-line zero.  So O2 must not be marked closed
 without proving the Riemann hypothesis.  The purpose of this handoff is to
 advance the *reduction*, not to manufacture a closure.
+
+**Execution plan.**  The three named inputs are now separate programmes
+([`../zero-infinitude`](../zero-infinitude/README.md),
+[`../log-derivative-growth`](../log-derivative-growth/README.md),
+[`../zero-density-bound`](../zero-density-bound/README.md)); their order of
+execution and acceptance criteria are in
+[`../weil-positivity/HANDOFF.md`](../weil-positivity/HANDOFF.md), and the hub is
+[`../weil-positivity`](../weil-positivity/README.md).
 
 ---
 
@@ -119,6 +133,17 @@ Same file:
 | **`eventually_exp_neg_div_log_sq_le_inv_sq`** | eventually `exp(−σ²(n/log n)²) ≤ 1/n²`; the sublinear domination. |
 | **`summable_exp_neg_div_log_sq`** | the `n/log n` model zero tail is **summable, unconditionally**. |
 | **`zeroTailSummable_of_ge_div_log`** | if `|γ n| ≥ c·n/log n` eventually, then `ZeroTailSummable γ σ`. |
+| **`eventually_exp_neg_sq_le_inv_sq`** | eventually `exp(−σ²x²) ≤ 1/(x+1)²`; exponential beats inverse-square. |
+| **`zeroTailSummable_of_inv_sq`** | if the ordinates grow and the inverse-square zero weight is summable, then `ZeroTailSummable γ σ`. |
+| **`eventually_exp_neg_sq_le_inv_sq_add`** | offset domination `exp(−σ²x²) ≤ 1/(x+k+1)²` eventually. |
+| **`summable_inv_sq_im_of_strip`** | under `|Re z| ≤ 1`, summability of the norm inverse-square weight implies summability of the imaginary-part weight. |
+| **`zeroTailSummable_of_xi₀_enumeration`** | (`ZeroTail.lean`) from an injective enumeration of the `ξ₀` zeros, the strip bound and the ordinate growth, `ZeroTailSummable` follows via `xi₀_zeros_inv_sq_summable`. |
+| **`xi₀_eq_mul_completedZeta`** | (`ZeroTail.lean`) `ξ₀(s) = s(s−1)·Z(s)` for `s ≠ 0,1`: the Hadamard zero set and the explicit-formula zero set coincide away from the poles and trivial zeros. |
+| **`xi₀_zero_re_open_strip`** | a `ξ₀` zero with `0 < Re s` lies in the open critical strip `0 < Re s < 1`. |
+| **`zeroTailSummable_of_nontrivial_xi₀_enumeration`** | the zero-tail theorem with the strip hypothesis discharged; only the injective enumeration and the ordinate growth remain. |
+| **`exists_nontrivial_xi₀_enumeration`** | an injective enumeration of the nontrivial zeros with full range, from `[Denumerable]` on the nontrivial zero subtype. |
+| `integrable_one_add_abs_mul_exp_neg_sq` | `(1+\|y\|)·exp(−σ²y²/2)` is integrable; the majorant for a linearly growing log-derivative. |
+| **`verticalLogDerivIntegrable_of_linear_bound`** | if `‖(Z'/Z)(x+iy)‖ ≤ M(1+\|y\|)` and the product is measurable, then `VerticalLogDerivIntegrable c σ x`. |
 | **`VerticalLogDerivIntegrable`** | the named `Prop`: integrability of `(Z'/Z)·H_c` on a vertical line. |
 | `verticalLogDerivIntegrable_iff` | the definition unfolding. |
 | **`FullBlockWithin`** | the named W4 input: entrywise bound of the full 2×2 block by the isolated quadruple block. |
@@ -245,10 +270,21 @@ ordinates from the library's zero-counting results; given that bound,
 **Remaining named inputs.**  After the reductions above, the open analytic
 obligations are exactly:
 
-1. the zero-counting lower bound `|γ n| ≥ c·n/log n`, which by
-   `zeroTailSummable_of_ge_div_log` gives `ZeroTailSummable`;
-2. `VerticalLogDerivIntegrable`, the integrability of `(Z'/Z)·H_c` on the
-   vertical sides (`tendsto_vertical_integral_logDeriv` consumes it);
+1. `ZeroTailSummable`.  `ZeroTail.lean` proves
+   `zeroTailSummable_of_xi₀_enumeration`, which derives it from the library's
+   `xi₀_zeros_inv_sq_summable` plus three explicit zero-set hypotheses: an
+   injective enumeration of the `ξ₀` zeros, the strip bound `|Re z| ≤ 1`, and
+   the growth of the ordinates.  `xi₀_eq_mul_completedZeta` identifies the
+   `ξ₀` zeros with the `completedZeta` zeros away from `0,1`, and
+   `xi₀_zero_re_open_strip` discharges the strip hypothesis for nontrivial
+   zeros, so `zeroTailSummable_of_nontrivial_xi₀_enumeration` leaves only the
+   injective enumeration and the ordinate growth.  `exists_nontrivial_xi₀_enumeration`
+   packages the enumeration as soon as the nontrivial zero subtype is
+   `Denumerable` (countability plus infinitude).  The alternative `n/log n`
+   route is `zeroTailSummable_of_ge_div_log`;
+2. `VerticalLogDerivIntegrable`.  `verticalLogDerivIntegrable_of_linear_bound`
+   reduces it to the standard Stirling-type bound `‖(Z'/Z)(x+iy)‖ ≤ M(1+|y|)`
+   plus measurability, which remain to be supplied;
 3. `FullBlockWithin`, the W4 zero-density entrywise bound (consumed by
    `offLineQuad_fullBlock_not_posSemidef_of_within`).
 
@@ -276,6 +312,13 @@ a bounded amount (zero-density / Riemann–von Mangoldt), so a sufficiently wide
 2×2 Gaussian Gram matrix becomes indefinite.  This is the quantitative converse
 direction.  The algebra of `S(c)` is formalisable now; the domination by the
 off-line term needs the zero-counting input.
+
+**Correction (missing-bridge T17).**  The zero-density input `B` cannot be
+uniform in `c` if another off-line zero is present: an off-line quadruple in
+the "other" block grows like `e^{c|δ'|}` and defeats every uniform bound.  The
+clean domination therefore also needs a strict maximal-`|δ|` zero; no such zero
+is known.  This is recorded as `no_uniform_bound_of_offLine_quadruple` in
+[`missing-bridge`](../missing-bridge/README.md).
 
 ## 3. Work order
 
@@ -305,6 +348,26 @@ off-line term needs the zero-counting input.
 * Importing across topic roots by filename (`HANDOFF-O4.md` §8): the
   explicit-formula half lives in `absolute-polarized-hodge-index-realization`,
   the Gram half in `prime-spectrum-tensor`, and the O2 bookkeeping here.
+
+## 6. Missing-bridge corrections (2026-11-06)
+
+The [missing-bridge](../missing-bridge/README.md) investigation changes the
+reading of this handoff.
+
+| Finding | Consequence for O2 |
+|---|---|
+| `no_offLine_of_all_blocks_psd` has a refutable antecedent (`not_offLineBlockPSD_of_offLine`) | the isolated-block implication is vacuous; the non-vacuous easy direction is `rh_implies_finiteWeilPositivity` (T20) |
+| `no_uniform_bound_of_offLine_quadruple`: an off-line quadruple in the "other" block defeats every uniform bound | the `FullBlockWithin` route needs a strict maximal-distance zero; not known (T17) |
+| `K(c) = [P_main − P](c) + [P_main − P](−c) + arch(c)` | the pole cancels exactly; the arithmetic side is the PNT error plus the archimedean term (C15) |
+| The PNT-error Gram and archimedean Gram are individually indefinite but jointly positive; the gap collapses under refinement | the remaining analytic input is a uniform joint PNT + archimedean bound, not a termwise prime estimate (C16–C17) |
+| The APM does not retire the tail bound | `ZeroTailSummable`/`FullBlockWithin` remain zero-side inputs, not substitutes for the arithmetic side |
+
+**Consequence for the work order.**  W1–W3 (prime/archimedean evaluation,
+contour shift, infinite-zero limit) remain valid as the formal assembly.  W4
+(the off-line obstruction) is not viable as stated without a strict
+maximal-`|δ|` zero.  The classical alternative is the arithmetic side, where
+the open input is a uniform PNT-error + archimedean bound; this is the
+recommended route in [`missing-bridge`](../missing-bridge/README.md).
 
 ---
 

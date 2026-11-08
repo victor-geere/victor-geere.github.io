@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The W4 zero-density entrywise bound — research programme</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1c2430; --muted:#5b6675; --line:#d8dee7; --accent:#123a66; --accent-soft:#e8eff8; --open:#9b1c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:980px; margin:0 auto; padding:2.6rem 1.4rem 4rem; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:1.2rem; margin-bottom:1.8rem; }
+  h1 { font-size:2rem; line-height:1.2; margin:0 0 .5rem; color:var(--accent); }
+  h2 { font-size:1.25rem; margin:2.2rem 0 .7rem; padding-bottom:.3rem; border-bottom:1px solid var(--line); color:var(--accent); }
+  a { color:var(--accent); }
+  code { font-family:"SFMono-Regular",Menlo,Consolas,monospace; font-size:.9em; background:var(--accent-soft); padding:.08em .3em; border-radius:4px; }
+  .status { font-weight:600; }
+  .open { color:var(--open); font-weight:600; }
+  table { width:100%; border-collapse:collapse; margin:.8rem 0 1.2rem; font-size:.93rem; background:var(--panel); }
+  th, td { border:1px solid var(--line); padding:.42rem .55rem; text-align:left; vertical-align:top; }
+  th { background:var(--accent-soft); }
+  ul { padding-left:1.3rem; }
+  footer { margin-top:3rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); display:flex; gap:1.2rem; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>The W4 zero-density entrywise bound</h1>
+  <p class="status">Status: <em>initiated; the conditional 2×2 obstruction and the exact 2×2 PSD criterion are Lean-checked; the zero-density estimate supplying <code>B</code> is open.</em></p>
+  <p>Part of the <a href="../README.md">topic index</a>, the <a href="../weil-positivity/README.md">weil-positivity hub</a>, the <a href="../weil-positivity/HANDOFF.md">execution handoff</a>, the <a href="../angular-partition-method/HANDOFF-O2.md">O2 handoff</a>, and <a href="../../index.html">The Final Letter</a>.</p>
+</header>
+
+<section>
+<h2>Programme</h2>
+<p>Isolate the missing zero-density entrywise bound as a named tail input, then feed it to the harvested full-block obstruction. The unconditional 2×2 obstruction for a single off-line quadruple is already Lean-checked.</p>
+<p>The core also proves the exact scalar criterion for the symmetric diagonal block: <code>!![a, b; b, a]</code> is PSD <strong>iff</strong> <code>|b| ≤ a</code>. That criterion is what makes the obstruction checkable by a single real inequality.</p>
+</section>
+<section>
+<h2>Lean core</h2>
+<table>
+<tr><th>ID</th><th>Statement</th><th>Name</th></tr>
+<tr><td>T1</td><td><code>TailEntryBound</code> is the entrywise bound on the tail block.</td><td><code>TailEntryBound</code></td></tr>
+<tr><td>T2</td><td>A tail bound gives <code>FullBlockWithin</code>.</td><td><code>fullBlockWithin_of_tailBound</code></td></tr>
+<tr><td>T3</td><td>Tail bound + domination ⇒ the full 2×2 block is not PSD.</td><td><code>not_posSemidef_of_tailBound</code></td></tr>
+<tr><td>T4</td><td>Unconditional 2×2 obstruction for any <code>δ ≠ 0</code>.</td><td><code>offLineQuad_obstruction_all</code></td></tr>
+<tr><td>T5</td><td>A tail entry bound is monotone in its bound.</td><td><code>tailEntryBound_mono</code></td></tr>
+<tr><td>T6</td><td>A tail entry bound forces <code>0 ≤ B</code>.</td><td><code>tailEntryBound_nonneg</code></td></tr>
+<tr><td>T7</td><td><code>TailEntryBound</code> is exactly <code>FullBlockWithin</code> for the total block.</td><td><code>tailEntryBound_iff_fullBlockWithin</code></td></tr>
+<tr><td>T8</td><td><code>!![a, b; b, a]</code> is PSD iff <code>|b| ≤ a</code>.</td><td><code>twoByTwo_diag_posSemidef_iff</code></td></tr>
+<tr><td>T9</td><td><code>b &gt; a</code> breaks the symmetric diagonal block.</td><td><code>twoByTwo_diag_not_posSemidef</code></td></tr>
+<tr><td>T10</td><td>The zero count satisfies <code>N(r) ≤ C r log(r+2) + D</code> (Riemann–von Mangoldt up to constants).</td><td><code>zero_count_le_rlog</code></td></tr>
+<tr><td>T11</td><td>The tail predicate is equivalent to a single bound on the maximum absolute entry.</td><td><code>tailEntryBound_iff_max_le</code></td></tr>
+<tr><td>T12</td><td>Perturbed 2×2 obstruction with the exact hypothesis <code>a − |b| + 2B &lt; 0</code>.</td><td><code>twoByTwo_perturbed_not_posSemidef_abs</code></td></tr>
+<tr><td>T13</td><td>Tail-bound obstruction with <code>S(0) − |S(c)| + 2B &lt; 0</code>.</td><td><code>not_posSemidef_of_tailBound_abs</code></td></tr>
+<tr><td>T14</td><td>For every tail bound <code>B ≥ 0</code> there is a separation with <code>S(0) − |S(c)| + 2B &lt; 0</code>.</td><td><code>exists_domination_abs</code></td></tr>
+<tr><td>T15</td><td>The Gaussian mass of zeros with <code>|γ n| ≥ R</code> tends to <code>0</code> as <code>R → ∞</code>.</td><td><code>tendsto_gaussian_zero_mass_outside_radius</code></td></tr>
+<tr><td>T16</td><td>A termwise bound <code>‖f n‖ ≤ C w n</code> gives <code>‖∑ f‖ ≤ C ∑ w</code>.</td><td><code>abs_tsum_le_mul_tsum</code></td></tr>
+<tr><td>T17</td><td>Four zero sums with termwise bounds satisfy <code>TailEntryBound</code> with <code>B = C ∑ w</code>; the entrywise W4 interface.</td><td><code>tailEntryBound_of_complex_tail</code></td></tr>
+<tr><td>T18</td><td>On the critical strip, <code>‖H_c(z)‖ ≤ C exp(−σ²(Im z)²)</code> uniformly in <code>Re z</code>.</td><td><code>exists_gaussianZeroTest_bound_strip</code></td></tr>
+<tr><td>T19</td><td>The Gaussian zero-side sum <code>∑ H_c(aₙ)</code> is summable whenever the Gaussian zero tail is.</td><td><code>summable_gaussianZeroTest_of_strip</code></td></tr>
+<tr><td>T20</td><td><code>‖∑ H_c(aₙ)‖ ≤ C ∑ exp(−σ²(Im aₙ)²)</code>: the Gaussian zero-side sum is bounded by the zero mass.</td><td><code>norm_gaussianZeroTailEntry_le</code></td></tr>
+<tr><td>T21</td><td>The high-zero Gaussian tail satisfies <code>TailEntryBound</code> with <code>B = C ε</code> for every <code>ε &gt; 0</code>, with the height <code>R</code> chosen accordingly.</td><td><code>exists_tailEntryBound_gaussian_high</code></td></tr>
+<tr><td>T22</td><td>The full Gaussian zero-side block satisfies <code>TailEntryBound</code> with a single finite <code>B</code>; the entrywise W4 bound in the Gaussian model.</td><td><code>exists_tailEntryBound_gaussian_all</code></td></tr>
+<tr><td>T23</td><td>A product <code>H_{c₁}H_{c₂}</code> has a uniform strip bound <code>C exp(−2σ²(Im z)²)</code>.</td><td><code>exists_gaussianZeroTest_mul_bound_strip</code></td></tr>
+<tr><td>T24</td><td>The four product sums <code>∑ H_{cᵢⱼ,1}(aₙ)H_{cᵢⱼ,2}(aₙ)</code> satisfy <code>TailEntryBound</code> with a finite <code>B</code>; the Gram-entry product model.</td><td><code>exists_tailEntryBound_gaussian_gram_all</code></td></tr>
+<tr><td>T25</td><td>The <strong>actual on-line Gram entries</strong> <code>∑ 2πσ² exp(−σ²γₙ²) cos((a−b)γₙ)</code> satisfy <code>TailEntryBound</code> with <code>B = 2πσ² ∑ exp(−σ²γₙ²)</code>.</td><td><code>exists_tailEntryBound_onLineGram</code></td></tr>
+<tr><td>T26</td><td>Theorem</td><td>The actual on-line Gram kernel is symmetric: <code>K(a,b) = K(b,a)</code>.</td><td><code>onLineGramEntry_comm</code></td></tr>
+<tr><td>T27</td><td>Theorem</td><td>The actual on-line Gram matrix is symmetric.</td><td><code>onLineGramMatrix_isSymm</code></td></tr>
+<tr><td>T28</td><td>Theorem</td><td>A single-frequency on-line Gram matrix is positive semidefinite.</td><td><code>onLineGramMatrix_single_posSemidef</code></td></tr>
+<tr><td>T29</td><td>Theorem</td><td>A finite weighted sum of single-frequency on-line Gram matrices is positive semidefinite.</td><td><code>onLineGramMatrix_finset_posSemidef</code></td></tr>
+<tr><td>T30</td><td>Theorem</td><td>The on-line Gaussian weights are nonnegative.</td><td><code>onLineWeight_nonneg</code></td></tr>
+<tr><td>T31</td><td>Theorem</td><td>The quadratic form of a finite weighted on-line Gram matrix is nonnegative.</td><td><code>onLineGramMatrix_finset_quadraticForm_nonneg</code></td></tr>
+<tr><td>T32</td><td>Theorem</td><td>A pointwise <code>tsum</code> of positive semidefinite matrices is positive semidefinite (given entrywise summability).</td><td><code>posSemidef_tsum</code></td></tr>
+<tr><td>T33</td><td>Theorem</td><td><strong>The actual on-line Gram matrix is positive semidefinite</strong> (given entrywise summability of the Gaussian-weighted cosine series).</td><td><code>onLineGramMatrix_posSemidef</code></td></tr>
+<tr><td>T34</td><td>Theorem</td><td><strong>The on-line Gram matrix is PSD</strong> whenever the Gaussian zero-weight series is summable.</td><td><code>onLineGramMatrix_posSemidef_of_exp_summable</code></td></tr>
+<tr><td>T35</td><td>Theorem</td><td>The on-line Gram matrix is PSD under the named <code>ZeroTailSummable</code> input.</td><td><code>onLineGramMatrix_posSemidef_of_zeroTailSummable</code></td></tr>
+<tr><td>T36</td><td>Theorem</td><td>The quadratic form of the actual on-line Gram matrix is nonnegative under <code>ZeroTailSummable</code>.</td><td><code>onLineGramMatrix_quadraticForm_nonneg</code></td></tr>
+</table>
+</section>
+<section>
+<h2>Computations</h2>
+<table>
+<tr><th>ID</th><th>Check</th></tr>
+<tr><td>C1</td><td>The off-line quadruple is even in <code>c</code> and <code>γ</code>.</td></tr>
+<tr><td>C2</td><td>The finite tail bound is positive and decreases with <code>σ</code>.</td></tr>
+<tr><td>C3</td><td>The domination gap becomes negative for large separation.</td></tr>
+<tr><td>C4</td><td>The tail predicate agrees with <code>FullBlockWithin</code>, and the eigenvalue test agrees with the scalar 2×2 criterion.</td></tr>
+<tr><td>C5</td><td>The Gaussian zero mass outside radius <code>R</code> is nonnegative, decreases with <code>R</code>, and vanishes past the largest ordinate.</td></tr>
+</table>
+</section>
+<section>
+<h2>Open items</h2>
+<ul>
+<li><span class="open">Zero-density estimate</span> supplying a uniform <code>B</code>; the height-tail mass is already proved to vanish (T15).</li>
+<li>Counting input: Riemann–von Mangoldt up to constants is proved (T10); the remaining density estimate must make the tail small uniformly in the height.</li>
+<li>Extension from the 2×2 block to a full Gaussian Gram matrix.</li>
+</ul>
+</section>
+
+<section>
+<h2>Objects and notation</h2>
+<p>The objects are the isolated off-line quadruple <code>{ρ, 1−ρ, conj ρ, 1−conj ρ}</code>, its closed-form contribution <code>S(c)</code>, the full zero-side Gram block <code>T</code>, and the tail block contributed by the other zeros.</p>
+</section>
+<section>
+<h2>Harvested proofs</h2>
+<table>
+<tr><th>Theorem</th><th>Where</th><th>Use</th></tr>
+<tr><td><code>offLineQuad_obstruction_all</code></td><td><code>GaussianZeroSide.lean</code></td><td>unconditional 2×2 obstruction</td></tr>
+<tr><td><code>offLineQuad_domination</code></td><td><code>GaussianZeroSide.lean</code></td><td>produces the separation <code>c</code></td></tr>
+<tr><td><code>FullBlockWithin</code></td><td><code>GaussianZeroSide.lean</code></td><td>harvested named W4 input</td></tr>
+<tr><td><code>offLineQuad_fullBlock_not_posSemidef_of_within</code></td><td><code>GaussianZeroSide.lean</code></td><td>conditional full-block obstruction</td></tr>
+<tr><td><code>zeroSideGramReal_posSemidef</code></td><td><code>GaussianZeroSide.lean</code></td><td>on-line PSD comparison</td></tr>
+<tr><td><code>xi₀_zero_count_bound</code></td><td><code>Hadamard.lean</code></td><td>linear-growth zero-count input</td></tr>
+<tr><td><code>xi₀_zero_count_bound_of_log_le</code></td><td><code>Hadamard.lean</code></td><td>count from a sphere log-bound</td></tr>
+<tr><td><code>exists_bound_log_norm_xi₀</code></td><td><code>ZetaStrip.lean</code></td><td>unconditional <code>r log r</code> growth</td></tr>
+<tr><td><code>zero_sum_tail_bound</code></td><td><code>TailBound.lean</code></td><td>finite-rectangle tail bound</td></tr>
+</table>
+<p>Links to the per-file pages are in <a href="../index-lean/index.md"><code>index-lean/index.md</code></a>.</p>
+</section>
+<section>
+<h2>Python layer</h2>
+<p><code>python/programme.py</code> provides <code>offline_quad</code>, <code>tail_entry_bound</code>, <code>domination_gap</code>, <code>full_block_within</code>, <code>gram_weight</code>, <code>tail_entry_bound_holds</code>, <code>diag_block</code>, <code>diag_block_psd_by_eigenvalues</code>, and <code>diag_block_psd_criterion</code>.</p>
+<pre><code>python3 -m pytest the-final-letter/topics/zero-density-bound/tests -q</code></pre>
+</section>
+<section>
+<h2>Lean layer</h2>
+<p><code>lean/Topic.lean</code> proves T1–T36 and harvests T4. It does <strong>not</strong> prove the zero-density estimate supplying <code>B</code>, nor the full Gram-matrix extension; those are recorded as open.</p>
+</section>
+<section>
+<h2>Provenance and source</h2>
+<ul>
+<li><a href="../angular-partition-method/HANDOFF-O2.md">O2 handoff</a> — the reduction that consumes this programme.</li>
+<li><a href="../index-lean/index.md"><code>index-lean/index.md</code></a> — the harvested proof pages.</li>
+<li><a href="../../scraps.html"><code>scraps.html</code></a> — the site's claim inventory.</li>
+<li><a href="../README.md"><code>topics/README.md</code></a> — all topic folders.</li>
+</ul>
+</section>
+
+<section>
+<h2>Files</h2>
+<ul>
+<li><a href="README.md"><code>README.md</code></a> — programme dossier and ledger.</li>
+<li><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> — formal core.</li>
+<li><a href="python/programme.py"><code>python/programme.py</code></a> — quadruple and tail computations.</li>
+<li><a href="tests/test_programme.py"><code>tests/test_programme.py</code></a> — computations C1–C3.</li>
+</ul>
+</section>
+
+<footer>
+  <a href="../README.md">Back to the topic index</a>
+  <a href="../../index.html">The Final Letter</a>
+</footer>
+</main>
+</body>
+</html>

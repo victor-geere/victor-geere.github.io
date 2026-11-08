@@ -781,7 +781,8 @@ the-final-letter/topics/absolute-polarized-hodge-index-realization/lean/check.sh
 # [check] OK   Archimedean.lean   [check] OK   Symbol.lean
 # [check] OK   Limit.lean         [check] OK   Weil.lean
 # [check] OK   Hadamard.lean      [check] OK   Rectangle.lean
-# [check] OK   ExplicitFormula.lean  [check] OK   TailBound.lean
+# [check] OK   ExplicitFormula.lean  [check] OK   GaussianZeroSide.lean
+# [check] OK   ZeroTail.lean      [check] OK   TailBound.lean
 # [check] OK   ZetaStrip.lean     [check] OK   Topic.lean
 ```
 
@@ -792,7 +793,12 @@ finite cone-positivity certificates. `Archimedean.lean` and `Symbol.lean` hold
 the archimedean symbol, the digamma/zeta identities, the completed-zeta
 symmetries, both pole terms and the argument-principle chain. `Rectangle.lean`,
 `ExplicitFormula.lean` and `TailBound.lean` hold the rectangle contour, the
-zeta zero count and the tail bound. `Limit.lean` holds the scaling-site limit
+zeta zero count and the tail bound; `GaussianZeroSide.lean` the Gaussian
+test function and its explicit formula; `ZeroTail.lean` the bridge from the
+`ξ₀` zero-counting summability to the Gaussian zero tail, including the
+identity `ξ₀(s) = s(s−1)Z(s)`.  The consumer hub is
+[`weil-positivity`](../weil-positivity/README.md), with the execution plan in
+[`HANDOFF.md`](../weil-positivity/HANDOFF.md). `Limit.lean` holds the scaling-site limit
 form; `ZetaStrip.lean` the Euler–Maclaurin strip layer; `Weil.lean` the
 pole/prime signs; `Hadamard.lean` the canonical products, Jensen theory, the
 order-1 class and the factorisation.

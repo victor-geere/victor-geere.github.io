@@ -67,6 +67,11 @@ RATINGS = {
     "topological-zeta": (5, 3, 5, 1),
     "transfer-operator-proof": (3, 2, 3, 2),
     "yakaboylu-notes": (2, 2, 2, 3),
+    "zero-infinitude": (4, 3, 4, 2),
+    "log-derivative-growth": (3, 3, 4, 2),
+    "zero-density-bound": (4, 3, 4, 2),
+    "weil-positivity": (4, 3, 5, 1),
+    "missing-bridge": (2, 2, 3, 1),
 }
 
 # Why the highest-priority programmes are worth doing. One paragraph per slug:
@@ -332,7 +337,7 @@ def fmt_num(x: float) -> str:
 rows = []
 for topic in sorted(
         p for p in ROOT.iterdir()
-        if p.is_dir() and p.name != "tools" and not p.name.startswith(".")
+        if p.is_dir() and p.name not in {"tools", "index-lean"} and not p.name.startswith(".")
     ):
     if topic.name not in RATINGS:
         raise SystemExit(f"missing rating for {topic.name}")

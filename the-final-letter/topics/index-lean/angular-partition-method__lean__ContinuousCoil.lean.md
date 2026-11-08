@@ -1,0 +1,17 @@
+# `angular-partition-method/lean/ContinuousCoil.lean`
+
+[Back to the split index](index.md) · Topic: [`angular-partition-method`](../angular-partition-method/README.md)
+
+### [`angular-partition-method/lean/ContinuousCoil.lean`](../angular-partition-method/lean/ContinuousCoil.lean) — 9 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [43](../angular-partition-method/lean/ContinuousCoil.lean#L43) | theorem | `hasSum_shiftedZetaKernel` | $\forall\,x\,t : \mathbb{R},\ \forall\,\_hx : 0<x,\ \forall\,ht : 0<t,\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow(1:\mathbb{C})\cdot(\mathrm{Real.exp}(-(x+n)\cdot\ t):\mathbb{C}))(\mathrm{shiftedZetaKernel}\ x\ t)$ |
+| [78](../angular-partition-method/lean/ContinuousCoil.lean#L78) | theorem | `hasSum_mellin_shiftedZetaKernel` | $\forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{HasSum}(\lambda\ n:\mathbb{N}\Rightarrow\ \mathrm{Gamma}\ s\cdot\ 1/(((x+n:\mathbb{R}):\mathbb{C})^{s}))(\mathrm{mellin}(\mathrm{shiftedZetaKernel}\ x)\ s)$ |
+| [105](../angular-partition-method/lean/ContinuousCoil.lean#L105) | theorem | `mellin_shiftedZetaKernel_eq` | $\forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{mellin}(\mathrm{shiftedZetaKernel}\ x)\ s=\mathrm{Gamma}\ s\cdot\ \mathrm{shiftedTail}\ x\ s$ |
+| [123](../angular-partition-method/lean/ContinuousCoil.lean#L123) | theorem | `continuousCoil_eq_integral` | $\forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \mathrm{continuousCoil}\ s\ x=(\mathrm{Gamma}\ s)^{-1}\cdot\ \mathrm{mellin}(\mathrm{shiftedZetaKernel}\ x)\ s$ |
+| [139](../angular-partition-method/lean/ContinuousCoil.lean#L139) | theorem | `integral_Ioi_rpow_neg_eq_inv_sub_one` | $\forall\,\sigma : \mathbb{R},\ \forall\,h\sigma : 1<\sigma,\ \int\ x:\mathbb{R}\ \text{in}\ \mathrm{Ioi}(1:\mathbb{R}),\ x^{-\sigma}=(\sigma-1)^{-1}$ |
+| [150](../angular-partition-method/lean/ContinuousCoil.lean#L150) | theorem | `integral_Ioi_rpow_neg_eq_continuousIntegralCoil` | $\forall\,\sigma\,x : \mathbb{R},\ \forall\,h\sigma : 1<\sigma,\ \forall\,hx : 0<x,\ \int\ t:\mathbb{R}\ \text{in}\ \mathrm{Ioi}\ x,\ t^{-\sigma}=\mathrm{continuousIntegralCoil}\ \sigma\ x$ |
+| [165](../angular-partition-method/lean/ContinuousCoil.lean#L165) | theorem | `hasDerivAt_continuousIntegralCoil` | $\forall\,\sigma : \mathbb{R},\ \forall\,h\sigma : 1<\sigma,\ \forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \mathrm{HasDerivAt}(\mathrm{continuousIntegralCoil}\ \sigma)(-(x^{-\sigma}))\ x$ |
+| [192](../angular-partition-method/lean/ContinuousCoil.lean#L192) | theorem | `cpow_selfSimilar_factor` | $\forall\,s : \mathbb{C},\ \forall\,ht : s.\mathrm{im}\ne\ 0,\ ((\mathrm{Real.exp}(2\cdot\ \mathrm{Real.pi}/\vert{}s.\mathrm{im}\vert):\mathbb{R}):\mathbb{C})^{1-s}=(\mathrm{Real.exp}(-(2\cdot\ \mathrm{Real.pi}\cdot(s.\mathrm{re}-1)/\vert{}s.\mathrm{im}\vert)):\mathbb{C})$ |
+| [243](../angular-partition-method/lean/ContinuousCoil.lean#L243) | theorem | `continuousComplexCoil_selfSimilar` | $\forall\,s : \mathbb{C},\ \forall\,hs : 1<s.\mathrm{re},\ \forall\,ht : s.\mathrm{im}\ne\ 0,\ \forall\,x : \mathbb{R},\ \forall\,hx : 0<x,\ \mathrm{continuousComplexCoil}\ s(\mathrm{Real.exp}(2\cdot\ \mathrm{Real.pi}/\vert{}s.\mathrm{im}\vert)\cdot\ x)=(\mathrm{Real.exp}(-(2\cdot\ \mathrm{Real.pi}\cdot(s.\mathrm{re}-1)/\vert{}s.\mathrm{im}\vert)):\mathbb{C})\cdot\ \mathrm{continuousComplexCoil}\ s\ x$ |

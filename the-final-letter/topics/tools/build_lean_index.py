@@ -4,7 +4,8 @@
 The index lists every named `theorem` and `lemma` declaration under
 `the-final-letter/topics/**/*.lean`, with a link to the declaration line.
 Anonymous `example` proofs and files with no named proofs are listed
-separately.
+separately.  It also writes `index-lean/index.md` plus one markdown page per
+Lean file, split by file, with a topic and proof summary for each.
 """
 from __future__ import annotations
 
@@ -401,17 +402,75 @@ def latex_statement(statement: str) -> str:
     return "$" + r"\ ".join(parts) + "$"
 
 
-def scan(path: Path) -> tuple[list[tuple[int, str, str, str]], list[int]]:
+def doc_title(raw_lines: list[str], decl_line: int) -> str | None:
+    """Return the first line of the doc comment attached to a declaration."""
+    i = decl_line - 2
+    while i >= 0 and not raw_lines[i].strip():
+        i -= 1
+    if i < 0:
+        return None
+    # the doc comment must end at or just above this line
+    j = i
+    while j >= 0 and "-/" not in raw_lines[j]:
+        stripped = raw_lines[j].lstrip()
+        if (DECL_RE.match(raw_lines[j])
+                or stripped.startswith(("def ", "instance ", "structure ", "inductive ",
+                                        "abbrev ", "class ", "namespace ", "end "))):
+            return None
+        j -= 1
+    if j < 0:
+        return None
+    k = j
+    while k >= 0 and "/--" not in raw_lines[k]:
+        k -= 1
+    if k < 0:
+        return None
+    # only whitespace or attributes may sit between the comment and the declaration
+    for t in range(j + 1, decl_line - 1):
+        stripped = raw_lines[t].strip()
+        if stripped and not stripped.startswith("@["):
+            return None
+    block = " ".join(raw_lines[k:j + 1])
+    block = block.replace("/--", "").replace("-/", "")
+    for line in block.splitlines():
+        line = line.strip().lstrip("*").strip()
+        if not line:
+            continue
+        line = re.split(r"(?<=[.!?])\s", line)[0]
+        line = re.sub(r"\*\*|__|`", "", line)
+        line = re.sub(r"\s+", " ", line).strip()
+        if len(line) > 140:
+            line = line[:137].rstrip() + "…"
+        return line or None
+    return None
+
+
+def fallback_title(name: str) -> str:
+    """Humanise a Lean identifier into a short title."""
+    words = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", name).replace("_", " ").split()
+    if not words:
+        return name
+    words[0] = words[0][:1].upper() + words[0][1:]
+    return " ".join(words)
+
+
+def md_filename(rel: str) -> str:
+    return rel.replace("/", "__") + ".md"
+
+
+def scan(path: Path) -> tuple[list[tuple[int, str, str, str, str]], list[int]]:
     stripped = strip_comments(path.read_text(encoding="utf-8"))
     lines = stripped.split("\n")
-    decls: list[tuple[int, str, str, str]] = []
+    raw_lines = path.read_text(encoding="utf-8").split("\n")
+    decls: list[tuple[int, str, str, str, str]] = []
     examples: list[int] = []
     for number, line in enumerate(lines, start=1):
         match = DECL_RE.match(line)
         if match:
             kind, name = match.group(1), match.group(2)
             statement = statement_text(lines, number - 1, match.end())
-            decls.append((number, kind, name, latex_statement(statement)))
+            title = doc_title(raw_lines, number) or fallback_title(name)
+            decls.append((number, kind, name, latex_statement(statement), title))
         elif EXAMPLE_RE.match(line):
             examples.append(number)
     return decls, examples
@@ -450,13 +509,13 @@ for path in files:
         axioms.append(rel)
 
 all_decls = [d for entries in by_topic.values() for entry in entries for d in entry["decls"]]
-n_theorems = sum(1 for _, kind, _, _ in all_decls if kind == "theorem")
-n_lemmas = sum(1 for _, kind, _, _ in all_decls if kind == "lemma")
+n_theorems = sum(1 for _, kind, *_ in all_decls if kind == "theorem")
+n_lemmas = sum(1 for _, kind, *_ in all_decls if kind == "lemma")
 
 
 def count(topic: str, kind: str) -> int:
     return sum(
-        1 for entry in by_topic[topic] for _, k, _, _ in entry["decls"] if k == kind
+        1 for entry in by_topic[topic] for _, k, *_ in entry["decls"] if k == kind
     )
 
 
@@ -483,6 +542,8 @@ if generated:
         "are excluded from the declaration index; see "
         "[Generated certificates](#generated-certificates)."
     )
+add("")
+add("**Per-file pages:** [index-lean/index.md](index-lean/index.md) — one markdown page per Lean file, with a topic and proof summary for each.")
 add("")
 add("**Visualisations:** [concept graph](lean-graph.html) · [proof–conjecture graph](lean-conjecture-graph.html).")
 add("")
@@ -576,7 +637,7 @@ for topic in sorted(by_topic):
             continue
         add("| Line | Kind | Proof | Statement (LaTeX) |")
         add("|---:|---|---|---|")
-        for number, kind, name, latex in decls:
+        for number, kind, name, latex, _title in decls:
             add(f"| [{number}]({rel}#L{number}) | {kind} | `{name}` | {latex} |")
         add("")
 
@@ -627,6 +688,76 @@ else:
 add("")
 
 (ROOT / "index-lean.md").write_text("\n".join(lines), encoding="utf-8")
+
+# ---- the per-file split under index-lean/ ---------------------------------
+SPLIT = ROOT / "index-lean"
+SPLIT.mkdir(exist_ok=True)
+
+def cell(text: str) -> str:
+    return text.replace("|", "\\|").replace("\n", " ").strip()
+
+written: set[str] = set()
+index_lines: list[str] = []
+addi = index_lines.append
+addi("# Lean proof index — split by file")
+addi("")
+addi("One page per Lean file listed in the [monolith index](../index-lean.md).  "
+     "Each page preserves the file's table; this index adds a topic and proof summary.")
+addi("")
+addi("## Files")
+addi("")
+for topic in sorted(by_topic):
+    for entry in by_topic[topic]:
+        written.add(md_filename(entry["rel"]))
+        addi(f"- [`{entry['rel']}`]({md_filename(entry['rel'])})")
+addi("")
+
+for topic in sorted(by_topic):
+    for entry in by_topic[topic]:
+        rel = entry["rel"]
+        decls = entry["decls"]
+        name = md_filename(rel)
+        # per-file page
+        page: list[str] = []
+        a = page.append
+        a(f"# `{rel}`")
+        a("")
+        a(f"[Back to the split index](index.md) · Topic: [`{topic}`](../{topic}/README.md)")
+        a("")
+        a(f"### [`{rel}`](../{rel}) — {len(decls):,} " + ("proof" if len(decls) == 1 else "proofs"))
+        a("")
+        if decls:
+            a("| Line | Kind | Proof | Statement (LaTeX) |")
+            a("|---:|---|---|---|")
+            for number, kind, proof_name, latex, _title in decls:
+                a(f"| [{number}](../{rel}#L{number}) | {kind} | `{proof_name}` | {latex} |")
+        else:
+            a("_No named proofs in this file._")
+        a("")
+        (SPLIT / name).write_text("\n".join(page), encoding="utf-8")
+
+        # index entry
+        addi(f"## [`{rel}`]({name})")
+        addi("")
+        addi("### topics")
+        addi("")
+        addi(f"- [`{topic}`](../{topic}/README.md)")
+        addi("")
+        addi("### proofs")
+        addi("")
+        addi("| lean name | proof title | applicable to topics |")
+        addi("|---|---|---|")
+        for number, _kind, proof_name, _latex, title in decls:
+            addi(f"| [`{cell(proof_name)}`](../{rel}#L{number}) | {cell(title)} | {cell(topic)} |")
+        addi("")
+
+# prune stale pages
+for stale in SPLIT.glob("*.md"):
+    if stale.name != "index.md" and stale.name not in written:
+        stale.unlink()
+
+(SPLIT / "index.md").write_text("\n".join(index_lines), encoding="utf-8")
+print(f"wrote {SPLIT / 'index.md'} with {len(written)} per-file pages")
 print(
     f"wrote {ROOT / 'index-lean.md'} with {len(by_topic)} topics, "
     f"{len(files)} Lean files and {len(all_decls)} named proofs"

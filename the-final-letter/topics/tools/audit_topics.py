@@ -17,7 +17,7 @@ def main() -> int:
     bad = []
     for topic in sorted(
         p for p in ROOT.iterdir()
-        if p.is_dir() and p.name not in {"tools"} and not p.name.startswith(".")
+        if p.is_dir() and p.name not in {"tools", "index-lean"} and not p.name.startswith(".")
     ):
         missing = [f for f in REQUIRED if not (topic / f).exists()]
         dirty = []
@@ -34,7 +34,7 @@ def main() -> int:
     if not bad:
         folders = [
             p for p in ROOT.iterdir()
-            if p.is_dir() and p.name != "tools" and not p.name.startswith(".")
+            if p.is_dir() and p.name not in {"tools", "index-lean"} and not p.name.startswith(".")
         ]
         print(f"OK: {len(folders)} topic folders pass the structural audit")
         return 0

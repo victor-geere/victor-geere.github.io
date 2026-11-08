@@ -439,7 +439,7 @@ def test_gram6_certificate_recorded():
     import json
     import mpmath as mp
 
-    d = json.load(open("python/gram6_certificate.json"))
+    d = json.load(open(ROOT / "python" / "gram6_certificate.json"))
     n = 6
     G = [[mp.iv.mpf([d["centre"][i][j] - d["half"][i][j],
                      d["centre"][i][j] + d["half"][i][j]])

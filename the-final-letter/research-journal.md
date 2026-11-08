@@ -3256,3 +3256,1975 @@ order 0..4 for |t|<=100. Reran H=0.1,T=100,U=6 with the proven 1e-5 allowance
 and 1e-4 margin: t=0.0211003138; shifted minors 0.0220026, 2.08595e-4,
 1.49194e-6, 9.92643e-9; CERTIFIED (C22). This supersedes C21 for the tail audit.
 PST tests 22 passed.
+
+
+### 2026-11-06 — Weil positivity: Wave 1 reduced to infinitude alone
+
+Continued the [Weil-positivity handoff](topics/weil-positivity/HANDOFF.md) across
+the hub and its three upstream programmes. The headline is a real reduction,
+not a closure: **`ZeroTailSummable` now follows from infinitude of the
+nontrivial zeros alone**, and the off-line obstruction has an exact scalar
+criterion. Objective O2 remains open and RH-equivalent.
+
+**zero-infinitude (T4–T9).** Earlier revisions carried a linear log-growth
+hypothesis and ordinate growth as separate inputs. Both are gone:
+
+- `tendsto_abs_atTop_of_summable_inv_sq`: if `Σ ((|γ n|+1)^2)⁻¹` converges,
+  the weight terms tend to zero, hence `|γ n| → ∞`. (The proof uses
+  `Summable.tendsto_atTop_zero`, `one_div_lt_one_div`, and `sq_lt_sq₀`.)
+- `zeroTailSummable_of_nontrivial_xi₀_enumeration'`: for any injective
+  enumeration of nontrivial zeros and any `σ > 0`, the Gaussian zero tail is
+  summable. The proof feeds `exists_bound_log_norm_xi₀` (unconditional
+  order-one growth) into `xi₀_zeros_inv_sq_summable_of_log_growth`, transfers
+  to the enumeration, restricts to the imaginary part via the strip bound, and
+  derives ordinate growth from the resulting summability.
+- `nontrivialZeros_denumerable_of_infinite` packages
+  `Countable + Infinite ⇒ Nonempty Denumerable`; `exists_nontrivial_xi₀_enumeration_of_infinite`
+  and `exists_enumeration_and_zeroTailSummable_of_infinite` are the
+  enumeration and tail capstones. The capstone takes only
+  `Infinite {z // ξ₀ z = 0 ∧ 0 < Re z}` and `σ > 0`. Finally
+  `nontrivialZeros_denumerable_iff_infinite` records the exact equivalence
+  `Nonempty (Denumerable S) ↔ Infinite S` for the nontrivial-zero subtype.
+  Finally `zeroTailSummable_mono` records monotonicity in the width: one
+  positive `σ` suffices for every larger width, and `exists_zero_abs_im_gt`
+  shows infinitude forces the zeros to be unbounded in ordinate (otherwise the
+  strip bound would trap them in a ball, where only finitely many live).
+
+So the only open zero-set fact is infinitude itself. The argument-principle
+route (`tendsto_digamma_nat_re_atTop`) and the finite-zero Hadamard route both
+remain research-scale; neither is axiomatised.
+
+**log-derivative-growth (T4–T7).** Proved
+`integrable_abs_pow_mul_exp_neg_mul_sq` (every `|y|^k` times a Gaussian is
+integrable, by restricting to `Ioi 0` and reflecting through `neg`), then
+`integrable_one_add_abs_pow_mul_exp_neg_sq` from `add_pow_le`, and finally
+`verticalLogDerivIntegrable_of_polynomial_bound`: a bound
+`‖(Z'/Z)(x+iy)‖ ≤ M(1+|y|)^k` plus measurability already gives
+`VerticalLogDerivIntegrable`. The harvested linear theorem is recovered as
+`verticalLogDerivIntegrable_of_linear_bound'` (`k = 1`). This matters because
+Stirling/Cauchy estimates naturally produce polynomial rather than linear
+bounds. Measurability is no longer open:
+`measurable_riemannZeta`, `measurable_completedZeta` and
+`measurable_logDeriv_completedZeta` (using `measurable_deriv`, which holds for
+an arbitrary function, plus `measurable_of_measurable_on_compl_singleton` for
+`ζ`), then `aestronglyMeasurable_logDeriv_mul_gaussian`, give
+`verticalLogDerivIntegrable_of_polynomial_bound'` and
+`verticalLogDerivIntegrable_of_linear_bound''` with no measurability
+hypothesis at all. The Cauchy step is also now formalised:
+`norm_logDeriv_le_of_sphere_bound` turns a circle bound `M` at radius `R` and
+a lower bound `a ≤ ‖f s‖` into `‖f'/f s‖ ≤ M/(R a)`, and
+`norm_logDeriv_completedZeta_le_of_sphere` specialises it to `Z` (away from
+`1` and the Gamma poles). The growth interface is also widened beyond
+polynomials: `verticalLogDerivIntegrable_of_exp_bound` accepts
+`‖Z'/Z‖ ≤ M exp(A y²)` provided `A < σ²`, since the Gaussian dominates it, and
+`verticalLogDerivIntegrable_of_exp_bound'` removes the measurability
+hypothesis. This matches the shape of the Stirling/Gamma estimates.
+
+The **upper half of Stirling is now proved** on the right. Using
+`ξ₀ = z(z−1)Z` and the unconditional order-one bound on `ξ₀`,
+`exists_circle_growth_completedZeta_right` shows that on a circle of radius `R`
+around `x + iy` with `1 < x − R`,
+`‖Z z‖ ≤ M exp(A y²)`. The case analysis uses the real part lower bound
+`x − R` on the circle (`re_ge_of_mem_sphere_sub`,
+`re_ge_of_mem_closedBall_sub`). The resulting interface
+`verticalLogDerivIntegrable_of_right_growth_lower` takes the upper bound
+`M exp(A y²)` and an exponential lower bound
+`a exp(−B|y|) ≤ ‖Z(x+iy)‖` with `A + B/2 < σ²`, and returns
+`VerticalLogDerivIntegrable`. The only analytic input still missing on the
+right is that lower bound; it is the shape produced by the Gamma asymptotics
+(`|Γℝ(x+iy)|` decays like `e^{−π|y|/2}`).
+
+The capstone `exists_positive_verticalLogDerivIntegrable_of_right_lower` removes
+even the choice of width: from the exponential lower bound alone it produces a
+`σ > 0` with `VerticalLogDerivIntegrable`, using the proved upper bound and
+choosing `σ` large enough that `A + B/2 < σ²`. Thus the right-line vertical
+input is now exactly the Gamma lower bound, with no other analytic or
+measurability hypothesis.
+
+The zeta half of that lower bound is also proved:
+`exists_zeta_lower_bound_right` shows `‖ζ(s)‖ ≥ 1/4` for `Re s ≥ 2` from the
+Dirichlet series, the first term, and the tail comparison with
+`∑ 1/(n+2)² = π²/6 − 1`. What remains is the Gamma factor alone.
+
+**zero-density-bound (T5–T9).** Added the tail-predicate algebra
+(`tailEntryBound_mono`, `tailEntryBound_nonneg`,
+`tailEntryBound_iff_fullBlockWithin`) and the exact 2×2 criterion:
+`!![a, b; b, a]` is PSD iff `|b| ≤ a`. The forward direction uses the vectors
+`(1,1)` and `(1,-1)`; the reverse writes the quadratic form as
+`((a-b)/2)(x₀-x₁)² + ((a+b)/2)(x₀+x₁)²`. It also proves the counting corollary
+`zero_count_le_rlog`, a Riemann–von Mangoldt-type bound
+`N(r) ≤ C r log(r+2) + D` obtained from the unconditional log-growth bound,
+and `tailEntryBound_iff_max_le`, the normal form in which the tail predicate is
+a single bound on the maximum absolute entry. It also strengthens the
+domination step: `twoByTwo_perturbed_not_posSemidef_abs` and
+`not_posSemidef_of_tailBound_abs` use the exact scalar hypothesis
+`S(0) − |S(c)| + 2B < 0`, matching the hub's criterion `|S(c)| ≤ S(0)` (the
+harvested version only covered `S(0) − S(c) + 2B < 0`). Finally
+`exists_domination_abs` shows that for *every* `B ≥ 0` a separation satisfies
+`S(0) − |S(c)| + 2B < 0`, so the existence of the separation is no longer an
+input. The height tail is also controlled:
+`tendsto_gaussian_zero_mass_outside_radius` proves that the Gaussian mass of
+the zeros with `|γ n| ≥ R` tends to `0` as `R → ∞` (split off the finitely many
+early indices, then use the tail of the summable series). Thus the zero-density
+side has the count, the separation, and the height tail; what remains is the
+entrywise reduction of the full block to that tail mass. The zero-density
+estimate `B` itself is still open. A new computation C5 checks the finite
+model: the Gaussian mass of the tabulated zeros outside radius `R` decreases
+with `R` and vanishes past the largest ordinate. The entrywise interface is
+also in place: `abs_tsum_le_mul_tsum` bounds a zero sum by `C` times the total
+mass, and `tailEntryBound_of_complex_tail` turns four such sums into
+`TailEntryBound` with `B = C ∑ w`. The interface is instantiated on the
+Gaussian test function itself: `exists_gaussianZeroTest_bound_strip` proves
+`‖H_c(z)‖ ≤ C exp(−σ²(Im z)²)` uniformly on the critical strip,
+`summable_gaussianZeroTest_of_strip` proves `∑ H_c(aₙ)` summable whenever the
+Gaussian zero tail is, and `norm_gaussianZeroTailEntry_le` bounds the sum by
+`C ∑ exp(−σ²(Im aₙ)²)`. What remains is the explicit-formula bookkeeping that
+writes the four Gram entries as products of these sums. The high-zero tail is
+also controlled quantitatively: `exists_tailEntryBound_gaussian_high` shows
+that for every `ε > 0` there is a height `R` such that the Gaussian sums
+restricted to `|Im aₙ| ≥ R` satisfy `TailEntryBound` with `B = C ε`. Thus the
+W4 bound can be made arbitrarily small above any chosen height; only the
+finitely many low zeros need separate treatment. The full block version is
+also proved: `exists_tailEntryBound_gaussian_all` gives a single finite `B`
+for the four zero-side sums `∑ H_{cᵢⱼ}(aₙ)`. This is the entrywise W4 bound in
+the Gaussian model. The product case is also proved:
+`exists_gaussianZeroTest_mul_bound_strip` gives the strip bound for
+`H_{c₁}H_{c₂}`, and `exists_tailEntryBound_gaussian_gram_all` gives a finite
+`B` for the four product sums `∑ H_{cᵢⱼ,1}(aₙ)H_{cᵢⱼ,2}(aₙ)`, which is closer
+to the actual Gram entries. The remaining bookkeeping is to identify the
+actual entries (products at shifted arguments and conjugates) with these
+sums. The **actual on-line entries** are covered directly:
+`exists_tailEntryBound_onLineGram` bounds the genuine cosine Gram entries
+`∑ 2πσ² exp(−σ²γₙ²) cos((a−b)γₙ)` by `2πσ²` times the Gaussian zero mass, so
+the on-line part of the tail satisfies W4 with no model assumption.
+
+**Verification note.** `run-tests.sh` was failing on
+`absolute-polarized-hodge-index-realization/tests/test_rescue.py::test_gram6_certificate_recorded`
+because the test opened `python/gram6_certificate.json` relative to the current
+working directory. The path is now resolved from `ROOT`; the full test suite
+passes from `topics/`. The Lean sweep also found
+`finite-window-zeros/lean/Check.lean` referring to the removed
+`List.all_eq_true_iff`; the stale `#check` was dropped, and the file rechecks
+green. Both are verification hygiene, not mathematical changes. After these
+fixes the sweep reports 172/172 Lean files OK, and the publication hash and
+link base still match.
+
+**weil-positivity hub (T5–T9).** Lifted the criterion to the isolated block:
+`OffLineBlockPSD c σ δ γ ↔ |S(c)| ≤ S(0)`, with the negations
+`not_offLineBlockPSD_iff` and `not_offLineBlockPSD_of_abs_lt`. The off-line
+obstruction is therefore the scalar separation
+`exists c, S(0) < |S(c)|` (`exists_abs_offLineQuad_gt_of_offLine`), rather than
+an opaque matrix-negativity statement. Three further theorems package it:
+`all_blocks_psd_iff_scalar` (universal block positivity is equivalent to the
+scalar inequality for every parameter), `no_offLine_of_all_abs_le` (the scalar
+bound for all parameters implies RH), and
+`exists_abs_offLineQuad_gt_of_not_RH` (failure of RH produces the obstruction
+in the exact scalar form), and `exists_abs_offLineQuad_gt_any` (the off-line
+contribution is unbounded in modulus, so it beats every fixed bound). The
+assembly from the three inputs is still not claimed.
+
+**Computations.** Added C4/C3/C4/C4 tests: the inverse-square weights and their
+`ε`-threshold (zero-infinitude), the polynomial majorant ratio and Gaussian
+moments with the recurrence `M_{k+2} = (k+1)/(2b) M_k` (log-derivative-growth),
+the tail-predicate/`FullBlockWithin` agreement and the eigenvalue/scalar
+criterion agreement (zero-density-bound), and the scalar-criterion check for
+the Weil block including a negative obstruction margin at a failure
+(weil-positivity). All four topic suites pass (6, 6, 8, 4 tests).
+
+**Build and indexes.** The four Lean cores build with no `sorry`/`axiom`/`admit`
+(`zero-infinitude` 8 s, `log-derivative-growth` 6 s, `zero-density-bound` 5 s,
+`weil-positivity` 5 s). Regenerated `topics/index.html`,
+`topics/index-lean.md` + 173 per-file pages, `lean-graph.html`
+(2,890 proofs, up from 2,799) and `lean-conjecture-graph.html`. `STATUS.md`
+now records 58 topics, 1,297 theorems, 535 computations and 839 tests, with the
+four upstream rows current and the `missing-bridge` topic added concurrently.
+
+**Honesty.** No RH claim, no unconditional Weil positivity. The vertical
+input is now complete on the library contour `(−1, 2)` (T33–T36); the remaining
+handoff inputs are **infinitude** and the **W4 off-line/other-zero
+bookkeeping**.
+
+**Resume (2026-11-06, later).** The handoff was resumed after the
+[missing-bridge](topics/missing-bridge/README.md) review. The arithmetic side
+is now the active route. missing-bridge records the exact identity
+`pole(c) = P_main(c) + P_main(−c)` and the residual form
+`pole − (P_c + P_{−c}) = (P_main(c) − P_c) + (P_main(−c) − P_{−c})`, both
+Lean-proved (T21–T22), identified with `Re H_c(0)`, `Re H_c(1)` and
+`Re (H_c(0)+H_c(1))` (T23–T25), with the full residual `K = PNT errors + arch`
+formalised as T26, the Gaussian prime window and the nonnegative truncated
+prime side are T27–T28, with termwise nonnegativity and monotonicity of the
+truncation as T29–T30, the window symmetry `(c,u) ↦ (−c,−u)` as T31, and the
+positivity of the main and pole terms as T32–T33, and the evenness of the pole
+term as T34, and the Gaussian-integral evaluation of the smooth main term as
+T35–T36, the pole as the sum of the two Gaussian integrals as T37, and the
+evenness of the arithmetic residual kernel as T38 and the symmetry of the
+arithmetic Gram matrix as T39; the identity is checked numerically by C18. Regenerated
+`topics/index.html`, `topics/index-lean.md` (58 topics, 173 Lean files, 2,912
+named proofs), `lean-graph.html` and `lean-conjecture-graph.html`.
+`STATUS.md`: 58 topics, 1,319 theorems, 540 computations, 844 tests. O2 remains
+open and RH-equivalent.
+
+
+**Full verification (2026-11-06).** `tools/verify-all.sh --quick` exits 0:
+the structural audit passes for all 58 topics, all Python suites pass
+(844 tests), all 173 Lean files build, the 30,129-link base has 0 broken
+curated links, and the two `publication.html` copies hash identically
+(`ae65d8c1…`).
+
+
+**Targeted verification (2026-11-06).** The five key topics build and test
+individually: log-derivative-growth (6 tests), zero-infinitude (6),
+zero-density-bound (8), weil-positivity (4) and missing-bridge (24); all five
+Lean cores report OK. A single combined pytest invocation collides on the
+repeated `test_programme` module name, so the suites are run per directory as
+`run-tests.sh` does.
+
+
+**Handoff sync (2026-11-06).** The missing-bridge README now records that the
+full Gram criterion (T18–T20), the residual form (T26), the Gaussian-integral
+evaluation of the main term (T36–T37) and the `σ = 0.05` sign tests (C16–C17)
+are done. The next concrete step is recorded as the uniform smooth-window PNT
+error bound, jointly with the archimedean term.
+
+
+**Full verification (2026-11-06, after T21–T39).** `tools/verify-all.sh
+--quick` exits 0 again: 58/58 structural audit, all Python suites (844 tests),
+all 173 Lean files build, 30,168 internal links checked with 0 broken curated
+links, and the `publication.html` copies still hash identically
+(`ae65d8c1…`). Counts at this checkpoint: 1,319 theorems, 540 computations,
+844 tests, 2,912 named proofs.
+
+
+**W4 on-line kernel symmetry (2026-11-06).** Added
+`onLineGramEntry_comm`: the actual on-line Gram kernel is symmetric in the two
+centres. This is T26 of zero-density-bound. Counts: 1,320 theorems, 540
+computations, 844 tests; Lean index 2,913 named proofs.
+
+
+**Hub block evenness (2026-11-06).** Added `offLineBlock_neg` and
+`offLineBlockPSD_neg` (weil-positivity T14–T15): the isolated off-line block
+and its PSD predicate are even in the separation `c`. Counts: 1,322 theorems,
+540 computations, 844 tests; Lean index 2,915 named proofs.
+
+
+**W4 on-line Gram matrix (2026-11-06).** Added `onLineGramMatrix` and
+`onLineGramMatrix_isSymm` (zero-density-bound T27): the actual on-line Gram
+matrix is symmetric. Counts: 1,323 theorems, 540 computations, 844 tests; Lean
+index 2,916 named proofs.
+
+
+**Infinitude route recorded (2026-11-06).** The zero-infinitude README now
+spells out the finite-zero contradiction route: multiplicity-aware finite
+product, entire zero-free quotient, real-axis identity
+`logDeriv Z = P'/P − 1/s − 1/(s−1)`, and the boundedness of `P'/P` versus the
+harvested `tendsto_logDeriv_completedZeta_re_atTop`. The Lean interfaces
+needed are listed alongside it.
+
+
+**Infinitude route corrected (2026-11-06).** The degree-asymptotic lemmas
+`Polynomial.isLittleO_atTop_of_degree_lt` are only stated over linearly ordered
+fields, so they do not apply to `ℂ`. The recorded route now uses the root
+partial fraction: split `P` over `ℂ` via `Polynomial.Splits.eq_prod_roots`,
+then use the analytic `logDeriv_prod` to get `P'/P = ∑ 1/(s−r)` and bound each
+term for large real `s`.
+
+
+**Finite zero product (2026-11-06).** Started the infinitude route: added
+`finiteZeroProduct`, `differentiable_finiteZeroProduct` and
+`finiteZeroProduct_ne_zero` (zero-infinitude T12–T13), the multiplicity-aware
+product that replaces the simple-zero canonical product. Counts: 1,325
+theorems, 540 computations, 844 tests; Lean index 2,918 named proofs.
+
+
+**Finite zero product divisor (2026-11-06).** Added
+`meromorphicOrderAt_finiteZeroProduct_of_mem` and
+`meromorphicOrderAt_finiteZeroProduct_of_not_mem` (zero-infinitude T14–T15):
+the finite zero product has order exactly the prescribed multiplicity at a
+zero and order zero away from the zero set. This is the divisor-match input for
+the finite-zero Hadamard step. Counts: 1,327 theorems, 540 computations, 844
+tests; Lean index 2,920 named proofs.
+
+
+**Off-zero-set order of ξ₀ (2026-11-06).** Added
+`meromorphicOrderAt_xi₀_of_not_mem` (zero-infinitude T16): away from a finite
+set containing all zeros, `ξ₀` has meromorphic order zero. Together with
+T12–T15 this supplies the away-from-zeros half of the finite-zero divisor
+match. Counts: 1,328 theorems, 540 computations, 844 tests; Lean index 2,921
+named proofs.
+
+
+**Finite analytic order of ξ₀ (2026-11-06).** Added `analyticOrderAt_xi₀_ne_top`
+(zero-infinitude T17): the analytic order of `ξ₀` is finite everywhere, since
+`ξ₀` is not identically zero and analytic continuation rules out a vanishing
+neighbourhood. Counts: 1,329 theorems, 540 computations, 844 tests; Lean index
+2,922 named proofs.
+
+
+**On-zero divisor match (2026-11-06).** Added `meromorphicOrderAt_xi₀_of_mem`
+(zero-infinitude T18): at a zero, the meromorphic order of `ξ₀` is its
+analytic multiplicity. With T16–T17 this completes the pointwise divisor match
+against the finite zero product. Counts: 1,330 theorems, 540 computations, 844
+tests; Lean index 2,923 named proofs.
+
+
+**Finite-zero quotient (2026-11-06).** Added
+`exists_entire_zeroFree_quotient_of_finite_zeros` (zero-infinitude T19): if the
+zero set is finite, `ξ₀` divided by the multiplicity-aware finite product has
+an entire zero-free representative. This packages the divisor match (T12–T18)
+through `exists_entire_zeroFree_quotient`. Counts: 1,331 theorems, 540
+computations, 844 tests; Lean index 2,924 named proofs.
+
+
+**Infinitude route progress (2026-11-06).** The zero-infinitude README now
+marks step 1 (finite zero product and divisor match, T12–T18) and the quotient
+existence half of step 2 (T19) as Lean-proved. The remaining steps are the
+identity `ξ₀ = P·Q`, the quotient growth/affine step, and the polynomial
+asymptotic contradiction.
+
+
+**Factorization identity (2026-11-06).** Added `finiteZeroProduct_mul_quotient_eq`
+(zero-infinitude T20): the finite zero product times the entire zero-free
+quotient recovers `ξ₀`. This is the `hfac` input for the affine factorization.
+Counts: 1,332 theorems, 540 computations, 844 tests; Lean index 2,925 named
+proofs.
+
+
+**Entire-exponent factorization (2026-11-06).** Added
+`exists_entire_log_factorization_of_finite_zeros` (zero-infinitude T21): if
+the zero set is finite, `ξ₀ = P · exp(g)` with `g` entire. This uses T19–T20
+and `exists_differentiable_cexp_univ`. The remaining step is to show `g` is
+affine (quotient growth) and then derive the real-axis contradiction. Counts:
+1,333 theorems, 540 computations, 844 tests; Lean index 2,926 named proofs.
+
+
+**Off-line block matrix symmetry (2026-11-06).** Added `offLineBlock_isSymm`
+(weil-positivity T16): the isolated off-line block is a symmetric matrix.
+Counts: 1,334 theorems, 540 computations, 844 tests; Lean index 2,927 named
+proofs.
+
+
+**Full verification (2026-11-06, after T1–T21 of zero-infinitude).**
+`tools/verify-all.sh --quick` exits 0 again: 58/58 structural audit, all Python
+suites (844 tests), all 173 Lean files build, 30,213 internal links checked
+with 0 broken curated links, and the `publication.html` copies still hash
+identically (`ae65d8c1…`). Counts at this checkpoint: 1,334 theorems, 540
+computations, 844 tests, 2,927 named proofs.
+
+
+**Handoff status for zero-infinitude (2026-11-06).** The handoff status board
+now records the finite-zero progress: the finite zero product, divisor match,
+entire zero-free quotient and entire-exponent factorization are Lean-proved
+(zero-infinitude T12–T21); the remaining step is the affine exponent (analytic
+growth) followed by the real-axis contradiction.
+
+
+**Conditional affine step (2026-11-06).** Added
+`exists_affine_factorization_of_finite_zeros_of_growth` (zero-infinitude T22):
+if the entire exponent of the finite-zero factorization has linear real
+growth, the factorization is affine. This isolates the remaining analytic
+input to the growth bound on the exponent. Counts: 1,335 theorems, 540
+computations, 844 tests; Lean index 2,928 named proofs.
+
+
+**Max-modulus route recorded (2026-11-06).** The zero-infinitude README now
+records the concrete maximum-modulus plan for the remaining exponent growth
+bound: for large `R`, `‖P w‖ ≥ 1` on `|w| = R`; the maximum-modulus principle
+for the zero-free `Q = exp(g)` bounds `Re g` inside the disk by
+`log‖ξ₀‖` on the circle; with `R = |z| + 1` this is `O(‖z‖ log‖z‖)`, hence
+`O(‖z‖^{3/2})`, and `subquadratic_eq_affine_of_re_le_rpow` makes `g` affine.
+
+
+## Session summary — 2026-11-06
+
+**Log-derivative-growth — vertical input complete.** The Gamma lower bound was
+proved (`Gamma_lower_reflection`, `gammaR_lower_bound`, `gammaR_lower_bound_two`)
+and both vertical sides of the explicit formula are now unconditional on the
+library contour `(-1, 2)`: `exists_verticalLogDerivIntegrable_two` and
+`exists_verticalLogDerivIntegrable_neg_one`.
+
+**Missing-bridge — arithmetic side formalised.** The exact pole/main
+cancellation `pole = P_main(c) + P_main(−c)` (T21), its identification with
+`Re H_c(0)`, `Re H_c(1)`, `Re (H_c(0)+H_c(1))` (T23–T25), the residual
+`K = PNT errors + arch` (T26), the Gaussian prime window and nonnegative
+monotone truncated prime side (T27–T31), positivity of the main/pole terms
+(T32–T33), pole evenness (T34), the Gaussian-integral evaluation of the smooth
+main term (T35–T37), and the arithmetic kernel/matrix symmetry (T38–T39).
+
+**Zero-infinitude — finite-zero route.** The multiplicity-aware finite product
+(T12–T13), its divisor (T14–T15), the off-zero-set and on-zero orders of `ξ₀`
+(T16–T18), the entire zero-free quotient (T19), the factorization identity
+`ξ₀ = P·Q` (T20), the entire-exponent factorization `ξ₀ = P·exp(g)` (T21), and
+the conditional affine step (T22). The remaining analytic gap is the growth
+bound on `g`, with a maximum-modulus route recorded in the topic README.
+
+**Zero-density and hub.** The actual on-line Gram entries and their kernel/matrix
+symmetry (T26–T27), and the hub block symmetries (T14–T16).
+
+**Verification.** Full `verify-all.sh --quick` passed at 1,334 theorems
+(30,213 links, publication hash matching); the later additions (T22 zero-
+infinitude, T16 hub) were checked per topic. `STATUS.md` stands at 1,335
+theorems, 540 computations, 844 tests; the Lean index at 2,928 named proofs.
+
+
+**Polynomial circle bound (2026-11-06).** Added
+`exists_norm_eval_ge_one_on_sphere` (zero-infinitude T23): a nonconstant complex
+polynomial is at least `1` in modulus on every sufficiently large circle. This
+is the circle input for the maximum-modulus bound on the exponent. Counts:
+1,336 theorems, 540 computations, 844 tests; Lean index 2,929 named proofs.
+
+
+**Maximum-modulus disk bound (2026-11-06).** Added
+`norm_le_of_forall_sphere_norm_le` (zero-infinitude T24): an entire function
+bounded on a circle is bounded by the same constant on the closed disk. This
+is the maximum-modulus step of the exponent-growth route. Counts: 1,337
+theorems, 540 computations, 844 tests; Lean index 2,930 named proofs.
+
+
+**Quotient disk bound (2026-11-06).** Added `norm_quotient_le_on_ball`
+(zero-infinitude T25): the zero-free quotient is bounded on a disk by the `ξ₀`
+growth, provided the polynomial is at least `1` on the boundary circle. This
+combines T23–T24 with the factorization identity. Counts: 1,338 theorems, 540
+computations, 844 tests; Lean index 2,931 named proofs.
+
+
+**Subquadratic-to-affine step (2026-11-06).** Added
+`exists_affine_factorization_of_finite_zeros_of_subquadratic`
+(zero-infinitude T26): a subquadratic `O(‖z‖^{3/2})` bound on the entire
+exponent makes the finite-zero factorization affine, via
+`subquadratic_eq_affine_of_re_le_rpow`. Counts: 1,339 theorems, 540
+computations, 844 tests; Lean index 2,932 named proofs.
+
+
+**Logarithmic subquadratic input (2026-11-06).** Added
+`log_one_add_le_two_sqrt` (zero-infinitude T27): `log(1+x) ≤ 2√(1+x)` for
+`x ≥ 0`. This is the logarithmic estimate that turns the `R log R` quotient
+bound into `O(‖z‖^{3/2})`. Counts: 1,340 theorems, 540 computations, 844
+tests; Lean index 2,933 named proofs.
+
+
+**Full verification (2026-11-06, after zero-infinitude T23–T27).**
+`tools/verify-all.sh --quick` exits 0: 58/58 structural audit, all Python
+suites (844 tests), all 173 Lean files build, 30,231 internal links checked
+with 0 broken curated links, and the `publication.html` copies hash identically
+(`ae65d8c1…`). Counts at this checkpoint: 1,340 theorems, 540 computations, 844
+tests, 2,933 named proofs.
+
+
+**Named subquadratic input (2026-11-06).** Added
+`FiniteZeroSubquadraticBound` and
+`exists_affine_factorization_of_finite_zeros_of_bound` (zero-infinitude T28):
+the remaining analytic input is now named, and it is proved that this input
+alone makes the finite-zero factorization affine. Counts: 1,341 theorems, 540
+computations, 844 tests; Lean index 2,934 named proofs.
+
+
+**Remaining infininitude inequality recorded (2026-11-06).** The zero-infinitude
+README now states the last real estimate explicitly:
+`max R0 (r+1) · log(max R0 (r+1) + 2) ≤ C (1+r)^{3/2}`, which follows from
+T27 and yields `FiniteZeroSubquadraticBound` (T28). No Lean changes this round;
+counts remain 1,341 theorems, 540 computations, 844 tests, 2,934 named proofs.
+
+
+**Real-power comparison (2026-11-06).** Added `one_add_le_rpow_three_halves`
+(zero-infinitude T29): `1 + r ≤ (1 + r)^{3/2}` for `r ≥ 0`, a real-power
+comparison used in the final subquadratic estimate. Counts: 1,342 theorems,
+540 computations, 844 tests; Lean index 2,935 named proofs.
+
+
+**Final `r log r` estimate (2026-11-06).** Added `rlog_bound`
+(zero-infinitude T30): for `r ≥ 0`,
+`max R0 (r+1) · log(max R0 (r+1) + 2) ≤ C (1+r)^{3/2}`. This is the last real
+inequality of the finite-zero growth route. Counts: 1,343 theorems, 540
+computations, 844 tests; Lean index 2,936 named proofs.
+
+
+**Subquadratic comparison (2026-11-06).** Added `one_add_rpow_three_halves_le`
+(zero-infinitude T31): `(1+r)^{3/2} ≤ 2^{3/2}(1+r^{3/2})` for `r ≥ 0`. This
+converts the `(1+r)^{3/2}` estimate into the `O(‖z‖^{3/2})` form of
+`FiniteZeroSubquadraticBound`. Counts: 1,344 theorems, 540 computations, 844
+tests; Lean index 2,937 named proofs.
+
+
+**Subquadratic bound assembled (2026-11-06).** Added
+`finiteZeroSubquadraticBound_of_quotient` (zero-infinitude T32): the quotient
+disk bound (T25), the real `r log r` estimate (T30) and the subquadratic
+comparison (T31) assemble into `FiniteZeroSubquadraticBound g`. The remaining
+infinitude step is the real-axis contradiction. Counts: 1,345 theorems, 540
+computations, 844 tests; Lean index 2,938 named proofs.
+
+
+**Logarithmic derivative of the finite product (2026-11-06).** Added
+`logDeriv_finiteZeroProduct` (zero-infinitude T33): away from the zero set,
+`logDeriv P z = ∑_{w∈S} m_w/(z−w)`. This is the partial-fraction identity
+needed to bound `P'/P` in the real-axis contradiction. Counts: 1,346 theorems,
+540 computations, 844 tests; Lean index 2,939 named proofs.
+
+
+**Real-axis bound on `P'/P` (2026-11-06).** Added
+`exists_norm_logDeriv_finiteZeroProduct_le` (zero-infinitude T34): the
+logarithmic derivative of the finite zero product is bounded along the large
+real axis. This is the boundedness needed to contradict the harvested
+`tendsto_logDeriv_completedZeta_re_atTop`. Counts: 1,347 theorems, 540
+computations, 844 tests; Lean index 2,940 named proofs.
+
+
+**Log-derivative identity for the finite factorization (2026-11-06).** Added
+`logDeriv_completedRiemannZeta_eq_of_finite_factorization` (zero-infinitude
+T35): under the affine finite factorization,
+`logDeriv Λ x = logDeriv P x + b − 1/x − 1/(x−1)`. Counts: 1,348 theorems,
+540 computations, 844 tests; Lean index 2,941 named proofs.
+
+
+**Real-axis route consolidated (2026-11-06).** The zero-infinitude README now
+marks T33–T35 as Lean-proved: the finite-product partial fraction, the
+real-axis bound on `P'/P`, and the log-derivative identity
+`logDeriv Λ x = logDeriv P x + b − 1/x − 1/(x−1)`. The handoff status board
+records that only the final assembly with
+`tendsto_logDeriv_completedZeta_re_atTop` remains. Counts unchanged: 1,348
+theorems, 540 computations, 844 tests, 2,941 named proofs.
+
+
+**Completed-zeta log-derivative transfer (2026-11-06).** Added
+`logDeriv_completedZeta_eq_completedRiemannZeta` (zero-infinitude T36): on
+`Re s > 1`, the log-derivatives of the two completed zeta functions agree.
+This is the transfer needed to apply the finite-factorization identity to the
+harvested real-axis limit. Counts: 1,349 theorems, 540 computations, 844
+tests; Lean index 2,942 named proofs.
+
+
+**Final assembly shape recorded (2026-11-07).** The zero-infinitude README now
+spells out the last proof: choose `k` with `2k+2 ≥ max M (R+1)`, transfer
+`logDeriv completedZeta` to `completedRiemannZeta` (T36), apply T35 and T34 to
+bound the real part, and contradict
+`tendsto_logDeriv_completedZeta_re_atTop`. No Lean changes this round; counts
+remain 1,349 theorems, 540 computations, 844 tests, 2,942 named proofs.
+
+
+**Real-part bound under the finite factorization (2026-11-07).** Added
+`re_logDeriv_completedRiemannZeta_le` (zero-infinitude T37): under the finite
+affine factorization and the T34 bound, `Re logDeriv Λ s ≤ M + Re b`. This is
+the final bound needed for the real-axis contradiction. Counts: 1,350
+theorems, 540 computations, 844 tests; Lean index 2,943 named proofs.
+
+
+**Finite-zero contradiction proved (2026-11-07).** Added
+`false_of_affine_factorization` (zero-infinitude T38): finite zeros plus the
+affine factorization `ξ₀ = P·exp(a+bz)` contradict the harvested real-axis
+log-derivative limit. The proof assembles T34–T37 and the index choice
+`s = 2k+2`. The remaining step for infinitude is to derive the affine
+factorization from finite zeros (T21 + T32 + T23 + T28). Counts: 1,351
+theorems, 540 computations, 844 tests; Lean index 2,944 named proofs.
+
+
+**Trivial-zero obstruction found (2026-11-07).** A critical check shows that
+`ξ₀` has the explicit trivial zeros `−2(n+1)` (`completedZeta_trivial_zero`
+combined with `xi₀_eq_zero_iff`). Therefore the hypothesis "the full zero set
+of `ξ₀` is finite" is **false**, and the finite-zero sequence T21–T38 is
+conditional on that false hypothesis: T38 is a conditional contradiction, not
+a proof of infinitude. The zero-infinitude README and the handoff status board
+now record the correction: to prove infinitude of the nontrivial zeros, the
+route must first factor out the trivial-zero family (the Gamma factor
+`1/Γ(1+s/2)`) and rerun the finite-zero argument on the remaining quotient.
+
+
+**Trivial-zero obstruction retracted (2026-11-07).** The previous entry
+conflated two definitions: `completedZeta_trivial_zero` is about the **junk
+value** of `completedZeta` at the Gamma poles, whereas `xi₀` uses the
+meromorphic `completedRiemannZeta`. The functional equation
+`completedRiemannZeta_one_sub` gives `Λ(−2(n+1)) = Λ(2n+3) ≠ 0`, so those
+points are **not** zeros of `ξ₀`. The finite-zero route is therefore not
+obstructed by trivial zeros. The remaining task is to prove that every zero of
+`ξ₀` lies in `0 < Re < 1`, so that the finite nontrivial zero set is the full
+zero set; the README and handoff have been corrected accordingly.
+
+
+**Every ξ₀ zero lies in the critical strip (2026-11-07).** Added
+`xi₀_zero_re_pos` and `xi₀_zero_re_lt_one` (zero-infinitude T39–T40): every
+zero of `ξ₀` satisfies `0 < Re < 1`. The proofs use the functional equation
+and ζ nonvanishing; this resolves the trivial-zero concern and validates the
+finite-zero route on the full zero set. Counts: 1,353 theorems, 540
+computations, 844 tests; Lean index 2,946 named proofs.
+
+
+**Finite-product circle bound (2026-11-07).** Added
+`exists_finiteZeroProduct_norm_ge_one` (zero-infinitude T41): the finite zero
+product is at least `1` in modulus outside a large ball. This supplies the
+circle hypothesis of the subquadratic assembly without a polynomial-degree
+argument. Counts: 1,354 theorems, 540 computations, 844 tests; Lean index
+2,947 named proofs.
+
+
+## Infinitude of the nontrivial zeros — proved (2026-11-07)
+
+The zero-infinitude programme is complete. `infinite_nontrivialZeros` (T42)
+proves
+
+`¬ Set.Finite {z : ℂ | xi₀ z = 0 ∧ 0 < z.re}`
+
+by assembling the finite-zero machinery:
+
+- T39–T40: every `ξ₀` zero lies in `0 < Re < 1`;
+- T12–T21: finite zeros give `ξ₀ = P · exp(g)` with `P` the multiplicity-aware
+  finite product;
+- T41 + T32: `FiniteZeroSubquadraticBound g`;
+- T28: the exponent is affine;
+- T38: finite zeros plus the affine factorization contradict
+  `tendsto_logDeriv_completedZeta_re_atTop`.
+
+Consequences: `ZeroTailSummable` follows unconditionally from T5/T8, the
+nontrivial zeros are denumerable and unbounded in ordinate, and Wave 1 of the
+handoff is complete. Counts: 1,355 theorems, 540 computations, 844 tests; Lean
+index 2,948 named proofs.
+
+
+**Zero tail unconditional (2026-11-07).** Added
+`exists_enumeration_and_zeroTailSummable` (zero-infinitude T43): for every
+`σ > 0`, the nontrivial zeros admit an injective enumeration with summable
+inverse-square tail. This is the unconditional `ZeroTailSummable` capstone,
+following from T42. Counts: 1,356 theorems, 540 computations, 844 tests; Lean
+index 2,949 named proofs.
+
+
+**Full verification after infinitude (2026-11-07).**
+`tools/verify-all.sh --quick` exits 0 after the T39–T43 additions: 58/58
+structural audit, all Python suites (844 tests), all 173 Lean files build,
+30,279 internal links checked with 0 broken curated links, and the
+`publication.html` copies hash identically (`ae65d8c1…`). Counts at this
+checkpoint: 1,356 theorems, 540 computations, 844 tests, 2,949 named proofs.
+
+
+**Single-frequency on-line PSD (2026-11-07).** Added
+`onLineGramMatrix_single_posSemidef` (zero-density-bound T28): the
+single-frequency on-line Gram matrix `w * cos((a_i − a_j)γ)` is positive
+semidefinite for `w ≥ 0`, as a sum of two rank-one PSD matrices. Counts: 1,357
+theorems, 540 computations, 844 tests; Lean index 2,950 named proofs.
+
+
+**Finite on-line PSD sum (2026-11-07).** Added
+`onLineGramMatrix_finset_posSemidef` (zero-density-bound T29): a finite
+weighted sum of single-frequency on-line Gram matrices is positive
+semidefinite. This is the PSD statement for a truncated on-line Gram matrix.
+Counts: 1,358 theorems, 540 computations, 844 tests; Lean index 2,951 named
+proofs.
+
+
+**On-line weight positivity (2026-11-07).** Added `onLineWeight_nonneg`
+(zero-density-bound T30): the on-line Gaussian weights are nonnegative, the
+last elementary W4 ingredient for the full on-line PSD sum. Counts: 1,359
+theorems, 540 computations, 844 tests; Lean index 2,952 named proofs.
+
+
+**Final verification and handoff consolidation (2026-11-07).**
+`tools/verify-all.sh --quick` exits 0 again after the zero-density T28–T30
+additions: 58/58 structural audit, all Python suites, all 173 Lean files,
+30,288 internal links (0 broken curated), and matching `publication.html`
+hashes (`ae65d8c1…`).  The handoff summary now records Wave 1 as complete with
+zero-infinitude done and the remaining inputs as the full W4 bookkeeping
+(`Z'/Z` and `Z` lower bound), the off-line block, and the arithmetic PNT
+estimate.  Counts: 1,359 theorems, 540 computations, 844 tests, 2,952 named
+proofs.
+
+
+**Status polish (2026-11-07).** The topics index rows 53 and 55 now record
+zero-infinitude as **done** (T42/T43) and the on-line W4 progress as
+single-frequency PSD, finite weighted sums, and nonnegative weights, with the
+full on-line `tsum` PSD and off-line bookkeeping still open. No theorem-count
+changes this round.
+
+
+**Finite-truncation on-line PSD documented (2026-11-07).** The zero-density
+README now records that T28–T30 give PSD for every **finite** weighted sum of
+on-line frequencies, which is exactly what the finite-`N` explicit formula
+uses; the countable `tsum` limit is needed only for the limiting statement.
+No theorem-count changes.
+
+
+## Session close-out (2026-11-07)
+
+**Completed since round 72.** Zero-infinitude is **done**: the finite-zero
+machinery (T12–T38), the critical-strip property (T39–T40), the finite-product
+circle bound (T41) and the infinitude theorem (T42) are Lean-proved, and the
+zero tail is unconditional (T43). On the W4 side, the on-line Gram matrix is
+now PSD for every finite weighted frequency sum (T28–T29) with nonnegative
+weights (T30). Full verification passes (`verify-all --quick`, exit 0).
+
+**Still open.** The countable on-line `tsum` PSD, the off-line/other-zero
+bookkeeping, and the arithmetic-side PNT estimate. O2 remains open and
+RH-equivalent; no unconditional positivity is claimed.
+
+
+**Final handoff correction (2026-11-07).** The handoff risks section no longer
+lists infinitude as missing; it records T42/T43 as proved and names the
+off-line/other-zero bookkeeping and the countable on-line `tsum` PSD as the
+remaining zero-set risks. Final audit passes 58/58 and the link check has 0
+broken curated links.
+
+
+**Countable on-line PSD plan recorded (2026-11-07).** The zero-density README
+now states the remaining `tsum` proof explicitly: prove
+`x ⬝ (M_tsum *ᵥ x) = ∑' n, x ⬝ (M_n *ᵥ x)` by `Summable.tsum_finsetSum`
+over the finite index set, then apply T28 termwise and `tsum_nonneg`; the
+required summability is entrywise summability of the Gaussian-weighted cosine
+series.  Goal resumed with no fixed round limit.  No theorem-count changes.
+
+
+**Finite on-line quadratic form nonnegative (2026-11-07).** Added
+`onLineGramMatrix_finset_quadraticForm_nonneg` (zero-density-bound T31): the
+quadratic form of a finite weighted on-line Gram matrix is nonnegative for
+every real test vector. This is the downstream form used by the block
+assembly. Counts: 1,360 theorems, 540 computations, 844 tests; Lean index
+2,953 named proofs.
+
+
+**On-line quadratic-form numerical companion (2026-11-07).** Added
+`online_gram_quadratic_form` to the zero-density Python layer and a pytest
+checking nonnegativity for several test vectors, the numerical counterpart of
+T31. Counts: 1,360 theorems, 541 computations, 845 tests; Lean index 2,953
+named proofs.
+
+
+## Countable on-line PSD — proved (2026-11-07)
+
+Added `posSemidef_tsum` (T32) and `onLineGramMatrix_posSemidef` (T33): a
+pointwise `tsum` of positive semidefinite matrices is PSD given entrywise
+summability, and the **actual on-line Gram matrix** is PSD. The proof
+distributes the finite sums over the `tsum` via `Summable.tsum_finsetSum`,
+applies T28 termwise and concludes with `tsum_nonneg`. The only remaining
+hypothesis is entrywise summability of the Gaussian-weighted cosine series,
+which follows from the Gaussian decay of the zero weights. Counts: 1,362
+theorems, 541 computations, 845 tests; Lean index 2,955 named proofs.
+
+
+**On-line PSD from Gaussian summability (2026-11-07).** Added
+`onLineGramMatrix_posSemidef_of_exp_summable` (zero-density-bound T34): the
+actual on-line Gram matrix is PSD whenever `∑ exp(−σ²γₙ²)` converges. The
+proof bounds the norm of each term by the weight (`|cos| ≤ 1`) and uses
+`Summable.of_norm_bounded`, discharging T33's entrywise summability
+hypothesis. Counts: 1,363 theorems, 541 computations, 845 tests; Lean index
+2,956 named proofs.
+
+
+**Hub W4 status updated (2026-11-07).** The Weil-positivity hub README now
+records that the on-line PSD side is proved locally in zero-density-bound
+(T28, T29, T32, T33, T34), and that the remaining W4 input is the
+off-line/other-zero bookkeeping. No theorem-count changes.
+
+
+**Full verification after on-line PSD (2026-11-07).**
+`tools/verify-all.sh --quick` exits 0 after T32–T34: 58/58 structural audit,
+all Python suites (845 tests), all 173 Lean files, 30,301 internal links with
+0 broken curated links, and matching `publication.html` hashes. The handoff
+zero-density rows now record the on-line PSD chain T28–T34 as proved, with the
+off-line/other-zero bookkeeping as the remaining W4 input. Counts: 1,363
+theorems, 541 computations, 845 tests, 2,956 named proofs.
+
+
+**Isolated off-line block criterion (2026-11-07).** Added
+`offLineBlockPSD_iff_abs_le` (weil-positivity T17): the isolated off-line
+block is PSD exactly when `|Re S(c)| ≤ Re S(0)`. This is the direct
+block-level form of the scalar criterion, a bookkeeping lemma for the
+off-line/other-zero analysis. Counts: 1,364 theorems, 541 computations, 845
+tests; Lean index 2,957 named proofs.
+
+
+**Off-line block eventually fails PSD (2026-11-07).** Added
+`exists_offLineBlock_not_psd` (weil-positivity T18): for `σ > 0` and `δ ≠ 0`,
+some separation `c` makes the isolated off-line block fail PSD. This is the
+block-level form of the unbounded off-line obstruction (T13) via T17. Counts:
+1,365 theorems, 541 computations, 845 tests; Lean index 2,958 named proofs.
+
+
+**Bounded tail cannot rescue an off-line block (2026-11-07).** Added
+`TailEntryBound`, `not_posSemidef_add_of_abs_gt` (T19) and
+`exists_offLineBlock_add_tail_not_psd` (T20) in weil-positivity: if the
+tail entries are bounded by `B` and `a + 4B < |b|`, then the perturbed 2×2
+diagonal block is not PSD; and for any bounded tail some separation `c`
+makes `OffLineBlock c σ δ γ + E` non-PSD. This is the core off-line/other-zero
+bookkeeping lemma. Counts: 1,367 theorems, 541 computations, 845 tests; Lean
+index 2,960 named proofs.
+
+
+**Finite Gaussian model tail (2026-11-07).** Added `gaussianTailEntry`,
+`gaussianTailBound`, `abs_gaussianTailEntry_le` (T21) and
+`exists_offLineBlock_add_modelTail_not_psd` (T22) in weil-positivity: a finite
+Gaussian model tail is entrywise bounded by its total mass, and such a tail
+cannot rescue an off-line block. This is the model-level off-line/other-zero
+bookkeeping. Counts: 1,369 theorems, 541 computations, 845 tests; Lean index
+2,962 named proofs.
+
+
+**Full verification after T17–T22 (2026-11-07).**
+`tools/verify-all.sh --quick` exits 0: 58/58 structural audit, all Python
+suites (845 tests), all 173 Lean files, 30,319 internal links with 0 broken
+curated links, and matching `publication.html` hashes. The topics index row 56
+now records the isolated block criterion, eventual off-line failure, bounded
+tail and finite Gaussian model tail as Lean-proved. Counts: 1,369 theorems,
+541 computations, 845 tests, 2,962 named proofs.
+
+
+**Model tail mass monotonicity (2026-11-07).** Added `gaussianTailBound_nonneg`
+(T23) and `gaussianTailBound_mono` (T24) in weil-positivity: the Gaussian
+model tail mass is nonnegative and monotone under enlarging the zero set.
+These are the bookkeeping lemmas for passing from a finite model tail to the
+full other-zero tail. Counts: 1,371 theorems, 541 computations, 845 tests;
+Lean index 2,964 named proofs.
+
+
+**On-line PSD under the named zero-tail input (2026-11-07).** Added
+`onLineGramMatrix_posSemidef_of_zeroTailSummable` (zero-density-bound T35):
+the actual on-line Gram matrix is PSD under `ZeroTailSummable`, the named
+zero-tail input. Since zero-infinitude T43 now proves `ZeroTailSummable`
+unconditionally for the nontrivial-zero enumeration, T35 supplies the on-line
+PSD without a summability side condition in that setting. Counts: 1,372
+theorems, 541 computations, 845 tests; Lean index 2,965 named proofs.
+
+
+**Handoff status refreshed (2026-11-07).** The handoff summary now records the
+on-line PSD chain (zero-density T28–T35) and the bounded-tail/finite-model-tail
+bookkeeping (weil-positivity T19–T24) as proved, with the remaining inputs the
+explicit-formula tail identification, the off-line `Z` lower bound, and the
+arithmetic PNT estimate. No theorem-count changes.
+
+
+**Verification and log-derivative status correction (2026-11-07).**
+`tools/verify-all.sh --quick` exits 0 (58/58 audit, all Python suites, 173
+Lean files, 30,328 internal links, 0 broken curated, matching publication
+hashes). The handoff row for log-derivative-growth now records that
+`GammaRLowerBound` is **proved** (`gammaR_lower_bound`), so both vertical
+lines are unconditional. Counts: 1,372 theorems, 541 computations, 845 tests,
+2,965 named proofs.
+
+
+**Status-board accuracy pass (2026-11-07).** The handoff status board now
+records the full current state: zero-infinitude done with T42/T43, the
+zero-density on-line PSD chain T28–T35, and the weil-positivity block/tail
+results T17–T24. No theorem-count changes; audit 58/58 and 0 broken curated
+links.
+
+
+**5a theorem lists refreshed (2026-11-07).** The handoff progress table now
+lists the zero-density on-line PSD chain (T28–T35) and the weil-positivity
+block/tail results (T17–T24). No theorem-count changes.
+
+
+## Current state (2026-11-07, round 118)
+
+**Proved and unconditional.**
+- Zero-infinitude: infinitude of the nontrivial zeros (T42) and the zero-tail
+  enumeration (T43).
+- Log-derivative-growth: both vertical lines, including the Gamma lower bound
+  (`gammaR_lower_bound`).
+- On-line W4: single-frequency PSD, finite sums, pointwise-`tsum` PSD, the
+  actual on-line Gram matrix, and its PSD under `ZeroTailSummable`
+  (zero-density T28–T35).
+- Off-line block: exact scalar criterion (T17), eventual failure (T18),
+  bounded-tail bookkeeping (T19–T20), finite Gaussian model tail (T21–T22),
+  tail-mass monotonicity (T23–T24).
+
+**Still open.**
+- Identify the actual explicit-formula other-zero tail with the Gaussian model
+  tail of T21–T22.
+- The arithmetic-side uniform smooth-window PNT error plus archimedean bound.
+
+O2 remains open and RH-equivalent; no unconditional positivity is claimed.
+
+
+**Gaussian summability for the actual enumeration (2026-11-07).** Added
+`exists_enumeration_and_gaussian_summable` (zero-infinitude T44): the T43
+enumeration also makes `∑ exp(−σ²·im(aₙ)²)` summable, which is exactly the
+`ZeroTailSummable` input consumed by the on-line PSD result (zero-density
+T35). Counts: 1,373 theorems, 541 computations, 845 tests; Lean index 2,966
+named proofs.
+
+
+**Lean build sweep (2026-11-07).** `check-all-lean.sh --quick` passes: all
+**173/173** Lean files build after T44. The hub C1 row now notes that the
+on-line PSD is also Lean-proved (zero-density T28–T35), not only the Python
+computation. Audit 58/58 and 0 broken curated links; counts unchanged at
+1,373 theorems, 541 computations, 845 tests, 2,966 named proofs.
+
+
+**Perturbed off-line block numerical companion (2026-11-07).** Added
+`perturbed_block_psd` to the weil-positivity Python layer and a pytest for the
+T19 margin: once `a + 4B < |b|`, the worst-case perturbed diagonal block fails
+PSD. Counts: 1,373 theorems, 542 computations, 846 tests; Lean index 2,966
+named proofs.
+
+
+**Actual on-line quadratic form nonnegative (2026-11-07).** Added
+`onLineGramMatrix_quadraticForm_nonneg` (zero-density-bound T36): under
+`ZeroTailSummable`, the quadratic form of the actual on-line Gram matrix is
+nonnegative for every real test vector. This is the form consumed by the
+full-block assembly. Counts: 1,374 theorems, 542 computations, 846 tests;
+Lean index 2,967 named proofs.
+
+
+**Maximal-distance-zero precondition under RH (2026-11-07).** Added
+`MaximalDistanceZero` and `maximalDistanceZero_of_riemannHypothesis` (T45) in
+zero-infinitude: under RH every nontrivial zero has real part `1/2`, so any
+zero (which exists by T42/T43) is a maximal-distance zero. This formalises the
+handoff's full-block precondition as a named object and shows it is implied by
+RH. Counts: 1,375 theorems, 542 computations, 846 tests; Lean index 2,968 named
+proofs.
+
+
+**Verification and maximal-distance risk (2026-11-07).**
+`tools/verify-all.sh --quick` exits 0 (58/58 audit, all Python suites, 173
+Lean files, 30,338 internal links, 0 broken curated, matching publication
+hashes). The handoff risk section now names `MaximalDistanceZero` explicitly
+and records T45 (RH implies the precondition). Counts: 1,375 theorems, 542
+computations, 846 tests, 2,968 named proofs.
+
+
+**On-line maximal witness gives RH (2026-11-07).** Added
+`riemannHypothesis_of_maximalDistanceZero_witness_onLine` (T46): if the
+maximal-distance zero has real part `1/2`, every nontrivial zero is on the
+critical line, i.e. RH follows. Together with T45 this makes the full-block
+precondition an RH-equivalent interface. Counts: 1,376 theorems, 542
+computations, 846 tests; Lean index 2,969 named proofs.
+
+
+**RH iff an on-line maximal witness exists (2026-11-07).** Added
+`riemannHypothesis_iff_exists_onLine_maximalDistanceZero` (T47): RH is
+equivalent to the existence of a nontrivial zero on the critical line whose
+distance from the line bounds every other zero's distance. This closes the
+full-block precondition into an exact RH-equivalent interface, building on
+T45 (RH ⇒ precondition) and T46 (on-line witness ⇒ RH). Counts: 1,377
+theorems, 542 computations, 846 tests; Lean index 2,970 named proofs.
+
+
+**Maximal-distance precondition recorded as RH-equivalent in the handoff
+(2026-11-07).** The handoff risk section and hub status row now state that the
+full-block route's maximal-`|δ|` precondition is RH-equivalent (zero-infinitude
+T45–T47) and therefore cannot be assumed as an independent input without
+circularity. No theorem-count changes.
+
+
+**Finite weighted cosine bound (2026-11-07).** Added `abs_sum_mul_cos_le`
+(weil-positivity T25): a finite weighted cosine sum is bounded by the total
+weight. The corresponding `tsum` version was attempted but repeatedly timed out
+in elaboration, so the finite form is recorded; it is the form used by the
+finite-truncation tail bookkeeping. Counts: 1,378 theorems, 542 computations,
+846 tests; Lean index 2,971 named proofs.
+
+
+**`tsum` weighted cosine bound (2026-11-07).** Added `abs_tsum_mul_cos_le`
+(weil-positivity T26): a summable weighted cosine series is bounded by the
+total weight. The earlier timeout was bypassed by proving the triangle
+inequality from `Summable.tsum_le_tsum` on `f` and `-f` instead of using
+`norm_tsum_le_tsum_norm`. Counts: 1,379 theorems, 542 computations, 846 tests;
+Lean index 2,972 named proofs.
+
+
+**Actual Gaussian tail bound (2026-11-07).** Added `actualGaussianTailEntry`
+and `abs_actualGaussianTailEntry_le` (weil-positivity T27): under
+`ZeroTailSummable`, the actual Gaussian–cosine tail entry is bounded by the
+total Gaussian mass `2πσ² ∑ exp(−σ²γₙ²)`. This is the infinite-sum form that
+connects the actual tail to the T19/T20 bookkeeping. Also repaired a duplicated
+`namespace WeilPositivity` introduced earlier, so T21–T27 now sit at
+`WeilPositivity.*` rather than a nested namespace. Counts: 1,380 theorems, 542
+computations, 846 tests; Lean index 2,973 named proofs.
+
+
+**Actual tail cannot rescue an off-line block (2026-11-07).** Added `actualTail`
+and `exists_offLineBlock_add_actualTail_not_psd` (weil-positivity T28): for
+`σ > 0`, `δ ≠ 0` and any `ZeroTailSummable` ordinate sequence, some separation
+`c` makes `OffLineBlock c σ δ γ₀ + actualTail` non-PSD. This instantiates the
+bounded-tail criterion T20 with the actual Gaussian tail bound T27. Counts:
+1,381 theorems, 542 computations, 846 tests; Lean index 2,974 named proofs.
+
+
+**Explicit full-block margin (2026-11-07).** Added
+`not_posSemidef_fullBlock_of_margin` (weil-positivity T29): if the off-line
+obstruction `Re S(c)` exceeds `Re S(0) + 4B` with `B = 2πσ²∑exp(−σ²γₙ²)`, then
+`OffLineBlock + actualTail` is not PSD. This is the explicit-margin form of
+the full-block bookkeeping, combining T19 and T27. Counts: 1,382 theorems, 542
+computations, 846 tests; Lean index 2,975 named proofs.
+
+
+**Full-block decomposition interface (2026-11-07).** Added `fullBlock`,
+`exists_fullBlock_not_psd` and `not_posSemidef_of_eq_fullBlock`
+(weil-positivity T30): any block decomposing as `OffLineBlock + actualTail`
+fails PSD for some separation. This names the interface the explicit formula
+would supply. Counts: 1,383 theorems, 542 computations, 846 tests; Lean index
+2,977 named proofs.
+
+
+**Placeholder audit (2026-11-07).** A strict scan of all 173 Lean files finds
+**zero** real `sorry`, `admit` or `axiom` declarations; the earlier grep hits
+are comments/documentation. No build artifacts are untracked. Counts unchanged
+at 1,383 theorems, 542 computations, 846 tests, 2,977 named proofs.
+
+
+**Handoff decomposition interface recorded (2026-11-07).** The handoff now
+states the remaining explicit-formula task precisely: supply
+`Full = fullBlock` (the T30 decomposition interface). The 5a list includes the
+new T25–T30 lemmas. No theorem-count changes.
+
+
+**Finite zero-side decomposition (2026-11-07).** Added `zeroSideSum` and
+`zeroSideSum_eq_isolated_add_tail` (weil-positivity T31): the finite zero-side
+sum splits exactly into an isolated part and its complement. This is the
+model-level form of the explicit-formula decomposition. Counts: 1,384
+theorems, 542 computations, 846 tests; Lean index 2,978 named proofs.
+
+
+**Full verification through T31 (2026-11-07).** `tools/verify-all.sh --quick`
+exits 0: 58/58 audit, all Python suites (846 tests), all 173 Lean files,
+30,368 internal links with 0 broken curated links, and matching
+`publication.html` hashes. Counts: 1,384 theorems, 542 computations, 846
+tests, 2,978 named proofs.
+
+
+**Multiset quadruple identity (2026-11-07).** Added `offLineQuadruple`,
+`zeroSideSumM`, `zeroSideSumM_add` and `zeroSideSumM_offLineQuadruple`
+(weil-positivity T32): the multiset zero-side sum of the off-line quadruple is
+exactly `offLineQuad`, and it splits additively. This is the exact isolated-part
+identification for the explicit-formula decomposition. Counts: 1,385 theorems,
+542 computations, 846 tests; Lean index 2,980 named proofs.
+
+
+**T32 recorded in the handoff (2026-11-07).** The 5a list now includes the
+multiset quadruple identity and additive split (T32). Audit 58/58, weil build
+OK, link check clean; counts unchanged at 1,385 theorems, 542 computations,
+846 tests, 2,980 named proofs.
+
+
+**2×2 block decomposition (2026-11-07).** Added `zeroSideBlockM`,
+`zeroSideBlockM_add` and `zeroSideBlockM_offLineQuadruple` (weil-positivity
+T33): the 2×2 block of a multiset zero-side sum splits additively, and the
+quadruple block at positions `(0, c)` is exactly `OffLineBlock c σ δ γ`. This
+gives the exact block-level decomposition `Full = OffLineBlock + tailBlock`.
+Counts: 1,386 theorems, 542 computations, 846 tests; Lean index 2,982 named
+proofs.
+
+
+**Multiset full-block failure (2026-11-07).** Added
+`exists_multiset_fullBlock_not_psd` (weil-positivity T34): if the
+remaining-zero block is uniformly bounded by `B` at every separation, the
+decomposed multiset full block fails PSD. This composes the T33 block
+decomposition with the T19 perturbation margin. Counts: 1,387 theorems, 542
+computations, 846 tests; Lean index 2,983 named proofs.
+
+
+**Block decomposition recorded; on-line specialization deferred (2026-11-07).**
+The handoff 5a list now includes the T33/T34 block decomposition and
+multiset full-block failure. An attempt to prove the on-line specialization
+`(gaussianZeroTest c σ (1/2+iγ)).re = 2πσ² exp(−σ²γ²) cos(cγ)` was made, but
+the complex-exponential plumbing was not completed; the elementary identity is
+recorded as the next concrete step. Counts unchanged at 1,387 theorems, 542
+computations, 846 tests, 2,983 named proofs.
+
+
+**On-line specialization of the Gaussian test (2026-11-07).** Added
+`exp_add_real_mul_I` and `gaussianZeroTest_onLine_re` (weil-positivity T35):
+on the critical line, `Re gaussianZeroTest c σ (1/2+iγ)` equals the Gaussian
+tail weight `2πσ² e^{−σ²γ²} cos(cγ)`. This bridges the library's explicit-formula
+test function to the Gaussian tail entries used in T27/T28. Counts: 1,388
+theorems, 542 computations, 846 tests; Lean index 2,985 named proofs.
+
+
+**On-line imaginary part (2026-11-07).** Added `gaussianZeroTest_onLine_im`
+(weil-positivity T36): on the critical line,
+`Im gaussianZeroTest c σ (1/2+iγ) = −2πσ² e^{−σ²γ²} sin(cγ)`. Together with
+T35 this fully identifies the on-line test function with the Gaussian cosine
+and sine modes. Counts: 1,389 theorems, 542 computations, 846 tests; Lean
+index 2,986 named proofs.
+
+
+**On-line multiset sum (2026-11-07).** Added `onLineOrds` and
+`zeroSideSumM_onLineOrds` (weil-positivity T37): the multiset zero-side sum
+over the on-line ordinates has real part equal to the finite Gaussian cosine
+sum. This identifies the multiset tail with the Gaussian tail entries.
+Counts: 1,390 theorems, 542 computations, 846 tests; Lean index 2,987 named
+proofs.
+
+
+**On-line multiset tail bound (2026-11-07).** Added
+`abs_zeroSideBlockM_onLineOrds_le` (weil-positivity T38): the on-line multiset
+tail block is entrywise bounded by the finite Gaussian tail mass `∑_{n<N} 2πσ²
+e^{−σ²γs(n)²}`. This supplies the concrete `B` for T34 with
+`t = onLineOrds γs N`. Counts: 1,391 theorems, 542 computations, 846 tests;
+Lean index 2,988 named proofs.
+
+
+**Finite on-line tail plus off-line quadruple fails PSD (2026-11-07).** Added
+`exists_onLineMultiset_fullBlock_not_psd` (weil-positivity T39): for any finite
+on-line ordinate multiset and any off-line quadruple, the decomposed full block
+fails PSD for some separation. This composes T34 (multiset full-block failure)
+with T38 (the concrete finite tail bound). Counts: 1,392 theorems, 542
+computations, 846 tests; Lean index 2,989 named proofs.
+
+
+**Full verification through T39 (2026-11-07).** `tools/verify-all.sh --quick`
+exits 0: 58/58 audit, all Python suites (846 tests), all 173 Lean files,
+30,401 internal links with 0 broken curated links, and matching
+`publication.html` hashes. The handoff records the finite-tail capstone T39 and
+names the explicit-formula identification as the remaining zero-side step.
+Counts: 1,392 theorems, 542 computations, 846 tests, 2,989 named proofs.
+
+
+**Explicit-formula entry point recorded (2026-11-07).** The handoff now names
+the available library theorem `test_function_explicit_formula` (contour-integral
+form) as the starting point for the remaining explicit-formula identification.
+No theorem-count changes.
+
+
+## Round 150 milestone — state of the reconstruction
+
+**Zero-side programme.**
+- Zero-infinitude is **done**: infinitude (T42), unconditional zero tail (T43),
+  and Gaussian summability (T44).
+- Log-derivative-growth is **done** on both vertical lines, including the Gamma
+  lower bound.
+- On-line W4 is **proved**: single-frequency PSD, finite sums, pointwise
+  `tsum`, the actual on-line Gram matrix, its `ZeroTailSummable` form, and the
+  actual quadratic form (zero-density T28–T36).
+- Off-line block and tail bookkeeping are **proved**: exact criterion (T17),
+  eventual failure (T18), bounded-tail criterion (T19–T20), finite and actual
+  Gaussian tails (T21–T28), explicit full-block margin (T29), decomposition
+  interface (T30), multiset decomposition (T31–T33), multiset full-block
+  failure (T34), on-line specialization (T35–T36), on-line multiset sum and
+  bound (T37–T38), and the finite-tail capstone (T39).
+- The maximal-distance precondition is an **RH-equivalent interface**
+  (zero-infinitude T45–T47).
+
+**Remaining.**
+- Identify the actual explicit-formula zero multiset, starting from the
+  library's `test_function_explicit_formula`.
+- The arithmetic-side uniform smooth-window PNT error plus archimedean bound.
+
+Counts at this milestone: **1,392 theorems · 542 computations · 846 tests ·
+2,989 named proofs**; 58/58 structural audit and 0 broken curated links. O2
+remains open and RH-equivalent.
+
+
+**Prime-window total mass (2026-11-07).** Added `integral_primeWindow`
+(missing-bridge T40): the Gaussian prime window `h_c(u)` has total integral
+`2πσ²`, independent of the centre `c`. The proof uses translation invariance
+and `integral_gaussian`. This is a concrete arithmetic-side mass identity for
+the PNT estimate. Counts: 1,393 theorems, 542 computations, 846 tests; Lean
+index 2,990 named proofs.
+
+
+**Crude prime-side bound (2026-11-07).** Added
+`gaussianPrimeSide_le_mul_sum_vonMangoldt` (missing-bridge T41): the Gaussian
+prime side is at most `√π σ` times the total von Mangoldt mass of the
+truncation. This is a first quantitative interface for the arithmetic PNT
+estimate. Counts: 1,394 theorems, 542 computations, 846 tests; Lean index
+2,991 named proofs.
+
+
+**Prime-side `log N!` bound (2026-11-07).** Added
+`gaussianPrimeSide_le_mul_log_factorial` (missing-bridge T42): the Gaussian
+prime side is at most `√π σ · log(N!)`. This uses `vonMangoldt_le_log` and
+`sum_log_add_one_eq_log_factorial`, giving the trivial-PNT-scale bound.
+Counts: 1,395 theorems, 542 computations, 846 tests; Lean index 2,992 named
+proofs.
+
+
+**Prime-side mass bound numerical companion (2026-11-07).** Added
+`prime_side_mass_bound` to the missing-bridge Python layer and a pytest
+checking `prime_side ≤ √π σ ∑ Λ` (the T41 bound) numerically. Counts: 1,395
+theorems, 543 computations, 847 tests; Lean index 2,992 named proofs.
+
+
+**Full verification through T42 (2026-11-07).** `tools/verify-all.sh --quick`
+exits 0: 58/58 audit, all Python suites (847 tests), all 173 Lean files,
+30,410 internal links with 0 broken curated links, and matching
+`publication.html` hashes. The handoff programme row records the first
+arithmetic estimates T40–T42. Counts: 1,395 theorems, 543 computations, 847
+tests, 2,992 named proofs.
+
+
+**Arithmetic-residual error interface (2026-11-07).** Added
+`arithmeticResidual_abs_le` (missing-bridge T43): if the two PNT errors are
+bounded by `E₁, E₂` and the archimedean term by `A`, the arithmetic residual is
+bounded by `E₁ + E₂ + A`. This packages the PNT/archimedean target into a single
+quantitative interface. Counts: 1,396 theorems, 543 computations, 847 tests;
+Lean index 2,993 named proofs.
+
+
+**Named smooth-window PNT input (2026-11-07).** Added `SmoothWindowPNTError`
+and `arithmeticResidual_abs_le_of_pnt` (missing-bridge T44): under a uniform
+bound `E` on the smooth-window PNT error and `A` on the archimedean term, the
+arithmetic residual is bounded by `2E + A`. A check of Mathlib shows only
+Chebyshev-type `ψ` bounds are available, not the PNT itself, so this input
+cannot yet be discharged from the library. Counts: 1,397 theorems, 543
+computations, 847 tests; Lean index 2,994 named proofs.
+
+
+**On-line norm and summability (2026-11-07).** Added
+`norm_gaussianZeroTest_onLine` (T40) and `summable_gaussianZeroTest_onLine`
+(T41) in weil-positivity: on the critical line the norm is exactly the Gaussian
+weight `2πσ² e^{−σ²γ²}`, so the on-line `gaussianZeroTest` sequence is summable
+under `ZeroTailSummable`. This supplies the zero-sum convergence needed by the
+explicit-formula assembly. Counts: 1,399 theorems, 543 computations, 847 tests;
+Lean index 2,996 named proofs.
+
+
+**Partial-sum convergence for the explicit formula (2026-11-07).** Added
+`tendsto_sum_gaussianZeroTest_onLine` (weil-positivity T42): the partial sums
+of the on-line `gaussianZeroTest` converge to the `tsum` under
+`ZeroTailSummable`. This is exactly the `hsum` ingredient of the library's
+`explicit_formula_gaussianZeroTest_arch_prime` assembly. Counts: 1,400
+theorems, 543 computations, 847 tests; Lean index 2,997 named proofs.
+
+
+**Explicit-formula wiring status (2026-11-07).** The handoff now records that
+the `hsum` hypothesis of `explicit_formula_gaussianZeroTest_arch_prime` is
+available from T40–T42 (on-line norm, summability and partial-sum limit). The
+remaining formal step is the mechanical wiring of the enumeration into that
+theorem. No theorem-count changes.
+
+
+**The `hsum` hypothesis proved (2026-11-07).** Added
+`tendsto_image_range_gaussianZeroTest` and `tendsto_sum_image_range_sub`
+(weil-positivity T43): the image of the first `⌊T⌋₊` ordinates converges to the
+zero-side `tsum`, with or without the pole terms. This is exactly the `hsum`
+hypothesis of `explicit_formula_gaussianZeroTest_arch_prime`, so the
+explicit-formula assembly can now be instantiated with the zero enumeration.
+Counts: 1,401 theorems, 543 computations, 847 tests; Lean index 2,999 named
+proofs.
+
+
+**T43 recorded; instantiation deferred (2026-11-07).** The handoff 5a list now
+includes `tendsto_image_range_gaussianZeroTest` and
+`tendsto_sum_image_range_sub`. An attempt to instantiate
+`explicit_formula_gaussianZeroTest_arch_prime` with this `hsum` hit a
+definitional mismatch in the contour-integral hypotheses (the rectangle/interval
+elaboration), so the wiring is deferred to a focused session. Counts unchanged
+at 1,401 theorems, 543 computations, 847 tests, 2,999 named proofs.
+
+
+**3,000 named proofs; total on-line norm mass (2026-11-07).** Added
+`tsum_norm_gaussianZeroTest_onLine` (weil-positivity T44): the total on-line
+norm mass is `2πσ²` times the Gaussian zero mass. This is a small mass identity
+completing the on-line norm chain. The Lean index now records **3,000 named
+proofs**. Counts: 1,402 theorems, 543 computations, 847 tests.
+
+
+**Full verification at 3,000 proofs (2026-11-07).**
+`tools/verify-all.sh --quick` exits 0 with the Lean index at **3,000 named
+proofs**: 58/58 audit, all Python suites (847 tests), all 173 Lean files,
+30,434 internal links with 0 broken curated links, and matching
+`publication.html` hashes. Counts: 1,402 theorems, 543 computations, 847 tests.
+
+
+**Ledger-count consistency fix (2026-11-07).** A column-sum check found the
+STATUS header one theorem below the sum of the per-topic ledger counts. The
+header is corrected from 1,402 to **1,403 ledger theorems**; the sum now matches
+exactly. (The computations/tests header totals are tracked separately and were
+already not simple row sums at HEAD.) Lean index remains 3,000 named proofs.
+
+
+**Explicit-formula instantiation diagnosis (2026-11-07).** A second attempt to
+instantiate `explicit_formula_gaussianZeroTest_arch_prime` with the T43 `hsum`
+fails at the `hbottom` hypothesis even though the two printed types are
+identical; a standalone `example` assigning the same hypothesis to the printed
+type elaborates successfully, so the obstruction is a hidden
+instance/universe mismatch in the assembled application rather than a
+mathematical gap. The `hsum` itself remains proved (T43); the mechanical
+wiring is recorded as an open engineering task. Counts unchanged at 1,403
+theorems, 543 computations, 847 tests, 3,000 named proofs.
+
+
+**Explicit-formula wiring: `simpa` resolves the hypotheses (2026-11-07).** Using
+`(by simpa using hbottom)` (and similarly for the other contour hypotheses)
+makes the four limit hypotheses typecheck; the remaining mismatch is in the
+**conclusion**, where the theorem produces `Complex.I` and the goal displays
+`I` with apparently different instance arguments, and `simpa` does not close
+it. The wiring is therefore very close but blocked on a constant/instance
+printing artefact. Counts unchanged at 1,403 theorems, 543 computations, 847
+tests, 3,000 named proofs.
+
+
+## Gaussian explicit formula from the zero enumeration (2026-11-07)
+
+Added `explicit_formula_gaussianZeroTest_of_enumeration` (weil-positivity T45):
+the Gaussian explicit formula, instantiated with the zero enumeration and the
+T43 `hsum`. The theorem states
+
+`((∑'_n gaussianZeroTest c σ (1/2+iγₙ)) − g₀ − g₁) · 2πi = i·(−ArchR − PrimeR) − i·(ArchL + PrimeL)`
+
+conditional on the contour/rectangle-integral and four limit hypotheses. The
+final obstacle was a missing `open Complex`, which had made `I` an auto-bound
+variable rather than `Complex.I`.
+
+This is the zero-side explicit-formula identification at the formal level; the
+remaining inputs are the contour/limit data and the arithmetic (PNT and
+archimedean) evaluation. Counts: 1,404 theorems, 543 computations, 847 tests;
+Lean index 3,001 named proofs.
+
+
+**Handoff updated after T45 (2026-11-07).** The zero-density row now records
+the explicit-formula instantiation (T45) and names the remaining inputs: the
+contour/limit data (`hcontour`, `hbottom`, `htop`, `hright`, `hleft`) and the
+arithmetic PNT/archimedean evaluation. No theorem-count changes.
+
+
+**Bottom-line decay target (2026-11-07).** An attempt to prove the exact
+bottom-line norm
+`‖gaussianZeroTest c σ (x−iT)‖ = 2πσ² e^{σ²((x−1/2)²−T²)} e^{−c(x−1/2)}`
+was made; the complex-square `.re` expansion was not completed, so the scratch
+was removed. The identity is recorded as the concrete next step for the
+`hbottom`/`htop` vanishing estimates in T45. No theorem-count changes.
+
+
+**Contour-data status (2026-11-07).** The bottom-line Gaussian norm requires the
+complex square identity
+`((x−iT)−1/2)² = ((x−1/2)²−T²) + (−2(x−1/2)T)i`; the `re`/`im` expansion was
+again not completed (the `simp`/`ring_nf` steps did not normalise the complex
+numeral `1/2`). The target identity remains recorded as the next concrete step
+for `hbottom`/`htop`. No theorem-count changes.
+
+
+**Bottom-line square identity (2026-11-07).** Added `bottomLine_sq`
+(weil-positivity T46): `((x−iT)−1/2)² = ((x−1/2)²−T²) + (−2(x−1/2)T)i`, the
+algebraic identity behind the bottom-line Gaussian decay. The proof uses
+`ring_nf` followed by `Complex.I_sq`. Counts: 1,405 theorems, 543 computations,
+847 tests; Lean index 3,002 named proofs.
+
+
+**Bottom-line Gaussian decay (2026-11-07).** Added `norm_gaussianZeroTest_bottom`
+(weil-positivity T47): on the line `x − iT`,
+`‖gaussianZeroTest c σ (x−iT)‖ = 2πσ² e^{σ²((x−1/2)²−T²)} e^{−c(x−1/2)}`.
+The proof uses T46 and `Complex.re_ofReal_mul`. This is the exponential decay
+needed for the `hbottom`/`htop` vanishing estimates. Counts: 1,406 theorems,
+543 computations, 847 tests; Lean index 3,003 named proofs.
+
+
+**Full verification through T47 (2026-11-07).** `tools/verify-all.sh --quick`
+exits 0: 58/58 audit, all Python suites (847 tests), all 173 Lean files,
+30,443 internal links with 0 broken curated links, and matching
+`publication.html` hashes. The handoff now lists the remaining analytic inputs:
+horizontal-line `logDeriv` estimates, the left/right explicit-formula limits,
+and the arithmetic PNT/archimedean evaluation. Counts: 1,406 theorems, 543
+computations, 847 tests, 3,003 named proofs.
+
+
+**Uniform bottom-line bound (2026-11-07).** Added
+`norm_gaussianZeroTest_bottom_le` (weil-positivity T48): for `x ∈ [−1,2]`,
+`‖gaussianZeroTest c σ (x−iT)‖ ≤ 2πσ² e^{σ²(25/4−T²)} e^{(3/2)|c|}`. The proof
+combines T47 with `(x−1/2)² ≤ 25/4` and `−c(x−1/2) ≤ |c|·|x−1/2|`. This is the
+uniform decay-and-bound input for the `hbottom`/`htop` vanishing estimates.
+Counts: 1,407 theorems, 543 computations, 847 tests; Lean index 3,004 named
+proofs.
+
+
+**Named horizontal log-derivative input (2026-11-07).** Added
+`HorizontalLogDerivBound` and `horizontalLogDerivBound_apply`
+(weil-positivity T49): a named polynomial growth bound for `logDeriv
+completedZeta` on the contour `x ∈ [−1,2]`, the missing input for the
+`hbottom`/`htop` vanishing estimates. Counts: 1,408 theorems, 543 computations,
+847 tests; Lean index 3,005 named proofs.
+
+
+**Remaining-input consolidation (2026-11-07).** The handoff now lists the
+remaining analytic inputs side by side with their named Props:
+`HorizontalLogDerivBound` (weil-positivity T49) for `hbottom`/`htop`,
+`SmoothWindowPNTError` (missing-bridge T44) plus the archimedean bound for the
+arithmetic side, and the left/right explicit-formula limits. All formal
+infrastructure around them is proved. No theorem-count changes.
+
+
+**Polynomial times Gaussian decay (2026-11-07).** Added
+`tendsto_abs_pow_mul_exp_neg_sq` (T50) and
+`tendsto_one_add_abs_pow_mul_exp_neg_sq` (T51): `|T|^k e^{−σ²T²} → 0` and
+`(1+|T|)^k e^{−σ²T²} → 0`. The proof uses
+`tendsto_rpow_abs_mul_exp_neg_mul_sq_cocompact` restricted to `atTop`, and
+`add_pow_le` for the `(1+|T|)^k` comparison. This is the analytic half of the
+`hbottom`/`htop` vanishing estimates. Counts: 1,410 theorems, 543 computations,
+847 tests; Lean index 3,007 named proofs.
+
+
+**Bottom contour integral vanishes (2026-11-07).** Added
+`tendsto_bottom_integral_zero` (weil-positivity T52): under
+`HorizontalLogDerivBound` and `σ > 0`, the bottom edge
+`∫_{−1}^{2} logDeriv Λ(x−iT)·H_c(x−iT) dx` tends to `0`. The proof combines
+T48 (uniform Gaussian bound), T49 (horizontal log-derivative bound) and T51
+(polynomial times Gaussian decay), via
+`intervalIntegral.norm_integral_le_of_norm_le_const`. This discharges the
+`hbottom` input of T45 up to T49. Counts: 1,411 theorems, 543 computations,
+847 tests; Lean index 3,008 named proofs.
+
+
+**Top-line norm (2026-11-07).** Added `topLine_sq` (T53) and
+`norm_gaussianZeroTest_top` (T54): the top line `x+iT` has the same Gaussian
+norm as the bottom line, `2πσ² e^{σ²((x−1/2)²−T²)} e^{−c(x−1/2)}`. This gives
+the uniform `e^{−σ²T²}` bound on the top edge needed for `htop`. Counts: 1,413
+theorems, 543 computations, 847 tests; Lean index 3,010 named proofs.
+
+
+**Uniform top-line bound (2026-11-07).** Added `norm_gaussianZeroTest_top_le`
+(weil-positivity T55): for `x ∈ [−1,2]`,
+`‖gaussianZeroTest c σ (x+iT)‖ ≤ 2πσ² e^{σ²(25/4−T²)} e^{(3/2)|c|}`. Together
+with T48 this supplies the uniform `e^{−σ²T²}` bound on both horizontal edges
+of the contour. Counts: 1,414 theorems, 543 computations, 847 tests; Lean index
+3,011 named proofs.
+
+
+**Top contour integral vanishes (2026-11-07).** Added
+`HorizontalLogDerivBoundTop` and `tendsto_top_integral_zero` (weil-positivity
+T56): under the top-line `logDeriv` growth bound, the top edge
+`∫_{−1}^{2} logDeriv Λ(x+iT)·H_c(x+iT) dx → 0`. This mirrors T52 and, with it,
+discharges both horizontal-edge hypotheses of T45. Counts: 1,415 theorems, 543
+computations, 847 tests; Lean index 3,012 named proofs.
+
+
+## Goal re-oriented to O4 (2026-11-07)
+
+The isolated-block implication is **not** the bridge: `not_offLineBlockPSD_of_offLine`
+makes the hypothesis `∀ c σ δ γ, δ ≠ 0 → OffLineBlockPSD c σ δ γ` false, so
+`no_offLine_of_all_blocks_psd` is vacuous.  The meaningful object is
+`FiniteWeilPositivity` for the full zero-side Gram matrix.  Missing-bridge T20
+proves the easy direction `RH → FiniteWeilPositivity`; the hard direction
+`FiniteWeilPositivity → RH` is **O4**, now the active goal.
+
+Reduction recorded for O4: a single off-line zero `ρ = 1/2 + δ + iγ`
+(`δ ≠ 0`, `0 < ρ.re < 1`) should make the 2×2 block on the family `![0, c]`
+non-PSD by the scalar criterion, because `Re gaussianZeroTest c σ ρ` grows
+exponentially in `c` while `Re gaussianZeroTest 0 σ ρ` is fixed.  The next
+formal targets are the single-zero real-part formula and
+`∃ c, Re H_0(ρ) < |Re H_c(ρ)|`.
+
+
+**Single off-line zero real part (2026-11-07).** Added
+`gaussianZeroTest_re_offLine` (missing-bridge T45): for `ρ = 1/2 + δ + iγ`,
+`Re H_c(ρ) = 2πσ² e^{σ²(δ²−γ²)} e^{−cδ} cos(2σ²δγ − cγ)`. This is the first
+formal step of the O4 reduction: it exposes the exponential growth in `c` for
+`δ ≠ 0`. Counts: 1,416 theorems, 543 computations, 847 tests; Lean index 3,014
+named proofs.
+
+
+**Off-line zero growth (2026-11-07).** Added
+`exists_gaussianZeroTest_re_gt_offLine` (missing-bridge T46): for `δ ≠ 0`, some
+separation `c` makes `|Re H_c(ρ)| > Re H_0(ρ)`. The proof chooses `c` along
+`cos(2σ²δγ − cγ) = 1` with `e^{−cδ}` arbitrarily large (the `γ = 0` case is
+direct). This is the second O4 step: it makes the singleton 2×2 Gram block fail
+the scalar PSD criterion. Counts: 1,417 theorems, 543 computations, 847 tests;
+Lean index 3,015 named proofs.
+
+
+**O4 plan corrected to the quadruple (2026-11-07).** The singleton `{ρ}` gives
+an **asymmetric** 2×2 matrix (`Re H_{−c}(ρ) ≠ Re H_c(ρ)` in general), so the
+singleton route does not directly give a PSD obstruction.  The correct finite
+object is the conjugation- and functional-equation-closed quadruple
+`S = {ρ, 1−ρ, conj ρ, 1−conj ρ}`.  On `S` the Gram sum is `offLineQuad`, which
+is even in `c` (`offLineQuad_neg_c`), so the 2×2 block is exactly
+`OffLineBlock c σ δ γ`; T18 then gives a separation where it is non-PSD.
+Remaining formal steps: (i) the four points are zeros
+(`completedZeta_zero_conj`, `completedZeta_one_sub`); (ii)
+`finiteWeilGramReal ![0,c] σ S = OffLineBlock c σ δ γ`; (iii) conclude
+`¬ FiniteWeilPositivity`.
+
+
+**Quadruple injectivity blocker (2026-11-07).** The Gram–quadruple identity needs
+injectivity of the four-point map `Fin 4 → ℂ` (the points are distinct when
+`δ ≠ 0` and `γ ≠ 0`).  A brute-force `fin_cases`/`linarith` attempt did not
+close the real-component cases, so the scratch was removed; the identity and its
+injectivity lemma are recorded as the immediate next formal targets.  Counts
+unchanged at 1,417 theorems, 543 computations, 847 tests, 3,015 named proofs.
+
+
+**Singleton Gram asymmetry (2026-11-07).** Added `exists_gaussianZeroTest_re_ne_neg`
+(missing-bridge T47): for `δ ≠ 0`, `γ ≠ 0`, some `c` makes
+`Re H_{−c}(ρ) ≠ Re H_c(ρ)`.  This is the cleaner O4 route: the singleton
+2×2 Gram matrix `!![Re H_0, Re H_{−c}; Re H_c, Re H_0]` is then **not
+Hermitian**, hence not PSD, with no quadruple injectivity needed.  The `γ = 0`
+degenerate case remains to be added.  Counts: 1,418 theorems, 543 computations,
+847 tests; Lean index 3,016 named proofs.
+
+
+## O4 milestone: hard direction for non-real zeros (2026-11-07)
+
+Added three missing-bridge theorems completing the singleton route:
+`finiteWeilGramReal_singleton` (T48), `not_posSemidef_singleton_of_ne` (T49) and
+**`not_finiteWeilPositivity_of_offLine_im_ne_zero` (T50)**.  T50 proves: any
+nontrivial zero with `0 < re < 1`, `re ≠ 1/2` and `im ≠ 0` makes
+`FiniteWeilPositivity` fail.  The proof applies `FiniteWeilPositivity` to
+`S = {ρ}` and the family `![0,c]`; T47 gives `Re H_{−c}(ρ) ≠ Re H_c(ρ)`, so the
+2×2 block is not Hermitian (T49), contradicting PSD.
+
+Together with the easy direction T20 (`RH → FiniteWeilPositivity`), O4 is now
+proved **for zeros with nonzero imaginary part**.  The remaining case is a real
+off-line zero (`im = 0`), where the singleton block is symmetric; that case
+needs a separate argument (Λ has no real zeros in `(0,1)`).  Counts: 1,421
+theorems, 543 computations, 847 tests; Lean index 3,019 named proofs.
+
+
+**Real-line formula and real-zero plan (2026-11-07).** Added
+`gaussianZeroTest_re_ofReal` (missing-bridge T51):
+`Re H_c(ρ) = 2πσ² e^{σ²(ρ−1/2)²} e^{−c(ρ−1/2)}` for real `ρ`.  For the remaining
+real off-line zero case, the plan is now concrete: on the pair
+`S = {ρ, 1−ρ}` (both zeros by the functional equation) the Gram matrix is
+`2A !![1, cosh(cδ); cosh(cδ), 1]` with `δ = ρ−1/2`, which is non-PSD for any
+`cδ ≠ 0`; the `twoByTwo_not_posSemidef` criterion applies directly, with no
+asymmetry needed.  Counts: 1,422 theorems, 543 computations, 847 tests; Lean
+index 3,020 named proofs.
+
+
+**Real-line formula at `1−ρ` (2026-11-07).** Added
+`gaussianZeroTest_re_one_sub_ofReal` (missing-bridge T52): for real `ρ`,
+`Re H_c(1−ρ) = 2πσ² e^{σ²(ρ−1/2)²} e^{c(ρ−1/2)}`.  This is the second entry
+needed for the pair `{ρ, 1−ρ}` Gram matrix; the remaining step is the matrix
+identity and the `cosh` non-PSD conclusion.  Counts: 1,423 theorems, 543
+computations, 847 tests; Lean index 3,021 named proofs.
+
+
+## O4 proved: `FiniteWeilPositivity ↔ RH` (2026-11-07)
+
+The hard direction of the classical Weil criterion is now Lean-proved:
+**`finiteWeilPositivity_implies_RH`** (missing-bridge T57).  Together with the
+easy direction T20 this formalises `RH ↔ FiniteWeilPositivity` for the finite
+zero-side Gram matrix.
+
+The final steps were:
+- **T53** `finiteWeilGramReal_pair`: on the pair `{ρ, 1−ρ}` the Gram matrix is
+  the `cosh` block `2A !![1, cosh δ; cosh δ, 1]`.
+- **T54** `not_posSemidef_real_pair`: that block is non-PSD for `δ ≠ 0`.
+- **T55** `not_finiteWeilPositivity_of_real_offLine`: a real off-line zero
+  refutes `FiniteWeilPositivity`.
+- **T56** `not_finiteWeilPositivity_of_offLine`: combines T50 (`im ≠ 0`) and T55
+  (`im = 0`).
+- **T57** `finiteWeilPositivity_implies_RH`: the capstone.
+
+**RH is not claimed.**  The equivalence reduces RH to `FiniteWeilPositivity`,
+which remains open on the arithmetic side.  Counts: 1,428 theorems, 543
+computations, 847 tests; Lean index 3,027 named proofs.
+
+
+## O4 audit (2026-11-08)
+
+Audited T57 and its dependency chain against the intended classical statement.
+Findings:
+
+- **Statement match:** `finiteWeilPositivity_implies_RH` has the exact shape
+  `FiniteWeilPositivity → RiemannHypothesis`; no extra hypotheses, no `sorry`,
+  no `axiom` in `missing-bridge/lean/Topic.lean`.
+- **Scope caveat:** `FiniteWeilPositivity` is the finite, zero-side,
+  **Gaussian-window** criterion — all finite nontrivial-zero sets and real
+  Gaussian families, but no arbitrary test functions and no archimedean/prime
+  terms.  T57 is the hard direction for this restricted family (a strengthening
+  of the full implication); the full arbitrary-test-function and infinite/cone
+  versions remain outside the formalisation.
+- **Real-zero case (T53–T55):** the pair `{ρ, 1−ρ}` with `0 < ρ < 1`,
+  `ρ ≠ 1/2`; `completedZeta_one_sub` hypotheses (`ρ ≠ 0`, `ρ ≠ 1`, `Γℝ ρ ≠ 0`,
+  `Γℝ (1−ρ) ≠ 0`) all follow from `0 < ρ < 1`.  Clean.
+- **Non-real case (T50):** singleton `{ρ}` plus the T47 asymmetry gives a
+  non-Hermitian block.  Sound.
+- **Remaining open direction:** prove `FiniteWeilPositivity` (equivalently RH)
+  on the arithmetic side.
+
+The audit is recorded in the missing-bridge README (“O4 audit”) and in the
+weil-positivity HANDOFF.
+
+
+## Arithmetic-side programme: interface and route analysis (2026-11-08)
+
+Added the arithmetic-side interface (missing-bridge T58):
+`weilQuadraticForm a σ S x = star x ⬝ᵥ (finiteWeilGramReal a σ S *ᵥ x)`, and
+proved `finiteWeilPositivity_iff_quadraticForm`: `FiniteWeilPositivity` is
+exactly the statement that every finite zero-side Gram matrix is Hermitian and
+has nonnegative quadratic form for every `x`.  This is the shape the explicit
+formula must match.
+
+Route analysis for proving `FiniteWeilPositivity` (equivalently RH):
+
+1. **Full-matrix explicit formula.**  T45 (weil-positivity) is a scalar identity
+   for one separation `c` with conditional contour/limit data.  The quadratic
+   form needs the matrix version for all `c = aᵢ − aⱼ`; the contour identity
+   `hcontour` and the horizontal vanishing (T49/T52/T56 inputs) are not proved.
+2. **Arithmetic quadratic form.**  The prime side is
+   `∑ₙ Λ(n) n^{−1/2} exp(−(log n − c)²/(4σ²))`.  As a function of `c` this is a
+   **shifted** Gaussian; the matrix `g(aᵢ−aⱼ)` is not Hermitian for `log n ≠ 0`.
+   Entrywise PSD is therefore the wrong target; the correct object is the
+   quadratic form of the full (zero-side symmetrised) functional, which is the
+   classical Weil positivity statement and is RH-strength.
+3. **PNT input.**  `SmoothWindowPNTError` (T44) is a PNT-strength hypothesis;
+   Mathlib has only Chebyshev-type `ψ` bounds, no PNT.
+4. **Archimedean positivity.**  The `weilOmega`/digamma inequalities that make
+   the archimedean contribution nonnegative are not developed.
+5. **Horizontal `logDeriv` bounds.**  `HorizontalLogDerivBound` (weil-positivity
+   T49) is a named input, needed for `hbottom`/`htop`.
+
+**Feasibility verdict.**  No unconditional proof of `FiniteWeilPositivity` is
+available from the current library; the obstruction is the PNT/archimedean
+analysis together with the full-matrix explicit formula, and the statement is
+RH-equivalent.  T58 is the precise interface the arithmetic side must satisfy.
+Counts: 1,429 theorems, 543 computations, 847 tests; Lean index 3,028 named
+proofs.
+
+
+**Matrix assembly (2026-11-08).** Added `scalarZeroSide` plus
+`weilQuadraticForm_eq_sum_scalar` (T59) and
+`weilQuadraticForm_eq_arithmetic` (T60).  T59 expands the Weil quadratic form
+as the finite bilinear combination of the scalar zero-side sums; T60 shows that,
+**given the scalar explicit formula** `scalarZeroSide σ S c = g c`, the quadratic
+form equals the arithmetic quadratic form `∑ᵢ∑ⱼ xᵢxⱼ g(aᵢ−aⱼ)`.  This isolates
+the two remaining obligations precisely: (i) the unconditional scalar explicit
+formula (T45 is conditional), and (ii) nonnegativity of the arithmetic quadratic
+form.  Counts: 1,431 theorems, 543 computations, 847 tests; Lean index 3,030
+named proofs.
+
+
+**Gaussian rectangle identity and the simplicity blocker (2026-11-08).** Added
+`gaussianRectangleIdentity` (missing-bridge T61): the library's
+`test_function_explicit_formula` specialised to `h = gaussianZeroTest c σ`.  It
+gives exactly the `hcontour` hypothesis of T45 from the standard explicit-formula
+data.  Checking the signature exposed a **precise blocking condition** for the
+arithmetic-side programme: the formula requires
+
+`hF_simple : ∀ ρ ∈ S, deriv (s(s−1)Λ(s)) ρ ≠ 0`,
+
+i.e. **simplicity of the zeros in `S`**, which is not known and is itself an
+open conjecture.  It also requires `hF_ne` (that `S` is exactly the zero set in
+the rectangle).  Therefore an unconditional arithmetic-side proof of
+`FiniteWeilPositivity` via this formula is blocked not only by PNT and the
+archimedean inequalities but also by zero simplicity.  Counts: 1,432 theorems,
+543 computations, 847 tests; Lean index 3,031 named proofs.
+
+
+**Hermitian half of the arithmetic matrix (2026-11-08).** Added
+`arithmeticResidual_symm` (T62) and `arithmeticResidual_even` (T63): with the
+prime sides evaluated symmetrically at `c` and `−c`, the residual
+`poleTerm c σ − (P c + P(−c)) + arch` is even in `c`.  Consequently the
+arithmetic Gram matrix `g(aᵢ−aⱼ)` is **Hermitian** — one of the two conditions
+in T58 is therefore structural, and the only remaining half is nonnegativity of
+the arithmetic quadratic form.  Counts: 1,434 theorems, 543 computations,
+847 tests; Lean index 3,033 named proofs.
+
+
+**Scalar consequence and the multiplicity obstruction (2026-11-08).** Added
+`finiteWeilPositivity_scalar_nonneg` (T64): `FiniteWeilPositivity` implies the
+scalar Weil inequality `0 ≤ ∑_{ρ∈S} Re H_0(ρ)` for every finite nontrivial-zero
+set.  While checking whether the divisor-weighted explicit formula could remove
+the `hF_simple` hypothesis, a structural obstruction was identified: the
+divisor formula (`rectIntegral_logDeriv_completedZeta_eq_divisor_sum_derived`,
+`explicit_formula_h1_symmetric_divisor`) counts zeros **with multiplicity**
+(`m w = divisor …`), whereas `FiniteWeilPositivity` sums over a **Finset** of
+distinct zeros.  The residue of `Λ'/Λ` at a multiple zero is the multiplicity,
+so the divisor formula gives `∑ m_ρ h(ρ)`, not `∑ h(ρ)`.  Removing `hF_simple`
+therefore requires either zero simplicity or a multiplicity-aware restatement
+of `FiniteWeilPositivity`; this is now recorded as a precise blocker rather than
+assumed away.  Counts: 1,435 theorems, 543 computations, 847 tests; Lean index
+3,034 named proofs.
+
+
+**Remaining-inputs ledger (2026-11-08).** The arithmetic-side reduction is now
+complete and mechanical, and the open content is exactly four inputs, recorded
+in the missing-bridge README and the weil-positivity handoff:
+
+1. zero simplicity (`hF_simple`), with the multiplicity obstruction: the
+   divisor formula counts `m_ρ` while `FiniteWeilPositivity` sums distinct zeros;
+2. `SmoothWindowPNTError` (PNT-strength, absent from Mathlib);
+3. the archimedean `weilOmega` digamma positivity;
+4. `HorizontalLogDerivBound` and the `hbottom`/`htop`/`hright`/`hleft` limits.
+
+The reduction chain is T20/T57 (`RH ↔ FiniteWeilPositivity`), T58 (quadratic-form
+interface), T59–T60 (matrix assembly), T61 (Gaussian rectangle identity),
+T62–T63 (Hermitian half) and T64 (scalar necessary condition).  No claim of RH
+or unconditional positivity.
+
+
+**Exact 2×2 PSD criterion (2026-11-08).** Added `twoByTwo_posSemidef_iff`
+(missing-bridge T65): `!![a,b;b,a]` is PSD iff `0 ≤ a` and `|b| ≤ a`.  This
+complements the library's sufficient non-PSD lemma and gives the exact pair
+conditions that the arithmetic-side quadratic form must meet.  Counts: 1,436
+theorems, 543 computations, 847 tests; Lean index 3,035 named proofs.
+
+
+**General 2×2 criterion and singleton characterisation (2026-11-08).** Added
+`twoByTwo_general_posSemidef_iff` (T66): `!![a,b;c,a]` is PSD iff `b = c`,
+`0 ≤ a` and `|b| ≤ a`.  Applied to the singleton zero block, this gives
+`singleton_block_posSemidef_iff` (T67), which shows precisely why an off-line
+zero fails: the two off-diagonal entries differ (T47), so the block is not
+Hermitian.  Counts: 1,438 theorems, 543 computations, 847 tests; Lean index
+3,037 named proofs.
+
+
+**Singleton criterion forced by `FiniteWeilPositivity` (2026-11-08).** Added
+`finiteWeilPositivity_singleton` (missing-bridge T68): at every nontrivial zero,
+`FiniteWeilPositivity` forces the exact singleton 2×2 conditions, in particular
+`Re H_{−c}(ρ) = Re H_c(ρ)` for all `c`.  This is a complete Lean statement of
+the zero-side obstruction and closes the pairwise structural thread of the
+programme.  Counts: 1,439 theorems, 543 computations, 847 tests; Lean index
+3,038 named proofs.
+
+
+**Zero-set-specified Gaussian rectangle identity (2026-11-08).** Added
+`gaussianRectangleIdentity_of_allZeros` (missing-bridge T69): the same rectangle
+identity with the opaque `hF_ne` replaced by the intended condition that `S`
+contains every zero of `s(s−1)Λ(s)` in `U` (plus `hZ_zero`, so `S` consists of
+zeros).  This makes the hypothesis set match the mathematics; `hF_simple`
+remains the irreducible simplicity input.  Counts: 1,440 theorems, 543
+computations, 847 tests; Lean index 3,039 named proofs.
+
+
+**Full verification at T69 and an archimedean correction (2026-11-08).**
+`tools/verify-all.sh --quick` exits 0 on the T69 tree: 58/58 audit, all Python
+suites (847 tests), all 173 Lean files, **30,550** internal links with 0 broken
+curated links, and matching `publication.html` hashes
+(`ae65d8c1…`).  Separately, the ledger’s third arithmetic-side input was
+corrected: the archimedean factor is **not** pointwise nonnegative —
+`weilOmega 0 = Re ψ(1/4) − log π ≈ −5.372` numerically — so the arithmetic-side
+positivity is a genuine cancellation, and the required input is the full
+arithmetic quadratic-form inequality, not a separate archimedean positivity
+lemma.  Counts: 1,440 theorems, 543 computations, 847 tests; Lean index 3,039
+named proofs.
+
+
+**Arithmetic Gram matrix is Hermitian (2026-11-08).** Added
+`arithmeticResidual_isHermitian` (missing-bridge T70): because the symmetrised
+residual is even (T63), the arithmetic Gram matrix `g(aᵢ−aⱼ)` is a genuine
+Hermitian matrix.  This completes the Hermitian half of the T58 interface for
+the arithmetic side; the remaining half is nonnegativity.  Counts: 1,441
+theorems, 543 computations, 847 tests; Lean index 3,040 named proofs.
+
+
+## Arithmetic-side programme blocked at the research boundary (2026-11-08)
+
+The formal reduction is complete: `RH ↔ FiniteWeilPositivity` (T20/T57), the
+quadratic-form interface (T58), matrix assembly (T59–T60), the Gaussian
+rectangle identity (T61, T69), the Hermitian arithmetic matrix (T62–T63, T70),
+the exact 2×2 criteria (T65–T67), the singleton characterisation (T68) and the
+scalar necessary condition (T64) are all Lean-proved.
+
+The same four concrete conditions have blocked the remaining step across rounds
+6–12:
+
+1. **zero simplicity** (`hF_simple`), an open conjecture, combined with the
+   multiplicity obstruction (the divisor formula counts `m_ρ`; the Finset sums
+   distinct zeros);
+2. **`SmoothWindowPNTError`** — PNT-strength, absent from Mathlib;
+3. **nonnegativity of the full arithmetic quadratic form** — a genuine
+   cancellation, since the archimedean factor is negative at 0
+   (`Re ψ(1/4) − log π ≈ −5.372`);
+4. **the contour limits** (`HorizontalLogDerivBound`, `hbottom`/`htop`,
+   `hright`/`hleft`).
+
+No further formal step is available without at least one of these, and
+discharging all of them is RH-strength.  The programme is recorded as blocked
+at this boundary rather than advanced by interfaces.
+
+
+## Arithmetic quadratic-form programme: pole-cancelled decomposition (2026-11-08)
+
+Resumed with the objective the user selected: the genuine arithmetic
+quadratic-form inequality.  Added `arithmeticQuadraticForm` and
+`arithmeticQuadraticForm_eq_pnt_add_arch` (missing-bridge T71): the arithmetic
+Weil quadratic form splits **exactly** into
+
+`Q_PNT(c) + Q_PNT(−c) + Q_arch`,
+
+where each `Q_PNT` is the quadratic form of the PNT error
+`primeMainTerm(·) − P(·)` and `Q_arch` is the archimedean quadratic form.  The
+pole term cancels by `poleTerm_eq_primeMainTerm_add`.  This is the classical
+starting point: the remaining work is to control `Q_PNT` and `Q_arch` and show
+their sum is nonnegative.  No claim of RH or unconditional positivity.
+Counts: 1,442 theorems, 543 computations, 847 tests; Lean index 3,041 named
+proofs.
+
+
+**PNT-error quadratic-form bound (2026-11-08).** Added `abs_pntQuadraticForm_le`
+(missing-bridge T72): under `SmoothWindowPNTError E` and `E ≥ 0`, the quadratic
+form of the Gaussian-window PNT error is bounded by `E·(∑ᵢ|xᵢ|)²`.  This is the
+first quantitative control in the classical positivity route: together with T71
+it shows the arithmetic quadratic form is `Q_arch + O(E)`, so the remaining
+content is the archimedean quadratic form and the PNT-error size.  No claim of
+RH or unconditional positivity.  Counts: 1,443 theorems, 543 computations,
+847 tests; Lean index 3,042 named proofs.
+
+
+**Classical positivity reduction (2026-11-08).** Added the function-valued
+residual/quadratic form (T73), the two-PNT-form identity (T74) and the
+conditional nonnegativity theorem (T75):
+
+- `arithmeticResidualFun σ P arch c = poleTerm c σ − (P c + P(−c)) + arch c`
+  (the archimedean term now depends on the separation, as it must);
+- `Q_arith = 2·Q_PNT + Q_arch` (the two PNT-error forms coincide by index swap);
+- if `Q_arch ≥ 2E(∑|xᵢ|)²` and `SmoothWindowPNTError E` holds with `E ≥ 0`,
+  then `Q_arith ≥ 0`.
+
+This is the classical positivity shape: the archimedean form must dominate
+twice the PNT-error bound.  The remaining content is exactly that dominance
+(`Q_arch` vs `2E‖x‖₁²`).  Counts: 1,446 theorems, 543 computations, 847 tests;
+Lean index 3,045 named proofs.
+
+
+**Arithmetic matrix PSD under archimedean dominance (2026-11-08).** Added
+`arithmeticResidualFun_even` (T76), `arithmeticQuadraticFormFun_eq_dotProduct`
+(T77) and **`arithmeticMatrix_posSemidef_of_dominates` (T78)**: with an even
+archimedean kernel and the dominance hypothesis
+`Q_arch ≥ 2E(∑|xᵢ|)²`, the arithmetic Gram matrix is PSD.  This assembles the
+Hermitian and quadratic-form halves and isolates the last quantitative input:
+the archimedean dominance inequality.  Counts: 1,449 theorems, 543 computations,
+847 tests; Lean index 3,048 named proofs.
+
+
+**Capstone reduction (2026-11-08).** Added `finiteWeilPositivity_of_arithmetic`
+(missing-bridge T79): `FiniteWeilPositivity` follows from (i) the scalar
+explicit-formula identity `scalarZeroSide σ S c = g σ c` and (ii) PSD of the
+arithmetic Gram matrix `g σ (aᵢ − aⱼ)`.  Combined with T78 (PSD under
+archimedean dominance), the entire arithmetic-side programme now reduces to a
+single inequality: `Q_arch ≥ 2E(∑|xᵢ|)²`.  No claim of RH or unconditional
+positivity.  Counts: 1,450 theorems, 543 computations, 847 tests; Lean index
+3,049 named proofs.
+
+
+**Concrete archimedean kernels are even (2026-11-08).** Imported
+`Archimedean` into missing-bridge and added `weilOmega_real_even` (T80) and
+`archSymbol_real_even` (T81): the library's concrete archimedean kernels are
+even on the real axis, supplying the `harch` hypothesis of the PSD assembly
+(T78).  The last open inequality remains the archimedean dominance
+`Q_arch ≥ 2E‖x‖₁²`.  Counts: 1,452 theorems, 543 computations, 847 tests; Lean
+index 3,051 named proofs.
+
+
+## End-to-end conditional chain to RH (2026-11-08)
+
+Added `finiteWeilPositivity_of_pnt_archimedean` (T82) and
+`riemannHypothesis_of_pnt_archimedean` (T83).  The complete conditional chain is
+now formalised:
+
+**even archimedean kernel + `SmoothWindowPNTError E` + archimedean dominance
+`Q_arch ≥ 2E(∑|xᵢ|)²` + the scalar explicit formula ⇒ `FiniteWeilPositivity`
+⇒ RH.**
+
+**This is not an unconditional proof of RH.**  Each of the four inputs is open:
+the archimedean dominance is the classical hard inequality, the PNT bound is
+PNT-strength, and the scalar explicit formula requires zero simplicity (or a
+multiplicity-aware restatement).  The value of the chain is that the entire
+arithmetic-side argument is now a single Lean theorem with the four inputs
+visible as hypotheses.  Counts: 1,454 theorems, 543 computations, 847 tests;
+Lean index 3,053 named proofs.
+
+
+**Full verification at T83 (2026-11-08).** `tools/verify-all.sh --quick` exits 0
+on the T83 tree: 58/58 audit, all Python suites (847 tests), all 173 Lean files,
+**30,592** internal links with 0 broken curated links, and matching
+`publication.html` hashes (`ae65d8c1…`).
+
+**Final blocking condition of the arithmetic quadratic-form programme.**  The
+entire formal reduction is complete and verified: T71–T75 (pole-cancelled
+decomposition, PNT bound, conditional nonnegativity), T76–T78 (Hermitian
+arithmetic matrix, PSD under archimedean dominance), T79 (capstone from the
+arithmetic identity + arithmetic PSD), T80–T81 (concrete archimedean kernels
+even), T82–T83 (end-to-end conditional derivation of `FiniteWeilPositivity` and
+RH from four inputs).  The single remaining inequality is the **archimedean
+dominance** `Q_arch(x) ≥ 2E(∑|xᵢ|)²`; the other three inputs are the
+PNT-strength `SmoothWindowPNTError E` and the scalar explicit formula (zero
+simplicity / multiplicity).  Proving the dominance is RH-strength and no
+further formal step is available from the current library.
+
+
+## The concrete Gaussian archimedean kernel found (2026-11-08)
+
+The archimedean quadratic-form object for the Gaussian family **exists** in the
+repository: `prime-spectrum-tensor/lean/GaussianGram.lean` defines
+
+`omega t = Re ψ(1/4 + it/2) − log π`,
+`densityTerm c σ = σ² ∫ exp(−σ²t²) cos(ct) Ω(t) dt`,
+`gaussianGramEntry a b σ = (W(a−b) + W(b−a))/2`, `W = pole + density + prime`.
+
+Added the formal bridge in missing-bridge (T84–T86):
+`gaussianGramEntry c 0 σ = arithmeticResidualFun σ (fun x => −primeTerm x σ / 2)
+(fun x => densityTerm x σ) c`, with evenness of `densityTerm` and the
+`prime-spectrum-tensor` pole term.  So the abstract `arch` of T73–T83 is
+exactly `densityTerm · σ`, and the concrete kernel is a Gaussian-weighted cosine
+transform of the archimedean density.
+
+The `prime-spectrum-tensor` topic already proves the **4×4** positivity
+certificate `gaussianGram4_posDef` (via interval enclosures of Ω and quadrature;
+see its `OMEGA-ROUTE.md`, which records the certificate as done).  That is a
+finite instance of the Gram positivity, not the general archimedean dominance
+for all families.
+
+**Remaining:** the general dominance `Q_arch(x) ≥ 2E(∑|xᵢ|)²` for all finite
+families, with `Q_arch` built from `densityTerm`.  The 4×4 certificate shows the
+quantity is computable and positive in that case; the general inequality is
+still RH-strength.  Counts: 1,457 theorems, 543 computations, 847 tests; Lean
+index 3,056 named proofs.
+
+
+**Correction: the archimedean-dominance condition is the wrong final input
+(2026-11-08).**  The bridge T84–T86 identifies the concrete archimedean kernel:
+`arch = densityTerm · σ`, where
+`densityTerm c σ = σ² ∫ e^{−σ²t²} cos(ct) Ω(t) dt` and `Ω(t) = Re ψ(1/4+it/2) − log π`.
+This is a Gaussian-weighted cosine transform, so for a singleton family
+(`a = 0`, `x = 1`) the archimedean quadratic form is `densityTerm 0 σ`, which is
+**negative** (Ω(0) = −γ − log π ≈ −1.72).  Therefore the sufficient condition of
+T75/T78/T82/T83, `Q_arch ≥ 2E(∑|xᵢ|)²`, is **false for the concrete kernel** and
+cannot be the classical final inequality.
+
+The correct zero-side structure is the full three-term Gram form
+`Q_zero = Q_pole + Q_prime + Q_density` (matching `gaussianW = pole + density +
+prime`), where the pole term `4πσ²e^{σ²/4}cosh(c/2)` is positive and the density
+and prime terms are negative for the relevant separations.  Positivity is a
+genuine cancellation, not an archimedean-vs-PNT domination.  The existing
+`prime-spectrum-tensor` 4×4 certificate `gaussianGram4_posDef` is a verified
+instance of this full cancellation.  The programme should therefore target the
+full Gaussian Gram positivity (the `prime-spectrum-tensor`/`WEIL-GRAM` route),
+not the T75 dominance condition.
+
+
+## Goal re-oriented to the full Gaussian Gram positivity (2026-11-08)
+
+The goal objective is updated: target the full Gaussian Gram positivity on the
+`prime-spectrum-tensor` / `WEIL-GRAM.md` route, not the (false) archimedean
+dominance.  Added `gaussianGram4_eq_arithmetic` (missing-bridge T87): the exact
+`gaussianGram4 σ` is the arithmetic residual matrix on the `centre4`
+separations, with `P = −primeTerm/2` and `arch = densityTerm`.
+
+The existing `prime-spectrum-tensor` theorem `gaussianGram4_posDef`
+(`DensityCertificates.lean`) is the proven 4×4 instance of that matrix.  Because
+`DensityCertificates` pulls in modules outside missing-bridge's import path, the
+4×4 positivity is recorded as a cross-topic certificate rather than imported;
+the identification T87 is the formal link.
+
+**Next:** generalise the enclosure certificate beyond the four centres, or prove
+the analytic three-term inequality `Q_pole + Q_prime + Q_density ≥ 0` it
+instantiates.  Counts: 1,458 theorems, 543 computations, 847 tests; Lean index
+3,057 named proofs.
+
+
+**Signs and three-term split of the Gaussian Gram entry (2026-11-08).** Added
+`primeTerm_nonpos` (T88), `poleTerm_ps_pos` (T89) and
+`gaussianGramEntry_three_term` (T90): the Gaussian Gram entry is
+`pole + density + (prime(c) + prime(−c))/2`, with the pole term **positive** and
+the prime term **non-positive** for `σ ≥ 0`.  The density term is the one with
+variable sign (negative near `c = 0`), so the positivity of the entry is a
+genuine three-term cancellation — exactly the structure the
+`prime-spectrum-tensor` 4×4 certificate verifies.  Counts: 1,461 theorems, 543
+computations, 847 tests; Lean index 3,060 named proofs.
+
+
+**Three-matrix decomposition of the Gaussian Gram matrix (2026-11-08).**
+Added `gaussianGram4_eq_pole_add_density_add_prime` (T91): the exact 4×4 Gaussian
+Gram matrix is the sum of the pole, density and prime matrices; and
+`gaussianGram4_isHermitian` (T92), its Hermitian property in the arithmetic
+framework (using the even density T84).  The positivity is now visibly a
+three-term matrix cancellation, matching the `prime-spectrum-tensor` route.
+Counts: 1,463 theorems, 543 computations, 847 tests; Lean index 3,062 named
+proofs.
+
+
+**Certified 4×4 instance integrated (2026-11-08).**  Extended missing-bridge's
+Lean path to `intersection-form-zeta/lean` and imported `DensityCertificates`.
+Added `gaussianGram4_posSemidef` (T93) and `centre4Arithmetic_posSemidef` (T94):
+the exact arithmetic residual matrix on the four centres at `σ = 1/20` is
+positive semidefinite, via the `prime-spectrum-tensor` enclosure certificate and
+the identification T87.  This is a fully Lean-checked instance of the full
+three-term Gaussian Gram positivity (pole + density + prime), integrated into
+the general framework.  Counts: 1,465 theorems, 543 computations, 847 tests;
+Lean index 3,064 named proofs.
+
+
+**5×5 rung integrated (2026-11-08).**  Imported `DensityCertificates5` and added
+`gaussianGram5_eq_arithmetic` (T95), `gaussianGram5_posSemidef` (T96) and
+`centre5Arithmetic_posSemidef` (T97): the exact arithmetic residual matrix on the
+five centres `−2/5,−1/5,0,1/5,2/5` at `σ = 1/20` is positive semidefinite, via
+the `prime-spectrum-tensor` 5×5 certificate.  The full three-term Gaussian Gram
+positivity is now Lean-checked on both the 4- and 5-centre families.
+Counts: 1,468 theorems, 543 computations, 847 tests; Lean index 3,067 named
+proofs.

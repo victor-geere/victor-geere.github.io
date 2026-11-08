@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The missing bridge — what a positivity proof would have to supply</title>
+<style>
+  :root { --bg:#f7f8fa; --panel:#fff; --ink:#1c2430; --muted:#5b6675; --line:#d8dee7; --accent:#123a66; --accent-soft:#e8eff8; --open:#9b1c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  main { max-width:980px; margin:0 auto; padding:2.6rem 1.4rem 4rem; }
+  header { border-bottom:3px solid var(--accent); padding-bottom:1.2rem; margin-bottom:1.8rem; }
+  h1 { font-size:2rem; line-height:1.2; margin:0 0 .5rem; color:var(--accent); }
+  h2 { font-size:1.25rem; margin:2.2rem 0 .7rem; padding-bottom:.3rem; border-bottom:1px solid var(--line); color:var(--accent); }
+  h3 { font-size:1.05rem; margin:1.4rem 0 .5rem; color:var(--accent); }
+  a { color:var(--accent); }
+  code { font-family:"SFMono-Regular",Menlo,Consolas,monospace; font-size:.9em; background:var(--accent-soft); padding:.08em .3em; border-radius:4px; }
+  .status { font-weight:600; }
+  .open { color:var(--open); font-weight:600; }
+  table { width:100%; border-collapse:collapse; margin:.8rem 0 1.2rem; font-size:.93rem; background:var(--panel); }
+  th, td { border:1px solid var(--line); padding:.42rem .55rem; text-align:left; vertical-align:top; }
+  th { background:var(--accent-soft); }
+  ul { padding-left:1.3rem; }
+  footer { margin-top:3rem; padding-top:1rem; border-top:1px solid var(--line); color:var(--muted); display:flex; gap:1.2rem; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>The missing bridge</h1>
+  <p class="status">Status: <em><strong>O4 proved (T57), scope-audited.</strong> The hard direction <code>FiniteWeilPositivity → RH</code> is Lean-checked and T20 gives the converse, so <code>RH ↔ FiniteWeilPositivity</code> is formalised for the finite zero-side Gram matrix built from the Gaussian-window family. This is a Gaussian-restricted, zero-side form of the classical criterion (no arbitrary test functions, no archimedean/prime terms); RH itself is not claimed, and the remaining open direction is to prove <code>FiniteWeilPositivity</code>. The elementary core (on-line sum of squares, off-line obstruction, PSD convexity, entrywise margin transfer) is Lean-checked. The tractability scouting rates the remaining mechanisms 1/5, 1/5 and 2/5 for available slack; the O2 rounds close the linear, interpolation and width-flow versions as equivalent to positivity or non-monotone, and the O3 first round does not support the finite uniform-gap shape. The O4 hard direction is closed in the finite Gaussian scope; what remains is to prove <code>FiniteWeilPositivity</code> itself.</em></p>
+  <p>Part of the <a href="../weil-positivity/README.md">weil-positivity hub</a>, the <a href="../angular-partition-method/README.md">O2 dossier</a>, the <a href="../absolute-polarized-hodge-index-realization/README.md">formal core</a>, the <a href="../README.md">topic index</a>, and <a href="../../index.html">The Final Letter</a>.</p>
+</header>
+
+<section>
+<h2>Programme</h2>
+<p>The <a href="../weil-positivity/README.md">weil-positivity</a> hub names the zero-side positivity statement and proves the elementary equivalence with RH. A review of that hub found that its advertised <code>blocks ⇒ RH</code> theorem is vacuous as formalised: the hypothesis <code>OffLineBlockPSD</code> is refuted by the hub's own <code>not_offLineBlockPSD_of_offLine</code>. The real content of a bridge is therefore one of three mechanisms.</p>
+<p>This topic records those three mechanisms as research objectives, states what each would have to prove, and harvests from <a href="../index-lean/index.md"><code>index-lean</code></a> the existing proofs that are useful for each. It does not assume any of them is reachable.</p>
+
+<h3>Objective 1 — a manifest sum of squares for the prime side</h3>
+<blockquote>An identity that writes the prime side as a manifest sum of squares, i.e. an extension of the rank-one factorization off the critical line — which is exactly RH.</blockquote>
+<p><strong>What exists.</strong> On the critical line the factorization is complete: <code>gaussianZeroTest_eq_mode_mul</code> gives <code>H<sub>a−b</sub>(1/2+it) = φ<sub>a</sub>(t) conj φ<sub>b</sub>(t)</code>, and <code>zeroSideGramReal_term</code> turns the Gram entry into cosine and sine mode products. <code>onLineQuad_eq_sum_sq</code> writes the quadratic form as an explicit sum of squares; <code>onLineQuad_nonneg</code> is its corollary.</p>
+<p><strong>What is missing.</strong> Off the critical line there is no factorization with a nonnegative weight: <code>offLineBlock_not_psd</code> exhibits a separation whose isolated block is indefinite, and <code>offLine_growth</code> shows the term is unbounded. On the arithmetic side, <code>vonMangoldt_nonneg</code> proves every coefficient of the prime sum is nonnegative, and <code>prime_side</code> verifies the prime contribution is a sum of nonnegative terms. That is not enough: the archimedean density <code>Ω(t) = Re ψ(1/4+it/2) − log π</code> is signed (negative at <code>t = 0</code>) and the assembled entry takes both signs. A manifest sum of squares would have to come from the whole prime/archimedean assembly.</p>
+<p><strong>Why it is hard.</strong> An off-line zero would need a rank-one representation with a positive weight, but the off-line contribution grows like <code>e<sup>|c||δ|</sup></code>. Any such representation is false as soon as one off-line zero exists.</p>
+
+<h3>Objective 2 — a positivity-preserving deformation</h3>
+<blockquote>A positivity-preserving deformation/continuation argument on the Weil form — an entirely new analytic mechanism.</blockquote>
+<p><strong>What exists.</strong> <code>posSemidef_convexCombination</code> proves the PSD cone is convex, <code>posSemidef_add_smul</code> proves closure under nonnegative one-parameter deformations, and <code>differentiable_paleyWiener</code>, <code>hasDerivAt_paleyWiener</code> and <code>contour_shift_paleyWiener</code> supply the differentiability and contour-shift machinery. <code>paleyWiener_one_sub</code> and <code>paleyWiener_conj</code> give the reflection symmetries.</p>
+<p><strong>What is missing.</strong> Convexity is not a deformation argument: it says that if both ends are PSD the path is PSD. What is needed is a path from a manifestly positive object to the Weil form that stays PSD and is analytically controlled at every step. No such path is known; the contour shift moves the test function but does not preserve a sign.</p>
+
+<h3>Objective 3 — a weaker, satisfiable statement</h3>
+<blockquote>A genuinely weaker, satisfiable statement that implies positivity and is independently provable.</blockquote>
+<p><strong>What exists.</strong> <code>strict_margin_transfer</code> (harvested <code>posDef_of_entry_bound</code>) proves strict positivity with an entrywise margin is stable: <code>C − t·I</code> positive definite, <code>|G − C| ≤ ε</code> entrywise and <code>ε·n &lt; t</code> imply <code>G.PosDef</code>. <code>centre_sub_margin_posDef</code> and <code>centre_certificate_satisfiable</code> instantiate this at the rational 4×4 Gaussian centre. <code>gramQuad_eq_norm_sq</code> and <code>gramMatrix_posSemidef</code> give the finite sum-of-squares shadow.</p>
+<p><strong>What is missing.</strong> The margin scales as <code>t/n</code> and decays with dimension. For the infinite Weil form there is no <code>n</code> and no uniform entrywise margin; no weaker statement implying infinite positivity is known.</p>
+</section>
+
+<section>
+<h2>Tractability scouting</h2>
+<p>The three objectives are not weaker than RH in the way that matters. If any is completed for the full cone of Gaussian test families, it yields Weil positivity, and Weil positivity yields RH by the classical Weil criterion (the <code>⇒</code> direction is the nontrivial half; in this repo the full-block domination <code>FullBlockWithin</code> is the step that is not yet formalised, and the hub's isolated-block version is vacuous). So the question is not <em>whether</em> each would prove RH — <strong>all three would</strong> — but how much slack each offers, and what a first real step looks like.</p>
+<table>
+<tr><th>Objective</th><th>Would it prove RH?</th><th>Logical strength</th><th>Slack</th><th>Tractability (1–5)</th><th>First concrete step</th><th>Main obstruction</th></tr>
+<tr><td>O1</td><td>yes</td><td><strong>equivalent to RH</strong></td><td>none</td><td>1</td><td>an explicit positive-definite symbol, or diagonalisation, of the prime kernel</td><td>the prime kernel is indefinite (C7); the on-line factorization has no off-line analogue</td></tr>
+<tr><td>O2</td><td>yes, if the deformation preserves positivity on the full cone</td><td>equivalent in content; a proof strategy</td><td>none (linear/σ)</td><td>1</td><td>— (no surviving candidate)</td><td>positivity of the path is exactly the hard part; the σ-flow is not monotone (T13–T16, C10)</td></tr>
+<tr><td>O3</td><td>yes, by construction</td><td>sufficient condition; weaker only in hypothesis strength</td><td>narrow: finite route unsupported</td><td>2</td><td>a precise subcone with provable positivity plus a uniform continuity bound</td><td>any provable sufficient condition is RH-strength unless it uses new structure; the uniform gap fails (C11)</td></tr>
+</table>
+<p>The rating is a ranking of available slack, not a probability. The three scouting notes below say what would count as success, what would raise the estimate, and the cheapest test that would kill the route.</p>
+
+<h3>Scouting O1 — a manifest sum of squares</h3>
+<p><strong>What success looks like.</strong> An explicit identity <code>P(c) = Σ<sub>r</sub> ψ<sub>r</sub>(c) conj ψ<sub>r</sub>(c)</code> (or a positive-definite symbol) for the prime-side kernel <code>P(c) = Σ<sub>n</sub> Λ(n) n<sup>−1/2</sup> h<sub>c</sub>(log n)</code>, valid for every separation <code>c</code>, together with the archimedean and pole terms. The on-line identity <code>onLineQuad_eq_sum_sq</code> is the prototype.</p>
+<p><strong>What is already known.</strong> The factorization is complete on the critical line and fails off it (T3, T5). It is tempting to read <code>vonMangoldt_nonneg</code> as “the prime side is manifestly nonnegative”, but that is a statement about the <em>scalar</em> entry, not the quadratic form. C7 is the correction: every scalar term of the prime kernel is nonnegative, and the symmetrised kernel still has negative eigenvalues for the standard four-centre family at <code>σ = 0.05, 0.1, 0.2</code>. The sign of the kernel is therefore not termwise, and a sum-of-squares identity has to mix primes (and probably the functional equation) rather than group them term by term.</p>
+<p><strong>What would raise the estimate.</strong> A theta-type identity pairing <code>n</code> with <code>1/n</code> and turning the von Mangoldt sum into a square; a positivity-preserving transform that diagonalises the prime kernel; or an arithmetic identity that identifies the prime kernel with the zero-side kernel before positivity is imposed.</p>
+<p><strong>Cheapest falsification.</strong> Extend C7 to the assembled prime + archimedean + pole kernel and test PSD on larger families. Under RH the assembled kernel must be PSD, so a numerical failure would indicate a sign or normalisation error, not a disproof; the useful signal is the <em>size</em> of the negative eigenvalue relative to the archimedean term.</p>
+<p><strong>Estimate: 1/5.</strong> O1 is the goal restated, not an independent route. It is worth pursuing only if a concrete factorization candidate appears.</p>
+
+<h3>Scouting O2 — a positivity-preserving deformation</h3>
+<p><strong>What success looks like.</strong> A family <code>W<sub>t</sub></code> of quadratic forms with <code>W<sub>0</sub></code> a manifest sum of squares (or a finite certificate) and <code>W<sub>1</sub></code> the Weil form, plus a theorem that <code>t ↦ λ<sub>min</sub>(W<sub>t</sub>)</code> does not cross zero.</p>
+<p><strong>What is already known.</strong> The PSD cone is convex (T6) and closed under nonnegative one-parameter deformations (T7), and the Paley–Wiener machinery is differentiable and admits the contour shift. But convexity says only: <em>if</em> both endpoints are PSD, the path is PSD. Eigenvalue continuity plus a sign at both ends does not prevent two crossings; one needs monotonicity, a maximum principle, or an interlacing argument.</p>
+<p><strong>What would raise the estimate.</strong> An explicit flow whose semigroup is positivity-preserving (Ornstein–Uhlenbeck, Mehler, or a completely positive semigroup) and whose generator is the Weil form; a monotonicity formula for <code>λ<sub>min</sub></code> under <code>σ</code> or <code>c</code>; or a Weyl-type inequality comparing the Weil form to a known operator.</p>
+<p><strong>Cheapest falsification.</strong> Interpolate numerically between the 4×4 certificate and a nearby kernel and track <code>λ<sub>min</sub></code>; if it crosses zero on the natural path, that deformation is dead. The test is cheap and discriminating.</p>
+<p><strong>Estimate: 1/5 after the second round.</strong> The first round closes the linear and interpolation versions as equivalent to positivity, and the second round kills the Gaussian-width flow. No surviving candidate remains.</p>
+
+<h3>Scouting O3 — a weaker, satisfiable statement</h3>
+<p><strong>What success looks like.</strong> A statement <code>S</code> such that (i) <code>S</code> is provable without assuming RH and (ii) <code>S</code> implies positivity on the full cone.</p>
+<p><strong>The logical trap.</strong> (i) and (ii) together are a proof of RH. So <code>S</code> cannot be “weaker” in the sense of “less than RH”; it can only be weaker in <em>hypothesis strength</em> while still sufficient — a sufficient condition whose proof uses structure that the full positivity statement does not expose. The finite certificate is the cautionary case: <code>centre_certificate_satisfiable</code> is independently provable and the margin statement is stable, but it is not sufficient for the infinite form, and its margin <code>t/n</code> decays with dimension (C5). A “satisfiable” <code>S</code> that is not also sufficient is worth nothing here.</p>
+<p><strong>Two plausible shapes.</strong> (a) A dense subcone <code>C</code> of the admissible cone with positivity on <code>C</code>, plus a uniform bound that lets positivity pass to the closure. (b) Approximate positivity with an explicitly dominated error, where the archimedean and pole terms absorb the residual. Both need uniform control of the Weil form, which is the hard analysis.</p>
+<p><strong>What would raise the estimate.</strong> A precise definition of the subcone and a proof that the Weil form is continuous in a topology where the subcone is dense; or a negative theorem showing that no checkable sufficient condition of a given class exists, which would redirect effort.</p>
+<p><strong>Cheapest falsification.</strong> Push the finite certificate to <code>n = 5, 6, ...</code> and measure the margin decay; if the margin collapses faster than <code>1/n</code>, the finite route is dead without a new idea.</p>
+<p><strong>Estimate: 2/5.</strong> The most promising <em>logical</em> shape, because it permits slack; the danger is that the slack is illusory and the sufficient condition is RH again. The first round below does not support the finite uniform-gap shape, so the <code>2/5</code> now refers only to the dense-subcone/continuity shape.</p>
+
+<h3>Bottom line</h3>
+<ul>
+<li><strong>All three objectives would prove RH if completed.</strong> O1 is equivalent to RH; O2 and O3 are sufficient conditions that would prove it.</li>
+<li>None can yield more than RH: each is a sufficient condition for a statement equivalent to RH, so a completed objective is a proof of RH and nothing stronger.</li>
+<li>O1 has no slack and is not a stepping stone; O2 is the only place a new analytic mechanism can enter; O3 is a search for a genuine sufficient condition, and its first task is to define the subcone precisely.</li>
+<li>A completed objective is a proof of RH, not evidence for it. Nothing in this folder changes that.</li>
+</ul>
+</section>
+
+<section>
+<h2>O2 first round — no-crossing, or no free lunch?</h2>
+<p>The scouting note proposed three mechanisms: monotonicity, a maximum principle, or interlacing. The first round tests the first two on the finite model and records what survives.</p>
+
+<p><strong>T11 — positivity-preserving maps need not be eigenvalue-monotone.</strong> <code>posSemidef_sandwich</code> proves that the congruence <code>A ↦ S A Sᵀ</code> preserves positive semidefiniteness for every real <code>S</code>. C8 shows that it can <em>lower</em> the least eigenvalue: for <code>A = [[2,1],[1,2]]</code> and <code>S = diag(1, 1/2)</code>, the least eigenvalue drops from <code>1</code> to about <code>0.349</code>, and for <code>S = diag(1,0)</code> it drops to <code>0</code>. So a maximum principle that knows only “positivity is preserved” does not give a monotonicity theorem for <code>λ_min</code>.</p>
+
+<p><strong>T12 — the linear path has no slack.</strong> <code>linear_path_posSemidef_iff</code> proves the exact characterisation</p>
+<p><code>(∀ t ≥ 0, (A + t • B).PosSemidef) ↔ A.PosSemidef ∧ B.PosSemidef</code>.</p>
+<p>So a linear interpolation from a known-PSD block to the Weil block is PSD for all <code>t ≥ 0</code> exactly when the velocity block is already PSD. If the Weil endpoint is indefinite, the path crosses zero. C9 is the two-dimensional instance: with <code>A = I</code> and <code>B = [[0,1],[1,0]]</code>, <code>λ_min = 1 − t</code> crosses at <code>t = 1</code>; with <code>B = I</code>, <code>λ_min = 1 + t</code> never crosses.</p>
+
+<p><strong>The continuity obstruction.</strong> More generally, if <code>A</code> is PSD and <code>B</code> is not, then <em>every</em> continuous path from <code>A</code> to <code>B</code> crosses <code>λ_min = 0</code>, because <code>λ_min</code> is continuous and changes sign. A no-crossing theorem for a path from a known-PSD object to the Weil form is therefore equivalent to the Weil form being PSD. It cannot be a weaker statement: the “no-crossing” formulation has the same content as positivity.</p>
+
+<p><strong>The canonical flow is blocked.</strong> The de Bruijn–Newman heat flow is the standard nonlinear deformation of the Riemann Ξ-function: <code>H<sub>t</sub>(z) = ∫<sub>0</sub><sup>∞</sup> e<sup>t u²</sup> Φ(u) cos(zu) du</code> has only real zeros for <code>t ≥ Λ</code>, and RH is equivalent to <code>Λ ≤ 0</code>. Rodgers and Tao proved <code>Λ ≥ 0</code> (<em>The de Bruijn–Newman constant is non-negative</em>, Forum Math. Pi 8 (2020)), so the cooling direction <code>t &lt; 0</code> has non-real zeros. The heat flow therefore cannot be used to propagate positivity backwards to <code>t = 0</code>; the most natural maximum-principle candidate is known to fail in exactly the direction that would help. (This is a statement about the Ξ-flow, not about the Gaussian Weil form directly, but it is the canonical instance of the mechanism.)</p>
+
+<p><strong>What survives.</strong> A nonlinear flow <code>W<sub>t</sub></code> with all three of: a genuine monotonicity theorem for <code>λ<sub>min</sub></code> (not merely positivity preservation), a manifestly PSD limit, and a link from the limit back to the Weil form. None of the three is available, and the first round does not supply one. What it does supply is a clean closure of the naive readings.</p>
+
+<p><strong>The logical reading.</strong> T12 and the continuity obstruction show that O2 is not a weaker statement than positivity: it is a different <em>proof strategy</em> for the same statement. The PSD cone is closed, so a limit of PSD forms is PSD; a continuous path, a discrete sequence, or a monotone flow all prove the same endpoint. The same is true of O1, which is an algebraic proof strategy for the same statement. Only O3 is formulated as a genuinely weaker <em>statement</em>. So the scouting table's “would it prove RH?” is not the interesting question for O1 and O2: both would, because both are the same theorem approached from a different angle. O2's value is methodological — a new mechanism — not logical — a smaller target.</p>
+
+<p><strong>Revised reading of the rating.</strong> The <code>2/5</code> in the scouting table now refers only to the surviving nonlinear-flow version. The interpolation and linear versions are <code>1/5</code>: T12 shows they are equivalent to positivity, and the continuity obstruction shows that no continuous path can do better.</p>
+</section>
+
+<section>
+<h2>O2 second round — the width flow is not monotone</h2>
+<p>The surviving O2 candidate was a monotone flow in the Gaussian width σ. This round kills it.</p>
+
+<p><strong>T13–T16 — the on-line weight is not monotone.</strong> The on-line kernel weight is <code>gaussianWeight σ γ = 2πσ² exp(−σ²γ²)</code>, with derivative <code>4πσ exp(−σ²γ²)(1 − σ²γ²)</code> (<code>hasDerivAt_gaussianWeight</code>). The derivative is positive at <code>σ = 1/(2γ)</code> and negative at <code>σ = 2/γ</code> (<code>gaussianWeight_deriv_pos</code>, <code>gaussianWeight_deriv_neg</code>), so the weight is neither monotone nor antitone in σ (<code>gaussianWeight_not_monotone</code>). The σ-flow therefore fails on the on-line part, before any arithmetic enters.</p>
+
+<p><strong>C10 — the full Gram is not monotone either.</strong> For the 4×4 arithmetic Gram on the centres <code>−0.3, −0.1, 0.1, 0.3</code>, the derivative of <code>λ_min</code> along the minimising eigenvector is <code>+0.196</code> at <code>σ = 0.02</code> and <code>−0.258</code> at <code>σ = 0.03</code>. The sign change confirms the failure for the assembled 4×4 form, not just the on-line weight.</p>
+
+<p><strong>Verdict.</strong> O2 is parked at <strong>1/5</strong>. The linear version is equivalent to positivity (T12 and the continuity obstruction); the σ-flow is not monotone (T13–T16, C10); the canonical heat flow is blocked by Rodgers–Tao. The only surviving version is a nonlinear flow with a genuine <code>λ_min</code> monotonicity theorem, and there is no candidate.</p>
+</section>
+
+<section>
+<h2>O3 first round — the uniform gap collapses</h2>
+<p>The scouting proposed two shapes for a weaker statement. The first — uniform positivity on a fixed interval — is directly testable.</p>
+
+<p><strong>C11 — the finite gap is not uniform.</strong> Take <code>n</code> equally spaced centres in <code>[−0.3, 0.3]</code>, form the Toeplitz arithmetic Gram <code>K(|i−j|h)</code>, and compute <code>λ_min</code> for <code>n = 4, 8, 16, 32, 64</code> at <code>σ = 0.05</code>:</p>
+<table>
+<tr><th><code>n</code></th><td>4</td><td>8</td><td>16</td><td>32</td><td>64</td></tr>
+<tr><th><code>λ_min</code></th><td><code>2.27e−2</code></td><td><code>2.74e−5</code></td><td><code>2.38e−6</code></td><td><code>~0</code></td><td><code>~0</code></td></tr>
+</table>
+<p>The diagonal <code>K(0) = 4.31e−2</code> is the same for every <code>n</code>, so the collapse is not a scaling artefact of the entries: the discrete spectral gap decays. If the continuous kernel had a positive gap, the Toeplitz eigenvalues would grow like <code>1/h</code> as <code>h → 0</code>, not vanish. The observation is consistent with a continuous kernel that is positive semidefinite but not positive definite on the interval, or with a gap below the numerical resolution; higher precision is needed to distinguish the two.</p>
+
+<p><strong>Verdict.</strong> The uniform-gap shape of O3 is not supported at the tested resolution. The only surviving shape is the dense-subcone/continuity one, which needs a uniform bound on the Weil form — the missing <code>FullBlockWithin</code>/<code>TailEntryBound</code> estimate again. O3 stays at <strong>2/5</strong>, but with less room than before.</p>
+</section>
+
+<section>
+<h2>Where the programme stands</h2>
+<table>
+<tr><th>Objective</th><th>Rating</th><th>State</th></tr>
+<tr><td>O1</td><td>1/5</td><td>RH restated; no slack</td></tr>
+<tr><td>O2</td><td>1/5</td><td>linear and σ versions closed; heat flow blocked; no surviving candidate</td></tr>
+<tr><td>O3</td><td>2/5</td><td>finite uniform-gap route unsupported; only dense-subcone/continuity remains</td></tr>
+</table>
+<p>None of the three has a next step that is both cheap and promising. The common obstruction behind O3 and the original hub is the same object: a uniform entrywise/tail bound (<code>FullBlockWithin</code>, <code>TailEntryBound</code>). The APM was investigated as a candidate for retiring that bound; it does not (see below). The <code>FullBlockWithin</code> route has in turn a maximal-<code>|δ|</code> precondition that is not known (see below), so the next investment should be the arithmetic-side estimate, not the zero-side domination. The first arithmetic-side round (see below) shows that the smooth PNT main term exactly cancels the growing half of the pole term; what remains is the narrow-window PNT error plus the archimedean term.</p>
+</section>
+
+<section>
+<h2>Does the angular partition method retire the tail bound?</h2>
+<p>The <a href="../angular-partition-method/README.md">angular partition method</a> (APM) is the natural candidate for making the <code>FullBlockWithin</code>/<code>TailEntryBound</code> obstruction obsolete: its angular/radial axis is advertised as an exact measure identity with no truncation. The investigation below reads the APM's own claims and applies them to the specific tail in this dossier.</p>
+
+<p><strong>What the APM claims.</strong> For a summable nonnegative series, the annular representation gives <code>Σ<sub>n</sub> a<sub>n</sub> = μ(X) = R<sub>0</sub>²</code> with squared tail radii <code>R<sub>n</sub>² = Σ<sub>k≥n</sub> a<sub>k</sub></code>; the finite sums are chords of the tail coil. In the summary table of APM §6 the angular/radial axis is described as “exact algebraic/measure identity; no tail”, against the depth axis's “needs a closed tail or a bound”.</p>
+
+<p><strong>What it does not claim.</strong> The same table says the angular limit is “closed forms only in special cases”. APM §7.4 is explicit: “A representation is not automatically an evaluation… The method does not manufacture closed forms.” For <code>ζ(s)</code> in the convergence domain, the coil is exact “although evaluating <code>Z<sub>0</sub></code> is still the original problem” (APM §2.3). For the discrete zeta sum, APM §5.7 is decisive: the even-Bernoulli sampling defect survives, “Nothing in the angular construction removes it”, and “Parity does not remove the tail.” The APM's exactness audit classifies the explicit-formula zero sum and Weil positivity (row A15) as <strong>O open</strong>, and APM §7.10 lists <code>ZeroTailSummable</code> and <code>FullBlockWithin</code> among the remaining named analytic inputs.</p>
+
+<p><strong>Why the zero-side tail is not covered.</strong> The annular representation is for a nonnegative series, or for an absolutely summable complex series via the vector-area/signed-measure version (APM §7.3). The zero-side Gram entry is real but <em>signed</em>: the on-line weights <code>2πσ² exp(−σ²γ²)</code> are positive, but the cosine factors change sign, and the off-line quadruple contribution is signed as well. C12 makes the point concretely: the total on-line weight is positive (<code>0.0196</code> for the first four ordinates at σ = 0.05) while the Gram entry at separation <code>c = 2</code> is negative (<code>−0.0088</code>). The nonnegative annular area represents the total weight, not the signed entry; applying the APM to the entry requires a signed measure, and the sign is exactly the positivity question. Moreover, finiteness of the annular area is the summability input <code>ZeroTailSummable</code>, not a consequence of the representation: the identity <code>R<sub>0</sub>² &lt; ∞</code> restates the input.</p>
+
+<p><strong>What the APM does contribute.</strong> The regularised Mellin kernel and the finite-part continuation (APM §5.6, <code>mellinConvergent_regularizedKernel</code>, and the two-strips-beyond continuation <code>regularizedKernel₂</code>) are genuine tail-subtraction results on the <em>analytic</em> side: they make the vertical Mellin integral convergent by subtracting exactly the pole terms. That can reduce the <code>VerticalLogDerivIntegrable</code>/contour-shift inputs of the explicit formula. It does not touch the zero-set tail: <code>FullBlockWithin</code> is a bound on the contribution of <em>other zeros</em> to a Gram entry, not a vertical Mellin integral.</p>
+
+<p><strong>Verdict.</strong> The APM restates a tail as a radius or a measure, and it does so exactly; that is a change of bookkeeping, not an elimination. It gives a closed form only when the tail radius has one (geometric, p-series in the convergence domain, the continuous integral <code>1/(σ−1)</code>). For the discrete zeta sum and the zero-side Gram entry, it explicitly does not: the even-Bernoulli tail survives and the zero sum is open in the APM's own audit. It therefore does <strong>not</strong> make the missing-bridge tail bound obsolete. The most it can do for <code>ZeroTailSummable</code> is restate it as <code>R<sub>0</sub>² &lt; ∞</code>, which is the same input; for <code>FullBlockWithin</code> it offers nothing new. Its regularised continuation may help the analytic assembly, not the zero-side obstruction.</p>
+</section>
+
+<section>
+<h2>The maximal-distance precondition of the full-block route</h2>
+<p>The full-block obstruction needs a bound <code>B</code> on the “other” zeros for a fixed off-line quadruple <code>Q</code>. This section records a structural precondition that the programme has not checked.</p>
+
+<p><strong>The growth rate.</strong> The closed form <code>offLineQuad_re_exp</code> is <code>S(c) = 2A(e<sup>cδ</sup>cos(cγ+θ) + e<sup>−cδ</sup>cos(cγ−θ))</code>, so a quadruple with distance <code>|δ|</code> from the critical line grows like <code>e<sup>c|δ|</sup></code>. The growing term comes from the reflected zero <code>1−ρ</code>, which is present for every off-line zero.</p>
+
+<p><strong>T17 — an off-line quadruple in the “other” block defeats every uniform bound.</strong> <code>no_uniform_bound_of_offLine_quadruple</code> proves that for <code>δ ≠ 0</code> there is no <code>B</code> with <code>|S(c)| ≤ B</code> for all <code>c</code>: for every <code>B</code> some separation has <code>|S(c)| &gt; B</code>. So a fixed <code>B</code> cannot bound the other zeros for all separations.</p>
+
+<p><strong>The precondition.</strong> If <code>B</code> is allowed to depend on <code>c</code>, the domination inequality still requires the chosen <code>Q</code> to have strictly larger <code>|δ|</code> than every other zero. Otherwise a larger-<code>|δ|</code> quadruple grows faster and eventually dominates <code>Q</code>. C13 makes this concrete at σ = 0.05: the maximum of <code>|S(c)|</code> over <code>c ∈ [0,40]</code> is <code>1.04</code> for <code>|δ| = 0.1</code> and <code>30.4</code> for <code>|δ| = 0.2</code>, and the larger one exceeds any fixed bound as <code>c</code> grows.</p>
+
+<p><strong>Is the precondition known?</strong> No. The known zero-free line <code>Re s = 1</code> gives <code>|δ| &lt; 1/2</code>, but nothing in the programme (or in the standard zero-free region) gives a zero whose <code>|δ|</code> is strictly maximal. If the off-line zeros have <code>|δ|</code> values with no strict maximum, the clean domination argument cannot be completed. The escape — choosing <code>c</code> so that the larger-<code>|δ|</code> contributions cancel by phase — is an almost-periodic/Diophantine problem, and a uniform bound would need control of the zero set far beyond what the programme has.</p>
+
+<p><strong>The fork.</strong></p>
+<ol>
+<li><strong>Prove a strict maximal-<code>|δ|</code> zero.</strong> This is a strong structural statement about ζ, not known; it is not implied by the zero-free line, and if RH fails it is plausible that the off-line zeros accumulate without a strict maximiser.</li>
+<li><strong>Develop a phase-selection argument.</strong> Choose <code>c</code> so that the larger-<code>|δ|</code> contributions cancel. This is hard and no such argument is in the programme.</li>
+<li><strong>Return to the arithmetic side.</strong> The explicit formula turns the full zero-side entry into pole + prime + archimedean terms; the obstruction then becomes a prime-sum estimate in a Gaussian window, which is the classical route. It does not need a maximal off-line zero.</li>
+</ol>
+<p>The first is not affordable with the current programme, the second has no candidate, and the third is the only route that does not rest on an unproved structural assumption. The next investment should be the arithmetic-side estimate, not <code>FullBlockWithin</code>.</p>
+</section>
+
+<section>
+<h2>The arithmetic side — first round</h2>
+<p>The classical route (Weil's criterion) evaluates the Weil form on the arithmetic side: the explicit formula writes the zero-side entry as pole + prime + archimedean. This round checks the prime-sum structure that the estimate has to control.</p>
+
+<p><strong>The prime sum and its main term.</strong> For the Gaussian test, the prime contribution is</p>
+<p><code>P(c,σ) = Σ<sub>n</sub> Λ(n) n<sup>−1/2</sup> h<sub>c</sub>(log n)</code>, <code>h<sub>c</sub>(u) = √π σ exp(−(u−c)²/(4σ²))</code>.</p>
+<p>A smooth-weight PNT (<code>dψ(x) ≈ dx</code>) gives the main term</p>
+<p><code>P<sub>main</sub>(c,σ) = ∫ e<sup>u/2</sup> h<sub>c</sub>(u) du = 2πσ² exp(σ²/4) exp(c/2)</code>.</p>
+<p>This is exactly the growing half of the pole term <code>H<sub>c</sub>(0) + H<sub>c</sub>(1) = 4πσ² exp(σ²/4) cosh(c/2)</code>:</p>
+<p><code>pole(c) − P<sub>main</sub>(c,σ) = 2πσ² exp(σ²/4) exp(−c/2)</code>.</p>
+<p>So the exponential growth of the pole is matched by the prime main term; the residual is the PNT error plus the <code>e<sup>−c/2</sup></code> half-pole and the archimedean term.</p>
+
+<p><strong>C14.</strong> For <code>σ = 0.2</code>, <code>P/P<sub>main</sub></code> at <code>c = 10</code> is <code>1.000004</code>; for <code>σ = 0.05</code> it is <code>1.013</code>. The narrow-window regime is much less accurate: the Gaussian window in <code>n</code> has width <code>e<sup>8σ</sup></code>, so small <code>σ</code> is exactly where the smooth-weight PNT error is significant. This is the same <code>σ = 0.05</code> regime as the O4 certificate.</p>
+
+<p><strong>The exact Gram-entry identity.</strong> The main term identity is even stronger than a leading-order statement: for every <code>c</code>,</p>
+<p><code>pole(c) = P<sub>main</sub>(c) + P<sub>main</sub>(−c)</code>,</p>
+<p>because <code>P<sub>main</sub>(±c) = 2πσ² exp(σ²/4) exp(±c/2)</code> and <code>4πσ² exp(σ²/4) cosh(c/2)</code> is their sum. Hence the symmetrised arithmetic Gram entry is</p>
+<p><code>K(c) = [P<sub>main</sub>(c) − P(c)] + [P<sub>main</sub>(−c) − P(−c)] + arch(c)</code>.</p>
+<p>The pole term cancels <strong>exactly</strong>, and the entry is the sum of the two Gaussian-window PNT errors plus the archimedean term. C15 checks this to <code>1e−12</code>. This is the precise form of “the arithmetic side is a prime-sum estimate”: the object to bound is the PNT error in the two windows <code>±c</code>, plus <code>arch(c)</code>.</p>
+
+<p><strong>The cancellation (C16).</strong> The two pieces are individually indefinite. At <code>σ = 0.05</code> on the four-centre family, the PNT-error Gram has <code>λ<sub>min</sub> ≈ −0.0097</code> and the archimedean Gram has <code>λ<sub>min</sub> ≈ −0.0946</code>, while their sum has <code>λ<sub>min</sub> ≈ +0.0227</code>. So the arithmetic-side positivity is a <strong>cancellation</strong> between the prime-window error and the archimedean term, not a termwise positivity. The estimate must control the joint sum, not the PNT error alone.</p>
+
+<p><strong>What the estimate must deliver.</strong> A uniform smooth-weight PNT with an explicit error term for the Gaussian window, plus a bound on the archimedean term, such that the residual is controlled. This is the “prime-sum estimate” of the classical route. It does not by itself prove positivity: the prime sum is a signed quadratic form in the test function (the autocorrelation <code>g * g̃</code> changes sign), and the archimedean term is signed. The residual's sign is Weil positivity.</p>
+
+<p><strong>Verdict.</strong> The arithmetic side is a genuine route, and the main-term cancellation is exact. The hard part is the narrow-window PNT error at small <code>σ</code>. The next concrete step is to state the full Weil criterion in the full Gram-matrix form and to write the residual as a PNT error plus the archimedean term, then test its sign on a family at <code>σ = 0.05</code>.</p>
+</section>
+
+<section>
+<h2>Full Weil positivity — the finite statement</h2>
+<p>The hub's <code>WeilPositivity</code> is the on-line kernel identity; the object of the classical criterion is the <strong>full zero-side Gram matrix</strong> over all zeros. The finite version is now formalised.</p>
+
+<p><strong>The definition.</strong> <code>FiniteWeilPositivity</code> says: for every finite set <code>S</code> of nontrivial zeros, every finite family of centres <code>a</code>, and every width <code>σ</code>, the real part of the Gram matrix</p>
+<p><code>G<sub>ij</sub> = Σ<sub>ρ ∈ S</sub> H<sub>a<sub>i</sub> − a<sub>j</sub></sub>(ρ)</code></p>
+<p>is positive semidefinite.</p>
+
+<p><strong>T18–T39.</strong></p>
+<ul>
+<li><code>realRankOne_posSemidef</code> — a real rank-one matrix <code>u uᵀ</code> is PSD.</li>
+<li><code>finiteWeilGramReal_posSemidef_of_onLine</code> — if every <code>ρ ∈ S</code> has <code>Re ρ = 1/2</code>, the finite Gram matrix is PSD. Each on-line zero contributes <code>Re(v<sub>i</sub> conj v<sub>j</sub>) = Re v<sub>i</sub> Re v<sub>j</sub> + Im v<sub>i</sub> Im v<sub>j</sub></code>, a sum of two real rank-one matrices.</li>
+<li><code>rh_implies_finiteWeilPositivity</code> — RH implies <code>FiniteWeilPositivity</code>.</li>
+</ul>
+<p>This is the <strong>easy direction of Weil's criterion</strong>, and it is non-vacuous: the hypothesis is satisfiable (RH is the intended case), unlike the hub's <code>OffLineBlockPSD</code> antecedent, which is refuted by <code>not_offLineBlockPSD_of_offLine</code>.</p>
+
+<p><strong>The hard direction.</strong> <code>FiniteWeilPositivity → RH</code> for the finite Gaussian zero-side Gram matrix is now Lean-proved (T57); the infinite/cone version remains outside the formalisation. What remains open is <code>FiniteWeilPositivity</code> itself (the arithmetic side). The maximal-<code>|δ|</code> analysis shows that the zero-side domination route to it has an unproven precondition; the classical route uses the arithmetic side and the explicit formula, as recommended above.</p>
+
+<p><strong>What this fixes.</strong> The hub's <code>no_offLine_of_all_blocks_psd</code> was vacuous; <code>rh_implies_finiteWeilPositivity</code> is the correct formal counterpart of the easy direction. The dossier now has both directions named, with the easy one proved and the hard one open.</p>
+</section>
+
+<section>
+<h2>Exhaustion verdict</h2>
+<p>At this point every non-RH-strength route in the dossier has been either proved, reduced, or closed as unsupported.</p>
+
+<p><strong>Closed or reduced.</strong></p>
+<ul>
+<li><strong>O1</strong> (manifest sum of squares for the prime side): RH restated, no slack; the prime kernel is indefinite (C7).</li>
+<li><strong>O2</strong> (positivity-preserving deformation): linear and interpolation versions are equivalent to positivity (T12); the σ-flow is not monotone (T13–T16, C10); the heat flow is blocked by Rodgers–Tao.</li>
+<li><strong>O3</strong> (weaker satisfiable statement): the finite uniform-gap route is unsupported (C11); only the dense-subcone/continuity shape remains, which needs a uniform bound.</li>
+<li><strong>Zero-side domination</strong> (<code>FullBlockWithin</code>): requires a strict maximal-<code>|δ|</code> zero (T17); no such zero is known.</li>
+<li><strong>APM</strong>: restates tails as radii; does not retire the tail bound; the zero sum is open in its own audit.</li>
+<li><strong>Arithmetic side</strong>: the pole cancels exactly against the two Gaussian-window prime main terms (C15); the PNT error and the archimedean term are individually indefinite and their sum is positive (C16). The cancellation persists under refinement, but the gap collapses (C17), matching C11.</li>
+<li><strong>Full Weil positivity, easy direction</strong>: RH ⇒ <code>FiniteWeilPositivity</code> is Lean-proved (T20).</li>
+</ul>
+
+<p><strong>What remains is RH-strength.</strong></p>
+<ol>
+<li><strong>O4 — the hard direction of Weil's criterion.</strong> <code>FiniteWeilPositivity → RH</code> is proved for the finite Gaussian zero-side Gram matrix (T57); the infinite/cone version remains outside this formalisation, and <code>FiniteWeilPositivity</code> itself is the remaining open input.</li>
+<li><strong>A uniform arithmetic estimate.</strong> A bound on the joint PNT-error + archimedean sum that does not collapse as the family grows. C17 shows the finite-family gap collapsing, so this is a genuine analytic input, not a bookkeeping gap.</li>
+<li><strong>A strict maximal-<code>|δ|</code> zero</strong> (or a phase-selection argument replacing it), if the zero-side route is to be revived.</li>
+</ol>
+
+<p><strong>Verdict.</strong> The hard direction of the classical Weil criterion is proved for the finite Gaussian zero-side Gram matrix (T57), closing O4 in that scope. The dossier remains a map of the wall, not a proof of RH: <code>FiniteWeilPositivity</code> (equivalently RH) on the arithmetic side is the remaining open problem.</p>
+</section>
+
+<section>
+<h2>Objects and notation</h2>
+<table>
+<tr><th>Object</th><th>Definition</th></tr>
+<tr><td><code>H<sub>c</sub></code></td><td>the Gaussian zero-side test <code>H<sub>c</sub>(s) = 2πσ² exp(σ²(s−1/2)²) exp(−c(s−1/2))</code></td></tr>
+<tr><td><code>φ<sub>a</sub></code></td><td>the critical-line mode <code>φ<sub>a</sub>(t) = σ√(2π) exp(−σ²t²/2) exp(−iat)</code></td></tr>
+<tr><td><code>onLineQuad</code></td><td><code>Σ<sub>ij</sub> c<sub>i</sub> c<sub>j</sub> · 2πσ² exp(−σ²γ²) cos((a<sub>i</sub> − a<sub>j</sub>)γ)</code></td></tr>
+<tr><td><code>offLineQuad</code></td><td>the symmetrised contribution of <code>{ρ, 1−ρ, ρ̄, 1−ρ̄}</code>, <code>ρ = 1/2+δ+iγ</code></td></tr>
+<tr><td><code>Ω(t)</code></td><td>the archimedean density <code>Re ψ(1/4+it/2) − log π</code></td></tr>
+<tr><td><code>Λ(n)</code></td><td>the von Mangoldt function, <code>log p</code> on prime powers and <code>0</code> otherwise</td></tr>
+<tr><td><code>gramMargin</code>, <code>gramCentre4</code></td><td>the rational O4 margin <code>227/10000</code> and 4×4 centre</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Ledger</h2>
+<table>
+<tr><th>ID</th><th>Kind</th><th>Statement</th><th>Lean / test</th></tr>
+<tr><td>T1</td><td>Theorem</td><td>The on-line Gaussian quadratic form is the squared cosine mode plus the squared sine mode.</td><td><code>onLineQuad_eq_sum_sq</code></td></tr>
+<tr><td>T2</td><td>Theorem</td><td>The on-line form is nonnegative.</td><td><code>onLineQuad_nonneg</code></td></tr>
+<tr><td>T3</td><td>Theorem</td><td>An off-line quadruple has a separation whose isolated block is not PSD.</td><td><code>offLineBlock_not_psd</code></td></tr>
+<tr><td>T4</td><td>Theorem</td><td>Uniform block positivity fails for every off-line quadruple.</td><td><code>not_all_offLine_blocks_psd</code></td></tr>
+<tr><td>T5</td><td>Theorem</td><td>The off-line contribution is unbounded in the separation.</td><td><code>offLine_growth</code></td></tr>
+<tr><td>T6</td><td>Theorem</td><td>The PSD cone is convex: <code>t•A + (1−t)•B</code> is PSD for <code>t ∈ [0,1]</code>.</td><td><code>posSemidef_convexCombination</code></td></tr>
+<tr><td>T7</td><td>Theorem</td><td>A nonnegative one-parameter deformation of a PSD matrix is PSD.</td><td><code>posSemidef_add_smul</code></td></tr>
+<tr><td>T8</td><td>Theorem</td><td>Entrywise margin transfer: <code>ε·n &lt; t</code> plus <code>ε</code>-closeness and <code>C − t·I</code> positive definite imply <code>G</code> positive definite.</td><td><code>strict_margin_transfer</code></td></tr>
+<tr><td>T9</td><td>Theorem</td><td>The rational 4×4 Gaussian centre minus its margin is positive definite.</td><td><code>centre_sub_margin_posDef</code></td></tr>
+<tr><td>T10</td><td>Theorem</td><td>The rational 4×4 Gaussian centre is positive definite, so the margin statement is satisfiable.</td><td><code>centre_certificate_satisfiable</code></td></tr>
+<tr><td>T11</td><td>Theorem</td><td>Congruence <code>A ↦ S A Sᵀ</code> preserves positive semidefiniteness for every real <code>S</code>.</td><td><code>posSemidef_sandwich</code></td></tr>
+<tr><td>T12</td><td>Theorem</td><td><code>A + t•B</code> is PSD for every <code>t ≥ 0</code> iff <code>A</code> and <code>B</code> are both PSD.</td><td><code>linear_path_posSemidef_iff</code></td></tr>
+<tr><td>T13</td><td>Theorem</td><td>The on-line Gaussian weight has derivative <code>4πσ exp(−σ²γ²)(1 − σ²γ²)</code>.</td><td><code>hasDerivAt_gaussianWeight</code></td></tr>
+<tr><td>T14</td><td>Theorem</td><td>That derivative is positive at <code>σ = 1/(2γ)</code>.</td><td><code>gaussianWeight_deriv_pos</code></td></tr>
+<tr><td>T15</td><td>Theorem</td><td>That derivative is negative at <code>σ = 2/γ</code>.</td><td><code>gaussianWeight_deriv_neg</code></td></tr>
+<tr><td>T16</td><td>Theorem</td><td>The on-line Gaussian weight is neither monotone nor antitone in σ.</td><td><code>gaussianWeight_not_monotone</code></td></tr>
+<tr><td>T17</td><td>Theorem</td><td>If the “other” block contains an off-line quadruple, no uniform <code>B</code> bounds its entries for all separations.</td><td><code>no_uniform_bound_of_offLine_quadruple</code></td></tr>
+<tr><td>T18</td><td>Theorem</td><td>A real rank-one matrix <code>u uᵀ</code> is PSD.</td><td><code>realRankOne_posSemidef</code></td></tr>
+<tr><td>T19</td><td>Theorem</td><td>If every zero in <code>S</code> is on the critical line, the real part of the finite zero-side Gram matrix is PSD.</td><td><code>finiteWeilGramReal_posSemidef_of_onLine</code></td></tr>
+<tr><td>T20</td><td>Theorem</td><td>RH implies <code>FiniteWeilPositivity</code>.</td><td><code>rh_implies_finiteWeilPositivity</code></td></tr>
+<tr><td>T21</td><td>Theorem</td><td><code>pole(c) = P_main(c) + P_main(−c)</code> for the Gaussian prime main term.</td><td><code>poleTerm_eq_primeMainTerm_add</code></td></tr>
+<tr><td>T22</td><td>Theorem</td><td>The symmetrised arithmetic entry is exactly the sum of the two PNT errors.</td><td><code>poleTerm_sub_primeSums_eq</code></td></tr>
+<tr><td>T23</td><td>Theorem</td><td><code>P_main(c)</code> is the real part of <code>H_c(0)</code>.</td><td><code>primeMainTerm_eq_re_gaussianZeroTest_zero</code></td></tr>
+<tr><td>T24</td><td>Theorem</td><td><code>P_main(−c)</code> is the real part of <code>H_c(1)</code>.</td><td><code>primeMainTerm_neg_eq_re_gaussianZeroTest_one</code></td></tr>
+<tr><td>T25</td><td>Theorem</td><td><code>pole(c)</code> is the real part of <code>H_c(0) + H_c(1)</code>.</td><td><code>poleTerm_eq_re_gaussianZeroTest_pole_sum</code></td></tr>
+<tr><td>T26</td><td>Theorem</td><td>The full arithmetic residual is the two PNT errors plus the archimedean term.</td><td><code>arithmeticResidual_eq</code></td></tr>
+<tr><td>T27</td><td>Theorem</td><td>The Gaussian window <code>h_c(u)</code> is positive for positive width.</td><td><code>primeWindow_pos</code></td></tr>
+<tr><td>T28</td><td>Theorem</td><td>The truncated prime side is a manifest sum of nonnegative terms.</td><td><code>gaussianPrimeSide_nonneg</code></td></tr>
+<tr><td>T29</td><td>Theorem</td><td>Each summand of the truncated prime side is nonnegative.</td><td><code>gaussianPrimeSide_term_nonneg</code></td></tr>
+<tr><td>T30</td><td>Theorem</td><td>The truncated prime side is monotone in the truncation.</td><td><code>gaussianPrimeSide_mono</code></td></tr>
+<tr><td>T31</td><td>Theorem</td><td>The Gaussian window is symmetric under <code>(c,u) ↦ (−c,−u)</code>.</td><td><code>primeWindow_neg_neg</code></td></tr>
+<tr><td>T32</td><td>Theorem</td><td>The prime main term is positive for <code>σ &gt; 0</code>.</td><td><code>primeMainTerm_pos</code></td></tr>
+<tr><td>T33</td><td>Theorem</td><td>The pole term is positive for <code>σ &gt; 0</code>.</td><td><code>poleTerm_pos</code></td></tr>
+<tr><td>T34</td><td>Theorem</td><td>The pole term is even in the centre: <code>pole(−c) = pole(c)</code>.</td><td><code>poleTerm_neg</code></td></tr>
+<tr><td>T35</td><td>Theorem</td><td>The completing-the-square identity for the Gaussian exponent.</td><td><code>exp_quadratic_re</code></td></tr>
+<tr><td>T36</td><td>Theorem</td><td><code>∫ e^{u/2} h_c(u) du = P_main(c,σ)</code>: the smooth main term is the Gaussian integral.</td><td><code>integral_exp_half_primeWindow</code></td></tr>
+<tr><td>T37</td><td>Theorem</td><td>The pole term is the sum of the two Gaussian main-term integrals.</td><td><code>poleTerm_eq_integral_add</code></td></tr>
+<tr><td>T38</td><td>Theorem</td><td>The arithmetic residual kernel is even when the archimedean term is even.</td><td><code>arithmeticResidualKernel_neg</code></td></tr>
+<tr><td>T39</td><td>Theorem</td><td>The arithmetic Gram matrix is symmetric when the archimedean term is even.</td><td><code>arithmeticGramMatrix_isSymm</code></td></tr>
+<tr><td>T40</td><td>Theorem</td><td>The Gaussian prime window has total mass <code>2πσ²</code>, independent of <code>c</code>.</td><td><code>integral_primeWindow</code></td></tr>
+<tr><td>T41</td><td>Theorem</td><td>The Gaussian prime side is at most <code>√π σ</code> times the total von Mangoldt mass.</td><td><code>gaussianPrimeSide_le_mul_sum_vonMangoldt</code></td></tr>
+<tr><td>T42</td><td>Theorem</td><td>The Gaussian prime side is at most <code>√π σ · log(N!)</code>.</td><td><code>gaussianPrimeSide_le_mul_log_factorial</code></td></tr>
+<tr><td>T43</td><td>Theorem</td><td>The arithmetic residual is bounded by the two PNT errors plus the archimedean bound.</td><td><code>arithmeticResidual_abs_le</code></td></tr>
+<tr><td>T44</td><td>Theorem</td><td>Under the named <code>SmoothWindowPNTError</code> input, the arithmetic residual is bounded by <code>2E + A</code>.</td><td><code>SmoothWindowPNTError</code>, <code>arithmeticResidual_abs_le_of_pnt</code></td></tr>
+<tr><td>T45</td><td>Theorem</td><td>Single off-line zero real part: <code>Re H_c(ρ) = 2πσ² e^{σ²(δ²−γ²)} e^{−cδ} cos(2σ²δγ − cγ)</code>.</td><td><code>gaussianZeroTest_re_offLine</code></td></tr>
+<tr><td>T46</td><td>Theorem</td><td>For <code>δ ≠ 0</code>, some <code>c</code> makes <code>|Re H_c(ρ)| &gt; Re H_0(ρ)</code>.</td><td><code>exists_gaussianZeroTest_re_gt_offLine</code></td></tr>
+<tr><td>T47</td><td>Theorem</td><td>For <code>δ ≠ 0</code>, <code>γ ≠ 0</code>, some <code>c</code> makes <code>Re H_{−c}(ρ) ≠ Re H_c(ρ)</code> (singleton Gram asymmetry).</td><td><code>exists_gaussianZeroTest_re_ne_neg</code></td></tr>
+<tr><td>T48</td><td>Theorem</td><td>Singleton Gram matrix <code>finiteWeilGramReal ![0,c] σ {ρ}</code> in explicit 2×2 form.</td><td><code>finiteWeilGramReal_singleton</code></td></tr>
+<tr><td>T49</td><td>Theorem</td><td>A non-symmetric singleton block is not PSD.</td><td><code>not_posSemidef_singleton_of_ne</code></td></tr>
+<tr><td>T50</td><td>Theorem</td><td><strong>O4 (nonzero imaginary part):</strong> an off-line zero with <code>im ≠ 0</code> makes <code>FiniteWeilPositivity</code> fail.</td><td><code>not_finiteWeilPositivity_of_offLine_im_ne_zero</code></td></tr>
+<tr><td>T51</td><td>Theorem</td><td>Real-line real part: <code>Re H_c(ρ) = 2πσ² e^{σ²(ρ−1/2)²} e^{−c(ρ−1/2)}</code> for real <code>ρ</code>.</td><td><code>gaussianZeroTest_re_ofReal</code></td></tr>
+<tr><td>T52</td><td>Theorem</td><td>Real-line real part at <code>1−ρ</code>: <code>Re H_c(1−ρ) = 2πσ² e^{σ²(ρ−1/2)²} e^{c(ρ−1/2)}</code>.</td><td><code>gaussianZeroTest_re_one_sub_ofReal</code></td></tr>
+<tr><td>T53</td><td>Theorem</td><td>Real-zero pair block: <code>finiteWeilGramReal ![0,1] σ {ρ,1−ρ}</code> is the <code>cosh</code> matrix.</td><td><code>finiteWeilGramReal_pair</code></td></tr>
+<tr><td>T54</td><td>Theorem</td><td>The real-zero pair block is not PSD.</td><td><code>not_posSemidef_real_pair</code></td></tr>
+<tr><td>T55</td><td>Theorem</td><td>A real off-line zero (<code>im = 0</code>) makes <code>FiniteWeilPositivity</code> fail.</td><td><code>not_finiteWeilPositivity_of_real_offLine</code></td></tr>
+<tr><td>T56</td><td>Theorem</td><td><strong>O4:</strong> any off-line nontrivial zero makes <code>FiniteWeilPositivity</code> fail.</td><td><code>not_finiteWeilPositivity_of_offLine</code></td></tr>
+<tr><td>T57</td><td>Theorem</td><td><strong><code>FiniteWeilPositivity → RH</code></strong> — the hard direction of the classical Weil criterion.</td><td><code>finiteWeilPositivity_implies_RH</code></td></tr>
+<tr><td>T58</td><td>Theorem</td><td><strong>Arithmetic-side interface:</strong> <code>FiniteWeilPositivity</code> is the Hermitian plus nonnegative-quadratic-form statement (<code>weilQuadraticForm</code>).</td><td><code>weilQuadraticForm</code>, <code>finiteWeilPositivity_iff_quadraticForm</code></td></tr>
+<tr><td>T59</td><td>Theorem</td><td>The Weil quadratic form is the finite bilinear combination of the scalar zero-side sums.</td><td><code>weilQuadraticForm_eq_sum_scalar</code></td></tr>
+<tr><td>T60</td><td>Theorem</td><td><strong>Matrix assembly:</strong> given the scalar explicit formula, the Weil quadratic form equals the arithmetic quadratic form.</td><td><code>weilQuadraticForm_eq_arithmetic</code></td></tr>
+<tr><td>T61</td><td>Theorem</td><td><strong>Gaussian rectangle identity:</strong> the library explicit formula specialised to the Gaussian test, discharging T45\'s <code>hcontour</code> under the standard hypotheses (including zero simplicity).</td><td><code>gaussianRectangleIdentity</code></td></tr>
+<tr><td>T62</td><td>Theorem</td><td>The symmetrised arithmetic residual is invariant under <code>c ↦ −c</code>.</td><td><code>arithmeticResidual_symm</code></td></tr>
+<tr><td>T63</td><td>Theorem</td><td>The symmetrised arithmetic residual is even in <code>c</code>, so the arithmetic Gram matrix is Hermitian.</td><td><code>arithmeticResidual_even</code></td></tr>
+<tr><td>T64</td><td>Theorem</td><td><strong>Scalar Weil inequality:</strong> <code>FiniteWeilPositivity</code> implies <code>0 ≤ ∑_{ρ∈S} Re H_0(ρ)</code> for every finite zero set.</td><td><code>finiteWeilPositivity_scalar_nonneg</code></td></tr>
+<tr><td>T65</td><td>Theorem</td><td><strong>Exact 2×2 PSD criterion:</strong> <code>!![a,b;b,a]</code> is PSD iff <code>0 ≤ a</code> and <code>|b| ≤ a</code>.</td><td><code>twoByTwo_posSemidef_iff</code></td></tr>
+<tr><td>T66</td><td>Theorem</td><td>General 2×2 criterion: <code>!![a,b;c,a]</code> is PSD iff <code>b = c</code>, <code>0 ≤ a</code>, <code>|b| ≤ a</code>.</td><td><code>twoByTwo_general_posSemidef_iff</code></td></tr>
+<tr><td>T67</td><td>Theorem</td><td><strong>Singleton characterisation:</strong> the singleton zero block is PSD iff the off-diagonals agree and the scalar 2×2 criterion holds.</td><td><code>singleton_block_posSemidef_iff</code></td></tr>
+<tr><td>T68</td><td>Theorem</td><td><code>FiniteWeilPositivity</code> forces the singleton criterion at every nontrivial zero, in particular <code>Re H_{−c}(ρ) = Re H_c(ρ)</code>.</td><td><code>finiteWeilPositivity_singleton</code></td></tr>
+<tr><td>T69</td><td>Theorem</td><td>Gaussian rectangle identity with the zero set specified as "all zeros in <code>U</code>" (no opaque <code>hF_ne</code>).</td><td><code>gaussianRectangleIdentity_of_allZeros</code></td></tr>
+<tr><td>T70</td><td>Theorem</td><td><strong>The arithmetic Gram matrix is Hermitian</strong> (the symmetrised residual is even).</td><td><code>arithmeticResidual_isHermitian</code></td></tr>
+<tr><td>T71</td><td>Theorem</td><td><strong>Pole-cancelled decomposition of the arithmetic quadratic form</strong>: it equals the two PNT-error quadratic forms plus the archimedean quadratic form.</td><td><code>arithmeticQuadraticForm</code>, <code>arithmeticQuadraticForm_eq_pnt_add_arch</code></td></tr>
+<tr><td>T72</td><td>Theorem</td><td><strong>PNT-error quadratic-form bound:</strong> <code>‖Q_PNT‖ ≤ E·(∑|xᵢ|)²</code> under <code>SmoothWindowPNTError</code>.</td><td><code>abs_pntQuadraticForm_le</code></td></tr>
+<tr><td>T73</td><td>Theorem</td><td>Function-valued residual and quadratic form; pole-cancelled decomposition with <code>arch : ℝ → ℝ</code>.</td><td><code>arithmeticResidualFun</code>, <code>arithmeticQuadraticFormFun</code>, <code>arithmeticQuadraticFormFun_eq_pnt_add_arch</code></td></tr>
+<tr><td>T74</td><td>Theorem</td><td>The two PNT-error forms are equal, so <code>Q_arith = 2·Q_PNT + Q_arch</code>.</td><td><code>arithmeticQuadraticFormFun_eq_two_pnt_add_arch</code></td></tr>
+<tr><td>T75</td><td>Theorem</td><td><strong>Conditional nonnegativity:</strong> if <code>Q_arch</code> dominates <code>2E(∑|xᵢ|)²</code>, the arithmetic quadratic form is nonnegative.</td><td><code>arithmeticQuadraticFormFun_nonneg_of_dominates</code></td></tr>
+<tr><td>T76</td><td>Theorem</td><td>The function-valued residual is even for an even archimedean kernel.</td><td><code>arithmeticResidualFun_even</code></td></tr>
+<tr><td>T77</td><td>Theorem</td><td>The arithmetic quadratic form is the matrix quadratic form of the arithmetic Gram matrix.</td><td><code>arithmeticQuadraticFormFun_eq_dotProduct</code></td></tr>
+<tr><td>T78</td><td>Theorem</td><td><strong>Arithmetic matrix PSD under archimedean dominance.</strong></td><td><code>arithmeticMatrix_posSemidef_of_dominates</code></td></tr>
+<tr><td>T79</td><td>Theorem</td><td><strong>Capstone reduction:</strong> <code>FiniteWeilPositivity</code> follows from the scalar explicit formula plus PSD of the arithmetic Gram matrix.</td><td><code>finiteWeilPositivity_of_arithmetic</code></td></tr>
+<tr><td>T80</td><td>Theorem</td><td><code>weilOmega</code> is even on the real axis.</td><td><code>weilOmega_real_even</code></td></tr>
+<tr><td>T81</td><td>Theorem</td><td>The archimedean symbol is even on the real axis.</td><td><code>archSymbol_real_even</code></td></tr>
+<tr><td>T82</td><td>Theorem</td><td><strong>End-to-end conditional:</strong> <code>FiniteWeilPositivity</code> from even archimedean kernel + PNT bound + archimedean dominance + scalar explicit formula.</td><td><code>finiteWeilPositivity_of_pnt_archimedean</code></td></tr>
+<tr><td>T83</td><td>Theorem</td><td><strong>Conditional RH:</strong> the same four inputs imply <code>RiemannHypothesis</code> (via T57). Not an unconditional proof.</td><td><code>riemannHypothesis_of_pnt_archimedean</code></td></tr>
+<tr><td>T84</td><td>Theorem</td><td><code>densityTerm</code> (the archimedean density term of <code>prime-spectrum-tensor</code>) is even in <code>c</code>.</td><td><code>densityTerm_even</code></td></tr>
+<tr><td>T85</td><td>Theorem</td><td>The <code>prime-spectrum-tensor</code> pole term is even in <code>c</code>.</td><td><code>poleTerm_ps_even</code></td></tr>
+<tr><td>T86</td><td>Theorem</td><td><strong>Bridge:</strong> <code>gaussianGramEntry c 0 σ</code> equals <code>arithmeticResidualFun</code> with <code>P = −primeTerm/2</code> and <code>arch = densityTerm</code>.</td><td><code>gaussianGramEntry_eq_residual</code></td></tr>
+<tr><td>T87</td><td>Theorem</td><td><strong>Exact 4×4 identification:</strong> <code>gaussianGram4 σ</code> is the arithmetic residual matrix on the <code>centre4</code> separations.</td><td><code>gaussianGram4_eq_arithmetic</code></td></tr>
+<tr><td>T88</td><td>Theorem</td><td>The Gaussian prime term is non-positive for <code>σ ≥ 0</code>.</td><td><code>primeTerm_nonpos</code></td></tr>
+<tr><td>T89</td><td>Theorem</td><td>The Gaussian pole term is positive for <code>σ &gt; 0</code>.</td><td><code>poleTerm_ps_pos</code></td></tr>
+<tr><td>T90</td><td>Theorem</td><td><strong>Three-term split</strong> of the Gaussian Gram entry: <code>pole + density + (prime c + prime(−c))/2</code>.</td><td><code>gaussianGramEntry_three_term</code></td></tr>
+<tr><td>T91</td><td>Theorem</td><td><strong>Three-matrix decomposition:</strong> <code>gaussianGram4 = poleMatrix + densityMatrix + primeMatrix</code>.</td><td><code>gaussianGram4_eq_pole_add_density_add_prime</code></td></tr>
+<tr><td>T92</td><td>Theorem</td><td><code>gaussianGram4</code> is Hermitian in the arithmetic framework.</td><td><code>gaussianGram4_isHermitian</code></td></tr>
+<tr><td>T93</td><td>Theorem</td><td>The <code>prime-spectrum-tensor</code> 4×4 certificate as PSD: <code>(gaussianGram4 (1/20)).PosSemidef</code>.</td><td><code>gaussianGram4_posSemidef</code></td></tr>
+<tr><td>T94</td><td>Theorem</td><td><strong>Certified 4×4 instance in this framework:</strong> the exact arithmetic residual matrix on <code>centre4</code> at <code>σ = 1/20</code> is PSD.</td><td><code>centre4Arithmetic_posSemidef</code></td></tr>
+<tr><td>T95</td><td>Theorem</td><td><code>gaussianGram5</code> is the arithmetic residual matrix on the five centres.</td><td><code>gaussianGram5_eq_arithmetic</code></td></tr>
+<tr><td>T96</td><td>Theorem</td><td>The <code>prime-spectrum-tensor</code> 5×5 certificate as PSD.</td><td><code>gaussianGram5_posSemidef</code></td></tr>
+<tr><td>T97</td><td>Theorem</td><td><strong>Certified 5×5 instance:</strong> the arithmetic residual matrix on <code>centre5</code> at <code>σ = 1/20</code> is PSD.</td><td><code>centre5Arithmetic_posSemidef</code></td></tr>
+<tr><td>C1</td><td>Computation</td><td>The on-line form equals its cosine/sine sum of squares and is nonnegative.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C2</td><td>Computation</td><td>The rank-one factorization holds on the critical line and fails off it.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C3</td><td>Computation</td><td>The prime contribution is a sum of nonnegative terms, while <code>Ω</code> and the assembled entry take both signs.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C4</td><td>Computation</td><td>An off-line block acquires a negative eigenvalue at large separation.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C5</td><td>Computation</td><td>The admissible entrywise margin decays like <code>margin/n</code>.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C6</td><td>Computation</td><td>Convex combinations of PSD symmetric diagonal blocks stay PSD.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C7</td><td>Computation</td><td>The symmetrised prime kernel has negative eigenvalues although every von Mangoldt coefficient is nonnegative.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C8</td><td>Computation</td><td>A positivity-preserving congruence lowers the least eigenvalue (from 1 to about 0.349, and to 0 in the degenerate case).</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C9</td><td>Computation</td><td>A linear path with an indefinite velocity crosses zero (<code>λ_min = 1 − t</code>); with a PSD velocity it does not.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C10</td><td>Computation</td><td><code>dλ_min/dσ</code> for the 4×4 arithmetic Gram changes sign (<code>+0.196</code> at σ = 0.02, <code>−0.258</code> at σ = 0.03).</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C11</td><td>Computation</td><td>The Toeplitz gap on <code>[−0.3, 0.3]</code> collapses: <code>λ_min</code> falls from <code>2.27e−2</code> at n=4 to <code>2.38e−6</code> at n=16 and is at the noise floor by n=32.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C12</td><td>Computation</td><td>The annular tail radius is closed-form for a geometric series and a Hurwitz zeta for a p-series; positive on-line weights give a signed Gram entry.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C13</td><td>Computation</td><td>A larger-<code>|δ|</code> quadruple dominates: the maximum of <code>|S(c)|</code> over <code>c ∈ [0,40]</code> is <code>1.04</code> at <code>|δ| = 0.1</code> and <code>30.4</code> at <code>|δ| = 0.2</code>.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C14</td><td>Computation</td><td>The smooth PNT main term <code>2πσ² exp(σ²/4) exp(c/2)</code> is the growing half of the pole; <code>pole − P<sub>main</sub> = 2πσ² exp(σ²/4) exp(−c/2)</code>, and the narrow-window PNT error is the hard regime.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C15</td><td>Computation</td><td>The exact Gram-entry identity: <code>pole = P<sub>main</sub>(c) + P<sub>main</sub>(−c)</code>, hence <code>K(c) = (P<sub>main</sub> − P)(c) + (P<sub>main</sub> − P)(−c) + arch(c)</code>.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C16</td><td>Computation</td><td>The PNT-error Gram and the archimedean Gram are individually indefinite (<code>λ<sub>min</sub> ≈ −0.0097</code> and <code>−0.0946</code>) while their sum is PSD (<code>λ<sub>min</sub> ≈ +0.0227</code>) at σ = 0.05.</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>C17</td><td>Computation</td><td>The cancellation persists under refinement (<code>n = 4, 8, 16</code>), but the total gap collapses (<code>2.27e−2</code>, <code>2.74e−5</code>, <code>2.38e−6</code>).</td><td><code>tests/test_programme.py</code></td></tr>
+<tr><td>O1</td><td class="open">Open</td><td><strong>Objective 1</strong>: a manifest sum of squares for the prime side extending the rank-one factorization off the critical line.</td><td>not proved</td></tr>
+<tr><td>O2</td><td class="open">Open</td><td><strong>Objective 2</strong>: a positivity-preserving deformation/continuation of the Weil form.</td><td>not proved</td></tr>
+<tr><td>O3</td><td class="open">Open</td><td><strong>Objective 3</strong>: a genuinely weaker, satisfiable statement implying positivity and independently provable.</td><td>not proved</td></tr>
+<tr><td>O4</td><td>Theorem</td><td><strong>The hard direction of Weil's criterion</strong>: <code>FiniteWeilPositivity → RH</code> for the finite Gaussian zero-side Gram matrix.</td><td><code>finiteWeilPositivity_implies_RH</code> (T57)</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Harvested proofs</h2>
+<p>From <a href="../index-lean/index.md"><code>index-lean/index.md</code></a>. The last column names the objective the proof is useful for.</p>
+<table>
+<tr><th>Theorem</th><th>Where</th><th>Use</th><th>Obj.</th></tr>
+<tr><td><code>paleyWiener_autocorrelation_nonneg</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>the autocorrelation transform is nonnegative: the prime-side template</td><td>1</td></tr>
+<tr><td><code>autocorrelation_exponential_eq_norm_sq</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>the autocorrelation transform is a squared modulus</td><td>1</td></tr>
+<tr><td><code>autocorrelation_transform_nonneg</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>packaged real form of the same nonnegativity</td><td>1</td></tr>
+<tr><td><code>paleyWiener_autocorrelation_eq_transform</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>identifies the critical-line value with the transform</td><td>1</td></tr>
+<tr><td><code>weil_zero_sum_nonneg_real_of_critical_line</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>the finite zero sum is nonnegative under the critical-line hypothesis</td><td>1</td></tr>
+<tr><td><code>vonMangoldt_nonneg</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>every von Mangoldt coefficient is nonnegative</td><td>1</td></tr>
+<tr><td><code>explicit_formula_gaussianZeroTest_arch_prime</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__GaussianZeroSide.lean.md"><code>GaussianZeroSide.lean</code></a></td><td>the assembled explicit formula with prime and archimedean sides</td><td>1</td></tr>
+<tr><td><code>gaussianZeroTest_eq_mode_mul</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__GaussianZeroSide.lean.md"><code>GaussianZeroSide.lean</code></a></td><td>the on-line rank-one factorization</td><td>1</td></tr>
+<tr><td><code>zeroSideGramReal_posSemidef</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__GaussianZeroSide.lean.md"><code>GaussianZeroSide.lean</code></a></td><td>finite on-line PSD (harvested by the hub)</td><td>1, 3</td></tr>
+<tr><td><code>offLineQuad_obstruction_all</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__GaussianZeroSide.lean.md"><code>GaussianZeroSide.lean</code></a></td><td>the off-line block obstruction</td><td>1</td></tr>
+<tr><td><code>exists_offLineQuad_gt_all</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__GaussianZeroSide.lean.md"><code>GaussianZeroSide.lean</code></a></td><td>unbounded off-line growth</td><td>1</td></tr>
+<tr><td><code>paleyWiener_one_sub</code>, <code>paleyWiener_conj</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>reflection symmetries of the test function</td><td>2</td></tr>
+<tr><td><code>differentiable_paleyWiener</code>, <code>hasDerivAt_paleyWiener</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>differentiability needed for a deformation</td><td>2</td></tr>
+<tr><td><code>contour_shift_paleyWiener</code></td><td><a href="../index-lean/absolute-polarized-hodge-index-realization__lean__ExplicitFormula.lean.md"><code>ExplicitFormula.lean</code></a></td><td>contour shift of the test function</td><td>2</td></tr>
+<tr><td><code>gramQuad_eq_norm_sq</code>, <code>gramMatrix_posSemidef</code></td><td><a href="../index-lean/angular-partition-method__lean__Gram.lean.md"><code>Gram.lean</code></a></td><td>the generic finite Gram sum-of-squares shadow</td><td>2, 3</td></tr>
+<tr><td><code>posDef_of_entry_bound</code></td><td><a href="../index-lean/prime-spectrum-tensor__lean__Transfer.lean.md"><code>Transfer.lean</code></a></td><td>strict positivity is stable under an entrywise margin</td><td>3</td></tr>
+<tr><td><code>gramCentre4_sub_posDef</code>, <code>gaussianGram4_posDef_of_entry_bound</code></td><td><a href="../index-lean/prime-spectrum-tensor__lean__Transfer.lean.md"><code>Transfer.lean</code></a></td><td>the rational finite certificate and its transfer</td><td>3</td></tr>
+<tr><td><code>gaussianGram4_posDef</code></td><td><a href="../index-lean/prime-spectrum-tensor__lean__DensityCertificates.lean.md"><code>DensityCertificates.lean</code></a></td><td>the finite 4×4 Gaussian certificate is closed</td><td>3</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Python layer</h2>
+<p><code>python/programme.py</code> provides <code>gaussian_mode</code>, <code>gaussian_test</code>, <code>rank_one_factor</code>, <code>gaussian_cos_mode</code>, <code>gaussian_sin_mode</code>, <code>on_line_quad</code>, <code>on_line_quad_sos</code>, <code>von_mangoldt</code>, <code>gaussian_bump</code>, <code>prime_side</code>, <code>archimedean_omega</code>, <code>archimedean_term</code>, <code>pole_term</code>, <code>weil_entry</code>, <code>prime_kernel</code>, <code>symmetric_eigenvalues</code>, <code>offline_quad</code>, <code>diag_block_eigenvalues</code>, <code>diag_block_psd</code>, <code>admissible_epsilon</code>, <code>convex_combination</code>, <code>convex_combination_psd</code>, <code>diag_block</code>, <code>lambda_min_diag_block</code>, <code>diag_block_linear</code>, <code>linear_path_criterion</code>, <code>linear_path_psd_by_sampling</code>, <code>sandwich_2x2</code>, <code>dpole_term</code>, <code>dprime_side</code>, <code>darchimedean_term</code>, <code>dweil_entry</code>, <code>weil_kernel</code>, <code>dweil_kernel</code>, <code>weil_gram</code>, <code>dweil_gram</code>, <code>min_eigenpair</code>, <code>lambda_min_derivative</code>, <code>toeplitz_weil_gram</code>, <code>toeplitz_lambda_min</code>, <code>geometric_tail_radius</code>, <code>pseries_tail_radius</code>, <code>on_line_weights</code>, <code>gram_entry_from_weights</code>, <code>max_abs_offline_quad</code>, <code>prime_main_term</code>, <code>prime_main_ratio</code>, <code>pole_minus_prime_main</code>, <code>prime_error</code>, <code>arithmetic_gram_entry</code>, <code>prime_error_kernel</code>, <code>arch_kernel</code>, <code>kernel_gram</code> and <code>toeplitz_kernel_gram</code>.</p>
+<pre><code>python3 -m pytest the-final-letter/topics/missing-bridge/tests -q</code></pre>
+</section>
+
+<section>
+<h2>Lean layer</h2>
+<p><code>lean/Topic.lean</code> proves T1–T39 by harvesting <code>GaussianZeroSide</code> and <code>Transfer</code> and adding the on-line sum-of-squares identity, the PSD convexity lemmas, the σ-flow non-monotonicity, the maximal-<code>|δ|</code> obstruction, and the finite-zero-set easy direction of Weil positivity. It does <strong>not</strong> prove O1, O2, O3 or O4, and it does not prove the infinite/cone Weil form.</p>
+</section>
+
+<section>
+<h2>Open items and known gaps</h2>
+<ul>
+<li><span class="open">Objective 1 (O1)</span> — no manifest sum of squares for the prime side off the critical line is known; the finite on-line identity is complete and the obstruction is the exponential off-line growth (T3, T5). The scouting verdict is that O1 is RH restated and has no slack (1/5).</li>
+<li><span class="open">Objective 2 (O2)</span> — the linear versions are equivalent to positivity; the Gaussian-width flow is not monotone (T13–T16, C10); the heat flow is blocked. No candidate remains (1/5).</li>
+<li><span class="open">Objective 3 (O3)</span> — the finite uniform-gap route is dead (C11); only the dense-subcone/continuity shape remains, which needs the missing uniform bound (2/5).</li>
+<li><strong>No-go for the existing hub</strong> — the <code>blocks ⇒ RH</code> implication in <a href="../weil-positivity/README.md">weil-positivity</a> is vacuous as formalised because its antecedent is refutable. This topic does not repair that statement; it records what a non-vacuous replacement would have to prove.</li>
+<li><strong>Full-block step</strong> — even a completed objective gives Weil positivity only for the full cone; the passage from full positivity to RH is the classical Weil criterion, and its formalisation here still needs the full-block domination <code>FullBlockWithin</code>.</li>
+<li><span class="open">Hard direction of Weil's criterion (O4)</span> — <code>FiniteWeilPositivity → RH</code> is open; the maximal-<code>|δ|</code> analysis rules out the clean zero-side domination route, and the arithmetic side is the recommended one.</li>
+<li><strong>Scope</strong> — nothing here is evidence for RH, and no objective is claimed as partially solved.</li>
+</ul>
+</section>
+
+<section>
+<h2>Provenance and source</h2>
+<ul>
+<li>Review of <a href="../weil-positivity/README.md"><code>weil-positivity</code></a>, 6 November 2026 — the three objectives were recorded from that review.</li>
+<li><a href="../angular-partition-method/README.md">O2 dossier</a> §7.10 and <a href="../prime-spectrum-tensor/WEIL-POSITIVITY.md"><code>WEIL-POSITIVITY.md</code></a> — the reduction and its RH-equivalence.</li>
+<li><a href="../absolute-polarized-hodge-index-realization/README.md">Formal core</a> — <code>GaussianZeroSide.lean</code>, <code>ExplicitFormula.lean</code>, <code>ZeroTail.lean</code>.</li>
+<li><a href="../prime-spectrum-tensor/README.md"><code>prime-spectrum-tensor</code></a> — the O4 transfer certificate.</li>
+<li><a href="../index-lean/index.md"><code>index-lean/index.md</code></a> — the harvested proof pages.</li>
+<li><a href="../../scraps.html"><code>scraps.html</code></a> — the site's claim inventory.</li>
+<li><a href="../README.md"><code>topics/README.md</code></a> — all topic folders.</li>
+</ul>
+</section>
+
+<section>
+<h2>Files</h2>
+<ul>
+<li><a href="README.md"><code>README.md</code></a> — programme dossier and ledger.</li>
+<li><a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> — formal core.</li>
+<li><a href="lean/README.md"><code>lean/README.md</code></a> — what is and is not formalised.</li>
+<li><a href="python/programme.py"><code>python/programme.py</code></a> — computation layer.</li>
+<li><a href="tests/test_programme.py"><code>tests/test_programme.py</code></a> — computations C1–C7.</li>
+</ul>
+</section>
+
+<footer>
+  <a href="../README.md">Back to the topic index</a>
+  <a href="../../index.html">The Final Letter</a>
+</footer>
+</main>
+</body>
+</html>

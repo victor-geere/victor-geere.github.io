@@ -1868,6 +1868,186 @@ theorem explicit_formula_gaussianZeroTest_arch_prime
       I * (- ArchR - PrimeR) - I * (ArchL + PrimeL) :=
   explicit_formula_gaussianZeroTest c σ S Zsum _ _ hcontour hbottom htop hright hleft hsum
 
+/-- **Exponential beats inverse-square.**  Eventually
+`exp(−σ²x²) ≤ 1/(x+1)²`; the comparison needed for the `ξ₀` zero-sum weight. -/
+theorem eventually_exp_neg_sq_le_inv_sq (σ : ℝ) (hσ : 0 < σ) :
+    ∀ᶠ x : ℝ in atTop, Real.exp (-(σ ^ 2 * x ^ 2)) ≤ 1 / (x + 1) ^ 2 := by
+  filter_upwards [eventually_ge_atTop (max 1 (2 / σ ^ 2))] with x hx
+  have hx1 : 1 ≤ x := le_trans (le_max_left _ _) hx
+  have hx2 : 2 / σ ^ 2 ≤ x := le_trans (le_max_right _ _) hx
+  have hxpos : 0 < x := by linarith
+  have hlog : Real.log (x + 1) ≤ x := by
+    have h := Real.log_le_sub_one_of_pos (by linarith : (0 : ℝ) < x + 1)
+    linarith
+  have hbound : 2 * Real.log (x + 1) ≤ σ ^ 2 * x ^ 2 := by
+    have h1 : 2 * Real.log (x + 1) ≤ 2 * x := by linarith
+    have h2 : 2 * x ≤ σ ^ 2 * x ^ 2 := by
+      have h3 : 2 ≤ σ ^ 2 * x := by
+        have := (div_le_iff₀ (by positivity : (0 : ℝ) < σ ^ 2)).mp hx2
+        linarith
+      nlinarith [hxpos]
+    linarith
+  calc Real.exp (-(σ ^ 2 * x ^ 2))
+      ≤ Real.exp (-(2 * Real.log (x + 1))) := by
+        apply Real.exp_le_exp.mpr
+        linarith
+    _ = 1 / (x + 1) ^ 2 := by
+        rw [show -(2 * Real.log (x + 1)) = -Real.log ((x + 1) ^ 2) by
+          rw [Real.log_pow]
+          push_cast
+          ring]
+        rw [Real.exp_neg, Real.exp_log (by positivity : (0 : ℝ) < (x + 1) ^ 2)]
+        simp
+
+/-- **Zero-tail summability from inverse-square weight.**  If the ordinates grow
+and the inverse-square zero weight is summable, the Gaussian zero tail is
+summable. -/
+theorem zeroTailSummable_of_inv_sq (γ : ℕ → ℝ) (σ : ℝ) (hσ : 0 < σ)
+    (hγ : Tendsto (fun n : ℕ => |γ n|) atTop atTop)
+    (h : Summable (fun n : ℕ => 1 / (|γ n| + 1) ^ 2)) :
+    ZeroTailSummable γ σ := by
+  unfold ZeroTailSummable
+  apply Summable.of_norm_bounded_eventually (g := fun n : ℕ => 1 / (|γ n| + 1) ^ 2)
+  · exact h
+  · have hcomp : ∀ᶠ n : ℕ in atTop,
+        Real.exp (-(σ ^ 2 * |γ n| ^ 2)) ≤ 1 / (|γ n| + 1) ^ 2 :=
+      hγ.eventually (eventually_exp_neg_sq_le_inv_sq σ hσ)
+    have habs : ∀ n : ℕ, |γ n| ^ 2 = (γ n) ^ 2 := fun n => sq_abs (γ n)
+    have hcomp' : ∀ᶠ n : ℕ in cofinite,
+        Real.exp (-(σ ^ 2 * |γ n| ^ 2)) ≤ 1 / (|γ n| + 1) ^ 2 := by
+      simpa [Nat.cofinite_eq_atTop] using hcomp
+    filter_upwards [hcomp'] with n hn
+    rw [Real.norm_eq_abs, abs_of_pos (Real.exp_pos _)]
+    simpa [habs n] using hn
+
+/-- Offset form of the exponential/inverse-square domination, used when the
+zero ordinate is only comparable to `‖z‖` up to a constant. -/
+theorem eventually_exp_neg_sq_le_inv_sq_add (σ : ℝ) (hσ : 0 < σ) (k : ℕ) :
+    ∀ᶠ x : ℝ in atTop, Real.exp (-(σ ^ 2 * x ^ 2)) ≤ 1 / (x + (k : ℝ) + 1) ^ 2 := by
+  filter_upwards [eventually_ge_atTop (max 1 (2 * ((k : ℝ) + 1) / σ ^ 2))] with x hx
+  have hx1 : 1 ≤ x := le_trans (le_max_left _ _) hx
+  have hx2 : 2 * ((k : ℝ) + 1) / σ ^ 2 ≤ x := le_trans (le_max_right _ _) hx
+  have hxpos : 0 < x := by linarith
+  have hk : (0 : ℝ) ≤ (k : ℝ) := Nat.cast_nonneg k
+  have hlog : Real.log (x + (k : ℝ) + 1) ≤ x + (k : ℝ) := by
+    have h := Real.log_le_sub_one_of_pos (by linarith : (0 : ℝ) < x + (k : ℝ) + 1)
+    linarith
+  have hbound : 2 * Real.log (x + (k : ℝ) + 1) ≤ σ ^ 2 * x ^ 2 := by
+    have h1 : 2 * Real.log (x + (k : ℝ) + 1) ≤ 2 * (x + (k : ℝ)) := by linarith
+    have h2 : 2 * (x + (k : ℝ)) ≤ σ ^ 2 * x ^ 2 := by
+      have h3 : 2 * ((k : ℝ) + 1) ≤ σ ^ 2 * x := by
+        have := (div_le_iff₀ (by positivity : (0 : ℝ) < σ ^ 2)).mp hx2
+        linarith
+      nlinarith [hxpos]
+    linarith
+  calc Real.exp (-(σ ^ 2 * x ^ 2))
+      ≤ Real.exp (-(2 * Real.log (x + (k : ℝ) + 1))) := by
+        apply Real.exp_le_exp.mpr
+        linarith
+    _ = 1 / (x + (k : ℝ) + 1) ^ 2 := by
+        rw [show -(2 * Real.log (x + (k : ℝ) + 1)) = -Real.log ((x + (k : ℝ) + 1) ^ 2) by
+          rw [Real.log_pow]
+          push_cast
+          ring]
+        rw [Real.exp_neg, Real.exp_log (by positivity : (0 : ℝ) < (x + (k : ℝ) + 1) ^ 2)]
+        simp
+
+/-- **Imaginary-part inverse-square weight.**  If the zeros lie in the strip
+`|Re z| ≤ 1` and the norm inverse-square weight is summable, then the
+imaginary-part inverse-square weight is summable. -/
+theorem summable_inv_sq_im_of_strip (a : ℕ → ℂ) (hstrip : ∀ n, |(a n).re| ≤ 1)
+    (h : Summable (fun n : ℕ => ((‖a n‖ + 1) ^ 2 : ℝ)⁻¹)) :
+    Summable (fun n : ℕ => ((|(a n).im| + 1) ^ 2 : ℝ)⁻¹) := by
+  refine Summable.of_nonneg_of_le
+    (g := fun n : ℕ => ((|(a n).im| + 1) ^ 2 : ℝ)⁻¹)
+    (f := fun n : ℕ => 4 * ((‖a n‖ + 1) ^ 2 : ℝ)⁻¹) ?_ ?_ (h.mul_left 4)
+  · intro n
+    positivity
+  · intro n
+    have hnorm : ‖a n‖ + 1 ≤ |(a n).im| + 2 := by
+      have h1 := Complex.norm_le_abs_re_add_abs_im (a n)
+      have h2 := hstrip n
+      linarith
+    have hpos1 : (0 : ℝ) < |(a n).im| + 1 := by positivity
+    have hpos2 : (0 : ℝ) < ‖a n‖ + 1 := by positivity
+    have hsq : (‖a n‖ + 1) ^ 2 ≤ (|(a n).im| + 2) ^ 2 := by nlinarith
+    have hinv : ((|(a n).im| + 2) ^ 2 : ℝ)⁻¹ ≤ ((‖a n‖ + 1) ^ 2 : ℝ)⁻¹ := by
+      rw [← one_div, ← one_div]
+      exact one_div_le_one_div_of_le (by positivity) hsq
+    have hle : |(a n).im| + 2 ≤ 2 * (|(a n).im| + 1) := by
+      have := abs_nonneg (a n).im
+      linarith
+    have hdouble : (|(a n).im| + 1) ^ 2 ≤ 4 * (|(a n).im| + 2) ^ 2 := by
+      nlinarith [sq_nonneg (|(a n).im| + 1)]
+    have hinv2 : ((|(a n).im| + 1) ^ 2 : ℝ)⁻¹ ≤ 4 * ((|(a n).im| + 2) ^ 2 : ℝ)⁻¹ := by
+      rw [← one_div, ← one_div]
+      have h4 : (0 : ℝ) < 4 := by norm_num
+      field_simp
+      nlinarith [hdouble, hpos1]
+    calc ((|(a n).im| + 1) ^ 2 : ℝ)⁻¹
+        ≤ 4 * ((|(a n).im| + 2) ^ 2 : ℝ)⁻¹ := hinv2
+      _ ≤ 4 * ((‖a n‖ + 1) ^ 2 : ℝ)⁻¹ := by
+          nlinarith [hinv, (by norm_num : (0 : ℝ) ≤ 4)]
+
+/-- Integrability of `(1+|y|)·exp(−σ²y²/2)`; the majorant for a linearly
+growing log-derivative factor. -/
+theorem integrable_one_add_abs_mul_exp_neg_sq (σ : ℝ) (hσ : 0 < σ) :
+    Integrable (fun y : ℝ => (1 + |y|) * Real.exp (-(σ ^ 2 / 2) * y ^ 2)) := by
+  have hb : (0 : ℝ) < σ ^ 2 / 2 := by positivity
+  have h1 : Integrable (fun y : ℝ => Real.exp (-(σ ^ 2 / 2) * y ^ 2)) :=
+    integrable_exp_neg_mul_sq hb
+  have h2 : Integrable (fun y : ℝ => y * Real.exp (-(σ ^ 2 / 2) * y ^ 2)) :=
+    integrable_mul_exp_neg_mul_sq hb
+  have habs : Integrable (fun y : ℝ => |y| * Real.exp (-(σ ^ 2 / 2) * y ^ 2)) := by
+    have h := h2.abs
+    refine h.congr ?_
+    filter_upwards with y
+    rw [abs_mul, abs_of_pos (Real.exp_pos _)]
+  have hsum := h1.add habs
+  refine hsum.congr ?_
+  filter_upwards with y
+  simp only [Pi.add_apply]
+  ring
+
+/-- **Vertical integrability from a linear log-derivative bound.**  If
+`‖(Z'/Z)(x+iy)‖ ≤ M(1+|y|)` (the standard Stirling-type growth), then
+`(Z'/Z)·H_c` is integrable on the vertical line. -/
+theorem verticalLogDerivIntegrable_of_linear_bound (c σ x M : ℝ) (hσ : 0 < σ) (hM0 : 0 ≤ M)
+    (hmeas : AEStronglyMeasurable (fun y : ℝ =>
+      logDeriv completedZeta ((x : ℂ) + (y : ℂ) * I) *
+        gaussianZeroTest c σ ((x : ℂ) + (y : ℂ) * I)))
+    (hM : ∀ y : ℝ, ‖logDeriv completedZeta ((x : ℂ) + (y : ℂ) * I)‖ ≤ M * (1 + |y|)) :
+    VerticalLogDerivIntegrable c σ x := by
+  unfold VerticalLogDerivIntegrable
+  set CH : ℝ := 2 * Real.pi * σ ^ 2 * Real.exp (σ ^ 2 * ((x - 1 / 2) ^ 2)) *
+    Real.exp (-(c * (x - 1 / 2))) with hCH
+  have hCH0 : 0 ≤ CH := by rw [hCH]; positivity
+  have hg : Integrable (fun y : ℝ => M * CH * ((1 + |y|) * Real.exp (-(σ ^ 2 / 2) * y ^ 2))) :=
+    (integrable_one_add_abs_mul_exp_neg_sq σ hσ).const_mul (M * CH)
+  refine hg.mono' hmeas ?_
+  filter_upwards with y
+  have hH := gaussianZeroTest_norm c σ x y hσ
+  have hH' : ‖gaussianZeroTest c σ ((x : ℂ) + (y : ℂ) * I)‖ =
+      CH * Real.exp (-(σ ^ 2 * y ^ 2)) := by
+    rw [hH, hCH]
+    rw [show σ ^ 2 * ((x - 1 / 2) ^ 2 - y ^ 2) =
+      σ ^ 2 * ((x - 1 / 2) ^ 2) + (-(σ ^ 2 * y ^ 2)) by ring, Real.exp_add]
+    ring
+  calc ‖logDeriv completedZeta ((x : ℂ) + (y : ℂ) * I) *
+        gaussianZeroTest c σ ((x : ℂ) + (y : ℂ) * I)‖
+      = ‖logDeriv completedZeta ((x : ℂ) + (y : ℂ) * I)‖ *
+          ‖gaussianZeroTest c σ ((x : ℂ) + (y : ℂ) * I)‖ := norm_mul _ _
+    _ ≤ (M * (1 + |y|)) * (CH * Real.exp (-(σ ^ 2 * y ^ 2))) := by
+        exact mul_le_mul (hM y) (le_of_eq hH') (norm_nonneg _)
+          (mul_nonneg hM0 (by positivity : (0 : ℝ) ≤ 1 + |y|))
+    _ ≤ M * CH * ((1 + |y|) * Real.exp (-(σ ^ 2 / 2) * y ^ 2)) := by
+        have hexp : Real.exp (-(σ ^ 2 * y ^ 2)) ≤ Real.exp (-(σ ^ 2 / 2) * y ^ 2) := by
+          apply Real.exp_le_exp.mpr
+          nlinarith [sq_nonneg y]
+        nlinarith [mul_nonneg hM0 (by positivity : (0 : ℝ) ≤ 1 + |y|),
+          mul_nonneg (mul_nonneg hM0 hCH0) (by positivity : (0 : ℝ) ≤ 1 + |y|),
+          Real.exp_pos (-(σ ^ 2 / 2) * y ^ 2), hexp]
+
 /-- **Rank-one factorization on the critical line.**
 `H_{a−b}(1/2+it) = φ_a(t) · conj φ_b(t)`. -/
 theorem gaussianZeroTest_eq_mode_mul (a b σ t : ℝ) :

@@ -1,6 +1,8 @@
 # Reconstruction status
 
-53 topics · 1196 ledger theorems · 507 tested computations · 798 pytest tests · 53/53 Lean builds OK.
+58 topics · 1468 ledger theorems · 543 tested computations · 847 pytest tests · 58/58 Lean builds OK.
+
+**Resume:** [weil-positivity](weil-positivity/HANDOFF.md) can resume — [missing-bridge](missing-bridge/README.md) is concluded at the non-RH-strength level.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
@@ -57,6 +59,11 @@
 | [yakaboylu-notes](yakaboylu-notes/README.md) | 7 | 8 | 13 | 8 | OK |
 | [intersection-form-zeta](intersection-form-zeta/README.md) | 100 | 49 | 19 | 60 | OK |
 | [angular-partition-method](angular-partition-method/README.md) | 82 | 13 | 0 | 20 | OK |
+| [log-derivative-growth](log-derivative-growth/README.md) | 36 | 3 | 0 | 6 | OK |
+| [zero-density-bound](zero-density-bound/README.md) | 36 | 6 | 0 | 9 | OK |
+| [zero-infinitude](zero-infinitude/README.md) | 47 | 4 | 0 | 6 | OK |
+| [weil-positivity](weil-positivity/README.md) | 56 | 5 | 0 | 5 | OK |
+| [missing-bridge](missing-bridge/README.md) | 97 | 19 | 0 | 25 | OK |
 
 Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted.
 

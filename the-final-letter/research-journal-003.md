@@ -1000,3 +1000,13 @@ both of which need critical-strip evaluation.
 productionised with a combined `_on_line_simple` theorem and two corollaries.  The
 tree also carries an unrelated uncommitted edit to `the-final-letter/research-journal.md`
 from another session (dated 2026-10-25); it was left untouched.
+
+
+### 2026-11-06 — cross-topic note: Weil-positivity wave 1
+
+Not a Krawczyk entry. The Weil-positivity work is recorded in
+[`research-journal.md`](research-journal.md) under the 2026-11-06 entry:
+`ZeroTailSummable` reduced to infinitude of the nontrivial zeros, the
+log-derivative programme widened to polynomial bounds, and the exact isolated
+2×2 block criterion `OffLineBlockPSD ↔ |S(c)| ≤ S(0)`.  The live Krawczyk
+state above is unaffected.
