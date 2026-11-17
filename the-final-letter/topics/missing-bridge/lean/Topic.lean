@@ -3,6 +3,7 @@ import Archimedean
 import GaussianGram
 import DensityCertificates
 import DensityCertificates5
+import Assembly
 import ZeroTail
 import Transfer
 
@@ -1749,5 +1750,609 @@ theorem centre5Arithmetic_posSemidef :
         (PrimeSpectrumTensor.centre5 i - PrimeSpectrumTensor.centre5 j))).PosSemidef := by
   rw [← gaussianGram5_eq_arithmetic]
   exact gaussianGram5_posSemidef
+
+/-- **General structure of the Gaussian Gram matrix.**  For any finite centre
+family, the matrix is the sum of the pole, density and prime matrices, and it is
+Hermitian.  This subsumes the 4×4 and 5×5 decompositions. -/
+theorem gaussianGramMatrix_eq_pole_add_density_add_prime {ι : Type*} [Fintype ι]
+    (c : ι → ℝ) (σ : ℝ) :
+    Matrix.of (fun i j => PrimeSpectrumTensor.gaussianGramEntry (c i) (c j) σ)
+      = Matrix.of (fun i j => PrimeSpectrumTensor.poleTerm (c i - c j) σ)
+        + Matrix.of (fun i j => PrimeSpectrumTensor.densityTerm (c i - c j) σ)
+        + Matrix.of (fun i j =>
+            (PrimeSpectrumTensor.primeTerm (c i - c j) σ
+              + PrimeSpectrumTensor.primeTerm (c j - c i) σ) / 2) := by
+  ext i j
+  rw [Matrix.add_apply, Matrix.add_apply]
+  have h := gaussianGramEntry_three_term (c i - c j) σ
+  have hneg : -(c i - c j) = c j - c i := by ring
+  rw [hneg] at h
+  simpa [PrimeSpectrumTensor.gaussianGramEntry] using h
+
+theorem gaussianGramMatrix_isHermitian {ι : Type*} [Fintype ι]
+    (c : ι → ℝ) (σ : ℝ) :
+    (Matrix.of (fun i j => PrimeSpectrumTensor.gaussianGramEntry (c i) (c j) σ)).IsHermitian := by
+  apply Matrix.IsHermitian.ext
+  intro i j
+  simp only [Matrix.of_apply, star_trivial]
+  exact (PrimeSpectrumTensor.gaussianGramEntry_symm (c i) (c j) σ).symm
+
+/-- **The explicit 5-centre quadratic form and its principal submatrices.**  The
+three-term Gaussian quadratic form is non-negative at the five centres, and every
+principal submatrix inherits PSD. -/
+theorem gaussianGram5_quadraticForm_nonneg (x : Fin 5 → ℝ) :
+    0 ≤ ∑ i, ∑ j, x i * x j *
+      PrimeSpectrumTensor.gaussianGramEntry
+        (PrimeSpectrumTensor.centre5 i) (PrimeSpectrumTensor.centre5 j) (1 / 20) := by
+  have h := (Matrix.posSemidef_iff_dotProduct_mulVec.mp gaussianGram5_posSemidef).2 x
+  have hq : star x ⬝ᵥ (PrimeSpectrumTensor.gaussianGram5 (1 / 20) *ᵥ x)
+      = ∑ i, ∑ j, x i * x j *
+          PrimeSpectrumTensor.gaussianGramEntry
+            (PrimeSpectrumTensor.centre5 i) (PrimeSpectrumTensor.centre5 j) (1 / 20) := by
+    simp only [dotProduct, Matrix.mulVec, PrimeSpectrumTensor.gaussianGram5,
+      Matrix.of_apply, star_trivial, Finset.sum_mul, Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro i _
+    apply Finset.sum_congr rfl
+    intro j _
+    ring
+  rwa [hq] at h
+
+theorem gaussianGram5_submatrix_posSemidef {n : Type*} [Fintype n] [DecidableEq n]
+    (e : n → Fin 5) :
+    ((PrimeSpectrumTensor.gaussianGram5 (1 / 20)).submatrix e e).PosSemidef :=
+  gaussianGram5_posSemidef.submatrix e
+
+/-- **Translation and reflection invariance of the certified family.**  The
+Gaussian Gram matrix depends only on the differences of the centres, so every
+translate and every reflection of the certified 5-centre family is certified. -/
+theorem gaussianGramMatrix_translate {ι : Type*} (c : ι → ℝ) (t σ : ℝ) :
+    Matrix.of (fun i j => PrimeSpectrumTensor.gaussianGramEntry (c i + t) (c j + t) σ)
+      = Matrix.of (fun i j => PrimeSpectrumTensor.gaussianGramEntry (c i) (c j) σ) := by
+  ext i j
+  simp only [Matrix.of_apply]
+  unfold PrimeSpectrumTensor.gaussianGramEntry
+  rw [show c i + t - (c j + t) = c i - c j by ring,
+      show c j + t - (c i + t) = c j - c i by ring]
+
+theorem gaussianGram5_translate_posSemidef (t : ℝ) :
+    (Matrix.of (fun i j =>
+      PrimeSpectrumTensor.gaussianGramEntry
+        (PrimeSpectrumTensor.centre5 i + t) (PrimeSpectrumTensor.centre5 j + t) (1 / 20))).PosSemidef := by
+  rw [gaussianGramMatrix_translate]
+  exact gaussianGram5_posSemidef
+
+
+
+
+
+open Complex AbsoluteHodgeSymbol AbsoluteHodgeExplicitFormula AbsoluteHodgeArchimedean MissingBridge
+open scoped Matrix
+
+theorem gaussianGramMatrix_reflect {ι : Type*} (c : ι → ℝ) (σ : ℝ) :
+    Matrix.of (fun i j => PrimeSpectrumTensor.gaussianGramEntry (-(c i)) (-(c j)) σ)
+      = Matrix.of (fun i j => PrimeSpectrumTensor.gaussianGramEntry (c i) (c j) σ) := by
+  ext i j
+  simp only [Matrix.of_apply]
+  unfold PrimeSpectrumTensor.gaussianGramEntry
+  rw [show -c i - -c j = c j - c i by ring,
+      show -c j - -c i = c i - c j by ring]
+  ring
+
+theorem gaussianGram5_reflect_posSemidef :
+    (Matrix.of (fun i j =>
+      PrimeSpectrumTensor.gaussianGramEntry
+        (-(PrimeSpectrumTensor.centre5 i)) (-(PrimeSpectrumTensor.centre5 j)) (1 / 20))).PosSemidef := by
+  rw [gaussianGramMatrix_reflect]
+  exact gaussianGram5_posSemidef
+
+/-- **Translation and reflection of the 4-centre certificate.** -/
+theorem gaussianGram4_translate_posSemidef (t : ℝ) :
+    (Matrix.of (fun i j =>
+      PrimeSpectrumTensor.gaussianGramEntry
+        (PrimeSpectrumTensor.centre4 i + t) (PrimeSpectrumTensor.centre4 j + t) (1 / 20))).PosSemidef := by
+  rw [gaussianGramMatrix_translate]
+  exact gaussianGram4_posSemidef
+
+theorem gaussianGram4_reflect_posSemidef :
+    (Matrix.of (fun i j =>
+      PrimeSpectrumTensor.gaussianGramEntry
+        (-(PrimeSpectrumTensor.centre4 i)) (-(PrimeSpectrumTensor.centre4 j)) (1 / 20))).PosSemidef := by
+  rw [gaussianGramMatrix_reflect]
+  exact gaussianGram4_posSemidef
+
+/-- **Concrete density-term signs at `σ = 1/20`.**  Positive at `c = 0`, negative
+at `c = 1/5, 2/5, 3/5` (from the `prime-spectrum-tensor` enclosure bands). -/
+theorem densityTerm_pos_at_zero : 0 < PrimeSpectrumTensor.densityTerm 0 (1 / 20) := by
+  have h := PrimeSpectrumTensor.densityTerm_mem_c0
+  rw [Set.mem_Icc] at h
+  linarith [h.1]
+
+theorem densityTerm_neg_at_fifth : PrimeSpectrumTensor.densityTerm (1 / 5) (1 / 20) < 0 := by
+  have h := PrimeSpectrumTensor.densityTerm_mem_c1
+  rw [Set.mem_Icc] at h
+  linarith [h.2]
+
+theorem densityTerm_neg_at_two_fifths : PrimeSpectrumTensor.densityTerm (2 / 5) (1 / 20) < 0 := by
+  have h := PrimeSpectrumTensor.densityTerm_mem_c2
+  rw [Set.mem_Icc] at h
+  linarith [h.2]
+
+theorem densityTerm_neg_at_three_fifths : PrimeSpectrumTensor.densityTerm (3 / 5) (1 / 20) < 0 := by
+  have h := PrimeSpectrumTensor.densityTerm_mem_c3
+  rw [Set.mem_Icc] at h
+  linarith [h.2]
+
+/-- **The explicit 4-centre quadratic form.** -/
+theorem gaussianGram4_quadraticForm_nonneg (x : Fin 4 → ℝ) :
+    0 ≤ ∑ i, ∑ j, x i * x j *
+      PrimeSpectrumTensor.gaussianGramEntry
+        (PrimeSpectrumTensor.centre4 i) (PrimeSpectrumTensor.centre4 j) (1 / 20) := by
+  have h := (Matrix.posSemidef_iff_dotProduct_mulVec.mp gaussianGram4_posSemidef).2 x
+  have hq : star x ⬝ᵥ (PrimeSpectrumTensor.gaussianGram4 (1 / 20) *ᵥ x)
+      = ∑ i, ∑ j, x i * x j *
+          PrimeSpectrumTensor.gaussianGramEntry
+            (PrimeSpectrumTensor.centre4 i) (PrimeSpectrumTensor.centre4 j) (1 / 20) := by
+    simp only [dotProduct, Matrix.mulVec, PrimeSpectrumTensor.gaussianGram4,
+      Matrix.of_apply, star_trivial, Finset.sum_mul, Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro i _
+    apply Finset.sum_congr rfl
+    intro j _
+    ring
+  rwa [hq] at h
+
+/-- The density term at `c = 4/5` is negative. -/
+theorem densityTerm_neg_at_four_fifths : PrimeSpectrumTensor.densityTerm (4 / 5) (1 / 20) < 0 := by
+  have h := PrimeSpectrumTensor.densityTerm_mem_c4
+  rw [Set.mem_Icc] at h
+  linarith [h.2]
+
+/-! ## The bridge, first-class
+
+The following theorems package the Gaussian bridge: the zero-side quadratic
+form equals the Gaussian-Gram quadratic form (under the Gaussian explicit
+formula), and `FiniteWeilPositivity` / RH follow from that formula plus PSD of
+the Gaussian Gram matrix.  The two hypotheses are the *only* inputs; neither is
+archimedean dominance. -/
+
+theorem weilQuadraticForm_eq_gaussianGram {ι : Type*} [Fintype ι] (a : ι → ℝ) (σ : ℝ)
+    (S : Finset ℂ) (x : ι → ℝ)
+    (hformula : ∀ c, scalarZeroSide σ S c = gaussianGramEntry c 0 σ) :
+    weilQuadraticForm a σ S x
+      = ∑ i, ∑ j, x i * x j * gaussianGramEntry (a i - a j) 0 σ :=
+  weilQuadraticForm_eq_arithmetic a σ S x (fun c => gaussianGramEntry c 0 σ) hformula
+
+theorem finiteWeilPositivity_iff_RH :
+    FiniteWeilPositivity ↔ AbsoluteHodgeSymbol.RiemannHypothesis :=
+  ⟨finiteWeilPositivity_implies_RH, rh_implies_finiteWeilPositivity⟩
+
+theorem finiteWeilPositivity_of_gaussianGram
+    (hformula : ∀ (σ : ℝ) (S : Finset ℂ) (c : ℝ),
+      (∀ ρ ∈ S, completedZeta ρ = 0) → (∀ ρ ∈ S, 0 < ρ.re) → (∀ ρ ∈ S, ρ.re < 1) →
+      scalarZeroSide σ S c = gaussianGramEntry c 0 σ)
+    (hPSD : ∀ (σ : ℝ) (ι : Type) [Fintype ι] (a : ι → ℝ),
+      (Matrix.of (fun i j => gaussianGramEntry (a i - a j) 0 σ)).PosSemidef) :
+    FiniteWeilPositivity :=
+  finiteWeilPositivity_of_arithmetic (fun σ c => gaussianGramEntry c 0 σ) hformula hPSD
+
+theorem riemannHypothesis_of_gaussianGram
+    (hformula : ∀ (σ : ℝ) (S : Finset ℂ) (c : ℝ),
+      (∀ ρ ∈ S, completedZeta ρ = 0) → (∀ ρ ∈ S, 0 < ρ.re) → (∀ ρ ∈ S, ρ.re < 1) →
+      scalarZeroSide σ S c = gaussianGramEntry c 0 σ)
+    (hPSD : ∀ (σ : ℝ) (ι : Type) [Fintype ι] (a : ι → ℝ),
+      (Matrix.of (fun i j => gaussianGramEntry (a i - a j) 0 σ)).PosSemidef) :
+    AbsoluteHodgeSymbol.RiemannHypothesis :=
+  finiteWeilPositivity_implies_RH (finiteWeilPositivity_of_gaussianGram hformula hPSD)
+
+/-! ## T86 in three-term form, and the two named bridge inputs -/
+
+/-- **T86, three-term form:** the Gaussian Gram entry is the pole term plus the
+density term plus the symmetrised prime term. -/
+theorem gaussianGramEntry_eq_pole_add_density_add_primeSym (a b σ : ℝ) :
+    PrimeSpectrumTensor.gaussianGramEntry a b σ
+      = PrimeSpectrumTensor.poleTerm (a - b) σ
+        + PrimeSpectrumTensor.densityTerm (a - b) σ
+        + PrimeSpectrumTensor.primeTermSym (a - b) σ :=
+  PrimeSpectrumTensor.gaussianGramEntry_eq a b σ
+
+/-- **Named input 1 — the Gaussian explicit formula.**  The zero-side scalar
+sum equals the Gaussian Gram entry.  This is the only zero-side analytic input
+of the bridge. -/
+def GaussianExplicitFormula : Prop :=
+  ∀ (σ : ℝ) (S : Finset ℂ) (c : ℝ),
+    (∀ ρ ∈ S, completedZeta ρ = 0) → (∀ ρ ∈ S, 0 < ρ.re) → (∀ ρ ∈ S, ρ.re < 1) →
+    scalarZeroSide σ S c = PrimeSpectrumTensor.gaussianGramEntry c 0 σ
+
+/-- **Named input 2 — PSD of the Gaussian Gram matrix.**  Every finite Gaussian
+family has a positive-semidefinite Gram matrix.  This is the only positivity
+input of the bridge (and the genuinely open one). -/
+def GaussianGramPSD : Prop :=
+  ∀ (σ : ℝ) (ι : Type) [Fintype ι] (a : ι → ℝ),
+    (Matrix.of (fun i j =>
+      PrimeSpectrumTensor.gaussianGramEntry (a i - a j) 0 σ)).PosSemidef
+
+/-- **The bridge, positivity form, with named inputs.** -/
+theorem finiteWeilPositivity_of_gaussianInputs
+    (h1 : GaussianExplicitFormula) (h2 : GaussianGramPSD) :
+    FiniteWeilPositivity :=
+  finiteWeilPositivity_of_arithmetic
+    (fun σ c => PrimeSpectrumTensor.gaussianGramEntry c 0 σ) h1 h2
+
+/-- **The bridge, RH form, with named inputs.**  Conditional: the two inputs
+are not proved. -/
+theorem riemannHypothesis_of_gaussianInputs
+    (h1 : GaussianExplicitFormula) (h2 : GaussianGramPSD) :
+    AbsoluteHodgeSymbol.RiemannHypothesis :=
+  finiteWeilPositivity_implies_RH (finiteWeilPositivity_of_gaussianInputs h1 h2)
+
+/-! ## Correctness of the bridge inputs: the finite formula is vacuous
+
+The finite-`S` identity used by T79/T116 is **not** the explicit formula: at
+`S = ∅` it forces the arithmetic side to vanish.  The genuine input is the
+infinite-sum identity `GaussianExplicitFormulaInfinite`. -/
+
+/-- **The finite-`S` formula is vacuous.**  If `scalarZeroSide σ S c = g c` is
+assumed for *every* finite set `S` of zeros in the strip, then `S = ∅` forces
+`g ≡ 0`.  Hence the finite formula cannot be the explicit formula; the genuine
+input is the infinite-sum (tsum) identity. -/
+theorem finiteFormula_forces_zero {σ : ℝ} (g : ℝ → ℝ)
+    (hformula : ∀ (S : Finset ℂ) (c : ℝ),
+      (∀ ρ ∈ S, completedZeta ρ = 0) → (∀ ρ ∈ S, 0 < ρ.re) → (∀ ρ ∈ S, ρ.re < 1) →
+      scalarZeroSide σ S c = g c) :
+    ∀ c, g c = 0 := by
+  intro c
+  have h := hformula ∅ c (by simp) (by simp) (by simp)
+  simpa [scalarZeroSide] using h.symm
+
+/-- The genuine explicit formula: the infinite sum over all nontrivial zeros in
+the critical strip equals the Gaussian Gram entry. -/
+def GaussianExplicitFormulaInfinite : Prop :=
+  ∀ (σ c : ℝ),
+    HasSum (fun ρ : {ρ : ℂ // completedZeta ρ = 0 ∧ 0 < ρ.re ∧ ρ.re < 1} =>
+      (gaussianZeroTest c σ ρ).re) (gaussianGramEntry c 0 σ)
+
+/-! ## PSD is closed under pointwise limits -/
+
+variable {n : Type*} [Fintype n]
+
+/-- The quadratic form of a real matrix is continuous in the matrix. -/
+theorem continuous_matrix_quadraticForm (x : n → ℝ) :
+    Continuous (fun M : Matrix n n ℝ => star x ⬝ᵥ (M *ᵥ x)) := by
+  simp only [dotProduct, mulVec, star_trivial]
+  fun_prop
+
+/-- **Positive semidefiniteness is a closed condition.** -/
+theorem isClosed_setOf_posSemidef :
+    IsClosed {M : Matrix n n ℝ | M.PosSemidef} := by
+  have hset : {M : Matrix n n ℝ | M.PosSemidef} =
+      {M | M.IsHermitian} ∩ ⋂ x : n → ℝ, {M | 0 ≤ star x ⬝ᵥ (M *ᵥ x)} := by
+    ext M
+    simp only [Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter,
+      Matrix.posSemidef_iff_dotProduct_mulVec]
+  rw [hset]
+  refine IsClosed.inter ?_ (isClosed_iInter fun x =>
+    isClosed_le continuous_const (continuous_matrix_quadraticForm x))
+  have hHerm : {M : Matrix n n ℝ | M.IsHermitian} = {M | Mᴴ = M} := rfl
+  rw [hHerm]
+  exact isClosed_eq continuous_id.matrix_transpose continuous_id
+
+/-- **PSD passes to limits.** -/
+theorem posSemidef_of_tendsto {ι : Type*} {F : Filter ι} [F.NeBot]
+    {f : ι → Matrix n n ℝ} {M : Matrix n n ℝ}
+    (hf : Filter.Tendsto f F (nhds M)) (h : ∀ i, (f i).PosSemidef) :
+    M.PosSemidef :=
+  isClosed_setOf_posSemidef.mem_of_tendsto hf (Filter.Eventually.of_forall h)
+
+/-! ## The corrected bridge, with the infinite explicit formula -/
+
+/-- The corrected bridge: `FiniteWeilPositivity` plus the infinite explicit
+formula imply PSD of the Gaussian Gram matrix. -/
+theorem gaussianGramPSD_of_finiteWeilPositivity
+    (hFWP : FiniteWeilPositivity) (hEF : GaussianExplicitFormulaInfinite) :
+    GaussianGramPSD := by
+  classical
+  intro σ ι _ a
+  let Z := {ρ : ℂ // completedZeta ρ = 0 ∧ 0 < ρ.re ∧ ρ.re < 1}
+  let M : Finset Z → Matrix ι ι ℝ := fun T =>
+    Matrix.of (fun i j => ∑ ρ ∈ T, (gaussianZeroTest (a i - a j) σ ρ).re)
+  have hM_psd : ∀ T, (M T).PosSemidef := by
+    intro T
+    have hS : ∀ ρ ∈ T.image (Subtype.val : Z → ℂ),
+        completedZeta ρ = 0 ∧ 0 < ρ.re ∧ ρ.re < 1 := by
+      intro ρ hρ
+      obtain ⟨ρ', _, rfl⟩ := Finset.mem_image.mp hρ
+      exact ρ'.2
+    have h := hFWP ι a σ (T.image Subtype.val)
+      (fun ρ hρ => (hS ρ hρ).1) (fun ρ hρ => (hS ρ hρ).2.1) (fun ρ hρ => (hS ρ hρ).2.2)
+    convert h using 1
+    ext i j
+    simp only [M, finiteWeilGramReal, Matrix.of_apply]
+    rw [Finset.sum_image]
+    intro x _ y _ hxy
+    exact Subtype.ext hxy
+  have h_tendsto : Filter.Tendsto M (SummationFilter.unconditional Z).filter
+      (nhds (Matrix.of (fun i j => gaussianGramEntry (a i - a j) 0 σ))) := by
+    change Filter.Tendsto (fun T : Finset Z => fun i : ι => fun j : ι => M T i j)
+      (SummationFilter.unconditional Z).filter
+      (nhds (fun i : ι => fun j : ι => gaussianGramEntry (a i - a j) 0 σ))
+    rw [tendsto_pi_nhds]
+    intro i
+    rw [tendsto_pi_nhds]
+    intro j
+    change Filter.Tendsto (fun T : Finset Z =>
+      ∑ ρ ∈ T, (gaussianZeroTest (a i - a j) σ ρ).re)
+      (SummationFilter.unconditional Z).filter
+      (nhds (gaussianGramEntry (a i - a j) 0 σ))
+    exact hEF σ (a i - a j)
+  exact posSemidef_of_tendsto h_tendsto hM_psd
+
+/-- Under the infinite explicit formula, RH implies PSD of the Gaussian Gram
+matrix — the corrected necessary direction of the bridge. -/
+theorem gaussianGramPSD_of_RH (hEF : GaussianExplicitFormulaInfinite)
+    (h : AbsoluteHodgeSymbol.RiemannHypothesis) : GaussianGramPSD :=
+  gaussianGramPSD_of_finiteWeilPositivity
+    (rh_implies_finiteWeilPositivity h) hEF
+
+/-! ## The packaged Gaussian bridge -/
+
+/-- **The Gaussian bridge, packaged.**  Under the infinite explicit formula:
+the zero-side equivalence holds, finite Weil positivity implies PSD of the
+Gaussian Gram matrix, and RH implies PSD of the Gaussian Gram matrix. -/
+theorem gaussianBridge_summary (hEF : GaussianExplicitFormulaInfinite) :
+    (FiniteWeilPositivity ↔ AbsoluteHodgeSymbol.RiemannHypothesis) ∧
+      (FiniteWeilPositivity → GaussianGramPSD) ∧
+      (AbsoluteHodgeSymbol.RiemannHypothesis → GaussianGramPSD) :=
+  ⟨finiteWeilPositivity_iff_RH,
+   fun h => gaussianGramPSD_of_finiteWeilPositivity h hEF,
+   fun h => gaussianGramPSD_of_RH hEF h⟩
+
+/-! ## Assembling the Gaussian explicit formula
+
+The algebraic assembly is formal: from the contour/rectangle identity in
+archimedean/prime form, the zero sum is
+`H_c(0) + H_c(1) − (ArchR+PrimeR+ArchL+PrimeL)/(2π)`, and its real part is the
+Gaussian Gram entry once the vertical-limit identification is supplied.  The
+analytic inputs (the identification itself, the four contour limits, and the
+zero-sum convergence/enumeration) are named here and remain open. -/
+
+/-- The vertical-limit identification: the real part of the right/left
+archimedean-plus-prime limits is `−2π` times the density-plus-symmetrised-prime
+terms.  This is the prime/archimedean evaluation that the contour file leaves
+open. -/
+def VerticalLimitIdentification (c σ : ℝ) (ArchR PrimeR ArchL PrimeL : ℂ) : Prop :=
+  (ArchR + PrimeR + ArchL + PrimeL).re =
+    -2 * Real.pi * (densityTerm c σ + primeTermSym c σ)
+
+/-- **The assembly identity, algebraically.** -/
+theorem gaussianZeroSum_eq {c σ : ℝ} {Zsum ArchR PrimeR ArchL PrimeL : ℂ}
+    (hassemble : (Zsum - gaussianZeroTest c σ 0 - gaussianZeroTest c σ 1) *
+        (2 * (Real.pi : ℂ) * I) =
+      I * (-ArchR - PrimeR) - I * (ArchL + PrimeL)) :
+    Zsum = gaussianZeroTest c σ 0 + gaussianZeroTest c σ 1 -
+      (ArchR + PrimeR + ArchL + PrimeL) / (2 * (Real.pi : ℂ)) := by
+  have hpi : (Real.pi : ℂ) ≠ 0 := by exact_mod_cast Real.pi_ne_zero
+  have h2pii : (2 * (Real.pi : ℂ) * I) ≠ 0 := by
+    simp [hpi, Complex.I_ne_zero]
+  have h' : (Zsum - gaussianZeroTest c σ 0 - gaussianZeroTest c σ 1) *
+      (2 * (Real.pi : ℂ) * I) = -(I * (ArchR + PrimeR + ArchL + PrimeL)) := by
+    rw [hassemble]
+    ring
+  have h2 : Zsum - gaussianZeroTest c σ 0 - gaussianZeroTest c σ 1 =
+      -(I * (ArchR + PrimeR + ArchL + PrimeL)) * (2 * (Real.pi : ℂ) * I)⁻¹ := by
+    calc Zsum - gaussianZeroTest c σ 0 - gaussianZeroTest c σ 1
+        = ((Zsum - gaussianZeroTest c σ 0 - gaussianZeroTest c σ 1) *
+            (2 * (Real.pi : ℂ) * I)) * (2 * (Real.pi : ℂ) * I)⁻¹ := by
+            rw [mul_assoc, mul_inv_cancel₀ h2pii, mul_one]
+      _ = (-(I * (ArchR + PrimeR + ArchL + PrimeL))) *
+            (2 * (Real.pi : ℂ) * I)⁻¹ := by rw [h']
+  have hkey : (-(I * (ArchR + PrimeR + ArchL + PrimeL))) *
+      (2 * (Real.pi : ℂ) * I)⁻¹ =
+      -(ArchR + PrimeR + ArchL + PrimeL) / (2 * (Real.pi : ℂ)) := by
+    field_simp
+  rw [hkey] at h2
+  linear_combination h2
+
+/-- **Assembly, real form.**  Given the assembled explicit formula and the
+vertical-limit identification, the real part of the zero sum is exactly the
+Gaussian Gram entry. -/
+theorem gaussianZeroSum_re_eq_gram {c σ : ℝ} {Zsum ArchR PrimeR ArchL PrimeL : ℂ}
+    (hassemble : (Zsum - gaussianZeroTest c σ 0 - gaussianZeroTest c σ 1) *
+        (2 * (Real.pi : ℂ) * I) =
+      I * (-ArchR - PrimeR) - I * (ArchL + PrimeL))
+    (hident : VerticalLimitIdentification c σ ArchR PrimeR ArchL PrimeL)
+    (hpole : (gaussianZeroTest c σ 0 + gaussianZeroTest c σ 1).re =
+      PrimeSpectrumTensor.poleTerm c σ) :
+    Zsum.re = gaussianGramEntry c 0 σ := by
+  have hZ := congrArg Complex.re (gaussianZeroSum_eq hassemble)
+  have hdiv : ((ArchR + PrimeR + ArchL + PrimeL) / (2 * (Real.pi : ℂ))).re =
+      (ArchR + PrimeR + ArchL + PrimeL).re / (2 * Real.pi) := by
+    rw [Complex.div_re]
+    simp [Complex.ofReal_re, Complex.ofReal_im, Complex.normSq]
+    field_simp
+  have hpole' : (gaussianZeroTest c σ 0).re + (gaussianZeroTest c σ 1).re =
+      PrimeSpectrumTensor.poleTerm c σ := by
+    rw [← Complex.add_re]
+    exact hpole
+  have hrhs : (gaussianZeroTest c σ 0 + gaussianZeroTest c σ 1 -
+      (ArchR + PrimeR + ArchL + PrimeL) / (2 * (Real.pi : ℂ))).re =
+      PrimeSpectrumTensor.poleTerm c σ + densityTerm c σ + primeTermSym c σ := by
+    rw [Complex.sub_re, Complex.add_re, hdiv, hpole', hident]
+    have hsimp : -2 * Real.pi * (densityTerm c σ + primeTermSym c σ) / (2 * Real.pi) =
+        -(densityTerm c σ + primeTermSym c σ) := by
+      field_simp
+    rw [hsimp]
+    ring
+  rw [hZ, hrhs, gaussianGramEntry_eq_pole_add_density_add_primeSym]
+  norm_num
+
+/-! ## From the assembly data to the infinite explicit formula -/
+
+/-- **The named assembly data.**  For every `σ, c` there are contour limit
+values `ArchR, PrimeR, ArchL, PrimeL` and a zero-sum value `Zsum` such that the
+assembled explicit formula holds, the vertical limits identify with the
+arithmetic terms, and the zero sum is a `HasSum` over all nontrivial zeros in
+the strip.  This bundles the three open analytic inputs. -/
+def GaussianZeroSumAssembly : Prop :=
+  ∀ (σ c : ℝ), ∃ (Zsum ArchR PrimeR ArchL PrimeL : ℂ),
+    (Zsum - gaussianZeroTest c σ 0 - gaussianZeroTest c σ 1) *
+        (2 * (Real.pi : ℂ) * I) =
+      I * (-ArchR - PrimeR) - I * (ArchL + PrimeL) ∧
+    VerticalLimitIdentification c σ ArchR PrimeR ArchL PrimeL ∧
+    HasSum (fun ρ : {ρ : ℂ // completedZeta ρ = 0 ∧ 0 < ρ.re ∧ ρ.re < 1} =>
+      (gaussianZeroTest c σ ρ).re) Zsum.re
+
+/-- **Assembly gives the infinite explicit formula**, conditionally on the
+named assembly data. -/
+theorem gaussianExplicitFormulaInfinite_of_assembly
+    (h : GaussianZeroSumAssembly) : GaussianExplicitFormulaInfinite := by
+  intro σ c
+  obtain ⟨Zsum, ArchR, PrimeR, ArchL, PrimeL, hassemble, hident, hsum⟩ := h σ c
+  have hpole : (gaussianZeroTest c σ 0 + gaussianZeroTest c σ 1).re =
+      PrimeSpectrumTensor.poleTerm c σ := by
+    rw [show PrimeSpectrumTensor.poleTerm c σ = MissingBridge.poleTerm c σ from rfl]
+    exact (poleTerm_eq_re_gaussianZeroTest_pole_sum c σ).symm
+  have hval : Zsum.re = gaussianGramEntry c 0 σ :=
+    gaussianZeroSum_re_eq_gram hassemble hident hpole
+  rwa [hval] at hsum
+
+/-! ## Concrete vertical limits
+
+The four contour limit values of the assembled formula are reduced to the
+archimedean and prime vertical integrals at `Re s = 2`: the right side is
+`−(archRight + primeRight)`, and the left side is obtained from the reflected
+test `H_{−c}` by the functional equation. -/
+
+/-- The right-side archimedean vertical integral at `Re s = 2`. -/
+def archRight (c σ : ℝ) (T : ℝ) : ℂ :=
+  ∫ y : ℝ in (-T)..T,
+    ((1 / 2) * log (Real.pi : ℂ) - (1 / 2) * digamma ((2 + y * I) / 2))
+      * gaussianZeroTest c σ (2 + y * I)
+
+/-- The right-side prime (von Mangoldt L-series) vertical integral at `Re s = 2`. -/
+def primeRight (c σ : ℝ) (T : ℝ) : ℂ :=
+  ∫ y : ℝ in (-T)..T,
+    LSeries (fun n => (ArithmeticFunction.vonMangoldt n : ℂ)) (2 + y * I)
+      * gaussianZeroTest c σ (2 + y * I)
+
+/-- The right vertical integral (without the `I` factor) is minus the sum of the
+archimedean and prime halves. -/
+theorem right_integral_eq (c σ T : ℝ) :
+    (∫ y : ℝ in (-T)..T,
+      logDeriv completedZeta (2 + y * I) * gaussianZeroTest c σ (2 + y * I))
+      = -(archRight c σ T + primeRight c σ T) := by
+  set J : ℂ := ∫ y : ℝ in (-T)..T,
+    logDeriv completedZeta (2 + y * I) * gaussianZeroTest c σ (2 + y * I)
+  set A : ℂ := archRight c σ T
+  set P : ℂ := primeRight c σ T
+  have hmain : J * I = -(A * I) - (P * I) := by
+    rw [← intervalIntegral.integral_mul_const]
+    simpa [J, A, P, archRight, primeRight] using
+      integral_logDeriv_gaussianZeroTest_right_side' c σ 2 (-T) T (by norm_num)
+  have h1 : -(A * I) - (P * I) = (-(A + P)) * I := by ring
+  rw [h1] at hmain
+  have hcancel : J = -(A + P) := by
+    exact mul_right_cancel₀ Complex.I_ne_zero hmain
+  simpa [J, A, P] using hcancel
+
+/-- Right vertical limit from the two concrete halves. -/
+theorem tendsto_right {c σ : ℝ} {A P : ℂ}
+    (hA : Filter.Tendsto (archRight c σ) atTop (nhds A))
+    (hP : Filter.Tendsto (primeRight c σ) atTop (nhds P)) :
+    Filter.Tendsto (fun T => ∫ y : ℝ in (-T)..T,
+      logDeriv completedZeta (2 + y * I) * gaussianZeroTest c σ (2 + y * I))
+      atTop (nhds (-A - P)) := by
+  have h : Filter.Tendsto (fun T => archRight c σ T + primeRight c σ T) atTop (nhds (A + P)) :=
+    hA.add hP
+  have hneg : Filter.Tendsto (fun T => -(archRight c σ T + primeRight c σ T)) atTop (nhds (-(A + P))) :=
+    h.neg
+  have h'A : (-(A + P) : ℂ) = -A - P := by ring
+  rw [h'A] at hneg
+  exact hneg.congr' (Filter.Eventually.of_forall fun T => (right_integral_eq c σ T).symm)
+
+/-- Left vertical limit derived from the right limits of the reflected test
+`H_{−c}` (via the functional equation). -/
+theorem tendsto_left {c σ : ℝ} {A P : ℂ}
+    (hA : Filter.Tendsto (archRight (-c) σ) atTop (nhds A))
+    (hP : Filter.Tendsto (primeRight (-c) σ) atTop (nhds P)) :
+    Filter.Tendsto (fun T => ∫ y : ℝ in (-T)..T,
+      logDeriv completedZeta ((-1 : ℂ) + y * I) * gaussianZeroTest c σ ((-1 : ℂ) + y * I))
+      atTop (nhds (A + P)) := by
+  have hright := tendsto_right (c := -c) (σ := σ) hA hP
+  have hAP : (-A - P : ℂ) = -(A + P) := by ring
+  rw [hAP] at hright
+  have hrightI : Filter.Tendsto (fun T => ∫ y : ℝ in (-T)..T,
+      logDeriv completedZeta (2 + y * I) * gaussianZeroTest (-c) σ (2 + y * I) * I)
+      atTop (nhds ((-(A + P)) * I)) := by
+    have hmul := hright.mul_const I
+    refine hmul.congr' (Filter.Eventually.of_forall fun T => ?_)
+    dsimp only
+    rw [intervalIntegral.integral_mul_const]
+  have hneg := hrightI.neg
+  have hleftI : Filter.Tendsto (fun T => ∫ y : ℝ in (-T)..T,
+      logDeriv completedZeta ((-1 : ℂ) + y * I) * gaussianZeroTest c σ ((-1 : ℂ) + y * I) * I)
+      atTop (nhds ((A + P) * I)) := by
+    have hval : -((-(A + P)) * I) = (A + P) * I := by ring
+    rw [hval] at hneg
+    refine hneg.congr' (Filter.Eventually.of_forall fun T => ?_)
+    dsimp only
+    exact (integral_logDeriv_gaussianZeroTest_left_eq_neg_right c σ T).symm
+  have hII : (I : ℂ) * (-I) = 1 := by simp [Complex.I_mul_I]
+  have hmul := hleftI.mul_const (-I)
+  have hval : ((A + P) * I) * (-I) = A + P := by
+    calc ((A + P) * I) * (-I) = (A + P) * (I * (-I)) := by ring
+      _ = (A + P) * 1 := by rw [hII]
+      _ = A + P := by ring
+  rw [hval] at hmul
+  refine hmul.congr' (Filter.Eventually.of_forall fun T => ?_)
+  dsimp only
+  rw [intervalIntegral.integral_mul_const, mul_assoc, hII, mul_one]
+
+/-! ## Enumeration: cofinal chains and the unconditional sum -/
+
+/-- **Cofinal-chain lemma.** -/
+theorem hasSum_of_cofinal {ι : Type*} {α : Type*} [NormedAddCommGroup α] [CompleteSpace α]
+    {f : ι → α} (S : ℕ → Finset ι)
+    (hmono : Monotone S) (hcover : ∀ i, ∃ n, i ∈ S n) (hsum : Summable f) {z : α}
+    (h : Filter.Tendsto (fun n => ∑ i ∈ S n, f i) Filter.atTop (nhds z)) :
+    HasSum f z := by
+  classical
+  have hg : Filter.Tendsto (fun s : Finset ι => ∑ i ∈ s, f i) Filter.atTop (nhds (∑' i : ι, f i)) :=
+    hsum.hasSum
+  have hfinite : ∀ t : Finset ι, ∃ N, ∀ i ∈ t, i ∈ S N := by
+    intro t
+    induction t using Finset.induction_on with
+    | empty => exact ⟨0, by simp⟩
+    | insert a s _ ih =>
+        obtain ⟨N1, h1⟩ := ih
+        obtain ⟨N2, h2⟩ := hcover a
+        refine ⟨max N1 N2, ?_⟩
+        intro i hi
+        rcases Finset.mem_insert.mp hi with rfl | hi'
+        · exact hmono (le_max_right _ _) h2
+        · exact hmono (le_max_left _ _) (h1 i hi')
+  have hS : Filter.Tendsto S Filter.atTop Filter.atTop := by
+    rw [Filter.tendsto_atTop]
+    intro t
+    obtain ⟨N, hN⟩ := hfinite t
+    exact Filter.eventually_atTop.mpr ⟨N, fun m hm i hi => hmono hm (hN i hi)⟩
+  have hcomp : Filter.Tendsto (fun n => ∑ i ∈ S n, f i) Filter.atTop (nhds (∑' i : ι, f i)) :=
+    hg.comp hS
+  have hz : z = ∑' i : ι, f i := tendsto_nhds_unique h hcomp
+  rw [hz]
+  exact hsum.hasSum
+
+/-! ## Decomposing the vertical-limit identification -/
+
+/-- **The vertical-limit identification, decomposed.**  It suffices to identify
+the archimedean and prime limit values separately with `densityTerm` and
+`primeTermSym`: then the combined identification holds. -/
+theorem verticalLimitIdentification_of_limits {c σ : ℝ} {A P A' P' : ℂ}
+    (hA : A.re + A'.re = -2 * Real.pi * densityTerm c σ)
+    (hP : P.re + P'.re = -2 * Real.pi * primeTermSym c σ) :
+    VerticalLimitIdentification c σ A P A' P' := by
+  unfold VerticalLimitIdentification
+  rw [Complex.add_re, Complex.add_re, Complex.add_re]
+  linarith
 
 end MissingBridge

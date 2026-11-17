@@ -168,4 +168,17 @@ theorem gaussianGram5_posDef_of_entry_bound {G : Matrix (Fin 5) (Fin 5) ℝ} {ε
   refine posDef_of_entry_bound hGsym gramCentre5_sub_posDef hε0 hε ?_
   simpa using hdim
 
+/-- The certified 4×4 matrix is a principal submatrix of the 5×5 matrix
+(spacing `1/5`, the 4×4 centres being shifted by `1/10`). -/
+theorem gaussianGram4_submatrix_gaussianGram5 :
+    (gaussianGram5 (1 / 20)).submatrix (fun i : Fin 4 => Fin.succ i)
+        (fun i : Fin 4 => Fin.succ i) = gaussianGram4 (1 / 20) := by
+  ext i j
+  simp only [Matrix.submatrix_apply, gaussianGram5, gaussianGram4, Matrix.of_apply]
+  have hi : centre5 (Fin.succ i) = centre4 i + 1 / 10 := by
+    fin_cases i <;> norm_num [centre5, centre4]
+  have hj : centre5 (Fin.succ j) = centre4 j + 1 / 10 := by
+    fin_cases j <;> norm_num [centre5, centre4]
+  rw [hi, hj, gaussianGramEntry_translate]
+
 end PrimeSpectrumTensor

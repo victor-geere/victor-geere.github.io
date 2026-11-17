@@ -6,6 +6,16 @@ behaves as the basis grows, and what that implies for the interval-certificate
 budget.  It is the evidence behind the recommendation to stop climbing rungs
 one at a time.
 
+**Addendum (2026-11-15).** The `n = 6` rung is now closed
+(`gaussianGram6_posDef`), and the cost model in this note has changed: the
+per-panel certificate cost fell by about an order of magnitude (shared `Ω`
+module, rounded cumulative sums, error-equalising partition), so "the last
+feasible one without a new quadrature rule" is no longer a statement about
+disk.  The `λ_min` collapse below is unchanged and is still the real
+constraint: at `n = 7, 8, 9` the entry budget `n·ε < λ_min(n)` forces `ε` down
+faster than a uniform refinement of the present rule can follow.  See
+[`HANDOFF-M0P-NEXT.md`](HANDOFF-M0P-NEXT.md) §4 for what to do instead.
+
 The numerical object is the one of [`WEIL-GRAM.md`](WEIL-GRAM.md) §2–3:
 `σ = 1/20`, centres `−((n−1)/2)·0.2, …, ((n−1)/2)·0.2`, and
 `G_{ab} = (W(a−b) + W(b−a))/2`.  The values were computed with

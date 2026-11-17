@@ -2,7 +2,7 @@
 
 [Back to the split index](index.md) · Topic: [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
 
-### [`prime-spectrum-tensor/lean/GaussianGram5.lean`](../prime-spectrum-tensor/lean/GaussianGram5.lean) — 8 proofs
+### [`prime-spectrum-tensor/lean/GaussianGram5.lean`](../prime-spectrum-tensor/lean/GaussianGram5.lean) — 9 proofs
 
 | Line | Kind | Proof | Statement (LaTeX) |
 |---:|---|---|---|
@@ -14,3 +14,4 @@
 | [133](../prime-spectrum-tensor/lean/GaussianGram5.lean#L133) | theorem | `L5_transpose_det` | $:(\mathrm{L5}^{T}).\mathrm{det}=1$ |
 | [144](../prime-spectrum-tensor/lean/GaussianGram5.lean#L144) | theorem | `gramCentre5_sub_posDef` | $:(\mathrm{gramCentre5}-\mathrm{gramMargin5}\ \bullet(1:\mathrm{Matrix}(\mathrm{Fin}\ 5)(\mathrm{Fin}\ 5)\ \mathbb{R})).\mathrm{PosDef}$ |
 | [162](../prime-spectrum-tensor/lean/GaussianGram5.lean#L162) | theorem | `gaussianGram5_posDef_of_entry_bound` | $\forall\,G : \mathrm{Matrix}(\mathrm{Fin}\ 5)(\mathrm{Fin}\ 5)\ \mathbb{R},\ \forall\,\varepsilon : \mathbb{R},\ \forall\,hGsym : \forall\ i\ j,\ G\ i\ j=G\ j\ i,\ \forall\,h\varepsilon : \forall\ i\ j,\ \vert{}G\ i\ j-\mathrm{gramCentre5}\ i\ j\vert\le\ \varepsilon,\ \forall\,h\varepsilon_{0} : 0\le\ \varepsilon,\ \forall\,hdim : \varepsilon\cdot\ 5<\mathrm{gramMargin5},\ G.\mathrm{PosDef}$ |
+| [173](../prime-spectrum-tensor/lean/GaussianGram5.lean#L173) | theorem | `gaussianGram4_submatrix_gaussianGram5` | $:(\mathrm{gaussianGram5}(1/20)).\mathrm{submatrix}(\lambda\ i:\mathrm{Fin}\ 4\Rightarrow\ \mathrm{Fin.succ}\ i)(\lambda\ i:\mathrm{Fin}\ 4\Rightarrow\ \mathrm{Fin.succ}\ i)=\mathrm{gaussianGram4}(1/20)$ |

@@ -611,3 +611,99 @@ def test_zero_side_sum_matches_gaussian_gram_entry():
         )
         gram = weil_gaussian_cross(0, c, sigma)
         assert abs(zero_side - gram) < mp.mpf("1e-12")
+
+
+# ---------------------------------------------------------------------------
+# The 6×6 rung (C26)
+# ---------------------------------------------------------------------------
+
+def test_six_by_six_entry_bound_is_met_by_the_certified_bands():
+    """The certified density bands close the 6×6 entry bound.
+
+    The numbers are exactly those of ``lean/DensityBands6.lean`` (the compact
+    chains ``DensityE0 … DensityE5``, error-equalising partition of 1878 panels) and of the pole/prime enclosures.  The test checks the two
+    inequalities the Lean transfer needs:
+
+    * every Gram entry lies within ``ε = 1.5·10⁻³`` of ``gramCentre6``;
+    * ``6ε < 1/70``.
+
+    It is a consistency check on the *specification*, not a substitute for the
+    Lean certificate.
+    """
+    from fractions import Fraction as F
+
+    # densityTerm bands (already doubled) — lean/DensityBands6.lean
+    density = {
+        0: (F(5807874597, 500000000000), F(9430631, 800000000)),
+        1: (F(-6030410797, 125000000000), F(-11979489407, 250000000000)),
+        2: (F(-12146643203, 500000000000), F(-11886937939, 500000000000)),
+        3: (F(-8606446909, 500000000000), F(-8232274893, 500000000000)),
+        4: (F(-6887143137, 500000000000), F(-255243089, 20000000000)),
+        5: (F(-234216177, 20000000000), F(-5200019897, 500000000000)),
+    }
+    # poleTerm_mem_c0 … c5
+    pole = {
+        0: (F(31434, 10 ** 6), F(31436, 10 ** 6)),
+        1: (F(31591, 10 ** 6), F(31593, 10 ** 6)),
+        2: (F(32065, 10 ** 6), F(32067, 10 ** 6)),
+        3: (F(32859, 10 ** 6), F(32861, 10 ** 6)),
+        4: (F(33982, 10 ** 6), F(33985, 10 ** 6)),
+        5: (F(35446, 10 ** 6), F(35448, 10 ** 6)),
+    }
+    # primeTerm: the +c side; the −c side is always in [-22/10^6, 0]
+    prime = {
+        0: (F(-22, 10 ** 6), F(0)),
+        1: (F(-22, 10 ** 6), F(0)),
+        2: (F(-22, 10 ** 6), F(0)),
+        3: (F(-36490, 10 ** 6), F(-3646, 10 ** 5)),
+        4: (F(-2811, 10 ** 5), F(-27726, 10 ** 6)),
+        5: (F(-42660, 10 ** 6), F(-42460, 10 ** 6)),
+    }
+    prime_neg = (F(-22, 10 ** 6), F(0))
+    # the Toeplitz row of gramCentre6
+    centre = [
+        F(431337, 10 ** 7), F(-1649119, 10 ** 8), F(32087, 4 * 10 ** 6),
+        F(-222131, 10 ** 8), F(341931, 5 * 10 ** 7), F(312957, 10 ** 8),
+    ]
+
+    eps = F(8, 10000)
+    for k in range(6):
+        dlo, dhi = density[k]
+        plo, phi = pole[k]
+        qlo = (prime[k][0] + prime_neg[0]) / 2
+        qhi = (prime[k][1] + prime_neg[1]) / 2
+        dev = max(abs(dlo + plo + qlo - centre[k]), abs(dhi + phi + qhi - centre[k]))
+        assert dev <= eps, (k, float(dev))
+    assert eps * 6 < F(1, 70)
+    assert F(1, 70) < F(16707845, 10 ** 9)      # the numerical λ_min(6), C24
+
+
+def test_calibration_table_is_internally_consistent():
+    """The calibration target (``CALIBRATION.md``) is internally consistent.
+
+    Checks the numbers a claimed positivity bridge is asked to reproduce:
+
+    * each rung's budget ``n·ε < gramMargin_n``;
+    * each witness halfwidth is ``ε·(Σ|x|)²`` for the recorded ``Σ|x|``;
+    * the margin law ``λ_min`` is strictly decreasing in ``n`` and still above
+      the largest ε of the ladder.
+
+    This is a consistency check on the specification, not a certificate; the
+    kernel itself is reproduced by ``lean/gen/calibrate.py --check``.
+    """
+    from fractions import Fraction as F
+
+    eps = {4: F(12, 10000), 5: F(36, 10000), 6: F(8, 10000), 7: F(11, 10000)}
+    margin = {4: F(227, 10000), 5: F(1, 50), 6: F(1, 70), 7: F(1, 100)}
+    lam_min = {4: 0.022709743, 5: 0.021423782, 6: 0.016707845, 7: 0.012437471}
+    l1 = {4: 1.87859, 5: 1.99960, 6: 2.30279, 7: 2.39582}
+    halfwidth = {4: 4.235e-03, 5: 1.439e-02, 6: 4.242e-03, 7: 6.314e-03}
+
+    for n in range(4, 8):
+        assert n * eps[n] < margin[n], (n, float(n * eps[n]), float(margin[n]))
+        assert abs(float(eps[n]) * l1[n] ** 2 - halfwidth[n]) < 1e-5, n
+    for n in range(4, 7):
+        assert lam_min[n] > lam_min[n + 1]
+    # the certificate's resolution is coarser than the eigenvalues themselves
+    for n in range(4, 8):
+        assert halfwidth[n] < lam_min[n] * 2.0, n

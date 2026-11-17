@@ -17,22 +17,30 @@ def main():
                     help="index of the first c (controls the DensityC<i>_* names)")
     ap.add_argument("--wden", type=int, default=400,
                     help="second-derivative constant denominator (200 for c = ±4/5)")
+    ap.add_argument("--one", action="store_true",
+                    help="use the |c| ≤ 1 panel certificate")
+    ap.add_argument("--h0", default="1/125")
+    ap.add_argument("--h1", default="1/20")
     args = ap.parse_args()
     here = os.path.dirname(os.path.abspath(__file__))
     size = args.size
     for i, c in enumerate(args.cc, start=args.first_index):
-        # total number of panels is the same for every c (the partition is fixed)
-        # read it from a dry run: use 1305 for the canonical partition
-        P = 1305
+        # total number of panels for this partition
+        from fractions import Fraction
+        h0f = Fraction(args.h0)
+        h1f = Fraction(args.h1)
+        P = int(round(1 / h0f)) + int(round(59 / h1f))
         nchunks = (P + size - 1) // size
         for j in range(nchunks):
             start = j * size
             end = min(P, start + size)
             out = os.path.join(args.outdir, f"DensityC{i}_{j}.lean")
             cmd = [sys.executable, os.path.join(here, "panels.py"),
-                   "--c", c, "--h0", "1/125", "--h1", "1/20",
+                   "--c", c, "--h0", args.h0, "--h1", args.h1,
                    "--start", str(start), "--end", str(end),
                    "--out", out, "--ns", f"D{i}", "--wden", str(args.wden)]
+            if args.one:
+                cmd += ["--one"]
             if j:
                 cmd += ["--import", f"DensityC{i}_{j-1}"]
             if end == P:

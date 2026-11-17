@@ -202,6 +202,21 @@ statements, but the hub should not present the isolated-block implication as
 the bridge.  The bridge is O4 (the classical Weil criterion) on the arithmetic
 side; the zero-side domination route is not viable as stated.
 
+## Dependency note (I5)
+
+The explicit formula's pole terms (`h(0) + h(1)`) and the `h ↔ ĥ` pairing consume
+the functional equation.  With [`zeta-from-theta`](../zeta-from-theta/README.md)
+that consumption no longer routes through the Hurwitz-zeta development:
+`ZetaFromTheta.zetaTheta_one_sub` (D4) is a functional equation for the
+theta-side object whose constant-level audit
+([`AUDIT.md`](../zeta-from-theta/lean/AUDIT.md)) contains no `*_one_sub` lemma of
+that development, and `ZetaFromTheta.riemannZeta_one_sub_from_theta` (M6)
+assembles the `riemannZeta` form (with `Γℝ(1−s) ≠ 0` retained).
+
+**This is a provenance note only.**  It changes no positivity statement in this
+topic: every open item below stays open, including unconditional Weil
+positivity.  Nothing here is evidence for RH.
+
 ## Open items and known gaps
 
 1. **Unconditional Weil positivity.**  RH-equivalent; no unconditional proof
@@ -251,3 +266,21 @@ side; the zero-side domination route is not viable as stated.
 the-final-letter/topics/weil-positivity/lean/check.sh
 python3 -m pytest the-final-letter/topics/weil-positivity/tests -q
 ```
+
+## Bridge status (2026-11-08)
+
+The zero-side equivalence is formalised in the sibling topic
+[`missing-bridge`](../missing-bridge/README.md):
+
+* `FiniteWeilPositivity ↔ RiemannHypothesis` (`finiteWeilPositivity_iff_RH`,
+  T115), combining `rh_implies_finiteWeilPositivity` (T20) and
+  `finiteWeilPositivity_implies_RH` (T57);
+* the corrected bridge with the infinite explicit formula:
+  `FiniteWeilPositivity + GaussianExplicitFormulaInfinite → GaussianGramPSD`
+  (T125), `RH + GaussianExplicitFormulaInfinite → GaussianGramPSD` (T126),
+  packaged as `gaussianBridge_summary` (T127);
+* correctness note: the old finite-`S` formula is vacuous (T121), and the
+  converse `GaussianGramPSD → FiniteWeilPositivity` needs a truncation
+  positivity input; it is not claimed.
+
+Nothing in this topic asserts RH or unconditional positivity.

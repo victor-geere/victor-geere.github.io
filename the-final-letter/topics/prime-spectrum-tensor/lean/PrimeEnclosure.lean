@@ -251,6 +251,54 @@ theorem log_two_mem :
   · linarith [Real.log_two_gt_d9]
   · linarith [Real.log_two_lt_d9]
 
+/-- `Real.log 3` in a tight rational interval (via `exp` bounds). -/
+theorem log_three_mem :
+    (109861 / 100000 : ℝ) ≤ Real.log 3 ∧ Real.log 3 ≤ 109862 / 100000 := by
+  have h9861 : Real.exp (9861 / 100000 : ℝ) < 1103637 / 1000000 := by
+    have hx : |(9861 / 100000 : ℝ)| ≤ 1 := by norm_num
+    have h := Real.exp_bound hx (n := 12) (by norm_num)
+    simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h
+    norm_num at h
+    rw [abs_le] at h
+    linarith [h.2]
+  have h9862 : (1103645 / 1000000 : ℝ) < Real.exp (9862 / 100000 : ℝ) := by
+    have hx : |(9862 / 100000 : ℝ)| ≤ 1 := by norm_num
+    have h := Real.exp_bound hx (n := 12) (by norm_num)
+    simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h
+    norm_num at h
+    rw [abs_le] at h
+    linarith [h.1]
+  have hprod_lo : Real.exp 1 * Real.exp (9861 / 100000 : ℝ) < 3 := by
+    have h1 : Real.exp 1 * Real.exp (9861 / 100000 : ℝ) ≤
+        (2.7182818286 : ℝ) * Real.exp (9861 / 100000 : ℝ) :=
+      mul_le_mul_of_nonneg_right (le_of_lt Real.exp_one_lt_d9) (by positivity)
+    have h2 : (2.7182818286 : ℝ) * Real.exp (9861 / 100000 : ℝ) <
+        (2.7182818286 : ℝ) * (1103637 / 1000000) :=
+      mul_lt_mul_of_pos_left h9861 (by norm_num)
+    calc Real.exp 1 * Real.exp (9861 / 100000 : ℝ)
+        ≤ (2.7182818286 : ℝ) * Real.exp (9861 / 100000 : ℝ) := h1
+      _ < (2.7182818286 : ℝ) * (1103637 / 1000000) := h2
+      _ < 3 := by norm_num
+  have hprod_hi : (3 : ℝ) < Real.exp 1 * Real.exp (9862 / 100000 : ℝ) := by
+    have h1 : (2.7182818283 : ℝ) * Real.exp (9862 / 100000 : ℝ) ≤
+        Real.exp 1 * Real.exp (9862 / 100000 : ℝ) :=
+      mul_le_mul_of_nonneg_right (le_of_lt Real.exp_one_gt_d9) (by positivity)
+    have h2 : (2.7182818283 : ℝ) * (1103645 / 1000000) <
+        (2.7182818283 : ℝ) * Real.exp (9862 / 100000 : ℝ) :=
+      mul_lt_mul_of_pos_left h9862 (by norm_num)
+    calc (3 : ℝ) < (2.7182818283 : ℝ) * (1103645 / 1000000) := by norm_num
+      _ < (2.7182818283 : ℝ) * Real.exp (9862 / 100000 : ℝ) := h2
+      _ ≤ Real.exp 1 * Real.exp (9862 / 100000 : ℝ) := h1
+  constructor
+  · rw [Real.le_log_iff_exp_le (by norm_num : (0 : ℝ) < 3)]
+    calc Real.exp (109861 / 100000 : ℝ) = Real.exp 1 * Real.exp (9861 / 100000 : ℝ) := by
+          rw [show (109861 / 100000 : ℝ) = 1 + 9861 / 100000 by norm_num, Real.exp_add]
+      _ ≤ 3 := le_of_lt hprod_lo
+  · rw [Real.log_le_iff_le_exp (by norm_num : (0 : ℝ) < 3)]
+    calc (3 : ℝ) ≤ Real.exp 1 * Real.exp (9862 / 100000 : ℝ) := le_of_lt hprod_hi
+      _ = Real.exp (109862 / 100000 : ℝ) := by
+          rw [show (109862 / 100000 : ℝ) = 1 + 9862 / 100000 by norm_num, Real.exp_add]
+
 theorem sqrt_two_mem : (14142 / 10000 : ℝ) ≤ Real.sqrt 2 ∧ Real.sqrt 2 ≤ 14143 / 10000 := by
   have h2 : Real.sqrt 2 ^ 2 = 2 := Real.sq_sqrt (by norm_num)
   have hnn : (0 : ℝ) ≤ Real.sqrt 2 := Real.sqrt_nonneg 2
@@ -860,5 +908,389 @@ theorem primeTerm_mem_four_fifths :
   constructor
   · rw [hrw, hsplit]; linarith [hs2.2, htail]
   · rw [hrw, hsplit]; linarith [hs2.1, hnn]
+
+/-- `exp(−10 log n) = (n¹⁰)⁻¹`. -/
+theorem exp_neg_ten_log (n : ℕ) (hn : 1 ≤ n) :
+    Real.exp (-10 * Real.log (n : ℝ)) = ((n : ℝ) ^ 10)⁻¹ := by
+  have hpos : (0 : ℝ) < n := by exact_mod_cast hn
+  have h1 : Real.exp (-10 * Real.log (n : ℝ)) = (Real.exp (10 * Real.log (n : ℝ)))⁻¹ := by
+    rw [show -10 * Real.log (n:ℝ) = -(10 * Real.log (n:ℝ)) by ring, Real.exp_neg]
+  rw [h1, show (10 : ℝ) * Real.log (n:ℝ) = (10 : ℕ) * Real.log (n:ℝ) by norm_num,
+    Real.exp_nat_mul, Real.exp_log hpos]
+
+end PrimeSpectrumTensor
+
+namespace PrimeSpectrumTensor
+
+/-- `log 4 = 2 log 2` lower bound. -/
+theorem log_four_ge : (138629436 / 100000000 : ℝ) ≤ Real.log 4 := by
+  have h4 : Real.log 4 = 2 * Real.log 2 := by
+    rw [show (4 : ℝ) = 2 * 2 by norm_num, Real.log_mul (by norm_num) (by norm_num)]
+    ring
+  rw [h4]
+  linarith [log_two_mem.1]
+
+/-- The `c = 1` Gaussian decay: for `x ≥ log 4`,
+`exp(−100(x−1)²) ≤ exp(−10 x)`. -/
+theorem exp_decay_c1 {x : ℝ} (hx : (138629436 / 100000000 : ℝ) ≤ x) :
+    Real.exp (-100 * (x - 1) ^ 2) ≤ Real.exp (-10 * x) := by
+  have hbase : (0 : ℝ) ≤ 100 * ((138629436 / 100000000 : ℝ) - 1) ^ 2 -
+      10 * (138629436 / 100000000 : ℝ) := by norm_num
+  have hfac : 0 ≤ (x - (138629436 / 100000000 : ℝ)) *
+      (100 * (x + (138629436 / 100000000 : ℝ) - 2) - 10) := by
+    apply mul_nonneg (by linarith)
+    linarith
+  have hineq : -100 * (x - 1) ^ 2 ≤ -10 * x := by
+    nlinarith [hbase, hfac]
+  exact Real.exp_le_exp.mpr hineq
+
+theorem primeSummand_le_c1 (n : ℕ) (hn : 4 ≤ n) :
+    primeSummand 1 n ≤ Real.sqrt Real.pi / 20 * (((n : ℝ) ^ 9)⁻¹) := by
+  have hn1 : 1 ≤ n := by omega
+  have hpos : (0 : ℝ) < n := by exact_mod_cast hn1
+  have hn0 : (0 : ℝ) ≤ n := le_of_lt hpos
+  have hsqrt1 : (1 : ℝ) ≤ Real.sqrt (n : ℝ) := Real.one_le_sqrt.mpr (by exact_mod_cast hn1)
+  have hspos : (0 : ℝ) < Real.sqrt (n : ℝ) := Real.sqrt_pos.mpr hpos
+  have hlog : (138629436 / 100000000 : ℝ) ≤ Real.log (n : ℝ) := by
+    have h4 : (4 : ℝ) ≤ n := by exact_mod_cast hn
+    exact le_trans log_four_ge (Real.log_le_log (by norm_num) h4)
+  have hexp : Real.exp (-100 * (Real.log (n : ℝ) - 1) ^ 2) ≤ ((n : ℝ) ^ 10)⁻¹ := by
+    rw [← exp_neg_ten_log n hn1]
+    exact exp_decay_c1 hlog
+  have hΛ : (ArithmeticFunction.vonMangoldt n : ℝ) ≤ Real.log (n : ℝ) :=
+    ArithmeticFunction.vonMangoldt_le_log
+  have hΛn : (ArithmeticFunction.vonMangoldt n : ℝ) ≤ n := by
+    calc (ArithmeticFunction.vonMangoldt n : ℝ) ≤ Real.log (n : ℝ) := hΛ
+      _ ≤ n := by
+          rw [Real.log_le_iff_le_exp (by exact_mod_cast hn1 : (0:ℝ) < n)]
+          linarith [Real.add_one_le_exp (n : ℝ)]
+  have hdiv : (ArithmeticFunction.vonMangoldt n : ℝ) / Real.sqrt (n : ℝ) ≤ n := by
+    rw [div_le_iff₀ hspos]
+    calc (ArithmeticFunction.vonMangoldt n : ℝ) ≤ n := hΛn
+      _ ≤ n * Real.sqrt (n : ℝ) := by nlinarith
+  have hexp10 : (0 : ℝ) ≤ ((n : ℝ) ^ 10)⁻¹ := by positivity
+  have hmain : (ArithmeticFunction.vonMangoldt n : ℝ) / Real.sqrt (n : ℝ) *
+      (Real.sqrt Real.pi / 20 * Real.exp (-100 * (Real.log (n : ℝ) - 1) ^ 2))
+      ≤ n * (Real.sqrt Real.pi / 20 * ((n : ℝ) ^ 10)⁻¹) := by
+    apply mul_le_mul
+    · exact hdiv
+    · exact mul_le_mul_of_nonneg_left hexp (by positivity)
+    · positivity
+    · positivity
+  have hpow : n * ((n : ℝ) ^ 10)⁻¹ = (((n : ℝ) ^ 9)⁻¹) := by
+    field_simp
+  rw [primeSummand, gaussianBump_inv20]
+  calc (ArithmeticFunction.vonMangoldt n : ℝ) / Real.sqrt (n : ℝ) *
+        (Real.sqrt Real.pi / 20 * Real.exp (-100 * (Real.log (n : ℝ) - 1) ^ 2))
+      ≤ n * (Real.sqrt Real.pi / 20 * ((n : ℝ) ^ 10)⁻¹) := hmain
+    _ = Real.sqrt Real.pi / 20 * (((n : ℝ) ^ 9)⁻¹) := by
+        calc n * (Real.sqrt Real.pi / 20 * ((n : ℝ) ^ 10)⁻¹)
+            = Real.sqrt Real.pi / 20 * (n * ((n : ℝ) ^ 10)⁻¹) := by ring
+          _ = Real.sqrt Real.pi / 20 * (((n : ℝ) ^ 9)⁻¹) := by rw [hpow]
+
+def tele3 (n : ℕ) : ℝ := 1 / ((n : ℝ) + 3)
+
+theorem tele3_sub (n : ℕ) :
+    tele3 n - tele3 (n + 1) = 1 / (((n : ℝ) + 3) * ((n : ℝ) + 4)) := by
+  unfold tele3
+  push_cast
+  field_simp
+  ring
+
+theorem sum_tele3 (N : ℕ) :
+    ∑ n ∈ Finset.range N, (tele3 n - tele3 (n + 1)) = tele3 0 - tele3 N := by
+  induction N with
+  | zero => simp
+  | succ N ih => rw [Finset.sum_range_succ, ih]; ring
+
+theorem tele3_nonneg (n : ℕ) : 0 ≤ tele3 n := by unfold tele3; positivity
+
+theorem primeSummand_le_tail_c1 (n : ℕ) :
+    primeSummand 1 (n + 4) ≤
+      Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (tele3 n - tele3 (n + 1)) := by
+  have hnn : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
+  have hm : (4 : ℝ) ≤ (n : ℝ) + 4 := by linarith
+  have hpos : (0 : ℝ) < (n : ℝ) + 4 := by linarith
+  have h1 : primeSummand 1 (n + 4) ≤ Real.sqrt Real.pi / 20 * (1 / ((n : ℝ) + 4) ^ 9) := by
+    have := primeSummand_le_c1 (n + 4) (by omega)
+    simpa [one_div] using this
+  have h2 : 1 / ((n : ℝ) + 4) ^ 9 ≤ (1 / (4 : ℝ) ^ 7) * (1 / ((n : ℝ) + 4) ^ 2) := by
+    rw [show (1 / (4 : ℝ) ^ 7) * (1 / ((n : ℝ) + 4) ^ 2) =
+        1 / ((4 : ℝ) ^ 7 * ((n : ℝ) + 4) ^ 2) by field_simp]
+    apply one_div_le_one_div_of_le (by positivity)
+    have h7 : (4 : ℝ) ^ 7 ≤ ((n : ℝ) + 4) ^ 7 := pow_le_pow_left₀ (by positivity) hm 7
+    calc (4 : ℝ) ^ 7 * ((n : ℝ) + 4) ^ 2 ≤ ((n : ℝ) + 4) ^ 7 * ((n : ℝ) + 4) ^ 2 :=
+          mul_le_mul_of_nonneg_right h7 (by positivity)
+      _ = ((n : ℝ) + 4) ^ 9 := by ring
+  have h3 : 1 / ((n : ℝ) + 4) ^ 2 ≤ 1 / (((n : ℝ) + 3) * ((n : ℝ) + 4)) := by
+    apply one_div_le_one_div_of_le (by positivity)
+    nlinarith
+  have h4 : (1 / (4 : ℝ) ^ 7) * (1 / ((n : ℝ) + 4) ^ 2) ≤
+      (1 / (4 : ℝ) ^ 7) * (1 / (((n : ℝ) + 3) * ((n : ℝ) + 4))) :=
+    mul_le_mul_of_nonneg_left h3 (by positivity)
+  rw [tele3_sub]
+  calc primeSummand 1 (n + 4)
+      ≤ Real.sqrt Real.pi / 20 * (1 / ((n : ℝ) + 4) ^ 9) := h1
+    _ ≤ Real.sqrt Real.pi / 20 * ((1 / (4 : ℝ) ^ 7) * (1 / ((n : ℝ) + 4) ^ 2)) :=
+        mul_le_mul_of_nonneg_left h2 (by positivity)
+    _ ≤ Real.sqrt Real.pi / 20 * ((1 / (4 : ℝ) ^ 7) * (1 / (((n : ℝ) + 3) * ((n : ℝ) + 4)))) :=
+        mul_le_mul_of_nonneg_left h4 (by positivity)
+    _ = Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (1 / (((n : ℝ) + 3) * ((n : ℝ) + 4))) := by ring
+
+theorem prime_sum_range_tail_le_c1 (N : ℕ) :
+    ∑ n ∈ Finset.range N, primeSummand 1 (n + 4) ≤
+      Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (1 / 3) := by
+  calc ∑ n ∈ Finset.range N, primeSummand 1 (n + 4)
+      ≤ ∑ n ∈ Finset.range N,
+          (Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (tele3 n - tele3 (n + 1))) := by
+        refine Finset.sum_le_sum fun n _ => ?_
+        exact primeSummand_le_tail_c1 n
+    _ = Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) *
+          ∑ n ∈ Finset.range N, (tele3 n - tele3 (n + 1)) := by
+        rw [Finset.mul_sum]
+    _ = Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (tele3 0 - tele3 N) := by
+        rw [sum_tele3]
+    _ ≤ Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (1 / 3) := by
+        have h0 : tele3 0 = 1 / 3 := by norm_num [tele3]
+        have hN : 0 ≤ tele3 N := tele3_nonneg N
+        apply mul_le_mul_of_nonneg_left _ (by positivity)
+        rw [h0]
+        linarith
+
+theorem sum_tail_c1_le :
+    ∑' n : ℕ, primeSummand 1 (n + 4) ≤
+      Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (1 / 3) := by
+  refine Real.tsum_le_of_sum_range_le (fun n => primeSummand_nonneg 1 (n + 4)) fun N => ?_
+  exact prime_sum_range_tail_le_c1 N
+
+theorem sqrt_three_mem :
+    (173205 / 100000 : ℝ) ≤ Real.sqrt 3 ∧ Real.sqrt 3 ≤ 173206 / 100000 := by
+  have h2 : Real.sqrt 3 ^ 2 = 3 := Real.sq_sqrt (by norm_num)
+  have hnn : (0 : ℝ) ≤ Real.sqrt 3 := Real.sqrt_nonneg 3
+  constructor <;> nlinarith [h2, hnn]
+
+theorem vonMangoldt_three : ArithmeticFunction.vonMangoldt 3 = Real.log 3 :=
+  ArithmeticFunction.vonMangoldt_apply_prime (by norm_num)
+
+theorem primeSummand_three_c1_mem :
+    (21230 / 1000000 : ℝ) ≤ primeSummand 1 3 ∧
+      primeSummand 1 3 ≤ 21320 / 1000000 := by
+  have hlog := log_three_mem
+  have hs3 := sqrt_three_mem
+  have hu_lo : (9861 / 100000 : ℝ) ≤ Real.log 3 - 1 := by linarith [hlog.1]
+  have hu_hi : Real.log 3 - 1 ≤ 9862 / 100000 := by linarith [hlog.2]
+  have hu0 : (0 : ℝ) ≤ Real.log 3 - 1 := by linarith [hlog.1]
+  have hsq_lo : (9861 / 100000 : ℝ) ^ 2 ≤ (Real.log 3 - 1) ^ 2 := by
+    rw [pow_two, pow_two]; exact mul_self_le_mul_self (by norm_num) hu_lo
+  have hsq_hi : (Real.log 3 - 1) ^ 2 ≤ (9862 / 100000 : ℝ) ^ 2 := by
+    rw [pow_two, pow_two]; exact mul_self_le_mul_self hu0 hu_hi
+  have he_lo : (3780 / 10000 : ℝ) ≤ Real.exp (-(100 * (Real.log 3 - 1) ^ 2)) := by
+    have h1 : Real.exp (-(9726 / 10000 : ℝ)) ≤ Real.exp (-(100 * (Real.log 3 - 1) ^ 2)) := by
+      apply Real.exp_le_exp.mpr
+      nlinarith [hsq_hi, (by norm_num : (9862 / 100000 : ℝ) ^ 2 * 100 < 9726 / 10000)]
+    have h2 : (3780 / 10000 : ℝ) ≤ Real.exp (-(9726 / 10000 : ℝ)) := by
+      have hx : |(-(9726 / 10000) : ℝ)| ≤ 1 := by norm_num
+      have h := Real.exp_bound hx (n := 12) (by norm_num)
+      simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h
+      norm_num at h
+      rw [abs_le] at h
+      linarith [h.1]
+    exact le_trans h2 h1
+  have he_hi : Real.exp (-(100 * (Real.log 3 - 1) ^ 2)) ≤ (3783 / 10000 : ℝ) := by
+    have h1 : Real.exp (-(100 * (Real.log 3 - 1) ^ 2)) ≤ Real.exp (-(9723 / 10000 : ℝ)) := by
+      apply Real.exp_le_exp.mpr
+      nlinarith [hsq_lo, (by norm_num : (9723 / 10000 : ℝ) < (9861 / 100000 : ℝ) ^ 2 * 100)]
+    have h2 : Real.exp (-(9723 / 10000 : ℝ)) ≤ (3783 / 10000 : ℝ) := by
+      have hx : |(-(9723 / 10000) : ℝ)| ≤ 1 := by norm_num
+      have h := Real.exp_bound hx (n := 12) (by norm_num)
+      simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h
+      norm_num at h
+      rw [abs_le] at h
+      have hle : Real.exp (-(9723 / 10000 : ℝ)) ≤
+          2662613519357716543899263415319152046691609101019 / 7040000000000000000000000000000000000000000000000 +
+          1818533111433947366215719554910588462098125491 / 1126400000000000000000000000000000000000000000000000000 := by
+        linarith [h.2]
+      calc Real.exp (-(9723 / 10000 : ℝ))
+          ≤ 2662613519357716543899263415319152046691609101019 / 7040000000000000000000000000000000000000000000000 +
+            1818533111433947366215719554910588462098125491 / 1126400000000000000000000000000000000000000000000000000 := hle
+        _ ≤ 3783 / 10000 := by norm_num
+    exact le_trans h1 h2
+  have hpi_lo : (8862 / 100000 : ℝ) ≤ Real.sqrt Real.pi / 20 := by
+    have := sqrt_pi_mem.1; linarith
+  have hpi_hi : Real.sqrt Real.pi / 20 ≤ (8863 / 100000 : ℝ) := by
+    have := sqrt_pi_mem.2; linarith
+  have hq_lo : (634 / 1000 : ℝ) ≤ Real.log 3 / Real.sqrt 3 := by
+    rw [le_div_iff₀ (Real.sqrt_pos.mpr (by norm_num : (0 : ℝ) < 3))]
+    nlinarith [hlog.1, hs3.2]
+  have hq_hi : Real.log 3 / Real.sqrt 3 ≤ (635 / 1000 : ℝ) := by
+    rw [div_le_iff₀ (Real.sqrt_pos.mpr (by norm_num : (0 : ℝ) < 3))]
+    nlinarith [hlog.2, hs3.1]
+  have ht_lo : (21230 / 1000000 : ℝ) ≤
+      Real.log 3 / Real.sqrt 3 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 3 - 1) ^ 2))) := by
+    calc (21230 / 1000000 : ℝ) ≤ (634 / 1000) * ((8862 / 100000) * (3780 / 10000)) := by norm_num
+      _ ≤ Real.log 3 / Real.sqrt 3 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 3 - 1) ^ 2))) := by
+          gcongr
+  have ht_hi : Real.log 3 / Real.sqrt 3 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 3 - 1) ^ 2))) ≤
+      (21320 / 1000000 : ℝ) := by
+    calc Real.log 3 / Real.sqrt 3 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 3 - 1) ^ 2)))
+        ≤ (635 / 1000) * ((8863 / 100000) * (3783 / 10000)) := by
+          gcongr
+      _ ≤ (21320 / 1000000 : ℝ) := by norm_num
+  rw [primeSummand, gaussianBump_inv20, vonMangoldt_three]
+  constructor
+  · simpa using ht_lo
+  · simpa using ht_hi
+
+theorem prime_sum_split_c1 :
+    (∑' n : ℕ, primeSummand 1 n) =
+      primeSummand 1 2 + primeSummand 1 3 + ∑' n : ℕ, primeSummand 1 (n + 4) := by
+  have htail : Summable (fun n : ℕ => primeSummand 1 (n + 4)) :=
+    summable_of_sum_range_le (fun n => primeSummand_nonneg 1 (n + 4))
+      (fun N => prime_sum_range_tail_le_c1 N)
+  have hsum : Summable (fun n : ℕ => primeSummand 1 n) := (summable_nat_add_iff 4).mp htail
+  have hsplit := hsum.sum_add_tsum_nat_add 4
+  have h0 : primeSummand 1 0 = 0 := by unfold primeSummand; simp
+  have h1 : primeSummand 1 1 = 0 := by unfold primeSummand; simp
+  have hprefix : ∑ n ∈ Finset.range 4, primeSummand 1 n =
+      primeSummand 1 2 + primeSummand 1 3 := by
+    simp only [Finset.sum_range_succ, Finset.sum_range_zero, h0, h1]
+    ring
+  rw [hprefix] at hsplit
+  linarith [hsplit]
+
+theorem exp_nine_eq : Real.exp (9 : ℝ) = (Real.exp 1) ^ 9 := by
+  rw [show (9 : ℝ) = (9 : ℕ) * 1 by norm_num, Real.exp_nat_mul]
+
+theorem exp_neg_nine_le_c1 : Real.exp (-9 : ℝ) ≤ 1 / 8000 := by
+  have he9 : (8000 : ℝ) ≤ (Real.exp 1) ^ 9 := by
+    calc (8000 : ℝ) ≤ (2.7182818283 : ℝ) ^ 9 := by norm_num
+      _ ≤ (Real.exp 1) ^ 9 := pow_le_pow_left₀ (by norm_num) (le_of_lt Real.exp_one_gt_d9) 9
+  have hexp9 : Real.exp (-9 : ℝ) = ((Real.exp 1) ^ 9)⁻¹ := by
+    rw [show (-9 : ℝ) = -(9 : ℝ) by norm_num, Real.exp_neg, exp_nine_eq]
+  rw [hexp9, inv_eq_one_div]
+  exact one_div_le_one_div_of_le (by norm_num) he9
+
+theorem exp_neg_nine_half_ge_c1 : (1 / 14000 : ℝ) ≤ Real.exp (-(9.5) : ℝ) := by
+  have he9 : (Real.exp 1) ^ 9 ≤ (2.7182818286 : ℝ) ^ 9 :=
+    pow_le_pow_left₀ (by positivity) (le_of_lt Real.exp_one_lt_d9) 9
+  have he9num : (2.7182818286 : ℝ) ^ 9 ≤ 8200 := by norm_num
+  have hhalf : Real.exp (0.5 : ℝ) ≤ 1.65 := by
+    have hx : |(0.5 : ℝ)| ≤ 1 := by norm_num
+    have h := Real.exp_bound hx (n := 12) (by norm_num)
+    simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h
+    norm_num at h
+    rw [abs_le] at h
+    linarith [h.2]
+  have hexp95 : Real.exp (9.5 : ℝ) = Real.exp 9 * Real.exp 0.5 := by
+    rw [show (9.5 : ℝ) = 9 + 0.5 by norm_num, Real.exp_add]
+  have hle : Real.exp (9.5 : ℝ) ≤ 14000 := by
+    rw [hexp95, exp_nine_eq]
+    calc (Real.exp 1) ^ 9 * Real.exp 0.5 ≤ (2.7182818286 : ℝ) ^ 9 * 1.65 :=
+          mul_le_mul he9 hhalf (by positivity) (by norm_num)
+      _ ≤ 8200 * 1.65 := mul_le_mul_of_nonneg_right he9num (by norm_num)
+      _ ≤ 14000 := by norm_num
+  have hinv : Real.exp (-(9.5) : ℝ) = (Real.exp (9.5 : ℝ))⁻¹ := by
+    rw [show (-(9.5) : ℝ) = -(9.5) by ring, Real.exp_neg]
+  rw [hinv, inv_eq_one_div]
+  exact one_div_le_one_div_of_le (Real.exp_pos _) hle
+
+theorem primeSummand_two_c1_mem :
+    (3 / 1000000 : ℝ) ≤ primeSummand 1 2 ∧
+      primeSummand 1 2 ≤ 6 / 1000000 := by
+  have hlog := log_two_mem
+  have hs2 := sqrt_two_mem
+  have hu_neg : Real.log 2 - 1 < 0 := by linarith [hlog.2]
+  have habs_lo : (30685281 / 100000000 : ℝ) ≤ |Real.log 2 - 1| := by
+    rw [abs_of_neg hu_neg]
+    linarith [hlog.2]
+  have habs_hi : |Real.log 2 - 1| ≤ (30685282 / 100000000 : ℝ) := by
+    rw [abs_of_neg hu_neg]
+    linarith [hlog.1]
+  have hsq_lo : (94157 / 1000000 : ℝ) ≤ (Real.log 2 - 1) ^ 2 := by
+    rw [← sq_abs]
+    calc (94157 / 1000000 : ℝ) ≤ (30685281 / 100000000 : ℝ) ^ 2 := by norm_num
+      _ ≤ |Real.log 2 - 1| ^ 2 := pow_le_pow_left₀ (by norm_num) habs_lo 2
+  have hsq_hi : (Real.log 2 - 1) ^ 2 ≤ (94160 / 1000000 : ℝ) := by
+    rw [← sq_abs]
+    calc |Real.log 2 - 1| ^ 2 ≤ (30685282 / 100000000 : ℝ) ^ 2 :=
+          pow_le_pow_left₀ (abs_nonneg _) habs_hi 2
+      _ ≤ (94160 / 1000000 : ℝ) := by norm_num
+  have h100_lo : (94157 / 10000 : ℝ) ≤ 100 * (Real.log 2 - 1) ^ 2 := by nlinarith [hsq_lo]
+  have h100_hi : 100 * (Real.log 2 - 1) ^ 2 ≤ (94160 / 10000 : ℝ) := by nlinarith [hsq_hi]
+  have hexp_hi : Real.exp (-(100 * (Real.log 2 - 1) ^ 2)) ≤ 1 / 8000 := by
+    have h1 : Real.exp (-(100 * (Real.log 2 - 1) ^ 2)) ≤ Real.exp (-9 : ℝ) := by
+      apply Real.exp_le_exp.mpr
+      nlinarith [h100_lo]
+    exact le_trans h1 exp_neg_nine_le_c1
+  have hexp_lo : (1 / 14000 : ℝ) ≤ Real.exp (-(100 * (Real.log 2 - 1) ^ 2)) := by
+    have h1 : Real.exp (-(9.5) : ℝ) ≤ Real.exp (-(100 * (Real.log 2 - 1) ^ 2)) := by
+      apply Real.exp_le_exp.mpr
+      nlinarith [h100_hi]
+    exact le_trans exp_neg_nine_half_ge_c1 h1
+  have hq_lo : (49 / 100 : ℝ) ≤ Real.log 2 / Real.sqrt 2 := by
+    rw [le_div_iff₀ (Real.sqrt_pos.mpr (by norm_num : (0 : ℝ) < 2))]
+    nlinarith [hlog.1, hs2.2]
+  have hq_hi : Real.log 2 / Real.sqrt 2 ≤ (50 / 100 : ℝ) := by
+    rw [div_le_iff₀ (Real.sqrt_pos.mpr (by norm_num : (0 : ℝ) < 2))]
+    nlinarith [hlog.2, hs2.1]
+  have hpi_lo : (8862 / 100000 : ℝ) ≤ Real.sqrt Real.pi / 20 := by
+    have := sqrt_pi_mem.1; linarith
+  have hpi_hi : Real.sqrt Real.pi / 20 ≤ (8863 / 100000 : ℝ) := by
+    have := sqrt_pi_mem.2; linarith
+  have ht_lo : (3 / 1000000 : ℝ) ≤
+      Real.log 2 / Real.sqrt 2 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 2 - 1) ^ 2))) := by
+    calc (3 / 1000000 : ℝ) ≤ (49 / 100) * ((8862 / 100000) * (1 / 14000)) := by norm_num
+      _ ≤ Real.log 2 / Real.sqrt 2 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 2 - 1) ^ 2))) := by
+          gcongr
+  have ht_hi : Real.log 2 / Real.sqrt 2 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 2 - 1) ^ 2))) ≤
+      (6 / 1000000 : ℝ) := by
+    calc Real.log 2 / Real.sqrt 2 * (Real.sqrt Real.pi / 20 * Real.exp (-(100 * (Real.log 2 - 1) ^ 2)))
+        ≤ (50 / 100) * ((8863 / 100000) * (1 / 8000)) := by
+          gcongr
+      _ ≤ (6 / 1000000 : ℝ) := by norm_num
+  rw [primeSummand, gaussianBump_inv20, vonMangoldt_two]
+  constructor
+  · simpa using ht_lo
+  · simpa using ht_hi
+
+theorem primeTerm_c1_mem :
+    (-42660 / 1000000 : ℝ) ≤ primeTerm 1 (1 / 20) ∧
+      primeTerm 1 (1 / 20) ≤ -42460 / 1000000 := by
+  have h2 := primeSummand_two_c1_mem
+  have h3 := primeSummand_three_c1_mem
+  have htail_le : (∑' n : ℕ, primeSummand 1 (n + 4)) ≤ (1811 / 1000000000 : ℝ) := by
+    refine le_trans sum_tail_c1_le ?_
+    have hB := sqrt_pi_div_twenty_le
+    have h1 : Real.sqrt Real.pi / 20 * (1 / (4 : ℝ) ^ 7) * (1 / 3) ≤
+        (8863 / 100000 : ℝ) * (1 / (4 : ℝ) ^ 7) * (1 / 3) := by
+      apply mul_le_mul_of_nonneg_right _ (by norm_num)
+      exact mul_le_mul_of_nonneg_right hB (by positivity)
+    refine le_trans h1 ?_
+    norm_num
+  have htail_nonneg : 0 ≤ ∑' n : ℕ, primeSummand 1 (n + 4) :=
+    tsum_nonneg (fun n => primeSummand_nonneg 1 (n + 4))
+  have hlo : (21233 / 1000000 : ℝ) ≤
+      primeSummand 1 2 + primeSummand 1 3 + ∑' n : ℕ, primeSummand 1 (n + 4) := by
+    linarith [h2.1, h3.1, htail_nonneg]
+  have hhi : primeSummand 1 2 + primeSummand 1 3 + ∑' n : ℕ, primeSummand 1 (n + 4) ≤
+      (21328 / 1000000 : ℝ) := by
+    linarith [h2.2, h3.2, htail_le]
+  rw [primeTerm_eq_inv20, prime_sum_split_c1]
+  constructor <;> linarith [hlo, hhi]
+
+/-- The prime term is non-positive for `σ > 0`. -/
+theorem primeTerm_nonpos {σ : ℝ} (hσ : 0 < σ) (c : ℝ) : primeTerm c σ ≤ 0 := by
+  unfold primeTerm
+  have h : 0 ≤ ∑' n : ℕ,
+      ArithmeticFunction.vonMangoldt n / Real.sqrt (n : ℝ) * gaussianBump c σ (Real.log n) := by
+    apply tsum_nonneg
+    intro n
+    have hΛ : 0 ≤ (ArithmeticFunction.vonMangoldt n : ℝ) :=
+      ArithmeticFunction.vonMangoldt_nonneg
+    have hb : 0 ≤ gaussianBump c σ (Real.log n) := by
+      unfold gaussianBump
+      positivity
+    positivity
+  linarith
 
 end PrimeSpectrumTensor

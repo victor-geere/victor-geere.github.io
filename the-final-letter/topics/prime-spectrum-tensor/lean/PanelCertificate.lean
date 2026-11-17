@@ -79,6 +79,32 @@ theorem panel_certificate {c : ℝ} (hc : |c| ≤ 3 / 5) {a b qmlo qmhi lipx : �
   · norm_num
 
 /-- The midpoint rule at `c = ±4/5`, with second-derivative bound `1/200`. -/
+theorem weight_midpoint_rule_one {c : ℝ} (hc : |c| ≤ 1) {a b : ℝ}
+    (hab : a ≤ b) (ha0 : 0 ≤ a) (hb60 : b ≤ 60) :
+    |(∫ x in a..b, weight c x) - (b - a) * weight c ((a + b) / 2)| ≤
+      (1 / 200) * (b - a) ^ 3 / 4 := by
+  have hderiv : deriv (weight c) = weight1 c := funext fun t => (hasDerivAt_weight c t).deriv
+  have hderiv2 : deriv (deriv (weight c)) = weight2 c := by
+    rw [hderiv]
+    funext t
+    exact (hasDerivAt_weight2 c t).deriv
+  refine midpoint_rule_bound hab ?_ ?_ ?_ ?_
+  · intro x _
+    rw [hderiv]
+    exact hasDerivAt_weight c x
+  · intro x _
+    rw [hderiv2, hderiv]
+    exact hasDerivAt_weight2 c x
+  · intro x hx
+    have h := abs_deriv2_weight_le_one hc (le_trans ha0 hx.1) (le_trans hx.2 hb60)
+    simp only [hderiv2, hderiv] at h ⊢
+    exact h
+  · unfold weight
+    fun_prop
+
+/-- **The panel certificate at `c = ±4/5`.**  Same as `panel_certificate` but
+with the second-derivative constant `1/200`. -/
+
 theorem weight_midpoint_rule_four_fifths {c : ℝ} (hc : |c| ≤ 4 / 5) {a b : ℝ}
     (hab : a ≤ b) (ha0 : 0 ≤ a) (hb60 : b ≤ 60) :
     |(∫ x in a..b, weight c x) - (b - a) * weight c ((a + b) / 2)| ≤

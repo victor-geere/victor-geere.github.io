@@ -1,8 +1,8 @@
 # Reconstruction status
 
-58 topics · 1468 ledger theorems · 543 tested computations · 847 pytest tests · 58/58 Lean builds OK.
+64 topics · 2074 ledger theorems · 570 tested computations · 909 pytest tests · 64/64 Lean builds OK.
 
-**Resume:** [weil-positivity](weil-positivity/HANDOFF.md) can resume — [missing-bridge](missing-bridge/README.md) is concluded at the non-RH-strength level.
+**Resume:** [geometric-zeta](geometric-zeta/README.md) — the Lambert/Mellin transform `lambert_mellin` and the lower-bound expansion are in place; the integrated `J = 0,1` bound is paper/numerical. [digamma-contour-shift](digamma-contour-shift/README.md) has the digamma asymptotics and the archimedean contour shift `ArchimedeanShiftLim` proved (T1–T21). [weil-positivity](weil-positivity/HANDOFF.md) can also resume — [missing-bridge](missing-bridge/README.md) is concluded at the non-RH-strength level.
 
 | Topic | Theorems | Computations | Source claims | Tests | Lean |
 |---|---:|---:|---:|---:|---|
@@ -16,7 +16,7 @@
 | [gap-inventory-strengthening](gap-inventory-strengthening/README.md) | 7 | 7 | 13 | 7 | OK |
 | [gdst](gdst/README.md) | 7 | 8 | 8 | 8 | OK |
 | [gdst-twin-series](gdst-twin-series/README.md) | 6 | 6 | 7 | 6 | OK |
-| [geometric-dynamical-phase-transitions](geometric-dynamical-phase-transitions/README.md) | 67 | 47 | 14 | 55 | OK |
+| [geometric-dynamical-phase-transitions](geometric-dynamical-phase-transitions/README.md) | 108 | 47 | 14 | 55 | OK |
 | [geometric-reformulation](geometric-reformulation/README.md) | 7 | 8 | 9 | 8 | OK |
 | [ghd-correlation-kernel](ghd-correlation-kernel/README.md) | 7 | 8 | 10 | 8 | OK |
 | [greedy-harmonic-decomposition](greedy-harmonic-decomposition/README.md) | 7 | 6 | 5 | 10 | OK |
@@ -36,7 +36,7 @@
 | [nested-spheres-continuous-cone](nested-spheres-continuous-cone/README.md) | 7 | 6 | 15 | 6 | OK |
 | [padic-greedy-sine](padic-greedy-sine/README.md) | 6 | 5 | 0 | 6 | OK |
 | [padic-stochastic-zeta](padic-stochastic-zeta/README.md) | 7 | 7 | 0 | 7 | OK |
-| [finite-explicit-formula](finite-explicit-formula/README.md) | 27 | 6 | 14 | 2 | OK |
+| [finite-explicit-formula](finite-explicit-formula/README.md) | 27 | 6 | 14 | 14 | OK |
 | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | 52 | 14 | 2 | 14 | OK |
 | [euler-maclaurin](euler-maclaurin/README.md) | 8 | 4 | 0 | 18 | OK |
 | [finite-window-zeros](finite-window-zeros/README.md) | 494 | 11 | 0 | 18 | OK |
@@ -44,7 +44,7 @@
 | [phase-interference](phase-interference/README.md) | 7 | 7 | 8 | 7 | OK |
 | [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 16 | 25 | 9 | 25 | OK |
 | [proof-99-global-harmonic-framework](proof-99-global-harmonic-framework/README.md) | 7 | 6 | 12 | 7 | OK |
-| [qefe](qefe/README.md) | 7 | 8 | 9 | 8 | OK |
+| [qefe](qefe/README.md) | 219 | 2 | 0 | 29 | OK |
 | [qefe-research-notes](qefe-research-notes/README.md) | 7 | 6 | 7 | 6 | OK |
 | [quaternion-cosine](quaternion-cosine/README.md) | 7 | 7 | 7 | 7 | OK |
 | [research-programme-iii](research-programme-iii/README.md) | 7 | 7 | 14 | 8 | OK |
@@ -58,14 +58,20 @@
 | [transfer-operator-proof](transfer-operator-proof/README.md) | 7 | 8 | 12 | 8 | OK |
 | [yakaboylu-notes](yakaboylu-notes/README.md) | 7 | 8 | 13 | 8 | OK |
 | [intersection-form-zeta](intersection-form-zeta/README.md) | 100 | 49 | 19 | 60 | OK |
-| [angular-partition-method](angular-partition-method/README.md) | 82 | 13 | 0 | 20 | OK |
+| [angular-partition-method](angular-partition-method/README.md) | 97 | 13 | 0 | 20 | OK |
 | [log-derivative-growth](log-derivative-growth/README.md) | 36 | 3 | 0 | 6 | OK |
 | [zero-density-bound](zero-density-bound/README.md) | 36 | 6 | 0 | 9 | OK |
 | [zero-infinitude](zero-infinitude/README.md) | 47 | 4 | 0 | 6 | OK |
 | [weil-positivity](weil-positivity/README.md) | 56 | 5 | 0 | 5 | OK |
-| [missing-bridge](missing-bridge/README.md) | 97 | 19 | 0 | 25 | OK |
+| [missing-bridge](missing-bridge/README.md) | 142 | 19 | 0 | 25 | OK |
+| [archimedean-prime-evaluation](archimedean-prime-evaluation/README.md) | 42 | 5 | 1 | 11 | OK |
+| [digamma-contour-shift](digamma-contour-shift/README.md) | 38 | 3 | 0 | 4 | OK |
+| [zeta-from-theta](zeta-from-theta/README.md) | 14 | 6 | 0 | 6 | OK |
+| [geometric-zeta](geometric-zeta/README.md) | 16 | 7 | 0 | 10 | OK |
+| [zeta-functional-equation](zeta-functional-equation/README.md) | 153 | 5 | 0 | 5 | OK |
+| [zero-sum-convergence](zero-sum-convergence/README.md) | 30 | 4 | 0 | 4 | OK |
 
-Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted.
+Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted. The headline totals are the column sums as recounted on **2026-11-10**; the pytest total is from a full `pytest --collect-only` run over all 64 `tests/` suites, not a hand count. `geometric-zeta` has no kind-tagged ledger, so its theorem row counts the Lean declarations in `lean/Topic.lean`.
 
 **Generated certificates (2026-11-05).** `prime-spectrum-tensor` additionally contains 37,855 machine-checked declarations in the 45 generated density files `lean/DensityC{0..4}_{0..8}.lean`, plus five in [`lean/DensityCertificates.lean`](prime-spectrum-tensor/lean/DensityCertificates.lean) ending in `gaussianGram4_posDef` and four in [`lean/DensityCertificates5.lean`](prime-spectrum-tensor/lean/DensityCertificates5.lean) ending in `gaussianGram5_posDef`. These are not ledger rows and are listed separately (not expanded) in [`index-lean.md`](index-lean.md#generated-certificates); they are built by [`prime-spectrum-tensor/lean/gen/build_chunks.sh`](prime-spectrum-tensor/lean/gen/build_chunks.sh), and [`prime-spectrum-tensor/lean/check.sh`](prime-spectrum-tensor/lean/check.sh) `--quick` skips them.
 

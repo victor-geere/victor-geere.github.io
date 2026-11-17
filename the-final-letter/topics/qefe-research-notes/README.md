@@ -96,7 +96,7 @@ test in [`tests/test_programme.py`](tests/test_programme.py).
 | S5 | Source claim | “The equation holds identically” for Ising and `SU(2)_4`. | Contradicted away from `s = 1/2`. |
 | S6 | Source claim | `SU(2)_k → ζ(2s)` as `k → ∞`, and the Riemann-hypothesis suggestion. | Speculative; no limit theorem and no implication. |
 | S7 | Source claim | Round 1's conclusion that a finite Dirichlet polynomial cannot satisfy a Riemann-type equation. | Archived self-criticism, never resolved in v8. |
-| O1 | Open / conjecture | The correct Mellin normalisation, parity `a`, and root number for a categorical functional equation. | No precise corrected statement is known. |
+| O1 | Open / conjecture | The correct Mellin normalisation, parity `a`, and root number for a categorical functional equation. | See [item 35](../qefe/README.md): the finite core, the lattice theta, and the corrected zeta limit are settled there; the general analytic inputs are cited. |
 | O2 | Open / conjecture | A proof of the Galois sign identity from modular-data equivariance rather than citation. | Not formalised. |
 | O3 | Open / conjecture | A rigorous normalised `SU(2)_k → ζ(2s)` limit theorem, or a proof that the Galois signs obstruct it. | Open. |
 

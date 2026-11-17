@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Geometric zeta — decompositions and limits</title>
+<style>
+body{font-family:Georgia,serif;max-width:52rem;margin:2rem auto;line-height:1.55;color:#222;padding:0 1rem}
+h1,h2{color:#123;font-weight:600}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #ccd;padding:.35rem .5rem;text-align:left;vertical-align:top}
+code{background:#f3f5f8;padding:.1rem .25rem;border-radius:3px}
+.status{background:#eef7ee;border-left:4px solid #2a7;padding:.6rem .9rem}
+.limit{background:#fff6e5;border-left:4px solid #d90;padding:.6rem .9rem}
+</style>
+</head>
+<body>
+<h1>Geometric zeta — the decompositions, and what they do not buy</h1>
+<p class="status"><strong>Status: Phase 0.</strong> The three exact decompositions
+are stated and audited; the Euler and Lambert identities are re-exported in Lean,
+the zero-free-factor structure is proved, the finite-product impossibility
+<code>no_finite_euler_product</code> is Lean-proved, and the numerical layer
+checks all three identities. The Lambert/Mellin transform
+<code>Γ(s)ζ(s)² = ∫ t^(s−1)L(e^(−t))dt</code> is now proved in Lean
+(<code>lambert_mellin</code>), and a new lower-bound expansion for
+<code>ζ(σ)²</code> is derived from it below. The RH-relevance audit is a
+documented <strong>no-go</strong> (<a href="RH-AUDIT.md">RH-AUDIT.md</a>): the
+half-plane inequality carries no zero information. No Riemann-hypothesis claim and
+no positivity claim.</p>
+
+<h2>The objects</h2>
+<p>For an integer <code>a ≥ 2</code>, the geometric zeta is
+<code>g_a(s) = Σ<sub>m≥1</sub> a<sup>−ms</sup> = 1/(a<sup>s</sup> − 1)</code> on
+<code>Re s &gt; 0</code>. Each is zero-free, and its poles are
+<code>s = 2πik/log a</code>, all on <code>Re s = 0</code>.</p>
+
+<h2>Three exact identities</h2>
+<table>
+<tr><th>Identity</th><th>Statement (Re s &gt; 1 unless noted)</th><th>Status</th></tr>
+<tr><td>Euler product</td><td><code>ζ(s) = ∏_p (1 − p<sup>−s</sup>)<sup>−1</sup></code></td><td>Mathlib, re-exported</td></tr>
+<tr><td>Additive</td><td><code>ζ(s) = 1 + Σ<sub>a∈A</sub> 1/(a<sup>s</sup> − 1)</code>, <code>A</code> = non-perfect-powers ≥ 2</td><td>proved in the dossier; Lean open</td></tr>
+<tr><td>Logarithmic</td><td><code>log ζ(s) = Σ_p Σ_m p<sup>−ms</sup>/m</code></td><td>classical; Lean open</td></tr>
+<tr><td>Lambert/Mellin</td><td><code>Σ_k q<sup>k</sup>/(1−q<sup>k</sup>) = Σ_n d(n)q<sup>n</sup></code>; Mellin <code>Γ(s)ζ(s)<sup>2</sup></code></td><td>Lambert in Mathlib; Mellin classical</td></tr>
+</table>
+
+<p>The additive index set is essential. Over all bases, at <code>s = 2</code>,
+<code>1 + Σ<sub>a≥2</sub>1/(a<sup>2</sup>−1) = 7/4</code>, while
+<code>ζ(2) = π<sup>2</sup>/6 ≈ 1.6449</code>. The non-perfect-powers are the
+unique base system for which the geometric pieces tile <code>ℤ<sub>≥2</sub></code>
+exactly once.</p>
+
+<h2>What the audit rules out</h2>
+<ul>
+<li><strong>Finitely many factors are impossible.</strong> A finite sum cannot
+equal ζ (as s → +∞ the sum → 0 while ζ(s) → 1); a finite product cannot equal ζ
+(at s = 1 the product is finite while ζ has a pole).</li>
+<li><strong>No finite stage sees a zero.</strong> Each geometric factor is
+zero-free, and a finite Euler product is zero-free wherever it is defined. Zeros
+are a collective effect of the infinite product's non-uniform convergence in the
+critical strip.</li>
+<li><strong>The additive route does not continue.</strong> The terms have poles
+on the imaginary axis and the sum converges only for Re s &gt; 1.</li>
+<li><strong>No zero information.</strong> The decompositions are rearrangements
+of the same Dirichlet series.</li>
+</ul>
+
+<h2>Formalised in Lean</h2>
+<p><a href="lean/Topic.lean">Topic.lean</a> re-exports the Euler product
+(<code>eulerProduct</code>) and the Lambert identity
+(<code>lambert_identity</code>, <code>lambert_identity_divisors</code>), and proves
+the zero-free-factor structure (<code>geomFactor_ne_zero</code>,
+<code>finiteEulerProduct_ne_zero</code>), the finite-product impossibility
+C3 (<code>no_finite_euler_product</code>), and the all-bases telescoping identity
+G7 (<code>all_bases_sum</code>, <code>all_bases_geometric_sum</code>), and the
+Lambert/Mellin transform G5 (<code>lambert_mellin</code>,
+<code>lambert_mellin_divisors</code>), supported by the divisor Dirichlet series
+(<code>divisor_hasSum</code>, <code>divisor_summable</code>), the pointwise AM–GM
+majorant <code>lambert_majorant</code>, the Gaussian moment
+<code>gaussian_moment</code>, the divisor-sum identification
+<code>lambert_eq_double</code>, and the complex-power identity
+<code>cpow_sq</code>. The additive identity, the log identity and the counting
+statement are the next Lean targets.</p>
+
+<h2>A new lower-bound expansion</h2>
+<p>From the Mellin identity and the AM–GM inequality <code>k² + m² ≥ 2km</code>,
+for <code>σ &gt; 1</code> and <code>J ≥ 0</code>:</p>
+<p><code>ζ(σ)² ≥ 2<sup>σ</sup> Σ<sub>j=0</sub><sup>J</sup>
+Γ(σ+j)/(j! Γ(σ)) · E<sub>j</sub>(σ+j)</code>, with
+<code>E<sub>j</sub>(τ) = Σ<sub>k,m≥1</sub> (k−m)<sup>2j</sup>/(k²+m²)<sup>τ</sup></code>.</p>
+<p>This is an integral/lattice-sum bound, not a coefficientwise Dirichlet-series
+comparison.  The <code>j=0</code> term is the AM–GM bound; each higher term
+improves it, and the numerical ratios to <code>ζ(σ)²</code> converge upward to
+<code>1</code> (at <code>σ=2</code>: 0.627 at <code>J=0</code>, 0.866 at
+<code>J=4</code>).  Derivation, numerical table and Lean targets:
+<a href="INEQUALITY.md">INEQUALITY.md</a>. The integrated <code>J = 0,1</code>
+lattice bound is accepted as a paper/numerical result: the Mellin-substitution
+formalisation met a coercion blocker, and that decision is recorded rather than
+papered over.</p>
+
+<h2>RH-relevance audit: a no-go</h2>
+<p>The inequality is unconditional but has no zero content. Writing
+<code>E<sub>0</sub>(s)</code> for the quadrant lattice sum and
+<code>D(s) = ζ(s)² − 2<sup>s</sup>E<sub>0</sub>(s)</code>, the
+Epstein functional equation gives a continuation relation for
+<code>E<sub>0</sub></code>; <code>D</code> is non-negative only for real
+<code>σ &gt; 1</code>, and at a nontrivial zero <code>ρ</code> one has
+<code>D(ρ) = −2<sup>ρ</sup>E<sub>0</sub>(ρ)</code>. The half-plane inequality
+therefore controls neither <code>E<sub>0</sub>(ρ)</code> nor the sign of the
+continued <code>D</code> on the critical line. This route is closed as a
+zero-exclusion mechanism; the precise missing ingredient is recorded in
+<a href="RH-AUDIT.md">RH-AUDIT.md</a>.</p>
+
+<h2>Computations</h2>
+<p><a href="python/programme.py">programme.py</a> checks the additive identity at
+<code>s = 2</code> and at <code>2.5 + 0.4i</code>, the all-bases contrast
+<code>7/4</code>, the Lambert identity, the log identity, and the sparsity of
+perfect powers, and the lattice lower bound with its ratios at
+<code>J = 0,1,2</code>. Ten pytest tests pass.</p>
+
+<h2>The next phase</h2>
+<p class="limit"><strong>Acceptance bar for a headline statement.</strong> It must
+be proved unconditionally, have content beyond a rearrangement, encode no zero
+location, and be formalisable without <code>sorry</code>. The two most promising
+directions are unconditional bounds from the Mellin/Lambert representation with
+positive coefficients <code>d(n) ≥ 0</code>, and a sharpened arithmetic
+consequence of the additive base decomposition. If neither yields content beyond
+the known, the documented negative result is the honest deliverable.</p>
+
+<p>No RH proof and no positivity claim. See <a href="README.md">README.md</a> for
+the full catalogue.</p>
+</body>
+</html>

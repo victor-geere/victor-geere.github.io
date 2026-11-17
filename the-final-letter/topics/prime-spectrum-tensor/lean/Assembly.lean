@@ -93,6 +93,24 @@ theorem gaussianGram4_posDef_of_density_enclosure
       hqn1.1, hqn1.2, hqn2.1, hqn2.2, hqn3.1, hqn3.2]
 
 
+/-- The symmetrised prime term. -/
+def primeTermSym (c σ : ℝ) : ℝ := (primeTerm c σ + primeTerm (-c) σ) / 2
+
+/-- The Gram entry decomposes into pole + density + symmetrised prime. -/
+theorem gaussianGramEntry_eq (a b σ : ℝ) :
+    gaussianGramEntry a b σ = poleTerm (a - b) σ + densityTerm (a - b) σ +
+      primeTermSym (a - b) σ := by
+  unfold gaussianGramEntry gaussianW primeTermSym
+  have h1 : b - a = -(a - b) := by ring
+  rw [h1, poleTerm_neg, densityTerm_neg]
+  ring
+
+/-- The Gram entry is even in the separation direction. -/
+theorem gaussianGramEntry_zero_neg (c σ : ℝ) :
+    gaussianGramEntry 0 (-c) σ = gaussianGramEntry 0 c σ := by
+  unfold gaussianGramEntry
+  ring
+
 /-! ## A relaxed enclosure
 
 The transfer tolerates an entry error of `0.005675 = 4·0.001419`.  The pole term
@@ -138,6 +156,36 @@ theorem gaussianGram4_posDef_of_density_enclosure_loose
       hd0.1, hd0.2, hd1.1, hd1.2, hd2.1, hd2.2, hd3.1, hd3.2,
       hq0.1, hq0.2, hq1.1, hq1.2, hq2.1, hq2.2, hq3.1, hq3.2,
       hqn1.1, hqn1.2, hqn2.1, hqn2.2, hqn3.1, hqn3.2]
+
+/-- The symmetrised prime term is non-positive for `σ > 0`. -/
+theorem primeTermSym_nonpos {σ : ℝ} (hσ : 0 < σ) (c : ℝ) : primeTermSym c σ ≤ 0 := by
+  unfold primeTermSym
+  have h1 := primeTerm_nonpos hσ c
+  have h2 := primeTerm_nonpos hσ (-c)
+  linarith
+
+/-- The symmetrised prime term is even. -/
+theorem primeTermSym_even (c σ : ℝ) : primeTermSym (-c) σ = primeTermSym c σ := by
+  unfold primeTermSym
+  ring
+
+/-- The Gram entry is at most pole + density: the prime term only lowers it. -/
+theorem gaussianGramEntry_le {a b σ : ℝ} (hσ : 0 < σ) :
+    gaussianGramEntry a b σ ≤ poleTerm (a - b) σ + densityTerm (a - b) σ := by
+  rw [gaussianGramEntry_eq]
+  have h := primeTermSym_nonpos hσ (a - b)
+  linarith
+
+/-- The diagonal entry only involves the three terms at separation zero. -/
+theorem gaussianGramEntry_diag (a σ : ℝ) :
+    gaussianGramEntry a a σ = poleTerm 0 σ + densityTerm 0 σ + primeTerm 0 σ := by
+  rw [gaussianGramEntry_eq]
+  norm_num [primeTermSym]
+
+/-- At separation zero the symmetrised prime term is the prime term itself. -/
+theorem primeTermSym_zero (σ : ℝ) : primeTermSym 0 σ = primeTerm 0 σ := by
+  unfold primeTermSym
+  ring
 
 end PrimeSpectrumTensor
 

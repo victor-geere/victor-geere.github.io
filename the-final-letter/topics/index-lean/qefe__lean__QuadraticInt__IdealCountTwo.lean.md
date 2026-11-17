@@ -1,0 +1,33 @@
+# `qefe/lean/QuadraticInt/IdealCountTwo.lean`
+
+[Back to the split index](index.md) · Topic: [`qefe`](../qefe/README.md)
+
+### [`qefe/lean/QuadraticInt/IdealCountTwo.lean`](../qefe/lean/QuadraticInt/IdealCountTwo.lean) — 25 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [22](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L22) | lemma | `sqrtdBasis_zero` | $:\mathrm{sqrtdBasis}\ 0=(1:\mathrm{R2})$ |
+| [26](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L26) | lemma | `sqrtdBasis_one` | $:\mathrm{sqrtdBasis}\ 1=(\mathrm{Zsqrtd.sqrtd}:\mathrm{R2})$ |
+| [30](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L30) | lemma | `repr_sqrtdBasis_zero` | $\forall\,z : \mathrm{R2},\ \mathrm{sqrtdBasis.repr}\ z\ 0=z.\mathrm{re}$ |
+| [37](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L37) | lemma | `repr_sqrtdBasis_one` | $\forall\,z : \mathrm{R2},\ \mathrm{sqrtdBasis.repr}\ z\ 1=z.\mathrm{im}$ |
+| [45](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L45) | lemma | `algebra_norm_two` | $\forall\,z : \mathrm{R2},\ \mathrm{Algebra.norm}\ \mathbb{Z}\ z=z.\mathrm{norm}$ |
+| [59](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L59) | lemma | `absNorm_span_two` | $\forall\,z : \mathrm{R2},\ \mathrm{Ideal.absNorm}(\mathrm{Ideal.span}\ \{z\})=z.\mathrm{norm}.\mathrm{natAbs}$ |
+| [75](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L75) | lemma | `mem_unitsTwo` | $\forall\,u : \mathrm{R2}\text{ˣ},\ u\ \in\ \mathrm{unitsTwo}$ |
+| [88](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L88) | lemma | `units_card_two` | $:\mathrm{Nat.card}\ \mathrm{R2}\text{ˣ}=2$ |
+| [104](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L104) | lemma | `unitsTwo_fintype_card` | $:\mathrm{Fintype.card}\ \mathrm{R2}\text{ˣ}=2$ |
+| [118](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L118) | lemma | `normElementsSmulTwo_def` | $\forall\,n : \mathbb{N},\ \forall\,u : \mathrm{R2}\text{ˣ},\ \forall\,z : \mathrm{NormElementsTwo}\ n,\ (\mathrm{normElementsSmulTwo}\ n\ u\ z).\mathrm{val}=(u:\mathrm{R2})\cdot\ z.\mathrm{val}$ |
+| [135](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L135) | lemma | `normElementsTwo_ne_zero` | $\forall\,n : \mathbb{N},\ \forall\,hn : 0<n,\ \forall\,z : \mathrm{NormElementsTwo}\ n,\ z.\mathrm{val}\ne\ 0$ |
+| [144](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L144) | lemma | `normElementsTwo_smul_eq_self_iff` | $\forall\,n : \mathbb{N},\ \forall\,hn : 0<n,\ \forall\,u : \mathrm{R2}\text{ˣ},\ \forall\,z : \mathrm{NormElementsTwo}\ n,\ u\ \bullet\ z=z\leftrightarrow\ u=1$ |
+| [184](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L184) | lemma | `normElementsToPairTwo_pairToNormElementsTwo` | $\forall\,n : \mathbb{N},\ \forall\,p : \{p:\mathbb{Z}\times\ \mathbb{Z}//p.\mathrm{1}^{2}+2\cdot\ p.\mathrm{2}^{2}=(n:\mathbb{Z})\},\ \mathrm{normElementsToPairTwo}\ n(\mathrm{pairToNormElementsTwo}\ n\ p)=p$ |
+| [190](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L190) | lemma | `pairToNormElementsTwo_normElementsToPairTwo` | $\forall\,n : \mathbb{N},\ \forall\,z : \mathrm{NormElementsTwo}\ n,\ \mathrm{pairToNormElementsTwo}\ n(\mathrm{normElementsToPairTwo}\ n\ z)=z$ |
+| [225](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L225) | lemma | `normElementsTwo_card_eq_two_mul_orbits` | $\forall\,n : \mathbb{N},\ \forall\,hn : 0<n,\ \mathrm{Nat.card}(\mathrm{NormElementsTwo}\ n)=2\cdot\ \mathrm{Nat.card}(\mathrm{Quotient}(\mathrm{MulAction.orbitRel}\ \mathrm{R2}\text{ˣ}(\mathrm{NormElementsTwo}\ n)))$ |
+| [252](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L252) | lemma | `span_eq_iff_associated_two` | $\forall\,x\,y : \mathrm{R2},\ \mathrm{Ideal.span}(\{x\}:\mathrm{Set}\ \mathrm{R2})=\mathrm{Ideal.span}(\{y\}:\mathrm{Set}\ \mathrm{R2})\leftrightarrow\ \mathrm{Associated}\ x\ y$ |
+| [256](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L256) | lemma | `absNorm_span_two_of_norm` | $\forall\,n : \mathbb{N},\ \forall\,z : \mathrm{R2},\ \forall\,hz : z.\mathrm{norm}.\mathrm{natAbs}=n,\ \mathrm{Ideal.absNorm}(\mathrm{Ideal.span}\ \{z\})=n$ |
+| [325](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L325) | theorem | `normElementsTwo_card_eq_two_mul_idealCount` | $\forall\,n : \mathbb{N},\ \forall\,hn : 0<n,\ \mathrm{Nat.card}(\mathrm{NormElementsTwo}\ n)=2\cdot\ \mathrm{Nat.card}\ \{I:\mathrm{Ideal}\ \mathrm{R2}//\mathrm{Ideal.absNorm}\ I=n\}$ |
+| [340](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L340) | lemma | `norm_two_mk` | $\forall\,x\,y : \mathbb{Z},\ (\langle{}x,\ y\rangle:\mathrm{R2}).\mathrm{norm}=x^{2}+2\cdot\ y^{2}$ |
+| [343](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L343) | lemma | `star_two_mk` | $\forall\,x\,y : \mathbb{Z},\ \mathrm{star}(\langle{}x,\ y\rangle:\mathrm{R2})=\langle{}x,-y\rangle$ |
+| [346](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L346) | lemma | `mul_star_two_mk` | $\forall\,x\,y : \mathbb{Z},\ (\langle{}x,\ y\rangle:\mathrm{R2})\cdot\ \mathrm{star}(\langle{}x,\ y\rangle:\mathrm{R2})=(\langle{}x^{2}+2\cdot\ y^{2},\ 0\rangle:\mathrm{R2})$ |
+| [351](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L351) | theorem | `split_prime_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=1\ \lor\ p\ \%\ 8=3,\ \exists\ \pi:\mathrm{R2},\ \mathrm{Prime}\ \pi\ \land\ \pi\cdot\ \mathrm{star}\ \pi=(p:\mathrm{R2})$ |
+| [392](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L392) | lemma | `split_span_norm_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,\pi : \mathrm{R2},\ \forall\,hprod : \pi\cdot\ \mathrm{star}\ \pi=(p:\mathrm{R2}),\ \mathrm{Ideal.absNorm}(\mathrm{Ideal.span}(\{\pi\}:\mathrm{Set}\ \mathrm{R2}))=p\ \land\ \mathrm{Ideal.absNorm}(\mathrm{Ideal.span}(\{\mathrm{star}\ \pi\}:\mathrm{Set}\ \mathrm{R2}))=p$ |
+| [407](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L407) | lemma | `split_span_ne_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,a\,b : \mathbb{Z},\ \forall\,hp_{8} : p\ \%\ 8=1\ \lor\ p\ \%\ 8=3,\ \forall\,ha : a\ne\ 0,\ \forall\,hb : b\ne\ 0,\ \forall\,hab : a^{2}+2\cdot\ b^{2}=(p:\mathbb{Z}),\ \mathrm{Ideal.span}(\{\langle{}a,\ b\rangle\}:\mathrm{Set}\ \mathrm{R2})\ne\ \mathrm{Ideal.span}(\{\mathrm{star}(\langle{}a,\ b\rangle:\mathrm{R2})\}:\mathrm{Set}\ \mathrm{R2})$ |
+| [425](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L425) | lemma | `split_prime_ne_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=1\ \lor\ p\ \%\ 8=3,\ \exists\ \pi:\mathrm{R2},\ \mathrm{Prime}\ \pi\ \land\ \mathrm{Prime}(\mathrm{star}\ \pi)\ \land\ \pi\cdot\ \mathrm{star}\ \pi=(p:\mathrm{R2})\ \land\ \mathrm{Ideal.span}(\{\pi\}:\mathrm{Set}\ \mathrm{R2})\ne\ \mathrm{Ideal.span}(\{\mathrm{star}\ \pi\}:\mathrm{Set}\ \mathrm{R2})$ |

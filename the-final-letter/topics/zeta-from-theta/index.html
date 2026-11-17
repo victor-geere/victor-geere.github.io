@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Zeta from theta — an FE-independent development</title>
+<style>
+body{font-family:Georgia,serif;max-width:52rem;margin:2rem auto;line-height:1.55;color:#222;padding:0 1rem}
+h1,h2{color:#123;font-weight:600}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #ccd;padding:.35rem .5rem;text-align:left;vertical-align:top}
+code{background:#f3f5f8;padding:.1rem .25rem;border-radius:3px}
+.status{background:#eef7ee;border-left:4px solid #2a7;padding:.6rem .9rem}
+.limit{background:#fff6e5;border-left:4px solid #d90;padding:.6rem .9rem}
+</style>
+</head>
+<body>
+<h1>Zeta from theta — an FE-independent development of ζ</h1>
+<p class="status"><strong>Status: construction complete.</strong> The theta layer
+now lives here, the standalone object <code>zetaTheta</code> is defined and shown
+to satisfy the functional equation, it is identified with Mathlib's
+<code>riemannZeta</code>, the trivial zeros and their removable limit are handled,
+and a constant-level provenance audit is recorded. Nothing here proves the
+Riemann hypothesis, and nothing here is a new theorem: the payoff is
+architectural.</p>
+
+<h2>The loop</h2>
+<p>Mathlib defines <code>riemannZeta := hurwitzZetaEven 0</code> and proves the
+functional equation through Hurwitz zeta
+(<code>completedRiemannZeta_one_sub</code> ←
+<code>completedHurwitzZetaEven_one_sub</code>). So any argument that needs the
+functional equation while developing Hurwitz-zeta material depends on that very
+development. In a formal system this is not a contradiction — a cycle simply
+means the proof is unavailable — but it blocks using the functional equation as
+a tool.</p>
+
+<p>The theta work (V1–V40) proved <code>Λ(1 − s) = Λ(s)</code> with a
+dependency cone free of the functional equation: Poisson summation contains no
+occurrence of <code>riemannZeta</code>; the Mellin Dirichlet file has no
+<code>one_sub</code>; <code>Gammaℝ_div_Gammaℝ_one_sub</code> comes from Gamma
+reflection; <code>riemannZeta_def_of_ne_zero</code> is a definitional rewrite.
+This topic removes the last dependence, which was the object itself.</p>
+
+<h2>The construction</h2>
+<ol>
+<li>Mellin, <code>Re s &gt; 1</code>: <code>Λ_θ(s) = Γℝ(s)·Σ n<sup>−s</sup></code>
+via <code>hasSum_mellin_pi_mul</code>.</li>
+<li>Split at 1 and substitute <code>t ↦ 1/t</code> using
+<code>θ(1/t) = √t·θ(t)</code>:
+<code>Λ_θ(s) = ∫₁<sup>∞</sup> ψ(t)(t<sup>s/2−1</sup> + t<sup>(1−s)/2−1</sup>)dt + 1/(s−1) − 1/s</code>,
+manifestly symmetric. This is <code>LambdaTheta</code>.</li>
+<li>Continue: the right-hand side is analytic on <code>ℂ ∖ {0,1}</code>
+(<code>differentiableAt_LambdaTheta</code>).</li>
+<li>Define <code>ζ_θ := Λ_θ/Γℝ</code> off the Γℝ zeros, with the trivial zeros
+handled separately (<code>zetaTheta</code>).</li>
+<li>Identify with the Dirichlet series, hence with <code>riemannZeta</code> on
+the overlap, and transfer the functional equation.</li>
+</ol>
+
+<h2>What is proved</h2>
+<table>
+<tr><th>Item</th><th>Statement</th><th>Lean</th></tr>
+<tr><td>D1</td><td>The Dirichlet series</td><td><code>zetaSeries</code></td></tr>
+<tr><td>T1</td><td>Convergence for <code>Re s &gt; 1</code> by comparison with the real p-series</td><td><code>summable_zetaSeries</code></td></tr>
+<tr><td>T2</td><td><strong>The bridge:</strong> on <code>Re s &gt; 1</code>, <code>ζ_θ(s) = riemannZeta s</code></td><td><code>zetaSeries_eq_riemannZeta</code></td></tr>
+<tr><td>T3</td><td>Completed form on <code>Re s &gt; 1</code></td><td><code>zetaSeries_eq_completed_div</code></td></tr>
+<tr><td>D2</td><td><code>LambdaTheta</code> and its Mellin agreement, symmetry and analyticity</td><td><code>LambdaTheta_eq_mellin</code>, <code>LambdaTheta_one_sub</code>, <code>differentiableAt_LambdaTheta</code></td></tr>
+<tr><td>D3</td><td><code>zetaTheta = LambdaTheta/Γℝ</code>, agreeing with the series</td><td><code>zetaTheta</code>, <code>zetaTheta_eq_zetaSeries</code></td></tr>
+<tr><td><strong>D4</strong></td><td><strong>The functional equation, with no Mathlib <code>*_one_sub</code></strong></td><td><code>zetaTheta_one_sub</code></td></tr>
+<tr><td>D5</td><td>Identification with <code>riemannZeta</code> (and the strengthened <code>s ≠ 0,1</code> form)</td><td><code>zetaTheta_eq_riemannZeta</code>, <code>zetaTheta_eq_riemannZeta_of_ne_zero_one</code></td></tr>
+<tr><td>D6</td><td>Trivial-zero value and removable punctured limit</td><td><code>zetaTheta_trivial_zero</code>, <code>zetaTheta_removable_at_trivial_zero</code></td></tr>
+<tr><td>M6</td><td>Assembled <code>riemannZeta</code> functional equation from the theta side</td><td><code>riemannZeta_one_sub_from_theta</code>, <code>riemannZeta_one_sub_from_theta&#39;</code></td></tr>
+<tr><td>D7</td><td>Constant-level provenance audit (Method B)</td><td><a href="lean/AUDIT.md">AUDIT.md</a></td></tr>
+</table>
+
+<h2>Provenance audit</h2>
+<p>Starting from each target, <code>lean/Audit.lean</code> walks every reachable
+<code>ConstantInfo</code> type and value and checks the 51k–55k declaration cone
+against seven forbidden functional-equation lemmas. All five targets pass (plus
+two negative controls); the
+recorded output and the method's limits are in
+<a href="lean/AUDIT.md">lean/AUDIT.md</a>.</p>
+
+<h2>Limits</h2>
+<p class="limit"><strong>What remains open.</strong> D6 is established through
+the identification with <code>riemannZeta</code>, not by an independent
+multiplicity count at <code>−2n</code>; Method C (negative build) was not run.
+M6 is now unconditional: <code>riemannZeta_one_sub_from_theta'</code> has the same
+statement as <code>riemannZeta_one_sub_theta'</code> and passes the audit. No Riemann-hypothesis content, no positivity, no new theorem.
+The function is the same function; only the route to it changes.</p>
+
+<h2>Computations</h2>
+<table>
+<tr><th>Item</th><th>Statement</th><th>Test</th></tr>
+<tr><td>C1</td><td>The Dirichlet series reproduces ζ on <code>Re s &gt; 1</code>, at the tail-consistent tolerance <code>N<sup>1−σ</sup>/(σ−1)</code></td><td><code>test_bridge_residual_small</code></td></tr>
+<tr><td>C2</td><td>The theta-side <code>Λ_θ</code> equals <code>Λ</code> on <code>Re s &gt; 1</code></td><td><code>test_theta_side_matches_completed_zeta</code></td></tr>
+<tr><td>C3</td><td>The theta-side symmetry <code>Λ_θ(1−s) = Λ_θ(s)</code></td><td><code>test_theta_side_functional_equation</code></td></tr>
+<tr><td>C4</td><td><code>Γℝ(2) = 1/π</code></td><td><code>test_gamma_R_at_two</code></td></tr>
+</table>
+
+<h2>Integration</h2>
+<p>Integration notes I1–I7 were actioned: <code>zeta-functional-equation</code>
+now imports the layer through <code>ThetaLayer</code>;
+<code>angular-partition-method</code> cross-references T57/O7;
+<code>digamma-contour-shift</code> and
+<code>archimedean-prime-evaluation</code> cite the functional-equation source;
+<code>weil-positivity</code> and <code>missing-bridge</code> carry a provenance
+note with no positivity status changed;
+<code>absolute-polarized-hodge-index-realization</code> records
+<code>zetaTheta</code> as a base object; and <code>zero-sum-convergence</code>
+cross-checks the ζ ↔ Λ correspondence.</p>
+
+<p>The full plan, milestones, risks and acceptance criteria are in
+<a href="HANDOFF.md">HANDOFF.md</a>; the completion record is §11 there.</p>
+</body>
+</html>

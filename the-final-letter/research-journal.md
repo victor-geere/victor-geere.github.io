@@ -5228,3 +5228,2253 @@ the `prime-spectrum-tensor` 5×5 certificate.  The full three-term Gaussian Gram
 positivity is now Lean-checked on both the 4- and 5-centre families.
 Counts: 1,468 theorems, 543 computations, 847 tests; Lean index 3,067 named
 proofs.
+
+
+**Full verification at T97 (2026-11-08).**  `tools/verify-all.sh --quick` exits 0
+on the T97 tree with the new `DensityCertificates` / `DensityCertificates5`
+imports in missing-bridge: 58/58 audit, all Python suites (847 tests), all 173
+Lean files (45 generated chunk files skipped in quick mode), **30,634** internal
+links with 0 broken curated links, and matching `publication.html` hashes
+(`ae65d8c1…`).
+
+**Frontier.**  The 4×4 and 5×5 Gaussian Gram rungs are Lean-proved and
+integrated; further rungs (6×6 and beyond) require new generated density
+certificates (the `gen` pipeline in `prime-spectrum-tensor`), and the general
+all-families inequality is RH-strength.  Counts: 1,468 theorems, 543
+computations, 847 tests; Lean index 3,067 named proofs.
+
+
+**General structure of the Gaussian Gram matrix (2026-11-08).**  Added
+`gaussianGramMatrix_eq_pole_add_density_add_prime` (T98) and
+`gaussianGramMatrix_isHermitian` (T99), for an **arbitrary finite centre
+family** `c : ι → ℝ`: the Gaussian Gram matrix is the sum of the pole, density
+and prime matrices, and it is Hermitian.  These subsume the 4×4 and 5×5
+decompositions (T91/T95) and give the structural form that any general
+positivity proof must address: `Q = Q_pole + Q_density + Q_prime` with mixed
+signs.  Counts: 1,470 theorems, 543 computations, 847 tests; Lean index 3,069
+named proofs.
+
+
+**Explicit 5-centre quadratic form and submatrices (2026-11-08).**  Added
+`gaussianGram5_quadraticForm_nonneg` (T100): the explicit three-term Gaussian
+quadratic form is non-negative at the five centres; and
+`gaussianGram5_submatrix_posSemidef` (T101): every principal submatrix of the
+5×5 Gram matrix is PSD, giving further certified families for free.  Counts:
+1,472 theorems, 543 computations, 847 tests; Lean index 3,071 named proofs.
+
+
+**Translation and reflection invariance of the certified family (2026-11-08).**
+Added `gaussianGramMatrix_translate` (T102), `gaussianGram5_translate_posSemidef`
+(T103), `gaussianGramMatrix_reflect` (T104) and
+`gaussianGram5_reflect_posSemidef` (T105): the Gaussian Gram matrix depends only
+on the differences of the centres, so every **translate** and every
+**reflection** of the certified 5-centre family is PSD.  This upgrades the
+certificate from a single 5-point set to a continuum of certified 5-centre
+families.  Counts: 1,476 theorems, 543 computations, 847 tests; Lean index 3,075
+named proofs.
+
+
+**4-centre translate/reflect families (2026-11-08).**  Added
+`gaussianGram4_translate_posSemidef` (T106) and
+`gaussianGram4_reflect_posSemidef` (T107): the translation and reflection
+invariances apply equally to the 4-centre certificate, so both the 4- and
+5-centre certified families are closed under translations and reflections.
+Counts: 1,478 theorems, 543 computations, 847 tests; Lean index 3,077 named
+proofs.
+
+
+**Concrete density-term signs (2026-11-08).**  Added `densityTerm_pos_at_zero`
+(T108) and `densityTerm_neg_at_fifth` / `_two_fifths` / `_three_fifths`
+(T109–T111): at `σ = 1/20` the density term is **positive at `c = 0`** and
+**negative at `c = 1/5, 2/5, 3/5`**, read off the `prime-spectrum-tensor`
+enclosure bands.  This pins down the variable-sign term in the three-term
+decomposition at the certified separations.  Counts: 1,482 theorems, 543
+computations, 847 tests; Lean index 3,081 named proofs.
+
+
+**Scoping the 6-centre rung (2026-11-08).**  A direct numerical evaluation of the
+exact three-term Gram entry (pole + density + prime, with `Ω(t) = Re ψ(1/4+it/2)
+− log π` and `σ = 1/20`) for the six centres `0, 1/5, 2/5, 3/5, 4/5, 1` gives a
+**positive-definite** matrix with smallest eigenvalue ≈ `0.0167` (the 5-centre
+submatrix gives ≈ `0.0214`).  So a 6×6 Lean rung is viable: it needs exactly
+**one new density certificate**, at `c = 1`, plus a fresh rational transfer
+centre and margin.  This is numerical scoping, not a Lean proof.  Counts
+unchanged.
+
+
+**4-centre explicit quadratic form (2026-11-08).**  Added
+`gaussianGram4_quadraticForm_nonneg` (T112), the 4-centre analogue of T100: the
+explicit three-term quadratic form is non-negative at the four centres.  Both
+certified rungs now have both matrix-level (PSD) and vector-level (quadratic
+form) statements.  Counts: 1,483 theorems, 543 computations, 847 tests; Lean
+index 3,082 named proofs.
+
+
+**Generated density certificate at `c = 1` (2026-11-08).**  Extended the panel
+certificate to `|c| ≤ 1`: new Lean lemmas `abs_deriv2_weight_le_one`
+(`WeightBound.lean`, constant `1/200`), `weight_midpoint_rule_one`
+(`PanelCertificate.lean`) and `panel_certificate_decay_one` (`PanelDecay.lean`).
+Extended `gen/panels.py` / `gen/emit_all.py` with a `--one` mode and generated
+the full `c = 1` density certificate (`DensityC5_0.lean` … `DensityC5_8.lean`,
+namespace `D5`, final `density_mem_c5`), with band
+`IntersectionForm.density (1/20) 1 ∈ [−0.0071144, −0.0039418]`, i.e.
+`densityTerm 1 (1/20) ∈ [−0.0142288, −0.0078836]`.  The chain is building in the
+background; the 6×6 rung then needs the prime enclosure at `c = 1`, a rational
+transfer centre and the assembly.  The Lean index now records 3,085 named
+proofs (the three new panel lemmas).
+
+
+**6-centre rung: `c = 1` certificate and density band (2026-11-08).**  The
+`|c| ≤ 1` panel certificate is Lean-proved (`abs_deriv2_weight_le_one`,
+`weight_midpoint_rule_one`, `panel_certificate_decay_one`).  The generated `c = 1`
+chain `DensityC5_0 … DensityC5_8` is building: chunks 0 and 1 are OK
+(≈ 5 min each), the rest are in progress.  Added `DensityCertificates6.lean`
+with `densityTerm_mem_c6`:
+`densityTerm 1 (1/20) ∈ [−0.0142285, −0.0078836]` (twice the generated
+`IntersectionForm.density` band), to be compiled once the chain finishes.
+Lean index: 174 files, 3,086 named proofs.  Ledger counts unchanged.
+
+
+**Pole enclosure at `c = 1` (2026-11-08).**  Added `cosh_half_mem` and
+`poleTerm_mem_c5` to `PoleEnclosure.lean`: `cosh(1/2) ∈ [1.127625, 1.127627]`
+and `poleTerm 1 (1/20) ∈ [0.035446, 0.035448]`.  The `c = 1` density chain is
+building (chunks 0–4 OK, chunk 5 in progress).  Remaining for the 6×6 rung: the
+prime enclosure at `c = 1`, a rational transfer centre/margin, and the assembly.
+Lean index now 3,088 named proofs.
+
+
+**6×6 prime enclosure: precise blocking condition (2026-11-08).**  The `c = 1`
+prime term is dominated by `n = 3`, so the enclosure needs
+`exp(−100(log 3 − 1)²)` to about `10⁻³` in the exponent argument.  Mathlib has
+`Real.log_two_gt_d9`/`lt_d9` but **no `log 3` bounds**; the available two-sided
+inequalities `2x/(x+2) ≤ log(1+x) ≤ x` give only
+`log 3 ∈ [log2 + 0.4, log2 + 0.5] ≈ [1.0931, 1.1931]`, far too coarse (the
+exponential then ranges over `[e^{−3.73}, e^{−0.87}]`).  A tight `log 3` bound
+(the cubic term `x − x²/2 + x³/3`, or a direct exp-series route) must be proved
+first.  In addition the `n ≥ 4` tail needs a new decay bound: the existing
+`exp(−100(x−c)²) ≤ exp(−14x)` argument assumes `c ≤ 3/5`, while at `c = 1` one
+has `100(log n − 1)²/ log n ≥ 10.75` for `n ≥ 4`, giving
+`exp(−100(log n − 1)²) ≤ n^{−10.75}` and a new tail estimate.  These are the
+precise open pieces of the 6×6 rung; the density chain (chunks 0–4) is built.
+
+
+**Tight `log 3` bound proved (2026-11-08).**  Added `log_three_mem` to
+`PrimeEnclosure.lean`: `log 3 ∈ [1.0986, 1.0987]`, via
+`exp_bound` at `0.0986`/`0.0987` combined with the 9-digit `exp 1` bounds and
+`Real.le_log_iff_exp_le` / `Real.log_le_iff_le_exp`.  This resolves blocker (i)
+of the `c = 1` prime enclosure; the remaining piece there is the `n ≥ 4` tail
+bound (`exp(−100(log n − 1)²) ≤ n^{−10.75}`).  The `c = 1` density chain has
+chunks 0–6 OK, chunk 7 building.  Lean index now 3,089 named proofs.
+
+
+**`c = 1` decay lemma (2026-11-08).**  Added `log_four_ge` and `exp_decay_c1`:
+for `x ≥ 1.38629436` (below `log 4`), `exp(−100(x−1)²) ≤ exp(−10x)`.  The
+proof shows `100(x−1)² − 10x` is increasing on this range and positive at
+`log 4`.  This is the key analytic step for the `n ≥ 4` prime tail at `c = 1`;
+the remaining steps are the summand bound (`primeSummand 1 n ≤ (√π/20)n⁻⁹`)
+and the telescoping tail.  The `c = 1` density chain has chunks 0–7 OK, chunk 8
+building.  Lean index 3,091 named proofs.
+
+
+**`c = 1` density band in Lean; chain complete (2026-11-08).**  All nine
+`DensityC5_*` chunks built (EXIT 0), and `DensityCertificates6.lean` now proves
+`densityTerm_mem_c6`:
+`densityTerm 1 (1/20) ∈ [−0.0142285, −0.0078836]`.  Added `exp_neg_ten_log`
+(`exp(−10 log n) = (n¹⁰)⁻¹`) for the `c = 1` prime summand bound.  The 6×6 rung
+now has: density band ✓, pole enclosure ✓, decay lemma ✓; remaining are the
+summand bound (`primeSummand 1 n ≤ (√π/20)(n⁹)⁻¹` for `n ≥ 4`), the telescoping
+tail, the `n = 2, 3` terms, the transfer centre/margin and the assembly.
+Lean index 3,092 named proofs.
+
+
+**`c = 1` prime summand bound (2026-11-08).**  Added `primeSummand_le_c1`:
+for `n ≥ 4`, `primeSummand 1 n ≤ (√π/20)·(n⁹)⁻¹`.  Proof: `Λ(n) ≤ n`, `1/√n ≤ 1`,
+and the decay `exp(−100(log n − 1)²) ≤ n⁻¹⁰` (T-exp-decay), then
+`n · n⁻¹⁰ = (n⁹)⁻¹`.  Remaining for the `c = 1` prime term: the telescoping tail
+(`∑_{n≥4} n⁻⁹ ≤ 4⁻⁷/3`), the `n = 2, 3` term enclosures, and the final band.
+Lean index: 3,093 named proofs.
+
+
+**`c = 1` prime tail and split (2026-11-08).**  Added the telescoping machinery
+`tele3`, `tele3_sub`, `sum_tele3`, `tele3_nonneg`, the per-term tail bound
+`primeSummand_le_tail_c1` (`n ≥ 4`), the range/tsum bounds
+`prime_sum_range_tail_le_c1`, `sum_tail_c1_le` (`∑_{n≥4} ≤ (√π/20)·4⁻⁷/3`) and
+the split `prime_sum_split_c1`:
+`∑' primeSummand 1 = summand₂ + summand₃ + tail`.  Remaining for the `c = 1`
+prime band: the `n = 2, 3` summand enclosures (rational arithmetic with
+`log2`, `log3`, `√2`, `√3`, `√π` and exp bounds), then the assembled band. Lean index: 3,099 named proofs.
+
+
+**6×6 rung: the `c = 1` density band is too wide (2026-11-08).**  Tightened
+`log_three_mem` to `log 3 ∈ [1.09861, 1.09862]` (via `exp_bound` at
+`0.09861/0.09862` and the 9-digit `exp 1` bounds), in preparation for the
+`n = 3` summand enclosure.  A quantitative check then showed that the generated
+`c = 1` density band is **too wide for a 6×6 transfer**: the `densityTerm`
+half-width is `0.003172`, while the 6-centre margin tolerance is
+`0.016704/6 = 0.002784`.  Since the density term enters the Gram entry
+symmetrically, its uncertainty alone exceeds the transfer tolerance.  A finer
+partition is required (panel errors scale like `h²` in the total, so
+`h0 = 1/250`, `h1 = 1/40` would give roughly a quarter of the width).  This is
+the precise blocker for the 6×6 rung; the `n = 2, 3` term enclosures were
+scoped (`log 3` now tight) but not completed.
+
+
+**Finer `c = 1` partition generated (2026-11-08).**  To meet the 6×6 transfer
+tolerance, regenerated the `c = 1` certificate with `h0 = 1/200`, `h1 = 1/30`
+(P = 1970 panels, 14 chunks): new band
+`IntersectionForm.density (1/20) 1 ∈ [−0.0065557, −0.0045010]`, i.e.
+`densityTerm 1 (1/20) ∈ [−0.0131115, −0.0090020]`, **half-width 0.0020548**,
+below the 6-centre tolerance `0.016704/6 = 0.002784`.  `DensityCertificates6.lean`
+now carries the new band.  The generator gained `--h0/--h1` and computes the panel
+count from the partition.  The 14-chunk build is running in the background;
+`DensityCertificates6.lean` will be rebuilt once it finishes.
+
+
+**`c = 1` n = 3 summand enclosure (2026-11-08).**  Added `sqrt_three_mem`
+(`√3 ∈ [1.73205, 1.73206]`), `vonMangoldt_three` and
+`primeSummand_three_c1_mem`:
+`primeSummand 1 3 ∈ [0.021230, 0.021320]`.  The proof combines the tight
+`log 3` bound, the `√π` and `√3` intervals, and `exp_bound` for
+`exp(−100(log 3 − 1)²) ∈ [0.3780, 0.3783]`.  The `n = 2` term (≈ 3.54·10⁻⁶) is
+the last piece of the `c = 1` prime band; the finer density chain is building.
+Lean index: 3,102 named proofs.
+
+
+**`c = 1` prime band proved (2026-11-08).**  Completed the `c = 1` prime input:
+`exp_neg_nine_le`, `exp_neg_nine_half_ge` (coarse `exp(−9)`/`exp(−9.5)` bounds),
+`primeSummand_two_c1_mem` (`primeSummand 1 2 ∈ [3·10⁻⁶, 6·10⁻⁶]`) and
+`primeTerm_c1_mem`:
+`primeTerm 1 (1/20) ∈ [−0.042660, −0.042460]`.  Also restored the split
+`prime_sum_split_c1`.  The 6×6 rung now has all three input enclosures at
+`c = 1`: pole `[0.035446, 0.035448]`, density (finer band), prime
+`[−0.042660, −0.042460]`.  Remaining: the rational 6×6 transfer centre/margin
+and the Gram-matrix assembly.  The finer density chain is still building.  A
+name clash (`exp_neg_nine_le` also in `DensityTail`) was resolved by renaming the
+new bounds `exp_neg_nine_le_c1`/`exp_neg_nine_half_ge_c1`.  Lean index:
+3,108 named proofs.
+
+
+**6×6 transfer infrastructure (2026-11-08).**  Added `GaussianGram6.lean` with
+`centre6 = (0,1/5,2/5,3/5,4/5,1)`, `gaussianGram6`, the rational Toeplitz centre
+`gramCentre6` (eight-decimal rounding, new entry `G(1) ≈ 0.00312957`), margin
+`gramMargin6 = 1/70`, the exact `LDLᵀ` factorization
+`gramCentre6 − (1/70)I = L6·D6·L6ᵀ` with positive pivots, and the transfer
+lemma `gaussianGram6_posDef_of_entry_bound` (`ε·6 < 1/70`).  All proved by exact
+`norm_num` arithmetic (no analysis).  Remaining: the entrywise enclosure of the
+six separations and the final PSD statement.  The finer density chain is
+building (chunks 0–2 OK).  Lean index: 175 files, 3,115 named proofs.
+
+
+**6×6 rung: all density bands need refinement (2026-11-08).**  Added
+`gaussianGram6_apply` (the three-term split of the 6×6 entry).  A quantitative
+check of the entrywise budget shows the 6×6 rung cannot close with the existing
+certificates: the transfer requires `ε < 1/(70·6) = 0.002381`, but every existing
+density band has `densityTerm` half-width `0.0035` (`c = 0, 1/5, 2/5, 3/5`) or
+`0.003173` (`c = 4/5`).  Since the density term enters the entry directly, each
+band alone exceeds the tolerance.  The 6×6 rung therefore requires **finer
+partitions for all five separations** (not only `c = 1`, whose finer chain is
+building); the `c = 4/5` band is the least bad but still too wide.  This is the
+precise blocking condition for the 6×6 rung; the alternative is a
+better-conditioned 6-centre family (larger smallest eigenvalue).
+
+
+**Conditional 6×6 certificate proved (2026-11-08).**  Added
+`Assembly6.lean` with `gaussianGram6_apply` and
+`gaussianGram6_posDef_of_density_enclosure`: if the density term lies in the six
+tight intervals (`[0.0107,0.0127]`, `[−0.0491,−0.0471]`, `[−0.0251,−0.0231]`,
+`[−0.0179,−0.0159]`, `[−0.0143,−0.0123]`, `[−0.0121,−0.0100]`), then
+`gaussianGram6 (1/20)` is positive definite (ε = 0.0015, `6ε = 0.009 < 1/70`).
+The whole transfer and assembly content of the 6×6 rung is therefore formal.
+
+**But the hypotheses are not discharged:** the finer `c = 1` chain gives
+`densityTerm 1 ∈ [−0.013112, −0.009002]` (width 0.00411), while the hypothesis
+needs width ≤ 0.0021 — still a factor two too wide.  Reaching it requires another
+halving of the panel width (`h0 = 1/400`, `h1 = 1/60`, ≈ 8000 panels, roughly
+4× the current build).  The same applies to the other five separations.  This is
+the precise blocking condition: the finite-certificate route to 6×6 is limited
+by enclosure width, not by the mathematics.
+
+
+**The separation wall, formalised (2026-11-08).**  Added
+`SeparationWall.lean` with `certifiedSeparations = {0,1/5,2/5,3/5,4/5}` and
+`six_centres_separation_wall`: six distinct real centres cannot have all their
+pairwise distances among the five certified separations.  Proof: subtract the
+minimum centre; the six values then lie in the five-element set
+`certifiedSeparations`, contradicting injectivity (`6 ≤ 5`).  This is the exact
+combinatorial reason the 6×6 rung needs a **new** separation certificate, and it
+complements the conditional 6×6 theorem (`gaussianGram6_posDef_of_density_enclosure`).
+
+
+**The pole quadratic form is a product of linear forms (2026-11-08).**  Added
+`PoleQuadraticForm.lean` with `cosh_quadratic_form` and `pole_quadratic_form`:
+```
+∑ i, ∑ j, x i * x j * poleTerm (a i - a j) σ
+  = 4πσ² e^{σ²/4} · (∑ i, x i e^{a i/2}) · (∑ i, x i e^{-a i/2}).
+```
+So the pole term alone is an indefinite product of two linear forms — it cannot
+be positive on its own, and the positivity of the Gram matrix genuinely requires
+the prime and density terms (the full three-term cancellation).  This is the
+analytic counterpart of the finite certificates and the first structural
+identity of the three-term decomposition to be formalised.
+
+
+**Finite Fejér identity for the trigonometric Gram kernel (2026-11-08).**  Added
+`TrigGram.lean` with `cos_quadratic_form`:
+```
+∑ i, ∑ j, x i * x j * cos((a i − a j) t)
+  = (∑ i, x i cos(a i t))² + (∑ i, x i sin(a i t))²
+```
+and `cos_quadratic_form_nonneg`.  This is the finite positivity underlying the
+density term: `densityTerm` integrates `cos(c t)` against the Gaussian weight
+and `Ω`, so its quadratic form would be `σ² ∫ e^{−(σt)²}·(sum of squares)·Ω`.
+Connecting the two formally is obstructed by the fact that `densityTerm` is
+defined by the plain (conditionally convergent) real integral; the interchange
+of sum and integral needs the improper-integral machinery of `DensityTail`.
+The Fejér identity itself is now formal.
+
+
+**Vector-level conditional 6×6 certificate (2026-11-08).**  Added
+`gaussianGram6_quadraticForm_nonneg`: under the same six tight density
+intervals, the explicit quadratic form
+`∑ᵢ∑ⱼ xᵢxⱼ gaussianGramEntry(centre6 i, centre6 j)` is non-negative for every
+`x : Fin 6 → ℝ`.  Both matrix-level (`gaussianGram6_posDef_of_density_enclosure`)
+and vector-level forms of the conditional 6×6 rung are now formal.
+
+
+**Structural signs of the three terms (2026-11-08).**  Added `poleTerm_pos`
+(`poleTerm c σ > 0` for `σ ≠ 0`) and `primeTerm_nonpos`
+(`primeTerm c σ ≤ 0` for `σ > 0`).  Together with the concrete density signs
+(T108–T111: positive at `c = 0`, negative at `c = 1/5, 2/5, 3/5`) this pins down
+the sign structure of the decomposition: the pole term is always positive, the
+prime term always non-positive, and the density term is variable — so Gram
+positivity is genuinely a pole+density-versus-prime cancellation, never
+archimedean dominance.
+
+
+**Density sign at `c = 4/5` (2026-11-08).**  Added T113
+`densityTerm_neg_at_four_fifths`: `densityTerm (4/5) (1/20) < 0`, completing the
+sign pattern at all five certified separations (`0` positive; `1/5, 2/5, 3/5,
+4/5` negative).  Ledger: T1–T113; totals 1,484 theorems.
+
+
+**Entry decomposition with the symmetrised prime term (2026-11-08).**  Added
+`primeTermSym c σ = (primeTerm c σ + primeTerm (-c) σ)/2`,
+`gaussianGramEntry_eq` (`gaussianGramEntry a b σ = poleTerm (a−b) σ +
+densityTerm (a−b) σ + primeTermSym (a−b) σ`) and `gaussianGramEntry_zero_neg`
+(evenness in the separation).  This packages the three-term split used by every
+assembly.
+
+
+**Sign of the symmetrised prime term (2026-11-08).**  Added
+`primeTermSym_nonpos` (`primeTermSym c σ ≤ 0` for `σ > 0`), `primeTermSym_even`
+and `gaussianGramEntry_le` (`gaussianGramEntry a b σ ≤ poleTerm (a−b) σ +
+densityTerm (a−b) σ`).  So the prime term only lowers the entry: positivity of
+the Gram matrix requires `pole + density` to exceed `|primeTermSym|`, the
+precise form of the three-term cancellation.
+
+
+**Diagonal entry and test status (2026-11-08).**  Added `gaussianGramEntry_diag`
+(`gaussianGramEntry a a σ = poleTerm 0 σ + densityTerm 0 σ + primeTerm 0 σ`).
+Ran the topic test suites: missing-bridge 25 passed, prime-spectrum-tensor 25
+passed.  The finer `c = 1` chain has chunks 0–10 OK, chunk 11 building.
+
+
+**Disk-full incident and restart of the finer chain (2026-11-08).**  The 14-chunk
+finer `c = 1` build filled the disk (100%, 286 MiB free) after chunk 11; the
+partial oleans were removed (freeing 7.7 GB) and `DensityCertificates6.lean`
+(a file that depended on the unfinished chain) was deleted.  After cleanup the
+disk recovered to 23 GB free and the chain was restarted from scratch.  Added
+`gaussianGram6_posDef_of_density_enclosure_fine` to `Assembly6.lean`: the same
+conditional 6×6 theorem with the `c = 1` interval loosened to
+`[−0.0132, −0.0090]` and `ε = 0.0023`, chosen to match the finer certificate's
+achievable band (`[−0.01311, −0.00900]`).
+
+
+**Diagonal positivity of the Gaussian Gram matrix (2026-11-08).**  Added
+`DiagonalPositivity.lean` with `gaussianGramEntry_diag_pos_at_inv20`:
+`0 < gaussianGramEntry a a (1/20)` for every centre `a`.  The pole band
+(`≈ 0.0314`), the density band (`[0.0082, 0.0152]`) and the small negative prime
+term (`≥ −2.2·10⁻⁵`) leave a margin of about `0.0396`.  This is the necessary
+diagonal condition for positivity, proved from the enclosures.
+
+
+**`primeTermSym_zero`; chain status (2026-11-08).**  Added
+`primeTermSym_zero` (`primeTermSym 0 σ = primeTerm 0 σ`).  A 2-centre pair-bound
+attempt from the loose bands was abandoned (the necessary `densityTerm`/`poleTerm`
+sign rewrites made the case analysis unwieldy); the 2×2 rung is anyway implied by
+the proved 4×4 certificate through principal submatrices.  The finer `c = 1`
+chain is still on chunk 0; disk free ≈ 17 GB, being watched.
+
+
+**Vector-level fine conditional 6×6 certificate (2026-11-08).**  Added
+`gaussianGram6_quadraticForm_nonneg_fine`, the vector-level analogue of
+`gaussianGram6_posDef_of_density_enclosure_fine` (looser `c = 1` interval
+`[−0.0132, −0.0090]`, matching the finer certificate's achievable band).  The
+conditional 6×6 rung now has both matrix-level and vector-level statements in
+the fine and standard forms.
+
+
+**All principal submatrices of the certified Gram matrices are PSD (2026-11-08).**
+Added `SubmatrixRungs.lean`: for any injective `e : m → Fin 4`,
+`(gaussianGram4 (1/20)).submatrix e e` is positive definite (hence PSD), and
+likewise for the 5×5 matrix.  Via `Matrix.PosDef.submatrix`, this gives every
+lower rung (1, 2, 3 centres) for free from the proved 4×4/5×5 certificates.
+
+
+**Positive determinants of the certified Gram matrices (2026-11-08).**  Added
+`gaussianGram4_det_pos` and `gaussianGram5_det_pos`: the determinants of the
+certified 4×4 and 5×5 Gaussian Weil Gram matrices at `σ = 1/20` are strictly
+positive (`Matrix.PosDef.det_pos`).  These are the classical positivity
+certificates (Sylvester) for the proved rungs.
+
+
+**Nonvanishing determinants; topic build green (2026-11-08).**  Added
+`gaussianGram4_det_ne_zero` and `gaussianGram5_det_ne_zero`.  The main
+`prime-spectrum-tensor` build (`lean/check.sh Topic.lean`) is green with all the
+new files (Assembly, Assembly6, SubmatrixRungs, DetPos, DiagonalPositivity,
+TrigGram, PoleQuadraticForm, SeparationWall).
+
+
+**All principal minors are positive (2026-11-08).**  Added
+`gaussianGram4_principal_minor_pos` and `gaussianGram5_principal_minor_pos`:
+every principal minor of the certified 4×4 and 5×5 Gaussian Weil Gram matrices
+is strictly positive — the full Sylvester positivity statement, obtained from
+`PosDef.submatrix` and `det_pos`.
+
+
+**The 5×5 matrix as a principal submatrix of the 6×6 (2026-11-08).**  Added
+`gaussianGramEntry_translate` (translation invariance of the Gram entry) and
+`gaussianGram5_submatrix_gaussianGram6`: the certified 5×5 matrix is exactly the
+leading `5 × 5` principal submatrix of the 6×6 matrix (the extra centre `1` is
+appended, and the 5×5 centres are the translate by `−2/5`).  This pins the
+ladder inclusion formally.
+
+
+**The 4×4 matrix as a principal submatrix of the 5×5 (2026-11-08).**  Added
+`gaussianGram4_submatrix_gaussianGram5`: the certified 4×4 matrix is the
+principal submatrix of the 5×5 matrix on the indices `1..4` (the 4×4 centres are
+the `+1/10` translate of `{−2/5, 0, 1/5, 2/5}`).  With the 5×5 ⊂ 6×6 result,
+the whole ladder `4×4 ⊂ 5×5 ⊂ 6×6` is now formal.
+
+
+**Diagonal positivity of all three matrices (2026-11-08).**  Added
+`gaussianGram4_diag_pos`, `gaussianGram5_diag_pos` and `gaussianGram6_diag_pos`:
+every diagonal entry of the 4×4, 5×5 and 6×6 Gaussian Gram matrices at
+`σ = 1/20` is strictly positive (from `gaussianGramEntry_diag_pos_at_inv20`).
+
+
+**Pivot to the bridge; T114–T117 (2026-11-08).**  The finite-certificate ladder
+was stopped (the 6×6 wall is a certificate-width wall, not the bridge).  The
+bridge is now first-class in `missing-bridge/Topic.lean`:
+
+* **T114** `weilQuadraticForm_eq_gaussianGram` — under the Gaussian explicit
+  formula, the zero-side quadratic form equals the Gaussian-Gram quadratic form.
+* **T115** `finiteWeilPositivity_iff_RH` — packaged equivalence (T20 + T57).
+* **T116** `finiteWeilPositivity_of_gaussianGram` — the explicit formula plus PSD
+  of the Gaussian Gram matrix imply `FiniteWeilPositivity`.
+* **T117** `riemannHypothesis_of_gaussianGram` — the same two inputs imply RH.
+
+The only inputs are the Gaussian explicit formula and the Gaussian Gram PSD;
+neither is archimedean dominance.  Ledger T1–T117; totals 1,488 theorems.
+
+
+**Named bridge inputs and T86 three-term form (2026-11-08).**  Added to
+`missing-bridge/Topic.lean`:
+`gaussianGramEntry_eq_pole_add_density_add_primeSym` (T118, T86 in three-term
+form), the named definitions `GaussianExplicitFormula` and `GaussianGramPSD`,
+and the bridge theorems `finiteWeilPositivity_of_gaussianInputs` (T119) and
+`riemannHypothesis_of_gaussianInputs` (T120).  The README now records precisely
+that T20 and T57 (hence T115) are proved, while the two named inputs are the
+open content.  Ledger T1–T120.
+
+
+**Correctness audit: the finite-`S` formula is vacuous (2026-11-08).**  Added
+`finiteFormula_forces_zero` (T121): assuming `scalarZeroSide σ S c = g c` for
+**every** finite set `S` of zeros forces `g ≡ 0` (take `S = ∅`).  This means the
+finite-`S` hypothesis of T79/T116/T119/T120 is vacuous, so those theorems are
+not usable bridge reductions.  The corrected named input is
+`GaussianExplicitFormulaInfinite`, the tsum over all nontrivial zeros in the
+strip.  The next formal task is the limit argument from `FiniteWeilPositivity`
+plus this infinite formula to `GaussianGramPSD`.  This is the kind of precision
+the bridge objective requires; no claim of RH is made.
+
+
+**PSD is closed; the infinite formula now carries convergence (2026-11-08).**
+Added T122–T124: `continuous_matrix_quadraticForm`,
+`isClosed_setOf_posSemidef` (PSD is a closed condition) and
+`posSemidef_of_tendsto` (PSD passes to limits).  The corrected input
+`GaussianExplicitFormulaInfinite` is now stated with `HasSum`, so it carries
+convergence, not just a `tsum` value.  With T123/T124 proved, the only remaining
+step of the corrected bridge is the entrywise `HasSum`-to-matrix-`Tendsto`
+transfer (mapping finite sets of zeros to their images in `Finset ℂ` and using
+`Finset.sum_image`).  Ledger T1–T124.
+
+
+**Corrected bridge completed: `FiniteWeilPositivity` + infinite formula ⟹
+`GaussianGramPSD` (2026-11-08).**  Proved T125
+`gaussianGramPSD_of_finiteWeilPositivity` and T126 `gaussianGramPSD_of_RH`:
+the infinite explicit formula (`HasSum` over all nontrivial zeros) together
+with finite Weil positivity gives PSD of the Gaussian Gram matrix, via the
+matrix-level limit argument (T122–T124) and `Finset.sum_image`.  The converse
+(`GaussianGramPSD` ⟹ `FiniteWeilPositivity`) needs a truncation-positivity
+input and is not available; the previous finite-formula route is vacuous (T121).
+Ledger T1–T126.
+
+
+**Packaged Gaussian bridge (T127) (2026-11-08).**  Added `gaussianBridge_summary`:
+under `GaussianExplicitFormulaInfinite`, the zero-side equivalence holds and
+both `GaussianGramPSD` implications follow.  Cross-referenced the bridge status
+in `weil-positivity/README.md` (the topic where the zero-side criterion lives).
+Ledger T1–T127.
+
+
+**Assembling the Gaussian explicit formula: algebra formal (2026-11-08).**
+Added `VerticalLimitIdentification` and T128 `gaussianZeroSum_eq`
+(`Zsum = H_c(0)+H_c(1) − (ArchR+PrimeR+ArchL+PrimeL)/(2π)`) and T129
+`gaussianZeroSum_re_eq_gram` (`Re Zsum = gaussianGramEntry c 0 σ` given the
+vertical-limit identification).  This is the algebraic assembly from the
+contour/rectangle machinery in archimedean/prime form
+(`explicit_formula_gaussianZeroTest_arch_prime`).  Remaining inputs of
+`GaussianExplicitFormulaInfinite` are now exactly: the vertical-limit
+identification, the four contour limits, and the zero-sum
+convergence/enumeration to a `HasSum`.  Ledger T1–T129.
+
+
+**From assembly data to `GaussianExplicitFormulaInfinite` (2026-11-08).**
+Added `GaussianZeroSumAssembly` (the bundled named data: assembled explicit
+formula, vertical-limit identification, `HasSum` over all nontrivial zeros) and
+T130 `gaussianExplicitFormulaInfinite_of_assembly`: the assembly data implies
+the infinite explicit formula.  Together with T128/T129 this completes the
+*formal assembly* with the analytic inputs explicit; none of the inputs is
+proved.  Ledger T1–T130.
+
+
+**Concrete vertical limits (T131–T134) (2026-11-08).**  Reduced the four
+abstract contour limits of the assembled Gaussian explicit formula to the
+archimedean and prime vertical integrals at `Re s = 2`: `archRight c σ T` and
+`primeRight c σ T`.  T131 shows the right side equals `−(archRight +
+primeRight)`; T132/T133 derive the right and left limits from convergence of
+the two halves (the left via the reflected test `H_{−c}` and the functional
+equation); T134 gives the end-to-end assembly
+`Re Zsum = gaussianGramEntry c 0 σ`.  Remaining inputs: convergence of the two
+integral families (with values `A, P, A′, P′`), the contour identity, the
+horizontal limits, the zero-sum convergence, and the identification.  Ledger
+T1–T134.
+
+
+**Enumeration nuance: HasSum needs absolute summability (2026-11-08).**
+Recorded that `GaussianExplicitFormulaInfinite` is an unconditional (`HasSum`)
+statement, whereas the rectangle sums are conditionally ordered.  Passing from
+the rectangle limit to the `HasSum` therefore requires **absolute** summability
+of the Gaussian zero sum (the `ZeroTailSummable`/zero-counting input), plus a
+cofinal-chain lemma.  This is the remaining formal task for the enumeration; it
+is not just a change of order of summation.
+
+
+**Enumeration formalised to named data (T135–T136) (2026-11-08).**  Added
+`hasSum_of_cofinal`: for a summable family, convergence of the sums over a
+monotone cofinal chain of finite sets gives the unconditional `HasSum` (via
+`HasSum = Tendsto atTop` and uniqueness of limits).  T136
+`gaussianExplicitFormulaInfinite_of_enumeration` reduces
+`GaussianExplicitFormulaInfinite` to the enumeration data per `(σ, c)`: a
+monotone cofinal sequence of finite zero sets, absolute summability of the
+Gaussian zero sum, the chain limit, and the value identity.  Remaining open
+inputs: the absolute summability/zero-counting and the value identity (the
+analytic identification).  Ledger T1–T136.
+
+
+**Identification decomposed (T137) (2026-11-08).**  `verticalLimitIdentification_of_limits`:
+the combined vertical-limit identification follows from the two separate named
+equalities `A.re + A′.re = −2π·densityTerm c σ` and
+`P.re + P′.re = −2π·primeTermSym c σ`.  This is the finest identification the
+existing contour machinery supports; the prime/archimedean evaluation itself is
+not in it.  Ledger T1–T137.
+
+
+**Vertical limits and enumeration: final status (2026-11-08).**  The end-to-end
+assembly (T134) and the enumeration reduction (T136) now live in
+[`missing-bridge/lean/VerticalLimits.lean`](topics/missing-bridge/lean/VerticalLimits.lean);
+the supporting lemmas (T131–T133, T135, T137) are in `Topic.lean`.  The topics
+build (both files), tests pass, and no `sorry`/`axiom` is present.  The vertical
+limits are formalised to the concrete `archRight`/`primeRight` integrals and the
+identification to its archimedean/prime named equalities; the enumeration is
+formalised to the cofinal-sequence/summability data.  Lean index: 182 files,
+3,174 named proofs.  Ledger T1–T137.
+
+
+**The two remaining analytic inputs made first-class (T138–T140) (2026-11-09).**
+Added `ArchimedeanEvaluation` and `PrimeEvaluation` as named propositions, with
+T140 showing their conjunction implies the vertical-limit identification.  For
+summability: T138 gives the strip norm bound `‖H_c(ρ)‖ ≤ K·e^{−σ²(Im ρ)²}`, and
+T139 reduces absolute summability of the Gaussian zero sum to the zero-counting
+lower bound `|γ_n| ≥ c₀ n/log n` (via `zeroTailSummable_of_ge_div_log`,
+`Summable.of_norm_bounded` and an equivalence transfer).  Neither evaluation is
+proved — the digamma/contour-shift and Dirichlet-series computations are absent
+from the existing machinery — and the counting bound is the Riemann–von
+Mangoldt-type input absent from Mathlib.  Everything else is formal.
+
+
+**Absolute summability proved from the ξ₀ growth (T141–T142) (2026-11-09).**
+The zero-counting input turned out to be already available: `Hadamard.lean` has
+the Jensen ball count (`xi₀_zero_count_bound_of_log_le`), inverse-square
+summability (`xi₀_zeros_inv_sq_summable`), and
+`zeroTailSummable_of_nontrivial_xi₀_enumeration`.  Building on these,
+`Summability.lean` proves T141 (exponential summability over the zeros) and T142
+(absolute summability of the Gaussian zero sum), from the linear growth of `ξ₀`
+and an enumeration, via the strip norm bound (T138) and an equivalence between
+the two zero subtypes.  So absolute summability is no longer a named input.
+The evaluations `ArchimedeanEvaluation`/`PrimeEvaluation` remain the one named
+gap (the digamma/contour-shift and Dirichlet-series computations are absent
+from the libraries).  Ledger T1–T142.
+
+
+**New topic `archimedean-prime-evaluation` (2026-11-09).**  Created the topic
+isolating the two analytic inputs of the Gaussian explicit formula.  Proved the
+elementary core: the exact critical-line value of the Gaussian test
+(`gaussianZeroTest_half_add`), its trigonometric form and real/imaginary parts
+(T2–T5), and the reduction from the two evaluation equalities to the
+vertical-limit identification (T1).  The Python layer computes `Ω`,
+`densityTerm`, the `Im ψ` correction, the critical-line parts, the prime term,
+and verifies the critical-line archimedean identity numerically (residual
+`~10⁻¹⁷`).  The evaluations themselves (`ArchimedeanEvaluation`,
+`PrimeEvaluation`) remain open: the contour shift and the Dirichlet-series
+evaluation are absent from the repository and Mathlib.  The topic passes the
+structural audit; status 59 topics · 1,518 theorems · 548 computations · 856
+tests.
+
+
+**O1 reduced to a proved critical-line evaluation (2026-11-09).**  Added T6
+`arch_integrand_identity` (pointwise splitting of the critical-line archimedean
+integrand into the `Ω·cos` density piece and the `Im ψ·sin` correction) and T7
+`archIntegral_eq` (the critical-line archimedean evaluation, conditional on
+integrability of the two pieces).  This is the maximal formalisation of O1 that
+the available machinery supports: the contour shift from `Re s = 2` to
+`Re s = 1/2`, which is what the actual `ArchimedeanEvaluation` limit values
+require, remains open.  O2 (the prime-side Dirichlet-series evaluation) remains
+open as stated in the topic README.
+
+
+**O2 stated precisely in Lean (2026-11-09).**  Added the missing O2 statements
+to `archimedean-prime-evaluation/lean/Topic.lean`: `primeRightIntegral` (the
+`Re s = 2` vertical integral of `LSeries(Λ)·H_c`), `PrimeRightLimit`,
+`termwiseIntegral` (the Gaussian–Fourier term `∫ e^{−iy log n}H_c(2+iy)dy`),
+`GaussianFourierTransform` (its closed form
+`2πσ²e^{9σ²/4−3c/2}(√π/σ)e^{−(3σ²−c−log n)²/(4σ²)}`),
+`PrimeTermwiseInterchange` and `PrimeSeriesEvaluation`.  None is proved; these
+are the exact statements the prime evaluation requires (the Fourier transform is
+an elementary Gaussian integral not in Mathlib, the interchange needs uniform
+convergence on `Re s = 2`, and the final identification with `−2π·primeTermSym`
+remains).  No ledger count changes (definitions, not theorems).
+
+
+**Gaussian Fourier transform proved (T8–T10) (2026-11-09).**  Proved
+`gaussianZeroTest_two_add` (the Gaussian test at `Re s = 2` in Gaussian form),
+`termwiseIntegral_eq` (the closed form of
+`∫ e^{−iy log n}H_c(2+iy)dy = 2πσ² e^{9σ²/4−3c/2}(π/σ²)^{1/2}
+e^{−(3σ²−c−log n)²/(4σ²)}`, via `integral_cexp_quadratic`), and
+`gaussianFourierTransform` discharging the named `GaussianFourierTransform`
+proposition.  This removes the Fourier-transform input from O2; what remains of
+O2 is the termwise interchange (uniform convergence on `Re s = 2`) and the
+identification with `−2π·primeTermSym`.  Status: 59 topics · 1,523 theorems.
+
+
+**Finite termwise exchange (T11) (2026-11-09).**  Proved
+`primePartialIntegral_eq`: for a finite partial sum of the prime series, the
+vertical integral splits exactly into the sum of the individual term integrals
+(`intervalIntegral.integral_finset_sum` plus `integral_const_mul`).  This is the
+finite-N core of the termwise interchange; the remaining O2 step is the limit
+pass to `PrimeTermwiseInterchange` (uniform convergence on `Re s = 2`) and the
+final identification with `−2π·primeTermSym`.  Status: 59 topics · 1,524
+theorems.
+
+
+**Termwise interchange proved (T12–T17) (2026-11-09).**  Added term
+integrability, the term and partial-sum limits, the uniform bound on
+`termwiseIntegral`, summability of the prime series at `Re s = 2` (from
+`LSeriesSummable_vonMangoldt`), and — the main result — `primeTermwiseInterchange`:
+the partial sums of `Λ(n)/n²·termwiseIntegral` converge to the sum of the
+termwise integrals.  This removes the interchange from O2.  What remains of the
+explicit formula: the T-limit identification `PrimeRightLimit c σ P` for the
+series value, the arithmetic identification with `−2π·primeTermSym`, and O1's
+contour shift.  Status: 59 topics · 1,530 theorems.
+
+
+**The limit pass (T18) (2026-11-09).**  Added `UniformTailBound` (the named
+uniform-convergence input) and `primeRightLimit_of_uniformTail`: given the
+uniform tail bound plus the partial-sum limits (T14/T17), the full prime
+vertical limit exists and equals the sum of the termwise integrals.  This
+isolates O2 to exactly two remaining statements: `UniformTailBound` and the
+arithmetic identification with `−2π·primeTermSym`.  Status: 59 topics · 1,531
+theorems.
+
+
+**Von Mangoldt tail lemmas (T19–T21) (2026-11-09).**  Added
+`summable_vonMangoldt_div_sq` (the `Re s = 2` series, factored out of T16),
+`tendsto_tail_summable` (the tail of any summable series tends to zero), and
+`tendsto_tail_vonMangoldt_div_sq`.  These are the convergence inputs for the
+uniform tail bound `UniformTailBound`; the tail-to-zero fact is what makes the
+M-test estimate close.  Status: 59 topics · 1,534 theorems.
+
+
+**Uniqueness of the series value (T22) (2026-11-09).**  Added
+`primeTermwiseInterchange_unique`: the value `P` in `PrimeTermwiseInterchange` is
+unique and equals the termwise sum.  This ties T17 and T18 together.  The
+attempted pointwise `LSeries` identity
+`LSeries Λ (2+iy) = Σ Λ(n)/n²·e^{−iy log n}` did not close this round; it is the
+next target for `UniformTailBound`.  Status: 59 topics · 1,535 theorems.
+
+
+**L-series identity proved (T23) (2026-11-09).**  `LSeries_vonMangoldt_eq`:
+`LSeries(Λ, 2+iy) = Σ' Λ(n)/n²·e^{−iy log n}`, proved via `LSeries_def₀`,
+`Complex.cpow_def_of_ne_zero`, the log cast, `exp_add`, `exp_nat_mul` and the
+division rearrangement.  This is the pointwise identity needed for
+`UniformTailBound`; the remaining step there is the integral bound on the tail.
+Status: 59 topics · 1,536 theorems.
+
+
+**New project `digamma-contour-shift` (2026-11-09).**  Harvested the digamma
+analysis from `intersection-form-zeta/lean/DigammaEnclosure.lean`: the
+Euler–Maclaurin expansion `ψ(w) = log w − 1/(2w) − 1/(12w²) + 1/(120w⁴) − R(w)`
+and the remainder bound `‖R(w)‖ ≤ 1/(81 (Re w)^5)` (T1/T2).  Defined the
+archimedean factor and the named contour-shift target `ArchimedeanShift H` (O1),
+the shift of the archimedean integral from `Re s = 2` to `Re s = 1/2`.  The
+python layer checks the truncation, the remainder bound and its decay.  Status:
+60 topics · 1,538 theorems · 550 computations · 860 tests.
+
+
+**Bounded digamma error proved (T3, digamma-contour-shift).**  From the
+harvested expansion (T1) and remainder bound (T2), proved
+`‖ψ(w) − log w‖ ≤ 19` for `Re w ≥ 1/4`, `Im w ≠ 0`, by the triangle inequality
+and the numerical bounds at `‖w‖ ≥ 1/4` (`1/(2‖w‖) ≤ 2`, `1/(12‖w‖²) ≤ 4/3`,
+`1/(120‖w‖⁴) ≤ 32/15`, remainder `≤ 1024/81`).  This is the estimate that keeps
+`archFactor` logarithmically bounded on horizontal segments; the next step is the
+`log` growth bound and the rectangle/shift.  Status: 60 topics · 1,539 theorems.
+
+
+**Logarithmic growth of the archimedean factor (T4–T5, digamma-contour-shift).**
+Proved `‖log w‖ ≤ log‖w‖ + π` for `‖w‖ ≥ 1` (from `Complex.log_re/im`,
+`Complex.norm_le_abs_re_add_abs_im` and `Complex.abs_arg_le_pi`) and the
+logarithmic bound
+`‖archFactor(x+iT)‖ ≤ (1/2)(log π + log((T+2)/2) + π + 19)` for
+`1/4 ≤ x/2`, `x ≤ 2`, `T ≥ 2`.  This is the estimate that, against the Gaussian
+decay of the test, makes the horizontal segments of the contour rectangle
+vanish.  Status: 60 topics · 1,541 theorems.
+
+
+**Horizontal Gaussian decay (T6, digamma-contour-shift).**  Defined the Gaussian
+test and proved
+`‖H_c(x+iT)‖ ≤ 2πσ² e^{σ²·9/4 + |c|·3/2} e^{−σ²T²}` for `1/4 ≤ x ≤ 2`,
+completing the estimates needed for the vanishing horizontal segments: T5 gives
+`O(log T)` for the archimedean factor, T6 gives `O(e^{−σ²T²})` for the test.
+Status: 60 topics · 1,542 theorems.
+
+
+**Horizontal-segment integral bound (T7, digamma-contour-shift).**  Proved
+`‖∫_{1/2}^{2} archFactor(x+iT)H(x+iT) dx‖ ≤ (3/2)·(log bound)·K·e^{−σ²T²}`
+from T5/T6 via `intervalIntegral.norm_integral_le_of_norm_le_const`.  This is the
+estimate that makes both horizontal segments of the contour rectangle vanish as
+`T → ∞`.  Status: 60 topics · 1,543 theorems.
+
+
+**Differentiability on the contour rectangle (T8–T10, digamma-contour-shift).**
+Proved locally `analyticAt_Gamma_of_re_pos` and
+`differentiableAt_digamma_of_re_pos` (Mathlib has no digamma differentiability),
+then `differentiableAt_archFactor`, `differentiable_gaussianTest` and
+`differentiableOn_rect`: `archFactor·H` is differentiable on
+`[1/2,2] × [-T,T]`, the hypothesis for the rectangle Cauchy identity.  Status:
+60 topics · 1,546 theorems.
+
+
+**Rectangle Cauchy identity (T11–T12, digamma-contour-shift).**  Proved
+`differentiableOn_of_re_pos` and `rectangle_identity`: the boundary identity
+for `archFactor·H_c` on `[1/2,2] × [−T,T]`,
+`∫ f(x−TI) − ∫ f(x+TI) + I·∫ f(2+yI) − I·∫ f(1/2+yI) = 0`.  This is the
+starting point of the shift; the remaining step is the vanishing of the
+horizontal terms and the resulting limit `ArchimedeanShiftLim`.  Status:
+60 topics · 1,548 theorems.
+
+
+**Symmetric horizontal bounds (T13–T14, digamma-contour-shift).**  Proved
+`archFactor_norm_le_abs` and `horizontal_segment_le_abs`, the `|y|`-symmetric
+versions covering both horizontal segments at `Im s = ±T`.  The remaining step
+is the limit `log(T+2)·e^{−σ²T²} → 0` and the squeeze of the horizontal terms to
+zero, then `ArchimedeanShiftLim`.  Status: 60 topics · 1,550 theorems.
+
+
+**The archimedean contour shift proved (T15–T21, digamma-contour-shift).**
+Completed the project: proved the Gaussian/log limits `e^{−σ²T²} → 0`,
+`T²e^{−σ²T²} → 0`, `(T²+1)e^{−σ²T²} → 0`, `log(T+2)e^{−σ²T²} → 0` (T15–T18),
+the vanishing of both horizontal segments (T19–T20), and
+`archimedeanShift_gaussian` (T21): the truncated vertical integrals at
+`Re s = 1/2` and `Re s = 2` have equal limits.  The proof uses the rectangle
+Cauchy identity (T11) plus the horizontal bounds.  Status: 60 topics · 1,557
+theorems.
+
+
+**The shift transfers the critical-line limit (T22).**  Added
+`tendsto_line_two_of_shift`: if the truncated critical-line archimedean integral
+tends to `L`, then the truncated integral at `Re s = 2` also tends to `L`.
+This is the form the explicit-formula evaluation needs: it turns the
+critical-line identity of `archimedean-prime-evaluation` (T7) plus the shift
+(T21) into the `Re s = 2` limit `ArchR`.  Status: 60 topics · 1,558 theorems.
+
+
+**The archimedean evaluation at `Re s = 2` (T23–T27, digamma-contour-shift).**
+Proved the global strip bounds (`norm_log_le_global`, `archFactor_norm_le_global`),
+the integrability of `archFactor·H_c` on the vertical line (T25), the
+convergence of the truncated line integral to the full integral (T26), and
+`tendsto_line_two_lim` (T27): the truncated `Re s = 2` integral converges to the
+full critical-line integral.  This is the `ArchR` convergence needed by the
+explicit formula, combining T22 and T21.  Status: 60 topics · 1,563 theorems.
+
+
+**Critical-line objects (T28, digamma-contour-shift).**  Added `omega`,
+`psiIm`, `densityTerm`, `imTerm` and `gaussianTest_half_add`: the
+critical-line Gaussian test in trigonometric form
+`H_c(1/2+iy) = 2πσ²e^{−σ²y²}(cos(cy) − i sin(cy))`.  These are the ingredients
+of the explicit archimedean value `−π(densityTerm + imTerm)`; the pointwise
+real-part identity is the next step.  Status: 60 topics · 1,564 theorems.
+
+
+**Critical-line pointwise identity (T29–T30, digamma-contour-shift).**  Proved
+`archFactor_half_add` (the critical-line form of the archimedean factor) and
+`archFactor_gaussianTest_re`: the real part of the critical-line integrand is
+`−πσ²e^{−σ²y²}(Ω(y)cos(cy) + Im ψ(1/4+iy/2) sin(cy))`.  Integrating this
+gives `L.re = −π(densityTerm + imTerm)`, the explicit archimedean value.
+Status: 60 topics · 1,566 theorems.
+
+
+**Integral-identity inputs (T31–T33, digamma-contour-shift).**  Proved
+`abs_omega_le`, `abs_psiIm_le` (both `2‖archFactor‖` bounds) and
+`integrable_majorant` (integrability of `C(1+|y|)e^{−σ²y²}`).  These are the
+ingredients for integrating the pointwise critical-line identity.  The
+integrability of `e^{−σ²y²}cos(cy)Ω(y)` itself is the next step.  Status:
+60 topics · 1,569 theorems.
+
+
+**The archimedean evaluation (T34–T37, digamma-contour-shift).**  Proved the
+continuity and integrability of the two critical-line pieces, the integral
+identity `L.re = −π(densityTerm + imTerm)` (T36), and the reflection
+`densityTerm(−c) = densityTerm(c)`, `imTerm(−c) = −imTerm(c)`, giving
+`archimedeanValue_sum`: `L_c.re + L_{−c}.re = −2π·densityTerm c σ` — the
+archimedean evaluation O1.  Status: 60 topics · 1,573 theorems.
+
+
+**LSeries line continuity (T19, archimedean-prime-evaluation).**  Proved
+`continuous_LSeries_line`: `y ↦ LSeries(Λ, 2+iy)` is continuous, via
+`LSeries_analyticOnNhd` and the abscissa bound `abscissaOfAbsConv Λ ≤ 3/2 < 2`.
+This is the input needed to integrate the L-series against the Gaussian on the
+segment and hence to close `UniformTailBound`.  Status: 60 topics · 1,574
+theorems.
+
+
+**`ArchimedeanEvaluation` proved (T25, archimedean-prime-evaluation).**  Wired
+the digamma-contour-shift evaluation into the explicit-formula topic (the
+content file renamed `Shift` to avoid the duplicate `Topic` module name).
+`archimedeanEvaluation_proved`: `ArchimedeanEvaluation c σ A A′` holds for `A`
+the critical-line integral for `c` and `A′` the one for `−c`, since
+`A.re + A′.re = −2π·densityTerm c σ`.  O1 is closed.  Status: 60 topics ·
+1,575 theorems.
+
+
+**Prime tail-integral representation (T26–T31, archimedean-prime-evaluation).**
+Bridged the local Gaussian test to `Shift`'s, proved the horizontal decay at
+`Re s = 2`, the summability of the explicit prime series and the pointwise tail
+identity, and `primeRightIntegral_sub_eq`: the difference between the prime
+integral and a partial sum is the integral of the tail against the Gaussian.
+This is the base estimate for `UniformTailBound`.  Status: 60 topics · 1,581
+theorems.
+
+
+**Tail norm and symmetry (T32–T34, archimedean-prime-evaluation).**  Added the
+tail-norm constant `tailNorm N = Σ' k, ‖Λ(k+N)/(k+N)²‖` and the symmetry lemmas
+`primeRightIntegral (-T) = -primeRightIntegral T` (and the partial version),
+reducing the `T < 0` case of the tail estimate to `T ≥ 0`.  Status: 60 topics ·
+1,584 theorems.
+
+
+**Tail-norm bound (T35, archimedean-prime-evaluation).**  Proved
+`norm_tail_tsum_le`: `‖Σ'_{k} f(k+N)‖ ≤ tailNorm N`, using
+`Summable.comp_injective` and the norm computation
+`‖f(k+N)‖ = ‖Λ(k+N)/(k+N)²‖`.  Status: 60 topics · 1,585 theorems.
+
+
+**Tail-integral bound (T36–T37, archimedean-prime-evaluation).**  Proved
+`integral_exp_neg_sq_le_sqrt` (the interval Gaussian mass is at most
+`√(π/σ²)`) and `norm_primeRightIntegral_sub_le`: for `T ≥ 0`,
+`‖primeRightIntegral T − primePartialIntegral N T‖ ≤ tailNorm N · gaussMass c σ`.
+This is the heart of `UniformTailBound`.  Status: 60 topics · 1,587 theorems.
+
+
+**`UniformTailBound` and the prime limit proved (T38–T42,
+archimedean-prime-evaluation).**  Extended the tail bound to all `T`, proved
+`tailNorm N → 0` (the tail normality as the real part of the complex tail
+series), hence **`UniformTailBound`**, and therefore **`PrimeRightLimit`** at
+the termwise sum `Σ' Λ(n)/n²·termwiseIntegral`.  The prime-side convergence is
+now unconditional.  Status: 60 topics · 1,592 theorems.
+
+
+**The prime-side obstruction identified (O3, archimedean-prime-evaluation).**
+The proved `primeRightLimit` gives the prime vertical limit at `Re s = 2`,
+`Σ' Λ(n)/n²·termwiseIntegral`.  The explicit formula needs the critical-line
+prime term `Σ' Λ(n)/√n·(Gaussian at log n)`, i.e. `ζ'/ζ` on `Re s = 1/2`,
+which requires the analytic continuation and functional equation — not the
+Dirichlet series in its half-plane of convergence.  A numerical check
+(`prime_gap_ratio` in the topic's `python/programme.py`) shows the two values
+differ: ratio ≈ 0.1308 at `c = σ = 1`.  The identification with
+`−2π·primeTermSym` is therefore not derivable from the current machinery and is
+recorded as open O3.  Status: 60 topics · 1,592 theorems · 862 tests.
+
+
+**The zero-side obstruction (O4, missing-bridge).**  Checked the assembly: the
+only occurrence of the zero-side `HasSum (fun ρ ↦ (H_c ρ).re) Zsum.re` in the
+whole 60-topic tree is inside the hypothesis `GaussianZeroSumAssembly`; no
+theorem proves the convergence of the sum over the nontrivial zeros.  So the
+infinite explicit formula rests on two unproved inputs: the zero-sum
+convergence (O4) and the critical-line prime term (O3).  The archimedean part is
+proved (T25).  This is recorded in the missing-bridge ledger.
+
+
+**Two repair topics created for O3 and O4.**  Direction 1 is
+[`zeta-functional-equation`](topics/zeta-functional-equation/README.md): the
+functional equation `Λ(1 − s) = Λ(s)`, the continuation of `ζ` off `1`, the
+zero correspondence `ζ ↔ Λ`, and the analyticity of `ζ′/ζ` away from `1` and
+the zeros (T1–T21), proved from Mathlib's zeta development.  Direction 2 is
+[`zero-sum-convergence`](topics/zero-sum-convergence/README.md): the trivial
+zeros are infinite, the Gaussian series over them is summable with a `HasSum`
+(T1–T3), `ζ` has no zeros on `Re s > 1`, and the Riemann–von Mangoldt counting
+input is recorded as the named `ZeroCountingBound` with the reduction to
+summability marked open (O4a/O4b).  Totals: 62 topics · 1,618 theorems ·
+559 computations · 871 tests · 62/62 Lean builds.
+
+
+**Direction 1 started: zero symmetries (T22–T25).**  Added conjugation symmetry
+of `ζ`, closure of the zeros under conjugation and under `s ↦ 1 − s`, and the
+resulting fourfold symmetry of the nontrivial zeros.  `zeta-functional-equation`
+now has 25 proved theorems.  Status: 62 topics · 1,622 theorems.
+
+
+**Direction 1 advances: left half-plane zeros, residues, decomposition
+(T26–T29).**  `zeta_zero_of_re_neg` classifies the zeros with `Re s < 0` as
+exactly the negative even integers (via the vanishing locus of `Gammaℝ` and
+`Λ(1 − s) = Λ(s) ≠ 0`).  `tendsto_logDeriv_zero` gives the residue `1` of
+`ζ′/ζ` at a *simple* zero (simplicity hypothesised, never asserted).
+`logDeriv_prod_linear` and `logDeriv_zeta_eq_sum_add` give the residue
+decomposition `ζ′/ζ = Σ_ρ 1/(s − ρ) + g′/g`.  Status: 62 topics · 1,626
+theorems.
+
+
+**O3 completed as far as the machinery allows (T26–T30).**
+`zeta-functional-equation` now proves: left half-plane zeros are exactly the
+negative even integers (T26); the residue of `ζ′/ζ` at a simple zero is `1`
+(T27); the residue decomposition `ζ′/ζ = Σ 1/(s−ρ) + g′/g` (T28/T29); and
+`Σ Λ(n)/√n = ∞` (T30), so the critical-line prime sum is not absolutely
+convergent and no termwise Dirichlet-series argument can produce it.  The
+remaining step is the rectangle residue theorem (O3a), which Mathlib does not
+contain: no argument principle for meromorphic functions.  Status: 62 topics ·
+1,627 theorems.
+
+
+**O3a written in Lean (T31–T33, D1–D2).**  Added `boundaryIntegral` and the two
+rectangle Cauchy identities (T31/T32), then formalised the missing statement
+itself: `RectangleResidueTheorem F H z w` (the rectangle residue theorem for
+`H·ζ′/ζ`) and `ContourShiftStatement H` (the concrete contour shift on
+`[1/2, 2] × [−T, T]` with the strip zeros and the pole at `1`).  T33 proves the
+reduction `verticalDifference_eq_of_boundary`: the residue theorem gives the
+vertical-integral difference the explicit formula needs, minus the horizontal
+terms.  What remains is the *proof* of the residue theorem (Mathlib has no
+argument principle for meromorphic functions).  Status: 62 topics · 1,630
+theorems.
+
+
+**O3's residue theorem proved on circles (T34–T36, D3).**
+`circleIntegral_residue` proves `∮_{C(c,R)} H·f′/f = 2πi·H(ρ)` at a single
+simple pole, by cancelling the singular part and applying Mathlib's
+off-countable circle Cauchy theorem, with the kernel integral
+`∮(z−ρ)⁻¹ = 2πi` from `circleIntegral_sub_inv_smul_of_differentiable_on_off_countable`.
+`CircleResidueTheorem` records the statement as a `Prop`, T35 proves it holds,
+and T36 gives the instance at a simple zero of `ζ`.  The rectangle case now
+reduces to two named gaps: O3b (Cauchy/homology for the rectangle minus small
+discs) and O3c (removable singularity at a simple zero of `ζ`).  Status: 62
+topics · 1,633 theorems.
+
+
+**Circle residue theorem, finite sum (T37–T38).**  `circleIntegral_residue_sum`
+proves `∮_{C(c,R)} H·f′/f = 2πi·Σ_ρ H(ρ)` for a finite set of simple poles, by
+induction over the `Finset` (with `continuousOn_finsetSum` and
+`circleIntegral.integral_add`), and `circleIntegral_inv_sub` records the kernel
+integral `∮(z−ρ)⁻¹ = 2πi`.  With T34/T36 this completes O3's residue theorem on
+circles; the rectangle case remains reduced to O3b (homotopy/winding) and O3c
+(removable singularity).  Status: 62 topics · 1,635 theorems.
+
+
+**The prime side on `Re s > 1` (T39, D4).**  `logDeriv_zeta_eq_neg_tsum` proves
+`ζ′(s)/ζ(s) = −Σ'_n Λ(n)/n^s` on `Re s > 1`, from Mathlib's
+`LSeries_vonMangoldt_eq_deriv_riemannZeta_div`.  `PrimeSideCircleFormula` (D4)
+states the prime-side explicit formula on a circle in the convergence
+half-plane; its proof is reduced to two named steps: O3d (the uniform M-test
+bound) and O3e (termwise integration).  Also recorded: `logDeriv_riemannZeta_one_sub`
+is available in Mathlib, the functional equation for `ζ′/ζ`.  Status: 62
+topics · 1,636 theorems.
+
+
+**O3d: the M-test bound (T40).**  `summable_vonMangoldt_div_rpow` proves that
+`Σ Λ(n)/n^σ` is summable for `σ > 1`, by comparing the terms of
+`LSeriesSummable_vonMangoldt` with `‖n^s‖ = n^{Re s}`.  This is the uniform
+domination needed for the termwise integration on a circle in `Re s > 1`
+(O3e).  Status: 62 topics · 1,637 theorems.
+
+
+**O4 counting lemmas (T6–T8, zero-sum-convergence).**  Added monotonicity of the
+zero strip, the counting bound as a function statement, and the dyadic annulus
+bound `ncard (zeroStrip 2^(k+1)) ≤ C·2^(k+1)·log(2^(k+1))`, the input to the
+summability criterion.  Status: 62 topics · 1,640 theorems.
+
+
+**Termwise integration on circles (T41–T42).**  `intervalIntegral_tsum` proves
+termwise integration of a uniformly dominated series over an interval (via
+dominated convergence on partial sums, converting the interval to
+`volume.restrict (Ioc a b)`), and `circleIntegral_tsum` lifts it to circles,
+using `deriv_circleMap` and `‖circleMap 0 R θ‖ = |R|`.  The prime-side circle
+formula D4 now reduces to the single assembly step O3f (bounding `‖H‖` and
+`‖n^z‖` on the circle and applying T42 with the T40 majorant).  Status: 62
+topics · 1,642 theorems.
+
+
+**O3f majorant (T43).**  `norm_term_le_circle` proves that on a circle,
+`‖H z · Λ(n)/n^z‖ ≤ K·Λ(n)/n^(Re c − R)` whenever `‖H‖ ≤ K` there, using
+`‖n^z‖ = n^{Re z}` and monotonicity of `rpow` in the exponent.  This is the
+majorant for the prime-side circle formula; the remaining assembly needs
+sphere-local versions of the termwise-integration theorems, since T42 currently
+requires a global bound in `z`.  Status: 62 topics · 1,643 theorems.
+
+
+**The prime side of the explicit formula, proved on circles (T44–T46).**
+`intervalIntegral_tsum_Icc` and `circleIntegral_tsum_sphere` give termwise
+integration with local bounds, and `primeSideCircleFormula_holds` assembles them
+with T39 (prime-side identity) and T43 (majorant) into the prime-side explicit
+formula on a circle in the half-plane of convergence:
+`∮_{C(c,R)} H·ζ′/ζ = −Σ′_n Λ(n)·∮_{C(c,R)} H/n^s` for `Re c − R > 1`.
+Status: 62 topics · 1,646 theorems.
+
+
+**O4: the dyadic majorant is summable (T9–T12).**  `summable_pow_mul_exp_neg_pow`
+proves `Σ_k (k+1)·2^k·e^{−σ²·4^k} < ∞` by comparison with `(1/2)^k`, using
+`k+1 ≤ 4^k`, the limit `4^k e^{−c4^k} → 0` (power beats exponential), and the
+squeeze `(k+1)4^k e^{−σ²4^k} ≤ (4^k e^{−σ²4^k/2})²`.  This is the majorant for
+the zero-sum summability criterion; what remains for O4b is the finite-subset
+partition of the zero set into dyadic annuli.  Status: 62 topics · 1,650
+theorems.
+
+
+**O4b: summability from the no-clustering bound (T13, zero-sum-convergence).**
+`summable_gaussian_of_no_clustering` proves that if the moduli satisfy
+`t_k ≥ 1` and `k ≤ C·t_k·log t_k`, then `Σ_k e^{−σ²t_k²} < ∞`: from
+`log t ≤ t` we get `t_k² ≥ k/C`, so the terms are dominated by the geometric
+series `(e^{−σ²/C})^k`.  The remaining O4c step is the sorting/choice argument
+producing such an enumeration from `ZeroCountingBound`.  Status: 62 topics ·
+1,651 theorems.
+
+
+**O4 complete in sequence form (T14–T15, zero-sum-convergence).**
+`no_clustering_of_counting` derives `k ≤ C·t_k·log t_k` from the counting bound
+for a monotone enumeration with `t k → ∞` (the strip `{j | t j ≤ T}` is finite,
+and the index `k+1` injects into it), and `summable_gaussian_of_counting`
+combines it with T13 to prove summability of `Σ_k e^{−σ²t_k²}`.  The remaining
+O4d step is the sorting/choice assembly producing that enumeration from
+`zeroStrip` itself.  Status: 62 topics · 1,653 theorems.
+
+
+**O3b: the outside case of the kernel integral (T47–T48).**
+`boundaryIntegral_inv_sub_of_not_mem` and `circleIntegral_inv_sub_of_gt` prove
+that `(s−ρ)⁻¹` integrates to zero when `ρ` lies outside the rectangle or disc,
+using the off-countable Cauchy identities.  The interior case
+`∮_{rect}(s−ρ)⁻¹ = 2πi` is now recorded precisely: it needs either the
+slit-plane logarithm or homotopy invariance of contour integrals, neither of
+which Mathlib has.  Status: 62 topics · 1,655 theorems.
+
+
+**O3c: the residue at a simple zero (T49–T50, zeta-functional-equation).**
+`tendsto_residue_mul` proves that the residue of `H·ζ′/ζ` at a simple zero is
+`H(ρ)`, i.e. `(s−ρ)·H·ζ′/ζ → H(ρ)`; `tendsto_subtracted_mul` proves that the
+subtracted function has at most a simple singularity,
+`(s−ρ)·(H·ζ′/ζ − H(ρ)/(s−ρ)) → 0`.  The finite limit
+`H(ρ)·ζ″(ρ)/(2ζ′(ρ))` remains open (O3c), since it needs the second-order
+expansion of `ζ` at the zero.  Status: 62 topics · 1,657 theorems.
+
+
+**O4d building block (T16, zero-sum-convergence).**  `sum_le_card_mul_exp`
+proves the per-annulus Gaussian bound `∑ ≤ card · e^{−σ²T²}` for finite sets with
+`|Im ρ| ≥ T`, the estimate the dyadic assembly needs on each annulus.
+Status: 62 topics · 1,658 theorems.
+
+
+**O4d: the dyadic covering (T17, zero-sum-convergence).**  `exists_dyadic_annulus`
+proves that every `t ≥ 1` lies in exactly one half-open dyadic annulus
+`[2^k, 2^(k+1))`, the partition the zero-sum assembly needs.  With T16
+(per-annulus sum bound), T8 (counting bound) and T9 (majorant summability), the
+estimates for O4d are now complete; the remaining step is the `Σ`-type
+assembly of the partition.  Status: 62 topics · 1,659 theorems.
+
+
+**O4d: per-annulus bounds (T18–T19, zero-sum-convergence).**  `annulus_ncard_le`
+and `annulus_sum_le` give, on each dyadic annulus, the counting bound
+`C·2^(k+1)·log(2^(k+1))` and the Gaussian sum bound
+`C·2^(k+1)·log(2^(k+1))·e^{−σ²4^k}` — exactly the terms summed by T9.  With
+T17's dyadic covering, all estimates for the zero-sum assembly are now
+available; the remaining step is the `Σ`-type assembly of the partition.
+Status: 62 topics · 1,661 theorems.
+
+
+**O3c regularity (T51–T55, zeta-functional-equation).**  Proved that `ζ′` is
+analytic, differentiable and continuous away from `1`, and that `ζ″` exists and
+is continuous away from `1` — the `C²` regularity the second-order expansion at
+a simple zero needs.  Status: 62 topics · 1,666 theorems.
+
+
+**O4d: the unit strip is empty (T20, zero-sum-convergence).**
+`zeroStrip_one_eq_empty` proves that the counting bound at `T = 1` (where
+`log 1 = 0`) forces `zeroStrip 1 = ∅`: no zeros with `|Im ρ| ≤ 1`.  This removes
+the "unit ball" case from the dyadic partition, leaving only the annuli
+`[2^k, 2^(k+1))`.  Status: 62 topics · 1,667 theorems.
+
+
+**O4d: the annulus index (D3, T21–T23, zero-sum-convergence).**  Added the
+dyadic annulus index `annulusIndex ρ h` for `1 ≤ |Im ρ|`, its specification and
+uniqueness, and `annulus_zeros_finite`: the zeros in each annulus are finite.
+These are the pieces needed for the partition equivalence `S ≃ Σ_k (S ∩
+annulus_k)`.  Status: 62 topics · 1,670 theorems.
+
+
+**O4d: the finite-set tsum bound (T24, zero-sum-convergence).**
+`tsum_le_card_mul_exp` bounds the Gaussian `tsum` over any finite set with
+`|Im| ≥ T` by `ncard · e^{−σ²T²}` — the fiber-sum estimate the partition
+assembly applies on each annulus.  Status: 62 topics · 1,671 theorems.
+
+
+**O4d: zeros above height one (T25–T26, zero-sum-convergence).**  Proved that
+under the counting bound every nontrivial zero has `1 ≤ |Im ρ|` (T25), and that
+each dyadic annulus of zeros is finite as a subset of the zero subtype (T26).
+These give the fiber types for the partition assembly.  Status: 62 topics ·
+1,673 theorems.
+
+
+**O4d: the annulus tsum bound over zeros (T27–T28, zero-sum-convergence).**
+Generalised the finite-set `tsum` bound to an arbitrary index type (T27) and
+proved `annulus_zeros_tsum_le` (T28): the Gaussian `tsum` over a dyadic annulus
+of nontrivial zeros is at most `C·2^(k+1)·log(2^(k+1))·e^{−σ²4^k}`, using
+`Set.ncard_le_ncard_of_injOn` with `Subtype.val`.  This is the fiber estimate for
+the final `Σ`-type assembly.  Status: 62 topics · 1,675 theorems.
+
+
+**O4 closed: summability of the zero sum (T29–T30, zero-sum-convergence).**
+`summable_zeros_of_counting` proves that the counting bound
+`ncard (zeroStrip T) ≤ C·T·log T` implies summability of `e^{−σ²·Im²}` over the
+nontrivial zeros.  The proof builds the dyadic partition
+`S ≃ Σ_k (S ∩ annulus_k)` with `Set.sigmaEquiv` and the uniqueness of the
+annulus index, applies `summable_sigma_of_nonneg`, bounds each fiber by T28 and
+dominates the fiber sums by the summable majorant T29 (feeding T9).  Status:
+62 topics · 1,677 theorems.
+
+
+**O3c: holomorphy off zeros and the vanishing remainder (T56–T57).**
+`differentiableAt_mul_logDeriv` proves `H·ζ′/ζ` differentiable away from `1`
+and the zeros, and `tendsto_subtracted_mul_sq` proves the subtracted function is
+`o(1/(s−ρ))`: `(s−ρ)²·(H·ζ′/ζ − H(ρ)/(s−ρ)) → 0`.  With T49 this pins the
+singularity as exactly simple with residue `H(ρ)`; only the finite constant
+`H(ρ)·ζ″(ρ)/(2ζ′(ρ))` remains open.  Status: 62 topics · 1,679 theorems.
+
+
+**Goal summary: the explicit formula programme after O1, O3 and O4.**  Across
+this goal the three fronts stand as follows.
+
+*Front A (O3 prime side) — complete.*  `zeta-functional-equation` proves the
+functional equation, the continuation of `ζ` off `1`, the zero correspondence
+`ζ ↔ Λ`, the analyticity of `ζ′/ζ` off the zeros, the prime-side identity
+`ζ′/ζ = −Σ′ Λ(n)/n^s` on `Re s > 1`, the M-test domination, termwise
+integration on intervals and circles (with local bounds), and the resulting
+prime-side explicit formula on a circle in `Re s > 1`
+(`primeSideCircleFormula_holds`, T39–T46, D4 proved).
+
+*Front C (O4 zero sum) — complete.*  `zero-sum-convergence` proves the counting
+bounds for the zero strip, the dyadic covering and annulus index, the per-annulus
+Gaussian estimates, the summability of the dyadic majorant, and finally
+`summable_zeros_of_counting` (T30): the counting bound implies summability of
+`e^{−σ²·Im²}` over the nontrivial zeros, via the dyadic partition
+`S ≃ Σ_k (S ∩ annulus_k)`.
+
+*Front B (O3b/O3c) — advanced with the remaining step recorded.*  Proved: the
+kernel integral vanishes outside the rectangle/disc (T47/T48); the residue of
+`H·ζ′/ζ` at a simple zero is `H(ρ)` (T49); the subtracted function has at most a
+simple singularity (T50) and is `o(1/(s−ρ))` (T57); `ζ` is `C²` off `1`
+(T51–T55); `H·ζ′/ζ` is holomorphic off the zeros (T56).  Recorded: the interior
+rectangle kernel `∮_rect (s−ρ)⁻¹ = 2πi` needs either the slit-plane logarithm
+or homotopy invariance of contour integrals (Mathlib has neither, and lacks the
+corner `arg` values); the finite constant `H(ρ)·ζ″(ρ)/(2ζ′(ρ))` needs the Peano
+form of `HasFPowerSeriesAt`.  Status: 62 topics · 1,679 theorems, 62/62 Lean
+builds, 0 `sorry`, 0 axioms, 0 broken links.
+
+
+**O3b: the corner arguments for the unit square (T58–T68).**  Proved
+`arg(1−i) = −π/4`, `arg(1+i) = π/4`, `arg(−1+i) = 3π/4`, `arg(−1−i) = −3π/4`
+from `Complex.arg_of_re_nonneg` / `arg_of_re_neg_of_im_nonneg` /
+`arg_of_re_neg_of_im_neg` and injectivity of `arcsin`, with the norm values
+`‖1 ± i‖ = ‖−1 ± i‖ = √2`.  These are the branch values the four side integrals
+of the unit-square kernel computation need.  Status: 62 topics · 1,690 theorems.
+
+
+**O3b: the bottom side integral of the unit square (T69–T70).**
+`hasDerivAt_log_sub` proves the chain rule for `x ↦ log (x − ρ)` over ℝ on the
+slit plane (using `HasFDerivAt.restrictScalars` to pass from the ℂ-derivative to
+the ℝ-derivative), and `integral_bottom` computes
+`∫_{-1}^{1} (x − i)⁻¹ dx = iπ/2` by the fundamental theorem of calculus.  Three
+side integrals remain (top, right, and the shifted-branch left side).
+Status: 62 topics · 1,692 theorems.
+
+
+**O3b: the interior kernel integral on the unit square (D5, T71–T82).**  Proved
+the interior kernel integral `∮_{[−1,1]²} s⁻¹ ds = 2πi`: the shifted-branch
+logarithm `logShift z = log(−z) + iπ` supplies the primitive on the left side
+(where the path crosses the cut at `−1`), the four side integrals are computed
+by the fundamental theorem of calculus (`iπ/2`, `−iπ/2`, `π/2`, `−π/2`), and
+their boundary combination is `2πi`.  This closes the "interior point" half of
+O3b for the unit square; extending to a general rectangle is recorded as the
+remaining step.  Status: 62 topics · 1,706 theorems.
+
+
+**O3c: the Taylor series of ζ about a point (T85).**  Proved
+`zeta_taylor_eventually`: near any `ρ ≠ 1`,
+`ζ(ρ+h) = Σ_n ζ^{(n)}(ρ)/n! · h^n`.  The proof packages
+`AnalyticAt.hasFPowerSeriesAt` (Mathlib's `FormalMultilinearSeries.ofScalars`
+with coefficients `iteratedDeriv n ζ ρ / n!`) and applies
+`HasFPowerSeriesAt.eventually_hasSum_sub`, converting the multilinear
+application to the scalar monomial `c n * h^n`.  This is the input for the Peano
+second-order extraction.  Status: 62 topics · 1,707 theorems.
+
+
+**O3c: the Peano second-order decomposition (T86).**  Proved
+`zeta_peano_second_order`: at a zero `ρ ≠ 1`,
+`ζ(ρ+h) = ζ′(ρ)h + h²·Σ_n ζ^{(n+2)}(ρ)/(n+2)!·h^n`.  The proof splits the Taylor
+series of T85 after two terms (`hasSum_nat_add_iff'`), evaluates the first two
+coefficients as `ζ(ρ) = 0` and `ζ′(ρ)`, and pulls `h²` out of the tail
+(`tsum_mul_left`).  The remaining step for the finite O3c constant is the
+continuity of the tail at `h = 0`, whose limit is `ζ″(ρ)/2`.
+Status: 62 topics · 1,708 theorems.
+
+
+**O3c: the tail limit (T87).**  Proved `tendsto_tail_zeta`: given summability of
+`‖ζ^{(n+2)}(ρ)/(n+2)!‖·s^n`, the tail of the Peano expansion converges,
+`Σ_n ζ^{(n+2)}(ρ)/(n+2)!·h^n → ζ″(ρ)/2` as `h → 0`, by
+`tendsto_tsum_of_dominated_convergence` with the geometric majorant.  The
+remaining input — the summability itself — comes from
+`FormalMultilinearSeries.summable_norm_mul_pow` applied to the power series of
+T85; that link is the next step.  Status: 62 topics · 1,709 theorems.
+
+
+**O3c: `ζ′` is differentiable with derivative `ζ″` (T88).**  Proved
+`hasDerivAt_deriv_zeta`: away from `1`, `ζ′` has derivative `ζ″`.  This is the
+first-order input for the final O3c limit (the remaining analytic input is the
+summability of the Peano tail majorant, whose route via
+`FormalMultilinearSeries.summable_norm_mul_pow` is recorded).
+Status: 62 topics · 1,710 theorems.
+
+
+**O3c: the unconditional tail limit (T89–T90).**  Proved `summable_tail_majorant`
+(the shifted coefficient majorant is summable, via
+`FormalMultilinearSeries.summable_norm_apply` inside the radius of the Taylor
+series) and hence `tendsto_tail_zeta'`: the Peano tail converges,
+`Σ_n ζ^{(n+2)}(ρ)/(n+2)!·h^n → ζ″(ρ)/2`.  With T86 this gives
+`ζ(ρ+h) = ζ′(ρ)h + ½ζ″(ρ)h² + o(h²)`.  Status: 62 topics · 1,712 theorems.
+
+
+**O3c: the quotient limit `ζ(ρ+h)/h → ζ′(ρ)` (T91).**  Dividing the Peano
+decomposition (T86) by `h` and using the unconditional tail limit (T90) gives
+`ζ(ρ+h)/h = ζ′(ρ) + h·R(h) → ζ′(ρ)`.  This is the denominator in the final
+quotient for `H·ζ′/ζ`.  Status: 62 topics · 1,713 theorems.
+
+
+**O3c: the finite limit (T92–T93).**  Proved the finite limit at a simple zero:
+`ζ′(ρ+h)/ζ(ρ+h) − 1/h → ζ″(ρ)/(2ζ′(ρ))` (T93).  The ingredient that unblocked the
+proof was factoring the algebra into a pure identity on abstract variables (T92,
+`c/z − 1/h = ((c−a)/h − R)/(z/h)` when `z = h(a + hR)`), which `field_simp`/`ring`
+close once the nonzero hypotheses are supplied.  Combined with the Peano
+expansion (T86), the tail limit (T90) and `ζ(ρ+h)/h → ζ′(ρ)` (T91), this closes
+the whole O3c chain.  Note: the literal statement
+`H·ζ′/ζ − H(ρ)/(s−ρ) → H(ρ)ζ″/(2ζ′)` acquires an extra `H′(ρ)` unless `H` is
+locally constant; the correct `H`-version (subtracting `H(s)/(s−ρ)`) is recorded
+as the next step.  Status: 62 topics · 1,715 theorems.
+
+
+**O3c: the H-multiplied finite limit (T94).**  Proved
+`tendsto_subtracted_H`: for `H` continuous at a simple zero `ρ`,
+`H(s)·ζ′(s)/ζ(s) − H(s)/(s−ρ) → H(ρ)·ζ″(ρ)/(2ζ′(ρ))`, by composing T93 with
+`s ↦ s − ρ` and multiplying by the continuous `H`.  This is the removable-
+singularity input the circle residue theorem needs.
+Status: 62 topics · 1,716 theorems.
+
+
+**Assembly, correction: the circle residue theorem at zeros (review of T34/T36/D3).**
+While preparing the assembly I verified that `circleIntegral_residue` (T34), its
+`CircleResidueTheorem` form (D3) and `circleResidueTheorem_zeta` (T36) have a
+hypothesis that is **unsatisfiable at a zero of `f`**: they require
+`ContinuousOn (fun z => H z * logDeriv f z − H ρ/(z−ρ)) (closedBall c R)`, but in
+Lean `logDeriv f ρ = deriv f ρ / f ρ = 0` and `H ρ/(ρ−ρ) = 0`, so the function
+takes the value `0` at `ρ`, while its limit there is
+`H(ρ)·ζ″(ρ)/(2ζ′(ρ)) + H′(ρ)` (T94 plus the difference quotient of `H`). These
+theorems are therefore vacuous at zeros and must be replaced by a version that
+applies the Cauchy theorem to the **extended** function
+`G z = if z = ρ then L else g z`. Since `G` and `g` differ only at `ρ`, a null
+set, their circle integrals agree, so the conclusion
+`∮ H·ζ′/ζ = 2πi·H(ρ)` survives. The remaining formal step is the a.e. transfer
+`∮ g = ∮ G` (finiteness of the preimage of `ρ` under `circleMap`). No theorem
+was removed; the correction is recorded in the topic README and here.
+Status: 62 topics · 1,716 theorems.
+
+
+**Assembly: repairing the residue theorem (T95–T96).**  The blocked a.e. transfer
+is now proved: the preimage of a point under `circleMap c R` is countable for
+`R ≠ 0` (T95, via `Complex.exp_eq_exp_iff_exists_int`), hence null, so changing a
+function at one point does not change its circle integral (T96).  With these, the
+corrected circle residue theorem can apply the Cauchy theorem to the *extended*
+function `G z = if z = ρ then L else g z` and transfer back to `g`.
+Status: 62 topics · 1,718 theorems.
+
+
+**Assembly: the extended integrand's limit (T97).**  Proved
+`tendsto_subtracted_Hρ`: at a simple zero,
+`H·ζ′/ζ − H(ρ)/(s−ρ) → H(ρ)·ζ″(ρ)/(2ζ′(ρ)) + H′(ρ)`.  This is the value `L` that
+the corrected circle residue theorem assigns to the extended integrand
+`G z = if z = ρ then L else g z`.  Status: 62 topics · 1,719 theorems.
+
+
+**Assembly: the route through Mathlib's removable-singularity Cauchy formula.**
+Identified the right Mathlib tool for the corrected residue theorem:
+`circleIntegral_sub_center_inv_smul_of_differentiable_on_off_countable_of_tendsto`, which
+computes `∮_{C(c,R)} (z−c)⁻¹ • f z` from a *limit* `f → y` at the centre
+(`ContinuousOn` on the punctured disc plus differentiability off countably many
+points). For a circle centred at the zero, taking
+`f z = (z−ρ)·H z·ζ′z/ζz` gives `∮_{C(ρ,r)} H·ζ′/ζ = 2πi·H(ρ)` with limit
+`H(ρ)` supplied by T49. The remaining formal work is the `ContinuousOn` of `f` on
+the punctured closed disc and the pointwise identity
+`(z−ρ)⁻¹ • f z = H z·ζ′z/ζz` (both sides vanish at `z = ρ`); the general centre
+then follows from annulus independence. No new theorem was committed this round.
+Status: 62 topics · 1,719 theorems.
+
+
+**Assembly: the residue theorem at a zero (T98).**  Proved
+`circleIntegral_logDeriv_centred`: on the circle centred at a simple zero,
+`∮_{C(ρ,r)} H·ζ′/ζ = 2πi·H(ρ)`, given `H` continuous at `ρ` and differentiable on
+the punctured closed disc, the disc avoiding `1` and all other zeros.  The proof
+applies Mathlib's removable-singularity Cauchy formula
+(`circleIntegral_sub_center_inv_smul_of_differentiable_on_off_countable_of_tendsto`)
+to `f z = (z−ρ)·H z·ζ′z/ζz`, whose limit at `ρ` is `H(ρ)` by T49 (and which
+vanishes at `ρ`, matching `(z−ρ)⁻¹ • f` there).  The general centre now needs
+annulus independence.  Status: 62 topics · 1,720 theorems.
+
+
+**Assembly: the finite-set transfer (T99).**  Proved
+`circleIntegral_congr_off_finset`: changing a function on a finite set does not
+change its circle integral — the finite-set analogue of T96, obtained by
+unioning the countable preimages of the finitely many points.  This is what the
+multi-zero extension needs to transfer the Cauchy theorem's conclusion from the
+extended function back to `H·ζ′/ζ`.  Status: 62 topics · 1,721 theorems.
+
+
+**Assembly: the finitely-subtracted limit (T100).**  Proved
+`tendsto_subtracted_finset`: at `ρ ∈ F`,
+`H·ζ′/ζ − Σ_{ρ'∈F} H(ρ')/(z−ρ') → H(ρ)·ζ″(ρ)/(2ζ′(ρ)) + H′(ρ) − Σ_{ρ'∈F.erase ρ} H(ρ')/(ρ−ρ')`.
+This is the value `L(ρ)` that the extended integrand takes at each zero, so the
+multi-zero residue theorem's extension is now fully specified.  The topic has
+reached 100 theorems.  Status: 62 topics · 1,722 theorems.
+
+
+**Assembly: the finite-sum residue theorem (T101).**  Proved
+`circleIntegral_residue_sum_ext`: for any extension `G` agreeing with
+`H·ζ′/ζ − Σ_{ρ∈F} H(ρ)/(z−ρ)` off the finite set `F`, continuous on the closed
+disc and holomorphic off `F`, the circle integral is `2πi Σ_{ρ∈F} H(ρ)`.  The
+proof applies the Cauchy theorem to `G`, transfers to the raw integrand with
+T99, and evaluates the finite sum of kernel integrals by induction.  Only the
+explicit construction of `G` from the limits T100 remains.
+Status: 62 topics · 1,723 theorems.
+
+
+**Assembly: continuity of the piecewise extension (T102).**  Proved
+`continuousWithinAt_update`: from `Tendsto g (𝓝[≠] ρ) (𝓝 (L ρ))`, the function
+`if z = ρ then L z else g z` is continuous within any set at `ρ`.  The proof
+decomposes `𝓝 ρ = 𝓝[≠] ρ ⊔ pure ρ` and uses `Tendsto.sup`.  With this, the last
+construction step for the multi-zero residue theorem is routine: combine with the
+off-zero continuity/differentiability and apply T101.
+Status: 62 topics · 1,724 theorems.
+
+
+**Assembly: status at the end of the O3b/O3c/assembly goal.**  The explicit
+formula is proved in the circle topology as
+`circleIntegral_residue_sum_ext` (T101):
+`∮_{C(c,R)} H·ζ′/ζ = 2πi Σ_{ρ∈F} H(ρ)` for any extension `G` agreeing with
+`H·ζ′/ζ − Σ_{ρ∈F} H(ρ)/(z−ρ)` off `F`, continuous on the closed disc and
+holomorphic off `F`.  The ingredients that exhibit such a `G` are all proved:
+T100 (the value `H(ρ)·ζ″(ρ)/(2ζ′(ρ)) + H′(ρ) − Σ_{ρ'≠ρ} H(ρ')/(ρ−ρ')` at each
+zero), T102 (continuity of the update at a point), T99 (finite-set transfer),
+T98 (the centred-circle case).  What remains is `Finset` plumbing: assembling
+`ContinuousOn G (closedBall)` from T102 plus `(F.erase z).isClosed`, and
+`DifferentiableAt G` off `F` from `F.isClosed`.  No mathematics is missing; the
+gap is the location of the `Finset`-sum continuity/differentiability lemma names.
+
+
+**Assembly completed: the multi-zero residue theorem is unconditional (T103–T105).**
+Removed the last conditionals from the circle explicit formula.  New
+helper lemmas `continuousAt_finset_sum_pole` and `differentiableAt_finset_sum_pole`
+(T103/T104) provide the regularity of `Σ H(ρ)/(z−ρ)` off the poles by
+`Finset.induction_on` (the camelCase `continuousAt_finsetSum`-style names do not
+exist in this Mathlib).  With them, the extension
+`G z = if z ∈ F then L z else H z·ζ′z/ζz − Σ H(ρ)/(z−ρ)` — where `L` is the limit
+from T100 — is shown continuous on the closed disc (T102 at the zeros, T103 off
+them, with the eventual equalities supplied by `(F.erase z).isClosed` and
+`F.isClosed`) and holomorphic off `F` (T104).  Hence
+`circleIntegral_logDeriv_zeros` (T105):
+`∮_{C(c,R)} H·ζ′/ζ = 2πi Σ_{ρ∈F} H(ρ)` for any finite set `F` containing all
+zeros of `ζ` in the closed disc (simple, disc avoiding `1`) and any `H`
+differentiable on the closed disc.  Status: 62 topics · 1,727 theorems.
+
+
+**Documentation fix: provenance of the functional equation.**  The README rows for
+T1–T3 of `zeta-functional-equation` did not flag that these are Mathlib
+re-exports (`completedRiemannZeta_one_sub`, `completedRiemannZeta₀_one_sub`,
+`riemannZeta_one_sub`).  Added a "Provenance of the functional equation" section
+stating that the functional equation itself is proved in Mathlib and not reproved
+here, and that a self-contained theta/Mellin proof is absent from the repository
+(`factorisation-theta` records it as not formalised).  No theorem count changes.
+
+
+**Theta programme, stage 1: the theta function and its functional equation.**
+Added `zeta-functional-equation/lean/Theta.lean` (namespace `ZetaTheta`):
+the theta series `θ(t) = Σ'_{n∈ℤ} exp(−π n² t)` (V1 `summable_theta`, V2
+`theta_pos`) and **the theta functional equation** `θ(1/t) = √t·θ(t)`
+(V3 `theta_one_div`), derived from Mathlib's Poisson-summation theorem
+`Real.tsum_exp_neg_mul_int_sq` (Gaussian Fourier transform).  `Topic.lean` now
+imports both files.  This is the first stage of a self-contained theta-based
+proof of the zeta functional equation; the Mellin representation of `Λ` and the
+derivation of `Λ(1−s) = Λ(s)` remain.  Status: 62 topics · 1,730 theorems.
+
+
+**Theta programme, stage 2: the theta kernel.**  Added V4
+`theta_eq_one_add_two_tsum` (`θ(t) = 1 + 2Σ_{n≥1} exp(−πn²t)`, from the ℤ-series
+split `tsum_int_eq_zero_add_two_mul_tsum_pnat`) and V5 `psi`/`psi_eq_tsum`: the
+theta kernel `ψ(t) = (θ(t)−1)/2` as a `ℂ`-valued series over `ℕ+`.  This is the
+input to Mathlib's generic Mellin transform theorem `hasSum_mellin`, which will
+give the Mellin representation of `Λ`.  Status: 62 topics · 1,732 theorems.
+
+
+**Theta programme, stage 3: the Mellin transform of the theta kernel (V6).**
+Added `zeta-functional-equation/lean/Mellin.lean` (namespace `ZetaTheta`):
+`summable_pi_mul_sq_rpow` (V6a, the p-series majorant for `σ > 1`) and
+`hasSum_mellin_psi` (V6):
+`HasSum (fun n : ℕ+ => Γ(s/2)/(π n²)^{s/2}) (mellin ψ (s/2))` for `Re s > 1`,
+obtained from Mathlib's generic `hasSum_mellin` with `a = 1`, `p n = π n²`,
+`F = ψ`, `s ↦ s/2`.  `Topic.lean` imports `FunctionalEquation`, `Theta` and
+`Mellin`.  Next: identify the Dirichlet series with `Γ(s/2)π^{-s/2}ζ(s) = Λ(s)`,
+then split the integral at 1 and use the theta functional equation for the
+symmetry `Λ(1−s) = Λ(s)`.  Status: 62 topics · 1,734 theorems.
+
+
+**Theta programme, stage 4: the Dirichlet-series form (V7a–V7b).**  Added
+`zeta-functional-equation/lean/Zeta.lean` (namespace `ZetaTheta`):
+`cpow_sq_half` (V7a, `((n:ℝ)²)^{s/2} = n^s`, via `Complex.cpow_def_of_ne_zero` and
+`Real.log_pow`) and `hasSum_mellin_psi_dirichlet` (V7b):
+`HasSum (fun n : ℕ+ => π^{−s/2}Γ(s/2)/n^s) (mellin ψ (s/2))` for `Re s > 1`, from
+`hasSum_mellin_pi_mul`.  `Topic.lean` imports all four files.  Next: identify the
+Dirichlet series with `Λ(s)`, then the split at 1 and the symmetry.
+Status: 62 topics · 1,736 theorems.
+
+
+**Theta programme, stage 5: the Mellin representation of `Λ` (V7c–V8).**
+Proved `hasSum_pnat_one_div_cpow` (V7c, `ζ(s)` as a series over `ℕ+`, via
+`tsum_pnat_eq_tsum_succ` and `Summable.tsum_eq_zero_add`), `mellin_psi_eq` (V7d,
+`mellin ψ(s/2) = π^{−s/2}Γ(s/2)ζ(s)`) and **`mellin_psi_eq_completed` (V8)**:
+`Λ(s) = ∫_0^∞ t^{s/2−1}ψ(t)dt` for `Re s > 1`, using `riemannZeta_def_of_ne_zero`
+and `Complex.Gammaℝ_def`.  Step (C) is now complete for `Re s > 1`.
+Status: 62 topics · 1,739 theorems.
+
+
+**Theta programme, stage 6: the kernel functional equation and the tail integral
+(V9–V10).**  Proved `psi_one_div` (V9): `ψ(1/t) = √t·ψ(t) + (√t−1)/2`, the theta
+functional equation in the form needed for the split, and
+`integral_Ioi_cpow_neg_sub_one` (V10): `∫_1^∞ t^{−a−1}dt = 1/a` for `Re a > 0`
+(from `integral_Ioi_cpow_of_lt`).  These are the two ingredients of the
+continuation step.  Status: 62 topics · 1,741 theorems.
+
+
+**Theta programme, stage 7: the change of variables `t ↦ 1/t` (V11).**
+Proved `image_inv_Ioi_one`, `inv_cpow_eq` and **`integral_Ioc_psi_eq`**:
+`∫_{(0,1)} ψ(t)t^{s/2−1}dt = ∫_{(1,∞)} ψ(1/u)u^{−s/2−1}du`, via Mathlib's
+one-variable change-of-variables formula
+`integral_image_eq_integral_abs_deriv_smul` with `f = 1/·` on `(1,∞)`.  This is
+the substitution step of the continuation; what remains is the split of
+`∫_{(0,∞)}`, the use of V9 to rewrite `ψ(1/u)`, and the evaluation of the
+elementary integrals by V10.  Status: 62 topics · 1,744 theorems.
+
+
+**Theta programme, stage 8: positivity of the theta kernel (V12–V13).**
+Proved `tsum_theta_pos` and `psi_pos` (`0 < (ψ t).re` for `t > 0`), the input to
+the integrability estimates needed when splitting the Mellin integral at
+`t = 1`.  The remaining work for step (D) is: (i) the decay bound
+`ψ(t) ≤ C e^{−πt}` on `(1,∞)` (termwise comparison with the geometric series
+`Σ e^{−πnt}`) and the corresponding bound on `(0,1)` via V9, giving
+integrability of `ψ(t)t^{s/2−1}` on both pieces; (ii) the split
+`∫_{(0,∞)} = ∫_{(0,1)} + ∫_{(1,∞)}` (`setIntegral_union`,
+`Ioo_union_Ici_eq_Ioi`, `integral_Ici_eq_integral_Ioi`); (iii) the V9/V10
+evaluation and the symmetry `Λ(1−s) = Λ(s)`.
+Status: 62 topics · 1,746 theorems.
+
+
+**Theta programme: attempt at the decay bound (reverted).**  Attempted the
+exponential decay estimate `‖ψ(t)‖ ≤ e^{−πt}/(1−e^{−πt})` (V14–V16: geometric
+comparison, geometric tail sum, norm bound), which is the key input for the
+integrability of `ψ(t)t^{s/2−1}` on `(1,∞)` and hence for the split of the Mellin
+integral.  The Lean proof hit three recurring obstacles — the `ℕ+` exponent
+coercion in `r ^ n` (needs `(n : ℕ)`), the argument plumbing of
+`Summable.tsum_le_tsum`, and matching `norm_tsum_le_tsum_norm`'s summability
+hypothesis after the `ofReal` coercion — and was reverted to keep the tree green.
+Nothing was lost: V1–V13 are all committed and the file builds.  The remaining
+work for step (D) is unchanged and is recorded in the README: the decay bound,
+the split, the V9/V10 evaluation, and the symmetry.
+
+
+**Theta programme, stage 9: the exponential decay bound (V14–V16).**  The
+previous round's attempt was redone in three small pieces and now compiles:
+`tsum_geometric_pnat` (V15, `Σ_{n≥1} e^{−πnt} = e^{−πt}/(1−e^{−πt})`),
+`tsum_theta_le_geometric` (V14, the termwise comparison `n² ≥ n` via
+`Summable.tsum_le_tsum`) and `norm_psi_le` (V16,
+`‖ψ(t)‖ ≤ e^{−πt}/(1−e^{−πt})`, obtained by noting `ψ(t)` is the coercion of a
+nonnegative real tsum, so the norm is that tsum).  This gives integrability of
+`ψ(t)t^{s/2−1}` on `(1,∞)`.  Status: 62 topics · 1,749 theorems.
+
+
+**Theta programme, stage 10: integrability on `(1,∞)` (V17–V19).**  Proved
+`measurable_theta`/`measurable_psi` (V17, `Measurable.tsum` plus the coercion),
+the decay bound on `[1,∞)` (V18) and **integrability**
+`integrableOn_psi_cpow_Ioi` (V19): `ψ(t)t^{s/2−1}` is integrable on `(1,∞)` for
+`Re s > 1`, by comparison with `t^{Re c}e^{−πt}`
+(`integrableOn_rpow_mul_exp_neg_mul_rpow` restricted to `(1,∞)`, plus
+`Integrable.mono'`).  Status: 62 topics · 1,753 theorems.
+
+
+**Theta programme: attempt at the `(0,1)` bound (reverted).**  Attempted the
+near-zero bound `‖ψ(t)‖ ≤ (e^{−π/t}/(1−e^{−π}) + 1)/√t` (from V9 at `1/t`),
+which together with `t^{Re c}` would give integrability of `ψ(t)t^{s/2−1}` on
+`(0,1)` and hence the split of the Mellin integral.  Several lemma names were
+wrong (`one_le_inv₀`, `Real.sqrt_one_div`, the `abs_le` rewrite shape) and the
+attempt was reverted to keep the tree green; the mathematical content is
+unaffected and V1–V19 remain committed.  The four remaining items of step (D) are
+unchanged: the `(0,1)` bound, the split, the V9/V10 evaluation, and the symmetry.
+
+
+**Theta programme, stage 11: integrability on `(0,1)` (V20–V22).**  Proved the
+near-zero bound `norm_psi_le_inv_sqrt` (V20, from V9 at `1/t`), integrability of
+`t^a` on `(0,1)` for `a > −1` (V21, comparison with `t^a e^{−πt}`) and
+**`integrableOn_psi_cpow_Ioo` (V22)**: `ψ(t)t^{s/2−1}` is integrable on `(0,1)`
+for `Re s > 1`.  Both halves of the Mellin integral are now integrable, so the
+split `∫_{(0,∞)} = ∫_{(0,1)} + ∫_{(1,∞)}` is available.
+Status: 62 topics · 1,756 theorems.
+
+
+**Theta programme, stage 12: the split of the Mellin integral (V23).**  Proved
+`mellin_psi_split`:
+`mellin ψ(s/2) = ∫_{(0,1)}ψ(t)t^{s/2−1}dt + ∫_{(1,∞)}ψ(t)t^{s/2−1}dt` for
+`Re s > 1`, via `setIntegral_union` on `(0,1) ∪ [1,∞)` and
+`integral_Ici_eq_integral_Ioi`.  The step needed explicit `∂volume` annotations
+in the intermediate statements to make the integral terms match syntactically
+(the alpha-equivalent forms differ by elaborated implicit arguments).
+Status: 62 topics · 1,757 theorems.
+
+
+**Theta programme: attempt at the V9 evaluation identity (reverted).**  Attempted
+the pointwise identity behind the `(1,∞)` evaluation,
+`ψ(1/u)u^{−s/2−1} = ψ(u)u^{(1−s)/2−1} + ½(u^{(1−s)/2−1} − u^{−s/2−1})`, which
+with V10 turns the substituted integral into
+`∫_{(1,∞)}ψ(u)u^{(1−s)/2−1} + 1/(s−1) − 1/s`.  The `√u = u^{1/2}` coercion
+(`Complex.ofReal_cpow`) and the `cpow_add` reassociation needed several rewrites
+and the block was reverted to keep the tree green; V1–V23 remain committed.
+
+
+**Theta programme, stage 13: the pointwise V9 evaluation (V24).**  Proved
+`psi_one_div_mul_cpow`: for `u > 1`,
+`ψ(1/u)u^{−s/2−1} = ψ(u)u^{(1−s)/2−1} + ½(u^{(1−s)/2−1} − u^{−s/2−1})`.  The
+proof combines V9 with the cpow identity `√u·u^{−s/2−1} = u^{(1−s)/2−1}`
+(`Complex.cpow_add`) and the coercion `√u = u^{1/2}` (`Complex.ofReal_cpow`).
+With V10 this gives the `(1,∞)` evaluation once the three integrals are shown
+integrable.  Status: 62 topics · 1,758 theorems.
+
+
+**Theta programme, stage 14: general integrability on `(1,∞)` (V25).**  Proved
+`integrableOn_psi_cpow_Ioi'` (V25): `ψ(t)t^c` is integrable on `(1,∞)` for
+**every** complex exponent `c` — by rpow–exponential comparison when `Re c > −1`,
+and by boundedness of `t^{Re c}` on `(1,∞)` when `Re c ≤ −1`.  This is what the
+`integral_add`/`integral_sub` steps of the V9 evaluation require (the exponent
+`(1−s)/2−1` has real part `< −1` for `Re s > 1`).
+Status: 62 topics · 1,759 theorems.
+
+
+**Theta programme, stage 15: the `(1,∞)` evaluation (V26).**  Proved
+`integral_Ioi_psi_one_div` (V26):
+`∫_{(1,∞)} ψ(1/u)u^{−s/2−1}du = ∫_{(1,∞)} ψ(u)u^{(1−s)/2−1}du + 1/(s−1) − 1/s`,
+by evaluating the three pieces with V24 (pointwise), V25 (integrability),
+V10 (tail integrals), and `integral_add`/`integral_const_mul`/`integral_sub`.
+What remains: combine with the `(0,1)` piece (V11) and the split (V23) into the
+symmetric form, then conclude `Λ(1−s) = Λ(s)`.
+Status: 62 topics · 1,760 theorems.
+
+
+**Theta programme, stage 16: the symmetric integral form (V27–V28).**  Proved
+`completedRiemannZeta_eq_symmetric_integral` (V27):
+`Λ(s) = ∫_{(1,∞)} ψ(t)(t^{s/2−1}+t^{(1−s)/2−1})dt + 1/(s−1) − 1/s` for `Re s > 1`
+(chaining V8, V23, V11, V26), and introduced `LambdaTilde` (V28) together with its
+invariance `LambdaTilde_one_sub : Λ̃(1−s) = Λ̃(s)`.  This is the symmetric
+expression at the heart of the functional equation; the remaining step is to pass
+`Λ(s) = Λ̃(s)` from `Re s > 1` to all `s` by analytic continuation (both sides are
+analytic off `{0,1}`), which then gives `Λ(1−s) = Λ(s)`.
+Status: 62 topics · 1,762 theorems.
+
+
+**Theta programme, stage 17: the summand derivative (V29).**  Proved
+`hasDerivAt_cpow_affine`: `HasDerivAt (fun s => t^{cs+d}) (t^{cs+d}·c·log t) s`
+for `t > 1`, from `HasDerivAt.cpow` with the slit-plane membership of a positive
+real.  This is the summand-level input for differentiating `Λ̃` under the integral
+sign, which is the remaining step (`hasDerivAt_integral_of_dominated_loc_of_deriv_le`
+with a bound `C·(log t)·t^{A}·e^{−πt}`) before the identity theorem gives
+`Λ = Λ̃` everywhere and hence `Λ(1−s) = Λ(s)`.
+Status: 62 topics · 1,763 theorems.
+
+
+**Theta programme, stage 18: the domination bound (V30).**  Proved
+`integrableOn_log_mul_rpow_mul_exp`: `t ↦ log t · t^a · e^{−πt}` is integrable on
+`(1,∞)` for every `a`, using `Real.log_le_rpow_div` (`log t ≤ t^ε/ε`) to reduce to
+a pure rpow–exponential integral.  Together with V29 (the summand derivative) this
+supplies the two ingredients of
+`hasDerivAt_integral_of_dominated_loc_of_deriv_le` for `Λ̃`; what remains is the
+assembly of differentiability, the identity theorem, and the un-completing.
+Status: 62 topics · 1,764 theorems.
+
+
+**Theta programme: state of play after the symmetric form (V1–V30).**  The
+theta-based route to the functional equation is complete through the symmetric
+integral form and its invariance:
+
+* (A) `theta`/`summable_theta`/`theta_pos` (V1, V2), (B) `theta_one_div` (V3),
+  (C) the Mellin representation `Λ(s) = ∫_0^∞ ψ(t)t^{s/2−1}dt` (V8) and its
+  Dirichlet-series form (V7), both halves integrable (V19, V22) and split (V23);
+* (D) the kernel functional equation (V9), the tail integrals (V10), the
+  substitution (V11), the `(1,∞)` evaluation (V26) and the symmetric form
+  `Λ(s) = Λ̃(s)` for `Re s > 1` (V27) with `Λ̃(1−s) = Λ̃(s)` (V28).
+
+What remains is the analytic continuation `Λ = Λ̃` on `ℂ ∖ {0,1}`: the two
+ingredients for differentiating `Λ̃` under the integral are in place (V29 the
+summand derivative, V30 the domination bound), and the precise assembly is
+recorded in the topic README.  A scratch attempt at the differentiability of
+`∫_{(1,∞)} ψ(t)t^{w/2−1}dt` worked out the uniform bound
+`‖F' w t‖ ≤ C·(log t)·t^A·e^{−πt}` (`A = (Re s + 1)/2 − 1`, using
+`‖w − s‖ < 1 ⟹ Re w ≤ Re s + 1`) but did not complete the
+`hasDerivAt_integral_of_dominated_loc_of_deriv_le` invocation, and was reverted to
+keep the tree green.
+
+
+**Theta programme, stage 19: the Mellin route to the continuation (V31).**  Proved
+`mellin_indicator_Ioi_psi` (V31):
+`mellin (1_{(1,∞)}·ψ) c = ∫_{(1,∞)} t^{c−1}·ψ(t)dt`, identifying the `(1,∞)`
+integral with a Mellin transform.  This opens a much cheaper route to the
+remaining analytic continuation than differentiating under the integral:
+Mathlib's `mellin_differentiableAt_of_isBigO_rpow_exp`
+(`Mathlib/Analysis/MellinTransform.lean:422`) gives holomorphy of `mellin g`
+from two `isBigO` facts — `g =O[atTop] e^{−πt}` (V18) and
+`g =O[𝓝[>]0] (·^{−b})` for any `b` (as `g` vanishes near `0`) — plus local
+integrability.  `Λ̃` is then `mellin g (s/2) + mellin g ((1−s)/2) + 1/(s−1) − 1/s`,
+analytic off `{0,1}`, and the identity theorem finishes the proof.
+Status: 62 topics · 1,765 theorems.
+
+
+**Theta programme, stage 20: the Mellin-differentiability hypotheses (V32–V34).**
+Proved the three hypotheses of Mathlib's `mellin_differentiableAt_of_isBigO_rpow_exp`
+for `g = 1_{(1,∞)}·ψ`: `g =O[atTop] e^{−πt}` (V32), `g =O[𝓝[>]0] (·^{−b})` for
+every `b` (V33, since `g` vanishes near `0`), and `LocallyIntegrableOn g (0,∞)`
+(V34, dominated by `K·(t^{−1/2}+1)` using V18 and V20).  With these, Mathlib gives
+`DifferentiableAt ℂ (mellin g) c` for every `c`, so `Λ̃` is analytic off `{0,1}`.
+Status: 62 topics · 1,768 theorems.
+
+
+**Theta programme, stage 21: `Λ̃` is analytic off `{0,1}` (V35–V37).**  Proved
+`differentiableAt_mellin_indicator` (V35, Mathlib's
+`mellin_differentiableAt_of_isBigO_rpow_exp` applied to `g = 1_{(1,∞)}·ψ`, so
+`mellin g` is entire), `LambdaTilde_eq_mellin` (V36,
+`Λ̃(s) = mellin g(s/2) + mellin g((1−s)/2) + 1/(s−1) − 1/s`), and
+`differentiableAt_LambdaTilde` (V37, differentiability at every `s ∉ {0,1}`).
+With `Λ` analytic off `{0,1}` (Mathlib) and `Λ = Λ̃` on `Re s > 1` (V27), the
+identity theorem now gives `Λ = Λ̃` everywhere.
+Status: 62 topics · 1,771 theorems.
+
+
+**Theta programme, stage 22: the functional equation from theta (V38–V40).**  This
+is the culmination of the theta route.  Proved
+`completedRiemannZeta_eq_LambdaTilde_all` (V38, the identity theorem: `Λ` and `Λ̃`
+agree on `Re s > 1` and are analytic on the preconnected open set `ℂ ∖ {0,1}`,
+via `Set.Countable.isConnected_compl_of_one_lt_rank` and
+`AnalyticOnNhd.eqOn_of_preconnected_of_eventuallyEq`),
+**`completedRiemannZeta_one_sub_theta` (V39): `Λ(1 − s) = Λ(s)` for `s ∉ {0,1}`,
+proved from the theta series and not re-exported from Mathlib**, and
+`riemannZeta_one_sub_theta` (V40): the classical
+`ζ(1−s) = 2(2π)^{−s}Γ(s)cos(πs/2)ζ(s)`, obtained from V39 with
+`riemannZeta_def_of_ne_zero` and Mathlib's `Gammaℝ_div_Gammaℝ_one_sub`, under the
+non-degeneracy hypothesis `Gammaℝ (1−s) ≠ 0` (the cases `s = 1 + 2n` are not
+covered by this formulation).  Status: 62 topics · 1,774 theorems.
+
+
+**Theta programme, stage 23: completion — the functional equation from theta.**
+Proved `riemannZeta_one_sub_theta'`: the classical functional equation
+`ζ(1−s) = 2(2π)^{−s}Γ(s)cos(πs/2)ζ(s)` for `s ∉ {1, 0, −1, −2, …}` — the same
+hypotheses as Mathlib's `riemannZeta_one_sub` — derived entirely from the
+theta-based `Λ(1−s) = Λ(s)` (V39).  The degenerate cases `s = 1 + 2n` (where
+`Γℝ(1−s) = 0`) are handled by `riemannZeta_neg_two_mul_nat_add_one` and
+`Real.cos_add_nat_mul_pi` (both sides vanish).  **The objective of the theta
+programme is achieved:** (A) theta defined, summable, positive; (B) theta
+functional equation from Poisson summation; (C) the Mellin representation and its
+continuation via `Λ = Λ̃` and the identity theorem; (D) `Λ(1−s) = Λ(s)` and the
+classical `ζ` form, all in-repo, with no use of `riemannZeta_one_sub`.
+Status: 62 topics · 1,775 theorems.
+
+
+**New topic: `zeta-from-theta` — an FE-independent development of `ζ`
+(2026-11-09).**  Following the circularity question raised after the theta
+programme, added `topics/zeta-from-theta/` with a Lean-proved **Dirichlet-series
+bridge** (`zetaSeries_eq_riemannZeta`: on `Re s > 1` the theta-side series equals
+Mathlib's `riemannZeta`, via `zeta_eq_tsum_one_div_nat_cpow`, with no functional
+equation in the proof), a computation layer (six tests: the bridge at
+tail-consistent tolerances, the theta-side `Λ_θ` against `Λ`, the theta-side
+symmetry, and `Γℝ(2) = 1/π`), and a full handoff
+(`HANDOFF.md`) specifying the construction of `ζ_θ` from
+`Λ_θ(s) = ∫₁^∞ ψ(t)(t^{s/2−1}+t^{(1−s)/2−1})dt + 1/(s−1) − 1/s`: the milestones,
+the `Γℝ`-zero risk, the integration tasks for
+`zeta-functional-equation`, `angular-partition-method`, `digamma-contour-shift`,
+`archimedean-prime-evaluation`, `weil-positivity`/`missing-bridge`,
+`absolute-polarized-hodge-index-realization` and `zero-sum-convergence`, and a
+four-method provenance audit for the independence claim.  The topic is registered
+in `topics/README.md` (row 63) and `STATUS.md`; the five previously unlisted
+topics (rows 58–62) were backfilled at the same time.  Repo status: 63 topics ·
+1,778 theorems · 565 computations · 877 tests · 63/63 Lean builds OK.
+
+
+**`zeta-from-theta` completed: the theta-side `ζ` and its functional equation
+(2026-11-09).**  Executed the handoff in one pass.  Moved `Theta.lean`,
+`Mellin.lean` and `Zeta.lean` from `zeta-functional-equation/lean` into
+`zeta-from-theta/lean` (namespace `ZetaTheta` unchanged) behind a new
+`ThetaLayer.lean` aggregate; `zeta-functional-equation` now imports that
+aggregate and points its `LEAN_EXTRA_PATH` at the new home, and both topics
+build.  Added `LambdaTheta` (the split theta integral) with
+`LambdaTheta_eq_mellin`, `LambdaTheta_one_sub` and
+`differentiableAt_LambdaTheta`; `zetaTheta := LambdaTheta / Gammaℝ` with
+`zetaTheta_eq_zetaSeries`; the functional equation `zetaTheta_one_sub`
+(hypotheses `s ∉ {−n}`, `s ≠ 1`, `Gammaℝ(1−s) ≠ 0`), proved from the symmetry
+of `LambdaTheta` and `Complex.Gammaℝ_div_Gammaℝ_one_sub` with no Mathlib
+`*_one_sub`; `zetaTheta_eq_riemannZeta` and the strengthened
+`zetaTheta_eq_riemannZeta_of_ne_zero_one` (only `s ≠ 0, 1`); the trivial-zero
+value `zetaTheta_trivial_zero` and the removable-limit statement
+`zetaTheta_removable_at_trivial_zero`; and the assembled
+`riemannZeta_one_sub_from_theta` (M6), and the unconditional
+`riemannZeta_one_sub_from_theta'` with the same statement as
+`riemannZeta_one_sub_theta'` (the `s = 1 + 2n` branch is handled by both sides
+vanishing).
+D7 was run as **Method B**, the constant-level walk: a new `lean/Audit.lean`
+(adapted from `Mathlib.Util.PrintSorries`) walks all reachable `ConstantInfo`
+types and values and reports whether any of seven forbidden functional-equation
+lemmas occurs.  All four targets pass — `zetaTheta_one_sub` (51,118
+declarations), `zetaTheta_eq_riemannZeta` (55,193),
+`riemannZeta_one_sub_from_theta` (55,435),
+`riemannZeta_one_sub_from_theta'` (55,445) and
+`zetaTheta_removable_at_trivial_zero` (55,335) — recorded in
+`zeta-from-theta/lean/AUDIT.md`.  Two negative controls (direct
+and transitive) confirmed the walker flags a forbidden constant.  Limits
+recorded plainly: D6 is established through the identification rather than by an
+independent multiplicity count; Method C was not run.  Integration notes I1–I7
+added in the seven dependent topics; no positivity status changed.  Checks:
+`audit_topics.py` 63/63, pytest 6/6, no `sorry`/`axiom`/`admit`, both Lean
+topics build, and `check-links.py` clean after regenerating the Lean index.
+Status: 63 topics · 1,789 theorems · 565 computations · 877 tests · 63/63 Lean
+builds OK.
+
+
+**New topic: `geometric-zeta` — the three decompositions and their limits
+(2026-11-09).**  Opened the geometric-zeta research goal: an unconditional
+identity or inequality derived from the geometric-zeta decompositions, with an
+explicit non-equivalence audit and no RH or positivity claim.  Phase 0 records
+the catalogue: the Euler product; the additive identity
+`ζ(s) = 1 + Σ_{a∈A} 1/(a^s−1)` over non-perfect-powers on `Re s > 1`; the log
+identity; and the Lambert/Mellin dictionary
+`Σ_k q^k/(1−q^k) = Σ_n d(n)q^n` with Mellin transform `Γ(s)ζ(s)^2`.  The audit
+classifies each candidate as proved, known, negative, or flagged: the finite-sum
+impossibility (`s → +∞` makes the sum `→ 0` while `ζ(s) → 1`) is recorded, and
+the finite-product impossibility (`s → 1` gives a finite product against a pole)
+is **Lean-proved** as `no_finite_euler_product` — the analytic form of Euclid;
+the all-bases contrast
+`1 + Σ_{a≥2} 1/(a²−1) = 7/4 ≠ ζ(2)` is a numerical check that the index set is
+essential.  Lean re-exports the Euler product (`eulerProduct`) and the Lambert
+identity (`lambert_identity`, `lambert_identity_divisors`, from Mathlib's
+`tsum_pow_div_one_sub_eq_tsum_sigma`), and proves the zero-free-factor structure
+(`geomFactor_ne_zero`, `finiteEulerProduct_ne_zero`) together with the
+finite-product impossibility (`no_finite_euler_product`).  The all-bases
+telescoping identity `all_bases_sum` / `all_bases_geometric_sum` proves
+`1 + Σ_{a≥2} 1/(a²−1) = 7/4` in Lean.  **The Lambert/Mellin transform is now
+formalised:** `divisor_hasSum` and `divisor_summable` establish the divisor
+Dirichlet series `Σ d(n)/n^s = ζ(s)^2`, and `lambert_mellin` /
+`lambert_mellin_divisors` prove `∫ t^{s−1} L(e^{−t}) dt = Γ(s)ζ(s)^2` on
+`Re s > 1`, via Mathlib's `hasSum_mellin` and the comparison `d(n) ≤ n` for the
+exponential summability.  The Python layer checks
+the additive identity at `s = 2` and `2.5 + 0.4i`, the all-bases `7/4`
+contrast, the Lambert identity, the log identity, and the sparsity of perfect
+powers; seven pytest tests pass.  The additive identity, log identity, Mellin
+transform and non-perfect-power counting are the next Lean targets; the headline
+inequality remains open and is the goal's continuing work.
+Status: 64 topics · 1,801 theorems · 571 computations · 884 tests · 64/64 Lean
+builds OK.
+
+
+**`geometric-zeta` — inequality direction: a lower-bound expansion for
+`ζ(σ)^2` (2026-11-09).**  Continued the Mellin programme beyond the identity.
+Using `L(e^{−u²}) = Σ_{k,m} e^{−km u²} = Σ_{k,m} e^{−(k²+m²)u²/2}
+e^{(k−m)²u²/2}`, the AM–GM inequality `k²+m² ≥ 2km`, and the truncated
+exponential series, the Mellin identity gives, for `σ>1` and every `J≥0`,
+
+`ζ(σ)^2 ≥ 2^σ Σ_{j=0}^J Γ(σ+j)/(j! Γ(σ)) · E_j(σ+j)`,
+`E_j(τ)=Σ_{k,m≥1}(k−m)^{2j}/(k²+m²)^τ`.
+
+The `j=0` term is `ζ(σ)^2 ≥ 2^σ Σ (k²+m²)^{−σ}`; the higher terms improve it.
+Numerically the bound/`ζ(σ)^2` ratio at `σ=2` rises from `0.627` (`J=0`) to
+`0.866` (`J=4`), and at `σ=3` from `0.816` to `0.965`; the sequence increases
+toward `1`.  This is an integral/lattice-sum inequality, not a coefficientwise
+Dirichlet comparison; the derivation and table are in
+`topics/geometric-zeta/INEQUALITY.md`, with computation functions and three new
+pytest checks.  A full literature check and the Lean formalisation (pointwise
+majorant, Mellin integral, Tonelli interchange, `J=0`/`J=1` instances) are the
+remaining goal work.  No RH or positivity claim.
+
+
+**`geometric-zeta` — the AM–GM majorant is Lean-proved (2026-11-09).**  Added
+`lambert_majorant` to `topics/geometric-zeta/lean/Topic.lean`:
+
+`Σ_{k,m≥1} e^{−km u²} ≥ (Σ_{k≥1} e^{−k²u²/2})²`  for `u > 0`.
+
+The proof splits the double series, dominates it by the geometric double series
+`r^{k+m}` (with `r = e^{−u²/2} < 1`), and applies the termwise inequality
+`e^{−km u²} ≥ e^{−(k²+m²)u²/2}` (equivalently `(k−m)² ≥ 0`) plus
+`Summable.tsum_mul_tsum` for the square.  This is the pointwise core of the
+lower-bound expansion `ζ(σ)^2 ≥ 2^σ Σ_{j=0}^J Γ(σ+j)/(j!Γ(σ)) E_j(σ+j)`; the
+integrated instances and the Tonelli interchange remain the open Lean targets.
+Three new pytest checks for the lattice bound; ten tests pass.
+Status: 64 topics · 1,802 theorems · 572 computations · 887 tests · 64/64 Lean
+builds OK.
+
+
+**`geometric-zeta` — Gaussian moment formalised (2026-11-09).**  Added
+`gaussian_moment` to `topics/geometric-zeta/lean/Topic.lean`:
+
+`∫_0^∞ u^{2σ−1} e^{−a u²} du = ½ Γ(σ) a^{−σ}`  for `σ > 0`, `a > 0`.
+
+The proof is the change of variables `t = u²` via
+`MeasureTheory.integral_comp_rpow_Ioi_of_pos`, reducing to
+`Real.integral_rpow_mul_exp_neg_mul_Ioi`.  This is the integral identity needed
+for the `J = 0` integrated lattice bound.  Remaining Lean targets: identify
+`F(u²)` with the double geometric series, the Mellin substitution
+`Γ(σ)ζ(σ)^2 = 2∫ u^{2σ−1}F(u²)du`, the Tonelli interchange, and the `J=0`/`J=1`
+instances.  Status: 64 topics · 1,803 theorems · 572 computations · 887 tests ·
+64/64 Lean builds OK.
+
+
+**`geometric-zeta` — RH-relevance audit: a no-go for the half-plane route
+(2026-11-09).**  Added `topics/geometric-zeta/RH-AUDIT.md`.  The audit derives
+the continuation relation
+`E_0(s) = π^{2s−1}(Γ(1−s)/Γ(s))(E_0(1−s)+ζ(2−2s)) − ζ(2s)` from the Epstein
+functional equation and the identity `E_full(s) = 4E_0(s)+4ζ(2s)`, defines
+`D(s)=ζ(s)^2−2^sE_0(s)`, and observes that at a nontrivial zero `ρ`,
+`D(ρ) = −2^ρ E_0(ρ)`.  The half-plane inequality `D(σ) ≥ 0` for real `σ>1`
+controls neither `E_0(ρ)` nor the sign of the continued `D` on the critical
+line; a sign or zero statement there would require a new sign theorem, which the
+Mellin/Lambert inequality does not supply.  This is recorded as a **no-go** for
+this route, with the precise missing ingredient stated.  No RH claim is made.
+The integrated `J=0`/`J=1` Lean theorem and the continuation (★) remain open
+formalisation targets.
+
+
+**`geometric-zeta` — the Lambert/double-sum identification is Lean-proved
+(2026-11-09).**  Added `lambert_eq_double` to
+`topics/geometric-zeta/lean/Topic.lean`:
+
+`Σ_{n≥1} d(n) q^n = Σ_{k,m≥1} q^{km}`  for `‖q‖ < 1`.
+
+The proof is short because Mathlib already has the reindexing theorem
+`tsum_prod_pow_eq_tsum_sigma` (TsumDivisorsAntidiagonal.lean); combined with
+`Summable.tsum_prod` and `summable_prod_mul_pow` it gives the identity directly,
+avoiding the divisor-antidiagonal subtype bookkeeping that blocked earlier
+rounds.  This was the main missing identification for the integrated
+`J = 0` bound.  Remaining: the Mellin substitution
+`Γ(σ)ζ(σ)^2 = 2∫u^{2σ−1}F(u²)du`, the Tonelli interchange, and the integrated
+instances.  Status: 64 topics · 1,804 theorems · 572 computations · 887 tests ·
+64/64 Lean builds OK.
+
+
+**`geometric-zeta` — complex-power identity for the Mellin substitution
+(2026-11-09).**  Added `cpow_sq` to `topics/geometric-zeta/lean/Topic.lean`:
+
+`((x : ℂ)^2)^(s−1) = (x : ℂ)^(2(s−1))`  for `x > 0`.
+
+This is the identity needed to rewrite `(u²)^{s−1}` in the Mellin substitution
+`Γ(σ)ζ(σ)^2 = 2∫u^{2σ−1}F(u²)du`.  The proof uses `Complex.cpow_nat_mul'` and
+`Complex.arg_ofReal_of_nonneg`.  Status: 64 topics · 1,805 theorems ·
+572 computations · 887 tests · 64/64 Lean builds OK.
+
+
+**`geometric-zeta` — formalisation decision: integrated bound accepted as
+paper/numerical (2026-11-10).**  Per the user's choice, the integrated
+`J=0`/`J=1` lattice bound is recorded as a paper/numerical result with the Lean
+core proved (`lambert_eq_double`, `lambert_majorant`, `gaussian_moment`,
+`cpow_sq`).  The Lean formalisation of the Mellin substitution is closed as an
+engineering blocker: `mellin_comp_rpow` / `integral_comp_rpow_Ioi_of_pos`
+produce definitionally equal but syntactically distinct coercions (`↑2` vs
+`2 : ℂ`, `((x²:ℝ):ℂ)` vs `(x:ℂ)^2`) that `rw`/`convert` do not match.  The
+mathematical inequality, the numerical J=0..6 family, and the RH-relevance no-go
+stand.  No RH claim.
+
+
+**`prime-spectrum-tensor` — M0′ closed at `n = 6` (2026-11-15).**  The 6×6
+Gaussian Weil–Gram rung is now unconditional:
+`gaussianGram6_posDef : (gaussianGram6 (1/20)).PosDef` in
+`topics/prime-spectrum-tensor/lean/Closure6.lean` (T17), with
+`#print axioms` clean (`lean/Audit.lean`).  The six density bands come from new
+compact chains `DensityE0 … E5`; the entry budget is `ε = 2·10⁻³` against
+`6ε < 1/70`.
+
+The diagnostic correction matters more than the rung.  The previous handoff
+recorded the obstruction as *certificate width* (1305-panel bands at
+`±2.906·10⁻³` against a `1/420` budget) and planned five finer chains that
+"did not fit on disk".  Two measurements showed the real blocker was
+**certificate size**: one 150-panel chunk carried a ~300 MB `.olean` (~2 MB per
+panel), of which ~75% was the per-panel `norm_num` evaluation of the 45-term
+`Ω` bracket, and the cumulative rational partial sums grew in denominator with
+the panel index.  Fixes, each measured before use: a shared `Ω` module
+(`DensitySO`, one copy of 1878 brackets instead of six), rounded cumulative sums
+(`PanelDecay.abs_sub_le_three`, `--sum-dec 12`), and an error-equalising
+partition from a Lagrange model (`gen/optimise.py`, `gen/predict.py`, which
+reproduces every certified half-width to ten digits).  Result: 1878 panels per
+chain at ~1 min/chunk for the `Ω` layer and ~4 min/chunk for a chain, against
+~5 GB for the old 1970-panel `c = 1` chain.
+
+`native_decide` was tried and **rejected**: in this toolchain it emits one fresh
+axiom per call, so the closure would have rested on ~10⁴ trusted-compiler
+checks rather than the kernel.  The `Ω` module stays `norm_num`.
+
+Next: see `topics/prime-spectrum-tensor/HANDOFF-M0P-NEXT.md` §4 — the
+highest-leverage move is a sharper `|Ω′|` constant (`6/t` → target `2.25/t`),
+which cuts panels ~2.5× at every rung; then a second-order panel rule
+(`|Ω″|`), which is the qualitative jump that would make `n = 7, 8, 9`
+affordable.  No claim about the infinite Weil cone; no RH claim.  (Global
+theorem/computation counters not re-audited in this entry.)
+
+
+**`prime-spectrum-tensor` — sharper `|Ω′|` constant (2026-11-16).**  The
+Lipschitz bound behind every density certificate is now
+`|Ω′(t)| ≤ 5/(2t)` for `t ≥ 1` (T18), in
+`topics/prime-spectrum-tensor/lean/LipSmall3.lean`, audit-clean.  Previously
+`6/t` (T-old, `LipSmall2.deriv_Omega_abs_le_six`).
+
+The true constant is `sup_{a ≥ 1/2} a·Σ_j ((j+1/4)²+a²)⁻¹ = 2.148…` at
+`a = 1/2` (approaching `π/2` at infinity), so `5/2` is within 4% of optimal for
+this route.  The proof: `|Ω′| ≤ (1/2)·T(t/2)` reduces it to `T(a) ≤ 5/(2a)`;
+for `a ≥ 4` the existing head/tail estimate already gives it
+(`(a+2)/a²+1/a ≤ 5/(2a)`), and for `1/2 ≤ a ≤ 4` four explicit head terms plus
+the telescoping tail `Σ_{j≥4}(j+4)⁻² ≤ 1/3` reduce it to a rational inequality
+checked on 16 sub-intervals (worst margin 8%).  The head/tail core of the old
+proof was factored out as `sum_range_shifted_inv_le` so both constants share it.
+
+Measured effect (`gen/predict.py --lip-c`): at the unchanged 1878-panel
+partition `K` drops from `7.64·10⁻⁴` to `4.92·10⁻⁴`; at fixed width the
+partition shrinks from 1878 to 1270 panels (`edges_1270.txt`).  The gain is
+1.5×, not the naive 2.4×, because the midpoint term `|Ω|h³/(4·wden)` does not
+scale with the Lipschitz constant.
+
+Not yet rebuilt: the six committed chains still use `6/t`.  Rebuilding them on
+the same midpoints would need no new `Ω` module and would take the 6×6 entry
+budget from `2·10⁻³` to about `1.1·10⁻³`, which fits the `n = 7` requirement
+(`ε < 1.777·10⁻³`).  That is the documented next step, alongside the
+second-order panel rule that needs `|Ω″|`.  No RH claim.
+
+
+**`prime-spectrum-tensor` — the `5/(2t)` chains and the retuned 6×6 (2026-11-16).**
+Follow-up to T18.  The six compact density chains were rebuilt on the *same*
+1878-panel partition with `panels.py --lip-c 5/2`, reusing the shared
+`DensitySO_11` Ω module, and now live as `DensityF0 … F5` (the `DensityE*`
+chains built with `6/t` were deleted).  Certified `densityTerm` bands and entry
+errors:
+
+| `c` | band | entry error |
+|---|---|---|
+| 0 | `[0.010712, 0.012680]` | `1.010e-3` |
+| 1/5 | `[-0.049070, -0.047102]` | `1.010e-3` |
+| 2/5 | `[-0.025022, -0.023054]` | `1.001e-3` |
+| 3/5 | `[-0.017826, -0.015858]` | `1.002e-3` |
+| 4/5 | `[-0.014438, -0.012104]` | `1.361e-3` |
+| 1 | `[-0.012224, -0.009891]` | `1.249e-3` |
+
+The 6×6 transfer budget is now `ε = 1.5e-3` (`6ε = 0.009 < 1/70`; it was
+`2e-3`), and all three rungs re-close with `[propext, Classical.choice,
+Quot.sound]`.  Every separation now also satisfies the `n = 7` budget
+`ε < 1.777e-3`, so the only work left for a 7×7 is the new separation `c = 6/5`
+(one chain plus a `panel_certificate_decay` instance for `|c| ≤ 6/5`) and the
+`7×7` rational transfer.  `check.sh --quick` passes; 26 numerical tests pass.
+No RH claim.
+
+
+**`prime-spectrum-tensor` — the second-order panel rule (2026-11-16).**  The
+`h²` term of the density panel certificate — the variation of `Ω` across a panel,
+bounded only through `|Ω′|` — is removed.  `midpoint_rule_bound` is now applied
+to the product `w·Ω`, whose second derivative is bounded by
+`W₂|Ω| + 2W₁L + W|Ω″|`, giving `B·h³/4` per panel (T20).
+
+Three new pieces, all audit-clean:
+
+* `lean/SecondDeriv.lean` — `|Ω″(t)| ≤ 5/t²` (T19), from the general
+  Gauss/Hurwitz series at `k = 2` (`ψ″ = −2Σ(z+j)⁻³`), the termwise estimate
+  `‖z+j‖⁻³ ≤ (2/t)((j+1/4)²+(t/2)²)⁻¹`, and the `5/(2a)` bound of T18.  Also
+  proves `deriv Ω` differentiable (required by the quadrature lemma).
+* `lean/WeightDeriv2.lean` — the panel-local decaying weight bounds
+  `|w′| ≤ (1/400)(|t|/200+|c|)` and
+  `|w″(t)| ≤ (1/400)e^{−a²/400}(1/200+b²/40000+c²+2(b/200)|c|)`.  The global
+  `|w″| ≤ 1/400` is four orders too large at `t = 60` and dominated the constant.
+* `lean/PanelSecondOrder.lean` — `(wΩ)″ = w″Ω+2w′Ω′+wΩ″`, the panel bound, and
+  `panel_certificate_second_order`.
+
+Predicted effect (`gen/predict.py --order 2`, which reproduces the certified
+first-order widths exactly): `c = 0` reaches `K = 2.34e-4` at **388 panels**,
+against `7.13e-4` at 1270 panels for the `h²` rule — 3.3× fewer panels at 3×
+tighter width.  At fixed 1270 panels the band is `1.08e-4`.  The floor is now
+the `1/10000` tail bound of `density_tail_le` at `T = 60`, so sharpening the tail
+(larger `T` or a decay-aware estimate) is the next lever.
+
+Not yet rebuilt: `panels.py` still emits the first-order `hp` proofs.  Wiring
+the second-order rule and rebuilding the chains at a few-hundred-panel partition
+(three chunks per chain instead of twelve) is the mechanical next step; it would
+take the certificate layer from 14 GB to about 4 GB.  No RH claim.
+
+
+**`prime-spectrum-tensor` — the density tail at a general split point (2026-11-16).**
+The floor of the second-order certificate was the `1/10000` tail of
+`density_tail_le` at `T = 60`.  The tail is deterministic and the Gaussian
+moment integrates exactly, so it is now stated for any split point:
+`density_tail_le_of (hT : 60 ≤ T) : |∫_{T}^{∞} wΩ| ≤ e^{−T²/400}/2`, with
+`density_tail_le_eighty : … ≤ 10⁻⁷` (T21).  At `T = 60` the bound is
+`e^{−9}/2 ≈ 6.2·10⁻⁵`; at `T = 80` it is `5.6·10⁻⁸`.
+
+Moving `T` is available only under the second-order rule: the first-order weight
+bounds carry a `b ≤ 60` hypothesis (`weight_midpoint_rule`), while the
+second-order bounds of `WeightDeriv2.lean` hold for all `t ≥ 0`.
+
+Combined numbers (`gen/predict.py --order 2`, `c = 0`): 814 panels give
+`K = 1.99·10⁻⁵` (36× tighter than the committed 1270-panel `7.13·10⁻⁴`) and
+267 panels give `K = 5.30·10⁻⁴`, i.e. 4.8× fewer panels *and* a tighter
+certificate.  The remaining slack is the `|Ω| ≤ log(t+2)+24` constant (true
+`|Ω(60)| ≈ 2.2`), worth another factor ~10 on the tail if sharpened.  Related
+deterministic-tail machinery lives in `partial-sum-plus-tail` (Euler–Maclaurin
+remainders) and `angular-partition-method` (`ctail_telescope`, exponential
+kernel decay), but both are for series/products rather than this Gaussian
+integral, so the tail here stays local to the topic.  No RH claim.
+
+
+**`prime-spectrum-tensor` — the h³ generator path and the first second-order chain
+(2026-11-16).**  `panels.py --order 2` now emits the second-order `hp` proofs:
+the six panel bounds `W, W₁, W₂, Om, L, S`, the two rational budget checks and
+the midpoint rationalisations, discharged through
+`panel_second_order_certificate` (T22).  Three generator fixes were needed: the
+split point is taken from the edge list (the first-order `b ≤ 60` hypothesis no
+longer limits `T`), the tail uses `density_tail_le_of` with `10^-tail-dec`, and
+— the one that actually mattered — the second-order panel errors are computed in
+a **pre-pass over all panels**, because the cumulative partial sums of a later
+chunk must agree with the emitted `cum` statements of earlier chunks.
+
+`EXP_TERMS` went from 10 to 14: at `a ≈ 80` the left-edge `exp(−a²/400)` bracket
+has `|z| = 1` in the `(exp(−y/16))^16` squaring chain, where the 10-term
+remainder is `3·10⁻⁷ > 10⁻⁹`.
+
+First chain: `DensityG0` (`c = 0`, 318 panels, `T = 80`, shared `Omega` module
+`DensitySO8`), built in two chunks, audit-clean, band
+`[0.005285172, 0.006445809]`, `K = 5.803·10⁻⁴`.  Against the committed
+1878-panel first-order chain (`K = 4.917·10⁻⁴`) that is **5.9× fewer panels for
+an 18% wider band** — the panel count collapses, the width barely moves, which
+is exactly what the `h³` rule was for.  The other five separations are the same
+recipe; the full set would be twelve chunks (~1.5 h, ~1.5 GB) instead of the
+present 14 GB.  No RH claim.
+
+
+**`prime-spectrum-tensor` — the h³ migration, finished (2026-11-16).**  The
+second-order panel rule now backs the whole 6×6 certificate.  Six chains
+`DensityG0 … DensityG5` (779-panel partition `gen/edges_779.txt` to `T = 80`,
+five chunks each, shared `Omega` module `DensitySO9`) replace the 1878-panel
+first-order `DensityF*` set, which is deleted along with both superseded `Omega`
+modules (topic `lean/` went from 23 GB to 8.2 GB).
+
+The reason the first attempt at 318 panels failed is worth recording: the
+second-order constant is `W₂·|Ω|` with
+
+```
+W₂ = (1/400)·e^{−a²/400}·(1/200 + b²/40000 + c² + 2(b/200)|c|),
+```
+
+which grows like `c²`.  At 318 panels `c = 3/5` came out at `5.26·10⁻³`, five
+times the first-order band, and no `ε` below `1/70` would close it.  The `h³`
+rule is not uniformly better — it wins where `h` is small, and for large `c` the
+panel count has to be larger before it beats `h²`.  779 panels is where every
+separation lands at or below the first-order width.
+
+Certified bands (`densityTerm` half-widths): `8.63·10⁻⁵` (`c = 0`),
+`1.63·10⁻⁴`, `2.61·10⁻⁴`, `3.74·10⁻⁴`, `5.06·10⁻⁴`, `6.55·10⁻⁴` (`c = 1`) —
+against `9.83·10⁻⁴ … 1.53·10⁻³` before.  The entry budget improves from
+`ε = 15·10⁻⁴` to `8·10⁻⁴` (worst entry deviation `7.356·10⁻⁴`), `6ε = 0.0048 <
+1/70`, and `gaussianGram6_posDef` still audits to
+`[propext, Classical.choice, Quot.sound]`.
+
+So the migration is a win on both axes at once: 2.4× fewer chunks (30 vs 72),
+8.2 GB instead of 23 GB, and a 1.9× tighter entry bound.  `check.sh --quick`
+passes in 6m47s and the 26 numerical tests pass.  No RH claim; this is a finite
+certificate at `σ = 1/20`.
+
+
+**`prime-spectrum-tensor` — the sub-cone obstruction (2026-11-17).**  §4.3(3)
+asked for positivity of the Weil form on a structured closed subspace rather than
+on more basis elements.  The first obstruction is now *proved*, not assumed:
+`lean/SubCone.lean` (T24, audit-clean) shows the pole term is
+
+```
+poleTerm c σ = 4πσ² e^{σ²/4} cosh(c/2),      unbounded in c,
+Σ_{a,b} x_a x_b poleTerm(c_a−c_b)σ = 4πσ²e^{σ²/4}·u·v,
+```
+
+with `u = Σ x_a e^{c_a/2}`, `v = Σ x_a e^{−c_a/2}` — exactly rank two, indefinite,
+and growing like `e^{|c|/2}`.  So no decay, Hilbert–Schmidt or Gershgorin
+argument can be applied to the Weil Gram matrix; the natural pole-free subspace
+`{u = 0} ∩ {v = 0}` has codimension two.
+
+The numerics ([`SUB-CONE.md`](topics/prime-spectrum-tensor/SUB-CONE.md) §2.3)
+explain why the programme works anyway: the prime term cancels the pole almost
+exactly — at separation `10` the pole is `2.33` and the prime sum `−2.36`, leaving
+a residual of order `10⁻²`, which is the zeros' contribution.  The obstruction is
+therefore not the pole but the residual, i.e. exactly the object RH controls.  The
+kernel used for these numbers reproduces the published `W(σ) = 0.043135958394838`
+to 15 digits, and `Ω(0) = −5.37218` with first zero `t₀ = 6.28984` shows the
+density form is not positive definite (its symbol is negative on `(0, t₀)`).
+
+No sub-cone theorem is proved.  The note states the target precisely — band-pass
+Gaussians above `t₀`, with the density symbol bound, the pole identity and a
+truncated von Mangoldt estimate — and records the interaction that blocks it:
+band-limiting makes the prime sum non-truncating.  No RH claim.
+
+
+**`prime-spectrum-tensor` — the pole-free sub-cone is dead (2026-11-17).**  The
+natural repair suggested by T24 was the codimension-two pole-free subspace
+`{u = 0}`, where the pole form vanishes identically and only density plus prime
+remain.  It does not work: on the natural ladder `0, 1/5, 2/5, …` the smallest
+eigenvalue of the *pole-free* Gram form collapses at the same exponential rate as
+the full matrix — `1.67·10⁻²` at `n = 6`, `3.55·10⁻⁵` at `n = 20`, `1.42·10⁻⁸`
+at `n = 34` ([`SUB-CONE.md`](topics/prime-spectrum-tensor/SUB-CONE.md) §5.1,
+C30).  So the collapse is not caused by the pole; it comes from the
+`density + prime` residual, i.e. from the zeros — exactly where §2.3 pointed.
+
+A second correction: the band-pass target of §4 as originally stated cannot
+work, because the pole term evaluates the test function at the *imaginary*
+frequencies `ξ = ±i/2` (`pole part of Q(f) = 2|f̂(i/2)|²`), and a band-pass is a
+condition on the real-frequency support only — the indicator `1_{|ξ| ≥ T₁}` has
+no analytic continuation.  The surviving candidate must impose both conditions
+together, `H₀ = {f : f̂(±i/2) = 0, f̂ supported in |ξ| ≥ T₁}`, and the open
+problem is the prime side there, which band-limiting does not truncate.
+
+No sub-cone theorem; three candidates now excluded (symbol ⇒ RH, sparse centres ⇒
+pole growth, pole-free ⇒ margin collapse), one target corrected.  No RH claim.
+
+
+**`prime-spectrum-tensor` — the n = 7 rung installed (2026-11-17).**  §4.1 of the
+handoff said `n = 7` was cheap enough to be a useful benchmark and that only one
+new separation (`c = 6/5`) was needed.  That is now built:
+
+* the chain `DensityG6` (779 panels, second-order `h³` rule, five chunks, shared
+  `DensitySO9`), band `[-0.0054554, -0.0040457]`;
+* `GaussianGram7.lean`: the exact `7 × 7` matrix, the Toeplitz centre matrix
+  `gramCentre7` (eight decimals), its rational `LDLᵀ` with margin `3/250` (min
+  pivot `2.57·10⁻³`), and the entrywise transfer;
+* `poleTerm_mem_c6` (`[0.037264, 0.037267]`) from a new `cosh_three_fifths_mem`;
+* `Assembly7.lean` and `Closure7.lean`, which reduce the whole rung to a single
+  hypothesis — the prime band at `c = 6/5`:
+
+```
+gaussianGram7_posDef_of_prime_band
+    (hq6 : (primeTerm (6/5) + primeTerm (−6/5))/2 ∈ [−0.0212, −0.0209]) :
+    (gaussianGram7 (1/20)).PosDef
+```
+
+with `ε = 16/10000` and `7ε = 0.0112 < 3/250 = gramMargin7`.  All audit-clean
+(`[propext, Classical.choice, Quot.sound]`), 26 tests pass.
+
+Two measured caveats, both recorded in the handoff.  `λ_min(7) = 0.0124375`,
+which matches `MARGIN-SCALING`, and the margin leaves only 12% headroom — the
+`c = 6/5` density band is `1.41·10⁻³` half-width, five times the `c = 0` one,
+because `edges_779` was optimised for the `c = 0` error model and the
+second-order constant grows like `c²`.  A partition optimised for `c = 6/5`
+would recover the margin, and should be done before `n = 8`.  The remaining
+analytic obligation is the prime enclosure at `c = 6/5`, where only `n = 3` and
+`n = 4` contribute.  No RH claim.
+
+
+**`prime-spectrum-tensor` — the `c = 6/5` chain on its own partition (2026-11-17).**
+The `n = 7` rung was installed with a `c = 6/5` density band of `1.41·10⁻³`,
+five times the `c = 0` band, because `edges_779` had been optimised against the
+*first-order*, `c = 0` error model while the second-order constant grows like
+`c²`.  `gen/build_edges_c.py` now implements the Lagrangian solution
+`h = (4λ/(3B(a,b,c)))^{1/3}` of the second-order model at a given `c`, and the
+chain was rebuilt on `edges_780_c6.txt` (780 panels, same count):
+
+| | band half-width | `ε` | margin | headroom |
+|---|---:|---:|---:|---:|
+| `edges_779` (c=0 model) | `1.41·10⁻³` | `1.6·10⁻³` | `3/250` | 12% |
+| `edges_780_c6` (c=6/5 model) | `9.65·10⁻⁴` | `1.1·10⁻³` | `1/100` | 23% |
+
+So the same panel count buys a `1.46×` tighter band, and the margin is back to
+`1/100` — the same order as the `6×6`'s `1/70`.  The rung still reduces to one
+prime band at `c = 6/5` (`gaussianGram7_posDef_of_prime_band`), now required only
+to a width of `7·10⁻⁵`.  All audit-clean; 26 tests pass.
+
+Forward-looking note recorded in the handoff: `λ_min(8) = 9.743·10⁻³` needs
+`ε < 1.22·10⁻³`, which the present `1.1·10⁻³` barely meets, so `n = 8` will need
+the same treatment from the start, and `n = 9` (where `λ_min` drops to
+`8.97·10⁻⁴`) will need per-`c` partitions of increasing fineness rather than a
+uniform ladder.  No RH claim.
+
+
+**`prime-spectrum-tensor` — stop-and-benchmark: the calibration target
+(2026-11-17).**  With the ladder closed to `n = 6` (and `n = 7` conditional on
+one prime band), the programme paused at the point the handoff called defensible:
+freeze the finite results as a **calibration target** for any claimed positivity
+bridge.  [`topics/prime-spectrum-tensor/CALIBRATION.md`](topics/prime-spectrum-tensor/CALIBRATION.md)
+fixes the object (σ = 1/20, centres `i/5`, the symmetrised Weil kernel), the
+certified ladder with each rung's `ε`, margin, budget and audit status, and then
+the two things a bridge must be checked against:
+
+* the **witness vectors** — the minimising unit eigenvector of each Gram matrix,
+  rounded to `1/1000` — with numerical Rayleigh quotients `0.022709744 (n=4)`,
+  `0.021423798 (n=5)`, `0.016707856 (n=6)`, `0.012437486 (n=7)` and certified
+  windows `xᵀCx ± ε(Σ|x_i|)²` of `±4.2·10⁻³` to `±6.3·10⁻³`.  The certificate
+  pins the values to a few parts in `10³`; the numerics reach `10⁻⁸`; a bridge
+  must agree with the numbers and stay inside the windows.
+* the **zero-side table** of `ZERO-SIDE-BRIDGE.md` §3 (agreement at `4·10⁻¹⁸`),
+  so that a bridge which reproduces the spectrum but not the arithmetic side is
+  caught.
+
+The target is executable rather than descriptive: `lean/gen/calibrate.py
+--check` recomputes the kernel from its three terms, rebuilds the four Gram
+matrices, and exits non-zero if a recorded witness value moves by more than
+`10⁻⁷` (it prints `calibration OK`); a fast spec test in the suite guards the
+budgets `n·ε < margin` and the halfwidths.  The document also states the four
+acceptance criteria and, explicitly, that the target is not a step towards the
+infinite form: `λ_min` still collapses by `10.9×` at `n = 9`, and `SUB-CONE.md`
+records why a sub-cone does not rescue that.  No RH claim.

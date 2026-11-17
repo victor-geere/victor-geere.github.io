@@ -15,6 +15,12 @@ REQUIRED = [
 # mathematical claims. See the legend in the generated page.
 RATINGS = {
     "absolute-polarized-hodge-index-realization": (4, 4, 5, 2),
+    "archimedean-prime-evaluation": (4, 3, 5, 2),
+    "digamma-contour-shift": (4, 3, 5, 2),
+    "geometric-zeta": (1, 2, 3, 3),
+    "zeta-from-theta": (2, 2, 3, 3),
+    "zeta-functional-equation": (3, 1, 2, 2),
+    "zero-sum-convergence": (3, 1, 2, 2),
     "adelic-transfer-operator": (4, 3, 4, 2),
     "angular-partition-method": (4, 3, 4, 3),
     "dyadic-sheaf-cohomology": (4, 2, 3, 1),
@@ -54,7 +60,7 @@ RATINGS = {
     "phase-interference": (3, 2, 3, 3),
     "prime-spectrum-tensor": (4, 4, 4, 3),
     "proof-99-global-harmonic-framework": (3, 2, 3, 2),
-    "qefe": (5, 3, 5, 2),
+    "qefe": (4, 4, 3, 3),
     "qefe-research-notes": (3, 2, 3, 3),
     "quaternion-cosine": (3, 2, 3, 4),
     "research-programme-iii": (4, 2, 4, 2),
@@ -69,6 +75,7 @@ RATINGS = {
     "yakaboylu-notes": (2, 2, 2, 3),
     "zero-infinitude": (4, 3, 4, 2),
     "log-derivative-growth": (3, 3, 4, 2),
+    "zero-side-bridge": (3, 4, 4, 2),
     "zero-density-bound": (4, 3, 4, 2),
     "weil-positivity": (4, 3, 5, 1),
     "missing-bridge": (2, 2, 3, 1),
@@ -264,13 +271,55 @@ TOP_TEN = {
         "theorem and prove it, or show that the Galois signs obstruct it. Either outcome is "
         "decisive, and the primary reconstruction in qefe/ is where the general work belongs."
     ),
+    "geometric-zeta": (
+        "This is the table's most disciplined negative result, and its value is the exact "
+        "boundary it draws. The three decompositions of ζ — Euler product, additive "
+        "non-perfect-power sum, and logarithmic Lambert/Mellin — are catalogued and audited "
+        "rather than promoted: a finite geometric sum and a finite Euler product cannot equal ζ "
+        "(no_finite_euler_product), the all-bases sum is 7/4 and not ζ(2), and each individual "
+        "g_a is zero-free, so the zeros are a collective effect with no finite-stage witness. "
+        "What has been bought since is a reusable proved core rather than a headline: the "
+        "Lambert identity and the Mellin transform Γ(s)ζ(s)² = ∫ t^(s−1)L(e^(−t))dt are proved "
+        "in Lean (lambert_mellin, with lambert_eq_double, gaussian_moment and cpow_sq), the "
+        "divisor series Σ d(n)/n^s = ζ(s)² is re-exported, and the additive identity and its "
+        "numerical layer are checked. The new lower-bound expansion ζ(σ)² ≥ 2^σ Σ_j "
+        "(Γ(σ+j)/(j!Γ(σ)))E_j(σ+j) is derived from AM–GM on the Mellin integral and improved "
+        "term by term; its integrated J = 0,1 instance is accepted as a paper/numerical result "
+        "after the Mellin-substitution formalisation hit a coercion blocker. The RH-relevance "
+        "audit is a no-go, recorded with its missing ingredient: D(s) = ζ(s)² − 2^sE_0(s) is "
+        "non-negative only for real σ > 1, and at a zero ρ one has D(ρ) = −2^ρE_0(ρ), so the "
+        "half-plane inequality controls neither E_0 on the line nor the sign of the continued D. "
+        "The next step is therefore well posed but genuinely new: derive an unconditional "
+        "inequality from the positive coefficients d(n) ≥ 0 in the Mellin representation, or "
+        "formalise the unique-base theorem and use it to sharpen the non-perfect-power count. "
+        "No RH or positivity claim is made."
+    ),
+    "zeta-from-theta": (
+        "This programme's payoff is architectural rather than new reach, and it is worth stating "
+        "plainly: it breaks a circularity in the formal development of ζ. In Mathlib the "
+        "functional equation is routed through Hurwitz zeta, and ζ itself is defined from the "
+        "Hurwitz development, so an argument that needs s ↦ 1 − s while developing that material "
+        "depends on what it is trying to establish. The theta layer here avoids the loop: "
+        "ψ(t) = (θ(t) − 1)/2, Λ_θ(s) = ∫ t^(s/2−1)ψ(t)dt, a split at 1 with t ↦ 1/t, and the "
+        "continuation Λ_θ(s) = ∫_1^∞ ψ(t)(t^(s/2−1) + t^((1−s)/2−1))dt + 1/(s−1) − 1/s, which "
+        "is manifestly symmetric. That continued object is LambdaTheta in Lean; zetaTheta is "
+        "Λ_θ/Γℝ with the trivial zeros handled separately. The construction is complete and "
+        "Lean-checked: zetaTheta is identified with riemannZeta, its functional equation is "
+        "proved with a dependency cone free of Mathlib's *_one_sub theorems, and the trivial "
+        "zeros and their removable limit are handled. The dossier is explicit that nothing here "
+        "is a new theorem and nothing proves RH — the honesty is part of the value. One item "
+        "remains open: D6's independent multiplicity proof, since the trivial zeros are currently "
+        "established through the identification rather than by a direct count. That is a "
+        "well-scoped formalisation task, and it is the next step that would close the "
+        "construction's last dependency."
+    ),
 }
 
 SCORE_WORDS = {5: "Very high", 4: "High", 3: "Moderate", 2: "Limited", 1: "Low"}
 
 # Programmes listed in the top section on importance rather than on marginal
 # headroom. The derived priority must not be positive for these, or they belong
-# in the ranked ten instead; the note below is printed above their paragraph.
+# in the ranked list instead; the note below is printed above their paragraph.
 EXCEPTIONS = {
     "geometric-dynamical-phase-transitions": (
         "This is the programme's Riemann-wall objective and its most complete construction. A "
@@ -368,15 +417,15 @@ ranked = sorted(
     ((priority_of(name), name) for name in RATINGS),
     key=lambda pair: (-pair[0], pair[1]),
 )
-top = [pair for pair in ranked if pair[0] > 0][:10]
+top = [pair for pair in ranked if pair[0] > 0]
 if len(top) != len(TOP_TEN):
-    raise SystemExit(f"top-ten section has {len(TOP_TEN)} paragraphs for {len(top)} ranked programmes")
+    raise SystemExit(f"ranked section has {len(TOP_TEN)} paragraphs for {len(top)} ranked programmes")
 missing = [name for _, name in top if name not in TOP_TEN]
 if missing:
-    raise SystemExit(f"missing top-ten paragraph for: {', '.join(missing)}")
+    raise SystemExit(f"missing ranked paragraph for: {', '.join(missing)}")
 unused = sorted(set(TOP_TEN) - {name for _, name in top})
 if unused:
-    raise SystemExit(f"top-ten paragraphs for unranked programmes: {', '.join(unused)}")
+    raise SystemExit(f"ranked paragraphs for unranked programmes: {', '.join(unused)}")
 
 by_name = {name: (title, link) for name, title, _status, link, *ratings in rows}
 
@@ -399,7 +448,7 @@ top_items = "\n".join(top_item(pri, name) for pri, name in top)
 def exception_item(name: str, text: str) -> str:
     pri = priority_of(name)
     if pri > 0:
-        raise SystemExit(f"{name} has priority {fmt_num(pri)}; it belongs in the ranked ten")
+        raise SystemExit(f"{name} has priority {fmt_num(pri)}; it belongs in the ranked list")
     title, link = by_name[name]
     novelty, current, potential, tractability = RATINGS[name]
     meta = f"novelty {novelty} · to do {potential - current} · tractability {tractability}"
@@ -416,7 +465,7 @@ for _name in EXCEPTIONS:
     if _name not in RATINGS:
         raise SystemExit(f"exception paragraph for unknown programme: {_name}")
     if _name in {name for _, name in top}:
-        raise SystemExit(f"{_name} is already in the ranked ten")
+        raise SystemExit(f"{_name} is already in the ranked list")
 exception_items = "\n".join(exception_item(name, text) for name, text in EXCEPTIONS.items())
 
 tail_note = (

@@ -1,7 +1,7 @@
-import DensityC0_8
-import DensityC1_8
-import DensityC2_8
-import DensityC3_8
+import DensityG0_4
+import DensityG1_4
+import DensityG2_4
+import DensityG3_4
 import DensityEnclosure
 import Assembly
 
@@ -25,7 +25,7 @@ namespace PrimeSpectrumTensor
 /-- The density term at `c = 0`, in the assembly band. -/
 theorem densityTerm_mem_c0 :
     densityTerm 0 (1 / 20) ∈ Set.Icc (82 / 10000 : ℝ) (152 / 10000) := by
-  have h := PrimeSpectrumTensor.D0.density_mem_c0
+  have h := PrimeSpectrumTensor.G0.density_mem_c0
   rw [Set.mem_Icc] at h
   rw [densityTerm_eq_two_mul_density, Set.mem_Icc]
   constructor
@@ -35,7 +35,7 @@ theorem densityTerm_mem_c0 :
 /-- The density term at `c = 1/5`, in the assembly band. -/
 theorem densityTerm_mem_c1 :
     densityTerm (1 / 5) (1 / 20) ∈ Set.Icc (-5158 / 100000 : ℝ) (-4458 / 100000) := by
-  have h := PrimeSpectrumTensor.D1.density_mem_c1
+  have h := PrimeSpectrumTensor.G1.density_mem_c1
   rw [Set.mem_Icc] at h
   rw [densityTerm_eq_two_mul_density, Set.mem_Icc]
   constructor
@@ -45,7 +45,7 @@ theorem densityTerm_mem_c1 :
 /-- The density term at `c = 2/5`, in the assembly band. -/
 theorem densityTerm_mem_c2 :
     densityTerm (2 / 5) (1 / 20) ∈ Set.Icc (-2754 / 100000 : ℝ) (-2054 / 100000) := by
-  have h := PrimeSpectrumTensor.D2.density_mem_c2
+  have h := PrimeSpectrumTensor.G2.density_mem_c2
   rw [Set.mem_Icc] at h
   rw [densityTerm_eq_two_mul_density, Set.mem_Icc]
   constructor
@@ -55,7 +55,7 @@ theorem densityTerm_mem_c2 :
 /-- The density term at `c = 3/5`, in the assembly band. -/
 theorem densityTerm_mem_c3 :
     densityTerm (3 / 5) (1 / 20) ∈ Set.Icc (-2034 / 100000 : ℝ) (-1334 / 100000) := by
-  have h := PrimeSpectrumTensor.D3.density_mem_c3
+  have h := PrimeSpectrumTensor.G3.density_mem_c3
   rw [Set.mem_Icc] at h
   rw [densityTerm_eq_two_mul_density, Set.mem_Icc]
   constructor

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Archimedean and prime evaluation</title>
+<style>
+body{font-family:Georgia,serif;max-width:52rem;margin:2rem auto;line-height:1.55;color:#222;padding:0 1rem}
+h1,h2{color:#123;font-weight:600}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #ccd;padding:.35rem .5rem;text-align:left;vertical-align:top}
+code{background:#f3f5f8;padding:.1rem .25rem;border-radius:3px}
+.status{background:#fff6e5;border-left:4px solid #d90;padding:.6rem .9rem}
+</style>
+</head>
+<body>
+<h1>Archimedean and prime evaluation</h1>
+<p class="status"><strong>Status:</strong> the elementary formal core and the two
+named inputs. The evaluations themselves are <strong>open</strong>; nothing here
+proves the Riemann hypothesis.</p>
+
+<p>This topic isolates the two analytic computations between the assembled Gaussian
+explicit formula (<code>missing-bridge</code>, T134) and an unconditional statement:
+the archimedean evaluation and the prime evaluation.</p>
+
+<h2>Objects</h2>
+<ul>
+<li><code>gaussianZeroTest c σ s = 2πσ² exp(σ²(s−1/2)²) exp(−c(s−1/2))</code>;</li>
+<li><code>Ω(t) = Re ψ(1/4+it/2) − log π</code>;</li>
+<li><code>densityTerm c σ = σ² ∫ e^{−σ²t²} cos(ct) Ω(t) dt</code>;</li>
+<li><code>primeTerm c σ = −2 Σ_n Λ(n)/√n · √π σ exp(−(log n − c)²/(4σ²))</code>;</li>
+<li><code>ArchimedeanEvaluation</code>, <code>PrimeEvaluation</code>,
+<code>VerticalLimitIdentification</code>;</li>
+<li>the O2 statements: <code>primeRightIntegral</code>,
+<code>PrimeRightLimit</code>, <code>termwiseIntegral</code>,
+<code>GaussianFourierTransform</code>, <code>PrimeTermwiseInterchange</code>,
+<code>PrimeSeriesEvaluation</code>.</li>
+</ul>
+
+<h2>Theorem ledger</h2>
+<table>
+<tr><th>Kind</th><th>Item</th><th>Statement</th><th>Lean / test</th></tr>
+<tr><td>Theorem</td><td>T1</td><td>The two evaluations imply the vertical-limit identification.</td><td><code>verticalLimitIdentification_of_evaluations</code></td></tr>
+<tr><td>Theorem</td><td>T2</td><td>The Gaussian test on the critical line.</td><td><code>gaussianZeroTest_half_add</code></td></tr>
+<tr><td>Theorem</td><td>T3</td><td><code>e^{−ict} = cos(ct) − i sin(ct)</code>.</td><td><code>exp_neg_mul_I</code></td></tr>
+<tr><td>Theorem</td><td>T4</td><td>Real part of the critical-line test.</td><td><code>gaussianZeroTest_half_add_re</code></td></tr>
+<tr><td>Theorem</td><td>T5</td><td>Imaginary part of the critical-line test.</td><td><code>gaussianZeroTest_half_add_im</code></td></tr>
+<tr><td>Theorem</td><td>T6</td><td><strong>Pointwise archimedean integrand identity</strong> on the critical line.</td><td><code>arch_integrand_identity</code></td></tr>
+<tr><td>Theorem</td><td>T7</td><td><strong>Critical-line archimedean evaluation</strong>, conditional on integrability.</td><td><code>archIntegral_eq</code></td></tr>
+<tr><td>Computation</td><td>C1</td><td><code>Ω(0) = Re ψ(1/4) − log π</code>.</td><td><code>test_omega_at_zero_matches_digamma</code></td></tr>
+<tr><td>Computation</td><td>C2</td><td>Density term positive at <code>c = 0</code>, negative at <code>c = 1/5</code>.</td><td><code>test_density_term_zero_positive</code></td></tr>
+<tr><td>Computation</td><td>C3</td><td>Real/imaginary parts of the critical-line test.</td><td><code>test_critical_line_parts_match_complex_value</code></td></tr>
+<tr><td>Computation</td><td>C4</td><td>Critical-line archimedean identity, residual &lt; 1e−10.</td><td><code>test_arch_identity_residual_small</code></td></tr>
+<tr><td>Computation</td><td>C5</td><td><code>primeTermSym 1 (1/20) ≈ −0.02126</code>.</td><td><code>test_prime_term_sym_negative_at_one</code></td></tr>
+<tr><td>Source claim</td><td>S1</td><td>Vertical limits of the assembled formula are <code>ArchR, PrimeR, ArchL, PrimeL</code>.</td><td>—</td></tr>
+<tr><td>Open</td><td>O1</td><td><code>ArchimedeanEvaluation</code> for the actual limit values. The critical-line version is proved (T7) subject to integrability; the contour shift is open.</td><td>—</td></tr>
+<tr><td>Open</td><td>O2</td><td><code>PrimeEvaluation</code> for the actual limit values. Precise statements: <code>primeRightIntegral</code>, <code>PrimeRightLimit</code>, <code>termwiseIntegral</code>, <code>GaussianFourierTransform</code>, <code>PrimeTermwiseInterchange</code>, <code>PrimeSeriesEvaluation</code>.</td><td>—</td></tr>
+</table>
+
+<h2>Open items</h2>
+<p>The contour shift from <code>Re s = 2</code> to <code>Re s = 1/2</code>
+(with digamma asymptotics and the functional equation), and the prime side: the
+Gaussian Fourier transform <code>∫ e^{−iy log n}H_c(2+iy)dy</code> (closed form
+stated as <code>GaussianFourierTransform</code>), the termwise interchange
+<code>PrimeTermwiseInterchange</code>, and the identification of the resulting
+series with <code>−2π·primeTermSym</code>. The statements are in
+<code>lean/Topic.lean</code>; none is proved. The Python layer verifies the critical-line
+archimedean identity, including the <code>Im ψ</code> correction, numerically.</p>
+
+<h2>Links</h2>
+<p><a href="../README.md">Topics index</a> ·
+<a href="../missing-bridge/README.md">Missing bridge</a> ·
+<a href="../../scraps.html">Scraps</a></p>
+</body>
+</html>

@@ -25,10 +25,16 @@ open scoped BigOperators
 
 namespace PrimeSpectrumTensor
 
-theorem tsum_shifted_inv_le_six {a : ℝ} (ha : 1 / 2 ≤ a) :
-    ∑' j : ℕ, (((j : ℝ) + 1 / 4) ^ 2 + a ^ 2)⁻¹ ≤ 6 / a := by
+/-- **The head/tail estimate for the shifted sum.**  For `a ≥ 1/2` every finite
+partial sum is at most `(a+2)/a² + 1/a`: the `K = ⌈a⌉+1` head terms cost at most
+`K/a²`, and the tail is compared with the telescoping series `Σ 1/(j+K)² ≤ 1/K`.
+
+This is the common core of every Lipschitz bound for `Ω`; the sharper constants
+come from choosing a different head and a different final comparison. -/
+theorem sum_range_shifted_inv_le {a : ℝ} (ha : 1 / 2 ≤ a) (N : ℕ) :
+    ∑ j ∈ Finset.range N, (((j : ℝ) + 1 / 4) ^ 2 + a ^ 2)⁻¹
+      ≤ (a + 2) / a ^ 2 + 1 / a := by
   have ha0 : (0 : ℝ) < a := by linarith
-  refine Real.tsum_le_of_sum_range_le (fun j => by positivity) (fun N => ?_)
   set K : ℕ := Nat.ceil a + 1 with hKdef
   have hceil : a ≤ (Nat.ceil a : ℝ) := Nat.le_ceil a
   have hKval : (K : ℝ) = (Nat.ceil a : ℝ) + 1 := by rw [hKdef]; push_cast; ring
@@ -59,15 +65,20 @@ theorem tsum_shifted_inv_le_six {a : ℝ} (ha : 1 / 2 ≤ a) :
     intro j _ _
     positivity
   rw [Finset.sum_range_add] at hmono
+  linarith [hmono, hhead, htail]
+
+/-- The `a ≥ 1/2` tsum bound `Σ ≤ 6/a`. -/
+theorem tsum_shifted_inv_le_six {a : ℝ} (ha : 1 / 2 ≤ a) :
+    ∑' j : ℕ, (((j : ℝ) + 1 / 4) ^ 2 + a ^ 2)⁻¹ ≤ 6 / a := by
+  have ha0 : (0 : ℝ) < a := by linarith
+  refine Real.tsum_le_of_sum_range_le (fun j => by positivity) (fun N => ?_)
+  have hmain := sum_range_shifted_inv_le ha N
   have hfinal : (a + 2) / a ^ 2 + 1 / a ≤ 6 / a := by
     have h : (a + 2) / a ^ 2 + 1 / a = (a + 2 + a) / a ^ 2 := by
       field_simp
     rw [h, div_le_div_iff₀ (by positivity) (by positivity)]
     nlinarith [sq_nonneg a, ha]
-  have step1 : ∑ j ∈ Finset.range N, (((j : ℝ) + 1 / 4) ^ 2 + a ^ 2)⁻¹
-      ≤ (a + 2) / a ^ 2 + 1 / a := by
-    linarith [hmono, hhead, htail]
-  linarith [step1, hfinal]
+  linarith [hmain, hfinal]
 
 /-- **The `t ≥ 1` Lipschitz bound.** `|Ω′(t)| ≤ 6/t` for `t ≥ 1`. -/
 theorem deriv_Omega_abs_le_six {t : ℝ} (ht : 1 ≤ t) :

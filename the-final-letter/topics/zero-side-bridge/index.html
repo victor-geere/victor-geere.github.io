@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The zero-side bridge — research programme</title>
+<style>
+body{font-family:Georgia,serif;max-width:960px;margin:2.2rem auto;padding:0 1.3rem;line-height:1.65;color:#1a202c;background:#fcfcfb}
+h1{font-size:2rem;line-height:1.15;margin-bottom:.2rem}
+h2{margin-top:2.4rem;border-bottom:1px solid #d8d8d8;padding-bottom:.25rem;font-size:1.35rem}
+h3{margin-top:1.5rem;font-size:1.05rem}
+a{color:#1a5fb4;text-decoration:none}a:hover{text-decoration:underline}
+.sub{color:#555;font-size:1.05rem;font-style:italic}
+.top{background:#f3f5f7;border:1px solid #dde3ea;padding:1rem 1.2rem;border-radius:8px}
+.warn{background:#fff8e6;border-left:4px solid #d9a400;padding:.8rem 1rem;margin:1.2rem 0}
+code{background:#f1f3f5;padding:.08rem .22rem;border-radius:3px;font-size:.92em}
+pre{background:#f6f8fa;border:1px solid #e1e4e8;border-radius:6px;padding:.8rem 1rem;overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem}
+th,td{border:1px solid #d8d8d8;padding:.4rem .5rem;text-align:left;vertical-align:top}
+th{background:#f3f5f7}
+.meta{color:#555;font-size:.94rem}
+</style>
+</head>
+<body>
+
+<h1>The zero-side bridge</h1>
+<p class="sub">From the finite Weil–Gram certificates to the sum over the non-trivial zeros</p>
+
+<div class="top">
+<p><strong>Status.</strong> The contour half is Lean-checked (<code>GaussianZeroSide.lean</code>, in the <code>absolute-polarized</code> topic); the equality with the arithmetic side <code>W</code> is numerical to <code>10<sup>−17</sup></code> (C1) and <strong>open as a theorem</strong>. Three analytic obligations remain. This folder is the programme home: it owns the numerical harness, the acceptance criteria, and the route from the finite certificates to <code>Σ<sub>ρ</sub> ĝ<sub>c</sub>(γ<sub>ρ</sub>)</code>. Full dossier in <a href="README.md">README.md</a>.</p>
+</div>
+
+<h2>Abstract</h2>
+<p>The finite Gaussian Weil–Gram ladder certifies that the arithmetic side of the Weil explicit formula is positive definite on bases of up to seven points. The <em>other</em> side of that formula expresses the same numbers as a sum over the non-trivial zeros: for the Gaussian bump <code>h<sub>c</sub>(v) = √π σ exp(−(v−c)²/(4σ²))</code> whose transform is <code>ĝ<sub>c</sub>(t) = 2πσ² exp(−σ²t²) exp(−ict)</code>,</p>
+<p><code>Σ<sub>ρ</sub> ĝ<sub>c</sub>((ρ − 1/2)/i) &nbsp;=&nbsp; (W(c) + W(−c))/2 &nbsp;=&nbsp; gaussianGramEntry 0 c σ,</code></p>
+<p>the last equality following from the symmetry of the zero set. This programme is the step from that identity to a theorem. The contour half is already Lean-checked — the zero-side test function, its values at the pole and at <code>1/2 + it</code>, and the rectangle contour identity for a finite zero set — and the numerical agreement of the two sides is at <code>10<sup>−18</sup></code> for the five separations of the <code>5 × 5</code> basis (C1). What is missing is the analytic evaluation: shifting the contour from <code>Re s &gt; 1</code> into the critical strip, term-by-term integration of the von Mangoldt series against <code>H<sub>c</sub></code>, a polynomial growth bound for <code>Z'/Z</code> in the strip to kill the rectangle tails, and a formal limit of the finite zero sums. Nothing here is a proof of the Riemann hypothesis: the identity is an identity <em>of the same numbers</em>, and it holds whether or not the zeros are on the line.</p>
+
+<h2>What is Lean-checked</h2>
+<table>
+<thead><tr><th>Name</th><th>Statement</th></tr></thead>
+<tbody>
+<tr><td><code>gaussianZeroTest_critical_line</code></td><td><code>H<sub>c</sub>(1/2 + it) = 2πσ² exp(−σ²t²) exp(−ict)</code></td></tr>
+<tr><td><code>gaussianZeroTest_pole_sum</code></td><td><code>H<sub>c</sub>(0) + H<sub>c</sub>(1) = 4πσ² exp(σ²/4) cosh(c/2)</code> — the pole term of <code>W</code></td></tr>
+<tr><td><code>gaussian_zero_side_contour</code></td><td>for a finite zero set in a rectangle, <code>∮ (Z'/Z)·H<sub>c</sub> = 2πi(Σ<sub>ρ</sub> H<sub>c</sub>(ρ) − H<sub>c</sub>(0) − H<sub>c</sub>(1))</code></td></tr>
+<tr><td><code>gaussianZeroTest_eq_mode_mul</code></td><td><code>H<sub>a−b</sub>(1/2+it) = gaussianMode a σ t · conj(gaussianMode b σ t)</code></td></tr>
+<tr><td><code>zeroSideGramReal_posSemidef</code></td><td>the zero-side Gram matrix of a critical-line frequency set is positive semidefinite</td></tr>
+</tbody>
+</table>
+<p>The last two are the spectral explanation of the finite certificates: the zero side is a Gram matrix of real cosine/sine modes, so any finite set of on-line frequencies gives a PSD matrix, and an off-line zero is exactly a term that breaks the rank-one structure. The file lives in the <code>absolute-polarized</code> topic because its <code>ExplicitFormula</code> module and the <code>intersection-form-zeta</code> <code>Archimedean</code> module used by the density layer do not coexist in one <code>LEAN_PATH</code>; <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a> re-exports the five statements under this topic's namespace.</p>
+
+<h2>The numerical match</h2>
+<p><a href="python/programme.py"><code>python/programme.py</code></a> reproduces the identity from the first 40 non-trivial zeros at 30 dps:</p>
+<table>
+<thead><tr><th><code>c</code></th><th>zero side</th><th>arithmetic side</th><th>difference</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0.0431359583948380559</td><td>0.0431359583948380597</td><td>−3.7·10<sup>−18</sup></td></tr>
+<tr><td>1/5</td><td>−0.0164892586236695026</td><td>−0.0164892586236694989</td><td>−3.7·10<sup>−18</sup></td></tr>
+<tr><td>2/5</td><td>0.00802312920115416105</td><td>0.00802312920115416469</td><td>−3.6·10<sup>−18</sup></td></tr>
+<tr><td>3/5</td><td>−0.00222043842501900945</td><td>−0.00222043842501900586</td><td>−3.6·10<sup>−18</sup></td></tr>
+<tr><td>4/5</td><td>0.00683902760572623431</td><td>0.00683902760572623786</td><td>−3.5·10<sup>−18</sup></td></tr>
+</tbody>
+</table>
+<p>The trivial zeros are <strong>not</strong> summed: they are carried by the archimedean term, and any formalisation must keep that bookkeeping explicit.</p>
+
+<h2>The three open obligations</h2>
+<ol>
+<li><strong>The prime/archimedean evaluation.</strong> On <code>Re s &gt; 1</code> the library has <code>Z'/Z·H·i = −(arch·H·i + L<sub>Λ</sub>·H·i)</code>. Missing: the shift into the strip (zeros and the pole at <code>s = 1</code>) and the term-by-term integration of the von Mangoldt series against <code>H<sub>c</sub></code>.</li>
+<li><strong>The zero-sum limit.</strong> <code>zero_sum_tail_bound</code> bounds the rectangle tail by <code>(M/2π)(perimeter' + perimeter)</code>; on the vertical sides <code>|H<sub>c</sub>|</code> decays like <code>exp(−σ²T²)</code>, so a polynomial growth bound for <code>Z'/Z</code> in the strip kills it — standard, not formalised.</li>
+<li><strong>The zero set.</strong> The infinite sum needs multiplicities; the natural formal object is a limit of the rectangle divisor sums, avoiding an explicit enumeration.</li>
+</ol>
+
+<div class="warn">
+<p><strong>Honesty note.</strong> This folder does <em>not</em> prove the bridge, Weil positivity, or RH. The contour half is Lean-checked; the equality with <code>W</code> is numerical to <code>10<sup>−17</sup></code>; the three obligations above are open. The target identity holds regardless of where the zeros are, so closing it does not by itself give positivity — see <a href="../prime-spectrum-tensor/SUB-CONE.md"><code>SUB-CONE.md</code></a> for where that obstruction sits.</p>
+</div>
+
+<p class="meta"><a href="README.md">Full dossier</a> · <a href="../prime-spectrum-tensor/ZERO-SIDE-BRIDGE.md">Source note</a> · <a href="../prime-spectrum-tensor/CALIBRATION.md">Calibration target</a> · <a href="../index.html">Topic index</a></p>
+
+</body>
+</html>

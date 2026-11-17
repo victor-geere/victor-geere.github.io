@@ -126,4 +126,10 @@ theorem gaussianGram4_posDef_of_enclosure {σ ε : ℝ}
     (gaussianGram4 σ).PosDef :=
   gaussianGram4_posDef_of_entry_bound (gaussianGram4_symm σ) hε hε0 hdim
 
+/-- The Gram entry is translation invariant. -/
+theorem gaussianGramEntry_translate (a b t σ : ℝ) :
+    gaussianGramEntry (a + t) (b + t) σ = gaussianGramEntry a b σ := by
+  unfold gaussianGramEntry
+  rw [show a + t - (b + t) = a - b by ring, show b + t - (a + t) = b - a by ring]
+
 end PrimeSpectrumTensor

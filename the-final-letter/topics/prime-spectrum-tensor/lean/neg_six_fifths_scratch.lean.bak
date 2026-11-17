@@ -1,0 +1,112 @@
+import Mathlib
+import PrimeEnclosure7
+namespace PrimeSpectrumTensor
+
+theorem exp_neg_144_le : Real.exp (-144 : ℝ) ≤ 1 / 1000000000 := by
+  have h21 : (1000000000 : ℝ) ≤ Real.exp 1 ^ 21 := by
+    have h1 : (1000000000 : ℝ) ≤ (27182818283 / 10000000000) ^ 21 := by norm_num
+    have h2 : (27182818283 / 10000000000 : ℝ) ≤ Real.exp 1 := by
+      have h := Real.exp_one_gt_d9; linarith
+    have h3 : (0 : ℝ) ≤ 27182818283 / 10000000000 := by norm_num
+    exact le_trans h1 (pow_le_pow_left₀ h3 h2 21)
+  have h144 : (1000000000 : ℝ) ≤ Real.exp (144 : ℝ) := by
+    have heq : Real.exp (144 : ℝ) = Real.exp 1 ^ 21 * Real.exp 123 := by
+      rw [← Real.exp_nat_mul (x := (1 : ℝ)) (n := 21), ← Real.exp_add]; norm_num
+    rw [heq]
+    exact le_trans h21 (le_mul_of_one_le_right (by positivity) (Real.one_le_exp (by norm_num)))
+  rw [Real.exp_neg, ← one_div]
+  exact one_div_le_one_div_of_le (by norm_num : (0 : ℝ) < 1000000000) h144
+
+theorem inv_sq_telescope (n : ℕ) :
+    (((n : ℝ) + 2) ^ 2)⁻¹ ≤ (((n : ℝ) + 1)⁻¹ - ((n : ℝ) + 2)⁻¹) := by
+  have h1 : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  have h2 : (0 : ℝ) < (n : ℝ) + 2 := by positivity
+  have hgoal : (((n : ℝ) + 1)⁻¹ - ((n : ℝ) + 2)⁻¹)
+      = (((n : ℝ) + 1) * ((n : ℝ) + 2))⁻¹ := by
+    field_simp
+    ring
+  rw [hgoal]
+  exact (inv_le_inv₀ (by positivity) (by positivity)).mpr (by nlinarith)
+
+theorem sum_inv_sq_le (N : ℕ) :
+    ∑ n ∈ Finset.range N, (((n : ℝ) + 2) ^ 2)⁻¹ ≤ 1 := by
+  refine le_trans (Finset.sum_le_sum fun n _ => inv_sq_telescope n) ?_
+  have htel : ∑ n ∈ Finset.range N, (((n : ℝ) + 1)⁻¹ - ((n : ℝ) + 2)⁻¹)
+      = (1 : ℝ) - (((N : ℝ) + 1)⁻¹) := by
+    induction N with
+    | zero => simp
+    | succ M ih =>
+      rw [Finset.sum_range_succ, ih]
+      push_cast
+      ring
+  rw [htel]
+  have hpos : (0 : ℝ) ≤ ((N : ℝ) + 1)⁻¹ := by positivity
+  linarith
+
+theorem neg_term_le (n : ℕ) :
+    primeSummand (-(6 / 5)) (n + 1) ≤
+      Real.sqrt Real.pi / 20 * (1 / 1000000000) * (((n : ℝ) + 1) ^ 2)⁻¹ := by
+  unfold primeSummand
+  rw [gaussianBump_inv20]
+  have hcast : Real.sqrt (↑(n + 1) : ℝ) = Real.sqrt ((n : ℝ) + 1) := by
+    push_cast
+    ring_nf
+  rw [hcast]
+  push_cast
+  have harg : (Real.log ((n : ℝ) + 1) - -(6 / 5)) = (Real.log ((n : ℝ) + 1) + 6 / 5) := by
+    ring
+  rw [harg]
+  have hm : (0 : ℝ) < (n : ℝ) + 1 := by positivity
+  have hlogpos : (0 : ℝ) ≤ Real.log ((n : ℝ) + 1) := Real.log_nonneg (by linarith)
+  have hdom : -100 * (Real.log ((n : ℝ) + 1) + 6 / 5) ^ 2 ≤
+      -3 * Real.log ((n : ℝ) + 1) - 144 := by
+    nlinarith [hlogpos, sq_nonneg (Real.log ((n : ℝ) + 1))]
+  have hsplitE : (-3 * Real.log ((n : ℝ) + 1) - 144 : ℝ) =
+      (-3 * Real.log ((n : ℝ) + 1)) + (-144) := by ring
+  have h3 : Real.exp (-3 * Real.log ((n : ℝ) + 1)) = (((n : ℝ) + 1) ^ 3)⁻¹ := by
+    rw [show -3 * Real.log ((n : ℝ) + 1) = -(3 * Real.log ((n : ℝ) + 1)) by ring,
+      Real.exp_neg, show (3 : ℝ) = ((3 : ℕ) : ℝ) by norm_num, Real.exp_nat_mul,
+      Real.exp_log hm]
+  have hdec : Real.exp (-100 * (Real.log ((n : ℝ) + 1) + 6 / 5) ^ 2) ≤
+      (((n : ℝ) + 1) ^ 3)⁻¹ * (1 / 1000000000) := by
+    refine le_trans (Real.exp_le_exp.mpr hdom) ?_
+    rw [hsplitE, Real.exp_add, h3]
+    exact mul_le_mul_of_nonneg_left exp_neg_144_le (by positivity)
+  have hvm : ArithmeticFunction.vonMangoldt (n + 1) / Real.sqrt ((n : ℝ) + 1) ≤ (n : ℝ) + 1 := by
+    have hle : ArithmeticFunction.vonMangoldt (n + 1) ≤ (n : ℝ) + 1 := by
+      have hlt := ArithmeticFunction.vonMangoldt_le_log (n := n + 1)
+      have hlogeq : Real.log ((n : ℝ) + 1) = Real.log (↑(n + 1) : ℝ) := by push_cast; ring_nf
+      rw [← hlogeq] at hlt
+      have hl := Real.log_le_sub_one_of_pos hm
+      linarith
+    have hge1 : (1 : ℝ) ≤ Real.sqrt ((n : ℝ) + 1) := by
+      have h : Real.sqrt 1 ≤ Real.sqrt ((n : ℝ) + 1) :=
+        Real.sqrt_le_sqrt (by linarith [Nat.cast_nonneg (α := ℝ) n])
+      simpa using h
+    have hinv1 : (Real.sqrt ((n : ℝ) + 1))⁻¹ ≤ 1 := by
+      rw [← one_div, div_le_one (by positivity)]
+      exact hge1
+    calc ArithmeticFunction.vonMangoldt (n + 1) / Real.sqrt ((n : ℝ) + 1)
+        = ArithmeticFunction.vonMangoldt (n + 1) * (Real.sqrt ((n : ℝ) + 1))⁻¹ := by ring
+      _ ≤ ((n : ℝ) + 1) * (Real.sqrt ((n : ℝ) + 1))⁻¹ :=
+          mul_le_mul_of_nonneg_right hle (by positivity)
+      _ ≤ ((n : ℝ) + 1) * 1 := mul_le_mul_of_nonneg_left hinv1 (by linarith)
+      _ = (n : ℝ) + 1 := by ring
+  have hpi : (0 : ℝ) ≤ Real.sqrt Real.pi / 20 := div_nonneg (Real.sqrt_nonneg _) (by norm_num)
+  have hbump : Real.sqrt Real.pi / 20 * Real.exp (-100 * (Real.log ((n : ℝ) + 1) + 6 / 5) ^ 2) ≤
+      Real.sqrt Real.pi / 20 * ((((n : ℝ) + 1) ^ 3)⁻¹ * (1 / 1000000000)) :=
+    mul_le_mul_of_nonneg_left hdec hpi
+  have hnn : (0 : ℝ) ≤ ArithmeticFunction.vonMangoldt (n + 1) / Real.sqrt ((n : ℝ) + 1) := by
+    positivity
+  have hmain : ArithmeticFunction.vonMangoldt (n + 1) / Real.sqrt ((n : ℝ) + 1) *
+        (Real.sqrt Real.pi / 20 * Real.exp (-100 * (Real.log ((n : ℝ) + 1) + 6 / 5) ^ 2))
+      ≤ ((n : ℝ) + 1) * (Real.sqrt Real.pi / 20 * ((((n : ℝ) + 1) ^ 3)⁻¹ * (1 / 1000000000))) :=
+    mul_le_mul hvm hbump (mul_nonneg hpi (by positivity)) (by linarith)
+  calc ArithmeticFunction.vonMangoldt (n + 1) / Real.sqrt ((n : ℝ) + 1) *
+        (Real.sqrt Real.pi / 20 * Real.exp (-100 * (Real.log ((n : ℝ) + 1) + 6 / 5) ^ 2))
+      ≤ ((n : ℝ) + 1) * (Real.sqrt Real.pi / 20 * ((((n : ℝ) + 1) ^ 3)⁻¹ * (1 / 1000000000))) :=
+        hmain
+    _ = Real.sqrt Real.pi / 20 * (1 / 1000000000) * (((n : ℝ) + 1) ^ 2)⁻¹ := by
+        field_simp
+
+end PrimeSpectrumTensor

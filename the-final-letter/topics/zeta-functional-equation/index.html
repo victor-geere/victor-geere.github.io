@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The zeta functional equation and the continuation of ζ′/ζ</title>
+<style>
+body{font-family:Georgia,serif;max-width:52rem;margin:2rem auto;line-height:1.55;color:#222;padding:0 1rem}
+h1,h2{color:#123;font-weight:600}
+table{border-collapse:collapse;width:100%;margin:1rem 0}
+th,td{border:1px solid #ccd;padding:.35rem .5rem;text-align:left;vertical-align:top}
+code{background:#f3f5f8;padding:.1rem .25rem;border-radius:3px}
+.status{background:#fff6e5;border-left:4px solid #d90;padding:.6rem .9rem}
+</style>
+</head>
+<body>
+<h1>The zeta functional equation and the continuation of ζ′/ζ</h1>
+<p class="status"><strong>Status:</strong> the functional equation, the analytic
+continuation of ζ away from 1, the zero correspondence between ζ and Λ, and the
+analyticity of ζ′/ζ away from the zeros are proved. Nothing here proves the
+Riemann hypothesis.</p>
+
+<p>This is <strong>direction 1</strong> of the two repairs identified in
+<code>archimedean-prime-evaluation</code> as O3: the explicit formula's prime
+side needs ζ′/ζ on the critical line, which needs the functional equation and
+the continuation. See also <code>zero-sum-convergence</code> (direction 2, O4).</p>
+
+<h2>Provenance</h2>
+<p>Everything is proved from Mathlib's Riemann-zeta development:
+<code>completedRiemannZeta_one_sub</code>, <code>riemannZeta_one_sub</code>,
+<code>differentiableAt_riemannZeta</code>,
+<code>riemannZeta_def_of_ne_zero</code>,
+<code>riemannZeta_neg_two_mul_nat_add_one</code>. The work here is the
+organisation into the statements the explicit formula needs, plus the
+logarithmic-derivative results, which Mathlib does not state.</p>
+
+<h2>Theorem ledger</h2>
+<table>
+<tr><th>Kind</th><th>Item</th><th>Statement</th><th>Lean</th></tr>
+<tr><td>Theorem</td><td>T1</td><td><strong>Λ(1 − s) = Λ(s)</strong>.</td><td><code>completedZeta_one_sub</code></td></tr>
+<tr><td>Theorem</td><td>T2</td><td>Λ₀(1 − s) = Λ₀(s).</td><td><code>completedZeta₀_one_sub</code></td></tr>
+<tr><td>Theorem</td><td>T3</td><td>Functional equation for ζ.</td><td><code>zeta_one_sub</code></td></tr>
+<tr><td>Theorem</td><td>T4–T5</td><td><strong>Zero symmetry</strong> of Λ and Λ₀.</td><td><code>completedZeta_zero_iff_one_sub</code></td></tr>
+<tr><td>Theorem</td><td>T6–T7</td><td>Λ₀ entire; Λ differentiable off 0, 1.</td><td><code>completedZeta_differentiableAt</code></td></tr>
+<tr><td>Theorem</td><td>T8–T9</td><td><strong>Continuation:</strong> ζ differentiable and analytic off 1.</td><td><code>analyticAt_zeta</code></td></tr>
+<tr><td>Theorem</td><td>T10</td><td>No zeros for Re s &gt; 1.</td><td><code>zeta_ne_zero_of_one_lt_re</code></td></tr>
+<tr><td>Theorem</td><td>T11–T12</td><td>ζ = Λ/Gammaℝ; Gammaℝ never vanishes off s = −2n.</td><td><code>Gammaℝ_ne_zero</code></td></tr>
+<tr><td>Theorem</td><td>T13</td><td><strong>Zero correspondence</strong> ζ ↔ Λ.</td><td><code>zeta_zero_iff_completed_zero</code></td></tr>
+<tr><td>Theorem</td><td>T14–T15</td><td><strong>ζ′/ζ analytic/differentiable</strong> off 1 and off the zeros.</td><td><code>analyticAt_logDeriv_zeta</code></td></tr>
+<tr><td>Theorem</td><td>T16–T21</td><td>Special values, trivial zeros, residue, Λ(1).</td><td><code>zeta_two</code></td></tr>
+<tr><td>Theorem</td><td>T22–T25</td><td><strong>Zero symmetries:</strong> conjugation, <code>s ↦ 1 − s</code>, and the fourfold symmetry.</td><td><code>zeta_zero_quadruple</code></td></tr>
+<tr><td>Theorem</td><td>T26</td><td><strong>Left half-plane zeros are exactly the negative even integers.</strong></td><td><code>zeta_zero_of_re_neg</code></td></tr>
+<tr><td>Theorem</td><td>T27</td><td><strong>Residue 1 at a simple zero:</strong> <code>(s−ρ)·ζ′/ζ → 1</code>.</td><td><code>tendsto_logDeriv_zero</code></td></tr>
+<tr><td>Theorem</td><td>T28–T29</td><td><strong>Residue decomposition</strong> <code>ζ′/ζ = Σ 1/(s−ρ) + g′/g</code>.</td><td><code>logDeriv_zeta_eq_sum_add</code></td></tr>
+<tr><td>Theorem</td><td>T30</td><td><strong>Σ Λ(n)/√n = ∞</strong>: the critical-line prime sum is not absolutely convergent.</td><td><code>not_summable_vonMangoldt_div_sqrt</code></td></tr>
+<tr><td>Theorem</td><td>T31–T32</td><td>Rectangle Cauchy identities (<code>boundaryIntegral</code> form; off-countable form).</td><td><code>boundaryIntegral_eq_zero_of_off_countable</code></td></tr>
+<tr><td>Theorem</td><td>T33</td><td><strong>Contour-shift reduction:</strong> vertical difference = residues − horizontal terms.</td><td><code>verticalDifference_eq_of_boundary</code></td></tr>
+<tr><td>Definition</td><td>D1–D2</td><td><strong>O3a written in Lean:</strong> <code>RectangleResidueTheorem</code> and <code>ContourShiftStatement</code>.</td><td><code>ContourShiftStatement</code></td></tr>
+<tr><td>Theorem</td><td>T34</td><td><strong>Circle residue theorem</strong> at a single simple pole.</td><td><code>circleIntegral_residue</code></td></tr>
+<tr><td>Definition</td><td>D3</td><td><strong>O3's circle residue theorem</strong> as a Prop; T35 proves it holds.</td><td><code>CircleResidueTheorem</code></td></tr>
+<tr><td>Theorem</td><td>T36</td><td>Circle residue theorem at a simple zero of ζ.</td><td><code>circleResidueTheorem_zeta</code></td></tr>
+<tr><td>Theorem</td><td>T37–T38</td><td><strong>Circle residue theorem, finite sum:</strong> ∮ H·f′/f = 2πi Σ H(ρ); kernel ∮(z−ρ)⁻¹ = 2πi.</td><td><code>circleIntegral_residue_sum</code></td></tr>
+<tr><td>Theorem</td><td>T39</td><td><strong>Prime side on Re s &gt; 1:</strong> ζ′/ζ = −Σ′ Λ(n)/n^s.</td><td><code>logDeriv_zeta_eq_neg_tsum</code></td></tr>
+<tr><td>Theorem</td><td>D4</td><td><strong>Prime-side circle formula</strong> in Re s &gt; 1 — proved by T46.</td><td><code>primeSideCircleFormula_holds</code></td></tr>
+<tr><td>Theorem</td><td>T40</td><td><strong>O3d, M-test bound:</strong> Σ Λ(n)/n^σ summable for σ &gt; 1.</td><td><code>summable_vonMangoldt_div_rpow</code></td></tr>
+<tr><td>Theorem</td><td>T41–T42</td><td><strong>Termwise integration</strong> over an interval and on a circle.</td><td><code>circleIntegral_tsum</code></td></tr>
+<tr><td>Theorem</td><td>T43</td><td><strong>O3f majorant:</strong> on the circle, ‖H·Λ(n)/n^z‖ ≤ K·Λ(n)/n^(Re c − R).</td><td><code>norm_term_le_circle</code></td></tr>
+<tr><td>Theorem</td><td>T44–T46</td><td><strong>D4 proved:</strong> prime-side formula on a circle in Re s &gt; 1 (interval-local and sphere-local termwise integration, then assembly).</td><td><code>primeSideCircleFormula_holds</code></td></tr>
+<tr><td>Theorem</td><td>T47–T48</td><td><strong>Kernel integrals vanish outside</strong> the rectangle / disc (the "no pole ⇒ residue 0" half).</td><td><code>boundaryIntegral_inv_sub_of_not_mem</code></td></tr>
+<tr><td>Theorem</td><td>T58–T68</td><td><strong>Corner arguments</strong> for the unit square: arg(1±i), arg(−1±i) = ∓π/4, ±3π/4.</td><td><code>arg_one_sub_I</code></td></tr>
+<tr><td>Theorem</td><td>T69–T70</td><td><strong>Bottom side integral</strong> of the unit square: ∫(x−i)⁻¹ = iπ/2, with the chain-rule lemma for log on the slit plane.</td><td><code>integral_bottom</code></td></tr>
+<tr><td>Theorem</td><td>T71–T82</td><td><strong>Interior kernel integral for the unit square:</strong> ∮ s⁻¹ = 2πi, via logShift and the four side integrals.</td><td><code>boundaryIntegral_inv_unit_square</code></td></tr>
+<tr><td>Open</td><td>O3b</td><td>Extension from the unit square to a general rectangle.</td><td>—</td></tr>
+<tr><td>Theorem</td><td>T49–T50</td><td><strong>Residue H(ρ) at a simple zero</strong>, and the subtracted function has at most a simple singularity.</td><td><code>tendsto_residue_mul</code></td></tr>
+<tr><td>Theorem</td><td>T51–T55</td><td><strong>C² regularity of ζ:</strong> ζ′ analytic/continuous, ζ″ exists and is continuous, away from 1.</td><td><code>continuousAt_deriv2_zeta</code></td></tr>
+<tr><td>Theorem</td><td>T56–T57</td><td><strong>Differentiability of H·ζ′/ζ off zeros</strong>, and the subtracted function is <code>o(1/(s−ρ))</code>.</td><td><code>tendsto_subtracted_mul_sq</code></td></tr>
+<tr><td>Theorem</td><td>T85–T86</td><td><strong>Taylor series of ζ</strong> and the <strong>Peano second-order decomposition</strong> at a zero.</td><td><code>zeta_peano_second_order</code></td></tr>
+<tr><td>Theorem</td><td>T87–T94</td><td><strong>Finite O3c limit</strong> and its <strong>H-multiplied form</strong>.</td><td><code>tendsto_logDeriv_sub</code>, <code>tendsto_subtracted_H</code></td></tr>
+<tr><td>Open</td><td>O3c</td><td>Second-order extraction and the finite limit (Taylor convergence now available).</td><td>—</td></tr>
+<tr><td>Computation</td><td>C1</td><td>Λ(1 − s) = Λ(s) numerically (25 digits).</td><td><code>test_functional_equation_residual_small</code></td></tr>
+<tr><td>Computation</td><td>C2</td><td>Λ(2) = π/6.</td><td><code>test_completed_zeta_value_at_two</code></td></tr>
+<tr><td>Computation</td><td>C3</td><td>First nontrivial zero on Re s = 1/2.</td><td><code>test_critical_line_zeros_are_zeros</code></td></tr>
+<tr><td>Computation</td><td>C4</td><td>ζ′/ζ finite at 1/2 + 3i.</td><td><code>test_log_deriv_finite_on_critical_line</code></td></tr>
+<tr><td>Computation</td><td>C5</td><td>ζ(−2n) = 0 for n = 1, 2, 3.</td><td><code>test_trivial_zeros_vanish</code></td></tr>
+</table>
+
+<h2>What this does and does not give</h2>
+<p><strong>The circle case of the residue theorem is proved</strong> (T34–T36, D3).
+The rectangle statement is formalised (D1/D2, T33) but its proof needs O3b
+(rectangle-minus-discs Cauchy) and O3c (removable singularity).</p>
+<p>The analytic prerequisites for O3 are proved: continuation, ζ′/ζ on the
+critical line, left half-plane zeros, the residue at simple zeros, the residue
+decomposition, and the non-summability of Σ Λ(n)/√n. O3a is now
+<em>written in Lean</em> as <code>RectangleResidueTheorem</code> /
+<code>ContourShiftStatement</code>, and T33 reduces it to the vertical-integral
+difference. Only the proof of the residue theorem is missing, because Mathlib
+has no argument principle for meromorphic functions. No Riemann-hypothesis
+claim, no assertion of simplicity of all zeros.</p>
+</body>
+</html>

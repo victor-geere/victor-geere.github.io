@@ -177,6 +177,41 @@ therefore the last cheap one, and `n = 6` is the last feasible one without a
 new quadrature rule.  Full table, caveats and reproduction:
 [`MARGIN-SCALING.md`](MARGIN-SCALING.md).
 
+### 3.0.1 Formal status of the 6×6 rung (closed 2026-11-15)
+
+The 6×6 rung is **closed**:
+
+```lean
+theorem gaussianGram6_posDef : (gaussianGram6 (1/20)).PosDef
+```
+
+with no hypotheses, in [`lean/Closure6.lean`](lean/Closure6.lean), on the six
+centres `0, 1/5, …, 1`.  The axiom audit is clean
+([`lean/Audit.lean`](lean/Audit.lean)).  The route is recorded in
+[`HANDOFF-M0P-NEXT.md`](HANDOFF-M0P-NEXT.md); in brief:
+
+* `Assembly6.lean` proves
+  `gaussianGram6_posDef_of_density_bands`: given the six density-term
+  intervals, `gaussianGram6 (1/20)` is positive definite.  The entry budget is
+  `ε = 2·10⁻³`, with `6ε = 0.012 < 1/70`; the pole and prime inputs are the
+  proved enclosures.
+* `SeparationWall.lean` proves `six_centres_separation_wall`: six distinct real
+  centres cannot have all pairwise distances among the five previously
+  certified separations `{0, 1/5, 2/5, 3/5, 4/5}`.  Hence a 6×6 certificate
+  necessarily needs a **new** separation — for the six centres `0, 1/5, …, 1`
+  the only new one is `c = 1`.
+* The earlier obstruction was *not* the algebra but the size of the generated
+  certificates: a 150-panel chunk carried a ~300 MB `.olean`, so the five
+  chains at the required width were an order of magnitude beyond the disk
+  budget.  Three changes — a shared `Ω` bracket module, a rounded cumulative
+  chain, and an error-equalising partition — brought a 1878-panel chain to
+  ~2 min/chunk, and the certified `densityTerm` half-width from `2.906·10⁻³`
+  to `1.527·10⁻³` (`1.710·10⁻³` at `c = 4/5, 1`).
+
+The finer-partition-at-any-cost plan that this section previously described was
+abandoned because it treated the disk cost as fixed.  Details, measurements and
+the rejected shortcuts are in [`HANDOFF-M0P-NEXT.md`](HANDOFF-M0P-NEXT.md) §2.
+
 ### 3.1 The `Ω` interval layer (first step)
 
 The density term needs `Ω(t) = Re ψ(1/4+it/2) − log π`.  C9 now provides a

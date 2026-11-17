@@ -1,4 +1,4 @@
-import DensityC4_8
+import DensityG4_4
 import DensityCertificates
 import DensityEnclosure
 import GaussianGram5
@@ -12,7 +12,7 @@ This file closes the 5×5 rung of the finite Gaussian Weil–Gram programme
 scoped in [`../HANDOFF-M0P-5X5.md`](../HANDOFF-M0P-5X5.md).  It combines
 
 * the generated density certificate for the one new separation `c = 4/5`
-  (`DensityC4_8.lean`, namespace `PrimeSpectrumTensor.D4`);
+  (`DensityG4_4.lean`, namespace `PrimeSpectrumTensor.G4`);
 * the four density certificates already used for the closed 4×4 rung
   (`DensityCertificates.lean`);
 * the pole enclosures `poleTerm_mem_c0 … poleTerm_mem_c4`
@@ -38,7 +38,7 @@ set_option maxHeartbeats 8000000
 /-- The density term at `c = 4/5`, in the assembly band. -/
 theorem densityTerm_mem_c4 :
     densityTerm (4 / 5) (1 / 20) ∈ Set.Icc (-16443 / 1000000 : ℝ) (-10097 / 1000000) := by
-  have h := PrimeSpectrumTensor.D4.density_mem_c4
+  have h := PrimeSpectrumTensor.G4.density_mem_c4
   rw [Set.mem_Icc] at h
   rw [densityTerm_eq_two_mul_density, Set.mem_Icc]
   constructor

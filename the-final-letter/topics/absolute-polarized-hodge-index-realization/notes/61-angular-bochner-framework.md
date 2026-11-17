@@ -67,3 +67,19 @@ This is consistent with the dossier's own finding:
   of the boundary.
 
 **No RH proof yet.**
+
+## 4. Cross-link: the theta-side base object (I6)
+
+The note's "polar data and angular partitions" are built on shifted values of
+`ζ`.  A functional-equation-free base object for those shifts is now available
+in [`zeta-from-theta`](../../zeta-from-theta/README.md): `ZetaFromTheta.zetaTheta`
+is defined from the split theta integral (`LambdaTheta`) and satisfies
+`zetaTheta_one_sub` (D4), with the constant-level provenance audit
+([`AUDIT.md`](../../zeta-from-theta/lean/AUDIT.md)) showing no `*_one_sub` lemma of
+Mathlib's zeta/Hurwitz development in its cone.  For index-theoretic arguments
+that need `Λ(1−s) = Λ(s)` without the Hurwitz loop, `zetaTheta` is the cleaner
+base object to quote.  This is a cross-reference, not a new premise: no Lean
+theorem in this dossier is changed, and the open infinite-level positivity
+statement is untouched.
+
+**No RH proof yet.**

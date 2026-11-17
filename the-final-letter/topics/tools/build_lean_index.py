@@ -26,7 +26,7 @@ EXAMPLE_RE = re.compile(
 # Machine-generated density certificates: thousands of auxiliary lemmas per
 # file.  They are listed under "Generated certificates" instead of being
 # expanded into the declaration index.
-GENERATED_RE = re.compile(r"^[^/]+/lean/DensityC\d+_\d+\.lean$")
+GENERATED_RE = re.compile(r"^[^/]+/lean/Density[A-Z]+\d*_\d+\.lean$")
 
 
 def strip_comments(text: str) -> str:
@@ -538,8 +538,9 @@ add(
 if generated:
     add("")
     add(
-        f"The {len(generated)} generated `DensityC*_*.lean` certificate chunks "
-        "are excluded from the declaration index; see "
+        f"The {len(generated)} generated certificate chunks "
+        "(`DensityG0_0 … DensityG5_4`, the density chains, and `DensitySO9_*`, "
+        "their shared `Ω` module) are excluded from the declaration index; see "
         "[Generated certificates](#generated-certificates)."
     )
 add("")
@@ -675,7 +676,12 @@ if generated:
         "`gaussianGram4_posDef`, and "
         "[`prime-spectrum-tensor/lean/DensityCertificates5.lean`]"
         "(prime-spectrum-tensor/lean/DensityCertificates5.lean), which proves "
-        "`gaussianGram5_posDef`."
+        "`gaussianGram5_posDef`, and "
+        "[`prime-spectrum-tensor/lean/Closure6.lean`]"
+        "(prime-spectrum-tensor/lean/Closure6.lean), which proves "
+        "`gaussianGram6_posDef` from the six bands in "
+        "[`prime-spectrum-tensor/lean/DensityBands6.lean`]"
+        "(prime-spectrum-tensor/lean/DensityBands6.lean)."
     )
     add("")
     add("| File |")

@@ -2,7 +2,7 @@
 
 [Back to the split index](index.md) · Topic: [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
 
-### [`prime-spectrum-tensor/lean/WeightBound.lean`](../prime-spectrum-tensor/lean/WeightBound.lean) — 6 proofs
+### [`prime-spectrum-tensor/lean/WeightBound.lean`](../prime-spectrum-tensor/lean/WeightBound.lean) — 7 proofs
 
 | Line | Kind | Proof | Statement (LaTeX) |
 |---:|---|---|---|
@@ -12,3 +12,4 @@
 | [79](../prime-spectrum-tensor/lean/WeightBound.lean#L79) | theorem | `hasDerivAt_weight2` | $\forall\,c\,x : \mathbb{R},\ \mathrm{HasDerivAt}(\mathrm{weight1}\ c)(\mathrm{weight2}\ c\ x)\ x$ |
 | [112](../prime-spectrum-tensor/lean/WeightBound.lean#L112) | theorem | `abs_deriv2_weight_le` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 3/5,\ \forall\,x : \mathbb{R},\ \forall\,hx_{0} : 0\le\ x,\ \forall\,hx_{60} : x\le\ 60,\ \vert{}\mathrm{deriv}(\mathrm{deriv}(\mathrm{weight}\ c))\ x\vert\le\ 1/400$ |
 | [179](../prime-spectrum-tensor/lean/WeightBound.lean#L179) | theorem | `abs_deriv2_weight_le_four_fifths` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 4/5,\ \forall\,x : \mathbb{R},\ \forall\,hx_{0} : 0\le\ x,\ \forall\,hx_{60} : x\le\ 60,\ \vert{}\mathrm{deriv}(\mathrm{deriv}(\mathrm{weight}\ c))\ x\vert\le\ 1/200$ |
+| [238](../prime-spectrum-tensor/lean/WeightBound.lean#L238) | theorem | `abs_deriv2_weight_le_one` | $\forall\,c : \mathbb{R},\ \forall\,hc : \vert{}c\vert\le\ 1,\ \forall\,x : \mathbb{R},\ \forall\,hx_{0} : 0\le\ x,\ \forall\,hx_{60} : x\le\ 60,\ \vert{}\mathrm{deriv}(\mathrm{deriv}(\mathrm{weight}\ c))\ x\vert\le\ 1/200$ |

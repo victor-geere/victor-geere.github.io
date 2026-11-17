@@ -110,4 +110,71 @@ theorem density_tail_le {c : ℝ} :
         have h := exp_neg_nine_le
         linarith
 
+/-- **The density tail at any `T ≥ 60`.**  The Gaussian moment integrates
+exactly, so the tail is `e^{−T²/400}/2` once `|Ω|` is bounded by `log(t+2)+24`. -/
+theorem density_tail_le_of {c : ℝ} {T : ℝ} (hT : 60 ≤ T) :
+    |∫ x in Set.Ioi T, IntersectionForm.densityWeight (1 / 20) c x *
+      IntersectionForm.Omega x| ≤ Real.exp (-(T ^ 2 / 400)) / 2 := by
+  have habs : |∫ x in Set.Ioi T, IntersectionForm.densityWeight (1 / 20) c x *
+      IntersectionForm.Omega x| ≤
+      ∫ x in Set.Ioi T, |IntersectionForm.densityWeight (1 / 20) c x *
+        IntersectionForm.Omega x| :=
+    MeasureTheory.abs_integral_le_integral_abs
+  have hgm := integrableOn_gaussian_moment (T := T)
+  have hf : MeasureTheory.IntegrableOn
+      (fun x : ℝ => |IntersectionForm.densityWeight (1 / 20) c x * IntersectionForm.Omega x|)
+      (Set.Ioi T) := by
+    refine MeasureTheory.Integrable.mono' hgm ?_ ?_
+    · exact (continuous_abs.comp ((continuous_densityWeight c).mul continuous_Omega)).aestronglyMeasurable
+    · filter_upwards [MeasureTheory.ae_restrict_mem measurableSet_Ioi] with x hx
+      rw [Real.norm_eq_abs, abs_abs]
+      exact abs_densityWeight_mul_Omega_le (le_trans hT (le_of_lt (Set.mem_Ioi.mp hx)))
+  have hmono : (∫ x in Set.Ioi T, |IntersectionForm.densityWeight (1 / 20) c x *
+      IntersectionForm.Omega x|) ≤
+      ∫ x in Set.Ioi T, (1 / 400 : ℝ) * x * Real.exp (-(x ^ 2 / 400)) :=
+    MeasureTheory.setIntegral_mono_on hf hgm measurableSet_Ioi
+      (fun x hx => abs_densityWeight_mul_Omega_le (le_trans hT (le_of_lt (Set.mem_Ioi.mp hx))))
+  calc |∫ x in Set.Ioi T, IntersectionForm.densityWeight (1 / 20) c x *
+        IntersectionForm.Omega x|
+      ≤ ∫ x in Set.Ioi T, |IntersectionForm.densityWeight (1 / 20) c x *
+          IntersectionForm.Omega x| := habs
+    _ ≤ ∫ x in Set.Ioi T, (1 / 400 : ℝ) * x * Real.exp (-(x ^ 2 / 400)) := hmono
+    _ = Real.exp (-(T ^ 2 / 400)) / 2 := by
+        rw [integral_Ioi_gaussian_moment (T := T)]
+
+/-- `exp 16 ≥ 5000000`, from `exp 4 ≥ 54`. -/
+theorem exp_sixteen_large : (5000000 : ℝ) ≤ Real.exp 16 := by
+  have hsum : (54 : ℝ) ≤ ∑ k ∈ Finset.range 10, (4 : ℝ) ^ k / (k.factorial : ℝ) := by
+    norm_num [Finset.sum_range_succ, Nat.factorial]
+  have h4 : (54 : ℝ) ≤ Real.exp 4 := le_trans hsum (Real.sum_le_exp_of_nonneg (by norm_num) 10)
+  have h16 : Real.exp 16 = Real.exp 4 ^ 4 := by
+    rw [show (16 : ℝ) = ((4 : ℕ) : ℝ) * 4 by norm_num, Real.exp_nat_mul]
+  rw [h16]
+  calc (5000000 : ℝ) ≤ (54 : ℝ) ^ 4 := by norm_num
+    _ ≤ Real.exp 4 ^ 4 := by
+        exact pow_le_pow_left₀ (by norm_num) h4 4
+
+/-- **The tail at `T = 80`.**  Moving the split point from `60` to `80` takes the
+tail from `e^{−9}/2 ≈ 6.2·10⁻⁵` to `e^{−16}/2 ≈ 5.6·10⁻⁸`. -/
+theorem density_tail_le_eighty {c : ℝ} :
+    |∫ x in Set.Ioi (80 : ℝ), IntersectionForm.densityWeight (1 / 20) c x *
+      IntersectionForm.Omega x| ≤ 1 / 10000000 := by
+  have h := density_tail_le_of (c := c) (T := 80) (by norm_num)
+  have hval : Real.exp (-((80 : ℝ) ^ 2 / 400)) / 2 = Real.exp (-16) / 2 := by norm_num
+  rw [hval] at h
+  have hpos : (0 : ℝ) < Real.exp 16 := Real.exp_pos _
+  have hinv : Real.exp (-16) = 1 / Real.exp 16 := by
+    rw [Real.exp_neg]
+    ring
+  rw [hinv] at h
+  have h7 : 1 / Real.exp 16 ≤ 1 / 5000000 := by
+    apply one_div_le_one_div_of_le (by norm_num) exp_sixteen_large
+  have : 1 / Real.exp 16 / 2 ≤ 1 / 10000000 := by
+    have h2 : (1 : ℝ) / Real.exp 16 / 2 = (1 / Real.exp 16) * (1 / 2) := by ring
+    rw [h2]
+    calc (1 / Real.exp 16) * (1 / 2) ≤ (1 / 5000000) * (1 / 2) := by
+          exact mul_le_mul_of_nonneg_right h7 (by norm_num)
+      _ = 1 / 10000000 := by norm_num
+  exact le_trans h this
+
 end PrimeSpectrumTensor

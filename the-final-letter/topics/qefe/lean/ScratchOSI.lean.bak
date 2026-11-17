@@ -1,0 +1,52 @@
+import Topic
+noncomputable section
+open QEFE
+namespace QEFEOSI
+
+def osi (k : ℕ) : ℤ :=
+  if k % 2 = 0 then (2*(k/2)+1 : ℤ) else -((2*(k/2)+1 : ℤ))
+
+lemma osi_even (m : ℕ) : osi (2*m) = (2*m+1 : ℤ) := by
+  unfold osi
+  have h : (2*m) % 2 = 0 := by omega
+  simp [h]
+
+lemma osi_odd (m : ℕ) : osi (2*m+1) = -((2*m+1 : ℕ) : ℤ) := by
+  unfold osi
+  have h : (2*m+1) % 2 ≠ 0 := by omega
+  simp [h]
+  omega
+
+end QEFEOSI
+
+namespace QEFEOSI
+lemma div_two_odd (m : ℕ) : (2*m+1)/2 = m := by
+  rw [show 2*m+1 = 1 + 2*m by ring]
+  rw [Nat.add_mul_div_left 1 m (by norm_num)]
+  norm_num
+
+lemma abs_osi (k : ℕ) : |(osi k : ℝ)| = (2*(k/2)+1 : ℝ) := by
+  rcases Nat.even_or_odd k with ⟨m, rfl⟩ | ⟨m, rfl⟩
+  · rw [show m+m=2*m by ring, osi_even]
+    push_cast
+    rw [abs_of_pos (by positivity)]
+    ring
+  · rw [osi_odd]
+    rw [div_two_odd]
+    push_cast
+    rw [abs_neg, abs_of_pos (by positivity)]
+    ring
+
+lemma sign_osi (k : ℕ) : SignType.sign (osi k : ℝ) = ((-1:ℝ)^k) := by
+  rcases Nat.even_or_odd k with ⟨m, rfl⟩ | ⟨m, rfl⟩
+  · rw [show m+m=2*m by ring, osi_even]
+    push_cast
+    rw [sign_pos (by positivity)]
+    rw [pow_mul, neg_one_sq, one_pow]
+  · rw [osi_odd]
+    rw [div_two_odd]
+    push_cast
+    rw [sign_neg (by positivity)]
+    rw [show 2*m+1 = 2*m+1 by ring, pow_succ, pow_mul, neg_one_sq, one_pow]
+    norm_num
+end QEFEOSI

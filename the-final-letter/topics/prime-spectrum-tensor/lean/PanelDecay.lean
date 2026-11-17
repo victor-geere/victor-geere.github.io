@@ -55,6 +55,30 @@ theorem panel_certificate_decay {c : ℝ} (hc : |c| ≤ 3 / 5) {a b qmlo qmhi li
 
 /-- **The decaying panel certificate at `c = ±4/5`**, with the
 second-derivative constant `1/200`. -/
+theorem panel_certificate_decay_one {c : ℝ} (hc : |c| ≤ 1)
+    {a b qmlo qmhi lipx : ℝ}
+    (hab : a ≤ b) (ha0 : 0 ≤ a) (hb60 : b ≤ 60)
+    (hlip : ∀ t ∈ Set.Icc a b, |deriv IntersectionForm.Omega t| ≤ lipx)
+    (hm1 : qmlo ≤ IntersectionForm.Omega ((a + b) / 2))
+    (hm2 : IntersectionForm.Omega ((a + b) / 2) ≤ qmhi) :
+    |(∫ x in a..b, weight c x * IntersectionForm.Omega x) -
+      ((qmlo + qmhi) / 2) * ((b - a) * weight c ((a + b) / 2))| ≤
+      |(qmlo + qmhi) / 2| * ((1 / 200) * (b - a) ^ 3 / 4) +
+        max ((qmlo + qmhi) / 2 - (qmlo - lipx * (b - a) / 2))
+            ((qmhi + lipx * (b - a) / 2) - (qmlo + qmhi) / 2) *
+          ((b - a) * ((1 / 400) / (1 + a ^ 2 / 400))) := by
+  have hpanel := omega_panel_enclosure hab hlip
+    (fun t _ => differentiable_Omega.differentiableAt) hm1 hm2
+  refine panel_mem hab (by unfold weight; fun_prop) continuous_Omega ?_ ?_ ?_ ?_
+    (weight_midpoint_rule_one hc hab ha0 hb60)
+  · intro t ht
+    exact (hpanel t ht).1
+  · intro t ht
+    exact (hpanel t ht).2
+  · intro t ht
+    exact abs_weight_le_div ha0 ht.1
+  · positivity
+
 theorem panel_certificate_decay_four_fifths {c : ℝ} (hc : |c| ≤ 4 / 5)
     {a b qmlo qmhi lipx : ℝ}
     (hab : a ≤ b) (ha0 : 0 ≤ a) (hb60 : b ≤ 60)
@@ -167,5 +191,14 @@ theorem panel_step {w Ω : ℝ → ℝ} {a b c T S R E : ℝ}
       = |((∫ x in a..b, w x * Ω x) - T) + ((∫ x in b..c, w x * Ω x) - R)| := by ring_nf
     _ ≤ |(∫ x in a..b, w x * Ω x) - T| + |(∫ x in b..c, w x * Ω x) - R| := abs_add_le _ _
     _ ≤ S + E := add_le_add hprev hstep
+
+/-- **The triangle inequality for three points.**  Used by the *rounded*
+cumulative chain: the running rational partial sums are rounded to a fixed
+number of decimals at each panel, so the accumulated value differs from the
+exact `T + R` by a controlled rounding error, which this lemma lets the chain
+absorb.  Rounding keeps the literals in the generated files small, which is
+what makes the fine partitions affordable. -/
+theorem abs_sub_le_three (a b c : ℝ) : |a - c| ≤ |a - b| + |b - c| := by
+  simpa only [Real.dist_eq] using dist_triangle a b c
 
 end PrimeSpectrumTensor

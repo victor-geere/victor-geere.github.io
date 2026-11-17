@@ -1,0 +1,376 @@
+import Mathlib
+import QuadraticInt.SplitCountThree
+
+/-!
+# The split local ideal count in `ℤ[ω]`
+
+`# { I : Ideal ℤ[ω] // absNorm I = p^k } = k + 1` for `p ≡ 1 (mod 3)`.
+
+No `sorry`, `axiom` or `admit`.
+-/
+
+noncomputable section
+
+open scoped BigOperators
+
+namespace EisensteinInt
+
+/-- **T157:** a maximal ideal above a split prime `p` is `(π)` or `(star π)`. -/
+lemma split_maximal_eq_three {p : ℕ} [Fact p.Prime] (hp3 : p % 3 = 1)
+    (π : EisensteinInt) (hπ : Prime π) (hπ' : Prime (star π))
+    (hprod : π * star π = (p : EisensteinInt))
+    (P : Ideal EisensteinInt) [P.IsMaximal]
+    (hP : P.under ℤ = Ideal.span ({(p : ℤ)} : Set ℤ)) :
+    P = Ideal.span ({π} : Set EisensteinInt) ∨
+      P = Ideal.span ({star π} : Set EisensteinInt) := by
+  have hpP : (p : EisensteinInt) ∈ P := by
+    have hmem : (p : ℤ) ∈ P.under ℤ := by
+      rw [hP]
+      exact Ideal.subset_span (by simp)
+    simpa [Ideal.mem_under] using hmem
+  have hmem : π * star π ∈ P := by
+    rw [hprod]
+    exact hpP
+  have hprime : P.IsPrime := inferInstance
+  rcases hprime.mem_or_mem hmem with h | h
+  · left
+    have hle : Ideal.span ({π} : Set EisensteinInt) ≤ P :=
+      Ideal.span_le.mpr (by simpa using h)
+    have hmax : (Ideal.span ({π} : Set EisensteinInt)).IsMaximal :=
+      ((Ideal.span_singleton_prime hπ.ne_zero).mpr hπ).isMaximal (by
+        intro h
+        rw [Ideal.span_singleton_eq_bot] at h
+        exact hπ.ne_zero h)
+    exact (hmax.eq_of_le (inferInstance : P.IsMaximal).ne_top hle).symm
+  · right
+    have hle : Ideal.span ({star π} : Set EisensteinInt) ≤ P :=
+      Ideal.span_le.mpr (by simpa using h)
+    have hmax : (Ideal.span ({star π} : Set EisensteinInt)).IsMaximal :=
+      ((Ideal.span_singleton_prime hπ'.ne_zero).mpr hπ').isMaximal (by
+        intro h
+        rw [Ideal.span_singleton_eq_bot] at h
+        exact hπ'.ne_zero h)
+    exact (hmax.eq_of_le (inferInstance : P.IsMaximal).ne_top hle).symm
+
+/-- **T166:** an ideal of prime norm is maximal. -/
+lemma isMaximal_of_absNorm_prime_three {p : ℕ} [Fact p.Prime]
+    (I : Ideal EisensteinInt) (hI : Ideal.absNorm I = p) : I.IsMaximal := by
+  have hprime : I.IsPrime := by
+    apply Ideal.isPrime_of_irreducible_absNorm
+    rw [hI]
+    exact (Fact.out : p.Prime)
+  have hne : I ≠ ⊥ := by
+    intro h
+    rw [h] at hI
+    simp at hI
+    exact (Fact.out : p.Prime).ne_zero hI.symm
+  exact hprime.isMaximal hne
+
+/-- **T167:** an ideal of norm `p` is `(π)` or `(star π)`. -/
+lemma split_ideal_eq_of_absNorm_three {p : ℕ} [Fact p.Prime] (hp3 : p % 3 = 1)
+    (π : EisensteinInt) (hπ : Prime π) (hπ' : Prime (star π))
+    (hprod : π * star π = (p : EisensteinInt))
+    (I : Ideal EisensteinInt) (hI : Ideal.absNorm I = p) :
+    I = Ideal.span ({π} : Set EisensteinInt) ∨
+      I = Ideal.span ({star π} : Set EisensteinInt) := by
+  have hmax := isMaximal_of_absNorm_prime_three I hI
+  haveI : I.IsPrime := hmax.isPrime
+  have hpI : (p : EisensteinInt) ∈ I := by
+    have := Ideal.absNorm_mem I
+    rwa [hI] at this
+  have hmem : π * star π ∈ I := by
+    rw [hprod]
+    exact hpI
+  rcases (inferInstance : I.IsPrime).mem_or_mem hmem with h | h
+  · left
+    have hle : Ideal.span ({π} : Set EisensteinInt) ≤ I :=
+      Ideal.span_le.mpr (by simpa using h)
+    have hPmax : (Ideal.span ({π} : Set EisensteinInt)).IsMaximal :=
+      ((Ideal.span_singleton_prime hπ.ne_zero).mpr hπ).isMaximal (by
+        intro hbot
+        rw [Ideal.span_singleton_eq_bot] at hbot
+        exact hπ.ne_zero hbot)
+    exact (hPmax.eq_of_le hmax.ne_top hle).symm
+  · right
+    have hle : Ideal.span ({star π} : Set EisensteinInt) ≤ I :=
+      Ideal.span_le.mpr (by simpa using h)
+    have hQmax : (Ideal.span ({star π} : Set EisensteinInt)).IsMaximal :=
+      ((Ideal.span_singleton_prime hπ'.ne_zero).mpr hπ').isMaximal (by
+        intro hbot
+        rw [Ideal.span_singleton_eq_bot] at hbot
+        exact hπ'.ne_zero hbot)
+    exact (hQmax.eq_of_le hmax.ne_top hle).symm
+
+/-- **T168:** there are exactly two ideals of norm `p` for split `p`. -/
+lemma split_ideal_count_one_three {p : ℕ} [Fact p.Prime] (hp3 : p % 3 = 1) :
+    Nat.card {I : Ideal EisensteinInt // Ideal.absNorm I = p} = 2 := by
+  obtain ⟨π, hπ, hπ', hprod, hne⟩ := split_prime_ne_three hp3
+  let P := Ideal.span ({π} : Set EisensteinInt)
+  let Q := Ideal.span ({star π} : Set EisensteinInt)
+  have hP : Ideal.absNorm P = p := (split_span_norm_three hprod).1
+  have hQ : Ideal.absNorm Q = p := (split_span_norm_three hprod).2
+  let S : Finset (Ideal EisensteinInt) := {P, Q}
+  have hmem : ∀ I : {I : Ideal EisensteinInt // Ideal.absNorm I = p}, I.1 ∈ S := by
+    intro I
+    rcases split_ideal_eq_of_absNorm_three hp3 π hπ hπ' hprod I.1 I.2 with h | h
+    · rw [h]; simp [S, P]
+    · rw [h]; simp [S, Q]
+  have hiff : ∀ I : Ideal EisensteinInt, I ∈ S ↔ Ideal.absNorm I = p := by
+    intro I
+    constructor
+    · intro h
+      simp [S] at h
+      rcases h with rfl | rfl
+      · exact hP
+      · exact hQ
+    · intro h
+      exact hmem ⟨I, h⟩
+  letI : Fintype {I : Ideal EisensteinInt // Ideal.absNorm I = p} :=
+    Fintype.subtype S hiff
+  rw [Nat.card_eq_fintype_card]
+  rw [Fintype.card_of_subtype S hiff]
+  dsimp [S]
+  exact Finset.card_pair_eq_two_iff.mpr hne
+
+
+/-- **T169:** the norm of `(π)^a (star π)^b` is `p^(a+b)`. -/
+lemma split_pow_norm_three {p : ℕ} [Fact p.Prime] {π : EisensteinInt}
+    (hprod : π * star π = (p : EisensteinInt)) (a b : ℕ) :
+    Ideal.absNorm ((Ideal.span ({π} : Set EisensteinInt)) ^ a *
+        (Ideal.span ({star π} : Set EisensteinInt)) ^ b) = p ^ (a + b) := by
+  rw [map_mul, map_pow, map_pow, (split_span_norm_three hprod).1,
+    (split_span_norm_three hprod).2, ← pow_add]
+
+/-- **T170:** the norm of `(π)^a (star π)^b` is `p^k` when `a+b=k`. -/
+lemma split_pow_norm_of_add_three {p : ℕ} [Fact p.Prime] {π : EisensteinInt}
+    (hprod : π * star π = (p : EisensteinInt)) {a b k : ℕ} (h : a + b = k) :
+    Ideal.absNorm ((Ideal.span ({π} : Set EisensteinInt)) ^ a *
+        (Ideal.span ({star π} : Set EisensteinInt)) ^ b) = p ^ k := by
+  rw [split_pow_norm_three hprod, h]
+
+
+/-- **T171:** the two split prime ideals are coprime. -/
+lemma split_isCoprime_three {P Q : Ideal EisensteinInt} [P.IsMaximal] [Q.IsMaximal]
+    (hne : P ≠ Q) : IsCoprime P Q := by
+  rw [Ideal.isCoprime_iff_sup_eq]
+  by_contra h
+  have h1 : P ⊔ Q = P := ((inferInstance : P.IsMaximal).eq_of_le h le_sup_left).symm
+  have h2 : P ⊔ Q = Q := ((inferInstance : Q.IsMaximal).eq_of_le h le_sup_right).symm
+  exact hne (h1.symm.trans h2)
+
+/-- **T172:** powers of the two split prime ideals are coprime. -/
+lemma split_isCoprime_pow_three {P Q : Ideal EisensteinInt} [P.IsMaximal] [Q.IsMaximal]
+    (hne : P ≠ Q) (a b : ℕ) : IsCoprime (P ^ a) (Q ^ b) :=
+  (split_isCoprime_three hne).pow
+
+
+/-- **T173:** distinct powers of the two split primes are unequal. -/
+lemma split_pow_ne_three {p : ℕ} [Fact p.Prime] {π : EisensteinInt}
+    (hprod : π * star π = (p : EisensteinInt))
+    (hne : Ideal.span ({π} : Set EisensteinInt) ≠
+      Ideal.span ({star π} : Set EisensteinInt))
+    {k : ℕ} (hk : 0 < k) :
+    (Ideal.span ({π} : Set EisensteinInt)) ^ k ≠
+      (Ideal.span ({star π} : Set EisensteinInt)) ^ k := by
+  let P := Ideal.span ({π} : Set EisensteinInt)
+  let Q := Ideal.span ({star π} : Set EisensteinInt)
+  have hPnorm : Ideal.absNorm P = p := (split_span_norm_three hprod).1
+  have hQnorm : Ideal.absNorm Q = p := (split_span_norm_three hprod).2
+  have hPmax : P.IsMaximal := isMaximal_of_absNorm_prime_three _ hPnorm
+  have hQmax : Q.IsMaximal := isMaximal_of_absNorm_prime_three _ hQnorm
+  letI : P.IsMaximal := hPmax
+  letI : Q.IsMaximal := hQmax
+  intro h
+  have hcop : IsCoprime (P ^ k) (Q ^ k) := split_isCoprime_pow_three hne k k
+  rw [h] at hcop
+  have hunit : IsUnit (Q ^ k) := hcop.isUnit_of_dvd (dvd_refl _)
+  have htop : Q ^ k = ⊤ := by
+    rwa [Ideal.isUnit_iff] at hunit
+  have hnorm : Ideal.absNorm (Q ^ k) = p ^ k := by
+    rw [map_pow, hQnorm]
+  have hone : p ^ k = 1 := by
+    rw [← hnorm, htop, Ideal.absNorm_top]
+  have hgt : 1 < p ^ k := Nat.one_lt_pow hk.ne' (Fact.out : p.Prime).one_lt
+  omega
+
+
+/-- **T174:** the `k+1` ideals `(π)^a (star π)^(k-a)` are distinct. -/
+lemma split_pow_inj_three {p : ℕ} [Fact p.Prime] {π : EisensteinInt}
+    (hprod : π * star π = (p : EisensteinInt))
+    (hne : Ideal.span ({π} : Set EisensteinInt) ≠
+      Ideal.span ({star π} : Set EisensteinInt))
+    {a c k : ℕ} (ha : a ≤ k) (hc : c ≤ k)
+    (h : (Ideal.span ({π} : Set EisensteinInt)) ^ a *
+        (Ideal.span ({star π} : Set EisensteinInt)) ^ (k - a) =
+      (Ideal.span ({π} : Set EisensteinInt)) ^ c *
+        (Ideal.span ({star π} : Set EisensteinInt)) ^ (k - c)) : a = c := by
+  let P := Ideal.span ({π} : Set EisensteinInt)
+  let Q := Ideal.span ({star π} : Set EisensteinInt)
+  have hPnorm : Ideal.absNorm P = p := (split_span_norm_three hprod).1
+  have hQnorm : Ideal.absNorm Q = p := (split_span_norm_three hprod).2
+  have hP0 : P ≠ 0 := by
+    intro h
+    rw [h] at hPnorm
+    simp at hPnorm
+    exact (Fact.out : p.Prime).ne_zero hPnorm.symm
+  have hQ0 : Q ≠ 0 := by
+    intro h
+    rw [h] at hQnorm
+    simp at hQnorm
+    exact (Fact.out : p.Prime).ne_zero hQnorm.symm
+  change P ^ a * Q ^ (k - a) = P ^ c * Q ^ (k - c) at h
+  by_contra hne_ac
+  rcases lt_or_gt_of_ne hne_ac with hac | hca
+  · have hPc : P ^ c = P ^ a * P ^ (c - a) := by
+      rw [← pow_add]
+      congr 1
+      omega
+    have hQka : Q ^ (k - a) = Q ^ (k - c) * Q ^ (c - a) := by
+      rw [← pow_add]
+      congr 1
+      omega
+    rw [hPc, hQka] at h
+    rw [mul_assoc] at h
+    have h2 : Q ^ (k - c) * Q ^ (c - a) = P ^ (c - a) * Q ^ (k - c) :=
+      mul_left_cancel₀ (pow_ne_zero a hP0) h
+    rw [mul_comm (P ^ (c - a)) (Q ^ (k - c))] at h2
+    have h3 : Q ^ (c - a) = P ^ (c - a) :=
+      mul_left_cancel₀ (pow_ne_zero (k - c) hQ0) h2
+    exact (split_pow_ne_three hprod hne (Nat.sub_pos_of_lt hac)) h3.symm
+  · have hPa : P ^ a = P ^ c * P ^ (a - c) := by
+      rw [← pow_add]
+      congr 1
+      omega
+    have hQkc : Q ^ (k - c) = Q ^ (k - a) * Q ^ (a - c) := by
+      rw [← pow_add]
+      congr 1
+      omega
+    rw [hPa, hQkc] at h
+    rw [mul_assoc] at h
+    have h2 : P ^ (a - c) * Q ^ (k - a) = Q ^ (k - a) * Q ^ (a - c) :=
+      mul_left_cancel₀ (pow_ne_zero c hP0) h
+    rw [mul_comm (P ^ (a - c)) (Q ^ (k - a))] at h2
+    have h3 : P ^ (a - c) = Q ^ (a - c) :=
+      mul_left_cancel₀ (pow_ne_zero (k - a) hQ0) h2
+    exact (split_pow_ne_three hprod hne (Nat.sub_pos_of_lt hca)) h3
+
+
+/-- **T175:** the split local count follows from exhaustiveness. -/
+lemma split_ideal_count_of_exhaustive_three {p k : ℕ} [Fact p.Prime]
+    {π : EisensteinInt} (hprod : π * star π = (p : EisensteinInt))
+    (hne : Ideal.span ({π} : Set EisensteinInt) ≠
+      Ideal.span ({star π} : Set EisensteinInt))
+    (hex : ∀ I : Ideal EisensteinInt, Ideal.absNorm I = p ^ k →
+      ∃ a : ℕ, a ≤ k ∧ I = (Ideal.span ({π} : Set EisensteinInt)) ^ a *
+        (Ideal.span ({star π} : Set EisensteinInt)) ^ (k - a)) :
+    Nat.card {I : Ideal EisensteinInt // Ideal.absNorm I = p ^ k} = k + 1 := by
+  let P := Ideal.span ({π} : Set EisensteinInt)
+  let Q := Ideal.span ({star π} : Set EisensteinInt)
+  let f : ℕ → Ideal EisensteinInt := fun a => P ^ a * Q ^ (k - a)
+  let S : Finset (Ideal EisensteinInt) := (Finset.range (k + 1)).image f
+  have hinj : Set.InjOn f (Finset.range (k + 1) : Set ℕ) := by
+    intro a ha c hc h
+    have ha' : a ≤ k := by simpa using ha
+    have hc' : c ≤ k := by simpa using hc
+    exact split_pow_inj_three hprod hne ha' hc' h
+  have hScard : S.card = k + 1 := by
+    rw [show S = (Finset.range (k + 1)).image f from rfl]
+    rw [Finset.card_image_of_injOn hinj, Finset.card_range]
+  have hmem_norm : ∀ I ∈ S, Ideal.absNorm I = p ^ k := by
+    intro I hI
+    simp [S, f] at hI
+    obtain ⟨a, ha, rfl⟩ := hI
+    rw [split_pow_norm_of_add_three hprod (by omega : a + (k - a) = k)]
+  have hmem : ∀ I : {I : Ideal EisensteinInt // Ideal.absNorm I = p ^ k}, I.1 ∈ S := by
+    intro I
+    obtain ⟨a, ha, hIa⟩ := hex I.1 I.2
+    rw [hIa]
+    simp [S, f]
+    exact ⟨a, by omega, rfl⟩
+  have hiff : ∀ I : Ideal EisensteinInt, I ∈ S ↔ Ideal.absNorm I = p ^ k := by
+    intro I
+    constructor
+    · exact hmem_norm I
+    · intro h
+      exact hmem ⟨I, h⟩
+  letI : Fintype {I : Ideal EisensteinInt // Ideal.absNorm I = p ^ k} :=
+    Fintype.subtype S hiff
+  rw [Nat.card_eq_fintype_card]
+  rw [Fintype.card_of_subtype S hiff]
+  exact hScard
+
+
+/-- **T176:** every norm-`p^(k+1)` ideal peels off `(π)` or `(star π)`. -/
+lemma split_peel_three {p k : ℕ} [Fact p.Prime] (hp3 : p % 3 = 1)
+    {π : EisensteinInt} (hπ : Prime π) (hπ' : Prime (star π))
+    (hprod : π * star π = (p : EisensteinInt))
+    (I : Ideal EisensteinInt) (hI : Ideal.absNorm I = p ^ (k + 1)) :
+    ∃ M : Ideal EisensteinInt, (M = Ideal.span ({π} : Set EisensteinInt) ∨
+        M = Ideal.span ({star π} : Set EisensteinInt)) ∧
+      ∃ J : Ideal EisensteinInt, I = M * J ∧ Ideal.absNorm J = p ^ k := by
+  letI : Module.Free ℤ EisensteinInt := Module.Free.of_basis eisensteinBasis
+  letI : Module.Finite ℤ EisensteinInt := Module.Finite.of_basis eisensteinBasis
+  have hpdvd : p ∣ Ideal.absNorm I := by
+    rw [hI]
+    exact dvd_pow_self p (by omega)
+  obtain ⟨M, hMmax, hMunder, hMdvd⟩ :=
+    Ideal.exists_isMaximal_dvd_of_dvd_absNorm' (Fact.out : p.Prime) I hpdvd
+  have hM : M = Ideal.span ({π} : Set EisensteinInt) ∨
+      M = Ideal.span ({star π} : Set EisensteinInt) :=
+    split_maximal_eq_three hp3 π hπ hπ' hprod M hMunder
+  rw [dvd_iff_exists_eq_mul_left] at hMdvd
+  obtain ⟨J, hIJ⟩ := hMdvd
+  have hIJ' : I = M * J := by rw [hIJ, mul_comm]
+  refine ⟨M, hM, J, hIJ', ?_⟩
+  have hMnorm : Ideal.absNorm M = p := by
+    rcases hM with rfl | rfl
+    · exact (split_span_norm_three hprod).1
+    · exact (split_span_norm_three hprod).2
+  have hnorm : Ideal.absNorm I = Ideal.absNorm M * Ideal.absNorm J := by
+    rw [hIJ', map_mul]
+  rw [hI, hMnorm] at hnorm
+  have hpow : p ^ (k + 1) = p ^ k * p := by rw [pow_succ]
+  rw [hpow, mul_comm (p ^ k) p] at hnorm
+  exact (Nat.mul_left_cancel (Fact.out : p.Prime).pos hnorm).symm
+
+/-- **T177:** every ideal of norm `p^k` is among the `k+1` candidates. -/
+lemma split_exhaustive_three {p k : ℕ} [Fact p.Prime] (hp3 : p % 3 = 1)
+    {π : EisensteinInt} (hπ : Prime π) (hπ' : Prime (star π))
+    (hprod : π * star π = (p : EisensteinInt))
+    (I : Ideal EisensteinInt) (hI : Ideal.absNorm I = p ^ k) :
+    ∃ a : ℕ, a ≤ k ∧ I = (Ideal.span ({π} : Set EisensteinInt)) ^ a *
+      (Ideal.span ({star π} : Set EisensteinInt)) ^ (k - a) := by
+  let P := Ideal.span ({π} : Set EisensteinInt)
+  let Q := Ideal.span ({star π} : Set EisensteinInt)
+  change Ideal.absNorm I = p ^ k at hI
+  induction k generalizing I with
+  | zero =>
+      simp only [pow_zero] at hI
+      rw [Ideal.absNorm_eq_one_iff] at hI
+      refine ⟨0, le_rfl, ?_⟩
+      rw [hI]
+      simp [P, Q]
+  | succ k ih =>
+      obtain ⟨M, hM, J, hIJ, hJ⟩ := split_peel_three hp3 hπ hπ' hprod I hI
+      obtain ⟨a, ha, hJa⟩ := ih J hJ
+      rcases hM with rfl | rfl
+      · refine ⟨a + 1, by omega, ?_⟩
+        rw [hIJ, hJa]
+        change P * (P ^ a * Q ^ (k - a)) = P ^ (a + 1) * Q ^ (k + 1 - (a + 1))
+        rw [← mul_assoc, ← pow_succ']
+        rw [show k + 1 - (a + 1) = k - a by omega]
+      · refine ⟨a, by omega, ?_⟩
+        rw [hIJ, hJa]
+        change Q * (P ^ a * Q ^ (k - a)) = P ^ a * Q ^ (k + 1 - a)
+        rw [← mul_assoc, mul_comm Q (P ^ a), mul_assoc, ← pow_succ']
+        rw [show k + 1 - a = k - a + 1 by omega]
+
+/-- **T178:** the split local ideal count is `k+1`. -/
+lemma split_ideal_count_three (p k : ℕ) [Fact p.Prime] (hp3 : p % 3 = 1) :
+    Nat.card {I : Ideal EisensteinInt // Ideal.absNorm I = p ^ k} = k + 1 := by
+  obtain ⟨π, hπ, hπ', hprod, hne⟩ := split_prime_ne_three hp3
+  exact split_ideal_count_of_exhaustive_three hprod hne
+    (split_exhaustive_three hp3 hπ hπ' hprod)
+
+
+end EisensteinInt

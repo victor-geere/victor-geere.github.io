@@ -206,4 +206,94 @@ theorem poleTerm_mem_c4 :
   norm_num at h ⊢
   constructor <;> linarith [h.1, h.2]
 
+/-- `cosh (3/5)`. -/
+theorem cosh_three_fifths_mem :
+    (1185460 / 1000000 : ℝ) ≤ Real.cosh (3 / 5) ∧
+      Real.cosh (3 / 5) ≤ 1185470 / 1000000 := by
+  have hx : |(3 / 5 : ℝ)| ≤ 1 := by norm_num
+  have hx' : |(-(3 / 5) : ℝ)| ≤ 1 := by norm_num
+  have h1 := Real.exp_bound hx (n := 12) (by norm_num)
+  have h2 := Real.exp_bound hx' (n := 12) (by norm_num)
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h1 h2
+  norm_num at h1 h2
+  rw [abs_le] at h1 h2
+  rw [Real.cosh_eq]
+  constructor <;> linarith [h1.1, h1.2, h2.1, h2.2]
+
+/-- The pole term at `c = 6/5`, `σ = 1/20`. -/
+theorem poleTerm_mem_c6 :
+    (37264 / 1000000 : ℝ) ≤ poleTerm (6 / 5 : ℝ) (1 / 20) ∧
+      poleTerm (6 / 5 : ℝ) (1 / 20) ≤ 37267 / 1000000 := by
+  have hcosh : (1185460 / 1000000 : ℝ) ≤ Real.cosh ((6 / 5 : ℝ) / 2) ∧
+      Real.cosh ((6 / 5 : ℝ) / 2) ≤ 1185470 / 1000000 := by
+    rw [show (6 : ℝ) / 5 / 2 = 3 / 5 by norm_num]
+    exact cosh_three_fifths_mem
+  have h := poleTerm_between (6 / 5 : ℝ) hcosh (by norm_num)
+  norm_num at h ⊢
+  constructor <;> linarith [h.1, h.2]
+
+/-- `cosh(7/10)` in a rational interval. -/
+theorem cosh_seven_tenths_mem :
+    (1255168 / 1000000 : ℝ) ≤ Real.cosh (7 / 10) ∧
+      Real.cosh (7 / 10) ≤ 1255170 / 1000000 := by
+  have hx : |(7 / 10 : ℝ)| ≤ 1 := by norm_num
+  have hx' : |(-(7 / 10) : ℝ)| ≤ 1 := by norm_num
+  have h1 := Real.exp_bound hx (n := 12) (by norm_num)
+  have h2 := Real.exp_bound hx' (n := 12) (by norm_num)
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h1 h2
+  norm_num at h1 h2
+  rw [abs_le] at h1 h2
+  rw [Real.cosh_eq]
+  constructor <;> linarith [h1.1, h1.2, h2.1, h2.2]
+
+/-- The pole term at `c = 7/5`, `σ = 1/20`. -/
+theorem poleTerm_mem_c75 :
+    (39455 / 1000000 : ℝ) ≤ poleTerm (7 / 5 : ℝ) (1 / 20) ∧
+      poleTerm (7 / 5 : ℝ) (1 / 20) ≤ 39458 / 1000000 := by
+  have hcosh : (1255168 / 1000000 : ℝ) ≤ Real.cosh ((7 / 5 : ℝ) / 2) ∧
+      Real.cosh ((7 / 5 : ℝ) / 2) ≤ 1255170 / 1000000 := by
+    rw [show (7 : ℝ) / 5 / 2 = 7 / 10 by norm_num]
+    exact cosh_seven_tenths_mem
+  have h := poleTerm_between (7 / 5 : ℝ) hcosh (by norm_num)
+  norm_num at h ⊢
+  constructor <;> linarith [h.1, h.2]
+
+end PrimeSpectrumTensor
+
+namespace PrimeSpectrumTensor
+
+/-- `cosh(1/2)` in a rational interval. -/
+theorem cosh_half_mem :
+    (1127625 / 1000000 : ℝ) ≤ Real.cosh (1 / 2) ∧
+      Real.cosh (1 / 2) ≤ 1127627 / 1000000 := by
+  have hx : |(1 / 2 : ℝ)| ≤ 1 := by norm_num
+  have hx' : |(-(1 / 2) : ℝ)| ≤ 1 := by norm_num
+  have h1 := Real.exp_bound hx (n := 12) (by norm_num)
+  have h2 := Real.exp_bound hx' (n := 12) (by norm_num)
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add] at h1 h2
+  norm_num at h1 h2
+  rw [abs_le] at h1 h2
+  rw [Real.cosh_eq]
+  constructor <;> linarith [h1.1, h1.2, h2.1, h2.2]
+
+/-- The pole term at `c = 1`, `σ = 1/20`. -/
+theorem poleTerm_mem_c5 :
+    (35446 / 1000000 : ℝ) ≤ poleTerm (1 : ℝ) (1 / 20) ∧
+      poleTerm (1 : ℝ) (1 / 20) ≤ 35448 / 1000000 := by
+  have hcosh : (1127625 / 1000000 : ℝ) ≤ Real.cosh ((1 : ℝ) / 2) ∧
+      Real.cosh ((1 : ℝ) / 2) ≤ 1127627 / 1000000 := by
+    rw [show (1 : ℝ) / 2 = 1 / 2 by norm_num]
+    exact cosh_half_mem
+  have h := poleTerm_between (1 : ℝ) hcosh (by norm_num)
+  norm_num at h ⊢
+  constructor <;> linarith [h.1, h.2]
+
+/-- The pole term is positive for `σ ≠ 0`. -/
+theorem poleTerm_pos {c σ : ℝ} (hσ : σ ≠ 0) : 0 < poleTerm c σ := by
+  unfold poleTerm
+  have h2 : (0 : ℝ) < σ ^ 2 := by positivity
+  have he : (0 : ℝ) < Real.exp (σ ^ 2 / 4) := Real.exp_pos _
+  have hc : (0 : ℝ) < Real.cosh (c / 2) := Real.cosh_pos _
+  positivity
+
 end PrimeSpectrumTensor

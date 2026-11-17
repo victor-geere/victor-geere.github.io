@@ -46,7 +46,7 @@ machinery that can be reused *unchanged*:
 | exact rational `LDLᵀ` ⇒ `PosDef` | `Transfer.lean`, `ldl_posDef_rat` | general in `n`; no change |
 | Gram entry split `pole + density + prime` | `Assembly.lean`, `gaussianGram4_apply` | copy to `gaussianGram5_apply` |
 | density generator (any `c`, chunked) | [`gen/panels.py`](lean/gen/panels.py), `emit_all.py`, `build_chunks.sh` | one new `c` |
-| density assembly (`density ≈ Σ …`) | [`DensityC{0..3}_{0..8}`](lean/) | unchanged |
+| density assembly (`density ≈ Σ …`) | `DensityC{0..3}_{0..8}` | removed 2026-11-15; the closure now reads the compact `DensityF*` chains |
 | `densityTerm = 2·IntersectionForm.density` | `DensityEnclosure.lean` | unchanged |
 | pole enclosure at `c ≤ 3/5` | `PoleEnclosure.lean` | new `c = 4/5` |
 | prime enclosure at `c ≤ 3/5` | `PrimeEnclosure.lean` | **new proof** for `4/5` |
@@ -64,7 +64,7 @@ Everything below was carried out, with one correction to the plan.
 
 | Work item | Result |
 |---|---|
-| density at `c = 4/5` | `DensityC4_0.lean` … `DensityC4_8.lean`; band `±1.5862·10⁻³` on `density`, i.e. `±3.172·10⁻³` on `densityTerm` |
+| density at `c = 4/5` | now `DensityE4_0 … E4_11`; band `±0.855·10⁻³` on `density`, i.e. `±1.710·10⁻³` on `densityTerm` (the 5×5 assembly still uses its loose `ε = 0.0036`) |
 | pole at `c = 4/5` | `cosh_04_mem`, `poleTerm_mem_c4` (band `[0.033982, 0.033985]`) |
 | prime at `c = 4/5` | `primeTerm_mem_four_fifths` (band `[−0.02811, −0.027726]`) |
 | transfer | `GaussianGram5.lean`: `gramCentre5 − (1/50)·I = L5·D5·L5ᵀ`, five positive pivots |

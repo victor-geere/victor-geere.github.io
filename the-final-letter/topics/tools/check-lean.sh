@@ -2,7 +2,7 @@
 # check-lean.sh <lean-root> [--quick] [file.lean ...]
 # Elaborate topic Lean files against the local Mathlib installation.
 #
-# `--quick` skips the machine-generated `DensityC*_*.lean` certificate chunks
+# `--quick` skips the machine-generated `Density<tag>*_*.lean` certificate chunks
 # (and `DensityCertificates.lean` when its chunk oleans have not been built), so
 # the hand-written core can be checked in minutes instead of hours.  With an
 # explicit file list `--quick` is a no-op.
@@ -47,7 +47,7 @@ if [ $# -eq 0 ]; then
     skipped=0
     for f in ${FILES[@]+"${FILES[@]}"}; do
       case "$(basename "$f")" in
-        DensityC[0-9]*_[0-9]*.lean) skipped=$((skipped + 1)); continue ;;
+        Density[A-Z][0-9]*_[0-9]*.lean|DensitySO[0-9]*_[0-9]*.lean) skipped=$((skipped + 1)); continue ;;
       esac
       KEPT+=("$f")
     done
@@ -57,13 +57,18 @@ if [ $# -eq 0 ]; then
       b="$(basename "$f")"
       case "$b" in
         DensityCertificates.lean)
-          if ! ls "$HERE"/DensityC[0-3]_8.olean >/dev/null 2>&1; then
-            echo "[quick] DensityC0..3 chunk oleans absent: skipping $b" >&2
+          if ! ls "$HERE"/DensityG[0-3]_4.olean >/dev/null 2>&1; then
+            echo "[quick] DensityE0..3 chunk oleans absent: skipping $b" >&2
             continue
           fi ;;
         DensityCertificates5.lean)
-          if [ ! -f "$HERE/DensityC4_8.olean" ]; then
-            echo "[quick] DensityC4 chunk oleans absent: skipping $b" >&2
+          if [ ! -f "$HERE/DensityG4_4.olean" ]; then
+            echo "[quick] DensityE4 chunk oleans absent: skipping $b" >&2
+            continue
+          fi ;;
+        DensityBands6.lean|Closure6.lean)
+          if [ ! -f "$HERE/DensityG5_4.olean" ]; then
+            echo "[quick] compact chunk oleans absent: skipping $b" >&2
             continue
           fi ;;
       esac

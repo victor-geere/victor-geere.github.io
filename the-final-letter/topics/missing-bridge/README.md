@@ -760,6 +760,52 @@ is `FiniteWeilPositivity` itself, equivalently RH, on the arithmetic side.
 | T95 | Theorem | `gaussianGram5` is the arithmetic residual matrix on the five centres. | `gaussianGram5_eq_arithmetic` |
 | T96 | Theorem | The `prime-spectrum-tensor` 5×5 certificate as PSD. | `gaussianGram5_posSemidef` |
 | T97 | Theorem | **Certified 5×5 instance:** the arithmetic residual matrix on `centre5` at `σ = 1/20` is PSD. | `centre5Arithmetic_posSemidef` |
+| T98 | Theorem | **General Gaussian Gram structure:** for any finite centre family, the matrix is the sum of the pole, density and prime matrices. | `gaussianGramMatrix_eq_pole_add_density_add_prime` |
+| T99 | Theorem | The general Gaussian Gram matrix is Hermitian. | `gaussianGramMatrix_isHermitian` |
+| T100 | Theorem | The explicit three-term Gaussian quadratic form is non-negative at the five centres. | `gaussianGram5_quadraticForm_nonneg` |
+| T101 | Theorem | Every principal submatrix of the 5×5 Gaussian Gram matrix is PSD. | `gaussianGram5_submatrix_posSemidef` |
+| T102 | Theorem | **Translation invariance:** the Gaussian Gram matrix depends only on centre differences. | `gaussianGramMatrix_translate` |
+| T103 | Theorem | Every translate of the certified 5-centre family is PSD. | `gaussianGram5_translate_posSemidef` |
+| T104 | Theorem | **Reflection invariance** of the Gaussian Gram matrix. | `gaussianGramMatrix_reflect` |
+| T105 | Theorem | Every reflection of the certified 5-centre family is PSD. | `gaussianGram5_reflect_posSemidef` |
+| T106 | Theorem | Every translate of the certified 4-centre family is PSD. | `gaussianGram4_translate_posSemidef` |
+| T107 | Theorem | Every reflection of the certified 4-centre family is PSD. | `gaussianGram4_reflect_posSemidef` |
+| T108 | Theorem | The density term at `c = 0`, `σ = 1/20` is positive (concrete band). | `densityTerm_pos_at_zero` |
+| T109 | Theorem | The density term at `c = 1/5` is negative. | `densityTerm_neg_at_fifth` |
+| T110 | Theorem | The density term at `c = 2/5` is negative. | `densityTerm_neg_at_two_fifths` |
+| T111 | Theorem | The density term at `c = 3/5` is negative. | `densityTerm_neg_at_three_fifths` |
+| T112 | Theorem | The explicit three-term quadratic form is non-negative at the four centres. | `gaussianGram4_quadraticForm_nonneg` |
+| T113 | Theorem | The density term at `c = 4/5` is negative. | `densityTerm_neg_at_four_fifths` |
+| T114 | Theorem | **Bridge, quadratic-form form:** under the Gaussian explicit formula, the zero-side quadratic form equals the Gaussian-Gram quadratic form. | `weilQuadraticForm_eq_gaussianGram` |
+| T115 | Theorem | **Packaged equivalence:** `FiniteWeilPositivity ↔ RH` (T20 + T57). | `finiteWeilPositivity_iff_RH` |
+| T116 | Theorem | **Bridge, positivity form:** the Gaussian explicit formula plus PSD of the Gaussian Gram matrix imply `FiniteWeilPositivity`. | `finiteWeilPositivity_of_gaussianGram` |
+| T117 | Theorem | **Bridge, RH form:** the same two inputs imply RH. Conditional; not an unconditional proof. | `riemannHypothesis_of_gaussianGram` |
+| T118 | Theorem | **T86, three-term form:** `gaussianGramEntry a b σ = pole a−b + density a−b + primeTermSym a−b`. | `gaussianGramEntry_eq_pole_add_density_add_primeSym` |
+| T119 | Theorem | **Bridge with named inputs:** `GaussianExplicitFormula` + `GaussianGramPSD` imply `FiniteWeilPositivity`. | `finiteWeilPositivity_of_gaussianInputs` |
+| T120 | Theorem | **Bridge with named inputs, RH form:** the same two named inputs imply RH. Conditional. | `riemannHypothesis_of_gaussianInputs` |
+| T121 | Theorem | **Correctness audit:** the finite-`S` formula (T79/T116 hypothesis) forces `g ≡ 0`, hence is **vacuous** as a bridge input. | `finiteFormula_forces_zero` |
+| T122 | Theorem | The real-matrix quadratic form is continuous in the matrix. | `continuous_matrix_quadraticForm` |
+| T123 | Theorem | **PSD is a closed condition** (a pointwise limit of PSD real matrices is PSD). | `isClosed_setOf_posSemidef` |
+| T124 | Theorem | PSD passes to limits. | `posSemidef_of_tendsto` |
+| T125 | Theorem | **Corrected bridge:** `FiniteWeilPositivity` + `GaussianExplicitFormulaInfinite` imply `GaussianGramPSD`. | `gaussianGramPSD_of_finiteWeilPositivity` |
+| T126 | Theorem | Under the infinite explicit formula, RH implies `GaussianGramPSD` (corrected necessary direction). | `gaussianGramPSD_of_RH` |
+| T127 | Theorem | **Packaged Gaussian bridge:** under the infinite formula, the equivalence plus both `GaussianGramPSD` implications. | `gaussianBridge_summary` |
+| T128 | Theorem | **Assembly algebra:** from the assembled explicit formula, `Zsum = H_c(0) + H_c(1) − (ArchR+PrimeR+ArchL+PrimeL)/(2π)`. | `gaussianZeroSum_eq` |
+| T129 | Theorem | **Assembly, real form:** with the vertical-limit identification, `Re Zsum = gaussianGramEntry c 0 σ`. | `gaussianZeroSum_re_eq_gram` |
+| T130 | Theorem | **From assembly data to the infinite formula:** `GaussianZeroSumAssembly` implies `GaussianExplicitFormulaInfinite`. | `gaussianExplicitFormulaInfinite_of_assembly` |
+| O4 | Open | **The zero-side `HasSum` is not proved in the repository.** `GaussianZeroSumAssembly` bundles three things: the contour identity, `VerticalLimitIdentification`, and `HasSum (fun ρ ↦ (H_c ρ).re) Zsum.re` over the nontrivial zeros. The third — the convergence of the zero sum — appears only inside the hypothesis; no theorem in the 60 topics establishes it. The second reduces to the archimedean evaluation (now proved in `archimedean-prime-evaluation`, T25) plus the prime evaluation (open, O3). The first is the contour algebra of T128. | — |
+| T131 | Theorem | **Right vertical side:** the `Re s = 2` integral of `(ζ̂′/ζ̂)·H_c` equals `−(archRight + primeRight)`. | `right_integral_eq` |
+| T132 | Theorem | **Right vertical limit** from convergence of the archimedean and prime halves. | `tendsto_right` |
+| T133 | Theorem | **Left vertical limit** from the reflected test `H_{−c}` (functional equation). | `tendsto_left` |
+| T134 | Theorem | **End-to-end assembly with concrete vertical limits:** contour identity + horizontal limits + zero-sum convergence + arch/prime convergence + identification imply `Re Zsum = gaussianGramEntry c 0 σ`. | `gaussianZeroSum_re_eq_gram_of_vertical` |
+| T135 | Theorem | **Cofinal-chain lemma:** a summable family has unconditional sum `z` if its sums over a monotone cofinal chain converge to `z`. | `hasSum_of_cofinal` |
+| T136 | Theorem | **Enumeration reduction:** `GaussianExplicitFormulaInfinite` follows from the enumeration data (cofinal sequence, absolute summability, chain limit, value). | `gaussianExplicitFormulaInfinite_of_enumeration` |
+| T137 | Theorem | **Identification decomposition:** separate archimedean and prime identifications imply the combined vertical-limit identification. | `verticalLimitIdentification_of_limits` |
+| T138 | Theorem | **Strip norm bound:** on `0 < Re ρ < 1`, `‖H_c(ρ)‖ ≤ (2πσ²e^{σ²/4}·M_c)·e^{−σ²(Im ρ)²}`. | `gaussianZeroTest_norm_le_strip` |
+| T139 | Theorem | **Absolute summability from zero counting:** a zero enumeration with `|γ_n| ≥ c₀ n/log n` makes the Gaussian zero sum absolutely summable. | `summable_gaussianZeroSum_of_enumeration` |
+| T140 | Theorem | **Evaluations imply the identification:** `ArchimedeanEvaluation` + `PrimeEvaluation` ⟹ `VerticalLimitIdentification`. | `verticalLimitIdentification_of_evaluations` |
+| T141 | Theorem | **Exponential summability over the zeros** from the linear growth of `ξ₀` and an enumeration. | `summable_exp_im_sq_of_xi₀_growth` |
+| T142 | Theorem | **Absolute summability of the Gaussian zero sum** from the linear growth of `ξ₀` and an enumeration. | `summable_gaussianZeroSum_of_xi₀_growth` |
 | C1 | Computation | The on-line form equals its cosine/sine sum of squares and is nonnegative. | `tests/test_programme.py` |
 | C2 | Computation | The rank-one factorization holds on the critical line and fails off it. | `tests/test_programme.py` |
 | C3 | Computation | The prime contribution is a sum of nonnegative terms, while `Ω` and the assembled entry take both signs. | `tests/test_programme.py` |
@@ -831,7 +877,43 @@ the following four inputs.  None is proved.
 2. **PNT** (`SmoothWindowPNTError`, T44).  `∀ c σ N, |primeMainTerm c σ −
    gaussianPrimeSide c σ N| ≤ E`.  Mathlib has Chebyshev-type `ψ` bounds but no
    PNT.
-3. **The full three-term Gram positivity.**  The concrete archimedean kernel for
+3. **The bridge is packaged (T114–T120), with named inputs.**  The two inputs are now first-class definitions:
+   the **Gaussian explicit formula** `scalarZeroSide σ S c = gaussianGramEntry c 0 σ`
+   (for nontrivial zeros in the critical strip), and **PSD of the Gaussian Gram
+   matrix** `Matrix.of (fun i j => gaussianGramEntry (a i - a j) 0 σ)` for every
+   finite family `a`, named `GaussianExplicitFormula` and `GaussianGramPSD`.
+   T119 gives `FiniteWeilPositivity` from these; T120 gives RH; T115 is the
+   packaged equivalence `FiniteWeilPositivity ↔ RH`; T118 is T86 in three-term
+   form.  Neither input is archimedean dominance.  The finite-certificate ladder
+   (`prime-spectrum-tensor` 4×4/5×5) is a *sample* of `GaussianGramPSD` and is
+   not part of the bridge.
+
+   **Correction (T121).**  The finite-`S` identity used by T79/T116 is vacuous:
+   at `S = ∅` it forces the arithmetic side to be identically zero.  The
+   genuine input is the infinite-sum identity
+   `GaussianExplicitFormulaInfinite` (tsum over all nontrivial zeros in the
+   strip).  T116/T119/T120 are therefore formally true but only conditional on
+   a vacuous hypothesis; they are not usable bridge reductions.  Deriving
+   `GaussianGramPSD` from `FiniteWeilPositivity` plus
+   `GaussianExplicitFormulaInfinite` (now stated with `HasSum`, so it carries
+   convergence) is the next formal task.  The analytic closure ingredient is
+   now proved: T123/T124 show a pointwise limit of PSD real matrices is PSD, so
+   only the entrywise `HasSum`-to-matrix-`Tendsto` step remained; it is now
+   done (T125/T126): `FiniteWeilPositivity` + `GaussianExplicitFormulaInfinite`
+   imply `GaussianGramPSD`, and RH implies `GaussianGramPSD` under the infinite
+   formula.  The converse (`GaussianGramPSD` ⟹ `FiniteWeilPositivity`) needs a
+   truncation-positivity input and is **not** available; the old finite-formula
+   route (T116) is vacuous (T121).
+
+   **Which direction is proved, which is open.**  Both implications between RH
+   and `FiniteWeilPositivity` are Lean-proved (T20 and T57), so T115 is
+   unconditional as an equivalence.  What is *not* proved is either input:
+   `GaussianExplicitFormula` (open: needs the assembled explicit formula with
+   zero simplicity / contour limits) and `GaussianGramPSD` (open: the genuine
+   positivity, RH-strength).  Finite samples do not discharge
+   `GaussianGramPSD`.
+
+4. **The full three-term Gram positivity.**  The concrete archimedean kernel for
    the Gaussian family is `densityTerm c σ = σ² ∫ e^{−σ²t²} cos(ct) Ω(t) dt`
    with `Ω(t) = Re ψ(1/4+it/2) − log π` (`prime-spectrum-tensor`), and the bridge
    T86 identifies `gaussianGramEntry = arithmeticResidualFun` with
@@ -902,12 +984,27 @@ python3 -m pytest the-final-letter/topics/missing-bridge/tests -q
 
 ## Lean layer
 
-`lean/Topic.lean` proves T1–T97 by harvesting `GaussianZeroSide` and
+`lean/Topic.lean` proves T1–T137, `lean/ZeroCounting.lean` proves T138–T140, and `lean/Summability.lean` proves T141–T142 `GaussianZeroSide` and
 `Transfer` and adding the on-line sum-of-squares identity, the PSD convexity
 lemmas, the σ-flow non-monotonicity, the maximal-|δ| obstruction, and the
 finite-zero-set easy direction of Weil positivity.  It does **not** prove O1,
 O2, O3 or O4, and it does not prove the infinite/cone Weil form.  The
 `lean/README.md` records the boundary.
+
+## Dependency note (I5)
+
+The explicit formula's pole terms (`h(0) + h(1)`) and the `h ↔ ĥ` pairing consume
+the functional equation.  With [`zeta-from-theta`](../zeta-from-theta/README.md)
+that consumption no longer routes through the Hurwitz-zeta development:
+`ZetaFromTheta.zetaTheta_one_sub` (D4) is a functional equation for the
+theta-side object whose constant-level audit
+([`AUDIT.md`](../zeta-from-theta/lean/AUDIT.md)) contains no `*_one_sub` lemma of
+that development, and `ZetaFromTheta.riemannZeta_one_sub_from_theta` (M6)
+assembles the `riemannZeta` form (with `Γℝ(1−s) ≠ 0` retained).
+
+**This is a provenance note only.**  It changes no positivity statement in this
+topic: every open item below stays open, including unconditional Weil
+positivity.  Nothing here is evidence for RH.
 
 ## Open items and known gaps
 
@@ -957,3 +1054,24 @@ O2, O3 or O4, and it does not prove the infinite/cone Weil form.  The
 the-final-letter/topics/missing-bridge/lean/check.sh
 python3 -m pytest the-final-letter/topics/missing-bridge/tests -q
 ```
+
+## The two remaining analytic inputs (T138–T140)
+
+Both are now first-class named objects in
+[`lean/ZeroCounting.lean`](lean/ZeroCounting.lean):
+
+* **`ArchimedeanEvaluation c σ A A′`** — `A.re + A′.re = −2π·densityTerm c σ`.
+* **`PrimeEvaluation c σ P P′`** — `P.re + P′.re = −2π·primeTermSym c σ`.
+
+T140 shows their conjunction implies the vertical-limit identification.  Neither
+is proved: evaluating the vertical integrals requires the digamma/contour-shift
+and Dirichlet-series computations, which the existing contour file explicitly
+does not contain.
+
+**Absolute summability is reduced to the counting bound.**  T138 gives the strip
+norm bound `‖H_c(ρ)‖ ≤ K·e^{−σ²(Im ρ)²}`, and T139 proves that a zero
+enumeration `e : ℕ ≃ Z` with `|(e n).im| ≥ c₀ n/log n` makes the Gaussian zero
+sum absolutely summable (via `zeroTailSummable_of_ge_div_log` and
+`Summable.of_norm_bounded`, transferred along the equivalence).  The counting
+bound itself — a Riemann–von Mangoldt-type estimate — is the named input; it is
+not in Mathlib.  Nothing here asserts RH.

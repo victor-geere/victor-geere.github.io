@@ -1,0 +1,30 @@
+# `qefe/lean/QuadraticInt/LocalTwo.lean`
+
+[Back to the split index](index.md) · Topic: [`qefe`](../qefe/README.md)
+
+### [`qefe/lean/QuadraticInt/LocalTwo.lean`](../qefe/lean/QuadraticInt/LocalTwo.lean) — 22 proofs
+
+| Line | Kind | Proof | Statement (LaTeX) |
+|---:|---|---|---|
+| [26](../qefe/lean/QuadraticInt/LocalTwo.lean#L26) | lemma | `sq_add_two_sq_ne_five` | $:\forall\ a\ b:\mathrm{ZMod}\ 8,\ a^{2}+2\cdot\ b^{2}\ne\ 5$ |
+| [28](../qefe/lean/QuadraticInt/LocalTwo.lean#L28) | lemma | `sq_add_two_sq_ne_seven` | $:\forall\ a\ b:\mathrm{ZMod}\ 8,\ a^{2}+2\cdot\ b^{2}\ne\ 7$ |
+| [30](../qefe/lean/QuadraticInt/LocalTwo.lean#L30) | lemma | `not_repr_of_mod_eight` | $\forall\,p : \mathbb{N},\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \neg\ \exists\ a\ b:\mathbb{Z},\ a^{2}+2\cdot\ b^{2}=(p:\mathbb{Z})$ |
+| [52](../qefe/lean/QuadraticInt/LocalTwo.lean#L52) | theorem | `not_irreducible_of_repr` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,a\,b : \mathbb{Z},\ \forall\,h : a^{2}+2\cdot\ b^{2}=(p:\mathbb{Z}),\ \neg\ \mathrm{Irreducible}(p:\mathrm{R2})$ |
+| [76](../qefe/lean/QuadraticInt/LocalTwo.lean#L76) | theorem | `irreducible_iff_no_repr` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \mathrm{Irreducible}(p:\mathrm{R2})\leftrightarrow\neg\ \exists\ a\ b:\mathbb{Z},\ a^{2}+2\cdot\ b^{2}=(p:\mathbb{Z})$ |
+| [87](../qefe/lean/QuadraticInt/LocalTwo.lean#L87) | theorem | `inert_prime_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \mathrm{Prime}(p:\mathrm{R2})$ |
+| [98](../qefe/lean/QuadraticInt/LocalTwo.lean#L98) | lemma | `finrank_two` | $:\mathrm{Module.finrank}\ \mathbb{Z}\ \mathrm{R2}=2$ |
+| [102](../qefe/lean/QuadraticInt/LocalTwo.lean#L102) | lemma | `absNorm_span_natCast_two` | $\forall\,n : \mathbb{N},\ \mathrm{Ideal.absNorm}(\mathrm{Ideal.span}(\{(n:\mathrm{R2})\}:\mathrm{Set}\ \mathrm{R2}))=n^{2}$ |
+| [110](../qefe/lean/QuadraticInt/LocalTwo.lean#L110) | lemma | `inert_span_prime_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ (\mathrm{Ideal.span}(\{(p:\mathrm{R2})\}:\mathrm{Set}\ \mathrm{R2})).\mathrm{IsPrime}$ |
+| [118](../qefe/lean/QuadraticInt/LocalTwo.lean#L118) | lemma | `inert_unique_prime_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \forall\,P : \mathrm{Ideal}\ \mathrm{R2},\ \forall\,[P.\mathrm{IsMaximal}],\ \forall\,hP : P.\mathrm{under}\ \mathbb{Z}=\mathrm{Ideal.span}(\{(p:\mathbb{Z})\}:\mathrm{Set}\ \mathbb{Z}),\ P=\mathrm{Ideal.span}(\{(p:\mathrm{R2})\}:\mathrm{Set}\ \mathrm{R2})$ |
+| [137](../qefe/lean/QuadraticInt/LocalTwo.lean#L137) | lemma | `inert_ideal_eq_span_pow_two` | $\forall\,p\,e : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \forall\,I : \mathrm{Ideal}\ \mathrm{R2},\ \forall\,hI : \mathrm{Ideal.absNorm}\ I=p^{2\cdot\ e},\ I=(\mathrm{Ideal.span}(\{(p:\mathrm{R2})\}:\mathrm{Set}\ \mathrm{R2}))^{e}$ |
+| [168](../qefe/lean/QuadraticInt/LocalTwo.lean#L168) | lemma | `inert_ideal_count_even_two` | $\forall\,p\,e : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \mathrm{Nat.card}\ \{I:\mathrm{Ideal}\ \mathrm{R2}//\mathrm{Ideal.absNorm}\ I=p^{2\cdot\ e}\}=1$ |
+| [181](../qefe/lean/QuadraticInt/LocalTwo.lean#L181) | lemma | `inert_no_ideal_norm_prime_two` | $\forall\,p : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \mathrm{Nat.card}\ \{I:\mathrm{Ideal}\ \mathrm{R2}//\mathrm{Ideal.absNorm}\ I=p\}=0$ |
+| [205](../qefe/lean/QuadraticInt/LocalTwo.lean#L205) | lemma | `inert_no_ideal_norm_odd_two` | $\forall\,p\,e : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \mathrm{IsEmpty}\ \{I:\mathrm{Ideal}\ \mathrm{R2}//\mathrm{Ideal.absNorm}\ I=p^{2\cdot\ e+1}\}$ |
+| [250](../qefe/lean/QuadraticInt/LocalTwo.lean#L250) | lemma | `inert_ideal_count_odd_two` | $\forall\,p\,e : \mathbb{N},\ \forall\,[\mathrm{hp}:\mathrm{Fact}\ p.\mathrm{Prime}],\ \forall\,hp_{8} : p\ \%\ 8=5\ \lor\ p\ \%\ 8=7,\ \mathrm{Nat.card}\ \{I:\mathrm{Ideal}\ \mathrm{R2}//\mathrm{Ideal.absNorm}\ I=p^{2\cdot\ e+1}\}=0$ |
+| [265](../qefe/lean/QuadraticInt/LocalTwo.lean#L265) | lemma | `norm_sqrtd_two` | $:(\mathrm{Zsqrtd.sqrtd}:\mathrm{R2}).\mathrm{norm}=2$ |
+| [268](../qefe/lean/QuadraticInt/LocalTwo.lean#L268) | lemma | `prime_sqrtd_two` | $:\mathrm{Prime}(\mathrm{Zsqrtd.sqrtd}:\mathrm{R2})$ |
+| [279](../qefe/lean/QuadraticInt/LocalTwo.lean#L279) | lemma | `ramified_two_sq_two` | $:\mathrm{Ideal.span}(\{(2:\mathrm{R2})\}:\mathrm{Set}\ \mathrm{R2})=(\mathrm{Ideal.span}(\{\mathrm{Zsqrtd.sqrtd}\}:\mathrm{Set}\ \mathrm{R2}))^{2}$ |
+| [287](../qefe/lean/QuadraticInt/LocalTwo.lean#L287) | lemma | `ramified_span_prime_two` | $:(\mathrm{Ideal.span}(\{\mathrm{Zsqrtd.sqrtd}\}:\mathrm{Set}\ \mathrm{R2})).\mathrm{IsPrime}$ |
+| [295](../qefe/lean/QuadraticInt/LocalTwo.lean#L295) | lemma | `ramified_unique_prime_two` | $\forall\,P : \mathrm{Ideal}\ \mathrm{R2},\ \forall\,[P.\mathrm{IsMaximal}],\ \forall\,hP : P.\mathrm{under}\ \mathbb{Z}=\mathrm{Ideal.span}(\{(2:\mathbb{Z})\}:\mathrm{Set}\ \mathbb{Z}),\ P=\mathrm{Ideal.span}(\{\mathrm{Zsqrtd.sqrtd}\}:\mathrm{Set}\ \mathrm{R2})$ |
+| [320](../qefe/lean/QuadraticInt/LocalTwo.lean#L320) | lemma | `ramified_ideal_eq_span_pow_two` | $\forall\,k : \mathbb{N},\ \forall\,I : \mathrm{Ideal}\ \mathrm{R2},\ \forall\,hI : \mathrm{Ideal.absNorm}\ I=2^{k},\ I=(\mathrm{Ideal.span}(\{\mathrm{Zsqrtd.sqrtd}\}:\mathrm{Set}\ \mathrm{R2}))^{k}$ |
+| [354](../qefe/lean/QuadraticInt/LocalTwo.lean#L354) | lemma | `ramified_ideal_count_two` | $\forall\,k : \mathbb{N},\ \mathrm{Nat.card}\ \{I:\mathrm{Ideal}\ \mathrm{R2}//\mathrm{Ideal.absNorm}\ I=2^{k}\}=1$ |

@@ -32,6 +32,9 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 - [`angular-partition-method/lean/RegularizedIntegral.lean`](angular-partition-method__lean__RegularizedIntegral.lean.md)
 - [`angular-partition-method/lean/Topic.lean`](angular-partition-method__lean__Topic.lean.md)
 - [`angular-partition-method/lean/VectorArea.lean`](angular-partition-method__lean__VectorArea.lean.md)
+- [`archimedean-prime-evaluation/lean/Topic.lean`](archimedean-prime-evaluation__lean__Topic.lean.md)
+- [`digamma-contour-shift/lean/Shift.lean`](digamma-contour-shift__lean__Shift.lean.md)
+- [`digamma-contour-shift/lean/Topic.lean`](digamma-contour-shift__lean__Topic.lean.md)
 - [`dyadic-sheaf-cohomology/lean/Topic.lean`](dyadic-sheaf-cohomology__lean__Topic.lean.md)
 - [`eml-universal-operator/lean/Topic.lean`](eml-universal-operator__lean__Topic.lean.md)
 - [`euler-maclaurin/lean/Topic.lean`](euler-maclaurin__lean__Topic.lean.md)
@@ -81,6 +84,7 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 - [`geometric-dynamical-phase-transitions/lean/Tractable.lean`](geometric-dynamical-phase-transitions__lean__Tractable.lean.md)
 - [`geometric-dynamical-phase-transitions/lean/TransferNoGo.lean`](geometric-dynamical-phase-transitions__lean__TransferNoGo.lean.md)
 - [`geometric-reformulation/lean/Topic.lean`](geometric-reformulation__lean__Topic.lean.md)
+- [`geometric-zeta/lean/Topic.lean`](geometric-zeta__lean__Topic.lean.md)
 - [`ghd-correlation-kernel/lean/Topic.lean`](ghd-correlation-kernel__lean__Topic.lean.md)
 - [`greedy-harmonic-decomposition/lean/Topic.lean`](greedy-harmonic-decomposition__lean__Topic.lean.md)
 - [`greedy-harmonic-hilbert-polya/lean/Topic.lean`](greedy-harmonic-hilbert-polya__lean__Topic.lean.md)
@@ -107,7 +111,10 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 - [`iota-helix-function/lean/Topic.lean`](iota-helix-function__lean__Topic.lean.md)
 - [`isabelle-afp/lean/Topic.lean`](isabelle-afp__lean__Topic.lean.md)
 - [`log-derivative-growth/lean/Topic.lean`](log-derivative-growth__lean__Topic.lean.md)
+- [`missing-bridge/lean/Summability.lean`](missing-bridge__lean__Summability.lean.md)
 - [`missing-bridge/lean/Topic.lean`](missing-bridge__lean__Topic.lean.md)
+- [`missing-bridge/lean/VerticalLimits.lean`](missing-bridge__lean__VerticalLimits.lean.md)
+- [`missing-bridge/lean/ZeroCounting.lean`](missing-bridge__lean__ZeroCounting.lean.md)
 - [`nested-spheres-continuous-cone/lean/Topic.lean`](nested-spheres-continuous-cone__lean__Topic.lean.md)
 - [`padic-greedy-sine/lean/Topic.lean`](padic-greedy-sine__lean__Topic.lean.md)
 - [`padic-stochastic-zeta/lean/Topic.lean`](padic-stochastic-zeta__lean__Topic.lean.md)
@@ -127,8 +134,18 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 - [`periodic-orbits/lean/Topic.lean`](periodic-orbits__lean__Topic.lean.md)
 - [`phase-interference/lean/Topic.lean`](phase-interference__lean__Topic.lean.md)
 - [`prime-spectrum-tensor/lean/Assembly.lean`](prime-spectrum-tensor__lean__Assembly.lean.md)
+- [`prime-spectrum-tensor/lean/Assembly6.lean`](prime-spectrum-tensor__lean__Assembly6.lean.md)
+- [`prime-spectrum-tensor/lean/Assembly7.lean`](prime-spectrum-tensor__lean__Assembly7.lean.md)
+- [`prime-spectrum-tensor/lean/Assembly8.lean`](prime-spectrum-tensor__lean__Assembly8.lean.md)
+- [`prime-spectrum-tensor/lean/Audit.lean`](prime-spectrum-tensor__lean__Audit.lean.md)
+- [`prime-spectrum-tensor/lean/Closure6.lean`](prime-spectrum-tensor__lean__Closure6.lean.md)
+- [`prime-spectrum-tensor/lean/Closure7.lean`](prime-spectrum-tensor__lean__Closure7.lean.md)
+- [`prime-spectrum-tensor/lean/Closure8.lean`](prime-spectrum-tensor__lean__Closure8.lean.md)
 - [`prime-spectrum-tensor/lean/CosBound.lean`](prime-spectrum-tensor__lean__CosBound.lean.md)
 - [`prime-spectrum-tensor/lean/DensityAssembly.lean`](prime-spectrum-tensor__lean__DensityAssembly.lean.md)
+- [`prime-spectrum-tensor/lean/DensityBands6.lean`](prime-spectrum-tensor__lean__DensityBands6.lean.md)
+- [`prime-spectrum-tensor/lean/DensityBands7.lean`](prime-spectrum-tensor__lean__DensityBands7.lean.md)
+- [`prime-spectrum-tensor/lean/DensityBands8.lean`](prime-spectrum-tensor__lean__DensityBands8.lean.md)
 - [`prime-spectrum-tensor/lean/DensityCertificates.lean`](prime-spectrum-tensor__lean__DensityCertificates.lean.md)
 - [`prime-spectrum-tensor/lean/DensityCertificates5.lean`](prime-spectrum-tensor__lean__DensityCertificates5.lean.md)
 - [`prime-spectrum-tensor/lean/DensityDemo.lean`](prime-spectrum-tensor__lean__DensityDemo.lean.md)
@@ -136,12 +153,20 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 - [`prime-spectrum-tensor/lean/DensityPanel.lean`](prime-spectrum-tensor__lean__DensityPanel.lean.md)
 - [`prime-spectrum-tensor/lean/DensityTail.lean`](prime-spectrum-tensor__lean__DensityTail.lean.md)
 - [`prime-spectrum-tensor/lean/DensityWeight.lean`](prime-spectrum-tensor__lean__DensityWeight.lean.md)
+- [`prime-spectrum-tensor/lean/DetPos.lean`](prime-spectrum-tensor__lean__DetPos.lean.md)
+- [`prime-spectrum-tensor/lean/DiagonalPositivity.lean`](prime-spectrum-tensor__lean__DiagonalPositivity.lean.md)
+- [`prime-spectrum-tensor/lean/ExpSevenFifths.lean`](prime-spectrum-tensor__lean__ExpSevenFifths.lean.md)
+- [`prime-spectrum-tensor/lean/ExpSixFifths.lean`](prime-spectrum-tensor__lean__ExpSixFifths.lean.md)
 - [`prime-spectrum-tensor/lean/FirstRung.lean`](prime-spectrum-tensor__lean__FirstRung.lean.md)
 - [`prime-spectrum-tensor/lean/GaussianGram.lean`](prime-spectrum-tensor__lean__GaussianGram.lean.md)
 - [`prime-spectrum-tensor/lean/GaussianGram5.lean`](prime-spectrum-tensor__lean__GaussianGram5.lean.md)
+- [`prime-spectrum-tensor/lean/GaussianGram6.lean`](prime-spectrum-tensor__lean__GaussianGram6.lean.md)
+- [`prime-spectrum-tensor/lean/GaussianGram7.lean`](prime-spectrum-tensor__lean__GaussianGram7.lean.md)
+- [`prime-spectrum-tensor/lean/GaussianGram8.lean`](prime-spectrum-tensor__lean__GaussianGram8.lean.md)
 - [`prime-spectrum-tensor/lean/GaussianTail.lean`](prime-spectrum-tensor__lean__GaussianTail.lean.md)
 - [`prime-spectrum-tensor/lean/LipSmall.lean`](prime-spectrum-tensor__lean__LipSmall.lean.md)
 - [`prime-spectrum-tensor/lean/LipSmall2.lean`](prime-spectrum-tensor__lean__LipSmall2.lean.md)
+- [`prime-spectrum-tensor/lean/LipSmall3.lean`](prime-spectrum-tensor__lean__LipSmall3.lean.md)
 - [`prime-spectrum-tensor/lean/MidpointRule.lean`](prime-spectrum-tensor__lean__MidpointRule.lean.md)
 - [`prime-spectrum-tensor/lean/OmegaContinuous.lean`](prime-spectrum-tensor__lean__OmegaContinuous.lean.md)
 - [`prime-spectrum-tensor/lean/OmegaGlobal.lean`](prime-spectrum-tensor__lean__OmegaGlobal.lean.md)
@@ -150,17 +175,53 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 - [`prime-spectrum-tensor/lean/PanelAssembly.lean`](prime-spectrum-tensor__lean__PanelAssembly.lean.md)
 - [`prime-spectrum-tensor/lean/PanelCertificate.lean`](prime-spectrum-tensor__lean__PanelCertificate.lean.md)
 - [`prime-spectrum-tensor/lean/PanelDecay.lean`](prime-spectrum-tensor__lean__PanelDecay.lean.md)
+- [`prime-spectrum-tensor/lean/PanelSecondOrder.lean`](prime-spectrum-tensor__lean__PanelSecondOrder.lean.md)
 - [`prime-spectrum-tensor/lean/PanelSum.lean`](prime-spectrum-tensor__lean__PanelSum.lean.md)
 - [`prime-spectrum-tensor/lean/PoleEnclosure.lean`](prime-spectrum-tensor__lean__PoleEnclosure.lean.md)
+- [`prime-spectrum-tensor/lean/PoleQuadraticForm.lean`](prime-spectrum-tensor__lean__PoleQuadraticForm.lean.md)
 - [`prime-spectrum-tensor/lean/PrimeEnclosure.lean`](prime-spectrum-tensor__lean__PrimeEnclosure.lean.md)
+- [`prime-spectrum-tensor/lean/PrimeEnclosure7.lean`](prime-spectrum-tensor__lean__PrimeEnclosure7.lean.md)
+- [`prime-spectrum-tensor/lean/PrimeEnclosure8.lean`](prime-spectrum-tensor__lean__PrimeEnclosure8.lean.md)
+- [`prime-spectrum-tensor/lean/SecondDeriv.lean`](prime-spectrum-tensor__lean__SecondDeriv.lean.md)
+- [`prime-spectrum-tensor/lean/SeparationWall.lean`](prime-spectrum-tensor__lean__SeparationWall.lean.md)
 - [`prime-spectrum-tensor/lean/SeriesRoute.lean`](prime-spectrum-tensor__lean__SeriesRoute.lean.md)
+- [`prime-spectrum-tensor/lean/SubCone.lean`](prime-spectrum-tensor__lean__SubCone.lean.md)
+- [`prime-spectrum-tensor/lean/SubmatrixRungs.lean`](prime-spectrum-tensor__lean__SubmatrixRungs.lean.md)
 - [`prime-spectrum-tensor/lean/SumApprox.lean`](prime-spectrum-tensor__lean__SumApprox.lean.md)
 - [`prime-spectrum-tensor/lean/Topic.lean`](prime-spectrum-tensor__lean__Topic.lean.md)
 - [`prime-spectrum-tensor/lean/Transfer.lean`](prime-spectrum-tensor__lean__Transfer.lean.md)
+- [`prime-spectrum-tensor/lean/TrigGram.lean`](prime-spectrum-tensor__lean__TrigGram.lean.md)
 - [`prime-spectrum-tensor/lean/WeightBound.lean`](prime-spectrum-tensor__lean__WeightBound.lean.md)
 - [`prime-spectrum-tensor/lean/WeightDecay.lean`](prime-spectrum-tensor__lean__WeightDecay.lean.md)
+- [`prime-spectrum-tensor/lean/WeightDeriv2.lean`](prime-spectrum-tensor__lean__WeightDeriv2.lean.md)
 - [`prime-spectrum-tensor/lean/ZeroSidePole.lean`](prime-spectrum-tensor__lean__ZeroSidePole.lean.md)
 - [`proof-99-global-harmonic-framework/lean/Topic.lean`](proof-99-global-harmonic-framework__lean__Topic.lean.md)
+- [`qefe/lean/GaussianInt/Audit.lean`](qefe__lean__GaussianInt__Audit.lean.md)
+- [`qefe/lean/GaussianInt/ClosedForm.lean`](qefe__lean__GaussianInt__ClosedForm.lean.md)
+- [`qefe/lean/GaussianInt/IdealCount.lean`](qefe__lean__GaussianInt__IdealCount.lean.md)
+- [`qefe/lean/GaussianInt/Norm.lean`](qefe__lean__GaussianInt__Norm.lean.md)
+- [`qefe/lean/GaussianInt/QuadraticField.lean`](qefe__lean__GaussianInt__QuadraticField.lean.md)
+- [`qefe/lean/GaussianInt/RingOfIntegers.lean`](qefe__lean__GaussianInt__RingOfIntegers.lean.md)
+- [`qefe/lean/GaussianInt/TwoSquares.lean`](qefe__lean__GaussianInt__TwoSquares.lean.md)
+- [`qefe/lean/QuadraticInt/Audit.lean`](qefe__lean__QuadraticInt__Audit.lean.md)
+- [`qefe/lean/QuadraticInt/Eisenstein.lean`](qefe__lean__QuadraticInt__Eisenstein.lean.md)
+- [`qefe/lean/QuadraticInt/FormulaThree.lean`](qefe__lean__QuadraticInt__FormulaThree.lean.md)
+- [`qefe/lean/QuadraticInt/FormulaTwo.lean`](qefe__lean__QuadraticInt__FormulaTwo.lean.md)
+- [`qefe/lean/QuadraticInt/IdealCountThree.lean`](qefe__lean__QuadraticInt__IdealCountThree.lean.md)
+- [`qefe/lean/QuadraticInt/IdealCountTwo.lean`](qefe__lean__QuadraticInt__IdealCountTwo.lean.md)
+- [`qefe/lean/QuadraticInt/LocalThree.lean`](qefe__lean__QuadraticInt__LocalThree.lean.md)
+- [`qefe/lean/QuadraticInt/LocalTwo.lean`](qefe__lean__QuadraticInt__LocalTwo.lean.md)
+- [`qefe/lean/QuadraticInt/MultThree.lean`](qefe__lean__QuadraticInt__MultThree.lean.md)
+- [`qefe/lean/QuadraticInt/MultTwo.lean`](qefe__lean__QuadraticInt__MultTwo.lean.md)
+- [`qefe/lean/QuadraticInt/RingOfIntegersThree.lean`](qefe__lean__QuadraticInt__RingOfIntegersThree.lean.md)
+- [`qefe/lean/QuadraticInt/RingOfIntegersTwo.lean`](qefe__lean__QuadraticInt__RingOfIntegersTwo.lean.md)
+- [`qefe/lean/QuadraticInt/SplitCountThree.lean`](qefe__lean__QuadraticInt__SplitCountThree.lean.md)
+- [`qefe/lean/QuadraticInt/SplitCountThreeFull.lean`](qefe__lean__QuadraticInt__SplitCountThreeFull.lean.md)
+- [`qefe/lean/QuadraticInt/SplitCountTwo.lean`](qefe__lean__QuadraticInt__SplitCountTwo.lean.md)
+- [`qefe/lean/QuadraticInt/SplitThree.lean`](qefe__lean__QuadraticInt__SplitThree.lean.md)
+- [`qefe/lean/QuadraticInt/SplitTwo.lean`](qefe__lean__QuadraticInt__SplitTwo.lean.md)
+- [`qefe/lean/QuadraticInt/ZsqrtdTwo.lean`](qefe__lean__QuadraticInt__ZsqrtdTwo.lean.md)
+- [`qefe/lean/ScratchPlus5.lean`](qefe__lean__ScratchPlus5.lean.md)
 - [`qefe/lean/Topic.lean`](qefe__lean__Topic.lean.md)
 - [`qefe-research-notes/lean/Topic.lean`](qefe-research-notes__lean__Topic.lean.md)
 - [`quaternion-cosine/lean/Topic.lean`](quaternion-cosine__lean__Topic.lean.md)
@@ -177,6 +238,17 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 - [`yakaboylu-notes/lean/Topic.lean`](yakaboylu-notes__lean__Topic.lean.md)
 - [`zero-density-bound/lean/Topic.lean`](zero-density-bound__lean__Topic.lean.md)
 - [`zero-infinitude/lean/Topic.lean`](zero-infinitude__lean__Topic.lean.md)
+- [`zero-side-bridge/lean/Topic.lean`](zero-side-bridge__lean__Topic.lean.md)
+- [`zero-sum-convergence/lean/Topic.lean`](zero-sum-convergence__lean__Topic.lean.md)
+- [`zero-sum-convergence/lean/ZeroSum.lean`](zero-sum-convergence__lean__ZeroSum.lean.md)
+- [`zeta-from-theta/lean/Audit.lean`](zeta-from-theta__lean__Audit.lean.md)
+- [`zeta-from-theta/lean/Mellin.lean`](zeta-from-theta__lean__Mellin.lean.md)
+- [`zeta-from-theta/lean/Theta.lean`](zeta-from-theta__lean__Theta.lean.md)
+- [`zeta-from-theta/lean/ThetaLayer.lean`](zeta-from-theta__lean__ThetaLayer.lean.md)
+- [`zeta-from-theta/lean/Topic.lean`](zeta-from-theta__lean__Topic.lean.md)
+- [`zeta-from-theta/lean/Zeta.lean`](zeta-from-theta__lean__Zeta.lean.md)
+- [`zeta-functional-equation/lean/FunctionalEquation.lean`](zeta-functional-equation__lean__FunctionalEquation.lean.md)
+- [`zeta-functional-equation/lean/Topic.lean`](zeta-functional-equation__lean__Topic.lean.md)
 
 ## [`absolute-polarized-hodge-index-realization/lean/Archimedean.lean`](absolute-polarized-hodge-index-realization__lean__Archimedean.lean.md)
 
@@ -1419,6 +1491,124 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`vectorArea_univ_eq_ctail`](../angular-partition-method/lean/VectorArea.lean#L62) | The total vector area is the initial point of the phase-carrying coil. | angular-partition-method |
 | [`norm_vectorArea_univ_le`](../angular-partition-method/lean/VectorArea.lean#L69) | The total area of the vector field is bounded by the sum of the annulus areas. | angular-partition-method |
 | [`vectorArea_eq_phase_sum`](../angular-partition-method/lean/VectorArea.lean#L75) | The vector area field is the sum of the phase vectors of its annuli. | angular-partition-method |
+
+## [`archimedean-prime-evaluation/lean/Topic.lean`](archimedean-prime-evaluation__lean__Topic.lean.md)
+
+### topics
+
+- [`archimedean-prime-evaluation`](../archimedean-prime-evaluation/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`verticalLimitIdentification_of_evaluations`](../archimedean-prime-evaluation/lean/Topic.lean#L65) | The two evaluation equalities imply the identification. | archimedean-prime-evaluation |
+| [`gaussianZeroTest_half_add`](../archimedean-prime-evaluation/lean/Topic.lean#L75) | The Gaussian test on the critical line. | archimedean-prime-evaluation |
+| [`exp_neg_mul_I`](../archimedean-prime-evaluation/lean/Topic.lean#L96) | The critical-line exponential e^{−ict} in trigonometric form. | archimedean-prime-evaluation |
+| [`exp_gaussian`](../archimedean-prime-evaluation/lean/Topic.lean#L105) | The Gaussian exponential is a real exponential. | archimedean-prime-evaluation |
+| [`gaussianZeroTest_half_add_re`](../archimedean-prime-evaluation/lean/Topic.lean#L111) | Real part of the critical-line test. | archimedean-prime-evaluation |
+| [`gaussianZeroTest_half_add_im`](../archimedean-prime-evaluation/lean/Topic.lean#L121) | Imaginary part of the critical-line test. | archimedean-prime-evaluation |
+| [`arch_integrand_identity`](../archimedean-prime-evaluation/lean/Topic.lean#L134) | Pointwise archimedean integrand identity on the critical line. The real part of (log π − ψ(1/4+it/2))·H_c(1/2+it) splits into the Ω·cos p… | archimedean-prime-evaluation |
+| [`gaussianZeroTest_two_add`](../archimedean-prime-evaluation/lean/Topic.lean#L194) | The Gaussian test at Re s = 2, in Gaussian form. | archimedean-prime-evaluation |
+| [`termwiseIntegral_eq`](../archimedean-prime-evaluation/lean/Topic.lean#L218) | The Gaussian Fourier transform, proved. The n-th term is the Gaussian integral with a linear phase. | archimedean-prime-evaluation |
+| [`gaussianFourierTransform`](../archimedean-prime-evaluation/lean/Topic.lean#L287) | Gaussian Fourier Transform | archimedean-prime-evaluation |
+| [`primePartialIntegral_eq`](../archimedean-prime-evaluation/lean/Topic.lean#L299) | Finite termwise exchange. For a finite partial sum of the prime series, the vertical integral splits into the sum of the individual integ… | archimedean-prime-evaluation |
+| [`integrable_term`](../archimedean-prime-evaluation/lean/Topic.lean#L331) | Term integrability. The n-th termwise integrand on Re s = 2 is integrable, with the Gaussian decay of the test. | archimedean-prime-evaluation |
+| [`tendsto_term_integral`](../archimedean-prime-evaluation/lean/Topic.lean#L362) | Term limit. The truncated vertical integral of the n-th term tends to the full termwiseIntegral. | archimedean-prime-evaluation |
+| [`tendsto_primePartial_integral`](../archimedean-prime-evaluation/lean/Topic.lean#L373) | Partial-sum limit. For fixed N, the truncated vertical integral of the prime partial sum tends to the finite sum of the term integrals. | archimedean-prime-evaluation |
+| [`norm_termwise_integrand`](../archimedean-prime-evaluation/lean/Topic.lean#L394) | Norm of the n-th termwise integrand on Re s = 2. | archimedean-prime-evaluation |
+| [`termwiseIntegral_norm_le`](../archimedean-prime-evaluation/lean/Topic.lean#L408) | The termwise integral is bounded uniformly in n. | archimedean-prime-evaluation |
+| [`summable_vonMangoldt_div_sq`](../archimedean-prime-evaluation/lean/Topic.lean#L431) | The von Mangoldt series at Re s = 2 is summable. | archimedean-prime-evaluation |
+| [`tendsto_tail_summable`](../archimedean-prime-evaluation/lean/Topic.lean#L447) | Tail of a summable series tends to zero. | archimedean-prime-evaluation |
+| [`tendsto_tail_vonMangoldt_div_sq`](../archimedean-prime-evaluation/lean/Topic.lean#L460) | The von Mangoldt tail tends to zero at Re s = 2. | archimedean-prime-evaluation |
+| [`summable_primeSeries`](../archimedean-prime-evaluation/lean/Topic.lean#L466) | Summability of the prime series at Re s = 2. | archimedean-prime-evaluation |
+| [`primeTermwiseInterchange`](../archimedean-prime-evaluation/lean/Topic.lean#L489) | The termwise interchange, proved. The partial sums of the prime series converge to the sum of the termwise integrals. | archimedean-prime-evaluation |
+| [`primeRightLimit_of_uniformTail`](../archimedean-prime-evaluation/lean/Topic.lean#L519) | The limit pass. The uniform tail bound together with the partial-sum limits gives the full vertical limit, equal to the sum of the termwi… | archimedean-prime-evaluation |
+| [`primeTermwiseInterchange_unique`](../archimedean-prime-evaluation/lean/Topic.lean#L586) | The series value in PrimeTermwiseInterchange is unique. | archimedean-prime-evaluation |
+| [`LSeries_vonMangoldt_eq`](../archimedean-prime-evaluation/lean/Topic.lean#L595) | The von Mangoldt L-series at Re s = 2, explicitly. | archimedean-prime-evaluation |
+| [`continuous_LSeries_line`](../archimedean-prime-evaluation/lean/Topic.lean#L634) | y ↦ LSeries(Λ, 2+iy) is continuous. | archimedean-prime-evaluation |
+| [`archimedeanEvaluation_proved`](../archimedean-prime-evaluation/lean/Topic.lean#L656) | The archimedean evaluation is proved. | archimedean-prime-evaluation |
+| [`gaussianZeroTest_eq_gaussianTest`](../archimedean-prime-evaluation/lean/Topic.lean#L670) | The local Gaussian test is the Shift Gaussian test. | archimedean-prime-evaluation |
+| [`gaussianZeroTest_two_norm_le`](../archimedean-prime-evaluation/lean/Topic.lean#L676) | Horizontal decay of the local Gaussian test on Re s = 2. | archimedean-prime-evaluation |
+| [`summable_primeTermFun`](../archimedean-prime-evaluation/lean/Topic.lean#L694) | The explicit prime series is summable. | archimedean-prime-evaluation |
+| [`LSeries_sub_partial`](../archimedean-prime-evaluation/lean/Topic.lean#L707) | The pointwise tail identity. | archimedean-prime-evaluation |
+| [`continuous_gaussianZeroTest`](../archimedean-prime-evaluation/lean/Topic.lean#L718) | The Gaussian test is continuous. | archimedean-prime-evaluation |
+| [`primeRightIntegral_sub_eq`](../archimedean-prime-evaluation/lean/Topic.lean#L723) | The prime integral minus its partial sum as a tail integral. | archimedean-prime-evaluation |
+| [`primeRightIntegral_neg`](../archimedean-prime-evaluation/lean/Topic.lean#L752) | Symmetry: the prime integral at −T is the negative at T. | archimedean-prime-evaluation |
+| [`primePartialIntegral_neg`](../archimedean-prime-evaluation/lean/Topic.lean#L758) | Symmetry: the partial integral at −T is the negative at T. | archimedean-prime-evaluation |
+| [`norm_tail_tsum_le`](../archimedean-prime-evaluation/lean/Topic.lean#L766) | The tail norm bounds the tail tsum. | archimedean-prime-evaluation |
+| [`integral_exp_neg_sq_le_sqrt`](../archimedean-prime-evaluation/lean/Topic.lean#L792) | The interval Gaussian integral is at most the full one. | archimedean-prime-evaluation |
+| [`norm_primeRightIntegral_sub_le`](../archimedean-prime-evaluation/lean/Topic.lean#L811) | The tail-integral bound (for T ≥ 0). | archimedean-prime-evaluation |
+| [`norm_primeRightIntegral_sub_le_all`](../archimedean-prime-evaluation/lean/Topic.lean#L877) | The tail-integral bound for all T. | archimedean-prime-evaluation |
+| [`tailNorm_eq_re`](../archimedean-prime-evaluation/lean/Topic.lean#L894) | The tail norm is the real part of the complex tail series. | archimedean-prime-evaluation |
+| [`tendsto_tailNorm`](../archimedean-prime-evaluation/lean/Topic.lean#L911) | The tail norm tends to zero. | archimedean-prime-evaluation |
+| [`uniformTailBound`](../archimedean-prime-evaluation/lean/Topic.lean#L931) | UniformTailBound is proved. | archimedean-prime-evaluation |
+| [`primeRightLimit`](../archimedean-prime-evaluation/lean/Topic.lean#L947) | The prime vertical limit exists. | archimedean-prime-evaluation |
+
+## [`digamma-contour-shift/lean/Shift.lean`](digamma-contour-shift__lean__Shift.lean.md)
+
+### topics
+
+- [`digamma-contour-shift`](../digamma-contour-shift/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`digamma_expansion_harvested`](../digamma-contour-shift/lean/Shift.lean#L36) | Harvested: the Euler–Maclaurin expansion of ψ. | digamma-contour-shift |
+| [`digamma_remainder_le_harvested`](../digamma-contour-shift/lean/Shift.lean#L44) | Harvested: the remainder bound. | digamma-contour-shift |
+| [`digamma_sub_log_le`](../digamma-contour-shift/lean/Shift.lean#L118) | Bounded digamma error in the strip. For Re w ≥ 1/4 and Im w ≠ 0, ‖ψ(w) − log w‖ ≤ 19. | digamma-contour-shift |
+| [`norm_log_le`](../digamma-contour-shift/lean/Shift.lean#L187) | ‖log w‖ is at most log ‖w‖ + π once ‖w‖ ≥ 1. | digamma-contour-shift |
+| [`archFactor_norm_le`](../digamma-contour-shift/lean/Shift.lean#L196) | Logarithmic growth of archFactor on horizontal segments. | digamma-contour-shift |
+| [`gaussianTest_norm_le`](../digamma-contour-shift/lean/Shift.lean#L263) | Horizontal Gaussian decay. | digamma-contour-shift |
+| [`horizontal_segment_le`](../digamma-contour-shift/lean/Shift.lean#L352) | Horizontal-segment bound. | digamma-contour-shift |
+| [`analyticAt_Gamma_of_re_pos`](../digamma-contour-shift/lean/Shift.lean#L408) | Γ is analytic on the open right half-plane. | digamma-contour-shift |
+| [`differentiableAt_digamma_of_re_pos`](../digamma-contour-shift/lean/Shift.lean#L427) | The digamma function is differentiable on the open right half-plane. | digamma-contour-shift |
+| [`differentiableAt_archFactor`](../digamma-contour-shift/lean/Shift.lean#L445) | archFactor is differentiable on the right half-plane. | digamma-contour-shift |
+| [`differentiable_gaussianTest`](../digamma-contour-shift/lean/Shift.lean#L458) | The Gaussian test is entire. | digamma-contour-shift |
+| [`differentiableOn_rect`](../digamma-contour-shift/lean/Shift.lean#L463) | The product is differentiable on the closed rectangle [1/2,2] × [-T,T]. | digamma-contour-shift |
+| [`differentiableOn_of_re_pos`](../digamma-contour-shift/lean/Shift.lean#L486) | archFactor·H is differentiable on any set in the right half-plane. | digamma-contour-shift |
+| [`rectangle_identity`](../digamma-contour-shift/lean/Shift.lean#L494) | The rectangle Cauchy identity for archFactor·H. | digamma-contour-shift |
+| [`archFactor_norm_le_abs`](../digamma-contour-shift/lean/Shift.lean#L529) | Logarithmic growth of archFactor, symmetric form. | digamma-contour-shift |
+| [`horizontal_segment_le_abs`](../digamma-contour-shift/lean/Shift.lean#L601) | Symmetric horizontal-segment bound. | digamma-contour-shift |
+| [`tendsto_exp_neg_sq`](../digamma-contour-shift/lean/Shift.lean#L654) | e^{−σ²T²} → 0. | digamma-contour-shift |
+| [`tendsto_sq_mul_exp_neg_sq`](../digamma-contour-shift/lean/Shift.lean#L668) | T²·e^{−σ²T²} → 0. | digamma-contour-shift |
+| [`tendsto_sq_add_one_mul_exp_neg_sq`](../digamma-contour-shift/lean/Shift.lean#L690) | (T²+1)·e^{−σ²T²} → 0. | digamma-contour-shift |
+| [`tendsto_log_mul_exp_neg_sq`](../digamma-contour-shift/lean/Shift.lean#L698) | log(T+2)·e^{−σ²T²} → 0. | digamma-contour-shift |
+| [`tendsto_horizontal_atTop`](../digamma-contour-shift/lean/Shift.lean#L715) | The horizontal integral tends to zero as Im s → +∞. | digamma-contour-shift |
+| [`tendsto_horizontal_neg`](../digamma-contour-shift/lean/Shift.lean#L770) | The horizontal integral tends to zero as Im s → −∞. | digamma-contour-shift |
+| [`archimedeanShift_gaussian`](../digamma-contour-shift/lean/Shift.lean#L822) | The archimedean contour shift for the Gaussian test. | digamma-contour-shift |
+| [`tendsto_line_two_of_shift`](../digamma-contour-shift/lean/Shift.lean#L860) | The shift transfers a critical-line limit to Re s = 2. If the truncated archimedean integral on the critical line tends to L, then so doe… | digamma-contour-shift |
+| [`norm_log_le_global`](../digamma-contour-shift/lean/Shift.lean#L874) | Global ‖log w‖ bound in the strip. | digamma-contour-shift |
+| [`archFactor_norm_le_global`](../digamma-contour-shift/lean/Shift.lean#L896) | Global archimedean bound in the strip (no restriction on \|y\|). | digamma-contour-shift |
+| [`integrable_line`](../digamma-contour-shift/lean/Shift.lean#L964) | Integrability on the vertical line. | digamma-contour-shift |
+| [`tendsto_line_integral`](../digamma-contour-shift/lean/Shift.lean#L1057) | The truncated critical-line integral converges to the full integral. | digamma-contour-shift |
+| [`tendsto_line_two_lim`](../digamma-contour-shift/lean/Shift.lean#L1067) | The archimedean evaluation at Re s = 2. The truncated integral at Re s = 2 converges to the full critical-line integral. | digamma-contour-shift |
+| [`gaussianTest_half_add`](../digamma-contour-shift/lean/Shift.lean#L1102) | The critical-line Gaussian test in trigonometric form. | digamma-contour-shift |
+| [`archFactor_half_add`](../digamma-contour-shift/lean/Shift.lean#L1135) | The archimedean factor on the critical line. | digamma-contour-shift |
+| [`archFactor_gaussianTest_re`](../digamma-contour-shift/lean/Shift.lean#L1158) | Pointwise real part of the critical-line integrand. | digamma-contour-shift |
+| [`abs_omega_le`](../digamma-contour-shift/lean/Shift.lean#L1174) | \|Ω(y)\| is bounded by twice the archimedean factor. | digamma-contour-shift |
+| [`abs_psiIm_le`](../digamma-contour-shift/lean/Shift.lean#L1190) | \|Im ψ(1/4+iy/2)\| is bounded by twice the archimedean factor. | digamma-contour-shift |
+| [`integrable_majorant`](../digamma-contour-shift/lean/Shift.lean#L1210) | The Gaussian majorant C(1+\|y\|)e^{−σ²y²} is integrable. | digamma-contour-shift |
+| [`continuous_omega`](../digamma-contour-shift/lean/Shift.lean#L1233) | Continuity of y ↦ Ω(y). | digamma-contour-shift |
+| [`continuous_psiIm`](../digamma-contour-shift/lean/Shift.lean#L1246) | Continuity of y ↦ Im ψ(1/4+iy/2). | digamma-contour-shift |
+| [`integrable_omega_cos`](../digamma-contour-shift/lean/Shift.lean#L1257) | e^{−σ²y²}cos(cy)Ω(y) is integrable. | digamma-contour-shift |
+| [`integrable_psiIm_sin`](../digamma-contour-shift/lean/Shift.lean#L1310) | e^{−σ²y²}sin(cy)Im ψ(y) is integrable. | digamma-contour-shift |
+| [`integral_re_eq`](../digamma-contour-shift/lean/Shift.lean#L1367) | The critical-line integral, real part. | digamma-contour-shift |
+| [`densityTerm_neg`](../digamma-contour-shift/lean/Shift.lean#L1402) | The density term is even in c. | digamma-contour-shift |
+| [`imTerm_neg`](../digamma-contour-shift/lean/Shift.lean#L1410) | The Im ψ term is odd in c. | digamma-contour-shift |
+| [`archimedeanValue_sum`](../digamma-contour-shift/lean/Shift.lean#L1421) | The archimedean value, summed over ±c. | digamma-contour-shift |
+
+## [`digamma-contour-shift/lean/Topic.lean`](digamma-contour-shift__lean__Topic.lean.md)
+
+### topics
+
+- [`digamma-contour-shift`](../digamma-contour-shift/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
 
 ## [`dyadic-sheaf-cohomology/lean/Topic.lean`](dyadic-sheaf-cohomology__lean__Topic.lean.md)
 
@@ -2841,6 +3031,33 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`coneRadius_pos_and_strictAnti`](../geometric-reformulation/lean/Topic.lean#L82) | For σ, t > 0 the conical-helix radius is positive everywhere and strictly decreasing in the intersection index k. | geometric-reformulation |
 | [`primeWeight_pos`](../geometric-reformulation/lean/Topic.lean#L97) | Every prime-power atom of the geometric prime distribution has strictly positive weight. | geometric-reformulation |
 
+## [`geometric-zeta/lean/Topic.lean`](geometric-zeta__lean__Topic.lean.md)
+
+### topics
+
+- [`geometric-zeta`](../geometric-zeta/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`eulerProduct`](../geometric-zeta/lean/Topic.lean#L29) | G1. | geometric-zeta |
+| [`lambert_identity`](../geometric-zeta/lean/Topic.lean#L37) | G3. | geometric-zeta |
+| [`lambert_identity_divisors`](../geometric-zeta/lean/Topic.lean#L43) | G3 (divisor-count form). The same identity with d(n) = #(n.divisors). | geometric-zeta |
+| [`geomFactor_ne_zero`](../geometric-zeta/lean/Topic.lean#L54) | G5. | geometric-zeta |
+| [`finiteEulerProduct_ne_zero`](../geometric-zeta/lean/Topic.lean#L61) | G6. | geometric-zeta |
+| [`no_finite_euler_product`](../geometric-zeta/lean/Topic.lean#L76) | C3. | geometric-zeta |
+| [`all_bases_sum`](../geometric-zeta/lean/Topic.lean#L144) | G7. | geometric-zeta |
+| [`all_bases_geometric_sum`](../geometric-zeta/lean/Topic.lean#L207) | G7 (geometric form). 1 + Σ_{a≥1} 1/((a+1)^2 − 1) = 7/4. | geometric-zeta |
+| [`divisor_hasSum`](../geometric-zeta/lean/Topic.lean#L219) | Divisor has Sum | geometric-zeta |
+| [`divisor_summable`](../geometric-zeta/lean/Topic.lean#L246) | Divisor summable | geometric-zeta |
+| [`lambert_mellin`](../geometric-zeta/lean/Topic.lean#L272) | Lambert mellin | geometric-zeta |
+| [`lambert_mellin_divisors`](../geometric-zeta/lean/Topic.lean#L341) | G5 (divisor-count form). The same Mellin identity written with the divisor count d(n) = #(n.divisors) instead of σ_0(n). | geometric-zeta |
+| [`lambert_majorant`](../geometric-zeta/lean/Topic.lean#L359) | The pointwise AM–GM majorant for the Lambert series: Σ_{k,m≥1} e^{-km u²} ≥ (Σ_{k≥1} e^{-k²u²/2})². | geometric-zeta |
+| [`gaussian_moment`](../geometric-zeta/lean/Topic.lean#L458) | Gaussian moment | geometric-zeta |
+| [`lambert_eq_double`](../geometric-zeta/lean/Topic.lean#L506) | Lambert eq double | geometric-zeta |
+| [`cpow_sq`](../geometric-zeta/lean/Topic.lean#L518) | Gaussian/Mellin power identity. For x > 0 and complex s, ((x : ℂ)^2)^(s−1) = (x : ℂ)^(2(s−1)). | geometric-zeta |
+
 ## [`ghd-correlation-kernel/lean/Topic.lean`](ghd-correlation-kernel__lean__Topic.lean.md)
 
 ### topics
@@ -3581,6 +3798,19 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`exists_verticalLogDerivIntegrable_two`](../log-derivative-growth/lean/Topic.lean#L1444) | Exists vertical Log Deriv Integrable two | log-derivative-growth |
 | [`exists_verticalLogDerivIntegrable_neg_one`](../log-derivative-growth/lean/Topic.lean#L1480) | Exists vertical Log Deriv Integrable neg one | log-derivative-growth |
 
+## [`missing-bridge/lean/Summability.lean`](missing-bridge__lean__Summability.lean.md)
+
+### topics
+
+- [`missing-bridge`](../missing-bridge/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`summable_exp_im_sq_of_xi₀_growth`](../missing-bridge/lean/Summability.lean#L29) | Summability of the Gaussian exponential over the nontrivial zeros, from the linear growth of ξ₀ and an enumeration. | missing-bridge |
+| [`summable_gaussianZeroSum_of_xi₀_growth`](../missing-bridge/lean/Summability.lean#L74) | Absolute summability from the linear growth of ξ₀. Given an enumeration of the nontrivial zeros and the linear growth bound on ξ₀, the Ga… | missing-bridge |
+
 ## [`missing-bridge/lean/Topic.lean`](missing-bridge__lean__Topic.lean.md)
 
 ### topics
@@ -3591,105 +3821,169 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 
 | lean name | proof title | applicable to topics |
 |---|---|---|
-| [`onLineQuad_eq_sum_sq`](../missing-bridge/lean/Topic.lean#L64) | The on-line form is a manifest sum of squares. It equals the squared cosine mode plus the squared sine mode; the rank-one factorization H… | missing-bridge |
-| [`onLineQuad_nonneg`](../missing-bridge/lean/Topic.lean#L107) | The on-line form is nonnegative, as a sum of squares. | missing-bridge |
-| [`offLineBlock_not_psd`](../missing-bridge/lean/Topic.lean#L119) | An off-line quadruple breaks the isolated block at some separation. This is the harvested offLineQuad_obstruction_all, restated in the fo… | missing-bridge |
-| [`not_all_offLine_blocks_psd`](../missing-bridge/lean/Topic.lean#L129) | No uniform block positivity off the line. For every off-line quadruple there is a separation at which the block fails; equivalently, the… | missing-bridge |
-| [`offLine_growth`](../missing-bridge/lean/Topic.lean#L140) | The off-line contribution is unbounded. For every bound K there is a separation whose contribution exceeds it; this is the growth that an… | missing-bridge |
-| [`posSemidef_convexCombination`](../missing-bridge/lean/Topic.lean#L150) | The PSD cone is convex. A straight-line homotopy between two PSD matrices stays PSD; this is the elementary half of a positivity-preservi… | missing-bridge |
-| [`posSemidef_add_smul`](../missing-bridge/lean/Topic.lean#L157) | A nonnegative one-parameter deformation of a PSD matrix is PSD. | missing-bridge |
-| [`strict_margin_transfer`](../missing-bridge/lean/Topic.lean#L169) | Entrywise margin transfer (harvested posDef_of_entry_bound). | missing-bridge |
-| [`centre_sub_margin_posDef`](../missing-bridge/lean/Topic.lean#L180) | The rational centre minus its margin is positive definite (harvested). | missing-bridge |
-| [`centre_certificate_satisfiable`](../missing-bridge/lean/Topic.lean#L188) | The finite certificate is satisfiable. The rational 4×4 Gaussian Gram centre is positive definite, so the margin statement is not vacuous. | missing-bridge |
-| [`posSemidef_sandwich`](../missing-bridge/lean/Topic.lean#L200) | A positivity-preserving map need not be eigenvalue-monotone. The congruence A ↦ S A Sᵀ preserves positive semidefiniteness for every real… | missing-bridge |
-| [`linear_path_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L212) | The linear deformation has no slack. For real matrices, A + t·B is positive semidefinite for every t ≥ 0 if and only if both A and B are… | missing-bridge |
-| [`hasDerivAt_gaussianWeight`](../missing-bridge/lean/Topic.lean#L267) | The σ-derivative of the on-line weight. | missing-bridge |
-| [`gaussianWeight_deriv_pos`](../missing-bridge/lean/Topic.lean#L288) | The derivative is positive at σ = 1/(2γ). | missing-bridge |
-| [`gaussianWeight_deriv_neg`](../missing-bridge/lean/Topic.lean#L299) | The derivative is negative at σ = 2/γ. | missing-bridge |
-| [`gaussianWeight_not_monotone`](../missing-bridge/lean/Topic.lean#L312) | The on-line Gaussian width flow is not monotone. For every γ > 0 the weight is neither monotone nor antitone in σ; hence no σ-flow can be… | missing-bridge |
-| [`no_uniform_bound_of_offLine_quadruple`](../missing-bridge/lean/Topic.lean#L342) | A single off-line quadruple defeats every uniform bound. If the "other" block contains an off-line quadruple, its entries are unbounded i… | missing-bridge |
-| [`realRankOne_posSemidef`](../missing-bridge/lean/Topic.lean#L357) | A real rank-one matrix u uᵀ is positive semidefinite. | missing-bridge |
-| [`finiteWeilGramReal_posSemidef_of_onLine`](../missing-bridge/lean/Topic.lean#L385) | The easy direction of the full Weil criterion, finite form. If every zero in S lies on the critical line, the real part of the finite zer… | missing-bridge |
-| [`rh_implies_finiteWeilPositivity`](../missing-bridge/lean/Topic.lean#L417) | RH implies finite Weil positivity — the easy direction of the classical Weil criterion, for finite zero sets. | missing-bridge |
-| [`poleTerm_eq_primeMainTerm_add`](../missing-bridge/lean/Topic.lean#L434) | The pole term is exactly the sum of the two prime main terms. | missing-bridge |
-| [`primeMainTerm_eq_re_gaussianZeroTest_zero`](../missing-bridge/lean/Topic.lean#L441) | The prime main term is the real part of H_c(0). | missing-bridge |
-| [`primeMainTerm_neg_eq_re_gaussianZeroTest_one`](../missing-bridge/lean/Topic.lean#L452) | The reflected prime main term is the real part of H_c(1). | missing-bridge |
-| [`poleTerm_eq_re_gaussianZeroTest_pole_sum`](../missing-bridge/lean/Topic.lean#L463) | The pole term is the real part of H_c(0) + H_c(1). | missing-bridge |
-| [`poleTerm_sub_primeSums_eq`](../missing-bridge/lean/Topic.lean#L470) | Exact cancellation: the symmetrised arithmetic Gram entry is the sum of the two Gaussian-window PNT errors, with the pole term dropping out. | missing-bridge |
-| [`arithmeticResidual_eq`](../missing-bridge/lean/Topic.lean#L483) | The exact arithmetic decomposition. The pole cancels and the residual is the sum of the two Gaussian-window PNT errors plus the archimede… | missing-bridge |
-| [`primeWindow_pos`](../missing-bridge/lean/Topic.lean#L501) | The Gaussian window is positive for positive width. | missing-bridge |
-| [`gaussianPrimeSide_term_nonneg`](../missing-bridge/lean/Topic.lean#L506) | Each summand of the truncated prime side is nonnegative. | missing-bridge |
-| [`gaussianPrimeSide_nonneg`](../missing-bridge/lean/Topic.lean#L519) | The prime side is a manifest sum of nonnegative terms. | missing-bridge |
-| [`gaussianPrimeSide_mono`](../missing-bridge/lean/Topic.lean#L525) | The truncated prime side is monotone in the truncation. | missing-bridge |
-| [`primeWindow_neg_neg`](../missing-bridge/lean/Topic.lean#L534) | The Gaussian window is symmetric under (c, u) ↦ (−c, −u). | missing-bridge |
-| [`primeMainTerm_pos`](../missing-bridge/lean/Topic.lean#L541) | The prime main term is positive for positive width. | missing-bridge |
-| [`poleTerm_pos`](../missing-bridge/lean/Topic.lean#L546) | The pole term is positive for positive width. | missing-bridge |
-| [`poleTerm_neg`](../missing-bridge/lean/Topic.lean#L551) | The pole term is even in the centre. | missing-bridge |
-| [`exp_quadratic_re`](../missing-bridge/lean/Topic.lean#L559) | Exp quadratic re | missing-bridge |
-| [`integral_exp_half_primeWindow`](../missing-bridge/lean/Topic.lean#L576) | Integral exp half prime Window | missing-bridge |
-| [`poleTerm_eq_integral_add`](../missing-bridge/lean/Topic.lean#L639) | The pole term is the sum of the two Gaussian main-term integrals. | missing-bridge |
-| [`arithmeticResidualKernel_neg`](../missing-bridge/lean/Topic.lean#L652) | The arithmetic residual kernel is even when the archimedean term is even, so the associated Gram matrix is symmetric. | missing-bridge |
-| [`arithmeticGramMatrix_isSymm`](../missing-bridge/lean/Topic.lean#L667) | The arithmetic Gram matrix is symmetric when the prime-side matrix is symmetric and the archimedean term is even. | missing-bridge |
-| [`integral_primeWindow`](../missing-bridge/lean/Topic.lean#L678) | Total mass of the Gaussian prime window. The window h_c(u) has integral 2πσ², independent of the centre c. | missing-bridge |
-| [`gaussianPrimeSide_le_mul_sum_vonMangoldt`](../missing-bridge/lean/Topic.lean#L700) | Crude prime-side bound. The Gaussian prime side is at most √π σ times the total von Mangoldt mass of the truncation. | missing-bridge |
-| [`gaussianPrimeSide_le_mul_log_factorial`](../missing-bridge/lean/Topic.lean#L740) | Prime-side log N! bound. The Gaussian prime side is at most √π σ · log(N!). | missing-bridge |
-| [`arithmeticResidual_abs_le`](../missing-bridge/lean/Topic.lean#L755) | Arithmetic-residual error interface. If the two PNT errors are bounded by E₁, E₂ and the archimedean term by A, the residual is bounded b… | missing-bridge |
-| [`arithmeticResidual_abs_le_of_pnt`](../missing-bridge/lean/Topic.lean#L775) | Arithmetic residual under the named PNT input. | missing-bridge |
-| [`exp_add_real_mul_I`](../missing-bridge/lean/Topic.lean#L787) | Single off-line zero real part. For ρ = 1/2 + δ + iγ, Re H_c(ρ) = 2πσ² e^{σ²(δ²−γ²)} e^{−cδ} cos(2σ²δγ − cγ). | missing-bridge |
-| [`gaussianZeroTest_re_offLine`](../missing-bridge/lean/Topic.lean#L792) | Gaussian Zero Test re off Line | missing-bridge |
-| [`exists_gaussianZeroTest_re_gt_offLine`](../missing-bridge/lean/Topic.lean#L821) | Off-line zero growth. For δ ≠ 0, some separation makes the real part of the single-zero test function exceed its zero-separation value in… | missing-bridge |
-| [`exists_gaussianZeroTest_re_ne_neg`](../missing-bridge/lean/Topic.lean#L876) | Off-line zero asymmetry. For δ ≠ 0 and γ ≠ 0, some separation makes Re H_{−c}(ρ) ≠ Re H_c(ρ), so the singleton Gram matrix is not symmetric. | missing-bridge |
-| [`finiteWeilGramReal_singleton`](../missing-bridge/lean/Topic.lean#L914) | Singleton Gram matrix. On S = {ρ} the finite Weil Gram matrix has the displayed 2×2 form. | missing-bridge |
-| [`not_posSemidef_singleton_of_ne`](../missing-bridge/lean/Topic.lean#L922) | Not pos Semidef singleton of ne | missing-bridge |
-| [`not_finiteWeilPositivity_of_offLine_im_ne_zero`](../missing-bridge/lean/Topic.lean#L934) | O4 for zeros off the real axis. A nontrivial zero with im ≠ 0 that is off the critical line makes FiniteWeilPositivity fail. | missing-bridge |
-| [`gaussianZeroTest_re_ofReal`](../missing-bridge/lean/Topic.lean#L970) | Real-line real part. For real ρ, Re H_c(ρ) has the displayed closed form. | missing-bridge |
-| [`gaussianZeroTest_re_one_sub_ofReal`](../missing-bridge/lean/Topic.lean#L981) | Real-line real part at 1 − ρ. | missing-bridge |
-| [`real_pair_distinct`](../missing-bridge/lean/Topic.lean#L993) | Real-zero pair block. The pair {ρ, 1−ρ} has the cosh Gram matrix, which is non-PSD, and hence a real off-line zero refutes FiniteWeilPosi… | missing-bridge |
-| [`finiteWeilGramReal_pair`](../missing-bridge/lean/Topic.lean#L1001) | Finite Weil Gram Real pair | missing-bridge |
-| [`not_posSemidef_real_pair`](../missing-bridge/lean/Topic.lean#L1020) | Not pos Semidef real pair | missing-bridge |
-| [`not_finiteWeilPositivity_of_real_offLine`](../missing-bridge/lean/Topic.lean#L1042) | Not finite Weil Positivity of real off Line | missing-bridge |
-| [`not_finiteWeilPositivity_of_offLine`](../missing-bridge/lean/Topic.lean#L1072) | O4 capstone: FiniteWeilPositivity → RH. The hard direction of the classical Weil criterion, for the finite zero-side Gram matrix. | missing-bridge |
-| [`finiteWeilPositivity_implies_RH`](../missing-bridge/lean/Topic.lean#L1084) | Finite Weil Positivity implies RH | missing-bridge |
-| [`finiteWeilPositivity_iff_quadraticForm`](../missing-bridge/lean/Topic.lean#L1098) | Finite Weil Positivity iff quadratic Form | missing-bridge |
-| [`weilQuadraticForm_eq_sum_scalar`](../missing-bridge/lean/Topic.lean#L1115) | Weil Quadratic Form eq sum scalar | missing-bridge |
-| [`weilQuadraticForm_eq_arithmetic`](../missing-bridge/lean/Topic.lean#L1129) | Weil Quadratic Form eq arithmetic | missing-bridge |
-| [`gaussianRectangleIdentity`](../missing-bridge/lean/Topic.lean#L1144) | Gaussian rectangle identity. The library's explicit formula specialised to the Gaussian test function. | missing-bridge |
-| [`arithmeticResidual_symm`](../missing-bridge/lean/Topic.lean#L1168) | The symmetrised arithmetic residual is even. With the prime sides evaluated at c and −c, the residual pole − (P(c) + P(−c)) + arch is an… | missing-bridge |
-| [`arithmeticResidual_even`](../missing-bridge/lean/Topic.lean#L1181) | Arithmetic Residual even | missing-bridge |
-| [`finiteWeilPositivity_scalar_nonneg`](../missing-bridge/lean/Topic.lean#L1192) | The scalar Weil inequality. A necessary condition for FiniteWeilPositivity: every finite zero-side sum at zero separation is nonnegative. | missing-bridge |
-| [`twoByTwo_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L1206) | The exact 2×2 PSD criterion. !![a, b; b, a] is positive semidefinite iff 0 ≤ a and \|b\| ≤ a. | missing-bridge |
-| [`twoByTwo_general_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L1244) | General 2×2 PSD criterion and the singleton characterisation. For !![a, b; c, a] PSD is equivalent to b = c, 0 ≤ a, \|b\| ≤ a; applied to t… | missing-bridge |
-| [`singleton_block_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L1264) | Singleton block pos Semidef iff | missing-bridge |
-| [`finiteWeilPositivity_singleton`](../missing-bridge/lean/Topic.lean#L1279) | FiniteWeilPositivity forces the singleton criterion. Every nontrivial zero satisfies the exact singleton 2×2 conditions, in particular th… | missing-bridge |
-| [`gaussianRectangleIdentity_of_allZeros`](../missing-bridge/lean/Topic.lean#L1303) | Gaussian rectangle identity with the zero set given as "all zeros in U". Replaces the opaque hF_ne by the mathematically intended conditi… | missing-bridge |
-| [`arithmeticResidual_isHermitian`](../missing-bridge/lean/Topic.lean#L1328) | The arithmetic Gram matrix is Hermitian. The symmetrised residual is even (T63), so the matrix g(aᵢ−aⱼ) is symmetric; this is the Hermiti… | missing-bridge |
-| [`arithmeticQuadraticForm_eq_pnt_add_arch`](../missing-bridge/lean/Topic.lean#L1345) | Arithmetic Quadratic Form eq pnt add arch | missing-bridge |
-| [`abs_pntQuadraticForm_le`](../missing-bridge/lean/Topic.lean#L1364) | The PNT-error quadratic form is small. Under the named PNT input, the quadratic form of the Gaussian-window PNT error is bounded by E tim… | missing-bridge |
-| [`arithmeticQuadraticFormFun_eq_pnt_add_arch`](../missing-bridge/lean/Topic.lean#L1408) | Arithmetic Quadratic Form Fun eq pnt add arch | missing-bridge |
-| [`arithmeticQuadraticFormFun_eq_two_pnt_add_arch`](../missing-bridge/lean/Topic.lean#L1431) | Arithmetic Quadratic Form Fun eq two pnt add arch | missing-bridge |
-| [`arithmeticQuadraticFormFun_nonneg_of_dominates`](../missing-bridge/lean/Topic.lean#L1449) | Arithmetic Quadratic Form Fun nonneg of dominates | missing-bridge |
-| [`arithmeticResidualFun_even`](../missing-bridge/lean/Topic.lean#L1462) | Arithmetic matrix PSD under archimedean dominance. With an even archimedean kernel and the dominance hypothesis Q_arch ≥ 2E(∑\|xᵢ\|)², the… | missing-bridge |
-| [`arithmeticQuadraticFormFun_eq_dotProduct`](../missing-bridge/lean/Topic.lean#L1472) | Arithmetic Quadratic Form Fun eq dot Product | missing-bridge |
-| [`arithmeticMatrix_posSemidef_of_dominates`](../missing-bridge/lean/Topic.lean#L1491) | Arithmetic Matrix pos Semidef of dominates | missing-bridge |
-| [`finiteWeilPositivity_of_arithmetic`](../missing-bridge/lean/Topic.lean#L1514) | Capstone reduction: FiniteWeilPositivity follows from the scalar explicit-formula identity plus positive semidefiniteness of the arithmet… | missing-bridge |
-| [`weilOmega_real_even`](../missing-bridge/lean/Topic.lean#L1533) | The concrete archimedean kernels are even on the real axis. This supplies the harch hypothesis of the PSD assembly (T78) for the library'… | missing-bridge |
-| [`archSymbol_real_even`](../missing-bridge/lean/Topic.lean#L1538) | Arch Symbol real even | missing-bridge |
-| [`finiteWeilPositivity_of_pnt_archimedean`](../missing-bridge/lean/Topic.lean#L1547) | End-to-end conditional chain. FiniteWeilPositivity, and hence RH, follows from (i) an even archimedean kernel, (ii) the PNT bound SmoothW… | missing-bridge |
-| [`riemannHypothesis_of_pnt_archimedean`](../missing-bridge/lean/Topic.lean#L1570) | Riemann Hypothesis of pnt archimedean | missing-bridge |
-| [`densityTerm_even`](../missing-bridge/lean/Topic.lean#L1587) | Bridge to the concrete Gaussian Weil Gram matrix. The exact entry gaussianGramEntry c 0 σ of the prime-spectrum-tensor construction is ex… | missing-bridge |
-| [`poleTerm_ps_even`](../missing-bridge/lean/Topic.lean#L1594) | Pole Term ps even | missing-bridge |
-| [`gaussianGramEntry_eq_residual`](../missing-bridge/lean/Topic.lean#L1599) | Gaussian Gram Entry eq residual | missing-bridge |
-| [`gaussianGram4_eq_arithmetic`](../missing-bridge/lean/Topic.lean#L1613) | The exact 4×4 Gaussian Gram matrix as the arithmetic residual matrix. gaussianGram4 σ is exactly the arithmetic Gram matrix of the centre… | missing-bridge |
-| [`primeTerm_nonpos`](../missing-bridge/lean/Topic.lean#L1628) | Signs and three-term split of the Gaussian Gram entry. The pole term is positive, the prime term is non-positive, and the entry is the su… | missing-bridge |
-| [`poleTerm_ps_pos`](../missing-bridge/lean/Topic.lean#L1644) | Pole Term ps pos | missing-bridge |
-| [`gaussianGramEntry_three_term`](../missing-bridge/lean/Topic.lean#L1656) | Gaussian Gram Entry three term | missing-bridge |
-| [`gaussianGram4_eq_pole_add_density_add_prime`](../missing-bridge/lean/Topic.lean#L1667) | Three-matrix decomposition of the Gaussian Gram matrix and its Hermitian property in the arithmetic framework. | missing-bridge |
-| [`gaussianGram4_isHermitian`](../missing-bridge/lean/Topic.lean#L1694) | Gaussian Gram4 is Hermitian | missing-bridge |
-| [`gaussianGram4_posSemidef`](../missing-bridge/lean/Topic.lean#L1712) | The certified 4×4 instance, integrated. The prime-spectrum-tensor certificate gaussianGram4_posDef gives, in this framework, PSD of the e… | missing-bridge |
-| [`centre4Arithmetic_posSemidef`](../missing-bridge/lean/Topic.lean#L1716) | Centre4 Arithmetic pos Semidef | missing-bridge |
-| [`gaussianGram5_eq_arithmetic`](../missing-bridge/lean/Topic.lean#L1728) | The 5×5 rung integrated. gaussianGram5 is the arithmetic residual matrix on the five centres, and the prime-spectrum-tensor 5×5 certifica… | missing-bridge |
-| [`gaussianGram5_posSemidef`](../missing-bridge/lean/Topic.lean#L1740) | Gaussian Gram5 pos Semidef | missing-bridge |
-| [`centre5Arithmetic_posSemidef`](../missing-bridge/lean/Topic.lean#L1744) | Centre5 Arithmetic pos Semidef | missing-bridge |
+| [`onLineQuad_eq_sum_sq`](../missing-bridge/lean/Topic.lean#L65) | The on-line form is a manifest sum of squares. It equals the squared cosine mode plus the squared sine mode; the rank-one factorization H… | missing-bridge |
+| [`onLineQuad_nonneg`](../missing-bridge/lean/Topic.lean#L108) | The on-line form is nonnegative, as a sum of squares. | missing-bridge |
+| [`offLineBlock_not_psd`](../missing-bridge/lean/Topic.lean#L120) | An off-line quadruple breaks the isolated block at some separation. This is the harvested offLineQuad_obstruction_all, restated in the fo… | missing-bridge |
+| [`not_all_offLine_blocks_psd`](../missing-bridge/lean/Topic.lean#L130) | No uniform block positivity off the line. For every off-line quadruple there is a separation at which the block fails; equivalently, the… | missing-bridge |
+| [`offLine_growth`](../missing-bridge/lean/Topic.lean#L141) | The off-line contribution is unbounded. For every bound K there is a separation whose contribution exceeds it; this is the growth that an… | missing-bridge |
+| [`posSemidef_convexCombination`](../missing-bridge/lean/Topic.lean#L151) | The PSD cone is convex. A straight-line homotopy between two PSD matrices stays PSD; this is the elementary half of a positivity-preservi… | missing-bridge |
+| [`posSemidef_add_smul`](../missing-bridge/lean/Topic.lean#L158) | A nonnegative one-parameter deformation of a PSD matrix is PSD. | missing-bridge |
+| [`strict_margin_transfer`](../missing-bridge/lean/Topic.lean#L170) | Entrywise margin transfer (harvested posDef_of_entry_bound). | missing-bridge |
+| [`centre_sub_margin_posDef`](../missing-bridge/lean/Topic.lean#L181) | The rational centre minus its margin is positive definite (harvested). | missing-bridge |
+| [`centre_certificate_satisfiable`](../missing-bridge/lean/Topic.lean#L189) | The finite certificate is satisfiable. The rational 4×4 Gaussian Gram centre is positive definite, so the margin statement is not vacuous. | missing-bridge |
+| [`posSemidef_sandwich`](../missing-bridge/lean/Topic.lean#L201) | A positivity-preserving map need not be eigenvalue-monotone. The congruence A ↦ S A Sᵀ preserves positive semidefiniteness for every real… | missing-bridge |
+| [`linear_path_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L213) | The linear deformation has no slack. For real matrices, A + t·B is positive semidefinite for every t ≥ 0 if and only if both A and B are… | missing-bridge |
+| [`hasDerivAt_gaussianWeight`](../missing-bridge/lean/Topic.lean#L268) | The σ-derivative of the on-line weight. | missing-bridge |
+| [`gaussianWeight_deriv_pos`](../missing-bridge/lean/Topic.lean#L289) | The derivative is positive at σ = 1/(2γ). | missing-bridge |
+| [`gaussianWeight_deriv_neg`](../missing-bridge/lean/Topic.lean#L300) | The derivative is negative at σ = 2/γ. | missing-bridge |
+| [`gaussianWeight_not_monotone`](../missing-bridge/lean/Topic.lean#L313) | The on-line Gaussian width flow is not monotone. For every γ > 0 the weight is neither monotone nor antitone in σ; hence no σ-flow can be… | missing-bridge |
+| [`no_uniform_bound_of_offLine_quadruple`](../missing-bridge/lean/Topic.lean#L343) | A single off-line quadruple defeats every uniform bound. If the "other" block contains an off-line quadruple, its entries are unbounded i… | missing-bridge |
+| [`realRankOne_posSemidef`](../missing-bridge/lean/Topic.lean#L358) | A real rank-one matrix u uᵀ is positive semidefinite. | missing-bridge |
+| [`finiteWeilGramReal_posSemidef_of_onLine`](../missing-bridge/lean/Topic.lean#L386) | The easy direction of the full Weil criterion, finite form. If every zero in S lies on the critical line, the real part of the finite zer… | missing-bridge |
+| [`rh_implies_finiteWeilPositivity`](../missing-bridge/lean/Topic.lean#L418) | RH implies finite Weil positivity — the easy direction of the classical Weil criterion, for finite zero sets. | missing-bridge |
+| [`poleTerm_eq_primeMainTerm_add`](../missing-bridge/lean/Topic.lean#L435) | The pole term is exactly the sum of the two prime main terms. | missing-bridge |
+| [`primeMainTerm_eq_re_gaussianZeroTest_zero`](../missing-bridge/lean/Topic.lean#L442) | The prime main term is the real part of H_c(0). | missing-bridge |
+| [`primeMainTerm_neg_eq_re_gaussianZeroTest_one`](../missing-bridge/lean/Topic.lean#L453) | The reflected prime main term is the real part of H_c(1). | missing-bridge |
+| [`poleTerm_eq_re_gaussianZeroTest_pole_sum`](../missing-bridge/lean/Topic.lean#L464) | The pole term is the real part of H_c(0) + H_c(1). | missing-bridge |
+| [`poleTerm_sub_primeSums_eq`](../missing-bridge/lean/Topic.lean#L471) | Exact cancellation: the symmetrised arithmetic Gram entry is the sum of the two Gaussian-window PNT errors, with the pole term dropping out. | missing-bridge |
+| [`arithmeticResidual_eq`](../missing-bridge/lean/Topic.lean#L484) | The exact arithmetic decomposition. The pole cancels and the residual is the sum of the two Gaussian-window PNT errors plus the archimede… | missing-bridge |
+| [`primeWindow_pos`](../missing-bridge/lean/Topic.lean#L502) | The Gaussian window is positive for positive width. | missing-bridge |
+| [`gaussianPrimeSide_term_nonneg`](../missing-bridge/lean/Topic.lean#L507) | Each summand of the truncated prime side is nonnegative. | missing-bridge |
+| [`gaussianPrimeSide_nonneg`](../missing-bridge/lean/Topic.lean#L520) | The prime side is a manifest sum of nonnegative terms. | missing-bridge |
+| [`gaussianPrimeSide_mono`](../missing-bridge/lean/Topic.lean#L526) | The truncated prime side is monotone in the truncation. | missing-bridge |
+| [`primeWindow_neg_neg`](../missing-bridge/lean/Topic.lean#L535) | The Gaussian window is symmetric under (c, u) ↦ (−c, −u). | missing-bridge |
+| [`primeMainTerm_pos`](../missing-bridge/lean/Topic.lean#L542) | The prime main term is positive for positive width. | missing-bridge |
+| [`poleTerm_pos`](../missing-bridge/lean/Topic.lean#L547) | The pole term is positive for positive width. | missing-bridge |
+| [`poleTerm_neg`](../missing-bridge/lean/Topic.lean#L552) | The pole term is even in the centre. | missing-bridge |
+| [`exp_quadratic_re`](../missing-bridge/lean/Topic.lean#L560) | Exp quadratic re | missing-bridge |
+| [`integral_exp_half_primeWindow`](../missing-bridge/lean/Topic.lean#L577) | Integral exp half prime Window | missing-bridge |
+| [`poleTerm_eq_integral_add`](../missing-bridge/lean/Topic.lean#L640) | The pole term is the sum of the two Gaussian main-term integrals. | missing-bridge |
+| [`arithmeticResidualKernel_neg`](../missing-bridge/lean/Topic.lean#L653) | The arithmetic residual kernel is even when the archimedean term is even, so the associated Gram matrix is symmetric. | missing-bridge |
+| [`arithmeticGramMatrix_isSymm`](../missing-bridge/lean/Topic.lean#L668) | The arithmetic Gram matrix is symmetric when the prime-side matrix is symmetric and the archimedean term is even. | missing-bridge |
+| [`integral_primeWindow`](../missing-bridge/lean/Topic.lean#L679) | Total mass of the Gaussian prime window. The window h_c(u) has integral 2πσ², independent of the centre c. | missing-bridge |
+| [`gaussianPrimeSide_le_mul_sum_vonMangoldt`](../missing-bridge/lean/Topic.lean#L701) | Crude prime-side bound. The Gaussian prime side is at most √π σ times the total von Mangoldt mass of the truncation. | missing-bridge |
+| [`gaussianPrimeSide_le_mul_log_factorial`](../missing-bridge/lean/Topic.lean#L741) | Prime-side log N! bound. The Gaussian prime side is at most √π σ · log(N!). | missing-bridge |
+| [`arithmeticResidual_abs_le`](../missing-bridge/lean/Topic.lean#L756) | Arithmetic-residual error interface. If the two PNT errors are bounded by E₁, E₂ and the archimedean term by A, the residual is bounded b… | missing-bridge |
+| [`arithmeticResidual_abs_le_of_pnt`](../missing-bridge/lean/Topic.lean#L776) | Arithmetic residual under the named PNT input. | missing-bridge |
+| [`exp_add_real_mul_I`](../missing-bridge/lean/Topic.lean#L788) | Single off-line zero real part. For ρ = 1/2 + δ + iγ, Re H_c(ρ) = 2πσ² e^{σ²(δ²−γ²)} e^{−cδ} cos(2σ²δγ − cγ). | missing-bridge |
+| [`gaussianZeroTest_re_offLine`](../missing-bridge/lean/Topic.lean#L793) | Gaussian Zero Test re off Line | missing-bridge |
+| [`exists_gaussianZeroTest_re_gt_offLine`](../missing-bridge/lean/Topic.lean#L822) | Off-line zero growth. For δ ≠ 0, some separation makes the real part of the single-zero test function exceed its zero-separation value in… | missing-bridge |
+| [`exists_gaussianZeroTest_re_ne_neg`](../missing-bridge/lean/Topic.lean#L877) | Off-line zero asymmetry. For δ ≠ 0 and γ ≠ 0, some separation makes Re H_{−c}(ρ) ≠ Re H_c(ρ), so the singleton Gram matrix is not symmetric. | missing-bridge |
+| [`finiteWeilGramReal_singleton`](../missing-bridge/lean/Topic.lean#L915) | Singleton Gram matrix. On S = {ρ} the finite Weil Gram matrix has the displayed 2×2 form. | missing-bridge |
+| [`not_posSemidef_singleton_of_ne`](../missing-bridge/lean/Topic.lean#L923) | Not pos Semidef singleton of ne | missing-bridge |
+| [`not_finiteWeilPositivity_of_offLine_im_ne_zero`](../missing-bridge/lean/Topic.lean#L935) | O4 for zeros off the real axis. A nontrivial zero with im ≠ 0 that is off the critical line makes FiniteWeilPositivity fail. | missing-bridge |
+| [`gaussianZeroTest_re_ofReal`](../missing-bridge/lean/Topic.lean#L971) | Real-line real part. For real ρ, Re H_c(ρ) has the displayed closed form. | missing-bridge |
+| [`gaussianZeroTest_re_one_sub_ofReal`](../missing-bridge/lean/Topic.lean#L982) | Real-line real part at 1 − ρ. | missing-bridge |
+| [`real_pair_distinct`](../missing-bridge/lean/Topic.lean#L994) | Real-zero pair block. The pair {ρ, 1−ρ} has the cosh Gram matrix, which is non-PSD, and hence a real off-line zero refutes FiniteWeilPosi… | missing-bridge |
+| [`finiteWeilGramReal_pair`](../missing-bridge/lean/Topic.lean#L1002) | Finite Weil Gram Real pair | missing-bridge |
+| [`not_posSemidef_real_pair`](../missing-bridge/lean/Topic.lean#L1021) | Not pos Semidef real pair | missing-bridge |
+| [`not_finiteWeilPositivity_of_real_offLine`](../missing-bridge/lean/Topic.lean#L1043) | Not finite Weil Positivity of real off Line | missing-bridge |
+| [`not_finiteWeilPositivity_of_offLine`](../missing-bridge/lean/Topic.lean#L1073) | O4 capstone: FiniteWeilPositivity → RH. The hard direction of the classical Weil criterion, for the finite zero-side Gram matrix. | missing-bridge |
+| [`finiteWeilPositivity_implies_RH`](../missing-bridge/lean/Topic.lean#L1085) | Finite Weil Positivity implies RH | missing-bridge |
+| [`finiteWeilPositivity_iff_quadraticForm`](../missing-bridge/lean/Topic.lean#L1099) | Finite Weil Positivity iff quadratic Form | missing-bridge |
+| [`weilQuadraticForm_eq_sum_scalar`](../missing-bridge/lean/Topic.lean#L1116) | Weil Quadratic Form eq sum scalar | missing-bridge |
+| [`weilQuadraticForm_eq_arithmetic`](../missing-bridge/lean/Topic.lean#L1130) | Weil Quadratic Form eq arithmetic | missing-bridge |
+| [`gaussianRectangleIdentity`](../missing-bridge/lean/Topic.lean#L1145) | Gaussian rectangle identity. The library's explicit formula specialised to the Gaussian test function. | missing-bridge |
+| [`arithmeticResidual_symm`](../missing-bridge/lean/Topic.lean#L1169) | The symmetrised arithmetic residual is even. With the prime sides evaluated at c and −c, the residual pole − (P(c) + P(−c)) + arch is an… | missing-bridge |
+| [`arithmeticResidual_even`](../missing-bridge/lean/Topic.lean#L1182) | Arithmetic Residual even | missing-bridge |
+| [`finiteWeilPositivity_scalar_nonneg`](../missing-bridge/lean/Topic.lean#L1193) | The scalar Weil inequality. A necessary condition for FiniteWeilPositivity: every finite zero-side sum at zero separation is nonnegative. | missing-bridge |
+| [`twoByTwo_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L1207) | The exact 2×2 PSD criterion. !![a, b; b, a] is positive semidefinite iff 0 ≤ a and \|b\| ≤ a. | missing-bridge |
+| [`twoByTwo_general_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L1245) | General 2×2 PSD criterion and the singleton characterisation. For !![a, b; c, a] PSD is equivalent to b = c, 0 ≤ a, \|b\| ≤ a; applied to t… | missing-bridge |
+| [`singleton_block_posSemidef_iff`](../missing-bridge/lean/Topic.lean#L1265) | Singleton block pos Semidef iff | missing-bridge |
+| [`finiteWeilPositivity_singleton`](../missing-bridge/lean/Topic.lean#L1280) | FiniteWeilPositivity forces the singleton criterion. Every nontrivial zero satisfies the exact singleton 2×2 conditions, in particular th… | missing-bridge |
+| [`gaussianRectangleIdentity_of_allZeros`](../missing-bridge/lean/Topic.lean#L1304) | Gaussian rectangle identity with the zero set given as "all zeros in U". Replaces the opaque hF_ne by the mathematically intended conditi… | missing-bridge |
+| [`arithmeticResidual_isHermitian`](../missing-bridge/lean/Topic.lean#L1329) | The arithmetic Gram matrix is Hermitian. The symmetrised residual is even (T63), so the matrix g(aᵢ−aⱼ) is symmetric; this is the Hermiti… | missing-bridge |
+| [`arithmeticQuadraticForm_eq_pnt_add_arch`](../missing-bridge/lean/Topic.lean#L1346) | Arithmetic Quadratic Form eq pnt add arch | missing-bridge |
+| [`abs_pntQuadraticForm_le`](../missing-bridge/lean/Topic.lean#L1365) | The PNT-error quadratic form is small. Under the named PNT input, the quadratic form of the Gaussian-window PNT error is bounded by E tim… | missing-bridge |
+| [`arithmeticQuadraticFormFun_eq_pnt_add_arch`](../missing-bridge/lean/Topic.lean#L1409) | Arithmetic Quadratic Form Fun eq pnt add arch | missing-bridge |
+| [`arithmeticQuadraticFormFun_eq_two_pnt_add_arch`](../missing-bridge/lean/Topic.lean#L1432) | Arithmetic Quadratic Form Fun eq two pnt add arch | missing-bridge |
+| [`arithmeticQuadraticFormFun_nonneg_of_dominates`](../missing-bridge/lean/Topic.lean#L1450) | Arithmetic Quadratic Form Fun nonneg of dominates | missing-bridge |
+| [`arithmeticResidualFun_even`](../missing-bridge/lean/Topic.lean#L1463) | Arithmetic matrix PSD under archimedean dominance. With an even archimedean kernel and the dominance hypothesis Q_arch ≥ 2E(∑\|xᵢ\|)², the… | missing-bridge |
+| [`arithmeticQuadraticFormFun_eq_dotProduct`](../missing-bridge/lean/Topic.lean#L1473) | Arithmetic Quadratic Form Fun eq dot Product | missing-bridge |
+| [`arithmeticMatrix_posSemidef_of_dominates`](../missing-bridge/lean/Topic.lean#L1492) | Arithmetic Matrix pos Semidef of dominates | missing-bridge |
+| [`finiteWeilPositivity_of_arithmetic`](../missing-bridge/lean/Topic.lean#L1515) | Capstone reduction: FiniteWeilPositivity follows from the scalar explicit-formula identity plus positive semidefiniteness of the arithmet… | missing-bridge |
+| [`weilOmega_real_even`](../missing-bridge/lean/Topic.lean#L1534) | The concrete archimedean kernels are even on the real axis. This supplies the harch hypothesis of the PSD assembly (T78) for the library'… | missing-bridge |
+| [`archSymbol_real_even`](../missing-bridge/lean/Topic.lean#L1539) | Arch Symbol real even | missing-bridge |
+| [`finiteWeilPositivity_of_pnt_archimedean`](../missing-bridge/lean/Topic.lean#L1548) | End-to-end conditional chain. FiniteWeilPositivity, and hence RH, follows from (i) an even archimedean kernel, (ii) the PNT bound SmoothW… | missing-bridge |
+| [`riemannHypothesis_of_pnt_archimedean`](../missing-bridge/lean/Topic.lean#L1571) | Riemann Hypothesis of pnt archimedean | missing-bridge |
+| [`densityTerm_even`](../missing-bridge/lean/Topic.lean#L1588) | Bridge to the concrete Gaussian Weil Gram matrix. The exact entry gaussianGramEntry c 0 σ of the prime-spectrum-tensor construction is ex… | missing-bridge |
+| [`poleTerm_ps_even`](../missing-bridge/lean/Topic.lean#L1595) | Pole Term ps even | missing-bridge |
+| [`gaussianGramEntry_eq_residual`](../missing-bridge/lean/Topic.lean#L1600) | Gaussian Gram Entry eq residual | missing-bridge |
+| [`gaussianGram4_eq_arithmetic`](../missing-bridge/lean/Topic.lean#L1614) | The exact 4×4 Gaussian Gram matrix as the arithmetic residual matrix. gaussianGram4 σ is exactly the arithmetic Gram matrix of the centre… | missing-bridge |
+| [`primeTerm_nonpos`](../missing-bridge/lean/Topic.lean#L1629) | Signs and three-term split of the Gaussian Gram entry. The pole term is positive, the prime term is non-positive, and the entry is the su… | missing-bridge |
+| [`poleTerm_ps_pos`](../missing-bridge/lean/Topic.lean#L1645) | Pole Term ps pos | missing-bridge |
+| [`gaussianGramEntry_three_term`](../missing-bridge/lean/Topic.lean#L1657) | Gaussian Gram Entry three term | missing-bridge |
+| [`gaussianGram4_eq_pole_add_density_add_prime`](../missing-bridge/lean/Topic.lean#L1668) | Three-matrix decomposition of the Gaussian Gram matrix and its Hermitian property in the arithmetic framework. | missing-bridge |
+| [`gaussianGram4_isHermitian`](../missing-bridge/lean/Topic.lean#L1695) | Gaussian Gram4 is Hermitian | missing-bridge |
+| [`gaussianGram4_posSemidef`](../missing-bridge/lean/Topic.lean#L1713) | The certified 4×4 instance, integrated. The prime-spectrum-tensor certificate gaussianGram4_posDef gives, in this framework, PSD of the e… | missing-bridge |
+| [`centre4Arithmetic_posSemidef`](../missing-bridge/lean/Topic.lean#L1717) | Centre4 Arithmetic pos Semidef | missing-bridge |
+| [`gaussianGram5_eq_arithmetic`](../missing-bridge/lean/Topic.lean#L1729) | The 5×5 rung integrated. gaussianGram5 is the arithmetic residual matrix on the five centres, and the prime-spectrum-tensor 5×5 certifica… | missing-bridge |
+| [`gaussianGram5_posSemidef`](../missing-bridge/lean/Topic.lean#L1741) | Gaussian Gram5 pos Semidef | missing-bridge |
+| [`centre5Arithmetic_posSemidef`](../missing-bridge/lean/Topic.lean#L1745) | Centre5 Arithmetic pos Semidef | missing-bridge |
+| [`gaussianGramMatrix_eq_pole_add_density_add_prime`](../missing-bridge/lean/Topic.lean#L1757) | General structure of the Gaussian Gram matrix. For any finite centre family, the matrix is the sum of the pole, density and prime matrice… | missing-bridge |
+| [`gaussianGramMatrix_isHermitian`](../missing-bridge/lean/Topic.lean#L1772) | Gaussian Gram Matrix is Hermitian | missing-bridge |
+| [`gaussianGram5_quadraticForm_nonneg`](../missing-bridge/lean/Topic.lean#L1783) | The explicit 5-centre quadratic form and its principal submatrices. The three-term Gaussian quadratic form is non-negative at the five ce… | missing-bridge |
+| [`gaussianGram5_submatrix_posSemidef`](../missing-bridge/lean/Topic.lean#L1801) | Gaussian Gram5 submatrix pos Semidef | missing-bridge |
+| [`gaussianGramMatrix_translate`](../missing-bridge/lean/Topic.lean#L1809) | Translation and reflection invariance of the certified family. The Gaussian Gram matrix depends only on the differences of the centres, s… | missing-bridge |
+| [`gaussianGram5_translate_posSemidef`](../missing-bridge/lean/Topic.lean#L1818) | Gaussian Gram5 translate pos Semidef | missing-bridge |
+| [`gaussianGramMatrix_reflect`](../missing-bridge/lean/Topic.lean#L1832) | Gaussian Gram Matrix reflect | missing-bridge |
+| [`gaussianGram5_reflect_posSemidef`](../missing-bridge/lean/Topic.lean#L1842) | Gaussian Gram5 reflect pos Semidef | missing-bridge |
+| [`gaussianGram4_translate_posSemidef`](../missing-bridge/lean/Topic.lean#L1850) | Translation and reflection of the 4-centre certificate. | missing-bridge |
+| [`gaussianGram4_reflect_posSemidef`](../missing-bridge/lean/Topic.lean#L1857) | Gaussian Gram4 reflect pos Semidef | missing-bridge |
+| [`densityTerm_pos_at_zero`](../missing-bridge/lean/Topic.lean#L1866) | Concrete density-term signs at σ = 1/20. Positive at c = 0, negative at c = 1/5, 2/5, 3/5 (from the prime-spectrum-tensor enclosure bands). | missing-bridge |
+| [`densityTerm_neg_at_fifth`](../missing-bridge/lean/Topic.lean#L1871) | Density Term neg at fifth | missing-bridge |
+| [`densityTerm_neg_at_two_fifths`](../missing-bridge/lean/Topic.lean#L1876) | Density Term neg at two fifths | missing-bridge |
+| [`densityTerm_neg_at_three_fifths`](../missing-bridge/lean/Topic.lean#L1881) | Density Term neg at three fifths | missing-bridge |
+| [`gaussianGram4_quadraticForm_nonneg`](../missing-bridge/lean/Topic.lean#L1887) | The explicit 4-centre quadratic form. | missing-bridge |
+| [`densityTerm_neg_at_four_fifths`](../missing-bridge/lean/Topic.lean#L1906) | The density term at c = 4/5 is negative. | missing-bridge |
+| [`weilQuadraticForm_eq_gaussianGram`](../missing-bridge/lean/Topic.lean#L1919) | The density term at c = 4/5 is negative. | missing-bridge |
+| [`finiteWeilPositivity_iff_RH`](../missing-bridge/lean/Topic.lean#L1926) | Finite Weil Positivity iff RH | missing-bridge |
+| [`finiteWeilPositivity_of_gaussianGram`](../missing-bridge/lean/Topic.lean#L1930) | Finite Weil Positivity of gaussian Gram | missing-bridge |
+| [`riemannHypothesis_of_gaussianGram`](../missing-bridge/lean/Topic.lean#L1939) | Riemann Hypothesis of gaussian Gram | missing-bridge |
+| [`gaussianGramEntry_eq_pole_add_density_add_primeSym`](../missing-bridge/lean/Topic.lean#L1952) | T86, three-term form: the Gaussian Gram entry is the pole term plus the density term plus the symmetrised prime term. | missing-bridge |
+| [`finiteWeilPositivity_of_gaussianInputs`](../missing-bridge/lean/Topic.lean#L1976) | The bridge, positivity form, with named inputs. | missing-bridge |
+| [`riemannHypothesis_of_gaussianInputs`](../missing-bridge/lean/Topic.lean#L1984) | The bridge, RH form, with named inputs. Conditional: the two inputs are not proved. | missing-bridge |
+| [`finiteFormula_forces_zero`](../missing-bridge/lean/Topic.lean#L1999) | The finite-S formula is vacuous. If scalarZeroSide σ S c = g c is assumed for *every* finite set S of zeros in the strip, then S = ∅ forc… | missing-bridge |
+| [`continuous_matrix_quadraticForm`](../missing-bridge/lean/Topic.lean#L2020) | The quadratic form of a real matrix is continuous in the matrix. | missing-bridge |
+| [`isClosed_setOf_posSemidef`](../missing-bridge/lean/Topic.lean#L2026) | Positive semidefiniteness is a closed condition. | missing-bridge |
+| [`posSemidef_of_tendsto`](../missing-bridge/lean/Topic.lean#L2041) | PSD passes to limits. | missing-bridge |
+| [`gaussianGramPSD_of_finiteWeilPositivity`](../missing-bridge/lean/Topic.lean#L2051) | The corrected bridge: FiniteWeilPositivity plus the infinite explicit formula imply PSD of the Gaussian Gram matrix. | missing-bridge |
+| [`gaussianGramPSD_of_RH`](../missing-bridge/lean/Topic.lean#L2092) | Under the infinite explicit formula, RH implies PSD of the Gaussian Gram matrix — the corrected necessary direction of the bridge. | missing-bridge |
+| [`gaussianBridge_summary`](../missing-bridge/lean/Topic.lean#L2102) | The Gaussian bridge, packaged. Under the infinite explicit formula: the zero-side equivalence holds, finite Weil positivity implies PSD o… | missing-bridge |
+| [`gaussianZeroSum_eq`](../missing-bridge/lean/Topic.lean#L2128) | The assembly identity, algebraically. | missing-bridge |
+| [`gaussianZeroSum_re_eq_gram`](../missing-bridge/lean/Topic.lean#L2159) | Assembly, real form. Given the assembled explicit formula and the vertical-limit identification, the real part of the zero sum is exactly… | missing-bridge |
+| [`gaussianExplicitFormulaInfinite_of_assembly`](../missing-bridge/lean/Topic.lean#L2207) | Assembly gives the infinite explicit formula, conditionally on the named assembly data. | missing-bridge |
+| [`right_integral_eq`](../missing-bridge/lean/Topic.lean#L2240) | The right vertical integral (without the I factor) is minus the sum of the archimedean and prime halves. | missing-bridge |
+| [`tendsto_right`](../missing-bridge/lean/Topic.lean#L2259) | Right vertical limit from the two concrete halves. | missing-bridge |
+| [`tendsto_left`](../missing-bridge/lean/Topic.lean#L2275) | Left vertical limit derived from the right limits of the reflected test H_{−c} (via the functional equation). | missing-bridge |
+| [`hasSum_of_cofinal`](../missing-bridge/lean/Topic.lean#L2314) | Cofinal-chain lemma. | missing-bridge |
+| [`verticalLimitIdentification_of_limits`](../missing-bridge/lean/Topic.lean#L2350) | The vertical-limit identification, decomposed. It suffices to identify the archimedean and prime limit values separately with densityTerm… | missing-bridge |
+
+## [`missing-bridge/lean/VerticalLimits.lean`](missing-bridge__lean__VerticalLimits.lean.md)
+
+### topics
+
+- [`missing-bridge`](../missing-bridge/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianZeroSum_re_eq_gram_of_vertical`](../missing-bridge/lean/VerticalLimits.lean#L25) | End-to-end assembly with concrete vertical limits. | missing-bridge |
+| [`gaussianExplicitFormulaInfinite_of_enumeration`](../missing-bridge/lean/VerticalLimits.lean#L66) | Enumeration reduction. | missing-bridge |
+
+## [`missing-bridge/lean/ZeroCounting.lean`](missing-bridge__lean__ZeroCounting.lean.md)
+
+### topics
+
+- [`missing-bridge`](../missing-bridge/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`verticalLimitIdentification_of_evaluations`](../missing-bridge/lean/ZeroCounting.lean#L41) | The two evaluation inputs imply the vertical-limit identification. | missing-bridge |
+| [`gaussianZeroTest_norm_le_strip`](../missing-bridge/lean/ZeroCounting.lean#L47) | Gaussian zero-test norm bound on the critical strip. | missing-bridge |
 
 ## [`nested-spheres-continuous-cone/lean/Topic.lean`](nested-spheres-continuous-cone__lean__Topic.lean.md)
 
@@ -4143,7 +4437,103 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`densityTerm_neg`](../prime-spectrum-tensor/lean/Assembly.lean#L38) | The density term is even in c. | prime-spectrum-tensor |
 | [`gaussianGram4_apply`](../prime-spectrum-tensor/lean/Assembly.lean#L45) | One Gram entry, split into its three terms. | prime-spectrum-tensor |
 | [`gaussianGram4_posDef_of_density_enclosure`](../prime-spectrum-tensor/lean/Assembly.lean#L59) | R3: the assembly. Given the density term in the four stated rational intervals, the exact 4×4 Gaussian Weil Gram matrix at σ = 1/20 is po… | prime-spectrum-tensor |
-| [`gaussianGram4_posDef_of_density_enclosure_loose`](../prime-spectrum-tensor/lean/Assembly.lean#L106) | The relaxed certificate. | prime-spectrum-tensor |
+| [`gaussianGramEntry_eq`](../prime-spectrum-tensor/lean/Assembly.lean#L100) | The Gram entry decomposes into pole + density + symmetrised prime. | prime-spectrum-tensor |
+| [`gaussianGramEntry_zero_neg`](../prime-spectrum-tensor/lean/Assembly.lean#L109) | The Gram entry is even in the separation direction. | prime-spectrum-tensor |
+| [`gaussianGram4_posDef_of_density_enclosure_loose`](../prime-spectrum-tensor/lean/Assembly.lean#L124) | The relaxed certificate. | prime-spectrum-tensor |
+| [`primeTermSym_nonpos`](../prime-spectrum-tensor/lean/Assembly.lean#L161) | The symmetrised prime term is non-positive for σ > 0. | prime-spectrum-tensor |
+| [`primeTermSym_even`](../prime-spectrum-tensor/lean/Assembly.lean#L168) | The symmetrised prime term is even. | prime-spectrum-tensor |
+| [`gaussianGramEntry_le`](../prime-spectrum-tensor/lean/Assembly.lean#L173) | The Gram entry is at most pole + density: the prime term only lowers it. | prime-spectrum-tensor |
+| [`gaussianGramEntry_diag`](../prime-spectrum-tensor/lean/Assembly.lean#L180) | The diagonal entry only involves the three terms at separation zero. | prime-spectrum-tensor |
+| [`primeTermSym_zero`](../prime-spectrum-tensor/lean/Assembly.lean#L186) | At separation zero the symmetrised prime term is the prime term itself. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/Assembly6.lean`](prime-spectrum-tensor__lean__Assembly6.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram6_apply`](../prime-spectrum-tensor/lean/Assembly6.lean#L35) | One Gram entry, split into its three terms. | prime-spectrum-tensor |
+| [`gaussianGram6_posDef_of_density_bands`](../prime-spectrum-tensor/lean/Assembly6.lean#L49) | The 6×6 assembly. Given the six density-term bands, the exact 6×6 Gaussian Weil Gram matrix at σ = 1/20 is positive definite. | prime-spectrum-tensor |
+| [`gaussianGram6_quadraticForm_nonneg_of_density_bands`](../prime-spectrum-tensor/lean/Assembly6.lean#L91) | The vector-level form of the 6×6 certificate: the Weil quadratic form on the six Gaussian test functions is nonnegative. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/Assembly7.lean`](prime-spectrum-tensor__lean__Assembly7.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram7_apply`](../prime-spectrum-tensor/lean/Assembly7.lean#L37) | One 7 × 7 Gram entry, split into its three terms. | prime-spectrum-tensor |
+| [`gaussianGram7_posDef_of_density_bands`](../prime-spectrum-tensor/lean/Assembly7.lean#L48) | The 7×7 assembly (conditional on the density bands and the c = 6/5 prime band). | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/Assembly8.lean`](prime-spectrum-tensor__lean__Assembly8.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram8_apply`](../prime-spectrum-tensor/lean/Assembly8.lean#L37) | One 8 × 8 Gram entry, split into its three terms. | prime-spectrum-tensor |
+| [`gaussianGram8_posDef_of_density_bands`](../prime-spectrum-tensor/lean/Assembly8.lean#L48) | The 7×7 assembly (conditional on the density bands and the c = 6/5 prime band). | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/Audit.lean`](prime-spectrum-tensor__lean__Audit.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
+## [`prime-spectrum-tensor/lean/Closure6.lean`](prime-spectrum-tensor__lean__Closure6.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram6_posDef`](../prime-spectrum-tensor/lean/Closure6.lean#L43) | M0′ at 6×6, closed. The exact 6 × 6 Gaussian Weil Gram matrix at σ = 1/20, with centres 0, 1/5, …, 1, is positive definite. | prime-spectrum-tensor |
+| [`gaussianGram6_quadraticForm_nonneg`](../prime-spectrum-tensor/lean/Closure6.lean#L50) | The 6×6 Weil quadratic form is nonnegative on the span of the six Gaussian test functions. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/Closure7.lean`](prime-spectrum-tensor__lean__Closure7.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram7_posDef_of_prime_band`](../prime-spectrum-tensor/lean/Closure7.lean#L33) | The 7 × 7 closure. Conditional only on the prime band at c = 6/5. | prime-spectrum-tensor |
+| [`gaussianGram7_posDef`](../prime-spectrum-tensor/lean/Closure7.lean#L47) | The 7 × 7 closure, unconditional. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/Closure8.lean`](prime-spectrum-tensor__lean__Closure8.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram8_posDef`](../prime-spectrum-tensor/lean/Closure8.lean#L28) | The 8 × 8 closure. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/CosBound.lean`](prime-spectrum-tensor__lean__CosBound.lean.md)
 
@@ -4176,6 +4566,47 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 |---|---|---|
 | [`continuous_densityWeight_mul_Omega`](../prime-spectrum-tensor/lean/DensityAssembly.lean#L20) | Continuous density Weight mul Omega | prime-spectrum-tensor |
 | [`density_approx_error`](../prime-spectrum-tensor/lean/DensityAssembly.lean#L25) | The density assembly. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/DensityBands6.lean`](prime-spectrum-tensor__lean__DensityBands6.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`densityTerm_mem6_c0`](../prime-spectrum-tensor/lean/DensityBands6.lean#L40) | densityTerm 0 (1/20) ∈ [0.010712, 0.012680]. | prime-spectrum-tensor |
+| [`densityTerm_mem6_c1`](../prime-spectrum-tensor/lean/DensityBands6.lean#L48) | densityTerm (1/5) (1/20) ∈ [-0.049070, -0.047102]. | prime-spectrum-tensor |
+| [`densityTerm_mem6_c2`](../prime-spectrum-tensor/lean/DensityBands6.lean#L56) | densityTerm (2/5) (1/20) ∈ [-0.025022, -0.023054]. | prime-spectrum-tensor |
+| [`densityTerm_mem6_c3`](../prime-spectrum-tensor/lean/DensityBands6.lean#L64) | densityTerm (3/5) (1/20) ∈ [-0.017826, -0.015858]. | prime-spectrum-tensor |
+| [`densityTerm_mem6_c4`](../prime-spectrum-tensor/lean/DensityBands6.lean#L72) | densityTerm (4/5) (1/20) ∈ [-0.014438, -0.012104]. | prime-spectrum-tensor |
+| [`densityTerm_mem6_c5`](../prime-spectrum-tensor/lean/DensityBands6.lean#L80) | densityTerm 1 (1/20) ∈ [-0.012224, -0.009891]. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/DensityBands7.lean`](prime-spectrum-tensor__lean__DensityBands7.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`densityTerm_mem7_c6`](../prime-spectrum-tensor/lean/DensityBands7.lean#L19) | densityTerm (6/5) (1/20) from the chain DensityG6. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/DensityBands8.lean`](prime-spectrum-tensor__lean__DensityBands8.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`densityTerm_mem8_c7`](../prime-spectrum-tensor/lean/DensityBands8.lean#L20) | densityTerm (7/5) (1/20) from the chain DensityG7. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/DensityCertificates.lean`](prime-spectrum-tensor__lean__DensityCertificates.lean.md)
 
@@ -4269,6 +4700,9 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`abs_densityWeight_mul_Omega_le`](../prime-spectrum-tensor/lean/DensityTail.lean#L52) | Abs density Weight mul Omega le | prime-spectrum-tensor |
 | [`integrableOn_gaussian_moment`](../prime-spectrum-tensor/lean/DensityTail.lean#L68) | The Gaussian moment integrand is integrable on the half-line. | prime-spectrum-tensor |
 | [`density_tail_le`](../prime-spectrum-tensor/lean/DensityTail.lean#L77) | The density tail. | prime-spectrum-tensor |
+| [`density_tail_le_of`](../prime-spectrum-tensor/lean/DensityTail.lean#L115) | The density tail at any T ≥ 60. The Gaussian moment integrates exactly, so the tail is e^{−T²/400}/2 once \|Ω\| is bounded by log(t+2)+24. | prime-spectrum-tensor |
+| [`exp_sixteen_large`](../prime-spectrum-tensor/lean/DensityTail.lean#L146) | exp 16 ≥ 5000000, from exp 4 ≥ 54. | prime-spectrum-tensor |
+| [`density_tail_le_eighty`](../prime-spectrum-tensor/lean/DensityTail.lean#L159) | The tail at T = 80. Moving the split point from 60 to 80 takes the tail from e^{−9}/2 ≈ 6.2·10⁻⁵ to e^{−16}/2 ≈ 5.6·10⁻⁸. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/DensityWeight.lean`](prime-spectrum-tensor__lean__DensityWeight.lean.md)
 
@@ -4283,6 +4717,68 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`abs_densityWeight_le`](../prime-spectrum-tensor/lean/DensityWeight.lean#L15) | Abs density Weight le | prime-spectrum-tensor |
 | [`continuous_densityWeight`](../prime-spectrum-tensor/lean/DensityWeight.lean#L30) | Continuous density Weight | prime-spectrum-tensor |
 | [`densityWeight_nonneg`](../prime-spectrum-tensor/lean/DensityWeight.lean#L35) | Density Weight nonneg | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/DetPos.lean`](prime-spectrum-tensor__lean__DetPos.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram4_det_pos`](../prime-spectrum-tensor/lean/DetPos.lean#L10) | The certified 4×4 Gaussian Gram determinant is positive. | prime-spectrum-tensor |
+| [`gaussianGram5_det_pos`](../prime-spectrum-tensor/lean/DetPos.lean#L14) | The certified 5×5 Gaussian Gram determinant is positive. | prime-spectrum-tensor |
+| [`gaussianGram4_det_ne_zero`](../prime-spectrum-tensor/lean/DetPos.lean#L18) | The certified 4×4 determinant is nonzero. | prime-spectrum-tensor |
+| [`gaussianGram5_det_ne_zero`](../prime-spectrum-tensor/lean/DetPos.lean#L22) | The certified 5×5 determinant is nonzero. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/DiagonalPositivity.lean`](prime-spectrum-tensor__lean__DiagonalPositivity.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGramEntry_diag_pos_at_inv20`](../prime-spectrum-tensor/lean/DiagonalPositivity.lean#L19) | The diagonal of the Gaussian Gram matrix is strictly positive at σ = 1/20. | prime-spectrum-tensor |
+| [`gaussianGram4_diag_pos`](../prime-spectrum-tensor/lean/DiagonalPositivity.lean#L28) | The diagonal of the 4×4 matrix is positive. | prime-spectrum-tensor |
+| [`gaussianGram5_diag_pos`](../prime-spectrum-tensor/lean/DiagonalPositivity.lean#L33) | The diagonal of the 5×5 matrix is positive. | prime-spectrum-tensor |
+| [`gaussianGram6_diag_pos`](../prime-spectrum-tensor/lean/DiagonalPositivity.lean#L38) | The diagonal of the 6×6 matrix is positive. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/ExpSevenFifths.lean`](prime-spectrum-tensor__lean__ExpSevenFifths.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`exp_c75E4lo_mem`](../prime-spectrum-tensor/lean/ExpSevenFifths.lean#L14) | exp(-(117402854881/6250000000000)), via (exp(-117402854881/6250000000000/16))^16. | prime-spectrum-tensor |
+| [`exp_c75E4hi_mem`](../prime-spectrum-tensor/lean/ExpSevenFifths.lean#L73) | exp(-(469610048961/25000000000000)), via (exp(-469610048961/25000000000000/16))^16. | prime-spectrum-tensor |
+| [`exp_c75E3lo_mem`](../prime-spectrum-tensor/lean/ExpSevenFifths.lean#L132) | exp(-(908359321/100000000)), via (exp(-908359321/100000000/16))^16. | prime-spectrum-tensor |
+| [`exp_c75E3hi_mem`](../prime-spectrum-tensor/lean/ExpSevenFifths.lean#L191) | exp(-(227074761/25000000)), via (exp(-227074761/25000000/16))^16. | prime-spectrum-tensor |
+| [`exp_c75E5lo_mem`](../prime-spectrum-tensor/lean/ExpSevenFifths.lean#L250) | exp(-(10966068961/2500000000)), via (exp(-10966068961/2500000000/16))^16. | prime-spectrum-tensor |
+| [`exp_c75E5hi_mem`](../prime-spectrum-tensor/lean/ExpSevenFifths.lean#L309) | exp(-(4386423395641/1000000000000)), via (exp(-4386423395641/1000000000000/16))^16. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/ExpSixFifths.lean`](prime-spectrum-tensor__lean__ExpSixFifths.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`exp_sixE3lo_mem`](../prime-spectrum-tensor/lean/ExpSixFifths.lean#L16) | exp(-(25694761/25000000)), via (exp(-25694761/25000000/16))^16. | prime-spectrum-tensor |
+| [`exp_sixE3hi_mem`](../prime-spectrum-tensor/lean/ExpSixFifths.lean#L75) | exp(-(102799321/100000000)), via (exp(-102799321/100000000/16))^16. | prime-spectrum-tensor |
+| [`exp_sixE4lo_mem`](../prime-spectrum-tensor/lean/ExpSixFifths.lean#L134) | exp(-(542284369/156250000)), via (exp(-542284369/156250000/16))^16. | prime-spectrum-tensor |
+| [`exp_sixE4hi_mem`](../prime-spectrum-tensor/lean/ExpSixFifths.lean#L193) | exp(-(8676363609/2500000000)), via (exp(-8676363609/2500000000/16))^16. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/FirstRung.lean`](prime-spectrum-tensor__lean__FirstRung.lean.md)
 
@@ -4313,6 +4809,7 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`gaussianGramEntry_symm`](../prime-spectrum-tensor/lean/GaussianGram.lean#L103) | The exact 4 × 4 Gaussian Weil Gram matrix at width σ. | prime-spectrum-tensor |
 | [`gaussianGram4_symm`](../prime-spectrum-tensor/lean/GaussianGram.lean#L109) | Gaussian Gram4 symm | prime-spectrum-tensor |
 | [`gaussianGram4_posDef_of_enclosure`](../prime-spectrum-tensor/lean/GaussianGram.lean#L122) | The assembly step. If every entry of the exact Gram matrix is within ε of the W1 rational centre, and 4ε < 0.0227, then the exact matrix… | prime-spectrum-tensor |
+| [`gaussianGramEntry_translate`](../prime-spectrum-tensor/lean/GaussianGram.lean#L130) | The Gram entry is translation invariant. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/GaussianGram5.lean`](prime-spectrum-tensor__lean__GaussianGram5.lean.md)
 
@@ -4332,6 +4829,64 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`L5_transpose_det`](../prime-spectrum-tensor/lean/GaussianGram5.lean#L133) | L5ᵀ is unit upper triangular, so its determinant is one. | prime-spectrum-tensor |
 | [`gramCentre5_sub_posDef`](../prime-spectrum-tensor/lean/GaussianGram5.lean#L144) | Exact rational certificate. gramCentre5 − (1/50)·I is positive definite, by exact rational arithmetic. | prime-spectrum-tensor |
 | [`gaussianGram5_posDef_of_entry_bound`](../prime-spectrum-tensor/lean/GaussianGram5.lean#L162) | The 5×5 entrywise obligation, in the correct norm. If the exact Gaussian Gram matrix G is symmetric and every entry is within ε of gramCe… | prime-spectrum-tensor |
+| [`gaussianGram4_submatrix_gaussianGram5`](../prime-spectrum-tensor/lean/GaussianGram5.lean#L173) | The certified 4×4 matrix is a principal submatrix of the 5×5 matrix (spacing 1/5, the 4×4 centres being shifted by 1/10). | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/GaussianGram6.lean`](prime-spectrum-tensor__lean__GaussianGram6.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram6_symm`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L36) | Gaussian Gram6 symm | prime-spectrum-tensor |
+| [`D6_eq_diagonal`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L130) | D6 eq diagonal | prime-spectrum-tensor |
+| [`D6_posDef`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L135) | D6 pos Def | prime-spectrum-tensor |
+| [`gramCentre6_factor`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L139) | Gram Centre6 factor | prime-spectrum-tensor |
+| [`L6_transpose_det`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L146) | L6 transpose det | prime-spectrum-tensor |
+| [`gramCentre6_sub_posDef`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L155) | Gram Centre6 sub pos Def | prime-spectrum-tensor |
+| [`gaussianGram6_posDef_of_entry_bound`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L168) | The 6×6 entrywise obligation. | prime-spectrum-tensor |
+| [`gaussianGram5_submatrix_gaussianGram6`](../prime-spectrum-tensor/lean/GaussianGram6.lean#L178) | The certified 5×5 matrix is a principal submatrix of the 6×6 matrix. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/GaussianGram7.lean`](prime-spectrum-tensor__lean__GaussianGram7.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram7_symm`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L33) | Gaussian Gram7 symm | prime-spectrum-tensor |
+| [`D7_eq_diagonal`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L196) | D7 eq diagonal | prime-spectrum-tensor |
+| [`D7_posDef`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L201) | D7 pos Def | prime-spectrum-tensor |
+| [`gramCentre7_factor`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L205) | Gram Centre7 factor | prime-spectrum-tensor |
+| [`L7_transpose_det`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L212) | L7 transpose det | prime-spectrum-tensor |
+| [`gramCentre7_sub_posDef`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L221) | Gram Centre7 sub pos Def | prime-spectrum-tensor |
+| [`gaussianGram7_posDef_of_entry_bound`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L234) | The 7 × 7 entrywise obligation. | prime-spectrum-tensor |
+| [`gaussianGram6_submatrix_gaussianGram7`](../prime-spectrum-tensor/lean/GaussianGram7.lean#L244) | The certified 6×6 matrix is a principal submatrix of the 7×7 matrix. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/GaussianGram8.lean`](prime-spectrum-tensor__lean__GaussianGram8.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram8_symm`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L29) | Gaussian Gram8 symm | prime-spectrum-tensor |
+| [`D8_eq_diagonal`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L69) | D8 eq diagonal | prime-spectrum-tensor |
+| [`D8_posDef`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L74) | D8 pos Def | prime-spectrum-tensor |
+| [`gramCentre8_factor`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L78) | Gram Centre8 factor | prime-spectrum-tensor |
+| [`L8_transpose_det`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L85) | L8 transpose det | prime-spectrum-tensor |
+| [`gramCentre8_sub_posDef`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L94) | Gram Centre8 sub pos Def | prime-spectrum-tensor |
+| [`gaussianGram8_posDef_of_entry_bound`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L106) | Gaussian Gram8 pos Def of entry bound | prime-spectrum-tensor |
+| [`gaussianGram7_submatrix_gaussianGram8`](../prime-spectrum-tensor/lean/GaussianGram8.lean#L116) | The certified 7×7 matrix is a principal submatrix of the 8×8 matrix. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/GaussianTail.lean`](prime-spectrum-tensor__lean__GaussianTail.lean.md)
 
@@ -4370,8 +4925,28 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 
 | lean name | proof title | applicable to topics |
 |---|---|---|
-| [`tsum_shifted_inv_le_six`](../prime-spectrum-tensor/lean/LipSmall2.lean#L28) | Tsum shifted inv le six | prime-spectrum-tensor |
-| [`deriv_Omega_abs_le_six`](../prime-spectrum-tensor/lean/LipSmall2.lean#L73) | The t ≥ 1 Lipschitz bound. \|Ω′(t)\| ≤ 6/t for t ≥ 1. | prime-spectrum-tensor |
+| [`sum_range_shifted_inv_le`](../prime-spectrum-tensor/lean/LipSmall2.lean#L34) | The head/tail estimate for the shifted sum. For a ≥ 1/2 every finite partial sum is at most (a+2)/a² + 1/a: the K = ⌈a⌉+1 head terms cost… | prime-spectrum-tensor |
+| [`tsum_shifted_inv_le_six`](../prime-spectrum-tensor/lean/LipSmall2.lean#L71) | The a ≥ 1/2 tsum bound Σ ≤ 6/a. | prime-spectrum-tensor |
+| [`deriv_Omega_abs_le_six`](../prime-spectrum-tensor/lean/LipSmall2.lean#L84) | The t ≥ 1 Lipschitz bound. \|Ω′(t)\| ≤ 6/t for t ≥ 1. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/LipSmall3.lean`](prime-spectrum-tensor__lean__LipSmall3.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`headFour_eq_sum`](../prime-spectrum-tensor/lean/LipSmall3.lean#L52) | Head Four eq sum | prime-spectrum-tensor |
+| [`headFour_antitone`](../prime-spectrum-tensor/lean/LipSmall3.lean#L57) | headFour is antitone on [0, ∞). | prime-spectrum-tensor |
+| [`headFour_le_of_interval`](../prime-spectrum-tensor/lean/LipSmall3.lean#L70) | The rational comparison transported from one sub-interval [u, v]. | prime-spectrum-tensor |
+| [`headFour_add_le`](../prime-spectrum-tensor/lean/LipSmall3.lean#L83) | The compact-range bound. headFour a + 1/3 ≤ 5/(2a) for 1/2 ≤ a ≤ 4. | prime-spectrum-tensor |
+| [`sum_range_le_headFour`](../prime-spectrum-tensor/lean/LipSmall3.lean#L135) | The partial-sum bound with four head terms. For a ≥ 1/2 and every N, the first N terms are at most headFour a + 1/3. | prime-spectrum-tensor |
+| [`sum_range_shifted_inv_le_five_halves`](../prime-spectrum-tensor/lean/LipSmall3.lean#L159) | The sharper partial-sum bound. Every finite partial sum of Σ_j ((j+1/4)²+a²)⁻¹ is at most 5/(2a) for a ≥ 1/2. | prime-spectrum-tensor |
+| [`tsum_shifted_inv_le_five_halves`](../prime-spectrum-tensor/lean/LipSmall3.lean#L177) | The sharper shifted-sum bound. Σ_j ((j+1/4)²+a²)⁻¹ ≤ 5/(2a) for a ≥ 1/2. | prime-spectrum-tensor |
+| [`deriv_Omega_abs_le_five_halves`](../prime-spectrum-tensor/lean/LipSmall3.lean#L183) | The sharper Lipschitz bound. \|Ω′(t)\| ≤ 5/(2t) for t ≥ 1. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/MidpointRule.lean`](prime-spectrum-tensor__lean__MidpointRule.lean.md)
 
@@ -4472,8 +5047,9 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 |---|---|---|
 | [`weight_midpoint_rule`](../prime-spectrum-tensor/lean/PanelCertificate.lean#L26) | The midpoint rule for the weight on a panel inside [0,60]. | prime-spectrum-tensor |
 | [`panel_certificate`](../prime-spectrum-tensor/lean/PanelCertificate.lean#L50) | The panel certificate. | prime-spectrum-tensor |
-| [`weight_midpoint_rule_four_fifths`](../prime-spectrum-tensor/lean/PanelCertificate.lean#L82) | The midpoint rule at c = ±4/5, with second-derivative bound 1/200. | prime-spectrum-tensor |
-| [`panel_certificate_four_fifths`](../prime-spectrum-tensor/lean/PanelCertificate.lean#L107) | The panel certificate at c = ±4/5. Same as panel_certificate but with the second-derivative constant 1/200. | prime-spectrum-tensor |
+| [`weight_midpoint_rule_one`](../prime-spectrum-tensor/lean/PanelCertificate.lean#L82) | The midpoint rule at c = ±4/5, with second-derivative bound 1/200. | prime-spectrum-tensor |
+| [`weight_midpoint_rule_four_fifths`](../prime-spectrum-tensor/lean/PanelCertificate.lean#L108) | The panel certificate at c = ±4/5. Same as panel_certificate but with the second-derivative constant 1/200. | prime-spectrum-tensor |
+| [`panel_certificate_four_fifths`](../prime-spectrum-tensor/lean/PanelCertificate.lean#L133) | The panel certificate at c = ±4/5. Same as panel_certificate but with the second-derivative constant 1/200. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/PanelDecay.lean`](prime-spectrum-tensor__lean__PanelDecay.lean.md)
 
@@ -4486,10 +5062,31 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | lean name | proof title | applicable to topics |
 |---|---|---|
 | [`panel_certificate_decay`](../prime-spectrum-tensor/lean/PanelDecay.lean#L33) | The decaying panel certificate. | prime-spectrum-tensor |
-| [`panel_certificate_decay_four_fifths`](../prime-spectrum-tensor/lean/PanelDecay.lean#L58) | The decaying panel certificate at c = ±4/5, with the second-derivative constant 1/200. | prime-spectrum-tensor |
-| [`bound`](../prime-spectrum-tensor/lean/PanelDecay.lean#L101) | The chain bound. | prime-spectrum-tensor |
-| [`panel_glue`](../prime-spectrum-tensor/lean/PanelDecay.lean#L127) | Gluing a node bracket into the panel certificate. | prime-spectrum-tensor |
-| [`panel_step`](../prime-spectrum-tensor/lean/PanelDecay.lean#L156) | One cumulative step. Extends an enclosure of ∫_a^b by a panel [b,c]. | prime-spectrum-tensor |
+| [`panel_certificate_decay_one`](../prime-spectrum-tensor/lean/PanelDecay.lean#L58) | The decaying panel certificate at c = ±4/5, with the second-derivative constant 1/200. | prime-spectrum-tensor |
+| [`panel_certificate_decay_four_fifths`](../prime-spectrum-tensor/lean/PanelDecay.lean#L82) | Panel certificate decay four fifths | prime-spectrum-tensor |
+| [`bound`](../prime-spectrum-tensor/lean/PanelDecay.lean#L125) | The chain bound. | prime-spectrum-tensor |
+| [`panel_glue`](../prime-spectrum-tensor/lean/PanelDecay.lean#L151) | Gluing a node bracket into the panel certificate. | prime-spectrum-tensor |
+| [`panel_step`](../prime-spectrum-tensor/lean/PanelDecay.lean#L180) | One cumulative step. Extends an enclosure of ∫_a^b by a panel [b,c]. | prime-spectrum-tensor |
+| [`abs_sub_le_three`](../prime-spectrum-tensor/lean/PanelDecay.lean#L201) | The triangle inequality for three points. Used by the *rounded* cumulative chain: the running rational partial sums are rounded to a fixe… | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/PanelSecondOrder.lean`](prime-spectrum-tensor__lean__PanelSecondOrder.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`abs_weight1_le`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L51) | The first-derivative weight bound. \|w′(t)\| ≤ (1/400)(\|t\|/200 + \|c\|). | prime-spectrum-tensor |
+| [`differentiable_iteratedDeriv_one`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L99) | iteratedDeriv 1 Ψ is everywhere differentiable. | prime-spectrum-tensor |
+| [`differentiable_deriv_Omega`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L104) | deriv Ω is differentiable. | prime-spectrum-tensor |
+| [`deriv2_weight_mul`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L115) | The second derivative of w·Ω. | prime-spectrum-tensor |
+| [`abs_deriv2_weight_mul_le`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L143) | The second-derivative bound for the panel integrand. | prime-spectrum-tensor |
+| [`panel_certificate_second_order`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L180) | The second-order panel certificate. With B a bound for \|(wΩ)″\| on [a,b], the midpoint rule for w·Ω costs B·h³/4 — there is no h² term. | prime-spectrum-tensor |
+| [`panel_certificate_second_order_bounds`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L227) | The second-order certificate with the panel bounds named separately (the form the generator emits). | prime-spectrum-tensor |
+| [`panel_second_order_certificate`](../prime-spectrum-tensor/lean/PanelSecondOrder.lean#L248) | The emitted second-order panel certificate. Everything the generator knows about a panel is passed in: the Ω bracket at the midpoint (qlo… | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/PanelSum.lean`](prime-spectrum-tensor__lean__PanelSum.lean.md)
 
@@ -4529,6 +5126,25 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`poleTerm_mem_c3`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L174) | poleTerm (3/5) (1/20) ∈ [0.032859, 0.032861]. | prime-spectrum-tensor |
 | [`cosh_04_mem`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L186) | cosh(2/5) ∈ [10810723/10⁷, 10810724/10⁷]. | prime-spectrum-tensor |
 | [`poleTerm_mem_c4`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L198) | poleTerm (4/5) (1/20) ∈ [0.033982, 0.033985]. | prime-spectrum-tensor |
+| [`cosh_three_fifths_mem`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L210) | cosh (3/5). | prime-spectrum-tensor |
+| [`poleTerm_mem_c6`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L224) | The pole term at c = 6/5, σ = 1/20. | prime-spectrum-tensor |
+| [`cosh_seven_tenths_mem`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L236) | cosh(7/10) in a rational interval. | prime-spectrum-tensor |
+| [`poleTerm_mem_c75`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L250) | The pole term at c = 7/5, σ = 1/20. | prime-spectrum-tensor |
+| [`cosh_half_mem`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L266) | cosh(1/2) in a rational interval. | prime-spectrum-tensor |
+| [`poleTerm_mem_c5`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L280) | The pole term at c = 1, σ = 1/20. | prime-spectrum-tensor |
+| [`poleTerm_pos`](../prime-spectrum-tensor/lean/PoleEnclosure.lean#L292) | The pole term is positive for σ ≠ 0. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/PoleQuadraticForm.lean`](prime-spectrum-tensor__lean__PoleQuadraticForm.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`cosh_quadratic_form`](../prime-spectrum-tensor/lean/PoleQuadraticForm.lean#L23) | Cosh quadratic form | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/PrimeEnclosure.lean`](prime-spectrum-tensor__lean__PrimeEnclosure.lean.md)
 
@@ -4554,31 +5170,145 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`sum_tail_le`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L222) | The prime tail is below (√π/20)·3⁻¹¹/2 ≈ 8.3·10⁻⁸. | prime-spectrum-tensor |
 | [`vonMangoldt_two`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L245) | The prime tail is below (√π/20)·3⁻¹¹/2 ≈ 8.3·10⁻⁸. theorem sum_tail_le (c : ℝ) (hc : c ≤ 3 / 5) : ∑' n : ℕ, primeSummand c (n + 3) ≤ Real… | prime-spectrum-tensor |
 | [`log_two_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L248) | Log two mem | prime-spectrum-tensor |
-| [`sqrt_two_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L254) | Sqrt two mem | prime-spectrum-tensor |
-| [`sqrt_pi_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L259) | Sqrt pi mem | prime-spectrum-tensor |
-| [`primeSummand_two`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L265) | Prime Summand two | prime-spectrum-tensor |
-| [`prime_sum_range_tail_le`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L272) | Prime sum range tail le | prime-spectrum-tensor |
-| [`prime_sum_split`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L293) | The split of the full prime sum into the finite prefix and the tail. | prime-spectrum-tensor |
-| [`sqrt_pi_div_twenty_le`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L315) | √π/20 ≤ 8863/10⁵. | prime-spectrum-tensor |
-| [`sum_tail_le_rat`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L320) | The tail is below 2.51·10⁻⁷. | prime-spectrum-tensor |
-| [`primeTerm_mem_small`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L333) | Case c ≤ 2/5: the n = 2 term is below 1.061·10⁻⁵, so the prime term is in [−2.2·10⁻⁵, 0]. | prime-spectrum-tensor |
-| [`sqrt_pi_div_twenty_le_close`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L385) | Sqrt pi div twenty le close | prime-spectrum-tensor |
-| [`sqrt_pi_div_twenty_ge`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L389) | Sqrt pi div twenty ge | prime-spectrum-tensor |
-| [`primeTerm_mem_three_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L394) | Case c = 3/5: the n = 2 term is the whole sum. | prime-spectrum-tensor |
-| [`exp_decay_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L494) | For x ≥ log 3, exp(−100 (x − 4/5)²) ≤ exp(−8 x). | prime-spectrum-tensor |
-| [`exp_neg_log_eight`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L514) | exp(−8 log n) = ((n)⁸)⁻¹ for n > 0. | prime-spectrum-tensor |
-| [`primeSummand_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L524) | The pointwise bound Λ(n)/√n · bump ≤ (√π/20)·n⁻⁷ for n ≥ 3 at c = 4/5. | prime-spectrum-tensor |
-| [`primeSummand_le_tail_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L576) | The tail summand comparison at c = 4/5. | prime-spectrum-tensor |
-| [`sum_tail_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L610) | The prime tail at c = 4/5 is below (√π/20)·3⁻⁵/2 ≈ 1.83·10⁻⁴. | prime-spectrum-tensor |
-| [`sum_tail_le_rat_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L632) | The tail is below 1.83·10⁻⁴. | prime-spectrum-tensor |
-| [`prime_sum_range_tail_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L644) | The finite-range tail bound at c = 4/5. | prime-spectrum-tensor |
-| [`prime_sum_split_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L665) | The split of the prime sum at c = 4/5. | prime-spectrum-tensor |
-| [`exp_neg_11417523_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L685) | exp(−11417523/10⁷) ∈ [0.319259080, 0.319259098]. | prime-spectrum-tensor |
-| [`exp_neg_11417526_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L733) | exp(−11417526/10⁷) ∈ [0.319258978, 0.319259030]. | prime-spectrum-tensor |
-| [`y_mem_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L781) | 100 (log 2 − 4/5)² ∈ [11417523/10⁷, 11417526/10⁷]. | prime-spectrum-tensor |
-| [`exp_two_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L802) | exp(−100 (log 2 − 4/5)²) ∈ [0.319258978, 0.319259098]. | prime-spectrum-tensor |
-| [`primeSummand_two_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L817) | The n = 2 summand at c = 4/5 lies in [0.013863, 0.013870]. | prime-spectrum-tensor |
-| [`primeTerm_mem_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L851) | The prime term at c = 4/5. The true value is −0.0277501; the interval is ample for the 3.4·10⁻³ entry budget. | prime-spectrum-tensor |
+| [`log_three_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L255) | Real.log 3 in a tight rational interval (via exp bounds). | prime-spectrum-tensor |
+| [`sqrt_two_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L302) | Sqrt two mem | prime-spectrum-tensor |
+| [`sqrt_pi_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L307) | Sqrt pi mem | prime-spectrum-tensor |
+| [`primeSummand_two`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L313) | Prime Summand two | prime-spectrum-tensor |
+| [`prime_sum_range_tail_le`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L320) | Prime sum range tail le | prime-spectrum-tensor |
+| [`prime_sum_split`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L341) | The split of the full prime sum into the finite prefix and the tail. | prime-spectrum-tensor |
+| [`sqrt_pi_div_twenty_le`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L363) | √π/20 ≤ 8863/10⁵. | prime-spectrum-tensor |
+| [`sum_tail_le_rat`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L368) | The tail is below 2.51·10⁻⁷. | prime-spectrum-tensor |
+| [`primeTerm_mem_small`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L381) | Case c ≤ 2/5: the n = 2 term is below 1.061·10⁻⁵, so the prime term is in [−2.2·10⁻⁵, 0]. | prime-spectrum-tensor |
+| [`sqrt_pi_div_twenty_le_close`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L433) | Sqrt pi div twenty le close | prime-spectrum-tensor |
+| [`sqrt_pi_div_twenty_ge`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L437) | Sqrt pi div twenty ge | prime-spectrum-tensor |
+| [`primeTerm_mem_three_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L442) | Case c = 3/5: the n = 2 term is the whole sum. | prime-spectrum-tensor |
+| [`exp_decay_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L542) | For x ≥ log 3, exp(−100 (x − 4/5)²) ≤ exp(−8 x). | prime-spectrum-tensor |
+| [`exp_neg_log_eight`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L562) | exp(−8 log n) = ((n)⁸)⁻¹ for n > 0. | prime-spectrum-tensor |
+| [`primeSummand_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L572) | The pointwise bound Λ(n)/√n · bump ≤ (√π/20)·n⁻⁷ for n ≥ 3 at c = 4/5. | prime-spectrum-tensor |
+| [`primeSummand_le_tail_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L624) | The tail summand comparison at c = 4/5. | prime-spectrum-tensor |
+| [`sum_tail_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L658) | The prime tail at c = 4/5 is below (√π/20)·3⁻⁵/2 ≈ 1.83·10⁻⁴. | prime-spectrum-tensor |
+| [`sum_tail_le_rat_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L680) | The tail is below 1.83·10⁻⁴. | prime-spectrum-tensor |
+| [`prime_sum_range_tail_le_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L692) | The finite-range tail bound at c = 4/5. | prime-spectrum-tensor |
+| [`prime_sum_split_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L713) | The split of the prime sum at c = 4/5. | prime-spectrum-tensor |
+| [`exp_neg_11417523_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L733) | exp(−11417523/10⁷) ∈ [0.319259080, 0.319259098]. | prime-spectrum-tensor |
+| [`exp_neg_11417526_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L781) | exp(−11417526/10⁷) ∈ [0.319258978, 0.319259030]. | prime-spectrum-tensor |
+| [`y_mem_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L829) | 100 (log 2 − 4/5)² ∈ [11417523/10⁷, 11417526/10⁷]. | prime-spectrum-tensor |
+| [`exp_two_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L850) | exp(−100 (log 2 − 4/5)²) ∈ [0.319258978, 0.319259098]. | prime-spectrum-tensor |
+| [`primeSummand_two_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L865) | The n = 2 summand at c = 4/5 lies in [0.013863, 0.013870]. | prime-spectrum-tensor |
+| [`primeTerm_mem_four_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L899) | The prime term at c = 4/5. The true value is −0.0277501; the interval is ample for the 3.4·10⁻³ entry budget. | prime-spectrum-tensor |
+| [`exp_neg_ten_log`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L913) | exp(−10 log n) = (n¹⁰)⁻¹. | prime-spectrum-tensor |
+| [`log_four_ge`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L926) | log 4 = 2 log 2 lower bound. | prime-spectrum-tensor |
+| [`exp_decay_c1`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L935) | The c = 1 Gaussian decay: for x ≥ log 4, exp(−100(x−1)²) ≤ exp(−10 x). | prime-spectrum-tensor |
+| [`primeSummand_le_c1`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L947) | Prime Summand le c1 | prime-spectrum-tensor |
+| [`tele3_sub`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L993) | Tele3 sub | prime-spectrum-tensor |
+| [`sum_tele3`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1000) | Sum tele3 | prime-spectrum-tensor |
+| [`tele3_nonneg`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1006) | Tele3 nonneg | prime-spectrum-tensor |
+| [`primeSummand_le_tail_c1`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1008) | Prime Summand le tail c1 | prime-spectrum-tensor |
+| [`prime_sum_range_tail_le_c1`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1040) | Prime sum range tail le c1 | prime-spectrum-tensor |
+| [`sum_tail_c1_le`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1060) | Sum tail c1 le | prime-spectrum-tensor |
+| [`sqrt_three_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1066) | Sqrt three mem | prime-spectrum-tensor |
+| [`vonMangoldt_three`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1072) | Von Mangoldt three | prime-spectrum-tensor |
+| [`primeSummand_three_c1_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1075) | Prime Summand three c1 mem | prime-spectrum-tensor |
+| [`prime_sum_split_c1`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1144) | Prime sum split c1 | prime-spectrum-tensor |
+| [`exp_nine_eq`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1161) | Exp nine eq | prime-spectrum-tensor |
+| [`exp_neg_nine_le_c1`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1164) | Exp neg nine le c1 | prime-spectrum-tensor |
+| [`exp_neg_nine_half_ge_c1`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1173) | Exp neg nine half ge c1 | prime-spectrum-tensor |
+| [`primeSummand_two_c1_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1197) | Prime Summand two c1 mem | prime-spectrum-tensor |
+| [`primeTerm_c1_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1256) | Prime Term c1 mem | prime-spectrum-tensor |
+| [`primeTerm_nonpos`](../prime-spectrum-tensor/lean/PrimeEnclosure.lean#L1282) | The prime term is non-positive for σ > 0. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/PrimeEnclosure7.lean`](prime-spectrum-tensor__lean__PrimeEnclosure7.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`six_fifths_domination`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L24) | On x ≥ log 5, 100(x − 6/5)² ≥ 7x. | prime-spectrum-tensor |
+| [`inv_six_telescope`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L43) | The telescoping step: (n+5)⁻⁶ ≤ (1/5)((n+4)⁻⁵ − (n+5)⁻⁵). | prime-spectrum-tensor |
+| [`sum_tail_inv_six_le`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L65) | Σ_{n≥5} n⁻⁶ ≤ 1/5120. | prime-spectrum-tensor |
+| [`six_fifths_term_le`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L87) | Termwise bound on the n ≥ 5 tail at c = 6/5. | prime-spectrum-tensor |
+| [`six_fifths_tail_le`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L143) | The n ≥ 5 tail of the c = 6/5 prime sum. | prime-spectrum-tensor |
+| [`primeSummand_two_six_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L162) | The n = 2 term is below 10⁻¹⁰. | prime-spectrum-tensor |
+| [`six_fifths_exponent_three`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L202) | −100(log 3 − 6/5)² ∈ [−1.02799321, −1.02779044]. | prime-spectrum-tensor |
+| [`primeSummand_three_six_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L211) | primeSummand (6/5) 3 ∈ [0.020107, 0.020114]. | prime-spectrum-tensor |
+| [`six_fifths_exponent_four`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L260) | −100(log 4 − 6/5)² ∈ [−3.4706199616, −3.4705454436]. | prime-spectrum-tensor |
+| [`prime_sum_split_six_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L299) | The prime sum at c = 6/5 splits after n = 4. | prime-spectrum-tensor |
+| [`vonMangoldt_four`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L323) | Λ(4) = log 2. | prime-spectrum-tensor |
+| [`primeSummand_four_six_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L329) | primeSummand (6/5) 4 ∈ [0.000955, 0.000956]. | prime-spectrum-tensor |
+| [`primeTerm_mem_six_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L396) | The prime term at c = 6/5. | prime-spectrum-tensor |
+| [`exp_neg_144_le`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L415) | Exp neg 144 le | prime-spectrum-tensor |
+| [`inv_sq_telescope`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L430) | Inv sq telescope | prime-spectrum-tensor |
+| [`sum_inv_sq_le`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L441) | Sum inv sq le | prime-spectrum-tensor |
+| [`neg_term_le`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L456) | Neg term le | prime-spectrum-tensor |
+| [`sum_inv_sq_succ_le`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L522) | Sum inv sq succ le | prime-spectrum-tensor |
+| [`primeTerm_mem_neg_six_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L541) | Prime Term mem neg six fifths | prime-spectrum-tensor |
+| [`primeTerm_sym_mem_six_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure7.lean#L573) | The symmetrised prime term at c = 6/5. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/PrimeEnclosure8.lean`](prime-spectrum-tensor__lean__PrimeEnclosure8.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`sqrt_five_mem`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L22) | √5 in a rational interval. | prime-spectrum-tensor |
+| [`vonMangoldt_five`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L28) | Λ(5) = log 5. | prime-spectrum-tensor |
+| [`seven_fifths_domination`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L34) | On x ≥ log 7, 100(x − 7/5)² ≥ 3x + 22. | prime-spectrum-tensor |
+| [`seven_fifths_term_le`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L63) | Termwise bound on the n ≥ 7 tail at c = 7/5. | prime-spectrum-tensor |
+| [`seven_fifths_tail_le`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L142) | The n ≥ 7 tail at c = 7/5. | prime-spectrum-tensor |
+| [`seven_fifths_exponent_four`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L166) | −100(log 4 − 7/5)² ∈ [−0.01878445678096, −0.01878440195844]. | prime-spectrum-tensor |
+| [`seven_fifths_exponent_three`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L208) | −100(log 3 − 7/5)² ∈ [−9.08359321, −9.08299044]. | prime-spectrum-tensor |
+| [`seven_fifths_exponent_five`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L214) | −100(log 5 − 7/5)² ∈ [−4.3864275844, −4.386423395641]. | prime-spectrum-tensor |
+| [`primeSummand_four_7_5`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L220) | primeSummand (7/5) 4 ∈ [0.030141, 0.030144]. | prime-spectrum-tensor |
+| [`primeSummand_three_7_5`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L291) | primeSummand (7/5) 3 ∈ [0.0000063, 0.0000064]. | prime-spectrum-tensor |
+| [`primeSummand_five_7_5`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L357) | primeSummand (7/5) 5 ∈ [0.0007935, 0.0007945]. | prime-spectrum-tensor |
+| [`primeSummand_six_7_5`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L428) | The n = 6 term at c = 7/5 vanishes (Λ 6 = 0); we only need a small bound. | prime-spectrum-tensor |
+| [`primeSummand_two_7_5`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L487) | The n = 2 term at c = 7/5 is below 10⁻²⁰. | prime-spectrum-tensor |
+| [`prime_sum_split_seven_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L524) | The prime sum at c = 7/5 splits after n = 6. | prime-spectrum-tensor |
+| [`primeTerm_mem_seven_fifths`](../prime-spectrum-tensor/lean/PrimeEnclosure8.lean#L555) | The prime term at c = 7/5. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/SecondDeriv.lean`](prime-spectrum-tensor__lean__SecondDeriv.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`norm_sPointR_add_sq`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L49) | ‖s + j‖² for s = 1/4 + it/2. | prime-spectrum-tensor |
+| [`differentiableAt_iteratedDeriv_one`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L58) | iteratedDeriv 1 Ψ is differentiable. | prime-spectrum-tensor |
+| [`norm_polygamma_term_cube_le`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L78) | The cube-term estimate: ‖(z+j)⁻³‖ ≤ (2/t)·((j+1/4)²+(t/2)²)⁻¹. | prime-spectrum-tensor |
+| [`hasSum_polygamma_cube`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L115) | The cube series. Σ_j (z+j)⁻³ = -(1/2) ψ″(z). | prime-spectrum-tensor |
+| [`norm_deriv2_digamma_le`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L143) | ‖ψ″‖ ≤ 20/t². | prime-spectrum-tensor |
+| [`deriv2_Omega_eq`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L180) | The second derivative of Ω. | prime-spectrum-tensor |
+| [`norm_iteratedDeriv_two_Psi`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L194) | ‖(d/dt)² Ψ‖ = (1/4)‖ψ″‖. | prime-spectrum-tensor |
+| [`abs_deriv2_Omega_le`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L203) | \|Ω″(t)\| ≤ 5/t². | prime-spectrum-tensor |
+| [`sum_range_quarter_cube_le`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L219) | The quarter-cube partial sums. Σ_{j<N} ((j+1/4)³)⁻¹ ≤ 66: the first term is 64, the rest telescopes against 2/((j+1)(j+2)). | prime-spectrum-tensor |
+| [`tsum_quarter_cube_le`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L252) | Σ_j ((j+1/4)³)⁻¹ ≤ 66. | prime-spectrum-tensor |
+| [`norm_term_cube_le_quarter`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L256) | ‖(z+j)⁻³‖ ≤ ((j+1/4)³)⁻¹, from ‖z+j‖² = (j+1/4)²+(t/2)². | prime-spectrum-tensor |
+| [`norm_deriv2_digamma_le_global`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L296) | ‖ψ″‖ ≤ 132 everywhere. | prime-spectrum-tensor |
+| [`abs_deriv2_Omega_le_global`](../prime-spectrum-tensor/lean/SecondDeriv.lean#L315) | \|Ω″(t)\| ≤ 33 everywhere. For t ≥ 1 the sharp bound is abs_deriv2_Omega_le (5/t²); this global version covers [0,1]. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/SeparationWall.lean`](prime-spectrum-tensor__lean__SeparationWall.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`six_centres_separation_wall`](../prime-spectrum-tensor/lean/SeparationWall.lean#L16) | The separation wall. Six distinct real centres cannot have all their pairwise distances among the five certified separations 0, 1/5, …, 4/5. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/SeriesRoute.lean`](prime-spectrum-tensor__lean__SeriesRoute.lean.md)
 
@@ -4595,6 +5325,39 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`inv_cube_le`](../prime-spectrum-tensor/lean/SeriesRoute.lean#L66) | 1/a³ ≤ 1/a² − 1/(a+1)² for a ≥ 2. | prime-spectrum-tensor |
 | [`sum_telescope`](../prime-spectrum-tensor/lean/SeriesRoute.lean#L77) | The finite telescoping sum. | prime-spectrum-tensor |
 | [`sum_omegaTerm_tail_le`](../prime-spectrum-tensor/lean/SeriesRoute.lean#L90) | The truncation bound. For N ≥ 2, Σ_{k≥N} u_k(t) ≤ t²/(4 (N+1/4)²). | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/SubCone.lean`](prime-spectrum-tensor__lean__SubCone.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`poleTerm_eq`](../prime-spectrum-tensor/lean/SubCone.lean#L49) | The pole term is a hyperbolic cosine in the separation. | prime-spectrum-tensor |
+| [`poleTerm_growth`](../prime-spectrum-tensor/lean/SubCone.lean#L53) | The pole term grows exponentially in the separation. | prime-spectrum-tensor |
+| [`poleTerm_unbounded`](../prime-spectrum-tensor/lean/SubCone.lean#L67) | The pole term is unbounded: the Weil kernel is not a decaying kernel. | prime-spectrum-tensor |
+| [`sum_poleTerm_eq`](../prime-spectrum-tensor/lean/SubCone.lean#L94) | The pole form is rank two. For any finite family of centres c with weights x, Σ_{a,b} x_a x_b poleTerm (c_a − c_b) σ = C · u · v with C =… | prime-spectrum-tensor |
+| [`sum_poleTerm_eq_zero`](../prime-spectrum-tensor/lean/SubCone.lean#L140) | The pole-free subspace. If the first exponential moment vanishes, the pole part of the Weil quadratic form is zero: what remains is densi… | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/SubmatrixRungs.lean`](prime-spectrum-tensor__lean__SubmatrixRungs.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianGram4_submatrix_posDef`](../prime-spectrum-tensor/lean/SubmatrixRungs.lean#L18) | Every principal submatrix of the certified 4×4 matrix is positive definite. | prime-spectrum-tensor |
+| [`gaussianGram4_submatrix_posSemidef`](../prime-spectrum-tensor/lean/SubmatrixRungs.lean#L24) | Every principal submatrix of the certified 4×4 matrix is PSD. | prime-spectrum-tensor |
+| [`gaussianGram5_submatrix_posDef`](../prime-spectrum-tensor/lean/SubmatrixRungs.lean#L30) | Every principal submatrix of the certified 5×5 matrix is positive definite. | prime-spectrum-tensor |
+| [`gaussianGram5_submatrix_posSemidef`](../prime-spectrum-tensor/lean/SubmatrixRungs.lean#L36) | Every principal submatrix of the certified 5×5 matrix is PSD. | prime-spectrum-tensor |
+| [`gaussianGram4_principal_minor_pos`](../prime-spectrum-tensor/lean/SubmatrixRungs.lean#L42) | Every principal minor of the certified 4×4 matrix is positive. | prime-spectrum-tensor |
+| [`gaussianGram5_principal_minor_pos`](../prime-spectrum-tensor/lean/SubmatrixRungs.lean#L48) | Every principal minor of the certified 5×5 matrix is positive. | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/SumApprox.lean`](prime-spectrum-tensor__lean__SumApprox.lean.md)
 
@@ -4651,6 +5414,19 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`gramCentre4_sub_posDef`](../prime-spectrum-tensor/lean/Transfer.lean#L235) | Exact rational certificate. gramCentre4 − (227/10000)·I is positive definite, by exact rational arithmetic. | prime-spectrum-tensor |
 | [`gaussianGram4_posDef_of_entry_bound`](../prime-spectrum-tensor/lean/Transfer.lean#L255) | The O4 entrywise obligation, in the correct norm. If the exact Gaussian Gram matrix G is symmetric and every entry is within ε ≤ 0.005675… | prime-spectrum-tensor |
 
+## [`prime-spectrum-tensor/lean/TrigGram.lean`](prime-spectrum-tensor__lean__TrigGram.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`cos_quadratic_form`](../prime-spectrum-tensor/lean/TrigGram.lean#L10) | The finite Fejér identity: the cosine kernel Gram form is a sum of squares. | prime-spectrum-tensor |
+| [`cos_quadratic_form_nonneg`](../prime-spectrum-tensor/lean/TrigGram.lean#L21) | The cosine kernel Gram form is non-negative. | prime-spectrum-tensor |
+
 ## [`prime-spectrum-tensor/lean/WeightBound.lean`](prime-spectrum-tensor__lean__WeightBound.lean.md)
 
 ### topics
@@ -4667,6 +5443,7 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`hasDerivAt_weight2`](../prime-spectrum-tensor/lean/WeightBound.lean#L79) | The second derivative of the weight is weight2. | prime-spectrum-tensor |
 | [`abs_deriv2_weight_le`](../prime-spectrum-tensor/lean/WeightBound.lean#L112) | The second-derivative bound. \|w″(t)\| ≤ 1/400 on [0, 60] for \|c\| ≤ 3/5. | prime-spectrum-tensor |
 | [`abs_deriv2_weight_le_four_fifths`](../prime-spectrum-tensor/lean/WeightBound.lean#L179) | The second-derivative bound at c = ±4/5. The same crude triangle inequality gives \|w″\| ≤ (1/400)·((1/200 + 9/100 + 16/25) + 2·(60/200)·(4… | prime-spectrum-tensor |
+| [`abs_deriv2_weight_le_one`](../prime-spectrum-tensor/lean/WeightBound.lean#L238) | Abs deriv2 weight le one | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/WeightDecay.lean`](prime-spectrum-tensor__lean__WeightDecay.lean.md)
 
@@ -4681,6 +5458,19 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`exp_neg_le_inv_one_add`](../prime-spectrum-tensor/lean/WeightDecay.lean#L18) | Exp neg le inv one add | prime-spectrum-tensor |
 | [`abs_weight_le_exp`](../prime-spectrum-tensor/lean/WeightDecay.lean#L26) | Abs weight le exp | prime-spectrum-tensor |
 | [`abs_weight_le_div`](../prime-spectrum-tensor/lean/WeightDecay.lean#L39) | The rational panel-local weight bound. | prime-spectrum-tensor |
+
+## [`prime-spectrum-tensor/lean/WeightDeriv2.lean`](prime-spectrum-tensor__lean__WeightDeriv2.lean.md)
+
+### topics
+
+- [`prime-spectrum-tensor`](../prime-spectrum-tensor/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`abs_deriv2_weight_le_decay`](../prime-spectrum-tensor/lean/WeightDeriv2.lean#L38) | The decaying second-derivative bound. | prime-spectrum-tensor |
+| [`abs_deriv2_weight_le_div`](../prime-spectrum-tensor/lean/WeightDeriv2.lean#L99) | The panel-local decaying bound. For 0 ≤ a ≤ t ≤ b, \|w″(t)\| ≤ (1/400)·e^{−a²/400}·(1/200 + b²/40000 + c² + 2(b/200)\|c\|). | prime-spectrum-tensor |
 
 ## [`prime-spectrum-tensor/lean/ZeroSidePole.lean`](prime-spectrum-tensor__lean__ZeroSidePole.lean.md)
 
@@ -4715,6 +5505,699 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`det_rank_one`](../proof-99-global-harmonic-framework/lean/Topic.lean#L115) | The finite matrix determinant lemma for the rank-one kernel K = I + \|a⟩⟨b\|: its determinant is 1 + ⟨b, a⟩. | proof-99-global-harmonic-framework |
 | [`det_diagonal_sq_pos`](../proof-99-global-harmonic-framework/lean/Topic.lean#L126) | The diagonal part of the weighted Gram operator has positive determinant: if D = diagonal d with d i > 0, then det (D * D) = ∏ (d i)² > 0. | proof-99-global-harmonic-framework |
 
+## [`qefe/lean/GaussianInt/Audit.lean`](qefe__lean__GaussianInt__Audit.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
+## [`qefe/lean/GaussianInt/ClosedForm.lean`](qefe__lean__GaussianInt__ClosedForm.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`r2_closed`](../qefe/lean/GaussianInt/ClosedForm.lean#L27) | The two-squares formula in closed form. | qefe |
+
+## [`qefe/lean/GaussianInt/IdealCount.lean`](qefe__lean__GaussianInt__IdealCount.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussian_star_mk`](../qefe/lean/GaussianInt/IdealCount.lean#L37) | Named arithmetic input: the number of ideals of norm n is Σ_{d\|n} χ₄(d). | qefe |
+| [`gaussian_mul_star_mk`](../qefe/lean/GaussianInt/IdealCount.lean#L40) | Gaussian mul star mk | qefe |
+| [`gaussian_norm_mk'`](../qefe/lean/GaussianInt/IdealCount.lean#L45) | Gaussian norm mk' | qefe |
+| [`gaussian_split_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L49) | T138: a prime p ≡ 1 mod 4 splits as π * star π in ℤ[i]. | qefe |
+| [`gaussian_span_prime_factorization`](../qefe/lean/GaussianInt/IdealCount.lean#L78) | T139: the principal ideal (p) factors as (π)(star π) for p ≡ 1 mod 4. | qefe |
+| [`gaussian_finrank`](../qefe/lean/GaussianInt/IdealCount.lean#L98) | Gaussian finrank | qefe |
+| [`gaussian_absNorm_span_natCast`](../qefe/lean/GaussianInt/IdealCount.lean#L103) | T140: see the theorem statement. | qefe |
+| [`gaussian_inert_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L110) | T141: see the theorem statement. | qefe |
+| [`gaussianI_sq`](../qefe/lean/GaussianInt/IdealCount.lean#L116) | Gaussian I sq | qefe |
+| [`gaussian_one_add_I_sq`](../qefe/lean/GaussianInt/IdealCount.lean#L119) | Gaussian one add I sq | qefe |
+| [`gaussian_prime_one_add_I`](../qefe/lean/GaussianInt/IdealCount.lean#L123) | T142: see the theorem statement. | qefe |
+| [`gaussian_ramified_two`](../qefe/lean/GaussianInt/IdealCount.lean#L135) | T143: see the theorem statement. | qefe |
+| [`gaussian_inert_span_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L144) | T144: the ideal (p) is prime for inert p ≡ 3 mod 4. | qefe |
+| [`gaussian_ramified_span_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L154) | T145: the ramified ideal (1+i) is prime. | qefe |
+| [`gaussian_inert_unique_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L163) | T146: the unique maximal ideal above an inert prime p ≡ 3 mod 4. | qefe |
+| [`gaussian_inert_ideal_eq_span_pow`](../qefe/lean/GaussianInt/IdealCount.lean#L186) | T147: every ideal of norm p^(2e) is (p)^e for inert p. | qefe |
+| [`gaussian_inert_ideal_count_even`](../qefe/lean/GaussianInt/IdealCount.lean#L219) | T148: the inert even-exponent local ideal count is one. | qefe |
+| [`gaussian_inert_no_ideal_norm_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L234) | T149: there is no ideal of norm p for inert p. | qefe |
+| [`gaussian_inert_no_ideal_norm_odd`](../qefe/lean/GaussianInt/IdealCount.lean#L261) | T150: there is no ideal of odd exponent norm for inert p. | qefe |
+| [`gaussian_inert_ideal_count_odd`](../qefe/lean/GaussianInt/IdealCount.lean#L314) | T151: the inert odd-exponent local ideal count is zero. | qefe |
+| [`gaussian_ramified_unique_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L326) | T152: the unique maximal ideal above 2 is (1+i). | qefe |
+| [`gaussian_ramified_ideal_eq_span_pow`](../qefe/lean/GaussianInt/IdealCount.lean#L350) | T153: every ideal of norm 2^k is (1+i)^k. | qefe |
+| [`gaussian_ramified_ideal_count`](../qefe/lean/GaussianInt/IdealCount.lean#L386) | T154: the ramified local ideal count is one. | qefe |
+| [`gaussian_ideal_dvd_span_absNorm`](../qefe/lean/GaussianInt/IdealCount.lean#L406) | T155: every ideal divides the principal ideal generated by its norm. | qefe |
+| [`gaussian_ideal_dvd_span_pow_of_absNorm`](../qefe/lean/GaussianInt/IdealCount.lean#L412) | T156: an ideal of norm p^k divides (p)^k. | qefe |
+| [`gaussian_split_maximal_eq`](../qefe/lean/GaussianInt/IdealCount.lean#L422) | T157: a maximal ideal above a split prime p is (π) or (star π). | qefe |
+| [`gaussian_prime_of_norm_natAbs`](../qefe/lean/GaussianInt/IdealCount.lean#L460) | T158: a Gaussian integer of prime norm is prime. | qefe |
+| [`gaussian_split_prime_star`](../qefe/lean/GaussianInt/IdealCount.lean#L474) | T159: both π and star π are prime in the split factorization. | qefe |
+| [`gaussian_split_maximal_eq'`](../qefe/lean/GaussianInt/IdealCount.lean#L491) | T160: unconditional classification of maximal ideals above a split prime. | qefe |
+| [`gaussian_split_norm`](../qefe/lean/GaussianInt/IdealCount.lean#L502) | T161: the split factor π has norm p. | qefe |
+| [`gaussian_split_span_norm`](../qefe/lean/GaussianInt/IdealCount.lean#L516) | T162: both split prime ideals have norm p. | qefe |
+| [`gaussian_split_span_ne`](../qefe/lean/GaussianInt/IdealCount.lean#L526) | T163: the two split prime ideals are distinct. | qefe |
+| [`gaussian_split_nonzero_data`](../qefe/lean/GaussianInt/IdealCount.lean#L564) | T164: the split representation has both coordinates nonzero. | qefe |
+| [`gaussian_split_prime_star_ne`](../qefe/lean/GaussianInt/IdealCount.lean#L598) | T165: there is a split factorization with distinct prime ideals. | qefe |
+| [`gaussian_isMaximal_of_absNorm_prime`](../qefe/lean/GaussianInt/IdealCount.lean#L627) | T166: an ideal of prime norm is maximal. | qefe |
+| [`gaussian_split_ideal_eq_of_absNorm`](../qefe/lean/GaussianInt/IdealCount.lean#L641) | T167: an ideal of norm p is (π) or (star π). | qefe |
+| [`gaussian_split_ideal_count_one`](../qefe/lean/GaussianInt/IdealCount.lean#L676) | T168: there are exactly two ideals of norm p for split p. | qefe |
+| [`gaussian_split_pow_norm`](../qefe/lean/GaussianInt/IdealCount.lean#L708) | T169: the norm of (π)^a (star π)^b is p^(a+b). | qefe |
+| [`gaussian_split_pow_norm_of_add`](../qefe/lean/GaussianInt/IdealCount.lean#L716) | T170: the norm of (π)^a (star π)^b is p^k when a+b=k. | qefe |
+| [`gaussian_split_isCoprime`](../qefe/lean/GaussianInt/IdealCount.lean#L724) | T171: the two split prime ideals are coprime. | qefe |
+| [`gaussian_split_isCoprime_pow`](../qefe/lean/GaussianInt/IdealCount.lean#L733) | T172: powers of the two split prime ideals are coprime. | qefe |
+| [`gaussian_split_pow_ne`](../qefe/lean/GaussianInt/IdealCount.lean#L739) | T173: distinct powers of the two split primes are unequal. | qefe |
+| [`gaussian_split_pow_inj`](../qefe/lean/GaussianInt/IdealCount.lean#L769) | T174: the k+1 ideals (π)^a (star π)^(k-a) are distinct. | qefe |
+| [`gaussian_split_ideal_count_of_exhaustive`](../qefe/lean/GaussianInt/IdealCount.lean#L830) | T175: the split local count follows from exhaustiveness. | qefe |
+| [`gaussian_split_peel`](../qefe/lean/GaussianInt/IdealCount.lean#L875) | T176: every norm-p^(k+1) ideal peels off (π) or (star π). | qefe |
+| [`gaussian_split_exhaustive`](../qefe/lean/GaussianInt/IdealCount.lean#L908) | T177: every ideal of norm p^k is among the k+1 candidates. | qefe |
+| [`gaussian_split_ideal_count`](../qefe/lean/GaussianInt/IdealCount.lean#L940) | T178: the split local ideal count is k+1. | qefe |
+| [`gaussian_isCoprime_span_nat`](../qefe/lean/GaussianInt/IdealCount.lean#L948) | T179: the principal ideals (m) and (n) are coprime for coprime m, n. | qefe |
+| [`gaussian_coprime_dvd_decompose`](../qefe/lean/GaussianInt/IdealCount.lean#L956) | T180: a divisor of (a)(b) decomposes as (K⊔(a))(K⊔(b)) when a, b are coprime. | qefe |
+| [`chi4Int_mul`](../qefe/lean/GaussianInt/IdealCount.lean#L1011) | T181: chi4Int is multiplicative. | qefe |
+| [`ideal_coprime_dvd_decompose`](../qefe/lean/GaussianInt/IdealCount.lean#L1021) | T182: a divisor of a product of coprime ideals splits as (K⊔I)(K⊔J). | qefe |
+| [`divisorSumChi4_prime_pow_one`](../qefe/lean/GaussianInt/IdealCount.lean#L1061) | T183: for p ≡ 1 mod 4, Σ_{j=0}^{k} χ₄(p^j) = k+1. | qefe |
+| [`chi4_mul`](../qefe/lean/GaussianInt/IdealCount.lean#L1075) | T184: the raw χ₄ is multiplicative on ℤ. | qefe |
+| [`chi4_pow_three`](../qefe/lean/GaussianInt/IdealCount.lean#L1080) | T185: χ₄(p^j) = (-1)^j for p ≡ 3 mod 4. | qefe |
+| [`divisorSumChi4_prime_pow_three`](../qefe/lean/GaussianInt/IdealCount.lean#L1100) | T186: for p ≡ 3 mod 4, the divisor sum is 1 for even k and 0 for odd k. | qefe |
+| [`divisorSumChi4_prime_pow_two`](../qefe/lean/GaussianInt/IdealCount.lean#L1115) | T187: the ramified divisor sum Σ_{j=0}^{k} χ₄(2^j) is 1. | qefe |
+| [`divisorSumChi4_mul`](../qefe/lean/GaussianInt/IdealCount.lean#L1133) | T188: divisorSumChi4 is multiplicative over coprime m, n. | qefe |
+| [`nat_eq_of_dvd_sq_mul`](../qefe/lean/GaussianInt/IdealCount.lean#L1158) | T189: if a ∣ m², b ∣ n², ab = mn and m, n are coprime, then a = m, b = n. | qefe |
+| [`gaussian_sup_mul_span_eq`](../qefe/lean/GaussianInt/IdealCount.lean#L1184) | T190: for ideals of coprime norms m, n, (K1 K2) ⊔ (m) = K1. | qefe |
+| [`gaussian_sup_span_absNorm_left`](../qefe/lean/GaussianInt/IdealCount.lean#L1217) | T191: the left component of an ideal of norm mn has norm m. | qefe |
+| [`gaussian_sup_span_absNorm_right`](../qefe/lean/GaussianInt/IdealCount.lean#L1259) | T192: the right component of an ideal of norm mn has norm n. | qefe |
+| [`gaussian_idealCount_mul`](../qefe/lean/GaussianInt/IdealCount.lean#L1301) | T194: the ideal count is multiplicative over coprime m, n. | qefe |
+| [`idealCount_one`](../qefe/lean/GaussianInt/IdealCount.lean#L1313) | idealCount 1 = 1. | qefe |
+| [`idealCountFun_isMultiplicative`](../qefe/lean/GaussianInt/IdealCount.lean#L1329) | T195: the packaged ideal count is multiplicative. | qefe |
+| [`divisorSumFun_isMultiplicative`](../qefe/lean/GaussianInt/IdealCount.lean#L1355) | T196: the packaged divisor sum is multiplicative. | qefe |
+| [`idealCount_prime_pow_eq`](../qefe/lean/GaussianInt/IdealCount.lean#L1363) | T197: the ideal count and divisor sum agree on prime powers. | qefe |
+| [`idealCountFormula`](../qefe/lean/GaussianInt/IdealCount.lean#L1396) | T198: the ideal-count formula. | qefe |
+
+## [`qefe/lean/GaussianInt/Norm.lean`](qefe__lean__GaussianInt__Norm.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`gaussianVec_zero`](../qefe/lean/GaussianInt/Norm.lean#L31) | Gaussian Vec zero | qefe |
+| [`gaussianVec_one`](../qefe/lean/GaussianInt/Norm.lean#L32) | Gaussian Vec one | qefe |
+| [`gaussianVec_linearIndependent`](../qefe/lean/GaussianInt/Norm.lean#L34) | Gaussian Vec linear Independent | qefe |
+| [`gaussianVec_span`](../qefe/lean/GaussianInt/Norm.lean#L45) | Gaussian Vec span | qefe |
+| [`gaussianBasis_apply_zero`](../qefe/lean/GaussianInt/Norm.lean#L56) | Gaussian Basis apply zero | qefe |
+| [`gaussianBasis_apply_one`](../qefe/lean/GaussianInt/Norm.lean#L61) | Gaussian Basis apply one | qefe |
+| [`repr_gaussian_zero`](../qefe/lean/GaussianInt/Norm.lean#L66) | Repr gaussian zero | qefe |
+| [`repr_gaussian_one`](../qefe/lean/GaussianInt/Norm.lean#L73) | Repr gaussian one | qefe |
+| [`algebra_norm_gaussian`](../qefe/lean/GaussianInt/Norm.lean#L81) | T125: the algebra norm of a Gaussian integer is its Zsqrtd.norm. | qefe |
+| [`absNorm_span_gaussian`](../qefe/lean/GaussianInt/Norm.lean#L95) | T126: the ideal norm of the principal ideal (z) is z.norm.natAbs. | qefe |
+| [`gaussian_unit_norm_eq_one`](../qefe/lean/GaussianInt/Norm.lean#L106) | T126: the ideal norm of the principal ideal (z) is z.norm.natAbs. | qefe |
+| [`gaussian_unit_classification`](../qefe/lean/GaussianInt/Norm.lean#L114) | T127: every Gaussian unit is one of 1, -1, i, -i. | qefe |
+| [`mem_gaussianUnits`](../qefe/lean/GaussianInt/Norm.lean#L143) | Mem gaussian Units | qefe |
+| [`gaussianUnits_card_four`](../qefe/lean/GaussianInt/Norm.lean#L163) | T128: the Gaussian unit group has cardinality four. | qefe |
+| [`gaussian_norm_mk`](../qefe/lean/GaussianInt/Norm.lean#L177) | T128: the Gaussian unit group has cardinality four. | qefe |
+| [`gaussianToPair_pairToGaussian`](../qefe/lean/GaussianInt/Norm.lean#L198) | Gaussian To Pair pair To Gaussian | qefe |
+| [`pairToGaussian_gaussianToPair`](../qefe/lean/GaussianInt/Norm.lean#L203) | Pair To Gaussian gaussian To Pair | qefe |
+| [`absNorm_span_gaussian_of_norm`](../qefe/lean/GaussianInt/Norm.lean#L216) | T130: a norm-n Gaussian integer generates an ideal of norm n. | qefe |
+| [`gaussian_span_eq_iff_associated`](../qefe/lean/GaussianInt/Norm.lean#L222) | T131: two Gaussian integers generate the same principal ideal iff they are associates. | qefe |
+| [`normElementsSmul_def`](../qefe/lean/GaussianInt/Norm.lean#L238) | Norm Elements Smul def | qefe |
+| [`normElements_ne_zero`](../qefe/lean/GaussianInt/Norm.lean#L254) | Norm Elements ne zero | qefe |
+| [`normElements_smul_eq_self_iff`](../qefe/lean/GaussianInt/Norm.lean#L263) | T132: the Gaussian unit action on norm-n elements is free for n > 0. | qefe |
+| [`gaussianUnits_fintype_card`](../qefe/lean/GaussianInt/Norm.lean#L288) | Gaussian Units fintype card | qefe |
+| [`normElements_card_eq_four_mul_orbits`](../qefe/lean/GaussianInt/Norm.lean#L314) | T133: Burnside count: \|NormElements n\| = 4 * #orbits for n > 0. | qefe |
+| [`normElements_card_eq_four_mul_idealCount`](../qefe/lean/GaussianInt/Norm.lean#L406) | T135 / the 4-to-1 correspondence: for n > 0 there are four times as many Gaussian integers of norm n as there are ideals of ℤ[i] of norm n. | qefe |
+
+## [`qefe/lean/GaussianInt/QuadraticField.lean`](qefe__lean__GaussianInt__QuadraticField.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`irreducible_X_sq_add_one`](../qefe/lean/GaussianInt/QuadraticField.lean#L30) | X² + 1 is irreducible over ℚ. | qefe |
+| [`iRoot_sq_add_one`](../qefe/lean/GaussianInt/QuadraticField.lean#L49) | i² = -1 in ℚ(i). | qefe |
+| [`iRoot_mul_self`](../qefe/lean/GaussianInt/QuadraticField.lean#L54) | I Root mul self | qefe |
+| [`toQI_sqrtd`](../qefe/lean/GaussianInt/QuadraticField.lean#L62) | To QI sqrtd | qefe |
+| [`toQI_injective`](../qefe/lean/GaussianInt/QuadraticField.lean#L67) | The embedding ℤ[i] → ℚ(i) is injective (this is Zsqrtd.lift_injective, since -1 is not a square in ℤ). | qefe |
+| [`natDegree_f`](../qefe/lean/GaussianInt/QuadraticField.lean#L80) | The embedding ℤ[i] → ℚ(i) is injective (this is Zsqrtd.lift_injective, since -1 is not a square in ℤ). | qefe |
+| [`f_ne_zero`](../qefe/lean/GaussianInt/QuadraticField.lean#L83) | F ne zero | qefe |
+| [`pb_dim`](../qefe/lean/GaussianInt/QuadraticField.lean#L89) | Pb dim | qefe |
+| [`pb2_zero`](../qefe/lean/GaussianInt/QuadraticField.lean#L98) | Pb2 zero | qefe |
+| [`pb2_one`](../qefe/lean/GaussianInt/QuadraticField.lean#L102) | Pb2 one | qefe |
+| [`coord_eq`](../qefe/lean/GaussianInt/QuadraticField.lean#L107) | Every element of ℚ(i) is a + b·i with a, b rational. | qefe |
+| [`finrank_QI`](../qefe/lean/GaussianInt/QuadraticField.lean#L116) | ℚ(i) is two-dimensional over ℚ. | qefe |
+
+## [`qefe/lean/GaussianInt/RingOfIntegers.lean`](qefe__lean__GaussianInt__RingOfIntegers.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`toQI_mk`](../qefe/lean/GaussianInt/RingOfIntegers.lean#L39) | toQI on coordinates: m + n·i. | qefe |
+| [`algebraMap_QI_eq_toQI`](../qefe/lean/GaussianInt/RingOfIntegers.lean#L47) | The ring map ℤ[i] → ℚ(i) is the algebraMap of the algebra structure installed above. | qefe |
+| [`algebraMap_eq_div_den`](../qefe/lean/GaussianInt/RingOfIntegers.lean#L59) | A rational number, as an element of ℚ(i), is the quotient of its numerator and denominator. | qefe |
+| [`exists_div`](../qefe/lean/GaussianInt/RingOfIntegers.lean#L68) | Every element of ℚ(i) is a quotient of two elements of ℤ[i]: this is the surjectivity input to IsFractionRing.of_field. | qefe |
+
+## [`qefe/lean/GaussianInt/TwoSquares.lean`](qefe__lean__GaussianInt__TwoSquares.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`r2_eq_natCard_pairs`](../qefe/lean/GaussianInt/TwoSquares.lean#L33) | R2 eq nat Card pairs | qefe |
+| [`r2_eq_natCard_gaussian`](../qefe/lean/GaussianInt/TwoSquares.lean#L60) | T129: r2 n is the number of Gaussian integers of norm n. | qefe |
+| [`r2_eq_four_mul_idealCount`](../qefe/lean/GaussianInt/TwoSquares.lean#L65) | T136: r2 n is four times the number of ideals of norm n. | qefe |
+| [`twoSquaresFormula_of_idealCount`](../qefe/lean/GaussianInt/TwoSquares.lean#L70) | T137: the two-squares formula follows from the ideal-count formula. | qefe |
+| [`twoSquaresFormula`](../qefe/lean/GaussianInt/TwoSquares.lean#L79) | T199: the two-squares formula, unconditional. | qefe |
+
+## [`qefe/lean/QuadraticInt/Audit.lean`](qefe__lean__QuadraticInt__Audit.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
+## [`qefe/lean/QuadraticInt/Eisenstein.lean`](qefe__lean__QuadraticInt__Eisenstein.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`re_zero`](../qefe/lean/QuadraticInt/Eisenstein.lean#L40) | Re zero | qefe |
+| [`im_zero`](../qefe/lean/QuadraticInt/Eisenstein.lean#L41) | Im zero | qefe |
+| [`re_one`](../qefe/lean/QuadraticInt/Eisenstein.lean#L42) | Re one | qefe |
+| [`im_one`](../qefe/lean/QuadraticInt/Eisenstein.lean#L43) | Im one | qefe |
+| [`re_add`](../qefe/lean/QuadraticInt/Eisenstein.lean#L44) | Re add | qefe |
+| [`im_add`](../qefe/lean/QuadraticInt/Eisenstein.lean#L45) | Im add | qefe |
+| [`re_neg`](../qefe/lean/QuadraticInt/Eisenstein.lean#L46) | Re neg | qefe |
+| [`im_neg`](../qefe/lean/QuadraticInt/Eisenstein.lean#L47) | Im neg | qefe |
+| [`re_mul`](../qefe/lean/QuadraticInt/Eisenstein.lean#L48) | Re mul | qefe |
+| [`im_mul`](../qefe/lean/QuadraticInt/Eisenstein.lean#L50) | Im mul | qefe |
+| [`re_sub`](../qefe/lean/QuadraticInt/Eisenstein.lean#L66) | Re sub | qefe |
+| [`im_sub`](../qefe/lean/QuadraticInt/Eisenstein.lean#L69) | Im sub | qefe |
+| [`re_mk`](../qefe/lean/QuadraticInt/Eisenstein.lean#L92) | Re mk | qefe |
+| [`im_mk`](../qefe/lean/QuadraticInt/Eisenstein.lean#L93) | Im mk | qefe |
+| [`re_intCast`](../qefe/lean/QuadraticInt/Eisenstein.lean#L94) | Re int Cast | qefe |
+| [`im_intCast`](../qefe/lean/QuadraticInt/Eisenstein.lean#L95) | Im int Cast | qefe |
+| [`re_natCast`](../qefe/lean/QuadraticInt/Eisenstein.lean#L96) | Re nat Cast | qefe |
+| [`im_natCast`](../qefe/lean/QuadraticInt/Eisenstein.lean#L97) | Im nat Cast | qefe |
+| [`re_omega`](../qefe/lean/QuadraticInt/Eisenstein.lean#L110) | Re omega | qefe |
+| [`im_omega`](../qefe/lean/QuadraticInt/Eisenstein.lean#L111) | Im omega | qefe |
+| [`omega_sq`](../qefe/lean/QuadraticInt/Eisenstein.lean#L114) | ω² = −1 − ω. | qefe |
+| [`omega_sq_add_omega_add_one`](../qefe/lean/QuadraticInt/Eisenstein.lean#L117) | Omega sq add omega add one | qefe |
+| [`star_mk`](../qefe/lean/QuadraticInt/Eisenstein.lean#L126) | Star mk | qefe |
+| [`re_star`](../qefe/lean/QuadraticInt/Eisenstein.lean#L127) | Re star | qefe |
+| [`im_star`](../qefe/lean/QuadraticInt/Eisenstein.lean#L128) | Im star | qefe |
+| [`normE_mk`](../qefe/lean/QuadraticInt/Eisenstein.lean#L133) | Norm E mk | qefe |
+| [`normE_mul`](../qefe/lean/QuadraticInt/Eisenstein.lean#L136) | The norm is multiplicative. | qefe |
+| [`normE_zero`](../qefe/lean/QuadraticInt/Eisenstein.lean#L139) | Norm E zero | qefe |
+| [`normE_one`](../qefe/lean/QuadraticInt/Eisenstein.lean#L141) | Norm E one | qefe |
+| [`normE_nonneg`](../qefe/lean/QuadraticInt/Eisenstein.lean#L143) | Norm E nonneg | qefe |
+| [`normE_eq_zero_iff`](../qefe/lean/QuadraticInt/Eisenstein.lean#L148) | Norm E eq zero iff | qefe |
+| [`normE_pos`](../qefe/lean/QuadraticInt/Eisenstein.lean#L161) | Norm E pos | qefe |
+| [`mul_star`](../qefe/lean/QuadraticInt/Eisenstein.lean#L167) | z * star z = N(z). | qefe |
+| [`basisVec_linInd`](../qefe/lean/QuadraticInt/Eisenstein.lean#L178) | Basis Vec lin Ind | qefe |
+| [`basisVec_span`](../qefe/lean/QuadraticInt/Eisenstein.lean#L188) | Basis Vec span | qefe |
+| [`isUnit_iff_normE_eq_one`](../qefe/lean/QuadraticInt/Eisenstein.lean#L205) | z is a unit iff its norm is 1. | qefe |
+| [`unit_normE_eq_one`](../qefe/lean/QuadraticInt/Eisenstein.lean#L222) | Unit norm E eq one | qefe |
+| [`normE_eq_one_cases`](../qefe/lean/QuadraticInt/Eisenstein.lean#L227) | The unit classification: a norm-one Eisenstein integer is one of ±1, ±ω, ±ω². | qefe |
+| [`units6_card`](../qefe/lean/QuadraticInt/Eisenstein.lean#L250) | Units6 card | qefe |
+| [`mem_units6`](../qefe/lean/QuadraticInt/Eisenstein.lean#L253) | Mem units6 | qefe |
+| [`isUnit_of_mem_units6`](../qefe/lean/QuadraticInt/Eisenstein.lean#L257) | Is Unit of mem units6 | qefe |
+| [`units_card_six`](../qefe/lean/QuadraticInt/Eisenstein.lean#L271) | The unit group has cardinality 6; this is the w of the counting development. | qefe |
+| [`nearest_spec`](../qefe/lean/QuadraticInt/Eisenstein.lean#L289) | Nearest spec | qefe |
+| [`residual_normE`](../qefe/lean/QuadraticInt/Eisenstein.lean#L319) | Residual norm E | qefe |
+| [`emod_fact`](../qefe/lean/QuadraticInt/Eisenstein.lean#L323) | The factorisation of the remainder. | qefe |
+| [`remIm_bound`](../qefe/lean/QuadraticInt/Eisenstein.lean#L341) | A rounding bound: (2(B − nN))² ≤ N² when \|B/N − n\| ≤ 1/2. | qefe |
+| [`remRe_bound`](../qefe/lean/QuadraticInt/Eisenstein.lean#L362) | A shifted rounding bound: (2(A − mN) − (B − nN))² ≤ N² when the error of m relative to the half-shifted quotient is at most 1/2. | qefe |
+| [`remIm_sq_le`](../qefe/lean/QuadraticInt/Eisenstein.lean#L389) | Bound on the imaginary residual: (2 R_im)² ≤ N². | qefe |
+| [`remRe_sq_le`](../qefe/lean/QuadraticInt/Eisenstein.lean#L394) | Bound on the shifted real residual: (2 R_re − R_im)² ≤ N². | qefe |
+| [`residual_bound`](../qefe/lean/QuadraticInt/Eisenstein.lean#L399) | The residual has small norm: 16 N(residual) ≤ 7 N(y)². | qefe |
+| [`emod_normE_lt`](../qefe/lean/QuadraticInt/Eisenstein.lean#L407) | The Euclidean step: N(emod x y) < N(y) for y ≠ 0. | qefe |
+| [`normE_mul_le`](../qefe/lean/QuadraticInt/Eisenstein.lean#L429) | Norm E mul le | qefe |
+| [`natAbs_normE_emod_lt`](../qefe/lean/QuadraticInt/Eisenstein.lean#L441) | Nat Abs norm E emod lt | qefe |
+| [`natAbs_normE_le_mul`](../qefe/lean/QuadraticInt/Eisenstein.lean#L450) | Nat Abs norm E le mul | qefe |
+| [`ediv_zero`](../qefe/lean/QuadraticInt/Eisenstein.lean#L459) | Ediv zero | qefe |
+
+## [`qefe/lean/QuadraticInt/FormulaThree.lean`](qefe__lean__QuadraticInt__FormulaThree.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`chi3_zero`](../qefe/lean/QuadraticInt/FormulaThree.lean#L30) | Chi3 zero | qefe |
+| [`chi3_one`](../qefe/lean/QuadraticInt/FormulaThree.lean#L31) | Chi3 one | qefe |
+| [`chi3_two`](../qefe/lean/QuadraticInt/FormulaThree.lean#L32) | Chi3 two | qefe |
+| [`chi3_nat_split`](../qefe/lean/QuadraticInt/FormulaThree.lean#L34) | Chi3 nat split | qefe |
+| [`chi3_nat_inert`](../qefe/lean/QuadraticInt/FormulaThree.lean#L45) | Chi3 nat inert | qefe |
+| [`chi3_mul_zmod`](../qefe/lean/QuadraticInt/FormulaThree.lean#L56) | Chi3 mul zmod | qefe |
+| [`chi3_pow_split`](../qefe/lean/QuadraticInt/FormulaThree.lean#L60) | Chi3 pow split | qefe |
+| [`chi3_pow_inert`](../qefe/lean/QuadraticInt/FormulaThree.lean#L68) | Chi3 pow inert | qefe |
+| [`chi3_pow_three`](../qefe/lean/QuadraticInt/FormulaThree.lean#L77) | Chi3 pow three | qefe |
+| [`divisorSumChi3_split`](../qefe/lean/QuadraticInt/FormulaThree.lean#L89) | Divisor Sum Chi3 split | qefe |
+| [`divisorSumChi3_inert`](../qefe/lean/QuadraticInt/FormulaThree.lean#L99) | Divisor Sum Chi3 inert | qefe |
+| [`divisorSumChi3_three`](../qefe/lean/QuadraticInt/FormulaThree.lean#L112) | Divisor Sum Chi3 three | qefe |
+| [`chi3_mul`](../qefe/lean/QuadraticInt/FormulaThree.lean#L127) | Chi3 mul | qefe |
+| [`divisorSumChi3_mul`](../qefe/lean/QuadraticInt/FormulaThree.lean#L132) | Divisor Sum Chi3 mul | qefe |
+| [`idealCountThree_one`](../qefe/lean/QuadraticInt/FormulaThree.lean#L166) | Ideal Count Three one | qefe |
+| [`idealCountFunThree_isMultiplicative`](../qefe/lean/QuadraticInt/FormulaThree.lean#L176) | Ideal Count Fun Three is Multiplicative | qefe |
+| [`divisorSumFunThree_isMultiplicative`](../qefe/lean/QuadraticInt/FormulaThree.lean#L194) | Divisor Sum Fun Three is Multiplicative | qefe |
+| [`idealCountThree_prime_pow_eq`](../qefe/lean/QuadraticInt/FormulaThree.lean#L200) | Ideal Count Three prime pow eq | qefe |
+| [`idealCountThreeFormula`](../qefe/lean/QuadraticInt/FormulaThree.lean#L236) | The ideal-count formula for ℤ[ω]. | qefe |
+| [`rThree_formula`](../qefe/lean/QuadraticInt/FormulaThree.lean#L250) | The representation formula for the Eisenstein norm form: r_{x²−xy+y²}(n) = 6 Σ_{d\|n} χ₃(d). | qefe |
+| [`idealCountThree_eq_divisorSum`](../qefe/lean/QuadraticInt/FormulaThree.lean#L254) | Ideal Count Three eq divisor Sum | qefe |
+| [`idealCountThree_closed`](../qefe/lean/QuadraticInt/FormulaThree.lean#L267) | The ideal count of ℤ[ω], closed form. | qefe |
+| [`rThree_closed`](../qefe/lean/QuadraticInt/FormulaThree.lean#L274) | The Eisenstein norm-form representation count, closed form: r(n) = 6 Σ_{d\|n} χ₃(d). | qefe |
+
+## [`qefe/lean/QuadraticInt/FormulaTwo.lean`](qefe__lean__QuadraticInt__FormulaTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`chi8_nat_split`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L34) | The divisor sum Σ_{d\|n} χ₈'(d). | qefe |
+| [`chi8_nat_inert`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L40) | Chi8 nat inert | qefe |
+| [`chi8_mul_zmod`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L46) | Chi8 mul zmod | qefe |
+| [`chi8_pow_split`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L49) | Chi8 pow split | qefe |
+| [`chi8_pow_inert`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L57) | Chi8 pow inert | qefe |
+| [`chi8_pow_two`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L66) | Chi8 pow two | qefe |
+| [`divisorSumChi8_split`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L77) | The divisor sum Σ_{d\|n} χ₈'(d). | qefe |
+| [`divisorSumChi8_inert`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L88) | Divisor Sum Chi8 inert | qefe |
+| [`divisorSumChi8_two`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L102) | Divisor Sum Chi8 two | qefe |
+| [`chi8_mul`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L117) | The divisor sum Σ_{d\|n} χ₈'(d). | qefe |
+| [`divisorSumChi8_mul`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L121) | Divisor Sum Chi8 mul | qefe |
+| [`idealCountTwo_one`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L155) | Ideal Count Two one | qefe |
+| [`idealCountFunTwo_isMultiplicative`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L165) | Ideal Count Fun Two is Multiplicative | qefe |
+| [`divisorSumFunTwo_isMultiplicative`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L182) | Divisor Sum Fun Two is Multiplicative | qefe |
+| [`idealCountTwo_prime_pow_eq`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L188) | Ideal Count Two prime pow eq | qefe |
+| [`idealCountTwoFormula`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L229) | The ideal-count formula for ℤ[√−2]. | qefe |
+| [`rTwo_formula`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L243) | The two-squares-type formula for x² + 2y²: the number of representations is 2 Σ_{d\|n} χ₈'(d). | qefe |
+| [`idealCountTwo_eq_divisorSum`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L247) | Ideal Count Two eq divisor Sum | qefe |
+| [`idealCountTwo_closed`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L265) | The ideal count of ℤ[√−2], closed form. | qefe |
+| [`rTwo_closed`](../qefe/lean/QuadraticInt/FormulaTwo.lean#L272) | The x² + 2y² representation count, closed form: r₂'(n) = 2 Σ_{d\|n} χ₈'(d). | qefe |
+
+## [`qefe/lean/QuadraticInt/IdealCountThree.lean`](qefe__lean__QuadraticInt__IdealCountThree.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`eisensteinBasis_zero`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L23) | Eisenstein Basis zero | qefe |
+| [`eisensteinBasis_one`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L27) | Eisenstein Basis one | qefe |
+| [`repr_eisenstein_zero`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L31) | Repr eisenstein zero | qefe |
+| [`repr_eisenstein_one`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L38) | Repr eisenstein one | qefe |
+| [`algebra_norm_three`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L46) | The algebra norm of z ∈ ℤ[ω] is its norm form a² − ab + b². | qefe |
+| [`absNorm_span_three`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L62) | The ideal norm of the principal ideal (z) is \|N(z)\|. | qefe |
+| [`unitsSix_fintype_card`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L77) | Units Six fintype card | qefe |
+| [`normElementsSmulThree_def`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L90) | Norm Elements Smul Three def | qefe |
+| [`normElementsThree_ne_zero`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L107) | Norm Elements Three ne zero | qefe |
+| [`normElementsThree_smul_eq_self_iff`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L115) | Norm Elements Three smul eq self iff | qefe |
+| [`normElementsToPairThree_pairTo`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L148) | Norm Elements To Pair Three pair To | qefe |
+| [`pairToNormElementsThree_normElementsToPair`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L154) | Pair To Norm Elements Three norm Elements To Pair | qefe |
+| [`normElementsThree_card_eq_six_mul_orbits`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L191) | The ideal norm of the principal ideal (z) is \|N(z)\|. | qefe |
+| [`span_eq_iff_associated_three`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L218) | Span eq iff associated three | qefe |
+| [`absNorm_span_three_of_norm`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L223) | Abs Norm span three of norm | qefe |
+| [`normElementsThree_card_eq_six_mul_idealCount`](../qefe/lean/QuadraticInt/IdealCountThree.lean#L290) | Norm Elements Three card eq six mul ideal Count | qefe |
+
+## [`qefe/lean/QuadraticInt/IdealCountTwo.lean`](qefe__lean__QuadraticInt__IdealCountTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`sqrtdBasis_zero`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L22) | Sqrtd Basis zero | qefe |
+| [`sqrtdBasis_one`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L26) | Sqrtd Basis one | qefe |
+| [`repr_sqrtdBasis_zero`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L30) | Repr sqrtd Basis zero | qefe |
+| [`repr_sqrtdBasis_one`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L37) | Repr sqrtd Basis one | qefe |
+| [`algebra_norm_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L45) | The algebra norm of z ∈ ℤ[√−2] is its Zsqrtd.norm. | qefe |
+| [`absNorm_span_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L59) | The ideal norm of the principal ideal (z) is \|N(z)\|. | qefe |
+| [`mem_unitsTwo`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L75) | Mem units Two | qefe |
+| [`units_card_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L88) | Units card two | qefe |
+| [`unitsTwo_fintype_card`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L104) | Units Two fintype card | qefe |
+| [`normElementsSmulTwo_def`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L118) | Norm Elements Smul Two def | qefe |
+| [`normElementsTwo_ne_zero`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L135) | Norm Elements Two ne zero | qefe |
+| [`normElementsTwo_smul_eq_self_iff`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L144) | The unit action on norm-n elements is free for n > 0. | qefe |
+| [`normElementsToPairTwo_pairToNormElementsTwo`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L184) | Norm Elements To Pair Two pair To Norm Elements Two | qefe |
+| [`pairToNormElementsTwo_normElementsToPairTwo`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L190) | Pair To Norm Elements Two norm Elements To Pair Two | qefe |
+| [`normElementsTwo_card_eq_two_mul_orbits`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L225) | Burnside: \|NormElements n\| = 2 * #orbits for n > 0. | qefe |
+| [`span_eq_iff_associated_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L252) | Span eq iff associated two | qefe |
+| [`absNorm_span_two_of_norm`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L256) | Abs Norm span two of norm | qefe |
+| [`normElementsTwo_card_eq_two_mul_idealCount`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L325) | The 2-to-1 generator/ideal count for ℤ[√−2]. | qefe |
+| [`norm_two_mk`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L340) | The ideal count of ℤ[√−2]. | qefe |
+| [`star_two_mk`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L343) | Star two mk | qefe |
+| [`mul_star_two_mk`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L346) | Mul star two mk | qefe |
+| [`split_prime_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L351) | The split-prime factorisation in ℤ[√−2]. | qefe |
+| [`split_span_norm_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L392) | Split span norm two | qefe |
+| [`split_span_ne_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L407) | Split span ne two | qefe |
+| [`split_prime_ne_two`](../qefe/lean/QuadraticInt/IdealCountTwo.lean#L425) | Split prime ne two | qefe |
+
+## [`qefe/lean/QuadraticInt/LocalThree.lean`](qefe__lean__QuadraticInt__LocalThree.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`norm_form_ne_two_mod_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L22) | Norm form ne two mod three | qefe |
+| [`not_repr_of_mod_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L24) | Not repr of mod three | qefe |
+| [`not_irreducible_of_repr_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L40) | A representation makes p reducible in ℤ[ω]. | qefe |
+| [`irreducible_iff_no_repr_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L58) | Irreducible iff no repr three | qefe |
+| [`inert_prime_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L69) | The inert prime is prime: for p ≡ 2 (mod 3), (p) is prime. | qefe |
+| [`finrank_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L76) | The inert prime is prime: for p ≡ 2 (mod 3), (p) is prime. | qefe |
+| [`absNorm_span_natCast_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L80) | Abs Norm span nat Cast three | qefe |
+| [`inert_span_prime_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L88) | The inert prime is prime: for p ≡ 2 (mod 3), (p) is prime. | qefe |
+| [`inert_unique_prime_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L96) | Inert unique prime three | qefe |
+| [`inert_ideal_eq_span_pow_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L114) | Inert ideal eq span pow three | qefe |
+| [`inert_ideal_count_even_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L146) | Inert ideal count even three | qefe |
+| [`inert_no_ideal_norm_prime_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L158) | Inert no ideal norm prime three | qefe |
+| [`inert_no_ideal_norm_odd_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L182) | Inert no ideal norm odd three | qefe |
+| [`inert_ideal_count_odd_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L228) | Inert ideal count odd three | qefe |
+| [`norm_one_sub_omega`](../qefe/lean/QuadraticInt/LocalThree.lean#L242) | The inert prime is prime: for p ≡ 2 (mod 3), (p) is prime. | qefe |
+| [`prime_one_sub_omega`](../qefe/lean/QuadraticInt/LocalThree.lean#L245) | Prime one sub omega | qefe |
+| [`one_sub_omega_sq`](../qefe/lean/QuadraticInt/LocalThree.lean#L256) | One sub omega sq | qefe |
+| [`ramified_three_sq_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L260) | Ramified three sq three | qefe |
+| [`ramified_span_prime_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L270) | Ramified span prime three | qefe |
+| [`ramified_unique_prime_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L278) | Ramified unique prime three | qefe |
+| [`ramified_ideal_eq_span_pow_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L306) | Ramified ideal eq span pow three | qefe |
+| [`ramified_ideal_count_three`](../qefe/lean/QuadraticInt/LocalThree.lean#L340) | Ramified ideal count three | qefe |
+
+## [`qefe/lean/QuadraticInt/LocalTwo.lean`](qefe__lean__QuadraticInt__LocalTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`sq_add_two_sq_ne_five`](../qefe/lean/QuadraticInt/LocalTwo.lean#L26) | Sq add two sq ne five | qefe |
+| [`sq_add_two_sq_ne_seven`](../qefe/lean/QuadraticInt/LocalTwo.lean#L28) | Sq add two sq ne seven | qefe |
+| [`not_repr_of_mod_eight`](../qefe/lean/QuadraticInt/LocalTwo.lean#L30) | Not repr of mod eight | qefe |
+| [`not_irreducible_of_repr`](../qefe/lean/QuadraticInt/LocalTwo.lean#L52) | A representation makes p reducible. | qefe |
+| [`irreducible_iff_no_repr`](../qefe/lean/QuadraticInt/LocalTwo.lean#L76) | p is irreducible in ℤ[√−2] iff p is not of the form a² + 2b². | qefe |
+| [`inert_prime_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L87) | The inert prime is prime: for p ≡ 5, 7 (mod 8), (p) is prime. | qefe |
+| [`finrank_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L98) | The inert prime is prime: for p ≡ 5, 7 (mod 8), (p) is prime. | qefe |
+| [`absNorm_span_natCast_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L102) | Abs Norm span nat Cast two | qefe |
+| [`inert_span_prime_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L110) | The inert prime is prime: for p ≡ 5, 7 (mod 8), (p) is prime. | qefe |
+| [`inert_unique_prime_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L118) | Inert unique prime two | qefe |
+| [`inert_ideal_eq_span_pow_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L137) | Every ideal of norm p^(2e) is (p)^e for an inert prime. | qefe |
+| [`inert_ideal_count_even_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L168) | Inert ideal count even two | qefe |
+| [`inert_no_ideal_norm_prime_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L181) | Inert no ideal norm prime two | qefe |
+| [`inert_no_ideal_norm_odd_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L205) | Inert no ideal norm odd two | qefe |
+| [`inert_ideal_count_odd_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L250) | Inert ideal count odd two | qefe |
+| [`norm_sqrtd_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L265) | Every ideal of norm p^(2e) is (p)^e for an inert prime. | qefe |
+| [`prime_sqrtd_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L268) | Prime sqrtd two | qefe |
+| [`ramified_two_sq_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L279) | Ramified two sq two | qefe |
+| [`ramified_span_prime_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L287) | Ramified span prime two | qefe |
+| [`ramified_unique_prime_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L295) | Ramified unique prime two | qefe |
+| [`ramified_ideal_eq_span_pow_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L320) | Ramified ideal eq span pow two | qefe |
+| [`ramified_ideal_count_two`](../qefe/lean/QuadraticInt/LocalTwo.lean#L354) | Ramified ideal count two | qefe |
+
+## [`qefe/lean/QuadraticInt/MultThree.lean`](qefe__lean__QuadraticInt__MultThree.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`ideal_dvd_span_absNorm_three`](../qefe/lean/QuadraticInt/MultThree.lean#L20) | Every ideal divides the principal ideal generated by its norm. | qefe |
+| [`isCoprime_span_nat_three`](../qefe/lean/QuadraticInt/MultThree.lean#L27) | T179: the principal ideals (m) and (n) are coprime for coprime m, n. | qefe |
+| [`coprime_dvd_decompose_three`](../qefe/lean/QuadraticInt/MultThree.lean#L35) | T180: a divisor of (a)(b) decomposes as (K⊔(a))(K⊔(b)) when a, b are coprime. | qefe |
+| [`ideal_coprime_dvd_decompose`](../qefe/lean/QuadraticInt/MultThree.lean#L91) | T182: a divisor of a product of coprime ideals splits as (K⊔I)(K⊔J). | qefe |
+| [`nat_eq_of_dvd_sq_mul`](../qefe/lean/QuadraticInt/MultThree.lean#L132) | T189: if a ∣ m², b ∣ n², ab = mn and m, n are coprime, then a = m, b = n. | qefe |
+| [`sup_mul_span_eq_three`](../qefe/lean/QuadraticInt/MultThree.lean#L158) | T190: for ideals of coprime norms m, n, (K1 K2) ⊔ (m) = K1. | qefe |
+| [`sup_span_absNorm_left_three`](../qefe/lean/QuadraticInt/MultThree.lean#L191) | T191: the left component of an ideal of norm mn has norm m. | qefe |
+| [`sup_span_absNorm_right_three`](../qefe/lean/QuadraticInt/MultThree.lean#L233) | T192: the right component of an ideal of norm mn has norm n. | qefe |
+| [`idealCountThree_mul`](../qefe/lean/QuadraticInt/MultThree.lean#L275) | T194: the ideal count is multiplicative over coprime m, n. | qefe |
+
+## [`qefe/lean/QuadraticInt/MultTwo.lean`](qefe__lean__QuadraticInt__MultTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`ideal_dvd_span_absNorm_two`](../qefe/lean/QuadraticInt/MultTwo.lean#L21) | Every ideal divides the principal ideal generated by its norm. | qefe |
+| [`isCoprime_span_nat_two`](../qefe/lean/QuadraticInt/MultTwo.lean#L28) | T179: the principal ideals (m) and (n) are coprime for coprime m, n. | qefe |
+| [`coprime_dvd_decompose_two`](../qefe/lean/QuadraticInt/MultTwo.lean#L36) | T180: a divisor of (a)(b) decomposes as (K⊔(a))(K⊔(b)) when a, b are coprime. | qefe |
+| [`ideal_coprime_dvd_decompose`](../qefe/lean/QuadraticInt/MultTwo.lean#L92) | T182: a divisor of a product of coprime ideals splits as (K⊔I)(K⊔J). | qefe |
+| [`nat_eq_of_dvd_sq_mul`](../qefe/lean/QuadraticInt/MultTwo.lean#L133) | T189: if a ∣ m², b ∣ n², ab = mn and m, n are coprime, then a = m, b = n. | qefe |
+| [`sup_mul_span_eq_two`](../qefe/lean/QuadraticInt/MultTwo.lean#L159) | T190: for ideals of coprime norms m, n, (K1 K2) ⊔ (m) = K1. | qefe |
+| [`sup_span_absNorm_left_two`](../qefe/lean/QuadraticInt/MultTwo.lean#L192) | T191: the left component of an ideal of norm mn has norm m. | qefe |
+| [`sup_span_absNorm_right_two`](../qefe/lean/QuadraticInt/MultTwo.lean#L234) | T192: the right component of an ideal of norm mn has norm n. | qefe |
+| [`idealCountTwo_mul`](../qefe/lean/QuadraticInt/MultTwo.lean#L276) | T194: the ideal count is multiplicative over coprime m, n. | qefe |
+
+## [`qefe/lean/QuadraticInt/RingOfIntegersThree.lean`](qefe__lean__QuadraticInt__RingOfIntegersThree.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`irreducible_X_sq_add_X_add_one`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L30) | X² + X + 1 is irreducible over ℚ. | qefe |
+| [`omegaK_sq_add`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L47) | Omega K sq add | qefe |
+| [`omegaK_sq`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L51) | Omega K sq | qefe |
+| [`natDegree_g`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L54) | Nat Degree g | qefe |
+| [`g_ne_zero`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L57) | G ne zero | qefe |
+| [`pb_dim3`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L63) | Pb dim3 | qefe |
+| [`pb3_zero`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L72) | Pb3 zero | qefe |
+| [`pb3_one`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L76) | Pb3 one | qefe |
+| [`coord_eq3`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L81) | Every element of ℚ(ω) is a + b·ω with a, b rational. | qefe |
+| [`finrank_QW`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L90) | ℚ(ω) is two-dimensional over ℚ. | qefe |
+| [`linearIndependent_pb3`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L110) | {1, ω} is ℚ-linearly independent in ℚ(ω). | qefe |
+| [`toK_injective`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L116) | To K injective | qefe |
+| [`algebraMap_QW_eq_toK`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L130) | Algebra Map QW eq to K | qefe |
+| [`algebraMap_eq_div_den3`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L140) | Algebra Map eq div den3 | qefe |
+| [`toK_mk`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L147) | To K mk | qefe |
+| [`exists_div3`](../qefe/lean/QuadraticInt/RingOfIntegersThree.lean#L149) | Exists div3 | qefe |
+
+## [`qefe/lean/QuadraticInt/RingOfIntegersTwo.lean`](qefe__lean__QuadraticInt__RingOfIntegersTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`irreducible_X_sq_add_two`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L31) | X² + 2 is irreducible over ℚ. | qefe |
+| [`sqrt2_sq_add_two`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L50) | Sqrt2 sq add two | qefe |
+| [`sqrt2_mul_self`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L54) | Sqrt2 mul self | qefe |
+| [`natDegree_f2`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L57) | Nat Degree f2 | qefe |
+| [`f2_ne_zero`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L61) | F2 ne zero | qefe |
+| [`pb_dim2`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L67) | Pb dim2 | qefe |
+| [`pb2b_zero`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L76) | Pb2b zero | qefe |
+| [`pb2b_one`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L80) | Pb2b one | qefe |
+| [`coord_eq2`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L85) | Every element of ℚ(√−2) is a + b·√−2 with a, b rational. | qefe |
+| [`finrank_QS2`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L94) | ℚ(√−2) is two-dimensional over ℚ. | qefe |
+| [`toQS2_mk`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L105) | toQS2 on coordinates: m + n·√−2. | qefe |
+| [`toQS2_injective`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L108) | To QS2 injective | qefe |
+| [`algebraMap_QS2_eq_toQS2`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L115) | Algebra Map QS2 eq to QS2 | qefe |
+| [`algebraMap_eq_div_den2`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L125) | Algebra Map eq div den2 | qefe |
+| [`exists_div2`](../qefe/lean/QuadraticInt/RingOfIntegersTwo.lean#L132) | Exists div2 | qefe |
+
+## [`qefe/lean/QuadraticInt/SplitCountThree.lean`](qefe__lean__QuadraticInt__SplitCountThree.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`prime_not_sq_nat`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L22) | Prime not sq nat | qefe |
+| [`unit_cases`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L31) | Unit cases | qefe |
+| [`star_mk_three`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L37) | Star mk three | qefe |
+| [`mul_star_three_mk`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L39) | Mul star three mk | qefe |
+| [`repr_ne_zero_left`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L46) | For a² − ab + b² = p with p prime: a ≠ 0. | qefe |
+| [`repr_ne_zero_right`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L53) | Repr ne zero right | qefe |
+| [`repr_ne_diag`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L60) | Repr ne diag | qefe |
+| [`split_prime_three`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L67) | Split prime three | qefe |
+| [`split_span_ne_three`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L89) | Split span ne three | qefe |
+| [`normE_star`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L142) | Norm E star | qefe |
+| [`split_span_norm_three`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L148) | Split span norm three | qefe |
+| [`split_prime_ne_three`](../qefe/lean/QuadraticInt/SplitCountThree.lean#L163) | Split prime ne three | qefe |
+
+## [`qefe/lean/QuadraticInt/SplitCountThreeFull.lean`](qefe__lean__QuadraticInt__SplitCountThreeFull.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`split_maximal_eq_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L19) | T157: a maximal ideal above a split prime p is (π) or (star π). | qefe |
+| [`isMaximal_of_absNorm_prime_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L56) | T166: an ideal of prime norm is maximal. | qefe |
+| [`split_ideal_eq_of_absNorm_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L70) | T167: an ideal of norm p is (π) or (star π). | qefe |
+| [`split_ideal_count_one_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L105) | T168: there are exactly two ideals of norm p for split p. | qefe |
+| [`split_pow_norm_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L137) | T169: the norm of (π)^a (star π)^b is p^(a+b). | qefe |
+| [`split_pow_norm_of_add_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L145) | T170: the norm of (π)^a (star π)^b is p^k when a+b=k. | qefe |
+| [`split_isCoprime_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L153) | T171: the two split prime ideals are coprime. | qefe |
+| [`split_isCoprime_pow_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L162) | T172: powers of the two split prime ideals are coprime. | qefe |
+| [`split_pow_ne_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L168) | T173: distinct powers of the two split primes are unequal. | qefe |
+| [`split_pow_inj_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L198) | T174: the k+1 ideals (π)^a (star π)^(k-a) are distinct. | qefe |
+| [`split_ideal_count_of_exhaustive_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L259) | T175: the split local count follows from exhaustiveness. | qefe |
+| [`split_peel_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L304) | T176: every norm-p^(k+1) ideal peels off (π) or (star π). | qefe |
+| [`split_exhaustive_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L337) | T177: every ideal of norm p^k is among the k+1 candidates. | qefe |
+| [`split_ideal_count_three`](../qefe/lean/QuadraticInt/SplitCountThreeFull.lean#L369) | T178: the split local ideal count is k+1. | qefe |
+
+## [`qefe/lean/QuadraticInt/SplitCountTwo.lean`](qefe__lean__QuadraticInt__SplitCountTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`split_maximal_eq_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L21) | T157: a maximal ideal above a split prime p is (π) or (star π). | qefe |
+| [`isMaximal_of_absNorm_prime_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L58) | T166: an ideal of prime norm is maximal. | qefe |
+| [`split_ideal_eq_of_absNorm_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L72) | T167: an ideal of norm p is (π) or (star π). | qefe |
+| [`split_ideal_count_one_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L107) | T168: there are exactly two ideals of norm p for split p. | qefe |
+| [`split_pow_norm_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L139) | T169: the norm of (π)^a (star π)^b is p^(a+b). | qefe |
+| [`split_pow_norm_of_add_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L147) | T170: the norm of (π)^a (star π)^b is p^k when a+b=k. | qefe |
+| [`split_isCoprime_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L155) | T171: the two split prime ideals are coprime. | qefe |
+| [`split_isCoprime_pow_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L164) | T172: powers of the two split prime ideals are coprime. | qefe |
+| [`split_pow_ne_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L170) | T173: distinct powers of the two split primes are unequal. | qefe |
+| [`split_pow_inj_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L200) | T174: the k+1 ideals (π)^a (star π)^(k-a) are distinct. | qefe |
+| [`split_ideal_count_of_exhaustive_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L261) | T175: the split local count follows from exhaustiveness. | qefe |
+| [`split_peel_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L306) | T176: every norm-p^(k+1) ideal peels off (π) or (star π). | qefe |
+| [`split_exhaustive_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L339) | T177: every ideal of norm p^k is among the k+1 candidates. | qefe |
+| [`split_ideal_count_two`](../qefe/lean/QuadraticInt/SplitCountTwo.lean#L371) | T178: the split local ideal count is k+1. | qefe |
+
+## [`qefe/lean/QuadraticInt/SplitThree.lean`](qefe__lean__QuadraticInt__SplitThree.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`exists_root_sq_add_X_add_one`](../qefe/lean/QuadraticInt/SplitThree.lean#L28) | X² + X + 1 has a root modulo a prime p ≡ 1 (mod 3). | qefe |
+| [`not_irreducible_of_dvd_sq_add_X_add_one`](../qefe/lean/QuadraticInt/SplitThree.lean#L52) | If p ∣ m² + m + 1 then p is not irreducible in ℤ[ω]. | qefe |
+| [`exists_normE_of_not_irreducible`](../qefe/lean/QuadraticInt/SplitThree.lean#L90) | If p is reducible in ℤ[ω], then p = a² − ab + b². | qefe |
+| [`prime_normE`](../qefe/lean/QuadraticInt/SplitThree.lean#L160) | The split-prime theorem for d = 3: every prime p ≡ 1 (mod 3) is of the form a² − ab + b², i.e. | qefe |
+
+## [`qefe/lean/QuadraticInt/SplitTwo.lean`](qefe__lean__QuadraticInt__SplitTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`isSquare_neg_two`](../qefe/lean/QuadraticInt/SplitTwo.lean#L31) | −2 is a square modulo a prime p ≡ 1, 3 (mod 8). | qefe |
+| [`not_irreducible_of_dvd_sq_add_two`](../qefe/lean/QuadraticInt/SplitTwo.lean#L53) | If p ∣ m² + 2 then p is not irreducible in ℤ[√−2]: it divides the product (m + √−2)(m − √−2) but neither factor. | qefe |
+| [`exists_nat_repr_of_not_irreducible`](../qefe/lean/QuadraticInt/SplitTwo.lean#L95) | If p is reducible in ℤ[√−2], then p = a² + 2b². | qefe |
+| [`prime_sq_add_two_sq`](../qefe/lean/QuadraticInt/SplitTwo.lean#L175) | The split-prime theorem for d = 2: every prime p ≡ 1, 3 (mod 8) is of the form a² + 2b², i.e. | qefe |
+
+## [`qefe/lean/QuadraticInt/ZsqrtdTwo.lean`](qefe__lean__QuadraticInt__ZsqrtdTwo.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`nearest_spec`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L39) | Nearest spec | qefe |
+| [`four_mul_sq_le`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L48) | Squared rounding error bound, for N : ℕ. | qefe |
+| [`four_mul_sq_le_int`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L69) | Squared rounding error bound, for N : ℤ. | qefe |
+| [`norm_pos'`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L97) | Norm pos' | qefe |
+| [`emod_fact`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L106) | The key factorisation: the remainder times N = y.norm is y times the residual pair. | qefe |
+| [`rem_norm_eq`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L125) | Rem norm eq | qefe |
+| [`emod_norm_lt`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L130) | The Euclidean step: N(emod x y) < N(y) for y ≠ 0. | qefe |
+| [`norm_mul_le_natAbs`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L156) | Norm mul le nat Abs | qefe |
+| [`ediv_zero`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L163) | Ediv zero | qefe |
+| [`unit_norm_eq_one`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L189) | The d = 2 gate: ℤ[√−2] is integrally closed. | qefe |
+| [`unit_eq_one_or_neg_one`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L194) | The unit classification for d = 2: the only units are ±1, so w = 2. | qefe |
+| [`sqrtdVec_linInd`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L216) | Sqrtd Vec lin Ind | qefe |
+| [`sqrtdVec_span`](../qefe/lean/QuadraticInt/ZsqrtdTwo.lean#L228) | Sqrtd Vec span | qefe |
+
+## [`qefe/lean/ScratchPlus5.lean`](qefe__lean__ScratchPlus5.lean.md)
+
+### topics
+
+- [`qefe`](../qefe/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
 ## [`qefe/lean/Topic.lean`](qefe__lean__Topic.lean.md)
 
 ### topics
@@ -4725,13 +6208,267 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 
 | lean name | proof title | applicable to topics |
 |---|---|---|
-| [`egyptianDenom_pos`](../qefe/lean/Topic.lean#L34) | Egyptian denominators are positive whenever D² and d² are. | qefe |
-| [`inv_egyptianDenom`](../qefe/lean/Topic.lean#L41) | The reciprocal of an Egyptian denominator is d² / D²; this is the identity used to turn the sum of reciprocals into the quantum-dimension… | qefe |
-| [`egyptianUnit_pos`](../qefe/lean/Topic.lean#L47) | The non-unit Egyptian mass is positive once D² > 1. | qefe |
-| [`egyptian_total`](../qefe/lean/Topic.lean#L54) | The total Egyptian reciprocal sum is one: ∑_i 1/m_i = 1. | qefe |
-| [`egyptian_fraction_identity`](../qefe/lean/Topic.lean#L67) | Lemma 2.2 of the source: for a finite integral MTC datum with unit object d_0² = 1, the non-unit Egyptian denominators satisfy ∑_{i ≠ 0}… | qefe |
-| [`gammaRatio_center`](../qefe/lean/Topic.lean#L87) | At the central point s = 1/2 the gamma-factor ratio is exactly 1. | qefe |
-| [`qefePrefactor_center`](../qefe/lean/Topic.lean#L101) | At s = 1/2 the QEFE prefactor is exactly 1, so the claimed functional equation degenerates to a self-duality statement at the central point. | qefe |
+| [`egyptianDenom_pos`](../qefe/lean/Topic.lean#L35) | Egyptian denominators are positive whenever D² and d² are. | qefe |
+| [`inv_egyptianDenom`](../qefe/lean/Topic.lean#L42) | The reciprocal of an Egyptian denominator is d² / D²; this is the identity used to turn the sum of reciprocals into the quantum-dimension… | qefe |
+| [`egyptianUnit_pos`](../qefe/lean/Topic.lean#L48) | The non-unit Egyptian mass is positive once D² > 1. | qefe |
+| [`egyptian_total`](../qefe/lean/Topic.lean#L55) | The total Egyptian reciprocal sum is one: ∑_i 1/m_i = 1. | qefe |
+| [`egyptian_fraction_identity`](../qefe/lean/Topic.lean#L68) | Lemma 2.2 of the source: for a finite integral MTC datum with unit object d_0² = 1, the non-unit Egyptian denominators satisfy ∑_{i ≠ 0}… | qefe |
+| [`gammaRatio_center`](../qefe/lean/Topic.lean#L88) | At the central point s = 1/2 the gamma-factor ratio is exactly 1. | qefe |
+| [`qefePrefactor_center`](../qefe/lean/Topic.lean#L102) | At s = 1/2 the QEFE prefactor is exactly 1, so the claimed functional equation degenerates to a self-duality statement at the central point. | qefe |
+| [`Gamma_neg_one`](../qefe/lean/Topic.lean#L121) | Mathlib's value of Γ at -1 (a pole of the meromorphic continuation). | qefe |
+| [`isingPsi_three`](../qefe/lean/Topic.lean#L137) | The Ising value at the pole point: Ψ(3) = -3/32. | qefe |
+| [`gammaRatio_ising_pole`](../qefe/lean/Topic.lean#L141) | At the first Ising pole s = 3 the gamma ratio is zero (a pole). | qefe |
+| [`qefe_fails_ising`](../qefe/lean/Topic.lean#L147) | The Ising data refute the displayed QEFE at s = 3. | qefe |
+| [`su2Psi_four`](../qefe/lean/Topic.lean#L154) | The SU(2)₄ value at the pole point: Ψ(4) = 1/216. | qefe |
+| [`gammaRatio_su2_pole`](../qefe/lean/Topic.lean#L158) | At the first SU(2)₄ pole s = 4 the gamma ratio is zero (a pole). | qefe |
+| [`qefe_fails_su2`](../qefe/lean/Topic.lean#L164) | The SU(2)₄ data refute the displayed QEFE at s = 4. | qefe |
+| [`thetaL_one_div`](../qefe/lean/Topic.lean#L184) | T8: the rank-one lattice theta transforms with weight 1/2: Θ_{aℤ}(1/τ) = (√τ / a) Θ_{(1/a)ℤ}(τ). | qefe |
+| [`theta2_one_div`](../qefe/lean/Topic.lean#L211) | T9: the square-lattice theta transforms with weight 1: Θ_{ℤ²}(1/τ) = τ Θ_{ℤ²}(τ). | qefe |
+| [`thetaZn_one_div`](../qefe/lean/Topic.lean#L224) | T28: the rank-n cubic-lattice theta transforms with weight n/2: Θ_{ℤ^n}(1/τ) = τ^(n/2) Θ_{ℤ^n}(τ). | qefe |
+| [`ising_galois`](../qefe/lean/Topic.lean#L247) | T10: the Ising sign datum. | qefe |
+| [`su2_no_signs`](../qefe/lean/Topic.lean#L266) | T11: the nontrivial √3-conjugation of SU(2)₄ has no sign/permutation datum. | qefe |
+| [`lattice_realisation_pointed`](../qefe/lean/Topic.lean#L283) | T12: a lattice-VOA realisation with one simple object per lattice coset forces all squared quantum dimensions to be 1. | qefe |
+| [`egyptian_examples`](../qefe/lean/Topic.lean#L307) | T13: the Egyptian sums for the two worked examples. | qefe |
+| [`ising_psi_zero_one`](../qefe/lean/Topic.lean#L316) | T14: the Ising polynomial at s = 0, 1. | qefe |
+| [`su2_psi_zero_one`](../qefe/lean/Topic.lean#L320) | T14: the SU(2)₄ polynomial at s = 0, 1. | qefe |
+| [`finiteTheta_mellin`](../qefe/lean/Topic.lean#L330) | T15: the Mellin transform of the finite theta. | qefe |
+| [`ising_root_number`](../qefe/lean/Topic.lean#L366) | T16: the Ising normalized Gauss root number is e^{πi/8}. | qefe |
+| [`su2_exp_five`](../qefe/lean/Topic.lean#L379) | Su2 exp five | qefe |
+| [`su2_exp_two_thirds`](../qefe/lean/Topic.lean#L388) | Su2 exp two thirds | qefe |
+| [`su2_root_number`](../qefe/lean/Topic.lean#L400) | T17: the SU(2)₄ normalized Gauss root number is i. | qefe |
+| [`su2_psi_two_three`](../qefe/lean/Topic.lean#L410) | T18: the SU(2)₄ polynomial at s = 2 and s = 3. | qefe |
+| [`D2_rpow_mul_categoricalPsi`](../qefe/lean/Topic.lean#L419) | T19: the bridge D^(2s) Ψ(s) = Σ_i χ_i d_i^(2s). | qefe |
+| [`finiteTheta_mellin_categorical`](../qefe/lean/Topic.lean#L438) | T20: the Mellin transform in categorical form, ∫_0^∞ τ^(s-1) Θ(τ) dτ = Γ(s) π^(-s) D^(2s) Ψ(s). | qefe |
+| [`chi4_neg_one`](../qefe/lean/Topic.lean#L459) | T21: the character χ₄ is odd, χ₄(-1) = -1. | qefe |
+| [`chi4_three`](../qefe/lean/Topic.lean#L464) | Chi4 three | qefe |
+| [`chi4_ne_one`](../qefe/lean/Topic.lean#L466) | Chi4 ne one | qefe |
+| [`chi4_not_factors_one`](../qefe/lean/Topic.lean#L473) | Chi4 not factors one | qefe |
+| [`chi4_not_factors_two`](../qefe/lean/Topic.lean#L477) | Chi4 not factors two | qefe |
+| [`chi4_conductor`](../qefe/lean/Topic.lean#L491) | T22: the conductor of χ₄ is 4. | qefe |
+| [`chi4_primitive`](../qefe/lean/Topic.lean#L507) | T23: χ₄ is primitive. | qefe |
+| [`chi4_completedLFunction_one_sub`](../qefe/lean/Topic.lean#L512) | T24: the functional equation of the completed L-function of χ₄. | qefe |
+| [`exp_ofReal_star`](../qefe/lean/Topic.lean#L527) | Exp of Real star | qefe |
+| [`exp_phase_conj`](../qefe/lean/Topic.lean#L533) | Exp phase conj | qefe |
+| [`phasePsi_conj`](../qefe/lean/Topic.lean#L541) | T25: time reversal is conjugation: Ψ(σ,-t) = conj Ψ(σ,t). | qefe |
+| [`sin_zero_mod`](../qefe/lean/Topic.lean#L561) | Sin zero mod | qefe |
+| [`sin_one_mod`](../qefe/lean/Topic.lean#L569) | Sin one mod | qefe |
+| [`sin_two_mod`](../qefe/lean/Topic.lean#L577) | Sin two mod | qefe |
+| [`sin_three_mod`](../qefe/lean/Topic.lean#L585) | Sin three mod | qefe |
+| [`chi4Int_eq_sin`](../qefe/lean/Topic.lean#L597) | T45: the integer character equals the sine character: χ₄(n) = sin(πn/2). | qefe |
+| [`chi4Int_add_four`](../qefe/lean/Topic.lean#L631) | T29: χ₄ has period 4. | qefe |
+| [`chi4Int_neg`](../qefe/lean/Topic.lean#L638) | T30: χ₄ is odd. | qefe |
+| [`summable_nat_mul_exp_neg_sq`](../qefe/lean/Topic.lean#L650) | T31: the Gaussian-times-n kernel is summable on ℕ: Σ n exp(-a n²) converges for every a > 0. | qefe |
+| [`gaussSumChi4_eq`](../qefe/lean/Topic.lean#L672) | T38: the χ₄ Gauss sum is 2i. | qefe |
+| [`rootNumberChi4_eq`](../qefe/lean/Topic.lean#L687) | T39: the normalized root number is i. | qefe |
+| [`norm_chi4Int_le_one`](../qefe/lean/Topic.lean#L693) | T33: the integer character is bounded by 1. | qefe |
+| [`norm_thetaKernel`](../qefe/lean/Topic.lean#L702) | Norm theta Kernel | qefe |
+| [`thetaKernel_neg`](../qefe/lean/Topic.lean#L715) | Theta Kernel neg | qefe |
+| [`summable_gaussian_int`](../qefe/lean/Topic.lean#L721) | T41: the Gaussian is summable over ℤ for a > 0. | qefe |
+| [`summable_thetaKernel_int`](../qefe/lean/Topic.lean#L747) | T32: the theta kernel is summable over ℤ for a > 0. | qefe |
+| [`exp_jac_plus`](../qefe/lean/Topic.lean#L765) | T34: the norm of the theta kernel is summable over ℤ. | qefe |
+| [`exp_jac_minus`](../qefe/lean/Topic.lean#L782) | Exp jac minus | qefe |
+| [`jacobiTheta2'_term_diff`](../qefe/lean/Topic.lean#L801) | T46: the pointwise Jacobi-term difference. | qefe |
+| [`summable_norm_thetaKernel_int`](../qefe/lean/Topic.lean#L813) | Summable norm theta Kernel int | qefe |
+| [`summable_twistedTheta4`](../qefe/lean/Topic.lean#L832) | T35: the character-twisted theta is summable for τ > 0. | qefe |
+| [`norm_charKernel`](../qefe/lean/Topic.lean#L850) | T40: the characteristic-kernel norm. | qefe |
+| [`norm_charKernel_le`](../qefe/lean/Topic.lean#L866) | Norm char Kernel le | qefe |
+| [`summable_charKernel`](../qefe/lean/Topic.lean#L904) | T42: the characteristic theta kernel is summable over ℤ, for every shift b and every a > 0. | qefe |
+| [`summable_thetaPlus`](../qefe/lean/Topic.lean#L923) | T43: thetaPlus is summable for τ > 0. | qefe |
+| [`summable_thetaMinus`](../qefe/lean/Topic.lean#L928) | T44: thetaMinus is summable for τ > 0. | qefe |
+| [`jacobiTheta2'_term_thetaPlus`](../qefe/lean/Topic.lean#L959) | T48: the thetaPlus pointwise Jacobi combination. | qefe |
+| [`charKernel_eq_exp`](../qefe/lean/Topic.lean#L979) | T49: the characteristic kernel factors through the plain exponential. | qefe |
+| [`thetaPlus_eq_jacobi`](../qefe/lean/Topic.lean#L998) | T50: the thetaPlus Jacobi assembly. | qefe |
+| [`jacobiTheta2'_term_thetaMinus`](../qefe/lean/Topic.lean#L1024) | T51: the thetaMinus pointwise Jacobi combination. | qefe |
+| [`charKernel_minus_eq_exp`](../qefe/lean/Topic.lean#L1044) | T52: the thetaMinus characteristic-kernel factorization. | qefe |
+| [`thetaMinus_eq_jacobi`](../qefe/lean/Topic.lean#L1062) | T53: the thetaMinus Jacobi assembly. | qefe |
+| [`jacobiTheta₂_arg_quarter`](../qefe/lean/Topic.lean#L1088) | T54: the jacobiTheta₂ quarter-point argument normalisation. | qefe |
+| [`jacobiTheta₂'_arg_quarter`](../qefe/lean/Topic.lean#L1102) | T55: the jacobiTheta₂' quarter-point argument normalisation. | qefe |
+| [`jacobiTheta2''_quarter_minus`](../qefe/lean/Topic.lean#L1117) | T56: jacobiTheta₂'' at z=1/4, τ=i/a equals thetaMinus(1/a). | qefe |
+| [`jacobiTheta₂_arg_quarter_neg`](../qefe/lean/Topic.lean#L1134) | T57: negative jacobiTheta₂ quarter-point argument normalisation. | qefe |
+| [`jacobiTheta₂'_arg_quarter_neg`](../qefe/lean/Topic.lean#L1148) | T58: negative jacobiTheta₂' quarter-point argument normalisation. | qefe |
+| [`jacobiTheta2''_quarter_plus`](../qefe/lean/Topic.lean#L1164) | T59: jacobiTheta₂'' at z=-1/4, τ=i/a equals thetaPlus(1/a). | qefe |
+| [`hasSum_mellin_thetaPlus`](../qefe/lean/Topic.lean#L1202) | T61: the thetaPlus Mellin HasSum identity for Re s > 1. | qefe |
+| [`thetaMinus_eq_tsum_plus`](../qefe/lean/Topic.lean#L1221) | T62: the thetaMinus summand rewritten with n+1/4. | qefe |
+| [`hasSum_mellin_thetaMinus`](../qefe/lean/Topic.lean#L1237) | T63: the thetaMinus Mellin HasSum identity for Re s > 1. | qefe |
+| [`oddIndex_even`](../qefe/lean/Topic.lean#L1287) | Odd Index even | qefe |
+| [`oddIndex_odd`](../qefe/lean/Topic.lean#L1292) | Odd Index odd | qefe |
+| [`abs_oddIndex_sub_quarter`](../qefe/lean/Topic.lean#L1299) | T64: the absolute value of the odd-index shift. | qefe |
+| [`sign_oddIndex_sub_quarter`](../qefe/lean/Topic.lean#L1315) | T65: the sign of the odd-index shift. | qefe |
+| [`oddIndex_injective`](../qefe/lean/Topic.lean#L1335) | T66: oddIndex is injective. | qefe |
+| [`oddIndex_surjective`](../qefe/lean/Topic.lean#L1350) | T67: oddIndex is surjective, hence a bijection ℕ ≃ ℤ. | qefe |
+| [`sign_oddIndex_cast`](../qefe/lean/Topic.lean#L1372) | T68: the cast sign formula. | qefe |
+| [`betaSeries_reindex`](../qefe/lean/Topic.lean#L1377) | T69: reindex the signed odd series along oddIndex. | qefe |
+| [`twistedTheta4_eq_jacobi`](../qefe/lean/Topic.lean#L1407) | T47: the Jacobi-theta identification of the scalar twisted theta. | qefe |
+| [`su2_psiR_half`](../qefe/lean/Topic.lean#L1434) | T27: the exact SU(2)₄ value at σ = 1/2: Ψ(1/2) = 2/√3 - 1. | qefe |
+| [`norm_exp_phase`](../qefe/lean/Topic.lean#L1449) | Norm exp phase | qefe |
+| [`norm_exp_decay`](../qefe/lean/Topic.lean#L1456) | Norm exp decay | qefe |
+| [`phasePsi_norm_le`](../qefe/lean/Topic.lean#L1464) | T26: the phase-corrected series is bounded by its real decay envelope: ‖Ψ(σ,t)‖ ≤ Σ_i \|χ_i\| exp(-σ log m_i). | qefe |
+| [`twistedTheta4_vector_modular`](../qefe/lean/Topic.lean#L1480) | T60: the vector modular relation. | qefe |
+| [`cpow_quarter`](../qefe/lean/Topic.lean#L1507) | T70: quarter-denominator cpow factor. | qefe |
+| [`betaSeriesStatement`](../qefe/lean/Topic.lean#L1527) | T71: the signed odd series is -4^s times the beta series. | qefe |
+| [`twistedTheta4_summand_even`](../qefe/lean/Topic.lean#L1550) | T72: the twistedTheta4 summand is even. | qefe |
+| [`hasSum_mellin_twistedTheta4`](../qefe/lean/Topic.lean#L1560) | T73: the scalar Mellin HasSum for twistedTheta4. | qefe |
+| [`chi4Int_two_mul_add_one`](../qefe/lean/Topic.lean#L1592) | T74: the value of χ₄ on positive odd integers. | qefe |
+| [`scalarTerm_zero`](../qefe/lean/Topic.lean#L1610) | T75: the scalar character summand vanishes at 0. | qefe |
+| [`scalarTerm_neg`](../qefe/lean/Topic.lean#L1615) | T76: the scalar character summand is even. | qefe |
+| [`chi4Int_even`](../qefe/lean/Topic.lean#L1627) | T77: χ₄ vanishes on even integers. | qefe |
+| [`scalarTerm_two_mul`](../qefe/lean/Topic.lean#L1634) | T78: the scalar character summand vanishes at even integers. | qefe |
+| [`norm_scalarTerm_le`](../qefe/lean/Topic.lean#L1640) | T79: the scalar character summand is dominated by 1/\|i\|^(Re s). | qefe |
+| [`summable_scalarTerm`](../qefe/lean/Topic.lean#L1654) | T80: the scalar character series is summable for Re s > 1. | qefe |
+| [`support_scalarTerm_nat`](../qefe/lean/Topic.lean#L1665) | T81: the non-zero part of the scalar series on ℕ is supported on the odd integers. | qefe |
+| [`scalarTerm_odd`](../qefe/lean/Topic.lean#L1677) | T82: the scalar character summand on positive odd integers is (−1)^k/(2k+1)^s. | qefe |
+| [`tsum_nat_odd`](../qefe/lean/Topic.lean#L1696) | T83: the scalar series on ℕ reindexes onto 2k+1. | qefe |
+| [`scalarBetaStatement`](../qefe/lean/Topic.lean#L1706) | T84: ScalarBetaStatement: Σ_i χ₄(i) sign(i)/\|i\|^s = 2β(s). | qefe |
+| [`plusCharTerm_neg`](../qefe/lean/Topic.lean#L1746) | T85: the thetaPlus summand at −i is minus the thetaMinus summand at i. | qefe |
+| [`tsum_plus_eq_neg_tsum_minus`](../qefe/lean/Topic.lean#L1760) | T86: the thetaPlus character series is minus the thetaMinus series. | qefe |
+| [`tsum_minusCharTerm`](../qefe/lean/Topic.lean#L1773) | T87: the thetaMinus character series equals 4^s β(s). | qefe |
+| [`charKernel_quarter_neg`](../qefe/lean/Topic.lean#L1784) | T88: the shifted characteristic kernel at −n is minus the opposite shift at n. | qefe |
+| [`thetaPlus_eq_neg_thetaMinus`](../qefe/lean/Topic.lean#L1791) | T89: the two characteristic thetas satisfy θ₊ = −θ₋. | qefe |
+| [`twistedTheta4_eq_cpow_inv`](../qefe/lean/Topic.lean#L1805) | T90: twistedTheta4 a = a^(−3/2) θ₋(1/a). | qefe |
+| [`mellin_twistedTheta4_eq`](../qefe/lean/Topic.lean#L1823) | T91: Mellin change of variables: M(s) = mellinThetaMinus(1 − s/2). | qefe |
+| [`mellin_twistedTheta4_eq_gamma_beta`](../qefe/lean/Topic.lean#L1840) | T92: the scalar Mellin transform of twistedTheta4 in the convergence half-plane Re s > 1. | qefe |
+| [`mellin_twistedTheta4_eq_gamma_beta_dual`](../qefe/lean/Topic.lean#L1860) | T93: the modular-relation form of the scalar Mellin transform, using the thetaMinus Mellin identity at the reflected argument. | qefe |
+| [`completedBeta_eq_gamma_beta`](../qefe/lean/Topic.lean#L1901) | T94: in the series half-plane Re s > 1, completedBeta is the classical completed beta (4/π)^((s+1)/2) Γ((s+1)/2) β(s), written here as 2^… | qefe |
+| [`completedBeta_functional_equation`](../qefe/lean/Topic.lean#L1913) | T95: the completed beta functional equation Λ(s) = Λ(1-s), in the completed-beta normalisation of T94. | qefe |
+| [`chi4_natCast`](../qefe/lean/Topic.lean#L1942) | Chi4 nat Cast | qefe |
+| [`chi4_two_mul`](../qefe/lean/Topic.lean#L1945) | T97: χ₄(2m) = 0. | qefe |
+| [`support_chi4_LSeries`](../qefe/lean/Topic.lean#L1951) | T98: the χ₄ Dirichlet-series summand on ℕ is supported on the odd integers. | qefe |
+| [`LSeries_chi4`](../qefe/lean/Topic.lean#L1965) | T99: the naive Dirichlet series of χ₄ is β(s). | qefe |
+| [`chi4_isQuadratic`](../qefe/lean/Topic.lean#L1988) | T100: χ₄ is a quadratic character. | qefe |
+| [`chi4_inv_eq_self`](../qefe/lean/Topic.lean#L1996) | T101: χ₄⁻¹ = χ₄. | qefe |
+| [`gaussSum_chi4_eq_std`](../qefe/lean/Topic.lean#L2003) | T102: Mathlib's Gauss sum of χ₄ equals the computed gaussSumChi4. | qefe |
+| [`rootNumber_chi4_eq_one`](../qefe/lean/Topic.lean#L2013) | T103: the normalized root number of χ₄ is 1. | qefe |
+| [`completedLFunction_chi4_eq`](../qefe/lean/Topic.lean#L2028) | T104: completedLFunction χ₄ s = Γℝ(s+1)·β(s) for Re s > 1. | qefe |
+| [`completedBeta_eq_two_cpow_completedLFunction`](../qefe/lean/Topic.lean#L2046) | T105: completedBeta s = 2^(s+1)·completedLFunction χ₄ s for Re s > 1. | qefe |
+| [`thetaMinus_eq_oddKernel`](../qefe/lean/Topic.lean#L2052) | Theta Minus eq odd Kernel | qefe |
+| [`twistedTheta4_eq_sinKernel`](../qefe/lean/Topic.lean#L2065) | T107: twistedTheta4 is the sinKernel at shift 1/4. | qefe |
+| [`continuousOn_twistedTheta4`](../qefe/lean/Topic.lean#L2090) | T108: twistedTheta4 is continuous on (0,∞). | qefe |
+| [`isBigO_twistedTheta4_atTop`](../qefe/lean/Topic.lean#L2098) | T109: twistedTheta4 has exponential decay at +∞. | qefe |
+| [`isBigO_twistedTheta4_zero`](../qefe/lean/Topic.lean#L2119) | T110: twistedTheta4 is O(t^(−b)) at 0 for every b. | qefe |
+| [`locallyIntegrableOn_twistedTheta4`](../qefe/lean/Topic.lean#L2173) | T111: twistedTheta4 is locally integrable on (0,∞). | qefe |
+| [`mellin_twistedTheta4_differentiableAt`](../qefe/lean/Topic.lean#L2178) | T112: the Mellin transform of twistedTheta4 is entire. | qefe |
+| [`differentiable_mellin_twistedTheta4`](../qefe/lean/Topic.lean#L2187) | T113: the Mellin transform of twistedTheta4 is differentiable. | qefe |
+| [`differentiable_completedBeta`](../qefe/lean/Topic.lean#L2192) | T114: completedBeta is entire. | qefe |
+| [`completedBeta_functional_equation_all`](../qefe/lean/Topic.lean#L2200) | T115: completedBeta s = completedBeta (1−s) for all s. | qefe |
+| [`completedBeta_eq_two_cpow_completedLFunction_all`](../qefe/lean/Topic.lean#L2217) | T116: the bridge completedBeta s = 2^(s+1)·completedLFunction χ₄ s for all s. | qefe |
+| [`chi4_completedLFunction_one_sub_theta`](../qefe/lean/Topic.lean#L2239) | T117: T24 replacement: the completed L-function functional equation for χ₄, from the theta route. | qefe |
+| [`gammaR_duplication`](../qefe/lean/Topic.lean#L2273) | T118: Legendre duplication in the form 2^(s+1)Γℝ(s)Γℝ(s+1) = 4π^(−s)Γ(s). | qefe |
+| [`lambdaZ2_self_dual`](../qefe/lean/Topic.lean#L2318) | T119: P1: Λ_ℤ²(s) = Λ_ℤ²(1−s). | qefe |
+| [`lambdaZ2_product`](../qefe/lean/Topic.lean#L2323) | T120: P1: Λ_ℤ²(s) = 4π^(−s)Γ(s)ζ(s)β(s) for Re s > 1. | qefe |
+| [`LSeries_divisorSumChi4`](../qefe/lean/Topic.lean#L2358) | T121: the divisor-sum L-series is ζ(s)β(s). | qefe |
+| [`r2_eq_zero_iff`](../qefe/lean/Topic.lean#L2385) | T124: r2 n = 0 iff there is no integer representation x²+y²=n. | qefe |
+| [`gaussianVec_zero`](../qefe/lean/Topic.lean#L2410) | Gaussian Vec zero | qefe |
+| [`gaussianVec_one`](../qefe/lean/Topic.lean#L2411) | Gaussian Vec one | qefe |
+| [`gaussianVec_linearIndependent`](../qefe/lean/Topic.lean#L2413) | Gaussian Vec linear Independent | qefe |
+| [`gaussianVec_span`](../qefe/lean/Topic.lean#L2424) | Gaussian Vec span | qefe |
+| [`gaussianBasis_apply_zero`](../qefe/lean/Topic.lean#L2435) | Gaussian Basis apply zero | qefe |
+| [`gaussianBasis_apply_one`](../qefe/lean/Topic.lean#L2440) | Gaussian Basis apply one | qefe |
+| [`repr_gaussian_zero`](../qefe/lean/Topic.lean#L2445) | Repr gaussian zero | qefe |
+| [`repr_gaussian_one`](../qefe/lean/Topic.lean#L2452) | Repr gaussian one | qefe |
+| [`algebra_norm_gaussian`](../qefe/lean/Topic.lean#L2460) | T125: the algebra norm of a Gaussian integer is its Zsqrtd.norm. | qefe |
+| [`absNorm_span_gaussian`](../qefe/lean/Topic.lean#L2474) | T126: the ideal norm of the principal ideal (z) is z.norm.natAbs. | qefe |
+| [`gaussian_unit_norm_eq_one`](../qefe/lean/Topic.lean#L2485) | T126: the ideal norm of the principal ideal (z) is z.norm.natAbs. | qefe |
+| [`gaussian_unit_classification`](../qefe/lean/Topic.lean#L2493) | T127: every Gaussian unit is one of 1, -1, i, -i. | qefe |
+| [`mem_gaussianUnits`](../qefe/lean/Topic.lean#L2522) | Mem gaussian Units | qefe |
+| [`gaussianUnits_card_four`](../qefe/lean/Topic.lean#L2542) | T128: the Gaussian unit group has cardinality four. | qefe |
+| [`gaussian_norm_mk`](../qefe/lean/Topic.lean#L2556) | T128: the Gaussian unit group has cardinality four. | qefe |
+| [`gaussianToPair_pairToGaussian`](../qefe/lean/Topic.lean#L2577) | Gaussian To Pair pair To Gaussian | qefe |
+| [`pairToGaussian_gaussianToPair`](../qefe/lean/Topic.lean#L2582) | Pair To Gaussian gaussian To Pair | qefe |
+| [`r2_eq_natCard_pairs`](../qefe/lean/Topic.lean#L2594) | R2 eq nat Card pairs | qefe |
+| [`r2_eq_natCard_gaussian`](../qefe/lean/Topic.lean#L2621) | T129: r2 n is the number of Gaussian integers of norm n. | qefe |
+| [`absNorm_span_gaussian_of_norm`](../qefe/lean/Topic.lean#L2627) | T130: a norm-n Gaussian integer generates an ideal of norm n. | qefe |
+| [`gaussian_span_eq_iff_associated`](../qefe/lean/Topic.lean#L2633) | T131: two Gaussian integers generate the same principal ideal iff they are associates. | qefe |
+| [`normElementsSmul_def`](../qefe/lean/Topic.lean#L2649) | Norm Elements Smul def | qefe |
+| [`normElements_ne_zero`](../qefe/lean/Topic.lean#L2665) | Norm Elements ne zero | qefe |
+| [`normElements_smul_eq_self_iff`](../qefe/lean/Topic.lean#L2674) | T132: the Gaussian unit action on norm-n elements is free for n > 0. | qefe |
+| [`gaussianUnits_fintype_card`](../qefe/lean/Topic.lean#L2699) | Gaussian Units fintype card | qefe |
+| [`normElements_card_eq_four_mul_orbits`](../qefe/lean/Topic.lean#L2725) | T133: Burnside count: \|NormElements n\| = 4 * #orbits for n > 0. | qefe |
+| [`normElements_card_eq_four_mul_idealCount`](../qefe/lean/Topic.lean#L2816) | T135: the 4-to-1 generator/ideal count. | qefe |
+| [`r2_eq_four_mul_idealCount`](../qefe/lean/Topic.lean#L2823) | T136: r2 n is four times the number of ideals of norm n. | qefe |
+| [`twoSquaresFormula_of_idealCount`](../qefe/lean/Topic.lean#L2835) | T137: the two-squares formula follows from the ideal-count formula. | qefe |
+| [`gaussian_star_mk`](../qefe/lean/Topic.lean#L2846) | T137: the two-squares formula follows from the ideal-count formula. | qefe |
+| [`gaussian_mul_star_mk`](../qefe/lean/Topic.lean#L2849) | Gaussian mul star mk | qefe |
+| [`gaussian_norm_mk'`](../qefe/lean/Topic.lean#L2854) | Gaussian norm mk' | qefe |
+| [`gaussian_split_prime`](../qefe/lean/Topic.lean#L2858) | T138: a prime p ≡ 1 mod 4 splits as π * star π in ℤ[i]. | qefe |
+| [`gaussian_span_prime_factorization`](../qefe/lean/Topic.lean#L2887) | T139: the principal ideal (p) factors as (π)(star π) for p ≡ 1 mod 4. | qefe |
+| [`gaussian_finrank`](../qefe/lean/Topic.lean#L2907) | Gaussian finrank | qefe |
+| [`gaussian_absNorm_span_natCast`](../qefe/lean/Topic.lean#L2912) | T140: see the theorem statement. | qefe |
+| [`gaussian_inert_prime`](../qefe/lean/Topic.lean#L2919) | T141: see the theorem statement. | qefe |
+| [`gaussianI_sq`](../qefe/lean/Topic.lean#L2925) | Gaussian I sq | qefe |
+| [`gaussian_one_add_I_sq`](../qefe/lean/Topic.lean#L2928) | Gaussian one add I sq | qefe |
+| [`gaussian_prime_one_add_I`](../qefe/lean/Topic.lean#L2932) | T142: see the theorem statement. | qefe |
+| [`gaussian_ramified_two`](../qefe/lean/Topic.lean#L2944) | T143: see the theorem statement. | qefe |
+| [`gaussian_inert_span_prime`](../qefe/lean/Topic.lean#L2953) | T144: the ideal (p) is prime for inert p ≡ 3 mod 4. | qefe |
+| [`gaussian_ramified_span_prime`](../qefe/lean/Topic.lean#L2963) | T145: the ramified ideal (1+i) is prime. | qefe |
+| [`gaussian_inert_unique_prime`](../qefe/lean/Topic.lean#L2972) | T146: the unique maximal ideal above an inert prime p ≡ 3 mod 4. | qefe |
+| [`gaussian_inert_ideal_eq_span_pow`](../qefe/lean/Topic.lean#L2995) | T147: every ideal of norm p^(2e) is (p)^e for inert p. | qefe |
+| [`gaussian_inert_ideal_count_even`](../qefe/lean/Topic.lean#L3028) | T148: the inert even-exponent local ideal count is one. | qefe |
+| [`gaussian_inert_no_ideal_norm_prime`](../qefe/lean/Topic.lean#L3043) | T149: there is no ideal of norm p for inert p. | qefe |
+| [`gaussian_inert_no_ideal_norm_odd`](../qefe/lean/Topic.lean#L3070) | T150: there is no ideal of odd exponent norm for inert p. | qefe |
+| [`gaussian_inert_ideal_count_odd`](../qefe/lean/Topic.lean#L3123) | T151: the inert odd-exponent local ideal count is zero. | qefe |
+| [`gaussian_ramified_unique_prime`](../qefe/lean/Topic.lean#L3135) | T152: the unique maximal ideal above 2 is (1+i). | qefe |
+| [`gaussian_ramified_ideal_eq_span_pow`](../qefe/lean/Topic.lean#L3159) | T153: every ideal of norm 2^k is (1+i)^k. | qefe |
+| [`gaussian_ramified_ideal_count`](../qefe/lean/Topic.lean#L3195) | T154: the ramified local ideal count is one. | qefe |
+| [`gaussian_ideal_dvd_span_absNorm`](../qefe/lean/Topic.lean#L3215) | T155: every ideal divides the principal ideal generated by its norm. | qefe |
+| [`gaussian_ideal_dvd_span_pow_of_absNorm`](../qefe/lean/Topic.lean#L3221) | T156: an ideal of norm p^k divides (p)^k. | qefe |
+| [`gaussian_split_maximal_eq`](../qefe/lean/Topic.lean#L3231) | T157: a maximal ideal above a split prime p is (π) or (star π). | qefe |
+| [`gaussian_prime_of_norm_natAbs`](../qefe/lean/Topic.lean#L3269) | T158: a Gaussian integer of prime norm is prime. | qefe |
+| [`gaussian_split_prime_star`](../qefe/lean/Topic.lean#L3283) | T159: both π and star π are prime in the split factorization. | qefe |
+| [`gaussian_split_maximal_eq'`](../qefe/lean/Topic.lean#L3300) | T160: unconditional classification of maximal ideals above a split prime. | qefe |
+| [`gaussian_split_norm`](../qefe/lean/Topic.lean#L3311) | T161: the split factor π has norm p. | qefe |
+| [`gaussian_split_span_norm`](../qefe/lean/Topic.lean#L3325) | T162: both split prime ideals have norm p. | qefe |
+| [`gaussian_split_span_ne`](../qefe/lean/Topic.lean#L3335) | T163: the two split prime ideals are distinct. | qefe |
+| [`gaussian_split_nonzero_data`](../qefe/lean/Topic.lean#L3373) | T164: the split representation has both coordinates nonzero. | qefe |
+| [`gaussian_split_prime_star_ne`](../qefe/lean/Topic.lean#L3407) | T165: there is a split factorization with distinct prime ideals. | qefe |
+| [`gaussian_isMaximal_of_absNorm_prime`](../qefe/lean/Topic.lean#L3436) | T166: an ideal of prime norm is maximal. | qefe |
+| [`gaussian_split_ideal_eq_of_absNorm`](../qefe/lean/Topic.lean#L3450) | T167: an ideal of norm p is (π) or (star π). | qefe |
+| [`gaussian_split_ideal_count_one`](../qefe/lean/Topic.lean#L3485) | T168: there are exactly two ideals of norm p for split p. | qefe |
+| [`gaussian_split_pow_norm`](../qefe/lean/Topic.lean#L3517) | T169: the norm of (π)^a (star π)^b is p^(a+b). | qefe |
+| [`gaussian_split_pow_norm_of_add`](../qefe/lean/Topic.lean#L3525) | T170: the norm of (π)^a (star π)^b is p^k when a+b=k. | qefe |
+| [`gaussian_split_isCoprime`](../qefe/lean/Topic.lean#L3533) | T171: the two split prime ideals are coprime. | qefe |
+| [`gaussian_split_isCoprime_pow`](../qefe/lean/Topic.lean#L3542) | T172: powers of the two split prime ideals are coprime. | qefe |
+| [`gaussian_split_pow_ne`](../qefe/lean/Topic.lean#L3548) | T173: distinct powers of the two split primes are unequal. | qefe |
+| [`gaussian_split_pow_inj`](../qefe/lean/Topic.lean#L3578) | T174: the k+1 ideals (π)^a (star π)^(k-a) are distinct. | qefe |
+| [`gaussian_split_ideal_count_of_exhaustive`](../qefe/lean/Topic.lean#L3639) | T175: the split local count follows from exhaustiveness. | qefe |
+| [`gaussian_split_peel`](../qefe/lean/Topic.lean#L3684) | T176: every norm-p^(k+1) ideal peels off (π) or (star π). | qefe |
+| [`gaussian_split_exhaustive`](../qefe/lean/Topic.lean#L3717) | T177: every ideal of norm p^k is among the k+1 candidates. | qefe |
+| [`gaussian_split_ideal_count`](../qefe/lean/Topic.lean#L3749) | T178: the split local ideal count is k+1. | qefe |
+| [`gaussian_isCoprime_span_nat`](../qefe/lean/Topic.lean#L3757) | T179: the principal ideals (m) and (n) are coprime for coprime m, n. | qefe |
+| [`gaussian_coprime_dvd_decompose`](../qefe/lean/Topic.lean#L3765) | T180: a divisor of (a)(b) decomposes as (K⊔(a))(K⊔(b)) when a, b are coprime. | qefe |
+| [`chi4Int_mul`](../qefe/lean/Topic.lean#L3820) | T181: chi4Int is multiplicative. | qefe |
+| [`ideal_coprime_dvd_decompose`](../qefe/lean/Topic.lean#L3830) | T182: a divisor of a product of coprime ideals splits as (K⊔I)(K⊔J). | qefe |
+| [`divisorSumChi4_prime_pow_one`](../qefe/lean/Topic.lean#L3870) | T183: for p ≡ 1 mod 4, Σ_{j=0}^{k} χ₄(p^j) = k+1. | qefe |
+| [`chi4_mul`](../qefe/lean/Topic.lean#L3884) | T184: the raw χ₄ is multiplicative on ℤ. | qefe |
+| [`chi4_pow_three`](../qefe/lean/Topic.lean#L3889) | T185: χ₄(p^j) = (-1)^j for p ≡ 3 mod 4. | qefe |
+| [`divisorSumChi4_prime_pow_three`](../qefe/lean/Topic.lean#L3909) | T186: for p ≡ 3 mod 4, the divisor sum is 1 for even k and 0 for odd k. | qefe |
+| [`divisorSumChi4_prime_pow_two`](../qefe/lean/Topic.lean#L3924) | T187: the ramified divisor sum Σ_{j=0}^{k} χ₄(2^j) is 1. | qefe |
+| [`divisorSumChi4_mul`](../qefe/lean/Topic.lean#L3942) | T188: divisorSumChi4 is multiplicative over coprime m, n. | qefe |
+| [`nat_eq_of_dvd_sq_mul`](../qefe/lean/Topic.lean#L3967) | T189: if a ∣ m², b ∣ n², ab = mn and m, n are coprime, then a = m, b = n. | qefe |
+| [`gaussian_sup_mul_span_eq`](../qefe/lean/Topic.lean#L3993) | T190: for ideals of coprime norms m, n, (K1 K2) ⊔ (m) = K1. | qefe |
+| [`gaussian_sup_span_absNorm_left`](../qefe/lean/Topic.lean#L4026) | T191: the left component of an ideal of norm mn has norm m. | qefe |
+| [`gaussian_sup_span_absNorm_right`](../qefe/lean/Topic.lean#L4068) | T192: the right component of an ideal of norm mn has norm n. | qefe |
+| [`gaussian_idealCount_mul`](../qefe/lean/Topic.lean#L4110) | T194: the ideal count is multiplicative over coprime m, n. | qefe |
+| [`idealCount_one`](../qefe/lean/Topic.lean#L4122) | idealCount 1 = 1. | qefe |
+| [`idealCountFun_isMultiplicative`](../qefe/lean/Topic.lean#L4138) | T195: the packaged ideal count is multiplicative. | qefe |
+| [`divisorSumFun_isMultiplicative`](../qefe/lean/Topic.lean#L4164) | T196: the packaged divisor sum is multiplicative. | qefe |
+| [`idealCount_prime_pow_eq`](../qefe/lean/Topic.lean#L4172) | T197: the ideal count and divisor sum agree on prime powers. | qefe |
+| [`idealCountFormula`](../qefe/lean/Topic.lean#L4205) | T198: the ideal-count formula. | qefe |
+| [`twoSquaresFormula`](../qefe/lean/Topic.lean#L4218) | T199: the two-squares formula. | qefe |
+| [`epstein_series_eq_four_zeta_beta`](../qefe/lean/Topic.lean#L4222) | T122: the Epstein/L-series reduction. | qefe |
+| [`LambdaZ2_eq_epstein`](../qefe/lean/Topic.lean#L4248) | T123: the completed ℤ² series is π^(−s)Γ(s) times the Epstein lattice series. | qefe |
+| [`Real.tendsto_self_mul_Gamma_nhds_zero`](../qefe/lean/Topic.lean#L4258) | T205: the real Gamma function has residue 1 at 0. | qefe |
+| [`tendsto_norm_Gamma_nhdsGT_neg_one`](../qefe/lean/Topic.lean#L4274) | T206: ‖Γ(x)‖ → ∞ as x → −1 from the right. | qefe |
+| [`tendsto_norm_gammaRatio_zero_nhdsLT_three`](../qefe/lean/Topic.lean#L4337) | T207: ‖gammaRatio 0 s‖ → ∞ as s → 3⁻. | qefe |
+| [`tendsto_norm_qefeRhs_ising_nhdsLT_three`](../qefe/lean/Topic.lean#L4385) | T208: ‖qefeRhs 4 0 1 isingPsi s‖ → ∞ as s → 3⁻. | qefe |
+| [`tendsto_norm_sub_atTop_of_eventually_le`](../qefe/lean/Topic.lean#L4424) | T209: if ‖g‖ → ∞ and ‖f‖ is eventually bounded, then ‖f - g‖ → ∞. | qefe |
+| [`isingPsi_eventually_bounded_nhdsLT_three`](../qefe/lean/Topic.lean#L4437) | T210: isingPsi is eventually bounded near 3 from the left. | qefe |
+| [`tendsto_norm_qefeResidual_ising_nhdsLT_three`](../qefe/lean/Topic.lean#L4456) | T211: the Ising QEFE residual is unbounded near s = 3. | qefe |
+| [`tendsto_norm_gammaRatio_one_nhdsLT_four`](../qefe/lean/Topic.lean#L4467) | T212: ‖gammaRatio 1 s‖ → ∞ as s → 4⁻. | qefe |
+| [`tendsto_norm_qefeRhs_su2_nhdsLT_four`](../qefe/lean/Topic.lean#L4517) | T213: ‖qefeRhs 12 1 1 su2Psi s‖ → ∞ as s → 4⁻. | qefe |
+| [`su2Psi_eventually_bounded_nhdsLT_four`](../qefe/lean/Topic.lean#L4558) | T214: su2Psi is eventually bounded near 4 from the left. | qefe |
+| [`tendsto_norm_qefeResidual_su2_nhdsLT_four`](../qefe/lean/Topic.lean#L4575) | T215: the SU(2)₄ QEFE residual is unbounded near s = 4. | qefe |
+| [`finiteThetaSum_not_modular_of_sum_ne_zero`](../qefe/lean/Topic.lean#L4590) | T217: a finite exponential sum with non-zero total cannot satisfy any weight-w modular relation. | qefe |
+| [`latticeThetaMellinChi4`](../qefe/lean/Topic.lean#L4647) | T219: LatticeThetaMellinChi4 holds, by T120. | qefe |
 
 ## [`qefe-research-notes/lean/Topic.lean`](qefe-research-notes__lean__Topic.lean.md)
 
@@ -5147,3 +6884,324 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 | [`maximalDistanceZero_of_riemannHypothesis`](../zero-infinitude/lean/Topic.lean#L1065) | Maximal Distance Zero of riemann Hypothesis | zero-infinitude |
 | [`riemannHypothesis_of_maximalDistanceZero_witness_onLine`](../zero-infinitude/lean/Topic.lean#L1105) | The maximal-distance precondition, witnessed on the line, gives RH. If the maximal-distance zero has real part 1/2, every nontrivial zero… | zero-infinitude |
 | [`riemannHypothesis_iff_exists_onLine_maximalDistanceZero`](../zero-infinitude/lean/Topic.lean#L1126) | The full-block precondition is exactly RH once its witness is required to lie on the critical line. | zero-infinitude |
+
+## [`zero-side-bridge/lean/Topic.lean`](zero-side-bridge__lean__Topic.lean.md)
+
+### topics
+
+- [`zero-side-bridge`](../zero-side-bridge/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
+## [`zero-sum-convergence/lean/Topic.lean`](zero-sum-convergence__lean__Topic.lean.md)
+
+### topics
+
+- [`zero-sum-convergence`](../zero-sum-convergence/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
+## [`zero-sum-convergence/lean/ZeroSum.lean`](zero-sum-convergence__lean__ZeroSum.lean.md)
+
+### topics
+
+- [`zero-sum-convergence`](../zero-sum-convergence/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`trivialZeros_infinite`](../zero-sum-convergence/lean/ZeroSum.lean#L27) | T1. | zero-sum-convergence |
+| [`summable_trivialZero_gaussian`](../zero-sum-convergence/lean/ZeroSum.lean#L39) | T2. | zero-sum-convergence |
+| [`hasSum_trivialZero_gaussian`](../zero-sum-convergence/lean/ZeroSum.lean#L66) | T3. | zero-sum-convergence |
+| [`zeta_ne_zero_of_one_lt_re`](../zero-sum-convergence/lean/ZeroSum.lean#L84) | T4. | zero-sum-convergence |
+| [`zeta_zero_iff_completed_zero`](../zero-sum-convergence/lean/ZeroSum.lean#L90) | T5. | zero-sum-convergence |
+| [`zeroStrip_mono`](../zero-sum-convergence/lean/ZeroSum.lean#L98) | T6. | zero-sum-convergence |
+| [`ncard_zeroStrip_le`](../zero-sum-convergence/lean/ZeroSum.lean#L104) | T7. | zero-sum-convergence |
+| [`annulus_bound`](../zero-sum-convergence/lean/ZeroSum.lean#L112) | T8. | zero-sum-convergence |
+| [`succ_le_four_pow`](../zero-sum-convergence/lean/ZeroSum.lean#L124) | k + 1 ≤ 4^k. | zero-sum-convergence |
+| [`tendsto_four_pow_mul_exp`](../zero-sum-convergence/lean/ZeroSum.lean#L135) | 4^k·e^{−c·4^k} → 0 along the naturals. | zero-sum-convergence |
+| [`tendsto_ratio`](../zero-sum-convergence/lean/ZeroSum.lean#L158) | (k+1)·4^k·e^{−σ²4^k} → 0. | zero-sum-convergence |
+| [`summable_pow_mul_exp_neg_pow`](../zero-sum-convergence/lean/ZeroSum.lean#L187) | T9. | zero-sum-convergence |
+| [`summable_gaussian_of_no_clustering`](../zero-sum-convergence/lean/ZeroSum.lean#L218) | T13 (O4b, sequence form). | zero-sum-convergence |
+| [`no_clustering_of_counting`](../zero-sum-convergence/lean/ZeroSum.lean#L260) | T14 (O4c). | zero-sum-convergence |
+| [`summable_gaussian_of_counting`](../zero-sum-convergence/lean/ZeroSum.lean#L295) | T15. | zero-sum-convergence |
+| [`sum_le_card_mul_exp`](../zero-sum-convergence/lean/ZeroSum.lean#L306) | T16. | zero-sum-convergence |
+| [`exists_dyadic_annulus`](../zero-sum-convergence/lean/ZeroSum.lean#L329) | T17. | zero-sum-convergence |
+| [`annulus_ncard_le`](../zero-sum-convergence/lean/ZeroSum.lean#L353) | T18. | zero-sum-convergence |
+| [`annulus_sum_le`](../zero-sum-convergence/lean/ZeroSum.lean#L370) | T19. | zero-sum-convergence |
+| [`zeroStrip_one_eq_empty`](../zero-sum-convergence/lean/ZeroSum.lean#L409) | T20. | zero-sum-convergence |
+| [`annulusIndex_spec`](../zero-sum-convergence/lean/ZeroSum.lean#L430) | T21. | zero-sum-convergence |
+| [`annulusIndex_unique`](../zero-sum-convergence/lean/ZeroSum.lean#L436) | T22. | zero-sum-convergence |
+| [`annulus_zeros_finite`](../zero-sum-convergence/lean/ZeroSum.lean#L454) | T23. | zero-sum-convergence |
+| [`tsum_le_card_mul_exp`](../zero-sum-convergence/lean/ZeroSum.lean#L468) | T24. | zero-sum-convergence |
+| [`zeros_im_ge_one`](../zero-sum-convergence/lean/ZeroSum.lean#L495) | T25. | zero-sum-convergence |
+| [`annulus_zeros_finite'`](../zero-sum-convergence/lean/ZeroSum.lean#L508) | T26. | zero-sum-convergence |
+| [`tsum_le_card_mul_of_bound`](../zero-sum-convergence/lean/ZeroSum.lean#L524) | T27. | zero-sum-convergence |
+| [`annulus_zeros_tsum_le`](../zero-sum-convergence/lean/ZeroSum.lean#L537) | T28. | zero-sum-convergence |
+| [`summable_annulus_majorant`](../zero-sum-convergence/lean/ZeroSum.lean#L590) | T29. | zero-sum-convergence |
+| [`summable_zeros_of_counting`](../zero-sum-convergence/lean/ZeroSum.lean#L627) | T30 (O4, main theorem). | zero-sum-convergence |
+
+## [`zeta-from-theta/lean/Audit.lean`](zeta-from-theta__lean__Audit.lean.md)
+
+### topics
+
+- [`zeta-from-theta`](../zeta-from-theta/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
+## [`zeta-from-theta/lean/Mellin.lean`](zeta-from-theta__lean__Mellin.lean.md)
+
+### topics
+
+- [`zeta-from-theta`](../zeta-from-theta/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`summable_pi_mul_sq_rpow`](../zeta-from-theta/lean/Mellin.lean#L19) | V6a. | zeta-from-theta |
+| [`hasSum_mellin_psi`](../zeta-from-theta/lean/Mellin.lean#L42) | V6. | zeta-from-theta |
+
+## [`zeta-from-theta/lean/Theta.lean`](zeta-from-theta__lean__Theta.lean.md)
+
+### topics
+
+- [`zeta-from-theta`](../zeta-from-theta/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`summable_theta`](../zeta-from-theta/lean/Theta.lean#L25) | T1. | zeta-from-theta |
+| [`theta_pos`](../zeta-from-theta/lean/Theta.lean#L63) | T2. | zeta-from-theta |
+| [`theta_one_div`](../zeta-from-theta/lean/Theta.lean#L69) | T3. | zeta-from-theta |
+| [`theta_eq_one_add_two_tsum`](../zeta-from-theta/lean/Theta.lean#L84) | V4. | zeta-from-theta |
+| [`psi_eq_tsum`](../zeta-from-theta/lean/Theta.lean#L104) | V5. | zeta-from-theta |
+
+## [`zeta-from-theta/lean/ThetaLayer.lean`](zeta-from-theta__lean__ThetaLayer.lean.md)
+
+### topics
+
+- [`zeta-from-theta`](../zeta-from-theta/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+
+## [`zeta-from-theta/lean/Topic.lean`](zeta-from-theta__lean__Topic.lean.md)
+
+### topics
+
+- [`zeta-from-theta`](../zeta-from-theta/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`summable_zetaSeries`](../zeta-from-theta/lean/Topic.lean#L39) | T1. | zeta-from-theta |
+| [`zetaSeries_eq_riemannZeta`](../zeta-from-theta/lean/Topic.lean#L60) | T2. | zeta-from-theta |
+| [`zetaSeries_eq_completed_div`](../zeta-from-theta/lean/Topic.lean#L66) | T3. | zeta-from-theta |
+| [`LambdaTheta_eq_mellin`](../zeta-from-theta/lean/Topic.lean#L88) | D2 (bridge). On Re s > 1 the definition agrees with the Mellin transform of the theta kernel. | zeta-from-theta |
+| [`LambdaTheta_one_sub`](../zeta-from-theta/lean/Topic.lean#L95) | D2 (symmetry). Λ_θ(1 − s) = Λ_θ(s). | zeta-from-theta |
+| [`differentiableAt_LambdaTheta`](../zeta-from-theta/lean/Topic.lean#L99) | D2 (analyticity). Λ_θ is differentiable off {0, 1}. | zeta-from-theta |
+| [`zetaTheta_eq_zetaSeries`](../zeta-from-theta/lean/Topic.lean#L111) | D3 (agreement with the Dirichlet series). On Re s > 1 the theta-side object is exactly Σ' n^{-s}. | zeta-from-theta |
+| [`zetaTheta_one_sub`](../zeta-from-theta/lean/Topic.lean#L122) | D4. | zeta-from-theta |
+| [`zetaTheta_eq_riemannZeta`](../zeta-from-theta/lean/Topic.lean#L152) | D5. | zeta-from-theta |
+| [`zetaTheta_eq_riemannZeta_of_ne_zero_one`](../zeta-from-theta/lean/Topic.lean#L167) | D5 (strengthened form). The identification actually only needs s ≠ 0 and s ≠ 1: at the Γℝ zeros both Λ_θ/Γℝ and completedRiemannZeta/Γℝ a… | zeta-from-theta |
+| [`zetaTheta_trivial_zero`](../zeta-from-theta/lean/Topic.lean#L178) | D6 (value). At the trivial zeros s = −2(n+1) the theta-side zeta vanishes. | zeta-from-theta |
+| [`zetaTheta_removable_at_trivial_zero`](../zeta-from-theta/lean/Topic.lean#L188) | D6 (removable singularity). At a trivial zero the punctured limit of ζ_θ exists and equals the assigned value 0. | zeta-from-theta |
+| [`riemannZeta_one_sub_from_theta`](../zeta-from-theta/lean/Topic.lean#L226) | M6. | zeta-from-theta |
+| [`riemannZeta_one_sub_from_theta'`](../zeta-from-theta/lean/Topic.lean#L251) | M6 (unconditional). The Γℝ (1−s) = 0 branch, where s = 1 + 2n, is handled by the vanishing of both sides: riemannZeta (−2n) = 0 and cos (… | zeta-from-theta |
+
+## [`zeta-from-theta/lean/Zeta.lean`](zeta-from-theta__lean__Zeta.lean.md)
+
+### topics
+
+- [`zeta-from-theta`](../zeta-from-theta/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`cpow_sq_half`](../zeta-from-theta/lean/Zeta.lean#L19) | V7a. | zeta-from-theta |
+| [`hasSum_mellin_psi_dirichlet`](../zeta-from-theta/lean/Zeta.lean#L45) | V7b. | zeta-from-theta |
+| [`hasSum_pnat_one_div_cpow`](../zeta-from-theta/lean/Zeta.lean#L112) | V7c. | zeta-from-theta |
+| [`mellin_psi_eq`](../zeta-from-theta/lean/Zeta.lean#L140) | V7d. | zeta-from-theta |
+| [`mellin_psi_eq_completed`](../zeta-from-theta/lean/Zeta.lean#L164) | V8. | zeta-from-theta |
+| [`psi_one_div`](../zeta-from-theta/lean/Zeta.lean#L192) | V9. | zeta-from-theta |
+| [`integral_Ioi_cpow_neg_sub_one`](../zeta-from-theta/lean/Zeta.lean#L201) | V10. | zeta-from-theta |
+| [`image_inv_Ioi_one`](../zeta-from-theta/lean/Zeta.lean#L218) | V11a. | zeta-from-theta |
+| [`inv_cpow_eq`](../zeta-from-theta/lean/Zeta.lean#L236) | ((1/u) : ℂ)^a = (u : ℂ)^{-a} for u > 0. | zeta-from-theta |
+| [`integral_Ioc_psi_eq`](../zeta-from-theta/lean/Zeta.lean#L248) | V11. | zeta-from-theta |
+| [`tsum_theta_pos`](../zeta-from-theta/lean/Zeta.lean#L309) | V12. | zeta-from-theta |
+| [`psi_pos`](../zeta-from-theta/lean/Zeta.lean#L321) | V13. | zeta-from-theta |
+| [`tsum_geometric_pnat`](../zeta-from-theta/lean/Zeta.lean#L334) | Tsum geometric pnat | zeta-from-theta |
+| [`tsum_theta_le_geometric`](../zeta-from-theta/lean/Zeta.lean#L357) | Tsum theta le geometric | zeta-from-theta |
+| [`norm_psi_le`](../zeta-from-theta/lean/Zeta.lean#L389) | Norm psi le | zeta-from-theta |
+| [`measurable_theta`](../zeta-from-theta/lean/Zeta.lean#L401) | Measurable theta | zeta-from-theta |
+| [`measurable_psi`](../zeta-from-theta/lean/Zeta.lean#L405) | Measurable psi | zeta-from-theta |
+| [`norm_psi_le_Ioi`](../zeta-from-theta/lean/Zeta.lean#L409) | Norm psi le Ioi | zeta-from-theta |
+| [`integrableOn_psi_cpow_Ioi`](../zeta-from-theta/lean/Zeta.lean#L421) | Integrable On psi cpow Ioi | zeta-from-theta |
+| [`norm_psi_le_inv_sqrt`](../zeta-from-theta/lean/Zeta.lean#L453) | Norm psi le inv sqrt | zeta-from-theta |
+| [`integrableOn_rpow_Ioo`](../zeta-from-theta/lean/Zeta.lean#L496) | Integrable On rpow Ioo | zeta-from-theta |
+| [`integrableOn_psi_cpow_Ioo`](../zeta-from-theta/lean/Zeta.lean#L529) | Integrable On psi cpow Ioo | zeta-from-theta |
+| [`mellin_psi_split`](../zeta-from-theta/lean/Zeta.lean#L573) | Mellin psi split | zeta-from-theta |
+| [`psi_one_div_mul_cpow`](../zeta-from-theta/lean/Zeta.lean#L609) | Psi one div mul cpow | zeta-from-theta |
+| [`integrableOn_psi_cpow_Ioi'`](../zeta-from-theta/lean/Zeta.lean#L638) | Integrable On psi cpow Ioi' | zeta-from-theta |
+| [`integral_Ioi_psi_one_div`](../zeta-from-theta/lean/Zeta.lean#L695) | Integral Ioi psi one div | zeta-from-theta |
+| [`completedRiemannZeta_eq_symmetric_integral`](../zeta-from-theta/lean/Zeta.lean#L749) | Completed Riemann Zeta eq symmetric integral | zeta-from-theta |
+| [`completedRiemannZeta_eq_LambdaTilde`](../zeta-from-theta/lean/Zeta.lean#L786) | Completed Riemann Zeta eq Lambda Tilde | zeta-from-theta |
+| [`LambdaTilde_one_sub`](../zeta-from-theta/lean/Zeta.lean#L790) | Lambda Tilde one sub | zeta-from-theta |
+| [`hasDerivAt_cpow_affine`](../zeta-from-theta/lean/Zeta.lean#L809) | Has Deriv At cpow affine | zeta-from-theta |
+| [`integrableOn_log_mul_rpow_mul_exp`](../zeta-from-theta/lean/Zeta.lean#L823) | Integrable On log mul rpow mul exp | zeta-from-theta |
+| [`mellin_indicator_Ioi_psi`](../zeta-from-theta/lean/Zeta.lean#L858) | Mellin indicator Ioi psi | zeta-from-theta |
+| [`isBigO_indicator_psi_top`](../zeta-from-theta/lean/Zeta.lean#L872) | Is Big O indicator psi top | zeta-from-theta |
+| [`isBigO_indicator_psi_zero`](../zeta-from-theta/lean/Zeta.lean#L897) | Is Big O indicator psi zero | zeta-from-theta |
+| [`locallyIntegrableOn_indicator_psi`](../zeta-from-theta/lean/Zeta.lean#L907) | Locally Integrable On indicator psi | zeta-from-theta |
+| [`differentiableAt_mellin_indicator`](../zeta-from-theta/lean/Zeta.lean#L958) | Differentiable At mellin indicator | zeta-from-theta |
+| [`LambdaTilde_eq_mellin`](../zeta-from-theta/lean/Zeta.lean#L965) | Lambda Tilde eq mellin | zeta-from-theta |
+| [`differentiableAt_LambdaTilde`](../zeta-from-theta/lean/Zeta.lean#L996) | Differentiable At Lambda Tilde | zeta-from-theta |
+| [`completedRiemannZeta_eq_LambdaTilde_all`](../zeta-from-theta/lean/Zeta.lean#L1025) | Completed Riemann Zeta eq Lambda Tilde all | zeta-from-theta |
+| [`completedRiemannZeta_one_sub_theta`](../zeta-from-theta/lean/Zeta.lean#L1060) | Completed Riemann Zeta one sub theta | zeta-from-theta |
+| [`riemannZeta_one_sub_theta`](../zeta-from-theta/lean/Zeta.lean#L1072) | Riemann Zeta one sub theta | zeta-from-theta |
+| [`riemannZeta_one_sub_theta'`](../zeta-from-theta/lean/Zeta.lean#L1104) | Riemann Zeta one sub theta' | zeta-from-theta |
+
+## [`zeta-functional-equation/lean/FunctionalEquation.lean`](zeta-functional-equation__lean__FunctionalEquation.lean.md)
+
+### topics
+
+- [`zeta-functional-equation`](../zeta-functional-equation/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|
+| [`completedZeta_one_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L25) | T1. | zeta-functional-equation |
+| [`completedZeta₀_one_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L30) | T2. | zeta-functional-equation |
+| [`zeta_one_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L35) | T3. | zeta-functional-equation |
+| [`completedZeta_zero_iff_one_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L42) | T4. | zeta-functional-equation |
+| [`completedZeta₀_zero_iff_one_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L47) | T5. | zeta-functional-equation |
+| [`completedZeta₀_entire`](../zeta-functional-equation/lean/FunctionalEquation.lean#L54) | T6. | zeta-functional-equation |
+| [`completedZeta_differentiableAt`](../zeta-functional-equation/lean/FunctionalEquation.lean#L59) | T7. | zeta-functional-equation |
+| [`differentiableAt_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L64) | T8. | zeta-functional-equation |
+| [`analyticAt_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L69) | T9. | zeta-functional-equation |
+| [`zeta_ne_zero_of_one_lt_re`](../zeta-functional-equation/lean/FunctionalEquation.lean#L75) | T10. | zeta-functional-equation |
+| [`zeta_eq_completed_div`](../zeta-functional-equation/lean/FunctionalEquation.lean#L80) | T11. | zeta-functional-equation |
+| [`Gammaℝ_ne_zero`](../zeta-functional-equation/lean/FunctionalEquation.lean#L85) | T12. | zeta-functional-equation |
+| [`zeta_zero_iff_completed_zero`](../zeta-functional-equation/lean/FunctionalEquation.lean#L101) | T13. | zeta-functional-equation |
+| [`analyticAt_logDeriv_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L117) | T14. | zeta-functional-equation |
+| [`differentiableAt_logDeriv_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L130) | T15. | zeta-functional-equation |
+| [`zeta_zero`](../zeta-functional-equation/lean/FunctionalEquation.lean#L135) | T16. | zeta-functional-equation |
+| [`zeta_two`](../zeta-functional-equation/lean/FunctionalEquation.lean#L139) | T17. | zeta-functional-equation |
+| [`zeta_two_ne_zero`](../zeta-functional-equation/lean/FunctionalEquation.lean#L143) | T18. | zeta-functional-equation |
+| [`zeta_neg_two_mul_nat_add_one`](../zeta-functional-equation/lean/FunctionalEquation.lean#L149) | T19. | zeta-functional-equation |
+| [`completedZeta_residue_one`](../zeta-functional-equation/lean/FunctionalEquation.lean#L154) | T20. | zeta-functional-equation |
+| [`completedZeta_one`](../zeta-functional-equation/lean/FunctionalEquation.lean#L159) | T21. | zeta-functional-equation |
+| [`zeta_conj`](../zeta-functional-equation/lean/FunctionalEquation.lean#L168) | T22. | zeta-functional-equation |
+| [`zeta_zero_conj`](../zeta-functional-equation/lean/FunctionalEquation.lean#L173) | T23. | zeta-functional-equation |
+| [`zeta_zero_one_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L178) | T24. | zeta-functional-equation |
+| [`zeta_zero_quadruple`](../zeta-functional-equation/lean/FunctionalEquation.lean#L185) | T25. | zeta-functional-equation |
+| [`Gammaℝ_eq_zero_iff`](../zeta-functional-equation/lean/FunctionalEquation.lean#L205) | Γℝ vanishes exactly at the negative even integers. | zeta-functional-equation |
+| [`completedZeta_eq_zeta_mul_Gammaℝ`](../zeta-functional-equation/lean/FunctionalEquation.lean#L223) | Λ(s) = ζ(s)·Γℝ(s) when Γℝ(s) ≠ 0. | zeta-functional-equation |
+| [`zeta_zero_of_re_neg`](../zeta-functional-equation/lean/FunctionalEquation.lean#L230) | T26. | zeta-functional-equation |
+| [`tendsto_logDeriv_zero`](../zeta-functional-equation/lean/FunctionalEquation.lean#L283) | T27. | zeta-functional-equation |
+| [`logDeriv_prod_linear`](../zeta-functional-equation/lean/FunctionalEquation.lean#L313) | T28. | zeta-functional-equation |
+| [`logDeriv_zeta_eq_sum_add`](../zeta-functional-equation/lean/FunctionalEquation.lean#L326) | T29. | zeta-functional-equation |
+| [`not_summable_vonMangoldt_div_sqrt`](../zeta-functional-equation/lean/FunctionalEquation.lean#L343) | T30. | zeta-functional-equation |
+| [`boundaryIntegral_eq_zero_of_differentiableOn`](../zeta-functional-equation/lean/FunctionalEquation.lean#L409) | T31. | zeta-functional-equation |
+| [`boundaryIntegral_eq_zero_of_off_countable`](../zeta-functional-equation/lean/FunctionalEquation.lean#L417) | T32. | zeta-functional-equation |
+| [`verticalDifference_eq_of_boundary`](../zeta-functional-equation/lean/FunctionalEquation.lean#L453) | T33. | zeta-functional-equation |
+| [`circleIntegral_residue`](../zeta-functional-equation/lean/FunctionalEquation.lean#L469) | T34. | zeta-functional-equation |
+| [`circleResidueTheorem_holds`](../zeta-functional-equation/lean/FunctionalEquation.lean#L527) | T35. | zeta-functional-equation |
+| [`circleResidueTheorem_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L536) | T36. | zeta-functional-equation |
+| [`circleIntegral_inv_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L544) | The kernel integral: ∮_{C(c,R)} (z − ρ)⁻¹ = 2πi for ρ inside. | zeta-functional-equation |
+| [`circleIntegral_residue_sum`](../zeta-functional-equation/lean/FunctionalEquation.lean#L554) | T37. | zeta-functional-equation |
+| [`logDeriv_zeta_eq_neg_tsum`](../zeta-functional-equation/lean/FunctionalEquation.lean#L635) | T39. | zeta-functional-equation |
+| [`summable_vonMangoldt_div_rpow`](../zeta-functional-equation/lean/FunctionalEquation.lean#L666) | T40 (O3d). | zeta-functional-equation |
+| [`intervalIntegral_tsum`](../zeta-functional-equation/lean/FunctionalEquation.lean#L683) | T41. | zeta-functional-equation |
+| [`circleIntegral_tsum`](../zeta-functional-equation/lean/FunctionalEquation.lean#L749) | T42. | zeta-functional-equation |
+| [`norm_term_le_circle`](../zeta-functional-equation/lean/FunctionalEquation.lean#L786) | O3f, the pointwise majorant. On the circle, ‖H·Λ(n)/n^z‖ is bounded by K·Λ(n)/n^(Re c − R) when ‖H‖ ≤ K on the circle. | zeta-functional-equation |
+| [`intervalIntegral_tsum_Icc`](../zeta-functional-equation/lean/FunctionalEquation.lean#L820) | T44. | zeta-functional-equation |
+| [`circleIntegral_tsum_sphere`](../zeta-functional-equation/lean/FunctionalEquation.lean#L883) | T45. | zeta-functional-equation |
+| [`primeSideCircleFormula_holds`](../zeta-functional-equation/lean/FunctionalEquation.lean#L927) | T46. | zeta-functional-equation |
+| [`boundaryIntegral_inv_sub_of_not_mem`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1001) | T47. | zeta-functional-equation |
+| [`circleIntegral_inv_sub_of_gt`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1017) | T48. | zeta-functional-equation |
+| [`tendsto_residue_mul`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1037) | T49 (O3c). | zeta-functional-equation |
+| [`tendsto_subtracted_mul`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1057) | T50. | zeta-functional-equation |
+| [`analyticAt_deriv_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1080) | T51. | zeta-functional-equation |
+| [`differentiableAt_deriv_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1085) | T52. | zeta-functional-equation |
+| [`continuousAt_deriv_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1090) | T53. | zeta-functional-equation |
+| [`differentiableAt_deriv2_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1095) | T54. | zeta-functional-equation |
+| [`continuousAt_deriv2_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1100) | T55. | zeta-functional-equation |
+| [`differentiableAt_mul_logDeriv`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1107) | T56. | zeta-functional-equation |
+| [`tendsto_subtracted_mul_sq`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1114) | T57. | zeta-functional-equation |
+| [`one_div_sqrt_two`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1143) | 1/√2 = √2/2. | zeta-functional-equation |
+| [`arcsin_sqrt_two_div_two`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1149) | arcsin (√2/2) = π/4. | zeta-functional-equation |
+| [`arcsin_neg_sqrt_two_div_two`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1155) | arcsin (−√2/2) = −π/4. | zeta-functional-equation |
+| [`norm_one_add_I_sq`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1161) | Norm one add I sq | zeta-functional-equation |
+| [`norm_one_sub_I_sq`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1166) | Norm one sub I sq | zeta-functional-equation |
+| [`arg_one_sub_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1172) | Argument of 1 − i. | zeta-functional-equation |
+| [`arg_one_add_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1182) | Argument of 1 + i. | zeta-functional-equation |
+| [`norm_neg_one_add_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1193) | Norm neg one add I | zeta-functional-equation |
+| [`norm_neg_one_sub_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1198) | Norm neg one sub I | zeta-functional-equation |
+| [`arg_neg_one_add_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1204) | Argument of −1 + i. | zeta-functional-equation |
+| [`arg_neg_one_sub_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1219) | Argument of −1 − i. | zeta-functional-equation |
+| [`hasDerivAt_log_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1232) | x ↦ log (x − ρ) has derivative (x − ρ)⁻¹ on the slit plane. | zeta-functional-equation |
+| [`integral_bottom`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1251) | The bottom side of the unit square: ∫_{-1}^{1} (x − i)⁻¹ dx = iπ/2. | zeta-functional-equation |
+| [`hasDerivAt_logShift`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1291) | logShift has derivative z⁻¹ where −z is in the slit plane. | zeta-functional-equation |
+| [`log_one_add_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1311) | log (1 + i) = log √2 + iπ/4. | zeta-functional-equation |
+| [`log_one_sub_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1319) | log (1 − i) = log √2 − iπ/4. | zeta-functional-equation |
+| [`log_neg_one_add_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1327) | log (−1 + i) = log √2 + 3iπ/4. | zeta-functional-equation |
+| [`log_neg_one_sub_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1335) | log (−1 − i) = log √2 − 3iπ/4. | zeta-functional-equation |
+| [`logShift_neg_one_add_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1343) | logShift (−1 + i) = log √2 + 3iπ/4. | zeta-functional-equation |
+| [`logShift_neg_one_sub_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1351) | logShift (−1 − i) = log √2 + 5iπ/4. | zeta-functional-equation |
+| [`hasDerivAt_log_affine`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1363) | Chain rule for t ↦ log (a + t·b) over ℝ on the slit plane. | zeta-functional-equation |
+| [`log_one_add_neg_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1386) | Log one add neg I | zeta-functional-equation |
+| [`logShift_neg_one_add_neg_I`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1391) | Log Shift neg one add neg I | zeta-functional-equation |
+| [`integral_top`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1397) | The top side of the unit square: ∫_{-1}^{1}(x+i)⁻¹dx = −iπ/2. | zeta-functional-equation |
+| [`integral_right`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1428) | The right side of the unit square: ∫_{-1}^{1}(1+iy)⁻¹dy = π/2. | zeta-functional-equation |
+| [`integral_left`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1468) | The left side of the unit square, via the shifted branch: ∫_{-1}^{1}(−1+iy)⁻¹dy = −π/2. | zeta-functional-equation |
+| [`boundaryIntegral_inv_unit_square`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1530) | The interior kernel integral for the unit square: ∮_{[−1,1]×[−1,1]} s⁻¹ ds = 2πi. | zeta-functional-equation |
+| [`zeta_taylor_eventually`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1555) | T85. | zeta-functional-equation |
+| [`zeta_peano_second_order`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1590) | T86. | zeta-functional-equation |
+| [`tendsto_tail_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1657) | T87. | zeta-functional-equation |
+| [`hasDerivAt_deriv_zeta`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1704) | T88. | zeta-functional-equation |
+| [`summable_tail_majorant`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1711) | T89. | zeta-functional-equation |
+| [`tendsto_tail_zeta'`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1780) | T90. | zeta-functional-equation |
+| [`tendsto_zeta_div`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1790) | T91. | zeta-functional-equation |
+| [`div_sub_one_div_eq`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1823) | T92 (algebra). The quotient identity behind the O3c limit: if z = h·(a + h·R) then c/z − 1/h = ((c − a)/h − R)/(z/h). | zeta-functional-equation |
+| [`tendsto_logDeriv_sub`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1837) | T92. | zeta-functional-equation |
+| [`tendsto_subtracted_H`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1919) | T94. | zeta-functional-equation |
+| [`circleMap_preimage_countable`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1958) | T95. | zeta-functional-equation |
+| [`circleIntegral_congr_off_singleton`](../zeta-functional-equation/lean/FunctionalEquation.lean#L1997) | T96. | zeta-functional-equation |
+| [`tendsto_subtracted_Hρ`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2020) | T97. | zeta-functional-equation |
+| [`circleIntegral_logDeriv_centred`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2046) | T98. | zeta-functional-equation |
+| [`circleIntegral_congr_off_finset`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2092) | T99. | zeta-functional-equation |
+| [`tendsto_subtracted_finset`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2121) | T100. | zeta-functional-equation |
+| [`circleIntegral_residue_sum_ext`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2156) | T101. | zeta-functional-equation |
+| [`continuousWithinAt_update`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2235) | T102. | zeta-functional-equation |
+| [`continuousAt_finset_sum_pole`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2256) | T103. | zeta-functional-equation |
+| [`differentiableAt_finset_sum_pole`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2274) | T104. | zeta-functional-equation |
+| [`circleIntegral_logDeriv_zeros`](../zeta-functional-equation/lean/FunctionalEquation.lean#L2298) | T105. | zeta-functional-equation |
+
+## [`zeta-functional-equation/lean/Topic.lean`](zeta-functional-equation__lean__Topic.lean.md)
+
+### topics
+
+- [`zeta-functional-equation`](../zeta-functional-equation/README.md)
+
+### proofs
+
+| lean name | proof title | applicable to topics |
+|---|---|---|

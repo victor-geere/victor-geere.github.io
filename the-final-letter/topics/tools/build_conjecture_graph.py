@@ -382,7 +382,9 @@ for parent_index, parent in enumerate(nodes):
     tokens = set(TOKEN_RE.findall(body))
     # Qualified references (Namespace.foo) also resolve to their final segment.
     tokens |= {token.rsplit(".", 1)[1] for token in tokens if "." in token}
-    for token in tokens:
+    # `tokens` is a set: iterate it in sorted order so the emitted edge list is
+    # reproducible (string hashing is randomised per process).
+    for token in sorted(tokens):
         if token == parent["label"]:
             continue
         candidates = by_name.get(token, [])

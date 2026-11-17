@@ -1051,6 +1051,19 @@ The numerical smallest eigenvalue is \(0.0214238\); the entry budget is
 [`HANDOFF-M0P-5X5.md`](../prime-spectrum-tensor/HANDOFF-M0P-5X5.md).  This too is
 a finite statement, not the infinite Weil cone.
 
+**Cross-reference: T57 and the theta route (I2).**  T57
+(`AngularPartition.completedMellinPart_one_sub`) is the annular-integral form of
+the same symmetry that the theta programme proves from Poisson summation:
+[`zeta-from-theta`](../zeta-from-theta/README.md) constructs `LambdaTheta` as the
+split theta integral and derives
+`completedRiemannZeta_eq_symmetric_integral` /
+`LambdaTilde_one_sub`, then transfers the symmetry to `ζ` as
+`zetaTheta_one_sub`.  Read side by side, the annular identity and the theta
+identity are two evaluations of the same `s ↦ 1 − s` substitution, and O7's
+continuation to `−3 < Re s` (T58–T63) is a third, contour-free route.  This is a
+cross-reference only: nothing in the T-ledger changes, and no proof here depends
+on the theta development.
+
 ### 7.10 Towards Weil positivity: the zero-side bridge
 
 The finite certificates of §7.9 are the entrywise side.  The other half of the
@@ -1416,6 +1429,7 @@ python3 -m pytest tests -q
 - [Absolute polarized Hodge-index dossier](../absolute-polarized-hodge-index-realization/README.md)
 - [Programme memo](../absolute-polarized-hodge-index-realization/PROGRAMME-MEMO.md)
 - [Periodic orbits](../periodic-orbits/README.md)
+- [Zeta from theta (T57 as the theta-side symmetry)](../zeta-from-theta/README.md)
 - [Scraps index](../../scraps.html)
 
 **No RH proof yet.**
