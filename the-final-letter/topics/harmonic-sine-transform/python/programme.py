@@ -15,7 +15,10 @@ The functions implement
 * the Haar wavelets on split nodes, in the correctly normalised zero-mean
   form used by the reconstruction, and the source's unnormalised form;
 
-* exact L² inner products of those piecewise-constant wavelets.
+* exact L² inner products of those piecewise-constant wavelets;
+
+* the exact cylinder mesh and the interval decomposition of the digit-one
+  sets (the finite structure behind open items O1 and O4).
 
 Nothing here depends on mpmath; the analytic claims of the source (Fredholm
 determinant, meromorphic continuation, explicit formula) are not computed.
@@ -25,6 +28,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from fractions import Fraction
+from math import factorial
 from typing import Iterable
 
 import sympy as sp
@@ -45,6 +49,14 @@ __all__ = [
     "haar_mean",
     "inner_product",
     "tree_intervals",
+    "cylinder_mesh",
+    "digit_one_intervals",
+    "digit_set_components",
+    "split_lengths",
+    "guide_floor_digits",
+    "guide_floor_remainder",
+    "guide_factorial_partial",
+    "guide_harmonic_partial",
 ]
 
 
@@ -148,6 +160,118 @@ def thresholds_exact(n_max: int) -> list[Fraction]:
         thresholds.append(threshold)
         intervals = cut_intervals
     return thresholds
+
+
+def cylinder_mesh(n_max: int) -> Fraction:
+    """Maximum length of a depth-``n_max`` cylinder interval.
+
+    The exact tree scan gives ``1/(n_max+1)`` for every tested depth; the
+    Lean theorem ``HST.cylinder_diameter`` proves the corresponding bound for
+    pairs of angles with the same first ``n_max`` digits.
+    """
+    if n_max < 1:
+        raise ValueError("n_max must be positive")
+    return max(hi - lo for lo, hi, _ in tree_intervals(n_max))
+
+
+def digit_one_intervals(n: int) -> list[tuple[Fraction, Fraction]]:
+    """The set ``{t : δ_n(t) = 1}`` as exact, merged intervals.
+
+    The digit set is a finite union of depth-``n`` cylinders.  In the computed
+    range it is *not* an interval for ``1 ≤ n ≤ 40`` (the source's step-function
+    picture is false); the returned list is its exact interval decomposition.
+    """
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    a = alpha_scaled(n)
+    pieces: list[tuple[Fraction, Fraction]] = []
+    for lo, hi, s in tree_intervals(n):
+        right_lo = max(lo, s + a)
+        if right_lo < hi:
+            pieces.append((right_lo, hi))
+    pieces.sort()
+    merged: list[tuple[Fraction, Fraction]] = []
+    for lo, hi in pieces:
+        if merged and merged[-1][1] == lo:
+            merged[-1] = (merged[-1][0], hi)
+        else:
+            merged.append((lo, hi))
+    return merged
+
+
+def digit_set_components(n: int) -> int:
+    """Number of connected components of ``{t : δ_n(t) = 1}``."""
+    return len(digit_one_intervals(n))
+
+
+def split_lengths(n_max: int) -> list[tuple[Fraction, Fraction, Fraction]]:
+    """Exact ``(left, right, α_n)`` lengths of every split node at depth ``n``.
+
+    The greedy cut is at ``s + α_n``.  Because every cylinder has residual zero
+    at its lower endpoint, the *left* child has length ``α_n`` and the right
+    child has length ``ℓ − α_n``.  The source text says the opposite; this
+    function lets the claim be checked exactly.
+    """
+    if n_max < 0:
+        raise ValueError("n_max must be non-negative")
+    a = alpha_scaled(n_max)
+    out: list[tuple[Fraction, Fraction, Fraction]] = []
+    for lo, hi, s in tree_intervals(n_max):
+        cut = s + a
+        if lo < cut < hi:
+            out.append((cut - lo, hi - cut, a))
+    return out
+
+
+def guide_floor_digits(t: Fraction, n_max: int) -> list[int]:
+    """Digits of the research guide's floor recursion.
+
+    ``δ_n = ⌊(n+2) r_n⌋`` and ``r_{n+1} = (n+2) r_n − δ_n``.  These digits are
+    not binary, and the associated expansion has factorial denominators; see
+    :func:`guide_factorial_partial`.
+    """
+    t = Fraction(t)
+    if n_max < 0:
+        raise ValueError("n_max must be non-negative")
+    r = t
+    digits: list[int] = []
+    for n in range(n_max + 1):
+        d = (n + 2) * r
+        digit = d.numerator // d.denominator
+        digits.append(digit)
+        r = d - digit
+    return digits
+
+
+def guide_floor_remainder(t: Fraction, n_max: int) -> Fraction:
+    """Remainder ``r_n`` after ``n_max+1`` digits of the guide's recursion."""
+    t = Fraction(t)
+    if n_max < 0:
+        raise ValueError("n_max must be non-negative")
+    r = t
+    for n in range(n_max + 1):
+        d = (n + 2) * r
+        digit = d.numerator // d.denominator
+        r = d - digit
+    return r
+
+
+def guide_factorial_partial(t: Fraction, n: int) -> Fraction:
+    """The guide's expansion with the factorial denominators it actually has."""
+    digits = guide_floor_digits(t, n - 1) if n > 0 else []
+    return sum(
+        (Fraction(d, factorial(k + 2)) for k, d in enumerate(digits)),
+        Fraction(0),
+    )
+
+
+def guide_harmonic_partial(t: Fraction, n: int) -> Fraction:
+    """The guide's expansion with the harmonic denominators it asserts."""
+    digits = guide_floor_digits(t, n - 1) if n > 0 else []
+    return sum(
+        (Fraction(d, k + 2) for k, d in enumerate(digits)),
+        Fraction(0),
+    )
 
 
 @dataclass(frozen=True)

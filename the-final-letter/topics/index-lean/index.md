@@ -3269,13 +3269,202 @@ One page per Lean file listed in the [monolith index](../index-lean.md).  Each p
 
 | lean name | proof title | applicable to topics |
 |---|---|---|
-| [`alpha_pos`](../harmonic-sine-transform/lean/Topic.lean#L47) | The harmonic angles are positive. | harmonic-sine-transform |
-| [`alpha_strictAnti`](../harmonic-sine-transform/lean/Topic.lean#L52) | The harmonic angles are strictly decreasing in n. | harmonic-sine-transform |
-| [`accum_le_self`](../harmonic-sine-transform/lean/Topic.lean#L61) | The accumulated angle never exceeds the target angle: partial sums of the greedy expansion stay below θ. | harmonic-sine-transform |
-| [`accum_eq_zero_of_lt`](../harmonic-sine-transform/lean/Topic.lean#L72) | Below the threshold α_n no earlier digit is selected, so the accumulated angle is still zero. | harmonic-sine-transform |
-| [`threshold_isLeast`](../harmonic-sine-transform/lean/Topic.lean#L83) | Threshold theorem. For the residual-subtraction convention of the source's equation (1), α_n is the *least* angle whose n-th digit is 1. | harmonic-sine-transform |
-| [`haar_normSq`](../harmonic-sine-transform/lean/Topic.lean#L117) | The Haar wavelet of a split node has squared norm 1 in the θ-normalised (L²[0,1]) picture. | harmonic-sine-transform |
-| [`haar_mean_zero`](../harmonic-sine-transform/lean/Topic.lean#L131) | The Haar wavelet has zero mean over its node: the signed child masses cancel. | harmonic-sine-transform |
+| [`alpha_pos`](../harmonic-sine-transform/lean/Topic.lean#L48) | The harmonic angles are positive. | harmonic-sine-transform |
+| [`alpha_strictAnti`](../harmonic-sine-transform/lean/Topic.lean#L53) | The harmonic angles are strictly decreasing in n. | harmonic-sine-transform |
+| [`accum_le_self`](../harmonic-sine-transform/lean/Topic.lean#L62) | The accumulated angle never exceeds the target angle: partial sums of the greedy expansion stay below θ. | harmonic-sine-transform |
+| [`accum_eq_zero_of_lt`](../harmonic-sine-transform/lean/Topic.lean#L73) | Below the threshold α_n no earlier digit is selected, so the accumulated angle is still zero. | harmonic-sine-transform |
+| [`threshold_isLeast`](../harmonic-sine-transform/lean/Topic.lean#L84) | Threshold theorem. For the residual-subtraction convention of the source's equation (1), α_n is the *least* angle whose n-th digit is 1. | harmonic-sine-transform |
+| [`residual_nonneg`](../harmonic-sine-transform/lean/Topic.lean#L114) | The residual is non-negative for θ ≥ 0: the greedy partial sums never pass the target. | harmonic-sine-transform |
+| [`residual_le_pi_div`](../harmonic-sine-transform/lean/Topic.lean#L121) | Residual bound. For 0 ≤ θ ≤ π the residual after n digits is at most π/(n+1). | harmonic-sine-transform |
+| [`tendsto_residual`](../harmonic-sine-transform/lean/Topic.lean#L153) | The residual tends to zero, so the greedy harmonic expansion converges for every θ ∈ [0, π]. | harmonic-sine-transform |
+| [`tendsto_accum`](../harmonic-sine-transform/lean/Topic.lean#L163) | The accumulated angle converges to the target: A_n(θ) → θ. | harmonic-sine-transform |
+| [`accum_eq_sum_range`](../harmonic-sine-transform/lean/Topic.lean#L171) | The partial accumulated mass is the finite sum of the selected digit contributions. | harmonic-sine-transform |
+| [`hasSum_digit_mul_alpha`](../harmonic-sine-transform/lean/Topic.lean#L188) | Greedy expansion theorem. For every θ ∈ [0, π], θ = Σ_n δ_n(θ) α_n. | harmonic-sine-transform |
+| [`hasSum_digit_div_pi`](../harmonic-sine-transform/lean/Topic.lean#L201) | The π-normalised form of the expansion, matching the source's equation (2) literally: θ/π = Σ_n δ_n(θ)/(n+2). | harmonic-sine-transform |
+| [`digits_eq_imp_eq`](../harmonic-sine-transform/lean/Topic.lean#L211) | Separation. If two angles in [0, π] have the same greedy digits then they are equal. | harmonic-sine-transform |
+| [`cylinder_diameter`](../harmonic-sine-transform/lean/Topic.lean#L231) | Cylinder diameter. Two angles whose first n digits agree differ by at most π/(n+1). | harmonic-sine-transform |
+| [`abs_sin_sub_sin_accum_le`](../harmonic-sine-transform/lean/Topic.lean#L253) | Sine convergence with rate. The source's O(1/n) sine-error claim, made quantitative: \|sin θ − sin A_n(θ)\| ≤ π/(n+1). | harmonic-sine-transform |
+| [`haar_normSq`](../harmonic-sine-transform/lean/Topic.lean#L271) | The Haar wavelet of a split node has squared norm 1 in the θ-normalised (L²[0,1]) picture. | harmonic-sine-transform |
+| [`haar_mean_zero`](../harmonic-sine-transform/lean/Topic.lean#L285) | The Haar wavelet has zero mean over its node: the signed child masses cancel. | harmonic-sine-transform |
+| [`source_haar_normSq`](../harmonic-sine-transform/lean/Topic.lean#L337) | Under the source's prose convention the displayed wavelet has squared norm 2, not 1. | harmonic-sine-transform |
+| [`source_haar_mean`](../harmonic-sine-transform/lean/Topic.lean#L346) | Under the source's prose convention the displayed wavelet has mean √b − √a, which vanishes only when the children have equal length. | harmonic-sine-transform |
+| [`actual_source_normSq`](../harmonic-sine-transform/lean/Topic.lean#L361) | On the actual tree the displayed wavelet has squared norm a/b + b/a, not the constant 2. | harmonic-sine-transform |
+| [`actual_source_mean`](../harmonic-sine-transform/lean/Topic.lean#L369) | On the actual tree the displayed wavelet has mean −a/√b + b/√a. | harmonic-sine-transform |
+| [`actual_source_normSq_ge_two`](../harmonic-sine-transform/lean/Topic.lean#L378) | The actual-tree squared norm is at least 2, with equality only in the equal-child case. | harmonic-sine-transform |
+| [`source_threshold_three_wrong`](../harmonic-sine-transform/lean/Topic.lean#L396) | The source's listed third threshold is wrong: δ₃(5π/12) = 0, so 5π/12 is not a threshold for digit 3. | harmonic-sine-transform |
+| [`digit_not_monotone_explicit`](../harmonic-sine-transform/lean/Topic.lean#L403) | The digits are not monotone in θ: δ₁(2π/5) = 1 but δ₁(11π/20) = 0, although 2π/5 < 11π/20. | harmonic-sine-transform |
+| [`floorRem_succ`](../harmonic-sine-transform/lean/Topic.lean#L429) | Floor Rem succ | harmonic-sine-transform |
+| [`floor_step_algebra`](../harmonic-sine-transform/lean/Topic.lean#L443) | Floor step algebra | harmonic-sine-transform |
+| [`floor_factorial_identity`](../harmonic-sine-transform/lean/Topic.lean#L463) | Factorial expansion identity. The guide's recursion reconstructs t with factorial denominators, not harmonic ones: t = Σ_{k<n} δ_k/(k+2)! | harmonic-sine-transform |
+| [`floor_digit_not_binary`](../harmonic-sine-transform/lean/Topic.lean#L475) | The guide's recursion is not binary: at t = 9/10 its second digit is 2. | harmonic-sine-transform |
+| [`floor_harmonic_partial_gt_target`](../harmonic-sine-transform/lean/Topic.lean#L481) | The guide's harmonic-denominator partial sum already exceeds the target at t = 9/10: Σ_{k<4} δ_k/(k+2) = 121/60 > 9/10. | harmonic-sine-transform |
+| [`floor_factorial_partial_eq_target`](../harmonic-sine-transform/lean/Topic.lean#L489) | The factorial-denominator partial sum does reconstruct the target: Σ_{k<5} δ_k/(k+2)! | harmonic-sine-transform |
+| [`cut_pos`](../harmonic-sine-transform/lean/Topic.lean#L520) | Cut pos | harmonic-sine-transform |
+| [`TilesFrom.append`](../harmonic-sine-transform/lean/Topic.lean#L541) | Tiles From.append | harmonic-sine-transform |
+| [`splitAt_tiles`](../harmonic-sine-transform/lean/Topic.lean#L553) | Split At tiles | harmonic-sine-transform |
+| [`tiles_flatMap`](../harmonic-sine-transform/lean/Topic.lean#L559) | Tiles flat Map | harmonic-sine-transform |
+| [`partition_tiles`](../harmonic-sine-transform/lean/Topic.lean#L583) | F1 tiling. The depth-n partition tiles [0,1) in order. | harmonic-sine-transform |
+| [`splitAt_length_le`](../harmonic-sine-transform/lean/Topic.lean#L590) | Split At length le | harmonic-sine-transform |
+| [`splitAt_left_length`](../harmonic-sine-transform/lean/Topic.lean#L618) | F1 left split length. When a cylinder splits at depth n, the left child has length exactly 1/(n+2). | harmonic-sine-transform |
+| [`splitAt_right_length`](../harmonic-sine-transform/lean/Topic.lean#L631) | F1 right split length. When a cylinder splits at depth n, the right child starts at the cut and has length c.length − 1/(n+2). | harmonic-sine-transform |
+| [`TilesFrom.exists_mem`](../harmonic-sine-transform/lean/Topic.lean#L643) | If a list tiles [a,b), every point of [a,b) lies in one of its cylinders. | harmonic-sine-transform |
+| [`partition_cover`](../harmonic-sine-transform/lean/Topic.lean#L660) | F1 coverage. Every x ∈ [0,1) lies in a depth-n cylinder. | harmonic-sine-transform |
+| [`TilesFrom.start_le`](../harmonic-sine-transform/lean/Topic.lean#L665) | In a tiling, every later cylinder starts at or after the start of the list. | harmonic-sine-transform |
+| [`TilesFrom.unique`](../harmonic-sine-transform/lean/Topic.lean#L676) | A tiling determines the cylinder containing a point uniquely. | harmonic-sine-transform |
+| [`partition_unique`](../harmonic-sine-transform/lean/Topic.lean#L697) | F1 uniqueness. The depth-n cylinder containing x is unique. | harmonic-sine-transform |
+| [`partition_mesh`](../harmonic-sine-transform/lean/Topic.lean#L704) | F1 mesh bound. Every depth-n cylinder has length at most 1/(n+1). | harmonic-sine-transform |
+| [`TilesFrom.cast`](../harmonic-sine-transform/lean/Topic.lean#L753) | Tiles From.cast | harmonic-sine-transform |
+| [`partitionR_tiles`](../harmonic-sine-transform/lean/Topic.lean#L769) | O1 real tiling. The real partition tiles [0,1). | harmonic-sine-transform |
+| [`TilesFromR.exists_mem`](../harmonic-sine-transform/lean/Topic.lean#L773) | Tiles From R.exists mem | harmonic-sine-transform |
+| [`TilesFromR.start_le`](../harmonic-sine-transform/lean/Topic.lean#L789) | Tiles From R.start le | harmonic-sine-transform |
+| [`TilesFromR.unique`](../harmonic-sine-transform/lean/Topic.lean#L799) | Tiles From R.unique | harmonic-sine-transform |
+| [`partitionR_cover`](../harmonic-sine-transform/lean/Topic.lean#L820) | O1 real coverage. Every x ∈ [0,1) lies in a real depth-n cylinder. | harmonic-sine-transform |
+| [`partitionR_unique`](../harmonic-sine-transform/lean/Topic.lean#L825) | O1 real uniqueness. The real depth-n cylinder containing x is unique. | harmonic-sine-transform |
+| [`partitionR_mesh`](../harmonic-sine-transform/lean/Topic.lean#L833) | O1 real mesh. Every real depth-n cylinder has length at most 1/(n+1). | harmonic-sine-transform |
+| [`exists_partition_oscillation_lt`](../harmonic-sine-transform/lean/Topic.lean#L847) | O1 uniform oscillation. For every continuous f on [0,1] and every ε > 0, some depth-n partition has oscillation at most ε on every cylinder. | harmonic-sine-transform |
+| [`cylinderRep_spec`](../harmonic-sine-transform/lean/Topic.lean#L881) | Cylinder Rep spec | harmonic-sine-transform |
+| [`cylinderRep_eq_of_mem`](../harmonic-sine-transform/lean/Topic.lean#L887) | Cylinder Rep eq of mem | harmonic-sine-transform |
+| [`cylinderStep_eq_of_mem`](../harmonic-sine-transform/lean/Topic.lean#L900) | Cylinder Step eq of mem | harmonic-sine-transform |
+| [`exists_cylinder_step_approx`](../harmonic-sine-transform/lean/Topic.lean#L911) | O1 step approximation. Every continuous f on [0,1] is uniformly approximated on [0,1) by a function constant on depth-n cylinders. | harmonic-sine-transform |
+| [`cylinderStep_isCylinderStep`](../harmonic-sine-transform/lean/Topic.lean#L934) | Cylinder Step is Cylinder Step | harmonic-sine-transform |
+| [`cylinder_step_dense`](../harmonic-sine-transform/lean/Topic.lean#L945) | O1 density. Continuous functions on [0,1] are uniformly approximated by cylinder step functions. | harmonic-sine-transform |
+| [`splitAt_length`](../harmonic-sine-transform/lean/Topic.lean#L959) | Split At length | harmonic-sine-transform |
+| [`length_flatMap_splitAt`](../harmonic-sine-transform/lean/Topic.lean#L964) | Length flat Map split At | harmonic-sine-transform |
+| [`partition_length_succ`](../harmonic-sine-transform/lean/Topic.lean#L981) | O1 dimension count, step. Refining from depth n to n+1 adds one cylinder for each split parent. | harmonic-sine-transform |
+| [`partition_length`](../harmonic-sine-transform/lean/Topic.lean#L990) | O1 dimension count. The depth-n partition has 1 + the total number of splits above it. | harmonic-sine-transform |
+| [`cylInd_parent_eq_add`](../harmonic-sine-transform/lean/Topic.lean#L1018) | Local partition identity. A parent indicator is the sum of its two child indicators. | harmonic-sine-transform |
+| [`cylInd_left_eq_smul`](../harmonic-sine-transform/lean/Topic.lean#L1047) | Local Haar identity, left child. The left-child indicator is a linear combination of the parent indicator and the Haar difference. | harmonic-sine-transform |
+| [`cylInd_right_eq_smul`](../harmonic-sine-transform/lean/Topic.lean#L1069) | Local Haar identity, right child. The right-child indicator is the complementary linear combination. | harmonic-sine-transform |
+| [`cylInd_left_mem_span`](../harmonic-sine-transform/lean/Topic.lean#L1091) | The left-child indicator lies in the span of the parent indicator and the Haar difference. | harmonic-sine-transform |
+| [`cylInd_right_mem_span`](../harmonic-sine-transform/lean/Topic.lean#L1101) | The right-child indicator lies in the span of the parent indicator and the Haar difference. | harmonic-sine-transform |
+| [`splitAt_eq_children`](../harmonic-sine-transform/lean/Topic.lean#L1118) | Split At eq children | harmonic-sine-transform |
+| [`haarGens_subset_succ`](../harmonic-sine-transform/lean/Topic.lean#L1138) | Haar Gens subset succ | harmonic-sine-transform |
+| [`haarGens_mono`](../harmonic-sine-transform/lean/Topic.lean#L1141) | Haar Gens mono | harmonic-sine-transform |
+| [`haarSpan_mono`](../harmonic-sine-transform/lean/Topic.lean#L1146) | Haar Span mono | harmonic-sine-transform |
+| [`splitAt_eq_self`](../harmonic-sine-transform/lean/Topic.lean#L1150) | Split At eq self | harmonic-sine-transform |
+| [`root_mem_partition_zero`](../harmonic-sine-transform/lean/Topic.lean#L1155) | Root mem partition zero | harmonic-sine-transform |
+| [`span_pair_le_haarSpan_succ`](../harmonic-sine-transform/lean/Topic.lean#L1158) | Span pair le haar Span succ | harmonic-sine-transform |
+| [`cylInd_mem_haarSpan`](../harmonic-sine-transform/lean/Topic.lean#L1175) | O1 cylinder-to-Haar span. Every depth-n cylinder indicator lies in the span of the root indicator and the Haar differences above it. | harmonic-sine-transform |
+| [`indicatorSpan_le_haarSpan`](../harmonic-sine-transform/lean/Topic.lean#L1206) | O1 indicator span inside the Haar span. The span of the depth-n cylinder indicators is contained in the constant-plus-Haar span. | harmonic-sine-transform |
+| [`indicatorSpanR_le_haarSpan`](../harmonic-sine-transform/lean/Topic.lean#L1217) | Indicator Span R le haar Span | harmonic-sine-transform |
+| [`cylSum_mem_haarSpan`](../harmonic-sine-transform/lean/Topic.lean#L1226) | Cyl Sum mem haar Span | harmonic-sine-transform |
+| [`cylInd_apply_of_not_mem`](../harmonic-sine-transform/lean/Topic.lean#L1236) | Cyl Ind apply of not mem | harmonic-sine-transform |
+| [`cylSum_apply_of_mem`](../harmonic-sine-transform/lean/Topic.lean#L1240) | Cyl Sum apply of mem | harmonic-sine-transform |
+| [`haarSpan_dense`](../harmonic-sine-transform/lean/Topic.lean#L1261) | O1 Haar-span density. Continuous functions on [0,1] are uniformly approximated by elements of the constant-plus-Haar span. | harmonic-sine-transform |
+| [`unitMeasure_univ`](../harmonic-sine-transform/lean/Topic.lean#L1274) | Unit Measure univ | harmonic-sine-transform |
+| [`cylInd_aestronglyMeasurable`](../harmonic-sine-transform/lean/Topic.lean#L1277) | Cyl Ind aestrongly Measurable | harmonic-sine-transform |
+| [`cylSum_aestronglyMeasurable`](../harmonic-sine-transform/lean/Topic.lean#L1282) | Cyl Sum aestrongly Measurable | harmonic-sine-transform |
+| [`haarSpan_eLpNorm_approx`](../harmonic-sine-transform/lean/Topic.lean#L1296) | O1 L² approximation. Every continuous function on [0,1] is approximated in L²(unitMeasure) by an element of the constant-plus-Haar span. | harmonic-sine-transform |
+| [`cylSum_memLp`](../harmonic-sine-transform/lean/Topic.lean#L1318) | The finite cylinder-step sum is in L² for continuous f. | harmonic-sine-transform |
+| [`memLp_of_continuousOn`](../harmonic-sine-transform/lean/Topic.lean#L1328) | A function continuous on [0,1] is in L²(unitMeasure). | harmonic-sine-transform |
+| [`cylSum_eLpNorm_approx`](../harmonic-sine-transform/lean/Topic.lean#L1338) | The cylinder-step sum gives an L² approximation, stated with eLpNorm. | harmonic-sine-transform |
+| [`edist_toLp_cylSum_approx`](../harmonic-sine-transform/lean/Topic.lean#L1356) | O1 Lp-distance approximation. The Lp distance between a continuous function and its cylinder-step sum is at most ε. | harmonic-sine-transform |
+| [`exists_cylSum_edist_lt`](../harmonic-sine-transform/lean/Topic.lean#L1372) | O1 Lp density with a continuous witness. Every L² class is within ε of a cylinder-step sum coming from a continuous function. | harmonic-sine-transform |
+| [`haarSpan_dense_Lp`](../harmonic-sine-transform/lean/Topic.lean#L1407) | O1 Haar-span Lp density. Every L² class is within ε of the image of an element of the constant-plus-Haar span. | harmonic-sine-transform |
+| [`haar_complete`](../harmonic-sine-transform/lean/Topic.lean#L1416) | Haar completeness (density form). The constant-plus-Haar span is dense in L²([0,1)). | harmonic-sine-transform |
+| [`haarScale_pos`](../harmonic-sine-transform/lean/Topic.lean#L1426) | Haar Scale pos | harmonic-sine-transform |
+| [`haarFun_eq_smul`](../harmonic-sine-transform/lean/Topic.lean#L1434) | Haar Fun eq smul | harmonic-sine-transform |
+| [`span_haarFun_eq_span_haarDiff`](../harmonic-sine-transform/lean/Topic.lean#L1439) | The normalised wavelet spans the same one-dimensional space as the unnormalised Haar difference. | harmonic-sine-transform |
+| [`haarFun_mem_span_haarDiff`](../harmonic-sine-transform/lean/Topic.lean#L1475) | Haar Fun mem span haar Diff | harmonic-sine-transform |
+| [`haarDiff_mem_span_haarFun`](../harmonic-sine-transform/lean/Topic.lean#L1480) | Haar Diff mem span haar Fun | harmonic-sine-transform |
+| [`length_leftChild_pos`](../harmonic-sine-transform/lean/Topic.lean#L1489) | Length left Child pos | harmonic-sine-transform |
+| [`length_rightChild_pos`](../harmonic-sine-transform/lean/Topic.lean#L1494) | Length right Child pos | harmonic-sine-transform |
+| [`span_haarDiffAtNorm_eq`](../harmonic-sine-transform/lean/Topic.lean#L1499) | Span haar Diff At Norm eq | harmonic-sine-transform |
+| [`haarSpanNorm_eq`](../harmonic-sine-transform/lean/Topic.lean#L1523) | Normalised span equality. The constant-plus-normalised-Haar span equals the constant-plus-haarDiff span at every depth. | harmonic-sine-transform |
+| [`haar_complete_norm`](../harmonic-sine-transform/lean/Topic.lean#L1535) | Normalised Haar completeness. The constant-plus-normalised-Haar span is dense in L²([0,1)). | harmonic-sine-transform |
+| [`haarFun_coeff_normSq`](../harmonic-sine-transform/lean/Topic.lean#L1543) | The normalised wavelet has unit squared coefficient norm. | harmonic-sine-transform |
+| [`haarFun_coeff_mean`](../harmonic-sine-transform/lean/Topic.lean#L1560) | The normalised wavelet has zero signed coefficient mass. | harmonic-sine-transform |
+| [`haarFun_apply_of_not_mem`](../harmonic-sine-transform/lean/Topic.lean#L1572) | The normalised wavelet vanishes outside its two children. | harmonic-sine-transform |
+| [`residual_succ_le`](../harmonic-sine-transform/lean/Topic.lean#L1579) | The residual is non-increasing. | harmonic-sine-transform |
+| [`residual_antitone`](../harmonic-sine-transform/lean/Topic.lean#L1588) | Residual antitone | harmonic-sine-transform |
+| [`residual_succ_le_of_digit_eq_one`](../harmonic-sine-transform/lean/Topic.lean#L1595) | A selected digit leaves residual at most π/((n+1)(n+2)). | harmonic-sine-transform |
+| [`alpha_le_residual_of_digit_eq_one`](../harmonic-sine-transform/lean/Topic.lean#L1624) | Alpha le residual of digit eq one | harmonic-sine-transform |
+| [`digit_one_gap`](../harmonic-sine-transform/lean/Topic.lean#L1638) | O3 gap bound. After a selected digit at n, any later selected digit m satisfies (n+1)(n+2) ≤ m+2. | harmonic-sine-transform |
+| [`integral_cylInd`](../harmonic-sine-transform/lean/Topic.lean#L1657) | The integral of a cylinder indicator with respect to unitMeasure is its length. | harmonic-sine-transform |
+| [`integrable_cylInd`](../harmonic-sine-transform/lean/Topic.lean#L1670) | Integrable cyl Ind | harmonic-sine-transform |
+| [`integral_haarDiff_eq_zero`](../harmonic-sine-transform/lean/Topic.lean#L1677) | Integral haar Diff eq zero | harmonic-sine-transform |
+| [`integral_haarFun_eq_zero`](../harmonic-sine-transform/lean/Topic.lean#L1687) | Integral haar Fun eq zero | harmonic-sine-transform |
+| [`digit_one_not_succ`](../harmonic-sine-transform/lean/Topic.lean#L1694) | After index 1, two consecutive digits cannot both be selected. | harmonic-sine-transform |
+| [`digit_one_doubling`](../harmonic-sine-transform/lean/Topic.lean#L1707) | O3 doubling. After index 1, a later selected index at least doubles the shifted index: 2(n+2) ≤ m+2. | harmonic-sine-transform |
+| [`haarFun_sq_eq`](../harmonic-sine-transform/lean/Topic.lean#L1715) | Pointwise square identity for the normalised wavelet on disjoint children. | harmonic-sine-transform |
+| [`integral_haarFun_sq`](../harmonic-sine-transform/lean/Topic.lean#L1732) | The normalised wavelet has unit L² norm on a split with disjoint children. | harmonic-sine-transform |
+| [`accum_eq_zero_of_lt_alpha_pred`](../harmonic-sine-transform/lean/Topic.lean#L1757) | If θ < αₙ₋₁, no digit up to n is selected. | harmonic-sine-transform |
+| [`digit_one_on_first_interval`](../harmonic-sine-transform/lean/Topic.lean#L1765) | F2/O4 first component. On the first cylinder band [αₙ, αₙ₋₁), the n-th digit is selected. | harmonic-sine-transform |
+| [`digit_one_iff_first_interval`](../harmonic-sine-transform/lean/Topic.lean#L1774) | F2/O4 first component, converse. Below αₙ₋₁, the n-th digit is selected exactly when θ ≥ αₙ. | harmonic-sine-transform |
+| [`haarFun_eq_zero_of_not_mem_parent`](../harmonic-sine-transform/lean/Topic.lean#L1791) | The normalised wavelet vanishes outside its parent interval. | harmonic-sine-transform |
+| [`integral_mul_eq_zero_of_disjoint`](../harmonic-sine-transform/lean/Topic.lean#L1801) | Disjoint-support orthogonality. Normalised Haar wavelets whose parent intervals are disjoint are orthogonal in L². | harmonic-sine-transform |
+| [`haarFun_eq_left_const`](../harmonic-sine-transform/lean/Topic.lean#L1813) | Haar Fun eq left const | harmonic-sine-transform |
+| [`haarFun_eq_right_const`](../harmonic-sine-transform/lean/Topic.lean#L1823) | Haar Fun eq right const | harmonic-sine-transform |
+| [`integral_mul_eq_zero_of_subset_left`](../harmonic-sine-transform/lean/Topic.lean#L1836) | Nested-support orthogonality (left). If one wavelet's parent lies in the left child of another, the two are orthogonal. | harmonic-sine-transform |
+| [`integral_mul_eq_zero_of_subset_right`](../harmonic-sine-transform/lean/Topic.lean#L1854) | Nested-support orthogonality (right). If one wavelet's parent lies in the right child of another, the two are orthogonal. | harmonic-sine-transform |
+| [`accum_eq_half_pi_of_lt`](../harmonic-sine-transform/lean/Topic.lean#L1871) | On the second band, the accumulated angle stays at π/2 up to depth n. | harmonic-sine-transform |
+| [`digit_one_iff_second_interval`](../harmonic-sine-transform/lean/Topic.lean#L1894) | F2/O4 second component. On the second cylinder band, the n-th digit is selected exactly when θ ≥ π/2 + π/(n+2). | harmonic-sine-transform |
+| [`digit_one_on_component`](../harmonic-sine-transform/lean/Topic.lean#L1926) | F2/O4 general component. If the first selected digit is at j and no digit is selected again until n, then the n-th digit is selected exac… | harmonic-sine-transform |
+| [`accum_eq_alpha_of_first_component`](../harmonic-sine-transform/lean/Topic.lean#L1964) | If j is the first selected digit and no digit between j and n is selected, the accumulated angle at n is αⱼ. | harmonic-sine-transform |
+| [`digit_one_component_iff`](../harmonic-sine-transform/lean/Topic.lean#L2000) | F2/O4 component converse. For the component whose first selected digit is j, the n-th digit is selected exactly when αⱼ + αₙ ≤ θ. | harmonic-sine-transform |
+| [`partitionR_disjoint`](../harmonic-sine-transform/lean/Topic.lean#L2022) | Distinct nodes of the same partition have disjoint intervals. | harmonic-sine-transform |
+| [`integral_mul_eq_zero_of_partition_ne`](../harmonic-sine-transform/lean/Topic.lean#L2031) | Same-depth orthogonality. Wavelets on distinct nodes of the same partition are orthogonal. | harmonic-sine-transform |
+| [`partitionR_succ_parent`](../harmonic-sine-transform/lean/Topic.lean#L2044) | Every real depth-n+1 node is its parent or a strict child of it. | harmonic-sine-transform |
+| [`partitionR_succ_subset_parent`](../harmonic-sine-transform/lean/Topic.lean#L2072) | Every real depth-n+1 node is contained in its parent. | harmonic-sine-transform |
+| [`partitionR_subset_or_disjoint`](../harmonic-sine-transform/lean/Topic.lean#L2086) | Refinement. A node at a deeper level is either contained in a given node or disjoint from it. | harmonic-sine-transform |
+| [`partitionR_subset_of_not_disjoint`](../harmonic-sine-transform/lean/Topic.lean#L2102) | If a deeper node is not disjoint from a shallower one, it is contained in it. | harmonic-sine-transform |
+| [`partitionR_eq_of_subset`](../harmonic-sine-transform/lean/Topic.lean#L2109) | Same-depth containment forces equality. | harmonic-sine-transform |
+| [`partitionR_disjoint_or_subset`](../harmonic-sine-transform/lean/Topic.lean#L2119) | Tree order. Any two real partition nodes (at any depths) are either disjoint, or one is contained in the other. | harmonic-sine-transform |
+| [`cut_cast`](../harmonic-sine-transform/lean/Topic.lean#L2132) | Cut cast | harmonic-sine-transform |
+| [`partitionR_succ_child_or_self`](../harmonic-sine-transform/lean/Topic.lean#L2136) | Exact child-or-self form of the real refinement. | harmonic-sine-transform |
+| [`partitionR_succ_subset_child_or_eq`](../harmonic-sine-transform/lean/Topic.lean#L2172) | One-step child containment. A depth-n+1 node contained in a depth-n node is either that node or lies in one of its two children. | harmonic-sine-transform |
+| [`child_intervals_disjoint`](../harmonic-sine-transform/lean/Topic.lean#L2203) | The two child intervals of a split at cutR n d are disjoint. | harmonic-sine-transform |
+| [`Cyl_toReal_injective`](../harmonic-sine-transform/lean/Topic.lean#L2208) | Cyl to Real injective | harmonic-sine-transform |
+| [`splitAt_subset`](../harmonic-sine-transform/lean/Topic.lean#L2220) | Split At subset | harmonic-sine-transform |
+| [`partition_mem_succ_unsplit`](../harmonic-sine-transform/lean/Topic.lean#L2233) | Partition mem succ unsplit | harmonic-sine-transform |
+| [`partitionR_persist_unsplit`](../harmonic-sine-transform/lean/Topic.lean#L2253) | Split-node persistence. A node present at two consecutive depths is unsplit at the earlier depth. | harmonic-sine-transform |
+| [`subset_of_child_or_self`](../harmonic-sine-transform/lean/Topic.lean#L2267) | Subset of child or self | harmonic-sine-transform |
+| [`partitionR_mem_succ_of_mem_of_lt`](../harmonic-sine-transform/lean/Topic.lean#L2283) | Membership monotonicity. A node present at depths m < n is already present at depth m + 1. | harmonic-sine-transform |
+| [`partitionR_not_mem_of_splits`](../harmonic-sine-transform/lean/Topic.lean#L2316) | A node that splits at depth m does not appear at any deeper depth. | harmonic-sine-transform |
+| [`partitionR_subset_child_of_lt`](../harmonic-sine-transform/lean/Topic.lean#L2327) | Arbitrary-depth child containment. A deeper node inside a splitting shallower node lies in its left or right child. | harmonic-sine-transform |
+| [`integral_mul_eq_zero_of_haar_cases`](../harmonic-sine-transform/lean/Topic.lean#L2367) | Pairwise orthogonality from the four local cases. If two Haar parents are disjoint, or one lies in a child of the other, the wavelets are… | harmonic-sine-transform |
+| [`CylR_eq_of_subset_both`](../harmonic-sine-transform/lean/Topic.lean#L2386) | Cyl R eq of subset both | harmonic-sine-transform |
+| [`integral_mul_eq_zero_of_partition_parents`](../harmonic-sine-transform/lean/Topic.lean#L2400) | General pairwise orthogonality. Wavelets whose parents are partition nodes, with the split point matching the partition cut, are orthogon… | harmonic-sine-transform |
+| [`cylInd_root_apply`](../harmonic-sine-transform/lean/Topic.lean#L2469) | Cyl Ind root apply | harmonic-sine-transform |
+| [`integral_root_sq`](../harmonic-sine-transform/lean/Topic.lean#L2476) | The root indicator has unit L² norm. | harmonic-sine-transform |
+| [`integral_root_mul_haarFun`](../harmonic-sine-transform/lean/Topic.lean#L2490) | The root indicator is orthogonal to every normalised wavelet. | harmonic-sine-transform |
+| [`haarGensNorm_cases`](../harmonic-sine-transform/lean/Topic.lean#L2502) | Every normalised generator is the root indicator or a wavelet at some partition node below the depth. | harmonic-sine-transform |
+| [`leftChild_toReal_length_pos`](../harmonic-sine-transform/lean/Topic.lean#L2521) | Left Child to Real length pos | harmonic-sine-transform |
+| [`rightChild_toReal_length_pos`](../harmonic-sine-transform/lean/Topic.lean#L2526) | Right Child to Real length pos | harmonic-sine-transform |
+| [`haarGensNorm_unit`](../harmonic-sine-transform/lean/Topic.lean#L2533) | Every normalised generator has unit L² norm. | harmonic-sine-transform |
+| [`haarDiffAtNorm_parent_data`](../harmonic-sine-transform/lean/Topic.lean#L2545) | Parent data for a normalised wavelet generator. | harmonic-sine-transform |
+| [`root_ne_haarFun`](../harmonic-sine-transform/lean/Topic.lean#L2561) | The root indicator is distinct from every normalised wavelet. | harmonic-sine-transform |
+| [`wavelet_parent_split_of_data`](../harmonic-sine-transform/lean/Topic.lean#L2571) | Wavelet parent split of data | harmonic-sine-transform |
+| [`haarFun_eq_of_parent_eq`](../harmonic-sine-transform/lean/Topic.lean#L2580) | Two normalised wavelets with the same parent interval are equal. | harmonic-sine-transform |
+| [`haarGensNorm_orthogonal`](../harmonic-sine-transform/lean/Topic.lean#L2626) | Generator orthogonality. Distinct normalised generators are orthogonal. | harmonic-sine-transform |
+| [`integral_add_sq_of_orthonormal`](../harmonic-sine-transform/lean/Topic.lean#L2687) | Two-term isometry step. The sum of two orthogonal unit vectors has squared norm 2. | harmonic-sine-transform |
+| [`integral_add_scaled_sq`](../harmonic-sine-transform/lean/Topic.lean#L2716) | Scaled two-term isometry. For orthogonal unit f, g, the combination a f + b g has squared norm a² + b². | harmonic-sine-transform |
+| [`haarGensNorm_orthonormal`](../harmonic-sine-transform/lean/Topic.lean#L2747) | Orthonormality of the normalised generator family. | harmonic-sine-transform |
+| [`integral_add_sq_of_orthogonal`](../harmonic-sine-transform/lean/Topic.lean#L2756) | Orthogonal block additivity. Adding an orthogonal block adds squared norms. | harmonic-sine-transform |
+| [`integral_mul_finsetSum`](../harmonic-sine-transform/lean/Topic.lean#L2786) | Multiplication by a fixed function distributes over a finite sum under the integral. | harmonic-sine-transform |
+| [`integral_add_three_sq_of_orthogonal`](../harmonic-sine-transform/lean/Topic.lean#L2797) | Three-block additivity. Three pairwise orthogonal blocks add squared norms. | harmonic-sine-transform |
+| [`integral_smul_sq_of_unit`](../harmonic-sine-transform/lean/Topic.lean#L2851) | Single-generator coefficient isometry. Scaling a unit vector by c scales its squared norm by c². | harmonic-sine-transform |
+| [`integrable_finset_sum_sq`](../harmonic-sine-transform/lean/Topic.lean#L2866) | A squared finite sum is integrable when all pairwise products are. | harmonic-sine-transform |
+| [`integral_finset_sum_sq_of_orthonormal`](../harmonic-sine-transform/lean/Topic.lean#L2889) | Finite-sum coefficient isometry. For a finite orthonormal family, the squared norm of a coefficient sum is the sum of squared coefficients. | harmonic-sine-transform |
+| [`integrable_haarFun`](../harmonic-sine-transform/lean/Topic.lean#L2998) | Integrable haar Fun | harmonic-sine-transform |
+| [`integrable_root_mul_haarFun`](../harmonic-sine-transform/lean/Topic.lean#L3003) | Integrable root mul haar Fun | harmonic-sine-transform |
+| [`abs_cylInd_le_one`](../harmonic-sine-transform/lean/Topic.lean#L3009) | Abs cyl Ind le one | harmonic-sine-transform |
+| [`haarFun_abs_le`](../harmonic-sine-transform/lean/Topic.lean#L3014) | Haar Fun abs le | harmonic-sine-transform |
+| [`aestronglyMeasurable_haarFun`](../harmonic-sine-transform/lean/Topic.lean#L3033) | Aestrongly Measurable haar Fun | harmonic-sine-transform |
+| [`integrable_haarFun_mul`](../harmonic-sine-transform/lean/Topic.lean#L3040) | Integrable haar Fun mul | harmonic-sine-transform |
+| [`cylInd_root_apply_of_not_mem`](../harmonic-sine-transform/lean/Topic.lean#L3051) | Cyl Ind root apply of not mem | harmonic-sine-transform |
+| [`integrable_root_mul_root`](../harmonic-sine-transform/lean/Topic.lean#L3057) | Integrable root mul root | harmonic-sine-transform |
+| [`hst_isometry`](../harmonic-sine-transform/lean/Topic.lean#L3070) | Haar coefficient isometry. For any finite subfamily of the normalised generators, the squared L² norm of a coefficient sum is the sum of… | harmonic-sine-transform |
+| [`integrable_haarGensNorm_sq`](../harmonic-sine-transform/lean/Topic.lean#L3090) | Integrable haar Gens Norm sq | harmonic-sine-transform |
+| [`hst_isometry_single`](../harmonic-sine-transform/lean/Topic.lean#L3097) | Single-generator coefficient isometry for the Haar family. | harmonic-sine-transform |
+| [`single_component_lower_of_mul_lt`](../harmonic-sine-transform/lean/Topic.lean#L3102) | Single component lower of mul lt | harmonic-sine-transform |
+| [`accum_eq_sum_digits`](../harmonic-sine-transform/lean/Topic.lean#L3121) | Accumulator as a selected sum. The accumulated angle is the sum of the selected harmonic angles. | harmonic-sine-transform |
+| [`digit_eq_one_iff_sum_add_le`](../harmonic-sine-transform/lean/Topic.lean#L3133) | General selection criterion. Digit n is selected exactly when the sum of the earlier selected angles plus α_n does not exceed θ. | harmonic-sine-transform |
+| [`digit_one_two_selected_iff`](../harmonic-sine-transform/lean/Topic.lean#L3147) | Two-selected-index component. If exactly j and k are selected before n, then δ_n = 1 exactly when α_j + α_k + α_n ≤ θ. | harmonic-sine-transform |
+| [`digit_one_iff_selected_finset_sum_le`](../harmonic-sine-transform/lean/Topic.lean#L3154) | General component criterion. For any finite set s of earlier selected indices, δ_n = 1 exactly when ∑_{k∈s} α_k + α_n ≤ θ. | harmonic-sine-transform |
+| [`at_most_one_selected_in_doubling_interval`](../harmonic-sine-transform/lean/Topic.lean#L3161) | Local digit density. For n ≥ 1, the interval [n, 2n+1] contains at most one selected index. | harmonic-sine-transform |
+| [`at_most_one_selected_in_dyadic_block`](../harmonic-sine-transform/lean/Topic.lean#L3173) | Dyadic block density. For m ≥ 0, the dyadic block [2^m, 2^(m+1)-1] contains at most one selected index. | harmonic-sine-transform |
+| [`digit_count_le_log`](../harmonic-sine-transform/lean/Topic.lean#L3185) | Global digit-count bound. The number of selected indices in [1,N] is at most log₂ N + 1. | harmonic-sine-transform |
 
 ## [`hst-programme/lean/Topic.lean`](hst-programme__lean__Topic.lean.md)
 

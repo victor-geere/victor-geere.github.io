@@ -12,8 +12,10 @@ No RH, twin-prime, Chowla, or infinite Weil-positivity claim is made anywhere.
 
 | item | state |
 |---|---|
-| counts | **952 theorems · 393 computations · 457 tests · 48/48 Lean builds (18 files)** |
-| audit | `python3 topics/tools/audit_topics.py` → 48/48 OK |
+| ledger | **616 theorem rows · 14 computation rows · 20 pytest tests** |
+| Lean declarations | **694 theorem/lemma declarations across 30 files** |
+| default build | **22/22 files green**; `BigCheck.lean` is separate (≈639 s) |
+| audit | `python3 topics/tools/audit_topics.py` → 66/66 OK |
 | links | `python3 tools/check-links.py` → 0 broken |
 | default build | `./lean/check.sh` OK |
 | `BigCheck.lean` | verified separately, **not** in default build (≈639 s) |

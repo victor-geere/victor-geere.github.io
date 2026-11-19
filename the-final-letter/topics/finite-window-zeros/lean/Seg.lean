@@ -118,4 +118,43 @@ theorem zeta_ne_zero_segment {s : ℂ} (hs : Cx.mem s Sseg) :
     exact Bool.false_ne_true htrue
   exact zeta_ne_zero_of_eta_mem (U := {z : ℂ | Cx.mem z B}) hsre_pos hsne hB hzero
 
+/-- **Reusable rectangle certificate.**  Given a rational rectangle `S`, a
+pair list `params M`, a rational tail radius `R`, the side conditions, a
+rectangle-uniform tail bound and a zero-free folded box, `ζ` is nonvanishing on
+the whole rectangle.  This packages the height-5 segment argument so M2 can
+instantiate it at other heights. -/
+theorem zeta_ne_zero_on_rect_of_params (M : ℕ) (S : Cx) (R : ℚ)
+    (hR : 0 ≤ R)
+    (hcond : ∀ p ∈ params M, PairConditions p S)
+    (htail : ∀ s : ℂ, Cx.mem s S →
+      ‖∑' m : ℕ, pairTerm s (m + M)‖ ≤ (R : ℝ))
+    (hzero : containsZero ((sumBox (params M) S).add (PartialTail.ball R)) = false)
+    (hre : ∀ s : ℂ, Cx.mem s S → 0 < s.re)
+    (hne : ∀ s : ℂ, Cx.mem s S → s ≠ 1) :
+    ∀ s : ℂ, Cx.mem s S → riemannZeta s ≠ 0 := by
+  intro s hs
+  have hsum : Cx.mem (sumValue (params M) s) (sumBox (params M) S) :=
+    sumBox_mem (params M) S s hs hcond
+  have hsum_eq : sumValue (params M) s =
+      ∑ m ∈ Finset.range M, pairTerm s m :=
+    sumValue_params M s
+  have hsummable : Summable (fun m : ℕ => pairTerm s m) :=
+    summable_pairTerm (hre s hs)
+  have hdecomp : etaGrouped s = sumValue (params M) s +
+      ∑' m : ℕ, pairTerm s (m + M) := by
+    rw [etaGrouped, ← hsummable.sum_add_tsum_nat_add M, ← hsum_eq]
+  let B : Cx := (sumBox (params M) S).add (PartialTail.ball R)
+  have htail_mem : Cx.mem (∑' m : ℕ, pairTerm s (m + M))
+      (PartialTail.ball R) :=
+    PartialTail.mem_ball_of_norm_le hR (by simpa using htail s hs)
+  have hB : Cx.mem (etaGrouped s) B := by
+    rw [hdecomp]
+    exact Cx.mem_add hsum htail_mem
+  have hzero' : ¬ Cx.mem (0 : ℂ) B := by
+    intro h
+    have htrue := (containsZero_iff B).mpr h
+    rw [hzero] at htrue
+    exact Bool.false_ne_true htrue
+  exact zeta_ne_zero_of_eta_mem (U := {z : ℂ | Cx.mem z B}) (hre s hs) (hne s hs) hB hzero'
+
 end FiniteWindowZeros

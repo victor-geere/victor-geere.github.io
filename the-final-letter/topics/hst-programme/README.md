@@ -166,7 +166,10 @@ Recorded build: [`lean/BUILD.log`](lean/BUILD.log) — `[check] OK Topic.lean`.
 4. **Source digit conventions conflict.** The binary rule of Programme I and
    the floor rule of the research guide disagree (C6). This reconstruction
    uses the binary rule because the Haar tree and the formal core depend on
-   it; the source needs an explicit correction.
+   it; the source needs an explicit correction. The canonical item 17 now
+   proves the floor rule is factorial rather than harmonic and reconciles the
+   remaining defects in its
+   [source reconciliation](../harmonic-sine-transform/SOURCE-RECONCILIATION.md).
 5. **Endpoint and threshold formalisation.** T6–T7 assume `x < 1`; `x = 1` is
    only computed exactly. The threshold functions `θ_n*` and digit
    monotonicity in `θ` are not formalised.

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sys
 from fractions import Fraction
+from math import factorial, isqrt
 from pathlib import Path
 
 import pytest
@@ -20,6 +21,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from python.programme import (  # noqa: E402
     alpha,
     alpha_scaled,
+    cylinder_mesh,
+    digit_one_intervals,
+    digit_set_components,
+    guide_factorial_partial,
+    guide_floor_digits,
+    guide_floor_remainder,
+    guide_harmonic_partial,
+    split_lengths,
     greedy_accumulated,
     greedy_digits,
     haar_mean,
@@ -103,8 +112,10 @@ def test_tree_wavelets_are_orthonormal_and_mean_zero() -> None:
 def test_source_normalisation_defect_and_equal_child_edge_case() -> None:
     """C5: the source's displayed wavelet is not normalised and not mean-zero.
 
-    Coefficients ``1/√|child|`` give squared norm 2 and mean ``√b − √a``.
-    Only the equal-child edge case ``a = b`` has zero mean.
+    Under the source's *prose* convention (right child length ``b = α_n``),
+    coefficients ``1/√|child|`` give squared norm 2 and mean ``√b − √a``.
+    Only the equal-child edge case ``a = b`` has zero mean.  C10 checks the
+    different defect on the actual tree, where the left child has length α_n.
     """
     a, b = Fraction(1, 3), Fraction(1, 4)
     src = source_wavelet(a, b)
@@ -139,3 +150,126 @@ def test_cylinder_mass_and_residual_bounds() -> None:
     # 0, 1, 5, 71 (the next one is 9016, far beyond this truncation).
     selected = [n for n, d in enumerate(greedy_digits(Fraction(99, 100), 200)) if d]
     assert selected[:4] == [0, 1, 5, 71]
+
+
+def test_cylinder_mesh_is_exact_and_shrinks() -> None:
+    """C7: the depth-n cylinder mesh is exactly 1/(n+1) for n ≤ 40.
+
+    This is the finite, exact shadow of the Lean theorem
+    ``HST.cylinder_diameter``; it is the mesh-to-zero hypothesis behind the
+    completeness argument for the Haar system.
+    """
+    for n in range(1, 41):
+        assert cylinder_mesh(n) == Fraction(1, n + 1)
+
+
+def test_digit_sets_are_finite_unions_not_intervals() -> None:
+    """C8: the digit-one set is a finite union of intervals, not an interval.
+
+    In the computed range 1 ≤ n ≤ 40, components start
+    1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 6, …; the sequence grows slowly and has no
+    single-threshold description, which is the precise content of open item O4.
+    """
+    counts = [digit_set_components(n) for n in range(12)]
+    assert counts == [1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 6]
+    for n in range(1, 41):
+        pieces = digit_one_intervals(n)
+        assert len(pieces) > 1
+        assert sum(hi - lo for lo, hi in pieces) > 0
+        if n < 12:
+            assert len(pieces) == counts[n]
+    assert digit_set_components(41) == 14
+
+
+def test_cylinders_separate_points() -> None:
+    """C9: points in the same depth-n cylinder agree on the first n digits and
+    differ by at most 1/(n+1).
+
+    This is the exact separation statement proved in Lean as
+    ``HST.digits_eq_imp_eq`` plus ``HST.cylinder_diameter``.
+    """
+    for n in range(1, 26):
+        for lo, hi, _s in tree_intervals(n):
+            first = lo + (hi - lo) / 3
+            second = lo + 2 * (hi - lo) / 3
+            assert greedy_digits(first, n - 1) == greedy_digits(second, n - 1)
+            assert abs(second - first) <= Fraction(1, n + 1)
+
+
+def test_source_child_lengths_are_swapped() -> None:
+    """C10: the actual greedy split puts length α_n on the *left* child.
+
+    The source prose says the right child has length α_n.  At every split node
+    the exact scan gives left = α_n and right = ℓ − α_n; at depth 1 the node
+    [0, 1/2] has children (1/3, 1/6), so the source's displayed wavelet has
+    squared norm 1/3 ÷ 1/6 + 1/6 ÷ 1/3 = 5/2, not 2.
+    """
+    assert split_lengths(1) == [
+        (Fraction(1, 3), Fraction(1, 6), Fraction(1, 3)),
+        (Fraction(1, 3), Fraction(1, 6), Fraction(1, 3)),
+    ]
+    for n in range(1, 20):
+        for left, right, a in split_lengths(n):
+            assert left == a
+            assert left + right <= 1
+            assert right == left + right - a
+    a, b = Fraction(1, 3), Fraction(1, 6)
+    assert a / b + b / a == Fraction(5, 2)
+
+
+def test_guide_floor_recursion_is_factorial_not_harmonic() -> None:
+    """C11: the guide's floor recursion is neither binary nor harmonic.
+
+    At t = 9/10 the digits begin [1, 2, 1, 3, 0, 0]; the harmonic-denominator
+    partial sum is 121/60 > 9/10, while the factorial-denominator partial sum
+    reconstructs 9/10 exactly.
+    """
+    assert guide_floor_digits(Fraction(9, 10), 5) == [1, 2, 1, 3, 0, 0]
+    assert guide_harmonic_partial(Fraction(9, 10), 4) == Fraction(121, 60)
+    assert Fraction(9, 10) < guide_harmonic_partial(Fraction(9, 10), 4)
+    assert guide_factorial_partial(Fraction(9, 10), 5) == Fraction(9, 10)
+
+    for t in (Fraction(1, 3), Fraction(9, 10), Fraction(3, 7)):
+        for n in (1, 2, 5, 10):
+            remainder = guide_floor_remainder(t, n - 1)
+            assert (
+                guide_factorial_partial(t, n)
+                + remainder / factorial(n + 1)
+                == t
+            )
+
+
+
+def test_component_count_jump_table() -> None:
+    """C12: exact component-count jump points through n = 155."""
+    jumps = {
+        1: 2, 5: 4, 11: 6, 19: 8, 29: 10, 41: 14,
+        55: 18, 71: 22, 89: 26, 109: 30, 131: 34, 155: 40,
+    }
+    for n, expected in jumps.items():
+        assert digit_set_components(n) == expected
+
+
+def test_digit_one_measure_small_depths() -> None:
+    """C13: exact measure of {t : δ_n(t) = 1} for n = 1..15."""
+    expected = {
+        1: Fraction(1, 3), 2: Fraction(1, 6), 3: Fraction(1, 10),
+        4: Fraction(1, 15), 5: Fraction(2, 21), 6: Fraction(1, 14),
+        7: Fraction(1, 18), 8: Fraction(2, 45), 9: Fraction(2, 55),
+        10: Fraction(1, 33), 11: Fraction(1, 26), 12: Fraction(3, 91),
+        13: Fraction(1, 35), 14: Fraction(1, 40), 15: Fraction(3, 136),
+    }
+    for n, value in expected.items():
+        total = sum((b - a for a, b in digit_one_intervals(n)), Fraction(0))
+        assert total == value
+
+
+def test_sample_digit_frequencies() -> None:
+    """C14: selected-digit counts up to n = 200 at four sample targets."""
+    for t, expected in (
+        (Fraction(0), 0),
+        (Fraction(1, 3), 1),
+        (Fraction(9, 10), 3),
+        (Fraction(99, 100), 4),
+    ):
+        assert sum(greedy_digits(t, 200)) == expected

@@ -49,6 +49,7 @@ RATINGS = {
     "harmonic-sine-greedy-harmonic-essays": (2, 2, 2, 3),
     "harmonic-sine-transform": (5, 4, 5, 3),
     "hst-programme": (4, 3, 4, 3),
+    "hst-transfer-operator": (5, 3, 5, 3),
     "iota-helix-function": (3, 2, 3, 2),
     "intersection-form-zeta": (4, 3, 3, 2),
     "isabelle-afp": (2, 2, 2, 3),
@@ -85,6 +86,19 @@ RATINGS = {
 # significance, current value, and the next step that would justify more work.
 # Editorial prose grounded in each dossier's README; source claims stay claims.
 TOP_TEN = {
+    "hst-transfer-operator": (
+        "The O5 topic isolates the analytic step the parent HST dossier could only bound finitely: "
+        "the greedy map, its two inverse branches and the archived two-branch operator are now a "
+        "separate programme with a Lean core of 15 theorems and an exact rational computation layer. "
+        "The proved core covers the branch inverse and partition theorems, additivity, homogeneity, "
+        "the constant action, the k=1 divergence and k≥3 summability thresholds, finite and uniform "
+        "operator bounds, truncation convergence and the infinite-operator bound. That is the right "
+        "starting point for a trace-class/Hardy-space argument because the difficult analytic objects "
+        "are still clearly marked as open: trace-classness, the Fredholm determinant identity, "
+        "continuation to Re s > 1/2, the explicit-formula test class and any self-adjoint spectral "
+        "realisation are not claimed. Its current value is moderate rather than high for exactly that "
+        "reason — the finite core is reusable, but the determinant is not proved."
+    ),
     "quaternion-cosine": (
         "The appeal of this programme is that it replaces an analytic assertion with a finite "
         "geometric measurement. Two cosine phases, cos 2πx and cos 2πp/x, are lifted into "
@@ -122,24 +136,23 @@ TOP_TEN = {
     "harmonic-sine-transform": (
         "Novelty and potential both sit at the top of the scale (5 and 5) for the attempt to "
         "build a Hilbert–Pólya spectral theory out of the greedy harmonic reconstruction of the "
-        "sine: "
-        "the harmonic angles π/(n+2) serve both as greedy step sizes and as right-child lengths "
-        "of a binary tree of cylinder intervals, Haar wavelets are laid on that tree, and the "
-        "resulting coefficient map is the Harmonic Sine Transform, carrying a transfer operator "
-        "L and the claimed determinant identity det(I − L) = ζ(s)/ζ(2s)·exp(P(s)). The "
-        "reconstruction's "
-        "value is double. It proves the parts that are genuinely finite — normalisation, zero "
-        "mean and orthogonality of the repaired Haar system (T6/T7), with exact computation "
-        "behind them — and it audits the rest into seven named open statements, which is what "
-        "makes an eight-paper narrative tractable at all. O1 should be attacked first: "
-        "completeness of the Haar system in L²[0, π] gates the whole “isometric isomorphism” "
-        "claim, and it is a real analysis problem, not a conjecture. O3 is the next best buy, "
-        "because the source's logarithmic digit-count law is already contradicted by exact "
-        "computation — four selections below N = 200 at θ = 99/100, against a predicted 5.3 — so "
-        "the correct law is an open combinatorial question with a cheap falsification test. O5, "
-        "trace-classness of that operator for Re s > 1/2, is the spectral summit. Nothing here "
-        "proves, or "
-        "is evidence for, RH or GRH."
+        "sine: the harmonic angles π/(n+2) serve both as greedy step sizes and as left-child "
+        "lengths of a binary tree of cylinder intervals, Haar wavelets are laid on that tree, and "
+        "the resulting coefficient map is the Harmonic Sine Transform. The finite reconstruction "
+        "now has 150 ledger theorems and 14 exact computations. O1 is closed: the cylinder "
+        "partition tiles with mesh 1/(n+1), the real lift and L² density are proved, the "
+        "normalised Haar span is complete, the generators are orthonormal, and the coefficient "
+        "map is an isometry (T25–T46, T101, T107, T113–T115). O3 is closed by the global bound "
+        "D(N,θ) ≤ log₂ N + 1 (T123). The F2/O4 description is closed by the accumulator identity, "
+        "the exact selection criterion and the general Finset-indexed component criterion "
+        "(T117–T120); the component count is recorded as jump table C12, with a proved formula "
+        "for all n still an extension. F3 is closed by obstruction: the floor rule is factorial, "
+        "not binary (T18–T19). F4 is closed: exact cylinder measure (T55, C13), zero frequency "
+        "at θ=0 (T124), sample frequencies (C14), and the uniform O(log N/N) density bound "
+        "(T123). The finite O5 core has its own topic, hst-transfer-operator (15 theorems); the "
+        "trace-class/Fredholm determinant, explicit formula (O6), self-adjoint family (O7) and "
+        "categorical P5–P7 remain open, with the graph-backed support/obstruction matrix in "
+        "ROADMAP-SUPPORT.md. Nothing here proves, or is evidence for, RH or GRH."
     ),
     "gdst-twin-series": (
         "Where the foundational GDST paper defines the greedy digits, this programme builds the "

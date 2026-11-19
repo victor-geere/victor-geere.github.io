@@ -27,7 +27,7 @@
 <body>
 
 <h1>Finite-window zeros</h1>
-<p class="muted">A P3 dossier of <a href="../../index.html">The Final Letter</a>.</p>
+<p class="muted">A P3 dossier of <a href="../../index.html">The Final Letter</a>. Current plan: <a href="ROADMAP.md">ROADMAP.md</a>; detailed history: <a href="HANDOFF.md">HANDOFF.md</a>. Roadmap: M0–M2 and the concrete M4 width target are done; M3 is scoped to the analytic explicit formula; M5 is deferred.</p>
 
 <p class="status"><strong>Status: P3 has a point and a thin segment.</strong> The finite algebra,
 the pair estimate, the identity <code>(1-2^{1-s})ζ(s) = η(s)</code> for every
@@ -45,6 +45,82 @@ the functional equation plus conjugation make the reflection
 partial-sum-plus-tail evaluator is not used. These are pointwise finite-window
 theorems: one zero, not a zero count and not a statement about RH; a segment remains
 open.</p>
+
+<h2>Abstract</h2>
+<p>A <strong>finite-window zero</strong> is a zero of the Riemann zeta function
+certified inside an explicit compact window &mdash; a rectangle or a segment of the
+critical strip &mdash; together with a machine-checked proof that the certificate
+really encloses a zero, or that the window is zero-free. The object is deliberately
+local: it says nothing about zeros outside the window, nothing about a zero count over
+an unbounded range, and nothing about the Riemann hypothesis. What it does say is
+quantitative and reproducible: a specified box, a specified multiplicity or simplicity
+statement, and a Lean derivation from explicit inequalities rather than floating-point
+sampling.</p>
+
+<p>The programme constructs these certificates from the grouped alternating (eta)
+series. Pairing consecutive terms gives summands that are absolutely convergent for
+<code>Re s &gt; 0</code>; the classical identity
+<code>(1 &minus; 2<sup>1&minus;s</sup>) &zeta;(s) = &eta;(s)</code> reduces &zeta; to
+&eta; on the same window; and interval arithmetic plus an explicit tail bound encloses
+&eta; on a rectangle. A box that excludes zero proves nonvanishing, while a
+Krawczyk/Taylor certificate proves existence, uniqueness and simplicity of a zero. The
+dossier now contains a certified nonvanishing point at <code>1/2 + 5i</code>, a thin
+zero-free segment, a certified simple zero on the critical line at
+<code>1/2 + 14i</code>, explicit zero-free bands for the pole-corrected product
+<code>Fext</code>, and a corrected finite-window explicit-formula layer with
+quadrature infrastructure.</p>
+
+<p><strong>Wider application and significance.</strong> Finite-window certificates are
+the local, checkable atoms from which larger numerical statements about &zeta; and
+L-functions are assembled: zero verification, zero-free regions, explicit-formula and
+Weil-positivity computations, and rigorous enclosures for spectral or arithmetic
+quantities. Because each atom is independent of the global RH question, the work is
+modular: a new window can be added without reopening old proofs, and a numerical claim
+can be audited down to kernel-checked arithmetic. The approach also stress-tests proof
+assistants and interval libraries on genuinely analytic inputs &mdash; eta tails,
+complex powers, Krawczyk operators, digamma bounds and explicit-formula residues &mdash;
+and produces certificates that are reproducible across machines.</p>
+
+<p>The limitation is equally explicit. A finite window cannot decide RH, and the
+M3-finite explicit-formula endpoint remains conditional on a certified zero-free height
+and on tight quadrature enclosures. The dossier records those gaps rather than hiding
+them.</p>
+
+<h2>Introduction: what is a finite-window zero?</h2>
+<p>The Riemann zeta function is transcendental input to numerical analysis: one cannot
+evaluate it exactly, and a floating-point zero is not a proof. A finite-window zero
+replaces the floating-point value by an interval enclosure and the numerical solver by
+a theorem. The window is a compact set <code>W</code> &mdash; typically a rectangle
+<code>[&sigma;<sub>1</sub>,&sigma;<sub>2</sub>] &times; [t<sub>1</sub>,t<sub>2</sub>]</code>
+or a segment of the critical line &mdash; and the certificate is a proof of one of two
+statements:</p>
+<ol>
+<li><strong>Nonvanishing:</strong> <code>&zeta;(s) &ne; 0</code> for every
+<code>s &isin; W</code>.</li>
+<li><strong>Existence and isolation:</strong> there is a unique zero in <code>W</code>,
+with a specified real part or a specified simplicity statement.</li>
+</ol>
+<p>The first is proved by enclosing <code>&zeta;(W)</code> in a box that does not
+contain <code>0</code>. The second is proved by a contraction or Krawczyk argument: a
+Newton-like operator maps the window strictly inside itself, which gives existence,
+uniqueness and a derivative bound. Both routes need the same analytic inputs &mdash; a
+convergent representation, an explicit tail bound, and a way to divide by the eta
+prefactor without crossing zero.</p>
+
+<p>The grouped eta series is the representation used here because it converges on the
+whole critical strip <code>Re s &gt; 0</code>, not merely for <code>Re s &gt; 1</code>.
+Its pair terms are small and explicit, so the tail can be bounded by a rational
+majorant; the prefactor <code>1 &minus; 2<sup>1&minus;s</sup></code> is bounded away from
+zero on the windows where the certificate is run. The result is a chain from rational
+arithmetic to a theorem about &zeta;, with no unsound <code>native_decide</code> in the
+analytic steps.</p>
+
+<p>Finite-window zeros are useful precisely because they are not RH. They give
+concrete, reusable facts &mdash; a verified zero at a named height, a verified zero-free
+band, a verified residue &mdash; that can be cited by other programmes, while leaving
+the global statement untouched. They also provide a disciplined way to test new
+interval algorithms: if a proposed enclosure cannot certify a known zero or a known
+zero-free box, the defect is visible before it reaches a larger claim.</p>
 
 <h2>Provenance</h2>
 <p>P3/R14 of <a href="../../status.html">status.html</a> §7. The eta/zeta identity is the
@@ -81,10 +157,14 @@ not assert RH and cannot decide an off-window zero.</p>
 <tr><td>C9</td><td>Computation</td><td><strong>Euler–Maclaurin interval zeta:</strong> rigorous box on <code>Re &gt; 0</code>, width <code>~5·10⁻³⁰</code> at <code>1/2+14i</code>.</td><td><code>python/accelerated.py</code></td></tr>
 <tr><td>C10</td><td>Computation</td><td><strong>Cauchy derivative bound:</strong> <code>|ζ′| ≤ M/pad</code>; numerically <code>≈34</code> for <code>pad=0.05</code> (too coarse for Krawczyk).</td><td><code>python/accelerated.py</code></td></tr>
 <tr><td>C11</td><td>Computation</td><td><strong>Numerical Krawczyk zero isolation:</strong> on <code>Re ∈ [0.499,0.501]</code>, <code>Im ∈ [14.1345,14.1349]</code>, the Krawczyk image is strictly inside the rectangle. The Krawczyk theorem is not yet formalised.</td><td><code>python/accelerated.py</code></td></tr>
+<tr><td>C15</td><td>Computation</td><td>The <code>T=1</code> contour strip is numerically zero-free: ζ winding <code>−1</code> equals the pole contribution</td><td><code>test_T1_strip_is_zero_free_numerically</code></td></tr>
+<tr><td>C16</td><td>Computation</td><td><code>tentArch 1 ≈ 0.776099545775</code>, imaginary part <code>0</code></td><td><code>test_tent_arch_prime_values_T1</code></td></tr>
+<tr><td>C17</td><td>Computation</td><td><code>tentPrime 1 ≈ 0.337387954055</code>, imaginary part <code>0</code></td><td><code>test_tent_arch_prime_values_T1</code></td></tr>
 </tbody>
 </table>
 
 <h2>Theorem ledger</h2>
+<p class="muted">616 theorem rows, 14 computation rows, 20 pytest tests. Lean tree: 694 theorem/lemma declarations across 30 files; 32 files in the default build; <code>BigCheck.lean</code> separate.</p>
 <p>Every <strong>Theorem</strong> row is proved in <a href="lean/Topic.lean"><code>lean/Topic.lean</code></a>
 with no <code>sorry</code>, <code>axiom</code> or <code>admit</code>. Every
 <strong>Computation</strong> row is tested in <a href="tests/test_programme.py"><code>tests/test_programme.py</code></a>.
@@ -586,6 +666,128 @@ Nothing here asserts RH.</p>
 <tr><td>T492</td><td>Theorem</td><td><strong>A simple zero on the critical line:</strong> <code>∃ z ∈ closedBall s14 (1/5), ζ z = 0 ∧ z.re = 1/2 ∧ ζ′(z) ≠ 0</code>.</td><td><code>`zeta_zero_14_on_line_simple`</code> (<code>EMOnLine.lean</code>)</td></tr>
 <tr><td>T493</td><td>Theorem</td><td><strong><code>Re z = 1/2</code></strong> for the certified zero.</td><td><code>`zeta_zero_14_on_line`</code> (<code>EMOnLine.lean</code>)</td></tr>
 <tr><td>T494</td><td>Theorem</td><td><strong><code>ζ′(z) ≠ 0</code></strong> for the certified zero (the same Krawczyk inequality).</td><td><code>`zeta_zero_14_simple`</code> (<code>EMOnLine.lean</code>)</td></tr>
+<tr><td>T495</td><td>Theorem</td><td><strong>Rectangle membership.</strong> Coordinate bounds imply membership in <code>rectBox a b c d</code></td><td><code>mem_rectBox</code> (<code>Topic.lean</code>)</td></tr>
+<tr><td>T496</td><td>Theorem</td><td><strong>Rectangle transfer.</strong> If every point of a rectangle has <code>etaGrouped s ∈ U</code> and <code>0 ∉ U</code>, then <code>ζ</code> is nonvanishing on the rectangle</td><td><code>zeta_ne_zero_on_rect_of_eta_mem</code> (<code>Topic.lean</code>)</td></tr>
+<tr><td>T497</td><td>Theorem</td><td><strong>Reusable rectangle certificate.</strong> Given <code>S</code>, <code>params M</code>, tail radius <code>R</code>, side conditions, a uniform tail bound and a zero-free folded box, <code>ζ</code> is nonvanishing on all of <code>S</code></td><td><code>zeta_ne_zero_on_rect_of_params</code> (<code>Seg.lean</code>)</td></tr>
+<tr><td>T498</td><td>Theorem</td><td><strong>Rectangle-uniform tail bound.</strong> On <code>Re = 1/2</code> and <code>Im ∈ [5, 5.01]</code>, the shifted pair tail is <code>≤ 1</code></td><td><code>tail_bound_im_range</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T499</td><td>Theorem</td><td><strong>Adjacent segment S1.</strong> <code>ζ ≠ 0</code> on <code>[5.000003, 5.000006]</code> at <code>Re = 1/2</code></td><td><code>zeta_ne_zero_S1</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T500</td><td>Theorem</td><td><strong>Adjacent segment S2.</strong> <code>ζ ≠ 0</code> on <code>[5.000006, 5.000009]</code> at <code>Re = 1/2</code></td><td><code>zeta_ne_zero_S2</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T501</td><td>Theorem</td><td><strong>Wider zero-free segment.</strong> <code>ζ(1/2+it) ≠ 0</code> for <code>t ∈ [5, 5.000009]</code></td><td><code>zeta_ne_zero_segment_wide</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T502</td><td>Theorem</td><td><strong>One-box certificate.</strong> For endpoints in <code>[5,5.01]</code>, side conditions and a zero-free folded box imply nonvanishing on the box</td><td><code>zeta_ne_zero_seg_box</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T503</td><td>Theorem</td><td><strong>Adjacent segment S3.</strong> <code>ζ ≠ 0</code> on <code>[5.000009, 5.000012]</code></td><td><code>zeta_ne_zero_S3</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T504</td><td>Theorem</td><td><strong>Adjacent segment S4.</strong> <code>ζ ≠ 0</code> on <code>[5.000012, 5.000015]</code></td><td><code>zeta_ne_zero_S4</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T505</td><td>Theorem</td><td><strong>Adjacent segment S5.</strong> <code>ζ ≠ 0</code> on <code>[5.000015, 5.000018]</code></td><td><code>zeta_ne_zero_S5</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T506</td><td>Theorem</td><td><strong>Extended wider segment.</strong> <code>ζ(1/2+it) ≠ 0</code> for <code>t ∈ [5, 5.000018]</code></td><td><code>zeta_ne_zero_segment_wide2</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T507</td><td>Theorem</td><td><strong>Adjacent segment S6.</strong> <code>ζ ≠ 0</code> on <code>[5.000018, 5.000021]</code></td><td><code>zeta_ne_zero_S6</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T508</td><td>Theorem</td><td><strong>Adjacent segment S7.</strong> <code>ζ ≠ 0</code> on <code>[5.000021, 5.000024]</code></td><td><code>zeta_ne_zero_S7</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T509</td><td>Theorem</td><td><strong>Adjacent segment S8.</strong> <code>ζ ≠ 0</code> on <code>[5.000024, 5.000027]</code></td><td><code>zeta_ne_zero_S8</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T510</td><td>Theorem</td><td><strong>Wider zero-free segment.</strong> <code>ζ(1/2+it) ≠ 0</code> for <code>t ∈ [5, 5.000027]</code></td><td><code>zeta_ne_zero_segment_wide3</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T511</td><td>Theorem</td><td><strong>Adjacent segment S9.</strong> <code>ζ ≠ 0</code> on <code>[5.000027, 5.000030]</code></td><td><code>zeta_ne_zero_S9</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T512</td><td>Theorem</td><td><strong>Adjacent segment S10.</strong> <code>ζ ≠ 0</code> on <code>[5.000030, 5.000033]</code></td><td><code>zeta_ne_zero_S10</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T513</td><td>Theorem</td><td><strong>Adjacent segment S11.</strong> <code>ζ ≠ 0</code> on <code>[5.000033, 5.000036]</code></td><td><code>zeta_ne_zero_S11</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T514</td><td>Theorem</td><td><strong>Wider zero-free segment.</strong> <code>ζ(1/2+it) ≠ 0</code> for <code>t ∈ [5, 5.000036]</code></td><td><code>zeta_ne_zero_segment_wide4</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T515</td><td>Theorem</td><td><strong>Batched box soundness.</strong> <code>boxOK S</code> gives pair conditions and a zero-free folded box</td><td><code>boxOK_sound</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T516</td><td>Theorem</td><td><strong>All segment boxes pass.</strong> A single <code>native_decide</code> checks the 12-box list</td><td><code>segmentBoxes_ok</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T517</td><td>Theorem</td><td><strong>List membership gives the box check</strong></td><td><code>boxOK_of_mem</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T518</td><td>Theorem</td><td><strong>Box-check-to-nonvanishing wrapper</strong></td><td><code>zeta_ne_zero_of_boxOK</code> (<code>Wide.lean</code>)</td></tr>
+<tr><td>T519</td><td>Theorem</td><td><strong>Segment width.</strong> <code>(segBox a b).width = b − a</code> for <code>a ≤ b</code></td><td><code>width_segBox</code> (<code>WidthCert.lean</code>)</td></tr>
+<tr><td>T520</td><td>Theorem</td><td><strong>One-box width.</strong> The certified boxes S1 and S11 have width <code>3/1000000</code></td><td><code>width_S1</code>, <code>width_S11</code> (<code>WidthCert.lean</code>)</td></tr>
+<tr><td>T521</td><td>Theorem</td><td><strong>Whole-segment width.</strong> The <code>[5, 5.000036]</code> segment box has width <code>36/1000000</code></td><td><code>width_segment</code> (<code>WidthCert.lean</code>)</td></tr>
+<tr><td>T522</td><td>Theorem</td><td><strong>Actual zeta-box width.</strong> The folded enclosure <code>Bzeta</code> of <code>zetaEMGen 1 20 s14</code> has width at most <code>1/2</code></td><td><code>width_Bzeta_le_half</code> (<code>WidthCert.lean</code>)</td></tr>
+<tr><td>T523</td><td>Theorem</td><td><strong>Explicit-formula bridge.</strong> The imported <code>test_function_explicit_formula</code> is restated for the finite-window M3 layer</td><td><code>p4_test_function_explicit_formula</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T524</td><td>Theorem</td><td><strong>Scaled tent continuity.</strong> <code>tentS x = max 0 (1 − |2x|)</code> is continuous</td><td><code>tentS_continuous</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T525</td><td>Theorem</td><td><strong>Scaled tent support.</strong> <code>tentS x ≠ 0 → x ∈ [−1/2, 1/2]</code></td><td><code>tentS_support</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T526</td><td>Theorem</td><td><strong>Scaled tent zero outside support.</strong> <code>tentS x = 0</code> for <code>|x| ≥ 1/2</code></td><td><code>tentS_eq_zero_of_half_le</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T527</td><td>Theorem</td><td><strong>Tent Paley–Wiener nonnegativity.</strong> The autocorrelation transform of the scaled tent is nonnegative on the critical line</td><td><code>p4_tent_autocorr_nonneg</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T528</td><td>Theorem</td><td><strong>Zero-free monotonicity.</strong> <code>ZeroFreeOn U</code> passes to every subset <code>V ⊆ U</code></td><td><code>zeroFreeOn_mono</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T529</td><td>Theorem</td><td><strong>Finite zero set.</strong> Every compact rectangle has a finite <code>Finset</code> of ζ-zeros</td><td><code>zeroFinset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T530</td><td>Theorem</td><td><strong>Zero-set membership.</strong> <code>z ∈ zeroFinset R ↔ z ∈ R ∧ ζ z = 0</code></td><td><code>mem_zeroFinset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T531</td><td>Theorem</td><td><strong>Zero membership.</strong> Any ζ-zero inside <code>R</code> lies in <code>zeroFinset R</code></td><td><code>zero_mem_zeroFinset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T532</td><td>Theorem</td><td><strong>Zero-set monotonicity.</strong> <code>R ⊆ R'</code> implies <code>zeroFinset R ⊆ zeroFinset R'</code></td><td><code>zeroFinset_mono</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T533</td><td>Theorem</td><td><strong>Empty zero set from zero-freeness.</strong> If <code>completedZeta ≠ 0</code> on a critical-strip rectangle, <code>zeroFinset R = ∅</code></td><td><code>zeroFinset_eq_empty_of_zeroFree</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T534</td><td>Theorem</td><td><strong>Empty-zero-set Paley–Wiener consumer.</strong> A zero-free contour neighbourhood gives the explicit formula with no zero contribution</td><td><code>p4_paleyWiener_empty</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T535</td><td>Theorem</td><td><strong>Scaled tent evenness.</strong> <code>tentS(−x)=tentS x</code></td><td><code>tentS_even</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T536</td><td>Theorem</td><td><strong>Concrete tent consumer.</strong> T534 specialised to the fixed scaled tent</td><td><code>p4_tent_empty</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T537</td><td>Theorem</td><td><strong>Tent archimedean/prime split.</strong> The tent log-derivative integral is the negative sum of the archimedean and prime superpositions</td><td><code>p4_tent_arch_prime</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T538</td><td>Theorem</td><td><strong>Tent complex continuity.</strong> <code>tentC : ℝ → ℂ</code> is continuous</td><td><code>tentC_continuous</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T539</td><td>Theorem</td><td><strong>Assembled tent-window formula.</strong> T536 with the right-hand side rewritten by the archimedean/prime split T537</td><td><code>p4_tent_window</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T540</td><td>Theorem</td><td><strong>Archimedean boundary value.</strong> <code>tentArch 0 = 0</code></td><td><code>tentArch_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T541</td><td>Theorem</td><td><strong>Prime boundary value.</strong> <code>tentPrime 0 = 0</code></td><td><code>tentPrime_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T542</td><td>Theorem</td><td><strong>Zero-free half-plane <code>Re s &gt; 1</code>.</strong> <code>ZeroFreeOn U</code> holds whenever <code>Re z &gt; 1</code> on <code>U</code></td><td><code>zeroFreeOn_of_one_lt_re</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T543</td><td>Theorem</td><td><strong>Corrected empty-zero-set consumer.</strong> Non-vacuous version using the pole-corrected <code>Fext</code> and <code>p4_paleyWiener_empty_repair</code></td><td><code>p4_paleyWiener_empty_repair</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T544</td><td>Theorem</td><td><strong>Corrected tent consumer.</strong> T543 specialised to the fixed scaled tent</td><td><code>p4_tent_empty_repair</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T545</td><td>Theorem</td><td><strong>Complex tent evenness.</strong> <code>tentC(−x)=tentC x</code></td><td><code>tentC_even</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T546</td><td>Theorem</td><td><strong>Corrected assembled tent-window formula.</strong> T544 with the right-hand side rewritten by T537</td><td><code>p4_tent_window_repair</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T547</td><td>Theorem</td><td><strong>General finite-zero tent formula.</strong> Corrected Paley–Wiener formula with an arbitrary finite zero set and explicit simplicity/nonvanishing data</td><td><code>p4_tent_finite</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T548</td><td>Theorem</td><td><strong>ζ-zero gives <code>Fext</code>-zero.</strong> For <code>s ≠ 0,1</code> with gamma nonzero, <code>ζ s = 0 → Fext s = 0</code></td><td><code>Fext_zero_of_zeta_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T549</td><td>Theorem</td><td><strong><code>Fext</code>-zero gives ζ-zero.</strong> For <code>s ≠ 0,1</code> with gamma nonzero, <code>Fext s = 0 → ζ s = 0</code></td><td><code>zeta_zero_of_Fext_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T550</td><td>Theorem</td><td><strong>Zero equivalence.</strong> Away from <code>0,1</code> with gamma nonzero, <code>Fext s = 0 ↔ ζ s = 0</code></td><td><code>Fext_zero_iff_zeta_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T551</td><td>Theorem</td><td><strong>Filtered zero set membership.</strong> <code>FextZeroFinset R</code> is the ζ-zero set of <code>R</code> with <code>0,1</code> removed</td><td><code>mem_FextZeroFinset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T552</td><td>Theorem</td><td><strong><code>Fext</code> vanishes on the filtered zero set</strong></td><td><code>Fext_zero_on_FextZeroFinset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T553</td><td>Theorem</td><td><strong><code>0</code> is excluded</strong> from <code>FextZeroFinset</code></td><td><code>zero_notMem_FextZeroFinset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T554</td><td>Theorem</td><td><strong><code>1</code> is excluded</strong> from <code>FextZeroFinset</code></td><td><code>one_notMem_FextZeroFinset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T555</td><td>Theorem</td><td><strong>Zero-set containment.</strong> <code>FextZeroFinset R ⊆ R</code></td><td><code>FextZeroFinset_subset</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T556</td><td>Theorem</td><td><strong>Zero-set completeness.</strong> Any <code>Fext</code>-zero in <code>R</code>, away from <code>0,1</code> with gamma nonzero, lies in <code>FextZeroFinset R</code></td><td><code>mem_FextZeroFinset_of_Fext_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T557</td><td>Theorem</td><td><strong>Finite-zero tent formula from a rectangle.</strong> T547 instantiated with <code>FextZeroFinset R</code>; remaining inputs are simplicity, zero-location and numeric data</td><td><code>p4_tent_from_zeros</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T558</td><td>Theorem</td><td><strong>Zero-set membership via <code>Fext</code>.</strong> <code>z ∈ FextZeroFinset R ↔ Fext z = 0 ∧ z ≠ 0 ∧ z ≠ 1</code></td><td><code>mem_FextZeroFinset_iff_Fext_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T559</td><td>Theorem</td><td><strong>Filtered zero-set monotonicity.</strong> <code>R ⊆ R'</code> implies <code>FextZeroFinset R ⊆ FextZeroFinset R'</code></td><td><code>FextZeroFinset_mono</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T560</td><td>Theorem</td><td><strong>Completed-zeta derivative at a ζ-zero.</strong> <code>deriv Z s = exp(−s log π/2) Γ(s/2) ζ′(s)</code> for <code>Re s &gt; 0</code>, <code>s ≠ 1</code></td><td><code>deriv_completedZeta_of_zeta_zero</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T561</td><td>Theorem</td><td><strong>Simplicity transfer.</strong> A simple ζ-zero away from <code>0,1</code> is a simple <code>Fext</code>-zero</td><td><code>deriv_Fext_ne_zero_of_simple</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T562</td><td>Theorem</td><td><strong><code>T=1</code> tent window.</strong> Corrected formula specialised to <code>U = T1U</code>, with zero-free and enclosure inputs explicit</td><td><code>p4_tent_T1</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T563</td><td>Theorem</td><td><strong>Asymmetric rectangle.</strong> <code>rectOfRadii a b</code> membership from separate <code>|Re| ≤ a</code>, <code>|Im| ≤ b</code> bounds</td><td><code>mem_rectOfRadii</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T564</td><td>Theorem</td><td><strong>Componentwise-tail eta certificate.</strong> Separate real/imaginary tail bounds plus an asymmetric folded box imply ζ nonvanishing on the rectangle</td><td><code>zeta_ne_zero_on_rect_of_component_tail</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T565</td><td>Theorem</td><td><strong>Real eta pair positivity.</strong> <code>realPairTerm σ m &gt; 0</code> for <code>σ &gt; 0</code></td><td><code>realPairTerm_pos</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T566</td><td>Theorem</td><td><strong>Complex pair as real cast.</strong> <code>pairTerm σ m = (realPairTerm σ m : ℂ)</code></td><td><code>pairTerm_eq_ofReal</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T567</td><td>Theorem</td><td><strong>Real-axis eta series.</strong> <code>etaGrouped σ = (Σ realPairTerm σ : ℝ)</code></td><td><code>etaGrouped_eq_ofReal_tsum</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T568</td><td>Theorem</td><td><strong>Strict real positivity.</strong> <code>etaGrouped σ</code> is the cast of a positive real</td><td><code>etaGrouped_eq_pos_ofReal</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T569</td><td>Theorem</td><td><strong>Positive real part.</strong> <code>0 &lt; (etaGrouped σ).re</code></td><td><code>etaGrouped_real_pos</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T570</td><td>Theorem</td><td><strong>Real axis.</strong> <code>(etaGrouped σ).im = 0</code></td><td><code>etaGrouped_real_im_eq_zero</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T571</td><td>Theorem</td><td><strong>Real-axis zero-free.</strong> <code>ζ(σ) ≠ 0</code> for real <code>0 &lt; σ &lt; 1</code></td><td><code>zeta_real_ne_zero</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T572</td><td>Theorem</td><td><strong>Eventual nonvanishing around a real point.</strong> For real <code>0 &lt; σ &lt; 1</code>, <code>ζ ≠ 0</code> eventually near <code>σ</code></td><td><code>eventually_zeta_ne_zero_of_real</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T573</td><td>Theorem</td><td><strong>Zero-free real segment <code>[1/2,1]</code>.</strong> <code>ζ(σ) ≠ 0</code> for real <code>1/2 ≤ σ ≤ 1</code></td><td><code>zeta_real_ne_zero_Icc</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T574</td><td>Theorem</td><td><strong>Uniform zero-free neighbourhood.</strong> A single <code>δ &gt; 0</code> makes ζ nonzero on the <code>δ</code>-box around every real <code>σ ∈ [1/2,1]</code></td><td><code>exists_uniform_zeroFree_nhds_realSegment</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T575</td><td>Theorem</td><td><strong>Uniform zero-free height.</strong> Named <code>uniformDelta &gt; 0</code> from T574</td><td><code>uniformDelta_pos</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T576</td><td>Theorem</td><td><strong>Uniform zero-free box.</strong> <code>ζ z ≠ 0</code> on the <code>uniformDelta</code> box around <code>[1/2,1]</code></td><td><code>zeta_ne_zero_uniformDelta</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T577</td><td>Theorem</td><td><strong>Left-strip uniform box.</strong> The <code>uniformDelta</code> zero-free box extends to <code>0 &lt; Re z &lt; 1/2</code> by the functional equation</td><td><code>zeta_ne_zero_uniformDelta_left</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T578</td><td>Theorem</td><td><strong>Eta pair shift inequality.</strong> <code>½((2m+1)<sup>−σ</sup>−(2m+3)<sup>−σ</sup>) ≤ realPairTerm σ m</code></td><td><code>half_pair_shift_le_realPairTerm</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T579</td><td>Theorem</td><td><strong>Eta series lower bound.</strong> <code>1/2 ≤ Σ realPairTerm σ m</code> for <code>σ &gt; 0</code></td><td><code>half_le_tsum_realPairTerm</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T580</td><td>Theorem</td><td><strong>Prefactor bound.</strong> <code>‖1 − 2<sup>1−σ</sup>‖ ≤ 1/2</code> for <code>1/2 ≤ σ &lt; 1</code></td><td><code>norm_one_sub_two_cpow_le_half</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T581</td><td>Theorem</td><td><strong>Explicit real lower bound.</strong> <code>1 ≤ ‖ζ(σ)‖</code> for real <code>1/2 ≤ σ &lt; 1</code></td><td><code>zeta_real_abs_ge_one</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T582</td><td>Theorem</td><td><strong>Uniform strip zeta bound.</strong> <code>‖ζ(s)‖ ≤ 16</code> for <code>1/2 ≤ Re s ≤ 3/4</code>, <code>|Im s| ≤ 1</code></td><td><code>norm_zeta_le_sixteen</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T583</td><td>Theorem</td><td><strong>Explicit derivative bound.</strong> <code>‖ζ′(σ)‖ ≤ 512</code> for real <code>1/2 ≤ σ ≤ 3/4</code></td><td><code>norm_deriv_zeta_le</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T584</td><td>Theorem</td><td><strong>Complex derivative bound.</strong> <code>‖ζ′(z)‖ ≤ 512</code> for <code>1/2 ≤ Re z ≤ 3/4</code>, <code>|Im z| ≤ 1/8</code></td><td><code>norm_deriv_zeta_le_complex</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T585</td><td>Theorem</td><td><strong>Explicit central zero-free band.</strong> <code>ζ z ≠ 0</code> for <code>1/2 ≤ Re z ≤ 3/4</code>, <code>|Im z| ≤ 1/2048</code></td><td><code>zeta_ne_zero_central_band</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T586</td><td>Theorem</td><td><strong>Mirrored explicit band.</strong> <code>ζ z ≠ 0</code> for <code>1/4 ≤ Re z ≤ 1/2</code>, <code>|Im z| ≤ 1/2048</code></td><td><code>zeta_ne_zero_central_band_left</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T587</td><td>Theorem</td><td><strong>Band zeta bound.</strong> <code>‖ζ w‖ ≤ 64</code> on <code>11/16 ≤ Re w ≤ 15/16</code>, <code>|Im w| ≤ 1/8</code></td><td><code>norm_zeta_le_sixtyfour_band</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T588</td><td>Theorem</td><td><strong>Band derivative bound.</strong> <code>‖ζ′(z)‖ ≤ 1024</code> on <code>3/4 ≤ Re z ≤ 7/8</code>, <code>|Im z| ≤ 1/16</code></td><td><code>norm_deriv_zeta_le_band</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T589</td><td>Theorem</td><td><strong>Explicit band <code>[3/4,7/8]</code>.</strong> <code>ζ z ≠ 0</code> for <code>3/4 ≤ Re z ≤ 7/8</code>, <code>|Im z| ≤ 1/2048</code></td><td><code>zeta_ne_zero_band_34_78</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T590</td><td>Theorem</td><td><strong>Zero-free punctured neighbourhood of <code>1</code>.</strong> <code>ζ</code> is eventually nonzero as <code>z → 1</code> away from <code>1</code></td><td><code>eventually_zeta_ne_zero_near_one</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T591</td><td>Theorem</td><td><strong><code>Fext</code> nonzero near <code>1</code>.</strong> <code>Fext 1 = 1</code>, so <code>Fext</code> is eventually nonzero near <code>1</code></td><td><code>eventually_Fext_ne_zero_near_one</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T592</td><td>Theorem</td><td><strong><code>Fext</code> inherits nonvanishing.</strong> Away from <code>0,1</code>, <code>ζ z ≠ 0</code> implies <code>Fext z ≠ 0</code></td><td><code>Fext_ne_zero_of_zeta_ne_zero</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T593</td><td>Theorem</td><td><strong>Explicit <code>Fext</code> band.</strong> <code>Fext z ≠ 0</code> for <code>1/4 ≤ Re z ≤ 7/8</code>, <code>|Im z| ≤ 1/2048</code></td><td><code>Fext_ne_zero_band</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T594</td><td>Theorem</td><td><strong>Explicit band is open.</strong> <code>ExplicitBand</code> is open</td><td><code>ExplicitBand_isOpen</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T595</td><td>Theorem</td><td><strong><code>FextNonzeroOn</code> explicit band.</strong> The explicit band feeds the finite-window predicate directly</td><td><code>FextNonzeroOn_explicitBand</code> (<code>P4.lean</code>)</td></tr>
+<tr><td>T596</td><td>Theorem</td><td><strong>Digamma bound on the tent line.</strong> <code>‖ψ(1+iy/2) − log(1+iy/2)‖ ≤ 19</code> for <code>y ≠ 0</code></td><td><code>digamma_one_add_half_bound</code> (<code>RealAxis.lean</code>)</td></tr>
+<tr><td>T597</td><td>Theorem</td><td><strong>LSeries von Mangoldt bound.</strong> <code>‖LSeries Λ (2+iy)‖ ≤ 24</code></td><td><code>norm_LSeries_vonMangoldt_two_le</code> (<code>LSeriesBound.lean</code>)</td></tr>
+<tr><td>T598</td><td>Theorem</td><td><strong><code>tentPrime</code> norm bound.</strong> <code>‖tentPrime T‖ ≤ 96 exp T</code> for <code>T ≥ 0</code></td><td><code>norm_tentPrime_le</code> (<code>TentBound.lean</code>)</td></tr>
+<tr><td>T599</td><td>Theorem</td><td><strong><code>tentArch</code> norm bound.</strong> <code>‖tentArch T‖ ≤ 100 (log(T+2)+22) exp T</code> for <code>T ≥ 0</code></td><td><code>norm_tentArch_le</code> (<code>TentArchBound.lean</code>)</td></tr>
+<tr><td>T600</td><td>Theorem</td><td><strong><code>tentArch 1</code> box.</strong> <code>|Re|, |Im| ≤ 7200</code></td><td><code>tentArch_one_mem_box</code> (<code>TentEnclosure.lean</code>)</td></tr>
+<tr><td>T601</td><td>Theorem</td><td><strong><code>tentPrime 1</code> box.</strong> <code>|Re|, |Im| ≤ 288</code></td><td><code>tentPrime_one_mem_box</code> (<code>TentEnclosure.lean</code>)</td></tr>
+<tr><td>T602</td><td>Theorem</td><td><strong>Tent sum box.</strong> <code>|Re|, |Im| ≤ 7488</code> for <code>-tentArch 1 - tentPrime 1</code></td><td><code>tent_sum_mem_box</code> (<code>TentEnclosure.lean</code>)</td></tr>
+<tr><td>T603</td><td>Theorem</td><td><strong>Simpson-panel error interface.</strong> Re-exports <code>Rh45.simpsonPanelEstimate</code> for the tent quadrature</td><td><code>tent_simpson_panel_error</code> (<code>TentEnclosure.lean</code>)</td></tr>
+<tr><td>T604</td><td>Theorem</td><td><strong>LSeries Taylor/MVT bound.</strong> <code>‖LΛ(2+iy)−LΛ(2)‖ ≤ 200 |y|</code> for <code>|y| ≤ 1/2</code></td><td><code>norm_LSeries_vonMangoldt_sub_two_le</code> (<code>LSeriesTaylor.lean</code>)</td></tr>
+<tr><td>T605</td><td>Theorem</td><td><strong>LSeries absolute node bound.</strong> <code>‖LΛ(2+iy)‖ ≤ 124</code> for <code>|y| ≤ 1/2</code></td><td><code>norm_LSeries_two_node_le</code> (<code>NodeBounds.lean</code>)</td></tr>
+<tr><td>T606</td><td>Theorem</td><td><strong>Rational <code>LΛ(2)</code> anchor.</strong> <code>LΛ(2).re</code> lies in <code>[anchorLo, anchorHi]</code>, width <code>0.8</code></td><td><code>LSeries_two_anchor</code> (<code>LSeriesAnchor.lean</code>)</td></tr>
+<tr><td>T607</td><td>Theorem</td><td><strong><code>LΛ(2)</code> is real.</strong> Its imaginary part is <code>0</code></td><td><code>LSeries_two_anchor_im</code> (<code>LSeriesAnchor.lean</code>)</td></tr>
+<tr><td>T608</td><td>Theorem</td><td><strong>Unrounded anchor.</strong> <code>anchorPartialReal − 2/5 ≤ LΛ(2).re ≤ anchorPartialReal + 2/5</code></td><td><code>LSeries_two_anchor_real</code> (<code>LSeriesAnchor.lean</code>)</td></tr>
+<tr><td>T609</td><td>Theorem</td><td><strong>Anchored node enclosure.</strong> <code>‖LΛ(2+iy)‖ ≤ max|anchorLo| |anchorHi| + 200|y|</code> for <code>|y| ≤ 1/2</code></td><td><code>norm_LSeries_two_node_le_anchor</code> (<code>NodeBounds.lean</code>)</td></tr>
+<tr><td>T610</td><td>Theorem</td><td><strong>Log node bound.</strong> <code>‖log(1+iy/2)‖ ≤ 4</code> for <code>|y| ≤ 1</code></td><td><code>norm_log_one_add_half_le</code> (<code>DigammaNode.lean</code>)</td></tr>
+<tr><td>T611</td><td>Theorem</td><td><strong>Digamma node bound.</strong> <code>‖ψ(1+iy/2)‖ ≤ 24</code> for <code>y ≠ 0</code>, <code>|y| ≤ 1</code></td><td><code>norm_digamma_one_add_half_le</code> (<code>DigammaNode.lean</code>)</td></tr>
+<tr><td>T612</td><td>Theorem</td><td><strong>Tent-sum norm corollary.</strong> <code>‖-tentArch 1 - tentPrime 1‖ ≤ 14976</code></td><td><code>norm_tent_sum_le</code> (<code>TentEnclosure.lean</code>)</td></tr>
+<tr><td>T613</td><td>Theorem</td><td><strong>Parametric exponential derivative (unordered interval).</strong> <code>d/du ∫ f(y)e<sup>−uy</sup></code> under the integral</td><td><code>hasDerivAt_integral_exp_mul_uIcc</code> (<code>ParametricExp.lean</code>)</td></tr>
+<tr><td>T614</td><td>Theorem</td><td><strong>Parametric exponential derivative (ordered interval).</strong> Same for <code>a ≤ b</code></td><td><code>hasDerivAt_integral_exp_mul</code> (<code>ParametricExp.lean</code>)</td></tr>
+<tr><td>T615</td><td>Theorem</td><td><strong>Iterated parametric derivative.</strong> <code>iteratedDeriv k F u = ∫ f(y)(−y)<sup>k</sup>e<sup>−uy</sup></code></td><td><code>iteratedDeriv_paramExp</code> (<code>ParametricIter.lean</code>)</td></tr>
+<tr><td>T616</td><td>Theorem</td><td><strong>Fourth-derivative bound.</strong> <code>≤ C M<sup>4</sup> |b−a| exp(|u|M)</code></td><td><code>norm_iteratedDeriv_four_paramExp_le</code> (<code>ParametricIter.lean</code>)</td></tr>
 <tr><td>C1</td><td>Computation</td><td>Regrouping agrees at <code>s = 2, 3, 3/2, 2+i/3</code> to <code>&lt; 10^{-30}</code>.</td><td><code>test_finite_regrouping_is_exact</code></td></tr>
 <tr><td>C2</td><td>Computation</td><td>Pair estimate on a grid, to <code>&lt; 10^{-25}</code>.</td><td><code>test_pair_estimate_holds</code></td></tr>
 <tr><td>C3</td><td>Computation</td><td>Tail bound positive and decreasing with <code>M</code>.</td><td><code>test_tail_bound_positive_and_decreasing</code></td></tr>

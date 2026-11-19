@@ -488,6 +488,30 @@ theorem zeta_ne_zero_of_eta_mem {s : ℂ} (hre : 0 < s.re) (hs1 : s ≠ 1)
     riemannZeta s ≠ 0 :=
   zeta_ne_zero_of_eta_ne_zero hre hs1 fun h => h0 (h ▸ hU)
 
+/-! ## Reusable rectangle enclosure interface -/
+
+/-- A rational rectangle `[a,b] × [c,d]` in the complex plane. -/
+def rectBox (a b c d : ℚ) : Cx := ⟨⟨a, b⟩, ⟨c, d⟩⟩
+
+/-- Membership in a rational rectangle from coordinate bounds. -/
+theorem mem_rectBox {a b c d : ℚ} {z : ℂ}
+    (hre1 : (a : ℝ) ≤ z.re) (hre2 : z.re ≤ (b : ℝ))
+    (him1 : (c : ℝ) ≤ z.im) (him2 : z.im ≤ (d : ℝ)) :
+    (rectBox a b c d).mem z :=
+  ⟨⟨hre1, hre2⟩, ⟨him1, him2⟩⟩
+
+/-- **Rectangle transfer.**  If every point of a rectangle has its grouped eta
+value in a fixed set `U` that excludes zero, and the rectangle lies in
+`0 < Re s`, `s ≠ 1`, then `ζ` is nonvanishing on the whole rectangle.  This is
+the logical shape of the M1 enclosure certificate; the analytic box membership
+is still to be supplied. -/
+theorem zeta_ne_zero_on_rect_of_eta_mem {R U : Set ℂ}
+    (hmap : ∀ s ∈ R, etaGrouped s ∈ U) (h0 : (0 : ℂ) ∉ U)
+    (hre : ∀ s ∈ R, 0 < s.re) (h1 : ∀ s ∈ R, s ≠ 1) :
+    ∀ s ∈ R, riemannZeta s ≠ 0 := by
+  intro s hs
+  exact zeta_ne_zero_of_eta_mem (hre s hs) (h1 s hs) (hmap s hs) h0
+
 /-! ## Tail bound for the pair majorant -/
 
 /-- Shift integrability from `Ioi (a+M)` to `Ioi M`. -/

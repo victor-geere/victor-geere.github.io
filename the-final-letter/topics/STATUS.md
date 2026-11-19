@@ -1,6 +1,6 @@
 # Reconstruction status
 
-64 topics · 2074 ledger theorems · 570 tested computations · 909 pytest tests · 64/64 Lean builds OK.
+66 topics · 2358 ledger theorems · 588 tested computations · 930 pytest tests · 66/66 Lean builds OK.
 
 **Resume:** [geometric-zeta](geometric-zeta/README.md) — the Lambert/Mellin transform `lambert_mellin` and the lower-bound expansion are in place; the integrated `J = 0,1` bound is paper/numerical. [digamma-contour-shift](digamma-contour-shift/README.md) has the digamma asymptotics and the archimedean contour shift `ArchimedeanShiftLim` proved (T1–T21). [weil-positivity](weil-positivity/HANDOFF.md) can also resume — [missing-bridge](missing-bridge/README.md) is concluded at the non-RH-strength level.
 
@@ -29,7 +29,9 @@
 | [harmonic-sine](harmonic-sine/README.md) | 7 | 7 | 9 | 8 | OK |
 | [harmonic-sine-eta](harmonic-sine-eta/README.md) | 7 | 8 | 0 | 8 | OK |
 | [harmonic-sine-greedy-harmonic-essays](harmonic-sine-greedy-harmonic-essays/README.md) | 7 | 7 | 0 | 8 | OK |
-| [harmonic-sine-transform](harmonic-sine-transform/README.md) | 7 | 6 | 12 | 8 | OK |
+| [harmonic-sine-transform](harmonic-sine-transform/README.md) | 150 | 14 | 13 | 16 | OK |
+| [hst-transfer-operator](hst-transfer-operator/README.md) | 15 | 5 | 0 | 6 | OK |
+| [zero-side-bridge](zero-side-bridge/README.md) | 4 | 2 | 0 | 5 | OK |
 | [hst-programme](hst-programme/README.md) | 7 | 7 | 12 | 7 | OK |
 | [iota-helix-function](iota-helix-function/README.md) | 7 | 8 | 8 | 8 | OK |
 | [isabelle-afp](isabelle-afp/README.md) | 7 | 7 | 8 | 7 | OK |
@@ -39,7 +41,7 @@
 | [finite-explicit-formula](finite-explicit-formula/README.md) | 27 | 6 | 14 | 14 | OK |
 | [partial-sum-plus-tail](partial-sum-plus-tail/README.md) | 52 | 14 | 2 | 14 | OK |
 | [euler-maclaurin](euler-maclaurin/README.md) | 8 | 4 | 0 | 18 | OK |
-| [finite-window-zeros](finite-window-zeros/README.md) | 494 | 11 | 0 | 18 | OK |
+| [finite-window-zeros](finite-window-zeros/README.md) | 616 | 14 | 0 | 20 | OK |
 | [periodic-orbits](periodic-orbits/README.md) | 7 | 7 | 8 | 7 | OK |
 | [phase-interference](phase-interference/README.md) | 7 | 7 | 8 | 7 | OK |
 | [prime-spectrum-tensor](prime-spectrum-tensor/README.md) | 16 | 25 | 9 | 25 | OK |
@@ -71,7 +73,7 @@
 | [zeta-functional-equation](zeta-functional-equation/README.md) | 153 | 5 | 0 | 5 | OK |
 | [zero-sum-convergence](zero-sum-convergence/README.md) | 30 | 4 | 0 | 4 | OK |
 
-Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted. The headline totals are the column sums as recounted on **2026-11-10**; the pytest total is from a full `pytest --collect-only` run over all 64 `tests/` suites, not a hand count. `geometric-zeta` has no kind-tagged ledger, so its theorem row counts the Lean declarations in `lean/Topic.lean`.
+Counts are parsed from each dossier’s theorem ledger. A **Theorem** row is Lean-proved; a **Computation** row is pytest-tested; **Source claims** are not adopted. The headline totals are the column sums as recounted on **2026-11-10**, with the `harmonic-sine-transform` row updated on **2026-11-17**; the pytest total is from a full `pytest --collect-only` run over all 64 `tests/` suites, plus that row’s five new tests, not a hand count. `geometric-zeta` has no kind-tagged ledger, so its theorem row counts the Lean declarations in `lean/Topic.lean`.
 
 **Generated certificates (2026-11-05).** `prime-spectrum-tensor` additionally contains 37,855 machine-checked declarations in the 45 generated density files `lean/DensityC{0..4}_{0..8}.lean`, plus five in [`lean/DensityCertificates.lean`](prime-spectrum-tensor/lean/DensityCertificates.lean) ending in `gaussianGram4_posDef` and four in [`lean/DensityCertificates5.lean`](prime-spectrum-tensor/lean/DensityCertificates5.lean) ending in `gaussianGram5_posDef`. These are not ledger rows and are listed separately (not expanded) in [`index-lean.md`](index-lean.md#generated-certificates); they are built by [`prime-spectrum-tensor/lean/gen/build_chunks.sh`](prime-spectrum-tensor/lean/gen/build_chunks.sh), and [`prime-spectrum-tensor/lean/check.sh`](prime-spectrum-tensor/lean/check.sh) `--quick` skips them.
 
